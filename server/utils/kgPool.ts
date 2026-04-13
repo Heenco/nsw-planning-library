@@ -6,7 +6,6 @@
  */
 
 import pg from 'pg'
-import { Client as SSHClient } from 'ssh2'
 import { readFileSync } from 'node:fs'
 import net from 'node:net'
 
@@ -14,7 +13,7 @@ const { Pool } = pg
 
 let pool: pg.Pool | null = null
 let tunnel: net.Server | null = null
-let sshClient: SSHClient | null = null
+let sshClient: any = null
 let localPort: number | null = null
 
 /** Returns the local SSH tunnel port (after getKgPool() has been called). */
@@ -40,10 +39,10 @@ function getConfig() {
   }
 }
 
-function createTunnel(): Promise<number> {
+async function createTunnel(): Promise<number> {
+  const { Client: SSHClient } = await import('ssh2')
   return new Promise((resolve, reject) => {
     const config = getConfig()
-
     sshClient = new SSHClient()
 
     sshClient.on('ready', () => {
