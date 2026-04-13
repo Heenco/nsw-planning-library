@@ -114,6 +114,18 @@
       </div>
     </div>
 
+    <!-- Feedback -->
+    <div v-if="answerText && !loading && questionId" class="feedback-row">
+      <span class="feedback-label">Was this helpful?</span>
+      <button :class="['feedback-btn', { 'feedback-btn--active': feedbackGiven === 'like' }]" @click="sendFeedback('like')" :disabled="!!feedbackGiven">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+      </button>
+      <button :class="['feedback-btn', { 'feedback-btn--active feedback-btn--dislike': feedbackGiven === 'dislike' }]" @click="sendFeedback('dislike')" :disabled="!!feedbackGiven">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>
+      </button>
+      <span v-if="feedbackGiven" class="feedback-thanks">Thanks for your feedback!</span>
+    </div>
+
   </div>
 </template>
 
@@ -129,6 +141,8 @@ const answerText = ref('')
 const citations = ref<Citation[]>([])
 const citeIndex = ref<Record<string, number>>({})
 const steps = ref<{ agent: string; status: string; message: string; detail?: string }[]>([])
+const questionId = ref<number | null>(null)
+const feedbackGiven = ref<string | null>(null)
 
 // ── Sample questions ─────────────────────────────────────────────────────────
 
@@ -218,14 +232,15 @@ async function submitQuery() {
   citeIndex.value = {}
   steps.value = []
 
-  // Track question — get ID for later answer save
-  let questionId: number | null = null
+  // Track question — get ID for later answer/feedback save
+  questionId.value = null
+  feedbackGiven.value = null
   const t0 = Date.now()
   fetch('/api/track-question', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query: q, page: '/ask' }),
-  }).then(r => r.json()).then(d => { questionId = d.id }).catch(() => {})
+  }).then(r => r.json()).then(d => { questionId.value = d.id }).catch(() => {})
 
   try {
     const resp = await fetch('/api/ask', {
@@ -269,12 +284,12 @@ async function submitQuery() {
   } finally {
     loading.value = false
     // Save answer (fire-and-forget)
-    if (questionId && answerText.value) {
+    if (questionId.value && answerText.value) {
       fetch('/api/track-answer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          questionId,
+          questionId: questionId.value,
           answer: answerText.value,
           citations: citations.value,
           durationMs: Date.now() - t0,
@@ -282,6 +297,16 @@ async function submitQuery() {
       }).catch(() => {})
     }
   }
+}
+
+function sendFeedback(type: 'like' | 'dislike') {
+  if (!questionId.value || feedbackGiven.value) return
+  feedbackGiven.value = type
+  fetch('/api/track-feedback', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ questionId: questionId.value, feedback: type }),
+  }).catch(() => {})
 }
 
 function handleSSE(type: string, data: any) {
@@ -604,6 +629,56 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   line-height: 1.5;
   border-left: 2px solid #e2e8f0;
   padding-left: 0.5rem;
+}
+
+/* ── Feedback ─────────────────────────────────────────────────────────────── */
+.feedback-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 0.6rem 0;
+}
+.feedback-label {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+.feedback-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.feedback-btn:hover:not(:disabled) {
+  border-color: #15803d;
+  color: #15803d;
+  background: #f0fdf4;
+}
+.feedback-btn--active {
+  border-color: #15803d;
+  color: #15803d;
+  background: #dcfce7;
+}
+.feedback-btn--dislike.feedback-btn--active {
+  border-color: #b91c1c;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+.feedback-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.feedback-thanks {
+  font-size: 0.72rem;
+  color: #15803d;
+  font-weight: 500;
 }
 
 /* ── Sample questions ─────────────────────────────────────────────────────── */
