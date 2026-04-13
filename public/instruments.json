@@ -1,0 +1,862 @@
+{
+  "nsw": {
+    "label": "New South Wales",
+    "categories": {
+      "lep": {
+        "label": "Local Environmental Plans",
+        "items": [
+          {
+            "slug": "albury-local-environmental-plan-2010",
+            "title": "Albury Local Environmental Plan 2010",
+            "file": "EPI/LEPs/albury-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "armidale-regional-local-environmental-plan-2012",
+            "title": "Armidale Regional Local Environmental Plan 2012",
+            "file": "EPI/LEPs/armidale-regional-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "ballina-local-environmental-plan-2012",
+            "title": "Ballina Local Environmental Plan 2012",
+            "file": "EPI/LEPs/ballina-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "balranald-local-environmental-plan-2010",
+            "title": "Balranald Local Environmental Plan 2010",
+            "file": "EPI/LEPs/balranald-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "bathurst-regional-local-environmental-plan-2014",
+            "title": "Bathurst Regional Local Environmental Plan 2014",
+            "file": "EPI/LEPs/bathurst-regional-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "bayside-local-environmental-plan-2021",
+            "title": "Bayside Local Environmental Plan 2021",
+            "file": "EPI/LEPs/bayside-local-environmental-plan-2021.md"
+          },
+          {
+            "slug": "bega-valley-local-environmental-plan-2013",
+            "title": "Bega Valley Local Environmental Plan 2013",
+            "file": "EPI/LEPs/bega-valley-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "bellingen-local-environmental-plan-2010",
+            "title": "Bellingen Local Environmental Plan 2010",
+            "file": "EPI/LEPs/bellingen-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "berrigan-local-environmental-plan-2013",
+            "title": "Berrigan Local Environmental Plan 2013",
+            "file": "EPI/LEPs/berrigan-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "blacktown-local-environmental-plan-2015",
+            "title": "Blacktown Local Environmental Plan 2015",
+            "file": "EPI/LEPs/blacktown-local-environmental-plan-2015.md"
+          },
+          {
+            "slug": "bland-local-environmental-plan-2011",
+            "title": "Bland Local Environmental Plan 2011",
+            "file": "EPI/LEPs/bland-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "blayney-local-environmental-plan-2012",
+            "title": "Blayney Local Environmental Plan 2012",
+            "file": "EPI/LEPs/blayney-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "blue-mountains-local-environmental-plan-2015",
+            "title": "Blue Mountains Local Environmental Plan 2015",
+            "file": "EPI/LEPs/blue-mountains-local-environmental-plan-2015.md"
+          },
+          {
+            "slug": "bogan-local-environmental-plan-2011",
+            "title": "Bogan Local Environmental Plan 2011",
+            "file": "EPI/LEPs/bogan-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "bombala-local-environmental-plan-2012",
+            "title": "Bombala Local Environmental Plan 2012",
+            "file": "EPI/LEPs/bombala-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "bourke-local-environmental-plan-2012",
+            "title": "Bourke Local Environmental Plan 2012",
+            "file": "EPI/LEPs/bourke-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "brewarrina-local-environmental-plan-2012",
+            "title": "Brewarrina Local Environmental Plan 2012",
+            "file": "EPI/LEPs/brewarrina-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "broken-hill-local-environmental-plan-2013",
+            "title": "Broken Hill Local Environmental Plan 2013",
+            "file": "EPI/LEPs/broken-hill-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "burwood-local-environmental-plan-2012",
+            "title": "Burwood Local Environmental Plan 2012",
+            "file": "EPI/LEPs/burwood-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "byron-local-environmental-plan-2014",
+            "title": "Byron Local Environmental Plan 2014",
+            "file": "EPI/LEPs/byron-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "cabonne-local-environmental-plan-2012",
+            "title": "Cabonne Local Environmental Plan 2012",
+            "file": "EPI/LEPs/cabonne-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "camden-local-environmental-plan-2010",
+            "title": "Camden Local Environmental Plan 2010",
+            "file": "EPI/LEPs/camden-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "campbelltown-local-environmental-plan-2015",
+            "title": "Campbelltown Local Environmental Plan 2015",
+            "file": "EPI/LEPs/campbelltown-local-environmental-plan-2015.md"
+          },
+          {
+            "slug": "canada-bay-local-environmental-plan-2013",
+            "title": "Canada Bay Local Environmental Plan 2013",
+            "file": "EPI/LEPs/canada-bay-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "canterbury-bankstown-local-environmental-plan-2023",
+            "title": "Canterbury-Bankstown Local Environmental Plan 2023",
+            "file": "EPI/LEPs/canterbury-bankstown-local-environmental-plan-2023.md"
+          },
+          {
+            "slug": "carrathool-local-environmental-plan-2012",
+            "title": "Carrathool Local Environmental Plan 2012",
+            "file": "EPI/LEPs/carrathool-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "central-coast-local-environmental-plan-2022",
+            "title": "Central Coast Local Environmental Plan 2022",
+            "file": "EPI/LEPs/central-coast-local-environmental-plan-2022.md"
+          },
+          {
+            "slug": "central-darling-local-environmental-plan-2012",
+            "title": "Central Darling Local Environmental Plan 2012",
+            "file": "EPI/LEPs/central-darling-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "cessnock-local-environmental-plan-2011",
+            "title": "Cessnock Local Environmental Plan 2011",
+            "file": "EPI/LEPs/cessnock-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "clarence-valley-local-environmental-plan-2011",
+            "title": "Clarence Valley Local Environmental Plan 2011",
+            "file": "EPI/LEPs/clarence-valley-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "cobar-local-environmental-plan-2012",
+            "title": "Cobar Local Environmental Plan 2012",
+            "file": "EPI/LEPs/cobar-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "coffs-harbour-local-environmental-plan-2013",
+            "title": "Coffs Harbour Local Environmental Plan 2013",
+            "file": "EPI/LEPs/coffs-harbour-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "coolamon-local-environmental-plan-2011",
+            "title": "Coolamon Local Environmental Plan 2011",
+            "file": "EPI/LEPs/coolamon-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "cooma-monaro-local-environmental-plan-2013",
+            "title": "Cooma-Monaro Local Environmental Plan 2013",
+            "file": "EPI/LEPs/cooma-monaro-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "coonamble-local-environmental-plan-2011",
+            "title": "Coonamble Local Environmental Plan 2011",
+            "file": "EPI/LEPs/coonamble-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "cootamundra-local-environmental-plan-2013",
+            "title": "Cootamundra Local Environmental Plan 2013",
+            "file": "EPI/LEPs/cootamundra-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "corowa-local-environmental-plan-2012",
+            "title": "Corowa Local Environmental Plan 2012",
+            "file": "EPI/LEPs/corowa-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "cowra-local-environmental-plan-2012",
+            "title": "Cowra Local Environmental Plan 2012",
+            "file": "EPI/LEPs/cowra-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "cumberland-local-environmental-plan-2021",
+            "title": "Cumberland Local Environmental Plan 2021",
+            "file": "EPI/LEPs/cumberland-local-environmental-plan-2021.md"
+          },
+          {
+            "slug": "dubbo-regional-local-environmental-plan-2022",
+            "title": "Dubbo Regional Local Environmental Plan 2022",
+            "file": "EPI/LEPs/dubbo-regional-local-environmental-plan-2022.md"
+          },
+          {
+            "slug": "dungog-local-environmental-plan-2014",
+            "title": "Dungog Local Environmental Plan 2014",
+            "file": "EPI/LEPs/dungog-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "edward-river-local-environmental-plan-2013",
+            "title": "Edward River Local Environmental Plan 2013",
+            "file": "EPI/LEPs/edward-river-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "eurobodalla-local-environmental-plan-2012",
+            "title": "Eurobodalla Local Environmental Plan 2012",
+            "file": "EPI/LEPs/eurobodalla-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "fairfield-local-environmental-plan-2013",
+            "title": "Fairfield Local Environmental Plan 2013",
+            "file": "EPI/LEPs/fairfield-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "forbes-local-environmental-plan-2013",
+            "title": "Forbes Local Environmental Plan 2013",
+            "file": "EPI/LEPs/forbes-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "georges-river-local-environmental-plan-2021",
+            "title": "Georges River Local Environmental Plan 2021",
+            "file": "EPI/LEPs/georges-river-local-environmental-plan-2021.md"
+          },
+          {
+            "slug": "gilgandra-local-environmental-plan-2011",
+            "title": "Gilgandra Local Environmental Plan 2011",
+            "file": "EPI/LEPs/gilgandra-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "glen-innes-severn-local-environmental-plan-2012",
+            "title": "Glen Innes Severn Local Environmental Plan 2012",
+            "file": "EPI/LEPs/glen-innes-severn-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "gloucester-local-environmental-plan-2010",
+            "title": "Gloucester Local Environmental Plan 2010",
+            "file": "EPI/LEPs/gloucester-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "goulburn-mulwaree-local-environmental-plan-2009",
+            "title": "Goulburn Mulwaree Local Environmental Plan 2009",
+            "file": "EPI/LEPs/goulburn-mulwaree-local-environmental-plan-2009.md"
+          },
+          {
+            "slug": "great-lakes-local-environmental-plan-2014",
+            "title": "Great Lakes Local Environmental Plan 2014",
+            "file": "EPI/LEPs/great-lakes-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "greater-hume-local-environmental-plan-2012",
+            "title": "Greater Hume Local Environmental Plan 2012",
+            "file": "EPI/LEPs/greater-hume-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "greater-taree-local-environmental-plan-2010",
+            "title": "Greater Taree Local Environmental Plan 2010",
+            "file": "EPI/LEPs/greater-taree-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "griffith-local-environmental-plan-2014",
+            "title": "Griffith Local Environmental Plan 2014",
+            "file": "EPI/LEPs/griffith-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "gundagai-local-environmental-plan-2011",
+            "title": "Gundagai Local Environmental Plan 2011",
+            "file": "EPI/LEPs/gundagai-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "gunnedah-local-environmental-plan-2012",
+            "title": "Gunnedah Local Environmental Plan 2012",
+            "file": "EPI/LEPs/gunnedah-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "guyra-local-environmental-plan-2012",
+            "title": "Guyra Local Environmental Plan 2012",
+            "file": "EPI/LEPs/guyra-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "gwydir-local-environmental-plan-2013",
+            "title": "Gwydir Local Environmental Plan 2013",
+            "file": "EPI/LEPs/gwydir-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "hawkesbury-local-environmental-plan-2012",
+            "title": "Hawkesbury Local Environmental Plan 2012",
+            "file": "EPI/LEPs/hawkesbury-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "hay-local-environmental-plan-2011",
+            "title": "Hay Local Environmental Plan 2011",
+            "file": "EPI/LEPs/hay-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "hilltops-local-environmental-plan-2022",
+            "title": "Hilltops Local Environmental Plan 2022",
+            "file": "EPI/LEPs/hilltops-local-environmental-plan-2022.md"
+          },
+          {
+            "slug": "hornsby-local-environmental-plan-2013",
+            "title": "Hornsby Local Environmental Plan 2013",
+            "file": "EPI/LEPs/hornsby-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "hunters-hill-local-environmental-plan-2012",
+            "title": "Hunters Hill Local Environmental Plan 2012",
+            "file": "EPI/LEPs/hunters-hill-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "inner-west-local-environmental-plan-2022",
+            "title": "Inner West Local Environmental Plan 2022",
+            "file": "EPI/LEPs/inner-west-local-environmental-plan-2022.md"
+          },
+          {
+            "slug": "inverell-local-environmental-plan-2012",
+            "title": "Inverell Local Environmental Plan 2012",
+            "file": "EPI/LEPs/inverell-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "jerilderie-local-environmental-plan-2012",
+            "title": "Jerilderie Local Environmental Plan 2012",
+            "file": "EPI/LEPs/jerilderie-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "junee-local-environmental-plan-2012",
+            "title": "Junee Local Environmental Plan 2012",
+            "file": "EPI/LEPs/junee-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "kempsey-local-environmental-plan-2013",
+            "title": "Kempsey Local Environmental Plan 2013",
+            "file": "EPI/LEPs/kempsey-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "kiama-local-environmental-plan-2011",
+            "title": "Kiama Local Environmental Plan 2011",
+            "file": "EPI/LEPs/kiama-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "ku-ring-gai-local-environmental-plan-2015",
+            "title": "Ku-ring-gai Local Environmental Plan 2015",
+            "file": "EPI/LEPs/ku-ring-gai-local-environmental-plan-2015.md"
+          },
+          {
+            "slug": "kyogle-local-environmental-plan-2012",
+            "title": "Kyogle Local Environmental Plan 2012",
+            "file": "EPI/LEPs/kyogle-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "lachlan-local-environmental-plan-2013",
+            "title": "Lachlan Local Environmental Plan 2013",
+            "file": "EPI/LEPs/lachlan-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "lake-macquarie-local-environmental-plan-2014",
+            "title": "Lake Macquarie Local Environmental Plan 2014",
+            "file": "EPI/LEPs/lake-macquarie-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "lane-cove-local-environmental-plan-2009",
+            "title": "Lane Cove Local Environmental Plan 2009",
+            "file": "EPI/LEPs/lane-cove-local-environmental-plan-2009.md"
+          },
+          {
+            "slug": "leeton-local-environmental-plan-2014",
+            "title": "Leeton Local Environmental Plan 2014",
+            "file": "EPI/LEPs/leeton-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "lismore-local-environmental-plan-2012",
+            "title": "Lismore Local Environmental Plan 2012",
+            "file": "EPI/LEPs/lismore-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "lithgow-local-environmental-plan-2014",
+            "title": "Lithgow Local Environmental Plan 2014",
+            "file": "EPI/LEPs/lithgow-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "liverpool-local-environmental-plan-2008",
+            "title": "Liverpool Local Environmental Plan 2008",
+            "file": "EPI/LEPs/liverpool-local-environmental-plan-2008.md"
+          },
+          {
+            "slug": "liverpool-plains-local-environmental-plan-2011",
+            "title": "Liverpool Plains Local Environmental Plan 2011",
+            "file": "EPI/LEPs/liverpool-plains-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "lockhart-local-environmental-plan-2012",
+            "title": "Lockhart Local Environmental Plan 2012",
+            "file": "EPI/LEPs/lockhart-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "maitland-local-environmental-plan-2011",
+            "title": "Maitland Local Environmental Plan 2011",
+            "file": "EPI/LEPs/maitland-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "manly-local-environmental-plan-2013",
+            "title": "Manly Local Environmental Plan 2013",
+            "file": "EPI/LEPs/manly-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "mid-western-regional-local-environmental-plan-2012",
+            "title": "Mid-Western Regional Local Environmental Plan 2012",
+            "file": "EPI/LEPs/mid-western-regional-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "moree-plains-local-environmental-plan-2011",
+            "title": "Moree Plains Local Environmental Plan 2011",
+            "file": "EPI/LEPs/moree-plains-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "mosman-local-environmental-plan-2012",
+            "title": "Mosman Local Environmental Plan 2012",
+            "file": "EPI/LEPs/mosman-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "murray-local-environmental-plan-2011",
+            "title": "Murray Local Environmental Plan 2011",
+            "file": "EPI/LEPs/murray-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "murrumbidgee-local-environmental-plan-2013",
+            "title": "Murrumbidgee Local Environmental Plan 2013",
+            "file": "EPI/LEPs/murrumbidgee-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "muswellbrook-local-environmental-plan-2009",
+            "title": "Muswellbrook Local Environmental Plan 2009",
+            "file": "EPI/LEPs/muswellbrook-local-environmental-plan-2009.md"
+          },
+          {
+            "slug": "nambucca-local-environmental-plan-2010",
+            "title": "Nambucca Local Environmental Plan 2010",
+            "file": "EPI/LEPs/nambucca-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "narrabri-local-environmental-plan-2012",
+            "title": "Narrabri Local Environmental Plan 2012",
+            "file": "EPI/LEPs/narrabri-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "narrandera-local-environmental-plan-2013",
+            "title": "Narrandera Local Environmental Plan 2013",
+            "file": "EPI/LEPs/narrandera-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "narromine-local-environmental-plan-2011",
+            "title": "Narromine Local Environmental Plan 2011",
+            "file": "EPI/LEPs/narromine-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "newcastle-local-environmental-plan-2012",
+            "title": "Newcastle Local Environmental Plan 2012",
+            "file": "EPI/LEPs/newcastle-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "north-sydney-local-environmental-plan-2013",
+            "title": "North Sydney Local Environmental Plan 2013",
+            "file": "EPI/LEPs/north-sydney-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "oberon-local-environmental-plan-2013",
+            "title": "Oberon Local Environmental Plan 2013",
+            "file": "EPI/LEPs/oberon-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "orange-local-environmental-plan-2011",
+            "title": "Orange Local Environmental Plan 2011",
+            "file": "EPI/LEPs/orange-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "parkes-local-environmental-plan-2012",
+            "title": "Parkes Local Environmental Plan 2012",
+            "file": "EPI/LEPs/parkes-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "parramatta-local-environmental-plan-2023",
+            "title": "Parramatta Local Environmental Plan 2023",
+            "file": "EPI/LEPs/parramatta-local-environmental-plan-2023.md"
+          },
+          {
+            "slug": "penrith-local-environmental-plan-2010",
+            "title": "Penrith Local Environmental Plan 2010",
+            "file": "EPI/LEPs/penrith-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "pittwater-local-environmental-plan-2014",
+            "title": "Pittwater Local Environmental Plan 2014",
+            "file": "EPI/LEPs/pittwater-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "port-macquarie-hastings-local-environmental-plan-2011",
+            "title": "Port Macquarie-Hastings Local Environmental Plan 2011",
+            "file": "EPI/LEPs/port-macquarie-hastings-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "port-stephens-local-environmental-plan-2013",
+            "title": "Port Stephens Local Environmental Plan 2013",
+            "file": "EPI/LEPs/port-stephens-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "queanbeyan-palerang-regional-local-environmental-plan-2022",
+            "title": "Queanbeyan-Palerang Regional Local Environmental Plan 2022",
+            "file": "EPI/LEPs/queanbeyan-palerang-regional-local-environmental-plan-2022.md"
+          },
+          {
+            "slug": "randwick-local-environmental-plan-2012",
+            "title": "Randwick Local Environmental Plan 2012",
+            "file": "EPI/LEPs/randwick-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "richmond-valley-local-environmental-plan-2012",
+            "title": "Richmond Valley Local Environmental Plan 2012",
+            "file": "EPI/LEPs/richmond-valley-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "ryde-local-environmental-plan-2014",
+            "title": "Ryde Local Environmental Plan 2014",
+            "file": "EPI/LEPs/ryde-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "shellharbour-local-environmental-plan-2013",
+            "title": "Shellharbour Local Environmental Plan 2013",
+            "file": "EPI/LEPs/shellharbour-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "shoalhaven-local-environmental-plan-jerberra-estate-2014",
+            "title": "Shoalhaven Local Environmental Plan (Jerberra Estate) 2014",
+            "file": "EPI/LEPs/shoalhaven-local-environmental-plan-jerberra-estate-2014.md"
+          },
+          {
+            "slug": "shoalhaven-local-environmental-plan-2014",
+            "title": "Shoalhaven Local Environmental Plan 2014",
+            "file": "EPI/LEPs/shoalhaven-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "singleton-local-environmental-plan-2013",
+            "title": "Singleton Local Environmental Plan 2013",
+            "file": "EPI/LEPs/singleton-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "snowy-river-local-environmental-plan-2013",
+            "title": "Snowy River Local Environmental Plan 2013",
+            "file": "EPI/LEPs/snowy-river-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "strathfield-local-environmental-plan-2012",
+            "title": "Strathfield Local Environmental Plan 2012",
+            "file": "EPI/LEPs/strathfield-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "sutherland-shire-local-environmental-plan-2015",
+            "title": "Sutherland Shire Local Environmental Plan 2015",
+            "file": "EPI/LEPs/sutherland-shire-local-environmental-plan-2015.md"
+          },
+          {
+            "slug": "sydney-local-environmental-plan-glebe-affordable-housing-project-2011",
+            "title": "Sydney Local Environmental Plan (Glebe Affordable Housing Project)  2011",
+            "file": "EPI/LEPs/sydney-local-environmental-plan-glebe-affordable-housing-project-2011.md"
+          },
+          {
+            "slug": "sydney-local-environmental-plan-green-square-town-centre-stage-2-2013",
+            "title": "Sydney Local Environmental Plan (Green Square Town Centre—Stage 2)  2013",
+            "file": "EPI/LEPs/sydney-local-environmental-plan-green-square-town-centre-stage-2-2013.md"
+          },
+          {
+            "slug": "sydney-local-environmental-plan-green-square-town-centre-2013",
+            "title": "Sydney Local Environmental Plan (Green Square Town Centre) 2013",
+            "file": "EPI/LEPs/sydney-local-environmental-plan-green-square-town-centre-2013.md"
+          },
+          {
+            "slug": "sydney-local-environmental-plan-harold-park-2011",
+            "title": "Sydney Local Environmental Plan (Harold Park) 2011",
+            "file": "EPI/LEPs/sydney-local-environmental-plan-harold-park-2011.md"
+          },
+          {
+            "slug": "tamworth-regional-local-environmental-plan-2010",
+            "title": "Tamworth Regional Local Environmental Plan 2010",
+            "file": "EPI/LEPs/tamworth-regional-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "temora-local-environmental-plan-2010",
+            "title": "Temora Local Environmental Plan 2010",
+            "file": "EPI/LEPs/temora-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "tenterfield-local-environmental-plan-2013",
+            "title": "Tenterfield Local Environmental Plan 2013",
+            "file": "EPI/LEPs/tenterfield-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "the-hills-local-environmental-plan-2019",
+            "title": "The Hills Local Environmental Plan 2019",
+            "file": "EPI/LEPs/the-hills-local-environmental-plan-2019.md"
+          },
+          {
+            "slug": "tumbarumba-local-environmental-plan-2010",
+            "title": "Tumbarumba Local Environmental Plan 2010",
+            "file": "EPI/LEPs/tumbarumba-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "tumut-local-environmental-plan-2012",
+            "title": "Tumut Local Environmental Plan 2012",
+            "file": "EPI/LEPs/tumut-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "tweed-city-centre-local-environmental-plan-2012",
+            "title": "Tweed City Centre Local Environmental Plan 2012",
+            "file": "EPI/LEPs/tweed-city-centre-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "tweed-local-environmental-plan-2014",
+            "title": "Tweed Local Environmental Plan 2014",
+            "file": "EPI/LEPs/tweed-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "upper-hunter-local-environmental-plan-2013",
+            "title": "Upper Hunter Local Environmental Plan 2013",
+            "file": "EPI/LEPs/upper-hunter-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "upper-lachlan-local-environmental-plan-2010",
+            "title": "Upper Lachlan Local Environmental Plan 2010",
+            "file": "EPI/LEPs/upper-lachlan-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "uralla-local-environmental-plan-2012",
+            "title": "Uralla Local Environmental Plan 2012",
+            "file": "EPI/LEPs/uralla-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "urana-local-environmental-plan-2011",
+            "title": "Urana Local Environmental Plan 2011",
+            "file": "EPI/LEPs/urana-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "wagga-wagga-local-environmental-plan-2010",
+            "title": "Wagga Wagga Local Environmental Plan 2010",
+            "file": "EPI/LEPs/wagga-wagga-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "wakool-local-environmental-plan-2013",
+            "title": "Wakool Local Environmental Plan 2013",
+            "file": "EPI/LEPs/wakool-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "walcha-local-environmental-plan-2012",
+            "title": "Walcha Local Environmental Plan 2012",
+            "file": "EPI/LEPs/walcha-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "walgett-local-environmental-plan-2013",
+            "title": "Walgett Local Environmental Plan 2013",
+            "file": "EPI/LEPs/walgett-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "warren-local-environmental-plan-2012",
+            "title": "Warren Local Environmental Plan 2012",
+            "file": "EPI/LEPs/warren-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "warringah-local-environmental-plan-2011",
+            "title": "Warringah Local Environmental Plan 2011",
+            "file": "EPI/LEPs/warringah-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "warrumbungle-local-environmental-plan-2013",
+            "title": "Warrumbungle Local Environmental Plan 2013",
+            "file": "EPI/LEPs/warrumbungle-local-environmental-plan-2013.md"
+          },
+          {
+            "slug": "waverley-local-environmental-plan-2012",
+            "title": "Waverley Local Environmental Plan 2012",
+            "file": "EPI/LEPs/waverley-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "weddin-local-environmental-plan-2011",
+            "title": "Weddin Local Environmental Plan 2011",
+            "file": "EPI/LEPs/weddin-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "wentworth-local-environmental-plan-2011",
+            "title": "Wentworth Local Environmental Plan 2011",
+            "file": "EPI/LEPs/wentworth-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "willoughby-local-environmental-plan-2012",
+            "title": "Willoughby Local Environmental Plan 2012",
+            "file": "EPI/LEPs/willoughby-local-environmental-plan-2012.md"
+          },
+          {
+            "slug": "wingecarribee-local-environmental-plan-2010",
+            "title": "Wingecarribee Local Environmental Plan 2010",
+            "file": "EPI/LEPs/wingecarribee-local-environmental-plan-2010.md"
+          },
+          {
+            "slug": "wollondilly-local-environmental-plan-2011",
+            "title": "Wollondilly Local Environmental Plan 2011",
+            "file": "EPI/LEPs/wollondilly-local-environmental-plan-2011.md"
+          },
+          {
+            "slug": "wollongong-local-environmental-plan-2009",
+            "title": "Wollongong Local Environmental Plan 2009",
+            "file": "EPI/LEPs/wollongong-local-environmental-plan-2009.md"
+          },
+          {
+            "slug": "woollahra-local-environmental-plan-2014",
+            "title": "Woollahra Local Environmental Plan 2014",
+            "file": "EPI/LEPs/woollahra-local-environmental-plan-2014.md"
+          },
+          {
+            "slug": "yass-valley-local-environmental-plan-parkwood-2020",
+            "title": "Yass Valley Local Environmental Plan (Parkwood) 2020",
+            "file": "EPI/LEPs/yass-valley-local-environmental-plan-parkwood-2020.md"
+          },
+          {
+            "slug": "yass-valley-local-environmental-plan-2013",
+            "title": "Yass Valley Local Environmental Plan 2013",
+            "file": "EPI/LEPs/yass-valley-local-environmental-plan-2013.md"
+          }
+        ]
+      },
+      "sepp": {
+        "label": "State Environmental Planning Policies",
+        "items": [
+          {
+            "slug": "biodiversity-and-conservation-2021",
+            "title": "Biodiversity and Conservation 2021",
+            "file": "EPI/SEPP/biodiversity-and-conservation-2021.md"
+          },
+          {
+            "slug": "exempt-and-complying-2008",
+            "title": "Exempt and Complying Development Codes 2008",
+            "file": "EPI/SEPP/exempt-and-complying-2008.md"
+          },
+          {
+            "slug": "housing-sepp-2021",
+            "title": "Housing 2021",
+            "file": "EPI/SEPP/housing-sepp-2021.md"
+          },
+          {
+            "slug": "industry-and-employment-2021",
+            "title": "Industry and Employment 2021",
+            "file": "EPI/SEPP/industry-and-employment-2021.md"
+          },
+          {
+            "slug": "planning-systems-2021",
+            "title": "Planning Systems 2021",
+            "file": "EPI/SEPP/planning-systems-2021.md"
+          },
+          {
+            "slug": "precincts-central-river-city-2021",
+            "title": "Precincts — Central River City 2021",
+            "file": "EPI/SEPP/precincts-central-river-city-2021.md"
+          },
+          {
+            "slug": "precincts-eastern-harbour-city-2021",
+            "title": "Precincts — Eastern Harbour City 2021",
+            "file": "EPI/SEPP/precincts-eastern-harbour-city-2021.md"
+          },
+          {
+            "slug": "precincts-regional-2021",
+            "title": "Precincts — Regional 2021",
+            "file": "EPI/SEPP/precincts-regional-2021.md"
+          },
+          {
+            "slug": "precincts-western-parkland-city-2021",
+            "title": "Precincts — Western Parkland City 2021",
+            "file": "EPI/SEPP/precincts-western-parkland-city-2021.md"
+          },
+          {
+            "slug": "primary-production-2021",
+            "title": "Primary Production 2021",
+            "file": "EPI/SEPP/primary-production-2021.md"
+          },
+          {
+            "slug": "resilience-and-hazards-2021",
+            "title": "Resilience and Hazards 2021",
+            "file": "EPI/SEPP/resilience-and-hazards-2021.md"
+          },
+          {
+            "slug": "resources-and-energy-2021",
+            "title": "Resources and Energy 2021",
+            "file": "EPI/SEPP/resources-and-energy-2021.md"
+          },
+          {
+            "slug": "sustainable-buildings-2022",
+            "title": "Sustainable Buildings 2022",
+            "file": "EPI/SEPP/sustainable-buildings-2022.md"
+          },
+          {
+            "slug": "transport-and-infrastructure-2021",
+            "title": "Transport and Infrastructure 2021",
+            "file": "EPI/SEPP/transport-and-infrastructure-2021.md"
+          }
+        ]
+      },
+      "dcp": {
+        "label": "Development Control Plans",
+        "items": [
+          {
+            "slug": "albury-dcp-2010",
+            "title": "Albury Development Control Plan 2010",
+            "file": "EPI/DCPs/albury-dcp-2010.md"
+          },
+          {
+            "slug": "georges-river-dcp-2021",
+            "title": "Georges River Development Control Plan 2021",
+            "file": "EPI/DCPs/georges-river-dcp-2021.md"
+          },
+          {
+            "slug": "liverpool-gcp-main-body",
+            "title": "Liverpool Growth Centre Precincts DCP — Main Body",
+            "file": "EPI/DCPs/liverpool-gcp-main-body.md"
+          },
+          {
+            "slug": "liverpool-gcp-schedule-1",
+            "title": "Liverpool Growth Centre Precincts DCP — Schedule 1",
+            "file": "EPI/DCPs/liverpool-gcp-schedule-1.md"
+          },
+          {
+            "slug": "liverpool-gcp-schedule-2",
+            "title": "Liverpool Growth Centre Precincts DCP — Schedule 2",
+            "file": "EPI/DCPs/liverpool-gcp-schedule-2.md"
+          },
+          {
+            "slug": "liverpool-gcp-schedule-3",
+            "title": "Liverpool Growth Centre Precincts DCP — Schedule 3",
+            "file": "EPI/DCPs/liverpool-gcp-schedule-3.md"
+          },
+          {
+            "slug": "parramatta-dcp-2023",
+            "title": "Parramatta Development Control Plan 2023",
+            "file": "EPI/DCPs/parramatta-dcp-2023.md"
+          },
+          {
+            "slug": "randwick-comprehensive-dcp-2013",
+            "title": "Randwick Comprehensive Development Control Plan 2013",
+            "file": "EPI/DCPs/randwick-comprehensive-dcp-2013.md"
+          }
+        ]
+      }
+    }
+  }
+}

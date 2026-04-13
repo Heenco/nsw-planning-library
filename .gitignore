@@ -1,0 +1,19 @@
+node_modules/
+.nuxt/
+.output/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+.vercel
+
+# Large DCP scraper outputs
+public/EPI/nsw-dcp/*.html
+public/EPI/nsw-dcp/*.pdf
+public/EPI/DCPs/AlburyDCP.md
+public/EPI/DCPs/AlburyDCP-structured.md
+public/EPI/DCPs/*.pdf
+
