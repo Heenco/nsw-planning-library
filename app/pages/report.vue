@@ -219,6 +219,26 @@
       </div>
     </div>
 
+    <!-- Deep legal cards -->
+    <div v-if="legalCards.length > 0" class="legal-cards-section">
+      <h2 class="answer-heading">Detailed Planning Analysis</h2>
+      <div class="legal-cards-grid">
+        <div v-for="card in legalCards" :key="card.id" class="legal-card">
+          <div class="legal-card-header">
+            <span class="legal-card-icon">{{ card.icon }}</span>
+            <div>
+              <div class="legal-card-title">{{ card.title }}</div>
+              <div class="legal-card-desc">{{ card.description }}</div>
+            </div>
+            <span v-if="card.docFilter" :class="['source-badge', 'source-badge--' + card.docFilter]">{{ card.docFilter.toUpperCase() }}</span>
+          </div>
+          <div v-if="card.answer" class="legal-card-body" v-html="renderCardAnswer(card.answer, card.citations)"></div>
+          <div v-else-if="card.error" class="legal-card-error">{{ card.error }}</div>
+          <div v-else class="legal-card-loading">Analysing…</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Follow-up question -->
     <div v-if="property && !loading" class="followup-section">
       <h2 class="followup-heading">Ask a follow-up question about this property</h2>
@@ -306,7 +326,17 @@ const answerText = ref('')
 const citations = ref<Citation[]>([])
 
 const lots = ref<any[]>([])
+const legalCards = ref<any[]>([])
 const mapEl = ref<HTMLElement | null>(null)
+
+function renderCardAnswer(answer: string, cardCitations: Citation[] = []): string {
+  if (!answer) return ''
+  const citeIdx: Record<string, number> = {}
+  cardCitations.forEach((c: Citation, i: number) => {
+    citeIdx[c.section_local_id.toLowerCase()] = c.number || (i + 1)
+  })
+  return renderMarkdownWithCitations(answer, cardCitations, citeIdx)
+}
 let mapInstance: mapboxgl.Map | null = null
 
 // ── Lot edge / frontage parsing ──────────────────────────────────────────────
@@ -793,6 +823,22 @@ function handleSSE(type: string, data: any) {
       citations.value = data.citations || []
       citeIndex.value = data.cite_index || {}
       break
+    case 'legal_cards_init':
+      // Create placeholder slots for all cards
+      legalCards.value = (data.slots || []).map((s: any) => ({
+        ...s, answer: '', citations: [], error: null,
+      }))
+      break
+    case 'legal_card': {
+      // Update the matching card with its answer
+      const idx = legalCards.value.findIndex((c: any) => c.id === data.id)
+      if (idx >= 0) {
+        legalCards.value[idx] = { ...legalCards.value[idx], answer: data.answer, citations: data.citations || [], error: data.error }
+      } else {
+        legalCards.value.push({ id: data.id, title: data.id, icon: '📋', description: '', answer: data.answer, citations: data.citations || [], error: data.error })
+      }
+      break
+    }
     case 'error':
       answerText.value += `\n\n**Error:** ${data.message}`
       break
@@ -1207,6 +1253,74 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   padding: 0.25rem 0.6rem;
   border-radius: 5px;
   margin-bottom: 0.5rem;
+}
+
+/* ── Legal cards ──────────────────────────────────────────────────────── */
+.legal-cards-section {
+  margin-bottom: 1.5rem;
+}
+
+.legal-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.legal-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.legal-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.legal-card-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.legal-card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.legal-card-desc {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.legal-card-body {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: #334155;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.legal-card-body p { margin: 0.3rem 0; }
+.legal-card-body ul { padding-left: 1rem; margin: 0.3rem 0; }
+.legal-card-body li { margin: 0.15rem 0; }
+.legal-card-body strong { color: #0f172a; }
+
+.legal-card-loading {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.legal-card-error {
+  font-size: 0.78rem;
+  color: #b91c1c;
 }
 
 /* ── Follow-up question ───────────────────────────────────────────────── */

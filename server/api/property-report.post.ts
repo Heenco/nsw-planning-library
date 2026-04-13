@@ -1,5 +1,6 @@
 import { withNswClient } from '../utils/nsw-kg/pool'
 import { runQuery } from '../utils/nsw-kg/query/orchestrator'
+import { runDeepLegalCards } from '../utils/sitewise/deep-legal-cards'
 
 function sseWrite(res: any, event: string, data: object) {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
@@ -208,14 +209,48 @@ export default defineEventHandler(async (event) => {
 
     const enrichedQuery = `${kgQuery}\n\nKnown property facts:\n${contextLines}\n\nPermitted uses in zone ${property.zone}: ${permittedUses.slice(0, 30).join(', ') || 'unknown'}`
 
+    // ── Phase 3b: Fire deep legal cards in parallel (non-blocking) ────
+    const lga = (property.lga_name || '').replace(/^(city of|shire of|municipality of)\s*/i, '').trim()
+    const gisResult = {
+      lat: Number(property.centroid_lat),
+      lng: Number(property.centroid_lon),
+      place: property.address || '',
+      zone: property.zone || '',
+      lepName: property.lep_name || '',
+      fsr: property.fsr_value || null,
+      maxHeight: property.max_height_m || null,
+      minLotSize: property.min_lot_size || null,
+    }
+
+    const cardsPromise = runDeepLegalCards({
+      gis: gisResult as any,
+      lga,
+      deepinfraKey: config.deepinfraApiKey,
+      geminiKey: config.googleGeminiApiKey,
+      emit: (type, payload) => sseWrite(res, type, payload),
+      step: (agent, status, message, detail) =>
+        sseWrite(res, 'agent_step', { agent, status, message, detail }),
+    }).catch(() => {})
+
+    // ── Phase 4: Main planning summary via KG query ───────────────────
     await runQuery({
       query: enrichedQuery,
       lgaFilter: property.lga_name || undefined,
       apiKey: config.deepinfraApiKey,
       geminiKey: config.googleGeminiApiKey,
       groqKey: config.groqApiKey,
-      res,
+      res: {
+        write: (chunk: string) => res.write(chunk),
+        flush: () => { if (typeof (res as any).flush === 'function') (res as any).flush() },
+        end: () => {}, // Don't end yet — wait for cards
+      },
     })
+
+    // Wait for deep legal cards to finish
+    await cardsPromise
+
+    sseWrite(res, 'done', { ms: Date.now() })
+    res.end()
   } catch (err) {
     sseWrite(res, 'error', { message: (err as Error).message || String(err) })
     res.end()
