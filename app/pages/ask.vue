@@ -218,6 +218,13 @@ async function submitQuery() {
   citeIndex.value = {}
   steps.value = []
 
+  // Track question (fire-and-forget)
+  fetch('/api/track-question', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: q, page: '/ask' }),
+  }).catch(() => {})
+
   try {
     const resp = await fetch('/api/ask', {
       method: 'POST',

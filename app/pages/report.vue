@@ -46,21 +46,46 @@
       </div>
     </details>
 
-    <!-- ── Section 3: Lot Geometry ─────────────────────────────────────── -->
-    <details v-if="property && p.area_sqm" class="rpt-section" :open="persona === 'developer'">
-      <summary class="rpt-section-title">Lot Geometry & Shape</summary>
-      <div class="facts-grid">
-        <div class="fact" v-if="p.area_sqm"><span class="fact-label">Lot Area</span><span class="fact-value fact-value--num">{{ Number(p.area_sqm).toLocaleString(undefined, {maximumFractionDigits:0}) }} sqm</span></div>
-        <div class="fact" v-if="p.area_h"><span class="fact-label">Area (ha)</span><span class="fact-value fact-value--num">{{ Number(p.area_h).toFixed(3) }} ha</span></div>
-        <div class="fact" v-if="p.perimeter_m"><span class="fact-label">Perimeter</span><span class="fact-value">{{ Number(p.perimeter_m).toFixed(0) }}m</span></div>
-        <div class="fact" v-if="p.longest_axis_m"><span class="fact-label">Longest Axis</span><span class="fact-value">{{ Number(p.longest_axis_m).toFixed(1) }}m</span></div>
-        <div class="fact" v-if="p.min_width_m"><span class="fact-label">Min Width</span><span class="fact-value">{{ Number(p.min_width_m).toFixed(1) }}m</span></div>
-        <div class="fact" v-if="p.primary_frontage_road"><span class="fact-label">Primary Frontage</span><span class="fact-value">{{ p.primary_frontage_road }} ({{ p.primary_frontage_length_m }}m)</span></div>
-        <div class="fact" v-if="p.all_frontages"><span class="fact-label">All Frontages</span><span class="fact-value">{{ p.all_frontages }}</span></div>
-        <div class="fact" v-if="p.num_frontages"><span class="fact-label">Frontage Count</span><span class="fact-value">{{ p.num_frontages }}</span></div>
-        <div class="fact" v-if="p.is_corner_lot === 'true'"><span class="fact-label">Corner Lot</span><span class="fact-value fact-value--zone">Yes</span></div>
-        <div class="fact" v-if="p.is_battleaxe === 'true'"><span class="fact-label">Battle-axe</span><span class="fact-value" style="color:#b45309">Yes</span></div>
-        <div class="fact" v-if="p.average_slope"><span class="fact-label">Average Slope</span><span class="fact-value">{{ Number(p.average_slope).toFixed(1) }}°</span></div>
+    <!-- ── Section 3: Lot Map & Dimensions ────────────────────────────── -->
+    <details v-if="property && p.centroid_lat && p.centroid_lon" class="rpt-section" :open="persona === 'developer'" @toggle="onMapToggle">
+      <summary class="rpt-section-title">Lot Map & Dimensions</summary>
+      <div class="lot-map-layout">
+        <!-- Map -->
+        <div class="lot-map-container">
+          <div ref="mapEl" class="lot-map"></div>
+        </div>
+        <!-- Dimensions -->
+        <div class="lot-dims">
+          <div class="lot-dims-grid">
+            <div class="dim" v-if="p.area_h"><span class="dim-label">Area</span><span class="dim-value">{{ Number(p.area_h).toFixed(3) }} ha</span></div>
+            <div class="dim" v-if="p.longest_axis_m"><span class="dim-label">Longest axis</span><span class="dim-value">{{ Number(p.longest_axis_m).toFixed(1) }}m</span></div>
+            <div class="dim" v-if="p.min_width_m"><span class="dim-label">Min width</span><span class="dim-value">{{ Number(p.min_width_m).toFixed(1) }}m</span></div>
+            <div class="dim" v-if="p.average_slope"><span class="dim-label">Avg slope</span><span class="dim-value">{{ Number(p.average_slope).toFixed(1) }}°</span></div>
+          </div>
+
+          <!-- Edge measurements -->
+          <div v-if="edgeMeasurements.length" class="edge-list">
+            <div class="edge-heading">Side lengths</div>
+            <div class="edge-items">
+              <span v-for="(e, i) in edgeMeasurements" :key="i" class="edge-chip">{{ e }}</span>
+            </div>
+          </div>
+
+          <!-- Frontages -->
+          <div v-if="frontageItems.length" class="edge-list">
+            <div class="edge-heading">Frontages</div>
+            <div class="edge-items">
+              <span v-for="(f, i) in frontageItems" :key="i" class="edge-chip edge-chip--frontage">{{ f }}</span>
+            </div>
+          </div>
+
+          <!-- Flags -->
+          <div class="lot-flags">
+            <span v-if="p.is_corner_lot === 'true'" class="lot-flag lot-flag--green">Corner lot</span>
+            <span v-if="p.is_battleaxe === 'true'" class="lot-flag lot-flag--amber">Battle-axe</span>
+            <span v-if="p.num_frontages" class="lot-flag">{{ p.num_frontages }} frontage(s)</span>
+          </div>
+        </div>
       </div>
     </details>
 
@@ -259,6 +284,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { renderMarkdownWithCitations, type Citation } from '~/utils/citation-render'
+let mapboxgl: any = null
 
 const route = useRoute()
 const lat = Number(route.query.lat)
@@ -280,6 +306,166 @@ const answerText = ref('')
 const citations = ref<Citation[]>([])
 
 const lots = ref<any[]>([])
+const mapEl = ref<HTMLElement | null>(null)
+let mapInstance: mapboxgl.Map | null = null
+
+// ── Lot edge / frontage parsing ──────────────────────────────────────────────
+
+const edgeMeasurements = computed(() => {
+  const raw = p.value?.all_edges_measurements
+  if (!raw) return []
+  return raw.split(',').map((s: string) => s.trim()).filter(Boolean)
+})
+
+const frontageItems = computed(() => {
+  const raw = p.value?.all_frontages
+  if (!raw) return []
+  return raw.split(',').map((s: string) => s.trim()).filter(Boolean)
+})
+
+// ── Map initialization ──────────────────────────────────────────────────────
+
+async function initMap() {
+  if (mapInstance || !mapEl.value || !p.value?.centroid_lat || !p.value?.centroid_lon) return
+  if (!import.meta.client) return
+
+  const config = useRuntimeConfig()
+  const token = config.public.mapboxToken as string
+  if (!token) return
+
+  if (!mapboxgl) {
+    const mod = await import('mapbox-gl')
+    mapboxgl = mod.default || mod
+    // Load CSS
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.css'
+    document.head.appendChild(link)
+  }
+
+  mapboxgl.accessToken = token
+
+  const lng = Number(p.value.centroid_lon)
+  const lat = Number(p.value.centroid_lat)
+
+  mapInstance = new mapboxgl.Map({
+    container: mapEl.value,
+    style: 'mapbox://styles/mapbox/satellite-streets-v12',
+    center: [lng, lat],
+    zoom: 18,
+    pitch: 0,
+    attributionControl: false,
+  })
+
+  mapInstance.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
+
+  mapInstance.on('load', () => {
+    // Build approximate polygon from edge measurements + orientation
+    const polygon = buildApproxPolygon(lat, lng)
+
+    if (polygon) {
+      mapInstance!.addSource('lot-boundary', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'Polygon', coordinates: [polygon] },
+        },
+      })
+
+      // Fill
+      mapInstance!.addLayer({
+        id: 'lot-fill',
+        type: 'fill',
+        source: 'lot-boundary',
+        paint: { 'fill-color': '#15803d', 'fill-opacity': 0.15 },
+      })
+
+      // Outline
+      mapInstance!.addLayer({
+        id: 'lot-outline',
+        type: 'line',
+        source: 'lot-boundary',
+        paint: { 'line-color': '#15803d', 'line-width': 2.5, 'line-opacity': 0.9 },
+      })
+
+      // Add edge labels at midpoints of each side
+      const edges = edgeMeasurements.value
+      for (let i = 0; i < polygon.length - 1 && i < edges.length; i++) {
+        const [x1, y1] = polygon[i]
+        const [x2, y2] = polygon[i + 1]
+        const el = document.createElement('div')
+        el.className = 'map-edge-label'
+        el.textContent = edges[i]
+        new mapboxgl.Marker({ element: el, anchor: 'center' })
+          .setLngLat([(x1 + x2) / 2, (y1 + y2) / 2])
+          .addTo(mapInstance!)
+      }
+    }
+
+    // Add centroid marker
+    new mapboxgl.Marker({ color: '#15803d', scale: 0.7 })
+      .setLngLat([lng, lat])
+      .setPopup(new mapboxgl.Popup({ offset: 20 }).setHTML(
+        `<div style="font-family:inherit;font-size:12px;line-height:1.4">
+          <strong>${p.value.address || 'Property'}</strong><br/>
+          ${p.value.area_h ? Number(p.value.area_h).toFixed(3) + ' ha' : ''}
+          ${p.value.zone ? ' · Zone ' + p.value.zone : ''}
+        </div>`
+      ))
+      .addTo(mapInstance!)
+  })
+}
+
+/** Build an approximate polygon from edge measurements + orientation.
+ *  Walks edges starting from centroid, turning by equal angles for each edge.
+ *  Returns array of [lng, lat] coordinates (closed ring), or null. */
+function buildApproxPolygon(lat: number, lng: number): [number, number][] | null {
+  const edges = edgeMeasurements.value
+  if (edges.length < 3) return null
+
+  const edgeMs = edges.map((e: string) => parseFloat(e))
+  if (edgeMs.some(isNaN)) return null
+
+  const orientRad = (Number(p.value.orientation_degrees) || 0) * Math.PI / 180
+  const mPerDegLat = 111320
+  const mPerDegLon = 111320 * Math.cos(lat * Math.PI / 180)
+
+  // Walk edges, turning by exterior angle (360° / N) each step
+  const angleStep = (2 * Math.PI) / edgeMs.length
+  let angle = orientRad
+  const pts: [number, number][] = []
+  let x = 0, y = 0
+
+  for (const len of edgeMs) {
+    pts.push([x, y])
+    x += len * Math.sin(angle)
+    y += len * Math.cos(angle)
+    angle += angleStep
+  }
+
+  // Center the polygon on the centroid
+  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length
+  const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length
+
+  const coords: [number, number][] = pts.map(([px, py]) => [
+    lng + (px - cx) / mPerDegLon,
+    lat + (py - cy) / mPerDegLat,
+  ])
+  coords.push(coords[0]) // close ring
+
+  return coords
+}
+
+function onMapToggle(e: Event) {
+  const details = e.target as HTMLDetailsElement
+  if (details.open) {
+    nextTick(() => {
+      if (!mapInstance) initMap()
+      else mapInstance.resize()
+    })
+  }
+}
 
 // Follow-up question state
 const followupQuery = ref('')
@@ -326,6 +512,13 @@ const splitSections = computed(() => {
 
 // Shorthand for template
 const p = computed(() => property.value || {} as any)
+
+// Init map when property data arrives
+watch(() => property.value?.centroid_lat, () => {
+  nextTick(() => {
+    if (mapEl.value && !mapInstance) initMap()
+  })
+})
 
 const constraints = computed(() => {
   if (!property.value) return []
@@ -422,6 +615,13 @@ async function submitFollowup() {
   followupCitations.value = []
   followupCiteIndex.value = {}
 
+  // Track follow-up (fire-and-forget)
+  fetch('/api/track-question', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: q, persona, address, lat, lng, page: '/report/followup' }),
+  }).catch(() => {})
+
   // Build context from property
   const v = property.value
   const context = [
@@ -487,6 +687,13 @@ async function submitFollowup() {
 
 onMounted(async () => {
   if (!lat || !lng) return
+
+  // Track (fire-and-forget)
+  fetch('/api/track-question', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: `Property report: ${address}`, persona, address, lat, lng, page: '/report' }),
+  }).catch(() => {})
 
   try {
     const resp = await fetch('/api/property-report', {
@@ -748,6 +955,120 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 .source-quote {
   width: 100%; margin: 0.3rem 0 0; font-size: 0.78rem; color: #64748b;
   font-style: italic; line-height: 1.5; border-left: 2px solid #e2e8f0; padding-left: 0.5rem;
+}
+
+/* ── Lot map & dimensions ─────────────────────────────────────────────── */
+.lot-map-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 1rem;
+  padding: 0 1rem 0.5rem;
+}
+@media (max-width: 640px) {
+  .lot-map-layout { grid-template-columns: 1fr; }
+}
+
+.lot-map-container {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  min-height: 280px;
+}
+.lot-map {
+  width: 100%;
+  height: 280px;
+}
+
+.lot-dims {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.lot-dims-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem;
+}
+.dim {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+.dim-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+.dim-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.edge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.edge-heading {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+.edge-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.edge-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+.edge-chip--frontage {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.lot-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.lot-flag {
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+.lot-flag--green { background: #dcfce7; color: #15803d; }
+.lot-flag--amber { background: #fef3c7; color: #b45309; }
+
+/* Map edge labels */
+:global(.map-edge-label) {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(21, 128, 61, 0.4);
+  color: #15803d;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 /* ── Lots table ───────────────────────────────────────────────────────── */

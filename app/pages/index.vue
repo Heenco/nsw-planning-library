@@ -5,6 +5,10 @@
     <div v-if="view === 'landing'" class="landing">
       <h1 class="landing-title">Australian Planning Library</h1>
       <p class="landing-desc">Select a state to browse planning instruments</p>
+      <div v-if="viewCount !== null" class="view-counter">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        {{ viewCount.toLocaleString() }} views
+      </div>
 
       <div class="map-container">
         <svg
@@ -249,6 +253,9 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { marked } from 'marked'
+import { usePageViews } from '~/composables/usePageViews'
+
+const { viewCount } = usePageViews()
 import Australia from '@svg-maps/australia'
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -653,8 +660,17 @@ body {
 
 .landing-desc {
   color: #64748b;
-  margin: 0 0 2rem;
+  margin: 0 0 0.5rem;
   font-size: 1rem;
+}
+
+.view-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
 }
 
 /* ── Map ──────────────────────────────────────────────────────────────────── */

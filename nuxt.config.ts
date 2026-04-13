@@ -13,11 +13,8 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
-    externals: {
-      inline: [],
-    },
     rollupConfig: {
-      external: ['pg', 'pg-native', 'ssh2'],
+      external: ['pg-native', 'ssh2'],
     },
   },
   app: {
