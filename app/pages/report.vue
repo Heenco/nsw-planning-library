@@ -615,12 +615,14 @@ async function submitFollowup() {
   followupCitations.value = []
   followupCiteIndex.value = {}
 
-  // Track follow-up (fire-and-forget)
+  // Track follow-up — get ID for answer save
+  let followupQId: number | null = null
+  const followupT0 = Date.now()
   fetch('/api/track-question', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query: q, persona, address, lat, lng, page: '/report/followup' }),
-  }).catch(() => {})
+  }).then(r => r.json()).then(d => { followupQId = d.id }).catch(() => {})
 
   // Build context from property
   const v = property.value
@@ -680,6 +682,18 @@ async function submitFollowup() {
     followupAnswerText.value = `Error: ${(err as Error).message}`
   } finally {
     followupLoading.value = false
+    if (followupQId && followupAnswerText.value) {
+      fetch('/api/track-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionId: followupQId,
+          answer: followupAnswerText.value,
+          citations: followupCitations.value,
+          durationMs: Date.now() - followupT0,
+        }),
+      }).catch(() => {})
+    }
   }
 }
 
@@ -688,12 +702,14 @@ async function submitFollowup() {
 onMounted(async () => {
   if (!lat || !lng) return
 
-  // Track (fire-and-forget)
+  // Track — get ID for answer save
+  let reportQId: number | null = null
+  const reportT0 = Date.now()
   fetch('/api/track-question', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query: `Property report: ${address}`, persona, address, lat, lng, page: '/report' }),
-  }).catch(() => {})
+  }).then(r => r.json()).then(d => { reportQId = d.id }).catch(() => {})
 
   try {
     const resp = await fetch('/api/property-report', {
@@ -737,6 +753,18 @@ onMounted(async () => {
     answerText.value = `Error: ${(err as Error).message}`
   } finally {
     loading.value = false
+    if (reportQId && answerText.value) {
+      fetch('/api/track-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionId: reportQId,
+          answer: answerText.value,
+          citations: citations.value,
+          durationMs: Date.now() - reportT0,
+        }),
+      }).catch(() => {})
+    }
   }
 })
 

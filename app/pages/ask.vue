@@ -218,12 +218,14 @@ async function submitQuery() {
   citeIndex.value = {}
   steps.value = []
 
-  // Track question (fire-and-forget)
+  // Track question — get ID for later answer save
+  let questionId: number | null = null
+  const t0 = Date.now()
   fetch('/api/track-question', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query: q, page: '/ask' }),
-  }).catch(() => {})
+  }).then(r => r.json()).then(d => { questionId = d.id }).catch(() => {})
 
   try {
     const resp = await fetch('/api/ask', {
@@ -266,6 +268,19 @@ async function submitQuery() {
     answerText.value = `Error: ${(err as Error).message}`
   } finally {
     loading.value = false
+    // Save answer (fire-and-forget)
+    if (questionId && answerText.value) {
+      fetch('/api/track-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionId,
+          answer: answerText.value,
+          citations: citations.value,
+          durationMs: Date.now() - t0,
+        }),
+      }).catch(() => {})
+    }
   }
 }
 
