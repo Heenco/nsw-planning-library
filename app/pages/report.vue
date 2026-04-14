@@ -219,16 +219,41 @@
       </div>
     </div>
 
-    <!-- Feedback -->
-    <div v-if="answerText && !loading && reportQId" class="feedback-row">
-      <span class="feedback-label">Was this report helpful?</span>
-      <button :class="['feedback-btn', { 'feedback-btn--active': reportFeedback === 'like' }]" @click="sendReportFeedback('like')" :disabled="!!reportFeedback">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
-      </button>
-      <button :class="['feedback-btn', { 'feedback-btn--active feedback-btn--dislike': reportFeedback === 'dislike' }]" @click="sendReportFeedback('dislike')" :disabled="!!reportFeedback">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>
-      </button>
-      <span v-if="reportFeedback" class="feedback-thanks">Thanks for your feedback!</span>
+    <!-- Feedback + Comment -->
+    <div v-if="answerText && !loading && reportQId" class="feedback-section">
+      <div class="feedback-row">
+        <span class="feedback-label">Was this report helpful?</span>
+        <button :class="['feedback-btn', { 'feedback-btn--active': reportFeedback === 'like' }]" @click="sendReportFeedback('like')" :disabled="!!reportFeedback">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+        </button>
+        <button :class="['feedback-btn', { 'feedback-btn--active feedback-btn--dislike': reportFeedback === 'dislike' }]" @click="sendReportFeedback('dislike')" :disabled="!!reportFeedback">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>
+        </button>
+        <span v-if="reportFeedback" class="feedback-thanks">Thanks for your feedback!</span>
+      </div>
+
+      <form class="comment-form" @submit.prevent="submitComment">
+        <div class="comment-label">Leave a comment</div>
+        <input
+          v-model="commentName"
+          type="text"
+          class="comment-input-sm"
+          placeholder="Your name (optional)"
+          :disabled="commentSubmitted"
+        >
+        <textarea
+          v-model="commentText"
+          class="comment-input"
+          placeholder="Share feedback, corrections, or suggestions…"
+          rows="2"
+          :disabled="commentSubmitted"
+        ></textarea>
+        <div class="comment-actions">
+          <button class="comment-btn" type="submit" :disabled="!commentText.trim() || commentSubmitted">
+            {{ commentSubmitted ? 'Submitted' : 'Submit comment' }}
+          </button>
+        </div>
+      </form>
     </div>
 
     <!-- Deep legal cards -->
@@ -341,7 +366,25 @@ const lots = ref<any[]>([])
 const legalCards = ref<any[]>([])
 const reportQId = ref<number | null>(null)
 const reportFeedback = ref<string | null>(null)
+const commentName = ref('')
+const commentText = ref('')
+const commentSubmitted = ref(false)
 const mapEl = ref<HTMLElement | null>(null)
+
+function submitComment() {
+  const c = commentText.value.trim()
+  if (!c || commentSubmitted.value) return
+  commentSubmitted.value = true
+  fetch('/api/track-comment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      questionId: reportQId.value,
+      name: commentName.value.trim() || null,
+      comment: c,
+    }),
+  }).catch(() => {})
+}
 
 function sendReportFeedback(type: 'like' | 'dislike') {
   if (!reportQId.value || reportFeedback.value) return
@@ -1295,6 +1338,60 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 .feedback-btn--dislike.feedback-btn--active { border-color: #b91c1c; color: #b91c1c; background: #fef2f2; }
 .feedback-btn:disabled { cursor: default; opacity: 0.6; }
 .feedback-thanks { font-size: 0.72rem; color: #15803d; font-weight: 500; }
+
+.feedback-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+.feedback-section .feedback-row { margin: 0 0 0.5rem; padding: 0; }
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+.comment-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+.comment-input-sm, .comment-input {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+  background: #fff;
+  color: #0f172a;
+  transition: border-color 0.15s;
+}
+.comment-input { resize: vertical; min-height: 56px; }
+.comment-input-sm:focus, .comment-input:focus { border-color: #15803d; }
+.comment-input-sm:disabled, .comment-input:disabled { background: #f1f5f9; color: #64748b; }
+
+.comment-actions { display: flex; justify-content: flex-end; }
+.comment-btn {
+  padding: 0.35rem 0.9rem;
+  background: #0f172a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.comment-btn:hover:not(:disabled) { background: #1e293b; }
+.comment-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
 
 /* ── Legal cards ──────────────────────────────────────────────────────── */
 .legal-cards-section {
