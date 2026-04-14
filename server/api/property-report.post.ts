@@ -34,8 +34,8 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { lat, lng, address, persona } = body || {}
 
-  if (!lat || !lng || !persona) {
-    throw createError({ statusCode: 400, message: 'Missing lat, lng, or persona' })
+  if (!persona || (!address && (!lat || !lng))) {
+    throw createError({ statusCode: 400, message: 'Missing persona, or both address and lat/lng' })
   }
 
   const config = useRuntimeConfig()
@@ -101,10 +101,18 @@ export default defineEventHandler(async (event) => {
           -- Location
           centroid_lat, centroid_lon, region_name, permissible_uses
         FROM up_property_comprehensive
-        WHERE centroid_lat IS NOT NULL AND centroid_lon IS NOT NULL
-        ORDER BY (centroid_lat::float8 - $1)^2 + (centroid_lon::float8 - $2)^2
+        WHERE
+          CASE
+            WHEN $3::text IS NOT NULL AND $3 <> '' THEN address = $3
+            ELSE centroid_lat IS NOT NULL AND centroid_lon IS NOT NULL
+          END
+        ORDER BY
+          -- If address was provided, no ordering needed (exact match). Otherwise spatial KNN.
+          CASE WHEN $3::text IS NOT NULL AND $3 <> '' THEN 0
+               ELSE (centroid_lat::float8 - $1)^2 + (centroid_lon::float8 - $2)^2
+          END
         LIMIT 1`,
-        [lat, lng]
+        [lat, lng, address || null]
       )
       return r.rows[0] || null
     })
@@ -209,42 +217,54 @@ export default defineEventHandler(async (event) => {
 
     const enrichedQuery = `${kgQuery}\n\nKnown property facts:\n${contextLines}\n\nPermitted uses in zone ${property.zone}: ${permittedUses.slice(0, 30).join(', ') || 'unknown'}`
 
-    // ── Phase 3b: Fire deep legal cards in parallel (non-blocking) ────
-    const lga = (property.lga_name || '').replace(/^(city of|shire of|municipality of)\s*/i, '').trim()
-    const gisResult = {
-      lat: Number(property.centroid_lat),
-      lng: Number(property.centroid_lon),
-      place: property.address || '',
-      zone: property.zone || '',
-      lepName: property.lep_name || '',
-      fsr: property.fsr_value || null,
-      maxHeight: property.max_height_m || null,
-      minLotSize: property.min_lot_size || null,
+    // Persona-gated AI work:
+    //   owner     → no AI (facts + permissibility only)
+    //   developer → planning summary (KG query), no legal cards
+    //   planner   → everything (planning summary + 8 legal cards)
+    const runPlanningSummary = persona === 'developer' || persona === 'planner'
+    const runLegalCards      = persona === 'planner'
+
+    // ── Phase 3b: Fire deep legal cards in parallel (planner only) ────
+    let cardsPromise: Promise<any> = Promise.resolve()
+    if (runLegalCards) {
+      const lga = (property.lga_name || '').replace(/^(city of|shire of|municipality of)\s*/i, '').trim()
+      const gisResult = {
+        lat: Number(property.centroid_lat),
+        lng: Number(property.centroid_lon),
+        place: property.address || '',
+        zone: property.zone || '',
+        lepName: property.lep_name || '',
+        fsr: property.fsr_value || null,
+        maxHeight: property.max_height_m || null,
+        minLotSize: property.min_lot_size || null,
+      }
+
+      cardsPromise = runDeepLegalCards({
+        gis: gisResult as any,
+        lga,
+        deepinfraKey: config.deepinfraApiKey,
+        geminiKey: config.googleGeminiApiKey,
+        emit: (type, payload) => sseWrite(res, type, payload),
+        step: (agent, status, message, detail) =>
+          sseWrite(res, 'agent_step', { agent, status, message, detail }),
+      }).catch(() => {})
     }
 
-    const cardsPromise = runDeepLegalCards({
-      gis: gisResult as any,
-      lga,
-      deepinfraKey: config.deepinfraApiKey,
-      geminiKey: config.googleGeminiApiKey,
-      emit: (type, payload) => sseWrite(res, type, payload),
-      step: (agent, status, message, detail) =>
-        sseWrite(res, 'agent_step', { agent, status, message, detail }),
-    }).catch(() => {})
-
-    // ── Phase 4: Main planning summary via KG query ───────────────────
-    await runQuery({
-      query: enrichedQuery,
-      lgaFilter: property.lga_name || undefined,
-      apiKey: config.deepinfraApiKey,
-      geminiKey: config.googleGeminiApiKey,
-      groqKey: config.groqApiKey,
-      res: {
-        write: (chunk: string) => res.write(chunk),
-        flush: () => { if (typeof (res as any).flush === 'function') (res as any).flush() },
-        end: () => {}, // Don't end yet — wait for cards
-      },
-    })
+    // ── Phase 4: Main planning summary via KG query (developer + planner) ───
+    if (runPlanningSummary) {
+      await runQuery({
+        query: enrichedQuery,
+        lgaFilter: property.lga_name || undefined,
+        apiKey: config.deepinfraApiKey,
+        geminiKey: config.googleGeminiApiKey,
+        groqKey: config.groqApiKey,
+        res: {
+          write: (chunk: string) => res.write(chunk),
+          flush: () => { if (typeof (res as any).flush === 'function') (res as any).flush() },
+          end: () => {}, // Don't end yet — wait for cards
+        },
+      })
+    }
 
     // Wait for deep legal cards to finish
     await cardsPromise

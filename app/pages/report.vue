@@ -8,6 +8,21 @@
       <p class="report-subtitle">{{ personaLabel }} · {{ address || 'Loading…' }}</p>
     </div>
 
+    <!-- Pipeline steps (at the top, open by default) -->
+    <details v-if="steps.length > 0 || loading" class="steps-panel" open>
+      <summary class="steps-summary">
+        <span>Pipeline</span>
+        <span v-if="loading" class="steps-running">Running…</span>
+        <span v-else class="steps-done">Complete</span>
+      </summary>
+      <div class="steps-list">
+        <div v-for="(s, i) in steps" :key="i" :class="['step-item', 'step-item--' + s.status]">
+          <span class="step-agent">{{ s.agent }}</span>
+          <span class="step-msg">{{ s.message }}</span>
+        </div>
+      </div>
+    </details>
+
     <!-- ── Section 1: Property Identity (always visible) ──────────────── -->
     <div v-if="property" class="facts-card">
       <h2 class="facts-heading">Property Identity</h2>
@@ -37,7 +52,7 @@
     </div>
 
     <!-- ── Section 2: Development Standards ────────────────────────────── -->
-    <details v-if="property && (p.fsr_value || p.max_height_m || p.min_lot_size)" class="rpt-section" :open="persona === 'developer' || persona === 'planner'">
+    <details v-if="property && (p.fsr_value || p.max_height_m || p.min_lot_size)" class="rpt-section" open>
       <summary class="rpt-section-title">Development Standards</summary>
       <div class="facts-grid">
         <div class="fact" v-if="p.fsr_value"><span class="fact-label">Floor Space Ratio</span><span class="fact-value fact-value--num">{{ p.fsr_value }}<span class="fact-sub" v-if="p.fsr_lay_class">{{ p.fsr_lay_class }}</span></span></div>
@@ -47,7 +62,7 @@
     </details>
 
     <!-- ── Section 3: Lot Map & Dimensions ────────────────────────────── -->
-    <details v-if="property && p.centroid_lat && p.centroid_lon" class="rpt-section" :open="persona === 'developer'" @toggle="onMapToggle">
+    <details v-if="property && p.centroid_lat && p.centroid_lon" class="rpt-section" open @toggle="onMapToggle">
       <summary class="rpt-section-title">Lot Map & Dimensions</summary>
       <div class="lot-map-layout">
         <!-- Map -->
@@ -110,7 +125,7 @@
     </details>
 
     <!-- ── Section 6: CDC Eligibility ──────────────────────────────────── -->
-    <details v-if="property" class="rpt-section" :open="persona === 'developer' || persona === 'owner'">
+    <details v-if="property" class="rpt-section" open>
       <summary class="rpt-section-title">Complying Development (CDC) Eligibility</summary>
       <div class="cdc-summary">
         <span :class="['cdc-badge', p.cdc_eligible === 'true' ? 'cdc-badge--yes' : 'cdc-badge--no']">
@@ -128,7 +143,7 @@
     </details>
 
     <!-- ── Section 7: LMR Housing & Pattern Book ───────────────────────── -->
-    <details v-if="property && (p.in_lmr_housing_area === 'true' || patternBookItems.length > 0)" class="rpt-section" :open="persona === 'developer'">
+    <details v-if="property && (p.in_lmr_housing_area === 'true' || patternBookItems.length > 0)" class="rpt-section" open>
       <summary class="rpt-section-title">Low-Mid Rise Housing & Pattern Book</summary>
       <div v-if="p.in_lmr_housing_area === 'true'" class="lmr-badge">In LMR Housing Area</div>
       <div class="facts-grid" v-if="p.lmr_permissible || p.lmr_height_rfb || p.lmr_height_sth">
@@ -145,7 +160,7 @@
     </details>
 
     <!-- ── Section 8: Proximity & Amenity ──────────────────────────────── -->
-    <details v-if="property && (p.closest_school || p.closest_hospital || p.closest_railway_station)" class="rpt-section" :open="persona === 'owner'">
+    <details v-if="property && (p.closest_school || p.closest_hospital || p.closest_railway_station)" class="rpt-section" open>
       <summary class="rpt-section-title">Proximity & Amenity</summary>
       <div class="facts-grid">
         <div class="fact" v-if="p.walkable_score"><span class="fact-label">Walk Score</span><span class="fact-value fact-value--num">{{ p.walkable_score }}</span></div>
@@ -158,26 +173,16 @@
     </details>
 
     <!-- ── Permitted uses ──────────────────────────────────────────────── -->
-    <details v-if="permittedUses.length > 0" class="rpt-section">
+    <details v-if="permittedUses.length > 0" class="rpt-section" open>
       <summary class="rpt-section-title">Permitted Uses in Zone {{ p?.zone }} ({{ permittedUses.length }})</summary>
       <div class="uses-list">
         <span v-for="u in permittedUses" :key="u" class="use-chip">{{ u }}</span>
       </div>
     </details>
 
-    <!-- Steps trace -->
-    <details v-if="steps.length > 0" class="steps-panel">
-      <summary class="steps-summary">Pipeline steps ({{ steps.length }})</summary>
-      <div class="steps-list">
-        <div v-for="(s, i) in steps" :key="i" :class="['step-item', 'step-item--' + s.status]">
-          <span class="step-agent">{{ s.agent }}</span>
-          <span class="step-msg">{{ s.message }}</span>
-        </div>
-      </div>
-    </details>
-
-    <!-- Planning Summary — split into LEP / SEPP / DCP sections -->
-    <div v-if="answerHtml || loading" class="answer-section">
+    <!-- Planning Summary — split into LEP / SEPP / DCP sections.
+         Hidden for Owner/Buyer persona (they get property facts + due diligence only). -->
+    <div v-if="(answerHtml || loading) && persona !== 'owner'" class="answer-section">
       <h2 class="answer-heading">Planning Summary</h2>
       <div v-if="loading && !answerText" class="answer-loading">Analysing planning instruments…</div>
 
@@ -216,8 +221,8 @@
       </div>
     </div>
 
-    <!-- Deep legal cards -->
-    <div v-if="legalCards.length > 0" class="legal-cards-section">
+    <!-- Deep legal cards — only shown for Urban Planner persona -->
+    <div v-if="legalCards.length > 0 && persona === 'planner'" class="legal-cards-section">
       <h2 class="answer-heading">Detailed Planning Analysis</h2>
       <div class="legal-cards-grid">
         <div v-for="card in legalCards" :key="card.id" class="legal-card">
@@ -290,7 +295,7 @@
     </div>
 
     <!-- Feedback + Comment (at the very end) -->
-    <div v-if="answerText && !loading && reportQId" class="feedback-section">
+    <div v-if="property && reportQId" class="feedback-section">
       <div class="feedback-row">
         <span class="feedback-label">Was this report helpful?</span>
         <button :class="['feedback-btn', { 'feedback-btn--active': reportFeedback === 'like' }]" @click="sendReportFeedback('like')" :disabled="!!reportFeedback">
@@ -717,27 +722,16 @@ async function submitFollowup() {
     body: JSON.stringify({ query: q, persona, address, lat, lng, page: '/report/followup' }),
   }).then(r => r.json()).then(d => { followupQId = d.id }).catch(() => {})
 
-  // Build context from property
-  const v = property.value
-  const context = [
-    `Address: ${v.address}`, `Zone: ${v.zone} (${v.zone_class || ''})`,
-    `LEP: ${v.lep_name || 'N/A'}`, `LGA: ${v.lga_name || 'N/A'}`,
-    v.fsr_value ? `FSR: ${v.fsr_value}` : null,
-    v.max_height_m ? `Max height: ${v.max_height_m}m` : null,
-    v.dcp_plan_name ? `DCP: ${v.dcp_plan_name}` : null,
-  ].filter(Boolean).join(' | ')
-
-  const SECTION_INSTRUCTION =
-    `Structure your answer in 3 sections: ## LEP Findings, ## SEPP Findings, ## DCP Findings. ` +
-    `If nothing found for a section, say so briefly.`
-
-  const enrichedQuery = `${q}\n\nProperty context: ${context}\n\n${SECTION_INSTRUCTION}`
-
   try {
-    const resp = await fetch('/api/ask', {
+    const resp = await fetch('/api/followup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: enrichedQuery }),
+      body: JSON.stringify({
+        question: q,
+        property: property.value,
+        permittedUses: permittedUses.value,
+        previousAnswer: answerText.value,
+      }),
     })
 
     if (!resp.ok || !resp.body) {
@@ -991,7 +985,41 @@ function handleSSE(type: string, data: any) {
 .steps-panel {
   margin-bottom: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;
 }
-.steps-summary { padding: 0.5rem 0.8rem; font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; }
+.steps-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+}
+.steps-running {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #3b82f6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.steps-running::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3b82f6;
+  animation: steps-pulse 1.2s ease-in-out infinite;
+}
+@keyframes steps-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.steps-done {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #15803d;
+}
 .steps-list { padding: 0 0.8rem 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
 .step-item { display: flex; align-items: baseline; gap: 0.4rem; font-size: 0.75rem; }
 .step-item--running .step-agent { color: #3b82f6; }

@@ -1,54 +1,13 @@
 <template>
   <div class="app">
 
-    <!-- ── Landing: Map of Australia ─────────────────────────────────────── -->
+    <!-- ── Landing: Property search first, then state map ────────────────── -->
     <div v-if="view === 'landing'" class="landing">
       <h1 class="landing-title">Australian Planning Library</h1>
-      <p class="landing-desc">Select a state to browse planning instruments</p>
+      <p class="landing-desc">Get a planning report for any NSW property, or browse instruments by state</p>
       <div v-if="viewCount !== null" class="view-counter">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         {{ viewCount.toLocaleString() }} views
-      </div>
-
-      <div class="map-container">
-        <svg
-          :viewBox="auMap.viewBox"
-          class="au-map"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            v-for="loc in auMap.locations"
-            :key="loc.id"
-            :d="loc.path"
-            :class="['au-state', stateClass(loc.id)]"
-            @click="handleMapClick(loc.id)"
-            @mouseenter="handleMapHover(loc.id)"
-            @mouseleave="hoveredState = null"
-          >
-            <title>{{ loc.name }}</title>
-          </path>
-        </svg>
-
-        <!-- State label overlay -->
-        <div class="map-label" v-if="hoveredState">
-          <span class="map-label-name">{{ hoveredState.name }}</span>
-          <span v-if="hoveredState.active" class="map-label-count">
-            {{ totalCount(hoveredState.key) }} instruments
-          </span>
-          <span v-else class="map-label-soon">Coming soon</span>
-        </div>
-      </div>
-
-      <!-- Legend -->
-      <div class="map-legend">
-        <span class="map-legend-item">
-          <span class="map-legend-dot map-legend-dot--active"></span>
-          Available
-        </span>
-        <span class="map-legend-item">
-          <span class="map-legend-dot map-legend-dot--disabled"></span>
-          Coming soon
-        </span>
       </div>
 
       <!-- Disclaimer -->
@@ -58,10 +17,10 @@
         Always verify with official sources.
       </div>
 
-      <!-- Property report -->
+      <!-- Property report (now at the top) -->
       <div class="property-section">
         <form class="property-form" @submit.prevent="goToReport">
-          <!-- Address with Mapbox autocomplete -->
+          <!-- Address with autocomplete -->
           <div class="address-autocomplete">
             <label class="property-field-label">Property address</label>
             <input
@@ -116,6 +75,141 @@
                 :class="['persona-card', { 'persona-card--active': selectedPersona === p.id }]"
                 @click="selectedPersona = p.id"
               >
+                <!-- Owner / Buyer: due diligence — magnifying glass inspecting a house -->
+                <svg v-if="p.id === 'owner'" class="persona-illus" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="roof-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#15803d"/>
+                      <stop offset="100%" stop-color="#16a34a"/>
+                    </linearGradient>
+                    <radialGradient id="lens-grad" cx="0.35" cy="0.35" r="0.6">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+                      <stop offset="50%" stop-color="#bae6fd" stop-opacity="0.25"/>
+                      <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.12"/>
+                    </radialGradient>
+                    <clipPath id="lens-clip">
+                      <circle cx="0" cy="0" r="14"/>
+                    </clipPath>
+                  </defs>
+
+                  <!-- Ground shadow -->
+                  <ellipse class="illus-shadow" cx="50" cy="90" rx="28" ry="3" fill="#0f172a" opacity="0.08"/>
+
+                  <!-- Small isometric house (being inspected) -->
+                  <g class="illus-house">
+                    <!-- side wall -->
+                    <path d="M52 55 L72 66 L72 82 L52 71 Z" fill="#cbd5e1"/>
+                    <!-- front wall -->
+                    <path d="M32 66 L52 55 L52 71 L32 82 Z" fill="#e2e8f0"/>
+                    <!-- roof -->
+                    <path d="M32 66 L52 49 L72 66 L52 55 Z" fill="url(#roof-grad)"/>
+                    <!-- door -->
+                    <rect x="40" y="67" width="6" height="10" fill="#15803d" rx="1"/>
+                    <!-- window -->
+                    <rect x="58" y="68" width="6" height="4" fill="#bae6fd" opacity="0.8"/>
+                  </g>
+
+                  <!-- Magnifying glass (scans across on hover) -->
+                  <g class="illus-magnifier">
+                    <!-- Handle (angled) -->
+                    <line x1="42" y1="42" x2="22" y2="22" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+                    <line x1="42" y1="42" x2="22" y2="22" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Lens ring -->
+                    <circle cx="52" cy="52" r="15" fill="url(#lens-grad)" stroke="#334155" stroke-width="3"/>
+                    <!-- Lens shine -->
+                    <ellipse class="illus-shine" cx="46" cy="46" rx="4" ry="2.5" fill="#ffffff" opacity="0.7" transform="rotate(-30 46 46)"/>
+                  </g>
+                </svg>
+
+                <!-- Developer / Builder: crane with swinging hook -->
+                <svg v-else-if="p.id === 'developer'" class="persona-illus" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- ground shadow -->
+                  <ellipse class="illus-shadow" cx="50" cy="88" rx="32" ry="4" fill="#0f172a" opacity="0.08"/>
+                  <!-- building under construction -->
+                  <rect x="20" y="55" width="30" height="30" fill="#e2e8f0"/>
+                  <rect class="illus-floor-1" x="22" y="75" width="10" height="8" fill="#15803d"/>
+                  <rect class="illus-floor-2" x="34" y="70" width="10" height="13" fill="#15803d" opacity="0.7"/>
+                  <rect class="illus-floor-3" x="22" y="63" width="10" height="10" fill="#15803d" opacity="0.4"/>
+                  <!-- Crane vertical mast -->
+                  <rect x="70" y="20" width="3" height="65" fill="#334155"/>
+                  <!-- Crane base -->
+                  <path d="M64 85 L79 85 L76 82 L67 82 Z" fill="#334155"/>
+                  <!-- Crane arm (horizontal) -->
+                  <g class="illus-crane-arm">
+                    <rect x="50" y="22" width="30" height="3" fill="#334155"/>
+                    <rect x="70" y="17" width="3" height="8" fill="#334155"/>
+                    <!-- cable -->
+                    <line class="illus-cable" x1="55" y1="25" x2="55" y2="45" stroke="#64748b" stroke-width="0.8"/>
+                    <!-- hook -->
+                    <rect class="illus-hook" x="53" y="45" width="4" height="4" fill="#15803d" rx="0.5"/>
+                  </g>
+                </svg>
+
+                <!-- Urban Planner: planner figure writing on a clipboard with a city skyline behind -->
+                <svg v-else-if="p.id === 'planner'" class="persona-illus" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- ground shadow -->
+                  <ellipse class="illus-shadow" cx="50" cy="90" rx="32" ry="3" fill="#0f172a" opacity="0.08"/>
+
+                  <!-- City skyline (in the background, right side) -->
+                  <g class="illus-skyline">
+                    <!-- tallest building (back) -->
+                    <rect class="illus-tower-1" x="56" y="20" width="12" height="58" fill="#334155"/>
+                    <rect x="58" y="24" width="2" height="3" fill="#475569"/>
+                    <rect x="62" y="24" width="2" height="3" fill="#475569"/>
+                    <rect x="58" y="30" width="2" height="3" fill="#475569"/>
+                    <rect x="62" y="30" width="2" height="3" fill="#475569"/>
+                    <rect x="58" y="36" width="2" height="3" fill="#475569"/>
+                    <rect x="62" y="36" width="2" height="3" fill="#475569"/>
+                    <!-- roof shape -->
+                    <path d="M56 20 L62 14 L68 20 Z" fill="#334155"/>
+
+                    <!-- medium building -->
+                    <rect class="illus-tower-2" x="72" y="32" width="14" height="46" fill="#475569"/>
+                    <rect x="74" y="36" width="2" height="3" fill="#64748b"/>
+                    <rect x="78" y="36" width="2" height="3" fill="#64748b"/>
+                    <rect x="82" y="36" width="2" height="3" fill="#64748b"/>
+                    <rect x="74" y="44" width="2" height="3" fill="#64748b"/>
+                    <rect x="78" y="44" width="2" height="3" fill="#64748b"/>
+                    <rect x="82" y="44" width="2" height="3" fill="#64748b"/>
+                    <!-- flat roof with notch -->
+                    <rect x="76" y="28" width="6" height="4" fill="#475569"/>
+                  </g>
+
+                  <!-- Planner figure (front-left) -->
+                  <g class="illus-planner">
+                    <!-- Head (with hard-hat curve) -->
+                    <circle cx="25" cy="32" r="8" fill="#334155"/>
+                    <!-- Hard hat band -->
+                    <path d="M17 31 Q25 27 33 31 L33 33 L17 33 Z" fill="#15803d"/>
+
+                    <!-- Body / torso -->
+                    <path d="M14 42 Q14 40 16 40 L34 40 Q36 40 36 42 L38 70 Q38 72 36 72 L14 72 Q12 72 12 70 Z" fill="#334155"/>
+
+                    <!-- Arm holding clipboard -->
+                    <path class="illus-arm" d="M14 48 Q10 55 18 62 L30 62 L30 58 Q22 56 20 50 Z" fill="#334155"/>
+                  </g>
+
+                  <!-- Clipboard (in front of the planner) -->
+                  <g class="illus-clipboard">
+                    <!-- Board outline -->
+                    <rect x="26" y="48" width="30" height="24" rx="1.5" fill="#15803d"/>
+                    <!-- Paper -->
+                    <rect x="28" y="50" width="26" height="20" fill="#fff"/>
+                    <!-- Clip at top -->
+                    <rect x="36" y="45" width="10" height="5" rx="1" fill="#166534"/>
+                    <!-- Lines on paper (being written) -->
+                    <line class="illus-line-1" x1="31" y1="55" x2="48" y2="55" stroke="#15803d" stroke-width="1.2" stroke-linecap="round"/>
+                    <line class="illus-line-2" x1="31" y1="60" x2="44" y2="60" stroke="#15803d" stroke-width="1.2" stroke-linecap="round"/>
+                    <line class="illus-line-3" x1="31" y1="65" x2="40" y2="65" stroke="#15803d" stroke-width="1.2" stroke-linecap="round"/>
+
+                    <!-- Pen (being held) -->
+                    <g class="illus-pen">
+                      <line x1="46" y1="64" x2="54" y2="56" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+                      <circle cx="46" cy="64" r="1" fill="#166534"/>
+                    </g>
+                  </g>
+                </svg>
+
                 <span class="persona-name">{{ p.label }}</span>
                 <span class="persona-desc">{{ p.desc }}</span>
               </button>
@@ -126,6 +220,53 @@
             Generate Report
           </button>
         </form>
+      </div>
+
+      <!-- Divider -->
+      <div class="section-divider">
+        <span>or browse instruments by state</span>
+      </div>
+
+      <!-- Australia map -->
+      <div class="map-container">
+        <svg
+          :viewBox="auMap.viewBox"
+          class="au-map"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            v-for="loc in auMap.locations"
+            :key="loc.id"
+            :d="loc.path"
+            :class="['au-state', stateClass(loc.id)]"
+            @click="handleMapClick(loc.id)"
+            @mouseenter="handleMapHover(loc.id)"
+            @mouseleave="hoveredState = null"
+          >
+            <title>{{ loc.name }}</title>
+          </path>
+        </svg>
+
+        <!-- State label overlay -->
+        <div class="map-label" v-if="hoveredState">
+          <span class="map-label-name">{{ hoveredState.name }}</span>
+          <span v-if="hoveredState.active" class="map-label-count">
+            {{ totalCount(hoveredState.key) }} instruments
+          </span>
+          <span v-else class="map-label-soon">Coming soon</span>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="map-legend">
+        <span class="map-legend-item">
+          <span class="map-legend-dot map-legend-dot--active"></span>
+          Available
+        </span>
+        <span class="map-legend-item">
+          <span class="map-legend-dot map-legend-dot--disabled"></span>
+          Coming soon
+        </span>
       </div>
     </div>
 
@@ -266,23 +407,22 @@ const docLoading = ref(false)
 const rawMarkdown = ref('')
 const docContentEl = ref<HTMLDivElement | null>(null)
 const hoveredState = ref<{ name: string; key: string; active: boolean } | null>(null)
-const askQuery = ref('')
 const propertyAddress = ref('')
 const selectedPersona = ref('')
 const showDisclaimer = ref(false)
 
 const personas = [
-  { id: 'owner',     label: 'Owner / Buyer',       desc: 'What can I do with this property?' },
+  { id: 'owner',     label: 'Owner / Buyer',       desc: 'Due diligence report' },
   { id: 'developer', label: 'Developer / Builder', desc: 'What can I build here?' },
   { id: 'planner',   label: 'Urban Planner',       desc: 'What controls apply?' },
 ]
 
 const sampleAddresses = [
-  { council: 'Albury',        address: '500 DEAN STREET ALBURY',             lat: -36.0737, lng: 146.9135 },
-  { council: 'Georges River', address: '2 MACMAHON STREET HURSTVILLE',       lat: -33.9670, lng: 151.1020 },
-  { council: 'Parramatta',    address: '10 BOUNDARY STREET PARRAMATTA',      lat: -33.8148, lng: 151.0035 },
-  { council: 'Randwick',      address: '43 GREVILLE STREET CLOVELLY',        lat: -33.9100, lng: 151.2584 },
-  { council: 'Sydney',        address: '1 MARTIN PLACE SYDNEY',              lat: -33.8679, lng: 151.2073 },
+  { council: 'Albury',        address: '500 DEAN STREET ALBURY',         lat: -36.0808585, lng: 146.9186013 },
+  { council: 'Georges River', address: '11 MACMAHON STREET HURSTVILLE',  lat: -33.9645623, lng: 151.1030536 },
+  { council: 'Parramatta',    address: '10 BOUNDARY STREET PARRAMATTA',  lat: -33.8252794, lng: 150.9978345 },
+  { council: 'Randwick',      address: '43 GREVILLE STREET CLOVELLY',    lat: -33.9100136, lng: 151.2583506 },
+  { council: 'Sydney',        address: '1 MARTIN PLACE SYDNEY',          lat: -33.8677948, lng: 151.2077467 },
 ]
 
 function pickSampleAddress(s: { address: string; lat: number; lng: number }) {
@@ -291,9 +431,7 @@ function pickSampleAddress(s: { address: string; lat: number; lng: number }) {
   selectedLng.value = s.lng
   acResults.value = []
 }
-const askInputEl = ref<HTMLTextAreaElement | null>(null)
-
-// ── Mapbox address autocomplete ──────────────────────────────────────────────
+// ── Address autocomplete ─────────────────────────────────────────────────────
 
 interface AcResult { id: string; text: string; context: string; place_name: string; lat: number; lng: number }
 
@@ -338,12 +476,6 @@ function selectAddress(r: AcResult) {
   selectedLat.value = r.lat
   selectedLng.value = r.lng
   acResults.value = []
-}
-
-function autoResizeAsk(e: Event) {
-  const el = e.target as HTMLTextAreaElement
-  el.style.height = 'auto'
-  el.style.height = Math.min(el.scrollHeight, 200) + 'px'
 }
 
 // ── Map data ─────────────────────────────────────────────────────────────────
@@ -423,12 +555,6 @@ function dismissDisclaimer() {
 }
 
 const router = useRouter()
-function goToAsk() {
-  const q = askQuery.value.trim()
-  if (q) {
-    router.push({ path: '/ask', query: { q } })
-  }
-}
 
 function goToReport() {
   if (!selectedLat.value || !selectedLng.value || !selectedPersona.value) return
@@ -710,7 +836,7 @@ body {
 
 .landing-disclaimer {
   max-width: 500px;
-  margin: 1rem auto 0;
+  margin: 1rem auto 1.5rem;
   font-size: 0.72rem;
   color: #92400e;
   background: #fef3c7;
@@ -719,6 +845,26 @@ body {
   padding: 0.5rem 0.75rem;
   line-height: 1.5;
   text-align: center;
+}
+
+/* Section divider between address search and map */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 560px;
+  margin: 2.5rem auto 1.5rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
 }
 
 /* ── Disclaimer modal ─────────────────────────────────────────────────────── */
@@ -853,11 +999,11 @@ body {
 .property-form {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.75rem;
   background: #fff;
   border: 1.5px solid #e2e8f0;
   border-radius: 14px;
-  padding: 1rem 1.25rem;
+  padding: 1.25rem 1.5rem;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   transition: border-color 0.15s;
 }
@@ -892,20 +1038,27 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   z-index: 50;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 380px;
+  overflow-y: auto;
 }
 
 .ac-item {
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
   width: 100%;
   text-align: left;
-  padding: 0.55rem 1rem;
+  padding: 0.6rem 1rem;
   border: none;
+  border-bottom: 1px solid #f1f5f9;
   background: none;
   cursor: pointer;
   font-family: inherit;
   transition: background 0.08s;
 }
+.ac-item:last-child { border-bottom: none; }
 .ac-item:hover,
 .ac-item--active {
   background: #f0fdf4;
@@ -965,6 +1118,9 @@ body {
 .persona-selector {
   display: flex;
   flex-direction: column;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f1f5f9;
 }
 
 .persona-cards {
@@ -977,15 +1133,16 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.75rem 0.5rem;
+  gap: 0.15rem;
+  padding: 1rem 0.75rem 0.9rem;
   border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fafbfc;
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.12s;
+  transition: all 0.2s;
   text-align: center;
+  overflow: hidden;
 }
 .persona-card:hover {
   border-color: #94a3b8;
@@ -996,6 +1153,166 @@ body {
   background: #f0fdf4;
   box-shadow: 0 0 0 1px #15803d;
 }
+
+/* ── Persona illustrations (animated SVG icons) ─────────────────────────── */
+.persona-illus {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 0.5rem;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Card hover/active — lift the whole illustration */
+.persona-card:hover .persona-illus { transform: translateY(-2px); }
+.persona-card--active .persona-illus { transform: translateY(-1px); }
+
+/* House shadow settles on hover */
+.illus-shadow { transition: rx 0.3s, opacity 0.3s; transform-origin: center; }
+.persona-card:hover .illus-shadow { opacity: 0.12; }
+
+/* ── Owner/Buyer: magnifying glass scans across the house ─────────────── */
+.illus-magnifier {
+  transform-origin: 52px 52px;
+  transform-box: fill-box;
+  transition: transform 0.3s;
+}
+.persona-card:hover .illus-magnifier {
+  animation: magnifier-scan 3s ease-in-out infinite;
+}
+.persona-card--active .illus-magnifier {
+  animation: magnifier-scan 3s ease-in-out infinite;
+}
+@keyframes magnifier-scan {
+  0%, 100% { transform: translate(0, 0) rotate(-5deg); }
+  25% { transform: translate(-6px, -3px) rotate(-10deg); }
+  50% { transform: translate(4px, 2px) rotate(3deg); }
+  75% { transform: translate(6px, -2px) rotate(8deg); }
+}
+.illus-shine {
+  transform-origin: center;
+}
+.persona-card:hover .illus-shine,
+.persona-card--active .illus-shine {
+  animation: shine-pulse 1.5s ease-in-out infinite;
+}
+@keyframes shine-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+.illus-house { transition: filter 0.3s; }
+.persona-card:hover .illus-house,
+.persona-card--active .illus-house {
+  filter: drop-shadow(0 2px 3px rgba(15, 23, 42, 0.15));
+}
+
+/* ── Developer/Crane: arm swings, hook bobs, floors build up ─────────── */
+.illus-crane-arm {
+  transform-origin: 72px 22px;
+  transform-box: fill-box;
+}
+.persona-card:hover .illus-crane-arm {
+  animation: crane-swing 3s ease-in-out infinite;
+}
+@keyframes crane-swing {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(8deg); }
+}
+.illus-hook {
+  transform-origin: 55px 47px;
+}
+.persona-card:hover .illus-hook {
+  animation: hook-bob 1.5s ease-in-out infinite;
+}
+@keyframes hook-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+.illus-floor-1, .illus-floor-2, .illus-floor-3 { transition: opacity 0.3s, transform 0.3s; transform-origin: bottom; }
+.persona-card:hover .illus-floor-3 { animation: floor-rise 2s ease-in-out infinite; }
+@keyframes floor-rise {
+  0% { opacity: 0; transform: scaleY(0); }
+  50%, 100% { opacity: 0.4; transform: scaleY(1); }
+}
+
+/* ── Planner: pen writing lines, clipboard tilts, skyline stands tall ── */
+.illus-clipboard {
+  transform-origin: 40px 60px;
+  transform-box: fill-box;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.persona-card:hover .illus-clipboard,
+.persona-card--active .illus-clipboard {
+  animation: clipboard-tilt 3s ease-in-out infinite;
+}
+@keyframes clipboard-tilt {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(1deg); }
+}
+
+.illus-pen {
+  transform-origin: 46px 64px;
+  transform-box: fill-box;
+}
+.persona-card:hover .illus-pen,
+.persona-card--active .illus-pen {
+  animation: pen-write 2s ease-in-out infinite;
+}
+@keyframes pen-write {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(-1px, 1px) rotate(-3deg); }
+  50%  { transform: translate(1px, -1px) rotate(2deg); }
+  75%  { transform: translate(-2px, 0) rotate(-2deg); }
+}
+
+/* Pen lines draw one after another */
+.illus-line-1, .illus-line-2, .illus-line-3 {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  transition: stroke-dashoffset 0.6s ease-out;
+}
+.persona-card:hover .illus-line-1,
+.persona-card--active .illus-line-1 {
+  animation: line-draw 3s ease-in-out infinite;
+  animation-delay: 0s;
+}
+.persona-card:hover .illus-line-2,
+.persona-card--active .illus-line-2 {
+  animation: line-draw 3s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+.persona-card:hover .illus-line-3,
+.persona-card--active .illus-line-3 {
+  animation: line-draw 3s ease-in-out infinite;
+  animation-delay: 0.6s;
+}
+@keyframes line-draw {
+  0%   { stroke-dashoffset: 20; }
+  40%  { stroke-dashoffset: 0; }
+  90%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 20; }
+}
+
+/* Subtle sway on the planner figure */
+.illus-planner { transition: transform 0.3s; transform-origin: 25px 70px; transform-box: fill-box; }
+.persona-card:hover .illus-planner,
+.persona-card--active .illus-planner {
+  animation: planner-lean 3s ease-in-out infinite;
+}
+@keyframes planner-lean {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-1deg); }
+}
+
+/* Skyline shadow on hover */
+.illus-skyline { transition: filter 0.3s; }
+.persona-card:hover .illus-skyline,
+.persona-card--active .illus-skyline {
+  filter: drop-shadow(0 2px 3px rgba(15, 23, 42, 0.2));
+}
+
+/* Active state persists the other animations */
+.persona-card--active .illus-crane-arm { animation: crane-swing 3s ease-in-out infinite; }
+.persona-card--active .illus-hook { animation: hook-bob 1.5s ease-in-out infinite; }
 
 .persona-name {
   font-size: 0.8rem;

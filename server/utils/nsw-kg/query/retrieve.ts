@@ -83,17 +83,42 @@ function buildFilterClause(opts: RetrieveOptions, startIdx: number): { clause: s
 
   const lga = opts.lgaFilter ?? opts.plan.entities.lga
   if (lga) {
-    // Case-insensitive match, strip common prefixes like "CITY OF", "SHIRE OF" etc.
-    // so "CITY OF PARRAMATTA" matches "Parramatta" in the KG
+    // Normalize LGA names — strip common prefixes ("City of", "Shire of",
+    // "Municipality of") and trailing suffixes ("City", "Council",
+    // "Shire", "Regional Council") on both sides so e.g.
+    // "ALBURY CITY" → "albury" and "Albury City Council" → "albury"
+    // matches KG's "Albury".
+    const normalizeSql = `LOWER(TRIM(
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(
+          REGEXP_REPLACE($1, '^\\s*(city of|shire of|municipality of|council of)\\s+', '', 'i'),
+          '\\s+(city council|regional council|shire council|council|city|shire)\\s*$', '', 'i'
+        ),
+        '\\s+', ' ', 'g'
+      )
+    ))`
+
+    // Apply the same normalization to both sides
+    const normDbLga = normalizeSql.replace(/\$1/g, 'd.lga_name')
+    const normFilterIdx = i++
+    const normFilterRef = normalizeSql.replace(/\$1/g, `$${normFilterIdx}`)
+
+    const ilikeIdx = i++
+
     conds.push(`(
-      LOWER(TRIM(REGEXP_REPLACE(d.lga_name, '^(City of|Shire of|Municipality of)\\s*', '', 'i')))
-      = LOWER(TRIM(REGEXP_REPLACE($${i++}, '^(City of|Shire of|Municipality of)\\s*', '', 'i')))
-      OR d.lga_name ILIKE '%' || $${i++} || '%'
+      ${normDbLga} = ${normFilterRef}
+      OR d.lga_name ILIKE '%' || $${ilikeIdx} || '%'
       OR d.lga_name IS NULL
     )`)
-    // Strip prefix from the filter value for the first param
-    const cleanLga = lga.replace(/^(city of|shire of|municipality of)\s*/i, '').trim()
-    params.push(cleanLga, cleanLga)
+
+    // Clean filter value for the ILIKE fallback
+    const cleanLga = lga
+      .replace(/^(city of|shire of|municipality of|council of)\s+/i, '')
+      .replace(/\s+(city council|regional council|shire council|council|city|shire)\s*$/i, '')
+      .trim()
+
+    params.push(lga)       // for normalized match ($normFilterIdx)
+    params.push(cleanLga)  // for ILIKE fallback ($ilikeIdx)
   }
 
   const docType = opts.docTypeFilter ?? opts.plan.entities.doc_type
