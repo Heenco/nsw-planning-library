@@ -169,10 +169,7 @@
     <details v-if="steps.length > 0" class="steps-panel">
       <summary class="steps-summary">Pipeline steps ({{ steps.length }})</summary>
       <div class="steps-list">
-        <div v-for="(s, i) in steps" :key="i" class="step-item">
-          <span :class="['step-status', 'step-status--' + s.status]">
-            {{ s.status === 'running' ? '⏳' : s.status === 'done' ? '✓' : s.status === 'warn' ? '⚠' : '⏭' }}
-          </span>
+        <div v-for="(s, i) in steps" :key="i" :class="['step-item', 'step-item--' + s.status]">
           <span class="step-agent">{{ s.agent }}</span>
           <span class="step-msg">{{ s.message }}</span>
         </div>
@@ -225,7 +222,6 @@
       <div class="legal-cards-grid">
         <div v-for="card in legalCards" :key="card.id" class="legal-card">
           <div class="legal-card-header">
-            <span class="legal-card-icon">{{ card.icon }}</span>
             <div>
               <div class="legal-card-title">{{ card.title }}</div>
               <div class="legal-card-desc">{{ card.description }}</div>
@@ -998,7 +994,9 @@ function handleSSE(type: string, data: any) {
 .steps-summary { padding: 0.5rem 0.8rem; font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; }
 .steps-list { padding: 0 0.8rem 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
 .step-item { display: flex; align-items: baseline; gap: 0.4rem; font-size: 0.75rem; }
-.step-status { flex-shrink: 0; width: 1.2rem; text-align: center; }
+.step-item--running .step-agent { color: #3b82f6; }
+.step-item--done .step-agent { color: #15803d; }
+.step-item--warn .step-agent { color: #b45309; }
 .step-agent { font-weight: 600; color: #334155; }
 .step-msg { color: #64748b; }
 
@@ -1420,12 +1418,6 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   gap: 0.5rem;
 }
 
-.legal-card-icon {
-  font-size: 1.2rem;
-  line-height: 1;
-  flex-shrink: 0;
-  margin-top: 0.1rem;
-}
 
 .legal-card-title {
   font-size: 0.85rem;

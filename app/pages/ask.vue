@@ -80,10 +80,7 @@
     <details v-if="steps.length > 0" class="steps-panel">
       <summary class="steps-summary">Pipeline steps ({{ steps.length }})</summary>
       <div class="steps-list">
-        <div v-for="(s, i) in steps" :key="i" class="step-item">
-          <span :class="['step-status', 'step-status--' + s.status]">
-            {{ s.status === 'running' ? '⏳' : s.status === 'done' ? '✓' : s.status === 'warn' ? '⚠' : '⏭' }}
-          </span>
+        <div v-for="(s, i) in steps" :key="i" :class="['step-item', 'step-item--' + s.status]">
           <span class="step-agent">{{ s.agent }}</span>
           <span class="step-msg">{{ s.message }}</span>
           <span v-if="s.detail" class="step-detail">{{ s.detail }}</span>
@@ -476,7 +473,9 @@ function handleSSE(type: string, data: any) {
   font-size: 0.75rem;
 }
 
-.step-status { flex-shrink: 0; width: 1.2rem; text-align: center; }
+.step-item--running .step-agent { color: #3b82f6; }
+.step-item--done .step-agent { color: #15803d; }
+.step-item--warn .step-agent { color: #b45309; }
 .step-agent { font-weight: 600; color: #334155; }
 .step-msg { color: #64748b; }
 .step-detail { color: #94a3b8; font-size: 0.7rem; }

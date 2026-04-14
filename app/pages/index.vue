@@ -58,46 +58,8 @@
         Always verify with official sources.
       </div>
 
-      <!-- Ask box (Claude-style hero search) -->
-      <div class="ask-box">
-        <h2 class="ask-box-title">What can I help you find?</h2>
-        <p class="ask-box-sub">Ask about NSW zoning, planning instruments, controls, or constraints.</p>
-        <form class="ask-hero-search" @submit.prevent="goToAsk">
-          <textarea
-            v-model="askQuery"
-            class="ask-hero-input"
-            placeholder="Ask about a planning rule or instrument…"
-            rows="1"
-            @keydown.enter.exact.prevent="goToAsk()"
-            @input="autoResizeAsk"
-            ref="askInputEl"
-          ></textarea>
-          <button class="ask-hero-send" type="submit" :disabled="!askQuery.trim()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </form>
-      </div>
-
-      <!-- Sample questions -->
-      <div class="samples">
-        <div v-for="cat in sampleCategories" :key="cat.label" class="sample-group">
-          <span class="sample-label">{{ cat.label }}</span>
-          <div class="sample-chips">
-            <button
-              v-for="q in cat.questions"
-              :key="q"
-              class="sample-chip"
-              @click="askQuery = q; goToAsk()"
-            >{{ q }}</button>
-          </div>
-        </div>
-      </div>
-
       <!-- Property report -->
       <div class="property-section">
-        <div class="property-divider">
-          <span>or get a report for a specific property</span>
-        </div>
         <form class="property-form" @submit.prevent="goToReport">
           <!-- Address with Mapbox autocomplete -->
           <div class="address-autocomplete">
@@ -128,6 +90,21 @@
             </div>
           </div>
 
+          <!-- Sample addresses -->
+          <div class="sample-addresses">
+            <span class="sample-addresses-label">Try one of these:</span>
+            <button
+              v-for="s in sampleAddresses"
+              :key="s.address"
+              type="button"
+              class="sample-address-chip"
+              @click="pickSampleAddress(s)"
+            >
+              <span class="sample-address-council">{{ s.council }}</span>
+              <span class="sample-address-text">{{ s.address }}</span>
+            </button>
+          </div>
+
           <!-- Persona selector -->
           <div class="persona-selector">
             <label class="property-field-label">I am a…</label>
@@ -139,7 +116,6 @@
                 :class="['persona-card', { 'persona-card--active': selectedPersona === p.id }]"
                 @click="selectedPersona = p.id"
               >
-                <span class="persona-icon">{{ p.icon }}</span>
                 <span class="persona-name">{{ p.label }}</span>
                 <span class="persona-desc">{{ p.desc }}</span>
               </button>
@@ -296,25 +272,25 @@ const selectedPersona = ref('')
 const showDisclaimer = ref(false)
 
 const personas = [
-  {
-    id: 'owner',
-    icon: '🏠',
-    label: 'Owner / Buyer',
-    desc: 'What can I do with this property?',
-  },
-  {
-    id: 'developer',
-    icon: '🏗️',
-    label: 'Developer / Builder',
-    desc: 'What can I build here?',
-  },
-  {
-    id: 'planner',
-    icon: '📋',
-    label: 'Urban Planner',
-    desc: 'What controls apply?',
-  },
+  { id: 'owner',     label: 'Owner / Buyer',       desc: 'What can I do with this property?' },
+  { id: 'developer', label: 'Developer / Builder', desc: 'What can I build here?' },
+  { id: 'planner',   label: 'Urban Planner',       desc: 'What controls apply?' },
 ]
+
+const sampleAddresses = [
+  { council: 'Albury',        address: '500 DEAN STREET ALBURY',             lat: -36.0737, lng: 146.9135 },
+  { council: 'Georges River', address: '2 MACMAHON STREET HURSTVILLE',       lat: -33.9670, lng: 151.1020 },
+  { council: 'Parramatta',    address: '10 BOUNDARY STREET PARRAMATTA',      lat: -33.8148, lng: 151.0035 },
+  { council: 'Randwick',      address: '43 GREVILLE STREET CLOVELLY',        lat: -33.9100, lng: 151.2584 },
+  { council: 'Sydney',        address: '1 MARTIN PLACE SYDNEY',              lat: -33.8679, lng: 151.2073 },
+]
+
+function pickSampleAddress(s: { address: string; lat: number; lng: number }) {
+  propertyAddress.value = s.address
+  selectedLat.value = s.lat
+  selectedLng.value = s.lng
+  acResults.value = []
+}
 const askInputEl = ref<HTMLTextAreaElement | null>(null)
 
 // ── Mapbox address autocomplete ──────────────────────────────────────────────
@@ -373,41 +349,6 @@ function autoResizeAsk(e: Event) {
   el.style.height = 'auto'
   el.style.height = Math.min(el.scrollHeight, 200) + 'px'
 }
-
-const sampleCategories = [
-  {
-    label: 'Zoning & Permissibility',
-    questions: [
-      'Is a dual occupancy permitted in zone R2 in Albury?',
-      'What land uses are prohibited in zone B4?',
-      'Can I operate a home business in a residential zone?',
-    ],
-  },
-  {
-    label: 'Development Standards',
-    questions: [
-      'What is the maximum building height in Parramatta CBD?',
-      'What FSR applies to zone R3 in Randwick?',
-      'What is the minimum lot size for subdivision in Albury?',
-    ],
-  },
-  {
-    label: 'DCP Controls',
-    questions: [
-      'What are the parking requirements in the Randwick DCP?',
-      'What setback controls apply to residential development in Georges River?',
-      'What landscaping requirements apply in the Albury DCP?',
-    ],
-  },
-  {
-    label: 'SEPP & State Policy',
-    questions: [
-      'What SEPP provisions apply to boarding houses?',
-      'What are the requirements for secondary dwellings under the Housing SEPP?',
-      'What exempt development is allowed under the Codes SEPP?',
-    ],
-  },
-]
 
 // ── Map data ─────────────────────────────────────────────────────────────────
 
@@ -784,85 +725,6 @@ body {
   text-align: center;
 }
 
-/* ── Ask box (Claude-style hero search) ───────────────────────────────────── */
-.ask-box {
-  margin-top: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 760px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.ask-box-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.02em;
-  margin: 0 0 0.4rem;
-  text-align: center;
-}
-
-.ask-box-sub {
-  font-size: 0.9rem;
-  color: #64748b;
-  margin: 0 0 1.5rem;
-  text-align: center;
-  line-height: 1.5;
-}
-
-.ask-hero-search {
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 22px 20px 18px 24px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 10px 30px rgba(15, 23, 42, 0.07);
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.ask-hero-search:focus-within {
-  border-color: #15803d;
-  box-shadow: 0 1px 3px rgba(21, 128, 61, 0.08), 0 10px 30px rgba(21, 128, 61, 0.14);
-}
-
-.ask-hero-input {
-  flex: 1;
-  min-height: 56px;
-  max-height: 200px;
-  background: transparent;
-  border: none;
-  outline: none;
-  resize: none;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #0f172a;
-  font-family: inherit;
-  padding: 4px 0;
-}
-.ask-hero-input::placeholder { color: #94a3b8; }
-
-.ask-hero-send {
-  flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: none;
-  background: #15803d;
-  color: #ffffff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, transform 0.1s;
-}
-.ask-hero-send:hover:not(:disabled) { background: #166534; }
-.ask-hero-send:active:not(:disabled) { transform: scale(0.96); }
-.ask-hero-send:disabled { background: #cbd5e1; cursor: not-allowed; }
-
 /* ── Disclaimer modal ─────────────────────────────────────────────────────── */
 .disclaimer-overlay {
   position: fixed;
@@ -915,54 +777,55 @@ body {
 }
 .disclaimer-btn:hover { background: #166534; }
 
-/* ── Sample questions ─────────────────────────────────────────────────────── */
-.samples {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  max-width: 760px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.sample-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.sample-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #94a3b8;
-}
-
-.sample-chips {
+/* ── Sample addresses ─────────────────────────────────────────────────────── */
+.sample-addresses {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.4rem;
+  margin-top: 0.25rem;
 }
 
-.sample-chip {
+.sample-addresses-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  margin-right: 0.25rem;
+}
+
+.sample-address-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.78rem;
-  color: #475569;
-  cursor: pointer;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
   font-family: inherit;
+  cursor: pointer;
   transition: all 0.12s;
   text-align: left;
-  line-height: 1.4;
 }
-.sample-chip:hover {
+
+.sample-address-chip:hover {
   background: #f0fdf4;
   border-color: #15803d;
+}
+
+.sample-address-council {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: #15803d;
+}
+
+.sample-address-text {
+  font-size: 0.75rem;
+  color: #334155;
 }
 
 /* ── Property section ─────────────────────────────────────────────────────── */
@@ -1136,11 +999,6 @@ body {
   border-color: #15803d;
   background: #f0fdf4;
   box-shadow: 0 0 0 1px #15803d;
-}
-
-.persona-icon {
-  font-size: 1.4rem;
-  line-height: 1;
 }
 
 .persona-name {
