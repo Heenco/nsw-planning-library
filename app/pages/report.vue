@@ -219,43 +219,6 @@
       </div>
     </div>
 
-    <!-- Feedback + Comment -->
-    <div v-if="answerText && !loading && reportQId" class="feedback-section">
-      <div class="feedback-row">
-        <span class="feedback-label">Was this report helpful?</span>
-        <button :class="['feedback-btn', { 'feedback-btn--active': reportFeedback === 'like' }]" @click="sendReportFeedback('like')" :disabled="!!reportFeedback">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
-        </button>
-        <button :class="['feedback-btn', { 'feedback-btn--active feedback-btn--dislike': reportFeedback === 'dislike' }]" @click="sendReportFeedback('dislike')" :disabled="!!reportFeedback">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>
-        </button>
-        <span v-if="reportFeedback" class="feedback-thanks">Thanks for your feedback!</span>
-      </div>
-
-      <form class="comment-form" @submit.prevent="submitComment">
-        <div class="comment-label">Leave a comment</div>
-        <input
-          v-model="commentName"
-          type="text"
-          class="comment-input-sm"
-          placeholder="Your name (optional)"
-          :disabled="commentSubmitted"
-        >
-        <textarea
-          v-model="commentText"
-          class="comment-input"
-          placeholder="Share feedback, corrections, or suggestions…"
-          rows="2"
-          :disabled="commentSubmitted"
-        ></textarea>
-        <div class="comment-actions">
-          <button class="comment-btn" type="submit" :disabled="!commentText.trim() || commentSubmitted">
-            {{ commentSubmitted ? 'Submitted' : 'Submit comment' }}
-          </button>
-        </div>
-      </form>
-    </div>
-
     <!-- Deep legal cards -->
     <div v-if="legalCards.length > 0" class="legal-cards-section">
       <h2 class="answer-heading">Detailed Planning Analysis</h2>
@@ -328,6 +291,43 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Feedback + Comment (at the very end) -->
+    <div v-if="answerText && !loading && reportQId" class="feedback-section">
+      <div class="feedback-row">
+        <span class="feedback-label">Was this report helpful?</span>
+        <button :class="['feedback-btn', { 'feedback-btn--active': reportFeedback === 'like' }]" @click="sendReportFeedback('like')" :disabled="!!reportFeedback">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+        </button>
+        <button :class="['feedback-btn', { 'feedback-btn--active feedback-btn--dislike': reportFeedback === 'dislike' }]" @click="sendReportFeedback('dislike')" :disabled="!!reportFeedback">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>
+        </button>
+        <span v-if="reportFeedback" class="feedback-thanks">Thanks for your feedback!</span>
+      </div>
+
+      <form class="comment-form" @submit.prevent="submitComment">
+        <div class="comment-label">Leave a comment</div>
+        <input
+          v-model="commentName"
+          type="text"
+          class="comment-input-sm"
+          placeholder="Your name (optional)"
+          :disabled="commentSubmitted"
+        >
+        <textarea
+          v-model="commentText"
+          class="comment-input"
+          placeholder="Share feedback, corrections, or suggestions…"
+          rows="2"
+          :disabled="commentSubmitted"
+        ></textarea>
+        <div class="comment-actions">
+          <button class="comment-btn" type="submit" :disabled="!commentText.trim() || commentSubmitted">
+            {{ commentSubmitted ? 'Submitted' : 'Submit comment' }}
+          </button>
+        </div>
+      </form>
     </div>
 
     <!-- Disclaimer -->
