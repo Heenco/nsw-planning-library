@@ -314,21 +314,17 @@ function onAddressInput() {
 }
 
 async function fetchAddressSuggestions(q: string) {
-  const config = useRuntimeConfig()
-  const token = config.public.mapboxToken
-  if (!token) return
   try {
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${token}&limit=5&autocomplete=true&country=AU&types=address&bbox=140.999,-37.505,153.639,-28.157`
-    const resp = await fetch(url)
+    const resp = await fetch(`/api/address-autocomplete?q=${encodeURIComponent(q)}`)
     if (!resp.ok) return
     const data = await resp.json()
-    acResults.value = (data.features || []).map((f: any) => ({
-      id: f.id,
-      text: f.text + (f.address ? ' ' + f.address : ''),
-      context: (f.context || []).map((c: any) => c.text).join(', '),
-      place_name: f.place_name,
-      lng: f.center?.[0] ?? 0,
-      lat: f.center?.[1] ?? 0,
+    acResults.value = (data.results || []).map((r: any, i: number) => ({
+      id: `${r.address}-${i}`,
+      text: r.address,
+      context: [r.suburbname, r.lga_name, r.postcode].filter(Boolean).join(', '),
+      place_name: r.address,
+      lat: Number(r.centroid_lat),
+      lng: Number(r.centroid_lon),
     }))
   } catch {}
 }
