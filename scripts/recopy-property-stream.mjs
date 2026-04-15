@@ -19,21 +19,28 @@ import { readFileSync } from 'fs'
 import net from 'net'
 import { to as copyTo, from as copyFrom } from 'pg-copy-streams'
 import { pipeline } from 'stream/promises'
+import 'dotenv/config'
 
-const TARGET_URL = 'postgresql://nsw_reader:heenco_nsw_2026@172.105.184.178:5432/kg'
+function required(name) {
+  const v = process.env[name]
+  if (!v) throw new Error(`Missing required env var: ${name}`)
+  return v
+}
+
+const TARGET_URL = required('DATABASE_URL')
 
 const SSH_CONFIG = {
-  host: '45.79.118.32',
-  port: 22,
-  username: 'root',
-  privateKey: readFileSync('C:\\Users\\ManniKheradmandi\\Downloads\\dev_key'),
+  host: required('KG_SSH_HOST'),
+  port: parseInt(process.env.KG_SSH_PORT || '22'),
+  username: required('KG_SSH_USER'),
+  privateKey: readFileSync(required('KG_SSH_KEY_PATH')),
 }
 const PG14 = {
-  host: 'localhost',
-  port: 5432,
-  database: 'UrbanPortalDBP',
-  user: 'postgres',
-  password: 'X|($DM$25p%5',
+  host: process.env.PG_HOST || 'localhost',
+  port: parseInt(process.env.PG_PORT || '5432'),
+  database: required('PG_DATABASE'),
+  user: required('PG_USER'),
+  password: required('PG_PASSWORD'),
 }
 
 async function createTunnel() {
