@@ -31,6 +31,10 @@ export interface SynthesizeOptions {
   /** Optional Groq key — when present, Groq is tried first for ~10× faster
    *  streaming. Falls back to DeepInfra on any error (timeout, 429, 5xx). */
   groqKey?: string
+  /** Optional override for the default NSW planning system prompt. Use-case
+   *  specific callers (e.g. per-use controls analysis) inject their own prompt
+   *  while still getting the full retrieval + citation pipeline. */
+  systemPrompt?: string
   onChunk:  (text: string) => void
 }
 
@@ -362,6 +366,7 @@ export async function synthesize(opts: SynthesizeOptions): Promise<SynthesizeRes
   const contextBlock = buildContextBlock(opts.context)
   const overridesBlock = buildOverridesBlock(opts.context.decisions)
   const userPrompt = buildUserPrompt(opts.query, opts.plan, contextBlock, overridesBlock)
+  const systemPrompt = opts.systemPrompt || SYSTEM_PROMPT
 
   // Try Groq first when configured — ~10× faster streaming on the same
   // Llama 3.3 70B weights. Fall back to DeepInfra on any retryable error
@@ -371,7 +376,7 @@ export async function synthesize(opts: SynthesizeOptions): Promise<SynthesizeRes
   if (opts.groqKey) {
     result = await streamFromProvider(
       GROQ_URL, GROQ_MODEL, opts.groqKey,
-      SYSTEM_PROMPT, userPrompt, 'groq', opts.onChunk,
+      systemPrompt, userPrompt, 'groq', opts.onChunk,
     )
     if (!result.ok && !result.retryable) {
       throw new Error(`Synthesis failed: ${result.error}`)
@@ -384,7 +389,7 @@ export async function synthesize(opts: SynthesizeOptions): Promise<SynthesizeRes
   if (!result || !result.ok) {
     result = await streamFromProvider(
       FALLBACK_URL, FALLBACK_MODEL, opts.apiKey,
-      SYSTEM_PROMPT, userPrompt, 'deepinfra', opts.onChunk,
+      systemPrompt, userPrompt, 'deepinfra', opts.onChunk,
     )
     if (!result.ok) {
       throw new Error(`Synthesis failed: ${result.error}`)

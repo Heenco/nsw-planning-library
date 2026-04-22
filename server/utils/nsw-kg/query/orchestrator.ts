@@ -20,15 +20,26 @@ export interface QueryOrchestratorOptions {
   geminiKey?:   string
   /** Groq key — used for synthesis (preferred, ~10× faster). Falls back to DeepInfra. */
   groqKey?:     string
+  /** Optional override for the synthesis system prompt. */
+  systemPrompt?: string
+  /** Optional tag prepended to every SSE event name so multiple orchestrator
+   *  runs can share a single SSE stream without event-name collisions.
+   *  e.g. eventTag "lep" → "answer_chunk" becomes "lep_answer_chunk". */
+  eventTag?:    string
+  /** When true, orchestrator does NOT call res.end() on completion — caller
+   *  owns stream lifetime (used when multiple orchestrators share one stream). */
+  keepOpen?:    boolean
   res:          any                 // Node response stream for SSE
 }
 
 export async function runQuery(opts: QueryOrchestratorOptions): Promise<void> {
   const { res } = opts
   const t0 = Date.now()
-  const emit = (evt: QueryEvent) => sseEvent(res, evt.type, evt.payload as any)
+  const tag = opts.eventTag ? `${opts.eventTag}_` : ''
+  const emit = (evt: QueryEvent) => sseEvent(res, `${tag}${evt.type}`, evt.payload as any)
   const step = (agent: string, status: 'running' | 'done' | 'warn' | 'skip', message: string, detail?: string) => {
-    emit({ type: 'agent_step', payload: { agent, status, message, detail, ms: Date.now() - t0 } })
+    // Agent steps are not tagged — they share the global pipeline panel.
+    sseEvent(res, 'agent_step', { agent: opts.eventTag ? `${opts.eventTag.toUpperCase()}·${agent}` : agent, status, message, detail, ms: Date.now() - t0 })
   }
 
   try {
@@ -123,7 +134,8 @@ export async function runQuery(opts: QueryOrchestratorOptions): Promise<void> {
       context: filtered,
       apiKey: opts.apiKey,
       groqKey: opts.groqKey,
-      onChunk: (text) => sseEvent(res, 'answer_chunk', { text }),
+      systemPrompt: opts.systemPrompt,
+      onChunk: (text) => sseEvent(res, `${tag}answer_chunk`, { text }),
     })
     step('Answer', 'done', `${result.full_text.length} chars · ${result.citations.length} citations · ${result.ms}ms`)
 
@@ -133,6 +145,6 @@ export async function runQuery(opts: QueryOrchestratorOptions): Promise<void> {
     const msg = (err as Error).message || String(err)
     emit({ type: 'error', payload: { message: msg } })
   } finally {
-    if (typeof res.end === 'function') res.end()
+    if (!opts.keepOpen && typeof res.end === 'function') res.end()
   }
 }

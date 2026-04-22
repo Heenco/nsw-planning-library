@@ -175,8 +175,50 @@
     <!-- ── Permitted uses ──────────────────────────────────────────────── -->
     <details v-if="permittedUses.length > 0" class="rpt-section" open>
       <summary class="rpt-section-title">Permitted Uses in Zone {{ p?.zone }} ({{ permittedUses.length }})</summary>
+      <div v-if="persona === 'planner'" class="uses-hint">Click a use to pull its LEP / SEPP / DCP controls for this lot.</div>
       <div class="uses-list">
-        <span v-for="u in permittedUses" :key="u" class="use-chip">{{ u }}</span>
+        <button
+          v-for="u in permittedUses"
+          :key="u"
+          type="button"
+          :class="['use-chip', persona === 'planner' && 'use-chip--clickable', selectedUse === u && 'use-chip--active']"
+          :disabled="persona !== 'planner' || useAnalysisLoading"
+          @click="persona === 'planner' && selectUse(u)"
+        >{{ u }}</button>
+      </div>
+
+      <!-- Use-specific controls panel (planner persona only) -->
+      <div v-if="selectedUse && persona === 'planner'" class="use-analysis">
+        <div class="use-analysis-header">
+          <span class="use-analysis-label">Controls for</span>
+          <span class="use-analysis-use">{{ selectedUse }}</span>
+          <span v-if="useAnalysisLoading" class="use-analysis-loading">analysing…</span>
+          <button v-if="!useAnalysisLoading" class="use-analysis-close" type="button" @click="clearSelectedUse">Close</button>
+        </div>
+
+        <div v-for="inst in ['lep', 'sepp', 'dcp'] as const" :key="inst"
+             v-show="useStreams[inst].text || useAnalysisLoading"
+             :class="['instrument-section', 'instrument-section--' + inst]">
+          <div class="instrument-header">
+            <span :class="['instrument-badge', 'instrument-badge--' + inst]">{{ inst.toUpperCase() }}</span>
+            {{ inst.toUpperCase() }} Findings
+          </div>
+          <div v-if="useStreamsProxy[inst].text" class="answer-body" v-html="useStreamsProxy[inst].html"></div>
+          <div v-else class="answer-loading">Searching {{ inst.toUpperCase() }}…</div>
+        </div>
+
+        <div v-if="useStreamsCitations.length > 0" class="sources-section">
+          <h3 class="sources-heading">Sources ({{ useStreamsCitations.length }})</h3>
+          <div class="sources-list">
+            <div v-for="c in useStreamsCitations" :key="c.number" class="source-item">
+              <span class="source-num">{{ c.number }}</span>
+              <span :class="['source-badge', 'source-badge--' + c.doc_type]">{{ c.doc_type.toUpperCase() }}</span>
+              <span class="source-label"><strong>{{ c.document_short }}</strong> {{ c.citation_label }}</span>
+              <a v-if="c.clause_url" :href="c.clause_url" target="_blank" rel="noopener" class="source-link">View source</a>
+              <p v-if="c.source_quote" class="source-quote">{{ c.source_quote }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </details>
 
@@ -221,7 +263,8 @@
       </div>
     </div>
 
-    <!-- Deep legal cards — only shown for Urban Planner persona -->
+    <!-- Deep legal cards — replaced by use-specific controls panel above.
+         Kept commented for potential reuse; see also server/utils/sitewise/deep-legal-cards.ts.
     <div v-if="legalCards.length > 0 && persona === 'planner'" class="legal-cards-section">
       <h2 class="answer-heading">Detailed Planning Analysis</h2>
       <div class="legal-cards-grid">
@@ -239,6 +282,8 @@
         </div>
       </div>
     </div>
+    -->
+
 
     <!-- Follow-up question -->
     <div v-if="property && !loading" class="followup-section">
@@ -365,6 +410,19 @@ const citations = ref<Citation[]>([])
 
 const lots = ref<any[]>([])
 const legalCards = ref<any[]>([])
+
+// ── Use-specific controls (planner persona) ────────────────────────────────
+type Instrument = 'lep' | 'sepp' | 'dcp'
+interface UseStream { text: string; citations: Citation[]; citeIndex: Record<string, number> }
+const selectedUse = ref<string>('')
+const useAnalysisLoading = ref(false)
+const useAnalysisAbort = ref<AbortController | null>(null)
+const useStreams = ref<Record<Instrument, UseStream>>({
+  lep:  { text: '', citations: [], citeIndex: {} },
+  sepp: { text: '', citations: [], citeIndex: {} },
+  dcp:  { text: '', citations: [], citeIndex: {} },
+})
+
 const reportQId = ref<number | null>(null)
 const reportFeedback = ref<string | null>(null)
 const commentName = ref('')
@@ -671,6 +729,126 @@ const patternBookItems = computed(() => {
   ].filter(pb => pb.eligible || property.value.in_lmr_housing_area === 'true')
 })
 
+// ── Use-specific controls (planner persona) ─────────────────────────────────
+
+// Render each instrument's streamed markdown as HTML with inline citations.
+const useStreamsHtml = computed(() => {
+  const out: Record<Instrument, string> = { lep: '', sepp: '', dcp: '' }
+  for (const inst of ['lep', 'sepp', 'dcp'] as Instrument[]) {
+    const s = useStreams.value[inst]
+    out[inst] = s.text ? renderMarkdownWithCitations(s.text, s.citations, s.citeIndex) : ''
+  }
+  return out
+})
+
+// Template reads useStreams[inst].html — expose via a proxy computed.
+const useStreamsProxy = computed<Record<Instrument, UseStream & { html: string }>>(() => {
+  const out: any = {}
+  for (const inst of ['lep', 'sepp', 'dcp'] as Instrument[]) {
+    out[inst] = { ...useStreams.value[inst], html: useStreamsHtml.value[inst] }
+  }
+  return out
+})
+
+// Merge citations across all three instruments, renumbering 1..N globally.
+const useStreamsCitations = computed<Citation[]>(() => {
+  const seen = new Set<number>()
+  const merged: Citation[] = []
+  for (const inst of ['lep', 'sepp', 'dcp'] as Instrument[]) {
+    for (const c of useStreams.value[inst].citations) {
+      if (seen.has(c.proposition_id)) continue
+      seen.add(c.proposition_id)
+      merged.push({ ...c, number: merged.length + 1 })
+    }
+  }
+  return merged
+})
+
+function clearSelectedUse() {
+  useAnalysisAbort.value?.abort()
+  useAnalysisAbort.value = null
+  selectedUse.value = ''
+  useAnalysisLoading.value = false
+  useStreams.value = {
+    lep:  { text: '', citations: [], citeIndex: {} },
+    sepp: { text: '', citations: [], citeIndex: {} },
+    dcp:  { text: '', citations: [], citeIndex: {} },
+  }
+}
+
+async function selectUse(use: string) {
+  if (useAnalysisLoading.value) return
+  if (selectedUse.value === use) { clearSelectedUse(); return }
+  clearSelectedUse()
+  selectedUse.value = use
+  useAnalysisLoading.value = true
+
+  const ac = new AbortController()
+  useAnalysisAbort.value = ac
+
+  try {
+    const resp = await fetch('/api/use-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ property: property.value, use }),
+      signal: ac.signal,
+    })
+    if (!resp.ok || !resp.body) {
+      useAnalysisLoading.value = false
+      return
+    }
+    const reader = resp.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+      let eventType = ''
+      for (const line of lines) {
+        if (line.startsWith('event: ')) eventType = line.slice(7).trim()
+        else if (line.startsWith('data: ') && eventType) {
+          try {
+            const data = JSON.parse(line.slice(6))
+            handleUseSSE(eventType, data)
+          } catch {}
+          eventType = ''
+        }
+      }
+    }
+  } catch {
+    // aborted or network error — fall through
+  } finally {
+    useAnalysisLoading.value = false
+    useAnalysisAbort.value = null
+  }
+}
+
+function handleUseSSE(type: string, data: any) {
+  // Event names are tagged: lep_answer_chunk, sepp_citations, dcp_done, etc.
+  // Plus shared: agent_step, use_selected, done, error.
+  const m = /^(lep|sepp|dcp)_(.+)$/.exec(type)
+  if (m) {
+    const inst = m[1] as Instrument
+    const sub = m[2]
+    if (sub === 'answer_chunk') {
+      useStreams.value[inst].text += data.text
+    } else if (sub === 'citations') {
+      useStreams.value[inst].citations = data.citations || []
+      useStreams.value[inst].citeIndex = data.cite_index || {}
+    }
+    return
+  }
+  if (type === 'agent_step') {
+    const existing = steps.value.findIndex(s => s.agent === data.agent)
+    const step = { agent: data.agent, status: data.status, message: data.message }
+    if (existing >= 0) steps.value[existing] = step
+    else steps.value.push(step)
+  }
+}
+
 // ── Follow-up question ───────────────────────────────────────────────────────
 
 const followupAnswerHtml = computed(() => {
@@ -973,13 +1151,40 @@ function handleSSE(type: string, data: any) {
 .constraint-chip--low { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 
 /* ── Permitted uses ─────────────────────────────────────────────────────── */
+.uses-hint {
+  padding: 0 1rem; font-size: 0.72rem; color: #64748b; margin: 0 0 0.4rem;
+}
 .uses-list {
   padding: 0 1rem 0.75rem; display: flex; flex-wrap: wrap; gap: 0.3rem;
 }
 .use-chip {
-  font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 10px;
+  font-size: 0.72rem; padding: 0.25rem 0.55rem; border-radius: 10px;
   background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;
+  font-family: inherit; cursor: default;
 }
+.use-chip--clickable { cursor: pointer; transition: background 0.12s, border-color 0.12s, transform 0.12s; }
+.use-chip--clickable:hover:not(:disabled) { background: #dcfce7; border-color: #86efac; }
+.use-chip--clickable:disabled { opacity: 0.6; cursor: default; }
+.use-chip--active { background: #15803d; color: #fff; border-color: #15803d; }
+
+/* ── Use-specific controls panel ───────────────────────────────────────── */
+.use-analysis {
+  margin: 0.5rem 1rem 1rem; padding: 0.9rem;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+}
+.use-analysis-header {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding-bottom: 0.6rem; margin-bottom: 0.6rem; border-bottom: 1px solid #f1f5f9;
+}
+.use-analysis-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.use-analysis-use { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
+.use-analysis-loading { margin-left: auto; font-size: 0.72rem; color: #3b82f6; font-style: italic; }
+.use-analysis-close {
+  margin-left: auto; font-size: 0.72rem; color: #64748b;
+  background: transparent; border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 0.2rem 0.55rem; cursor: pointer;
+}
+.use-analysis-close:hover { background: #f8fafc; color: #0f172a; }
 
 /* ── Steps ──────────────────────────────────────────────────────────────── */
 .steps-panel {

@@ -1,6 +1,8 @@
 import { withNswClient } from '../utils/nsw-kg/pool'
 import { runQuery } from '../utils/nsw-kg/query/orchestrator'
-import { runDeepLegalCards } from '../utils/sitewise/deep-legal-cards'
+// Deep legal cards replaced by per-use controls panel (see /api/use-analysis).
+// Kept commented for potential reuse.
+// import { runDeepLegalCards } from '../utils/sitewise/deep-legal-cards'
 
 function sseWrite(res: any, event: string, data: object) {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
@@ -219,36 +221,27 @@ export default defineEventHandler(async (event) => {
 
     // Persona-gated AI work:
     //   owner     → no AI (facts + permissibility only)
-    //   developer → planning summary (KG query), no legal cards
-    //   planner   → everything (planning summary + 8 legal cards)
+    //   developer → planning summary (KG query), no use-specific analysis
+    //   planner   → planning summary + on-demand per-use controls (see /api/use-analysis)
     const runPlanningSummary = persona === 'developer' || persona === 'planner'
-    const runLegalCards      = persona === 'planner'
 
-    // ── Phase 3b: Fire deep legal cards in parallel (planner only) ────
-    let cardsPromise: Promise<any> = Promise.resolve()
-    if (runLegalCards) {
-      const lga = (property.lga_name || '').replace(/^(city of|shire of|municipality of)\s*/i, '').trim()
-      const gisResult = {
-        lat: Number(property.centroid_lat),
-        lng: Number(property.centroid_lon),
-        place: property.address || '',
-        zone: property.zone || '',
-        lepName: property.lep_name || '',
-        fsr: property.fsr_value || null,
-        maxHeight: property.max_height_m || null,
-        minLotSize: property.min_lot_size || null,
-      }
-
-      cardsPromise = runDeepLegalCards({
-        gis: gisResult as any,
-        lga,
-        deepinfraKey: config.deepinfraApiKey,
-        geminiKey: config.googleGeminiApiKey,
-        emit: (type, payload) => sseWrite(res, type, payload),
-        step: (agent, status, message, detail) =>
-          sseWrite(res, 'agent_step', { agent, status, message, detail }),
-      }).catch(() => {})
-    }
+    // ── Phase 3b: Deep legal cards (disabled) ────────────────────────
+    // The 8 static "Detailed Planning Analysis" cards have been superseded
+    // by the per-use controls panel, which fires LEP/SEPP/DCP queries
+    // scoped to a specific permissible use selected by the user in the UI.
+    // Kept for potential reuse:
+    //
+    // if (persona === 'planner') {
+    //   const lga = (property.lga_name || '').replace(/^(city of|shire of|municipality of)\s*/i, '').trim()
+    //   const gisResult = { lat: Number(property.centroid_lat), lng: Number(property.centroid_lon),
+    //     place: property.address || '', zone: property.zone || '', lepName: property.lep_name || '',
+    //     fsr: property.fsr_value || null, maxHeight: property.max_height_m || null, minLotSize: property.min_lot_size || null }
+    //   await runDeepLegalCards({ gis: gisResult as any, lga,
+    //     deepinfraKey: config.deepinfraApiKey, geminiKey: config.googleGeminiApiKey,
+    //     emit: (type, payload) => sseWrite(res, type, payload),
+    //     step: (agent, status, message, detail) => sseWrite(res, 'agent_step', { agent, status, message, detail }),
+    //   }).catch(() => {})
+    // }
 
     // ── Phase 4: Main planning summary via KG query (developer + planner) ───
     if (runPlanningSummary) {
@@ -261,13 +254,10 @@ export default defineEventHandler(async (event) => {
         res: {
           write: (chunk: string) => res.write(chunk),
           flush: () => { if (typeof (res as any).flush === 'function') (res as any).flush() },
-          end: () => {}, // Don't end yet — wait for cards
+          end: () => {},
         },
       })
     }
-
-    // Wait for deep legal cards to finish
-    await cardsPromise
 
     sseWrite(res, 'done', { ms: Date.now() })
     res.end()

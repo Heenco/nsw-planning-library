@@ -1,18 +1,17 @@
 // ── Deep legal cards ───────────────────────────────────────────────────
 //
-// Eight parallel graph-backed cards that sit below the main report
-// sections. Each card answers a specific, high-value legal question
+// DISABLED — replaced by the per-use controls panel (/api/use-analysis),
+// which fires LEP/SEPP/DCP queries scoped to a specific permissible use
+// the user picks in the report UI. The code below is kept intact for
+// potential reuse; the file is no longer imported anywhere.
+//
+// Original behaviour: eight parallel graph-backed cards that sat below
+// the main report sections, each answering a specific legal question
 // about the property by firing a scoped runGraphQuery against the
-// nsw-kg v2 index (LEP / SEPP / DCP propositions).
-//
-// Cards are fired together via Promise.allSettled — one slow or failed
-// query never blocks the others. Each resolution emits a `legal_card`
-// SSE event so the frontend can update the placeholder in-place.
-//
-// Currently Albury-focused. The card configs are static but the
-// question text is built per-request from the GIS result so each
-// query is zone- and land-use-aware.
+// nsw-kg v2 index. Fired together via Promise.allSettled; each emitted
+// a `legal_card` SSE event so the frontend could update its slot.
 
+/* DISABLED — kept for reference
 import type { GISResult, SSEEvent } from './types'
 import type { Citation } from '../nsw-kg/query/types'
 import { runGraphQuery } from './graph-query'
@@ -197,3 +196,5 @@ export async function runDeepLegalCards(input: RunDeepLegalCardsInput): Promise<
     ? r.value
     : { id: 'clause_46' as CardId, answer: '', citations: [], ms: 0, error: String((r as any).reason) }))
 }
+*/
+export {}
