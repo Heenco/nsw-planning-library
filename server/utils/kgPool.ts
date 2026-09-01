@@ -51,7 +51,7 @@ async function createTunnel(): Promise<number> {
         sshClient!.forwardOut(
           '127.0.0.1', sock.localPort ?? 0,
           config.pg.host, config.pg.port,
-          (err, stream) => {
+          (err: Error | undefined, stream: NodeJS.ReadWriteStream) => {
             if (err) { sock.destroy(); return }
             sock.pipe(stream).pipe(sock)
           },
@@ -68,7 +68,7 @@ async function createTunnel(): Promise<number> {
       tunnel.on('error', reject)
     })
 
-    sshClient.on('error', (err) => {
+    sshClient.on('error', (err: Error) => {
       console.error('[KG] SSH connection error:', err.message)
       reject(err)
     })
