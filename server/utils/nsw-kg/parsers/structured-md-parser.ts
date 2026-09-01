@@ -1,73 +1,167 @@
 // ── Structured Markdown → SectionTree ──────────────────────────────────
 //
-// Parses a markdown file with `# 1 PART NAME`, `## 1.2 Subpart`, etc. into
-// a SectionTreeNode hierarchy. Used for all DCPs ingested via the NSW v2
-// pipeline — the upstream PDF→MD converter (scripts/dcp-pdf-to-md.ts)
-// produces per-page text blocks interleaved with two kinds of comment
-// markers that this parser understands:
+// Parses a DCP converted from PDF into a SectionTreeNode hierarchy.
 //
-//   `<!-- SRC: file.pdf | PAGE: 12 -->`  — new, carries citation hotlink
-//                                          metadata (source split file
-//                                          + page number). First SRC
-//                                          seen at or before a heading
-//                                          is bound to that section.
-//   `<!-- Page N -->`                     — legacy, from the old Albury
-//                                          preprocessor. Stripped.
+// WHY THIS DOES NOT USE HEADING DEPTH
+// -----------------------------------
+// Docling emits every heading at the same level. Randwick's DCP has 3,422
+// headings and all of them are `##` — zero `#`, zero `###`. Building the
+// tree by counting hash marks therefore produces 3,422 flat siblings and
+// destroys the document structure entirely.
 //
-// Heading detection:
-//   `# 1 INTRODUCTION TO THE DEVELOPMENT CONTROL PLAN`  → part   number=1
-//   `## 5.2 TREE PRESERVATION ORDER`                    → clause number=5.2
-//   `### 6.2.1 Flood Referral Areas`                    → clause number=6.2.1
-//   `#### Objectives`                                   → clause heading=Objectives
-//   `#### Controls`                                     → clause heading=Controls
+// The hierarchy is instead recovered from the *numbering inside the heading
+// text*, which the DCP itself uses as its address scheme. Randwick's own
+// cross-references read:
 //
-// TOC duplicates: the first occurrence of each H1 is treated as a TOC
-// entry (no body) and the second occurrence becomes the real Part section.
-// We detect this by looking for an H1 with no real content between it and
-// the next H1.
+//     "(see Section C1 Low Density Residential: 3.3.2 Side Setbacks)"
+//
+// so a citation path of part → clause → rubric is the document's native
+// convention, not one we invented.
+//
+// BLOCK KINDS
+// -----------
+// NSW DCPs divide each numbered clause into an unnumbered rubric —
+// Objectives / Explanation / Controls / Note — and only Controls is
+// enforceable. Those rubric headings are 68% of all headings here, and
+// without classification the decomposer treats background prose as binding.
+//
+//     ## 3.3.2. Side setbacks          → clause
+//     ## Controls                      → rubric   (binding)
+//     ## Residential flat buildings    → scope    (narrows Controls)
+//     ## Note:                         → rubric   (not binding)
+//     ## 3.3.3. Rear setbacks          → clause
+//
+// `rubric` is inherited down the subtree, so a scope block under Controls
+// reports rubric='controls'. Stage 1 filters on it.
 
-import type { SectionTreeNode, SectionLevel } from '../types'
+import type { SectionTreeNode, SectionLevel, BlockKind, Rubric } from '../types'
 
 interface RawHeading {
   line:        number
-  depth:       number          // 1..6 from # count
-  number:      string | null   // '5.2', '6.2.1', or null for textual headings
-  title:       string          // 'TREE PRESERVATION ORDER' or 'Objectives'
-  raw:         string          // original line
-  source_file: string | null   // SRC marker in effect at this heading's line
+  hashDepth:   number          // # count — retained for diagnostics only
+  number:      string | null   // '3.3.2', 'C1', 'B2.10'
+  title:       string
+  raw:         string
+  source_file: string | null
   page:        number | null
+
+  // filled in by later passes
+  body?:            string
+  bodySourceFile?:  string | null
+  bodyPage?:        number | null
+  blockKind?:       BlockKind
+  rubric?:          Rubric | null
+  segments?:        string[]
 }
 
 const HEADING_RE = /^(#{1,6})\s+(.+?)\s*$/
-// Section-number detection — accepts three forms:
-//   Pure numeric:       "5.2 TREE PRESERVATION"            → "5.2"
-//   Numeric with suffix:"10.4.2A Dwelling Setbacks"        → "10.4.2A"
-//   Letter-prefixed:    "A1 About this DCP"                → "A1"
-//                       "B2.10 Heritage Overlay"           → "B2.10"
-// (Randwick DCP uses A1..F5 for Parts, with decimal sub-sections within.)
-const NUMBERED_RE = /^([A-Z]?\d+(?:\.\d+)*[A-Z]?)\s+(.+)$/
 const SRC_MARKER_RE = /^\s*<!--\s*SRC:\s*(.+?)\s*\|\s*PAGE:\s*(\d+)\s*-->\s*$/
+
+// Section-number detection. Three accepted forms:
+//   Pure numeric        "3.3.2. Side setbacks"        → "3.3.2"
+//   Numeric with suffix "10.4.2A Dwelling Setbacks"   → "10.4.2A"
+//   Letter-prefixed     "C1 Low Density Residential"  → "C1"
+//                       "B2.10 Heritage Overlay"      → "B2.10"
+// A trailing dot after the number is common in Docling output and is eaten.
+const NUMBERED_RE = /^([A-Z]?\d+(?:\.\d+)*[A-Z]?)\.?\s+(.+)$/
+
+// Bare letter part codes ("B General Controls"). Deliberately narrow: a
+// single A–F followed by a short Title Case heading. Without the length and
+// case guards this matches ordinary prose headings that happen to start
+// with "A ", e.g. "A minimum of 25% of the front setback...".
+const BARE_PART_RE = /^([A-F])\s+([A-Z][^.]{0,60})$/
+
+/** Rubric lexicon. Matched against a normalised heading (lowercased,
+ *  trailing punctuation and numbering stripped) so "Note 1:", "Notes" and
+ *  "Note:" all land on 'note'. */
+const RUBRIC_LEXICON: Array<[RegExp, Rubric]> = [
+  [/^objectives?$/,                        'objectives'],
+  [/^explanations?$/,                      'explanation'],
+  [/^controls?$/,                          'controls'],
+  [/^(performance )?requirements?$/,       'requirements'],
+  [/^provisions?$/,                        'controls'],
+  [/^notes?( \d+)?$/,                      'note'],
+  [/^(background|commentary|introduction)$/, 'background'],
+]
+
+function normaliseHeading(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[:.–—-]+\s*$/, '')   // trailing punctuation
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function matchRubric(title: string): Rubric | null {
+  const n = normaliseHeading(title)
+  for (const [re, rubric] of RUBRIC_LEXICON) {
+    if (re.test(n)) return rubric
+  }
+  return null
+}
+
+/** Split a section number into hierarchy segments.
+ *  '3.3.2' → ['3','3','2']   'C1' → ['C1']   'B2.10' → ['B2','10'] */
+function toSegments(num: string): string[] {
+  return num.split('.').filter(Boolean)
+}
+
+/** A part code detectable from a heading alone.
+ *
+ *  Deliberately limited to bare single letters. Letter+digit codes ('C1',
+ *  'K1', 'S3') are NOT treated as parts: in Randwick every such heading is
+ *  a zone code or a site name appearing in body content — "C1 Carpark Site"
+ *  is not part C1, which is "Low Density Residential". Guessing produced
+ *  six parts of which six were wrong, so we no longer guess.
+ *
+ *  Real part identity comes from the file the section was converted from
+ *  (councils publish DCPs as one PDF per part) and is supplied by the
+ *  caller via `opts.part`. Randwick's merged markdown carries a usable part
+ *  heading for only 4 of its parts, and no other DCP in the library carries
+ *  one at all. */
+function isPartNumber(num: string): boolean {
+  return /^[A-F]$/.test(num)
+}
 
 export interface ParsedDocument {
   title: string
   tree: SectionTreeNode[]
 }
 
-export function parseStructuredMd(md: string, opts: { title: string }): ParsedDocument {
-  const lines = md.split(/\r?\n/)
-  const headings: RawHeading[] = []
+export interface ParseStats {
+  headings:   number
+  parts:      number
+  clauses:    number
+  rubrics:    number
+  scopes:     number
+  tocDropped: number
+  maxDepth:   number
+  rootNodes:  number
+}
 
-  // ── Pass 1: walk lines once, tracking the active SRC marker and
-  // collecting headings with the SRC state as-of their line. We scan the
-  // whole file so that body extraction (Pass 3) can also use the same
-  // line→(file, page) association if we ever need to reconstruct it.
+export interface ParseOptions {
+  title: string
+  /** Part code this markdown belongs to, e.g. 'C1'. Councils publish DCPs
+   *  as one PDF per part, so this normally comes from the source filename.
+   *  When supplied it wins over anything detected in the headings — the
+   *  file knows what part it is and the prose does not. */
+  part?: string
+  /** Human name for the part, e.g. 'Low Density Residential'. */
+  partTitle?: string
+  onStats?: (s: ParseStats) => void
+}
+
+export function parseStructuredMd(md: string, opts: ParseOptions): ParsedDocument {
+  const lines = md.split(/\r?\n/)
+
+  // ── Pass 1: collect headings, tracking the active SRC marker ─────────
+  const headings: RawHeading[] = []
   let currentFile: string | null = null
   let currentPage: number | null = null
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
 
-    // Update the active SRC marker if this line is one.
     const srcMatch = line.match(SRC_MARKER_RE)
     if (srcMatch) {
       currentFile = srcMatch[1]!.trim()
@@ -77,121 +171,247 @@ export function parseStructuredMd(md: string, opts: { title: string }): ParsedDo
 
     const m = line.match(HEADING_RE)
     if (!m) continue
-    const depth = m[1]!.length
+    const hashDepth = m[1]!.length
     const title = m[2]!.trim()
+
     const numMatch = title.match(NUMBERED_RE)
+    const bareMatch = numMatch ? null : title.match(BARE_PART_RE)
+
     headings.push({
       line:        i,
-      depth,
-      number:      numMatch?.[1] ?? null,
-      title:       numMatch ? numMatch[2]!.trim() : title,
+      hashDepth,
+      number:      numMatch?.[1] ?? bareMatch?.[1] ?? null,
+      title:       (numMatch?.[2] ?? bareMatch?.[2] ?? title).trim(),
       raw:         line,
       source_file: currentFile,
       page:        currentPage,
     })
   }
 
-  // ── Pass 2: collapse TOC duplicates ──────────────────────────────────
-  // Strategy: if an H1 with the same number+title appears twice, keep only the
-  // second occurrence (the real body — TOC always comes first).
-  const seenH1 = new Map<string, number>() // key → first index
+  // ── Pass 2: extract body text per heading ────────────────────────────
+  for (let i = 0; i < headings.length; i++) {
+    const startLine = headings[i]!.line + 1
+    const endLine = i + 1 < headings.length ? headings[i + 1]!.line : lines.length
+    const extracted = extractBody(lines.slice(startLine, endLine))
+    headings[i]!.body = extracted.text
+    headings[i]!.bodySourceFile = extracted.source_file
+    headings[i]!.bodyPage = extracted.page
+  }
+
+  // ── Pass 3: drop table-of-contents entries ───────────────────────────
+  // A TOC entry is a numbered heading with an empty body whose exact
+  // number+title recurs later in the document with real content. The old
+  // parser only checked H1s, which never fires on an all-`##` file.
+  const lastRealIndex = new Map<string, number>()
+  for (let i = 0; i < headings.length; i++) {
+    const h = headings[i]!
+    if (!h.number) continue
+    if ((h.body ?? '').length > 0) lastRealIndex.set(`${h.number}|${h.title}`, i)
+  }
   const toDrop = new Set<number>()
   for (let i = 0; i < headings.length; i++) {
     const h = headings[i]!
-    if (h.depth !== 1) continue
-    const key = `${h.number ?? ''}|${h.title}`
-    if (seenH1.has(key)) {
-      // Drop the FIRST occurrence (TOC)
-      toDrop.add(seenH1.get(key)!)
-      seenH1.set(key, i)   // remember the latest
-    } else {
-      seenH1.set(key, i)
-    }
+    if (!h.number) continue
+    if ((h.body ?? '').length > 0) continue
+    const later = lastRealIndex.get(`${h.number}|${h.title}`)
+    if (later !== undefined && later > i) toDrop.add(i)
   }
   const filtered = headings.filter((_, i) => !toDrop.has(i))
 
-  // ── Pass 3: extract body text per heading ────────────────────────────
-  // Body of heading[i] = lines (heading[i].line+1 .. heading[i+1].line-1),
-  // stripping comments (including SRC markers), image links, and
-  // horizontal rules. Also returns the first SRC marker seen inside the
-  // body so the section can be bound to a specific page.
-  for (let i = 0; i < filtered.length; i++) {
-    const startLine = filtered[i]!.line + 1
-    const endLine = i + 1 < filtered.length ? filtered[i + 1]!.line : lines.length
-    const extracted = extractBody(lines.slice(startLine, endLine))
-    ;(filtered[i] as any).body = extracted.text
-    ;(filtered[i] as any).bodySourceFile = extracted.source_file
-    ;(filtered[i] as any).bodyPage = extracted.page
+  // ── Pass 4: classify every heading ───────────────────────────────────
+  for (const h of filtered) {
+    if (h.number) {
+      // When the caller has declared the part, this markdown *is* one part
+      // and nothing inside it can open another.
+      h.blockKind = (!opts.part && isPartNumber(h.number)) ? 'part' : 'clause'
+      h.segments = toSegments(h.number)
+      h.rubric = null
+      continue
+    }
+    const rubric = matchRubric(h.title)
+    if (rubric) {
+      h.blockKind = 'rubric'
+      h.rubric = rubric
+    } else {
+      h.blockKind = 'scope'
+      h.rubric = null      // resolved by inheritance during the tree build
+    }
   }
 
-  // ── Pass 4: build the tree from heading depths ───────────────────────
-  // Each filtered heading becomes a SectionTreeNode. Parents are determined
-  // by tracking the most recent heading at each depth.
+  // ── Pass 5: build the tree from numbering, not hash depth ────────────
   const tree: SectionTreeNode[] = []
-  const stack: Array<{ depth: number; node: SectionTreeNode }> = []
-  const localIdSeen = new Map<string, number>()    // for collision avoidance
+  const localIdSeen = new Map<string, number>()
   let sortOrder = 0
 
-  for (const h of filtered) {
-    let localId = buildLocalId(h)
-    // Numbered headings can repeat within a DCP (e.g. two different "7.4"
-    // sections). Append a #N suffix on collision so the unique constraint holds.
-    const seenCount = localIdSeen.get(localId) ?? 0
-    if (seenCount > 0) localId = `${localId}#${seenCount + 1}`
-    localIdSeen.set(buildLocalId(h), seenCount + 1)
+  // Clause stack: entries carry their numbering segments so a clause finds
+  // its parent by longest-common-prefix rather than by heading depth.
+  let clauseStack: Array<{ segments: string[]; node: SectionTreeNode }> = []
+  let currentPartNode: SectionTreeNode | null = null
+  let currentPart: string | null = null
+  let currentRubricNode: SectionTreeNode | null = null
+  let currentRubric: Rubric | null = null
+  let stats: ParseStats = {
+    headings: filtered.length, parts: 0, clauses: 0, rubrics: 0,
+    scopes: 0, tocDropped: toDrop.size, maxDepth: 0, rootNodes: 0,
+  }
 
-    // Prefer the SRC marker found INSIDE the body (first one wins) — that's
-    // the earliest page containing actual section content. If the body has
-    // no marker (e.g. purely structural headings like "#### Objectives"
-    // whose body is empty), fall back to the SRC active at the heading line
-    // itself. This gives every node a best-effort (file, page) hotlink.
-    const bodyFile = (h as any).bodySourceFile as string | null
-    const bodyPage = (h as any).bodyPage as number | null
+  // A caller-declared part becomes a synthetic root that every clause hangs
+  // under, so citation paths read "C1 Low Density Residential > 3.3.2 > ..."
+  // even though the markdown itself never names the part.
+  if (opts.part) {
+    currentPart = opts.part
+    currentPartNode = {
+      local_id:   `dcp.${opts.part}`,
+      level:      'part',
+      number:     opts.part,
+      heading:    opts.partTitle ?? opts.title,
+      raw_text:   '',
+      depth:      0,
+      sort_order: sortOrder++,
+      children:   [],
+      source_file: null,
+      page:        null,
+      block_kind:  'part',
+      rubric:      null,
+      scope_label: null,
+      part:        opts.part,
+    }
+    tree.push(currentPartNode)
+    localIdSeen.set(currentPartNode.local_id, 1)
+    stats.parts++
+  }
+
+  const attach = (node: SectionTreeNode, parent: SectionTreeNode | null) => {
+    if (parent) parent.children.push(node)
+    else tree.push(node)
+  }
+
+  const uniqueLocalId = (base: string): string => {
+    const seen = localIdSeen.get(base) ?? 0
+    localIdSeen.set(base, seen + 1)
+    return seen === 0 ? base : `${base}#${seen + 1}`
+  }
+
+  for (const h of filtered) {
+    const bodyFile = h.bodySourceFile ?? null
     const source_file = bodyFile ?? h.source_file
-    const page = bodyFile !== null ? bodyPage : h.page
+    const page = bodyFile !== null ? (h.bodyPage ?? null) : h.page
+
+    let parent: SectionTreeNode | null = null
+    let localIdBase: string
+    let depth: number
+    let level: SectionLevel
+    let rubric: Rubric | null = null
+    let scopeLabel: string | null = null
+
+    if (h.blockKind === 'part') {
+      clauseStack = []
+      currentRubricNode = null
+      currentRubric = null
+      currentPart = h.number
+      parent = null
+      localIdBase = `dcp.${h.number}`
+      depth = 0
+      level = 'part'
+      stats.parts++
+    } else if (h.blockKind === 'clause') {
+      const segs = h.segments!
+      // Pop clauses that are not an ancestor of this one.
+      while (clauseStack.length > 0 && !isPrefix(clauseStack[clauseStack.length - 1]!.segments, segs)) {
+        clauseStack.pop()
+      }
+      currentRubricNode = null
+      currentRubric = null
+      parent = clauseStack.length > 0
+        ? clauseStack[clauseStack.length - 1]!.node
+        : currentPartNode
+      localIdBase = currentPart ? `dcp.${currentPart}.${segs.join('.')}` : `dcp.${segs.join('.')}`
+      depth = (currentPartNode ? 1 : 0) + segs.length - 1
+      level = segs.length >= 3 ? 'subclause' : 'clause'
+      stats.clauses++
+    } else if (h.blockKind === 'rubric') {
+      parent = clauseStack.length > 0
+        ? clauseStack[clauseStack.length - 1]!.node
+        : currentPartNode
+      const parentId = parent?.local_id ?? `dcp.${currentPart ?? 'root'}`
+      localIdBase = `${parentId}/${h.rubric}`
+      depth = (parent?.depth ?? 0) + 1
+      level = 'paragraph'
+      rubric = h.rubric ?? null
+      stats.rubrics++
+    } else {
+      // scope — narrows the active rubric, or hangs off the clause when the
+      // document opened a sub-block without a rubric heading first.
+      parent = currentRubricNode
+        ?? (clauseStack.length > 0 ? clauseStack[clauseStack.length - 1]!.node : currentPartNode)
+      const parentId = parent?.local_id ?? `dcp.${currentPart ?? 'root'}`
+      localIdBase = `${parentId}/${slug(h.title)}`
+      depth = (parent?.depth ?? 0) + 1
+      level = 'paragraph'
+      rubric = currentRubric          // inherited
+      scopeLabel = h.title
+      stats.scopes++
+    }
 
     const node: SectionTreeNode = {
-      local_id:    localId,
-      level:       mapDepthToLevel(h.depth, h.number),
+      local_id:    uniqueLocalId(localIdBase),
+      level,
       number:      h.number,
       heading:     h.title,
-      raw_text:    ((h as any).body as string) ?? '',
-      depth:       h.depth,
+      raw_text:    h.body ?? '',
+      depth,
       sort_order:  sortOrder++,
       children:    [],
       source_file,
       page,
+      block_kind:  h.blockKind,
+      rubric,
+      scope_label: scopeLabel,
+      part:        currentPart,
     }
-    // Pop the stack until we find a parent at strictly lower depth
-    while (stack.length > 0 && stack[stack.length - 1]!.depth >= h.depth) {
-      stack.pop()
-    }
-    if (stack.length === 0) {
-      tree.push(node)
-    } else {
-      stack[stack.length - 1]!.node.children.push(node)
-    }
-    stack.push({ depth: h.depth, node })
+
+    attach(node, parent)
+    if (depth > stats.maxDepth) stats.maxDepth = depth
+
+    if (h.blockKind === 'part') currentPartNode = node
+    else if (h.blockKind === 'clause') clauseStack.push({ segments: h.segments!, node })
+    else if (h.blockKind === 'rubric') { currentRubricNode = node; currentRubric = h.rubric ?? null }
   }
+
+  stats.rootNodes = tree.length
+  opts.onStats?.(stats)
 
   return { title: opts.title, tree }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
+/** True when `a` is a proper ancestor path of `b` — ['3','3'] of ['3','3','2']. */
+function isPrefix(a: string[], b: string[]): boolean {
+  if (a.length >= b.length) return false
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
+  return true
+}
+
+function slug(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 40) || 'block'
+}
+
 interface ExtractedBody {
   text: string
-  /** First `<!-- SRC: file.pdf | PAGE: N -->` marker seen in the body, or null. */
   source_file: string | null
   page: number | null
 }
 
 /** Strip structural markup from a section's body lines:
- *  - HTML comments (including SRC markers — but we record the first one)
- *  - Standalone image links like `![alt](images/foo.png)` from dcp-pdf-to-md
- *  - Horizontal rules (`---`), which the PDF converter emits as page separators
- *  Returns the cleaned text joined by newlines, plus the first SRC marker
- *  found inside the body (used to bind the section to a specific page). */
+ *  - HTML comments (including SRC markers — the first one is recorded)
+ *  - Standalone image links emitted by dcp-pdf-to-md
+ *  - Horizontal rules, which the converter emits as page separators
+ *  The LLM must never see image markup. */
 function extractBody(lines: string[]): ExtractedBody {
   const out: string[] = []
   let source_file: string | null = null
@@ -201,7 +421,6 @@ function extractBody(lines: string[]): ExtractedBody {
     const trimmed = line.trim()
     if (!trimmed) continue
 
-    // Record the first SRC marker, then strip it
     if (source_file === null) {
       const srcMatch = trimmed.match(SRC_MARKER_RE)
       if (srcMatch) {
@@ -211,34 +430,14 @@ function extractBody(lines: string[]): ExtractedBody {
       }
     }
 
-    // Strip any other HTML comment (subsequent SRC markers, legacy page
-    // markers, DCP title comments)
     if (trimmed.startsWith('<!--') && trimmed.endsWith('-->')) continue
-    // Strip horizontal rules (PDF page separators from dcp-pdf-to-md)
     if (/^---+$/.test(trimmed)) continue
-    // Strip standalone markdown image links (the proof-of-coverage images
-    // embedded by dcp-pdf-to-md). The LLM must never see these.
     if (/^!\[[^\]]*\]\([^)]+\)$/.test(trimmed)) continue
 
     out.push(trimmed)
   }
 
   return { text: out.join('\n'), source_file, page }
-}
-
-function buildLocalId(h: RawHeading): string {
-  if (h.number) return `dcp.${h.number}`
-  // Numberless headings (like '#### Objectives' or '#### Controls') need a
-  // unique id — use the line number to disambiguate.
-  const slug = h.title.toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 30)
-  return `dcp.h${h.depth}.${h.line}.${slug}`
-}
-
-function mapDepthToLevel(depth: number, number: string | null): SectionLevel {
-  // # = part, ## / ### / #### with a number = clause, #### without = paragraph
-  if (depth === 1) return 'part'
-  if (number) return 'clause'
-  return 'paragraph'
 }
 
 // ── Tree flattening — same shape as nsw-xml-parser exports ───────────────
@@ -254,6 +453,10 @@ export interface FlatSection {
   sort_order:  number
   source_file: string | null
   page:        number | null
+  block_kind?: BlockKind
+  rubric?:     Rubric | null
+  scope_label?: string | null
+  part?:       string | null
 }
 
 export function flattenTree(tree: SectionTreeNode[]): FlatSection[] {
@@ -271,6 +474,10 @@ export function flattenTree(tree: SectionTreeNode[]): FlatSection[] {
         sort_order:      n.sort_order,
         source_file:     n.source_file,
         page:            n.page,
+        block_kind:      n.block_kind,
+        rubric:          n.rubric,
+        scope_label:     n.scope_label,
+        part:            n.part,
       })
       if (n.children.length) walk(n.children, n.local_id)
     }
@@ -289,4 +496,37 @@ export function countLeafClauses(tree: SectionTreeNode[]): number {
   }
   walk(tree)
   return count
+}
+
+/** Sections that carry binding obligations — the only ones Stage 1 should
+ *  decompose into propositions. Objectives and Explanation are merit
+ *  context; Note is explicitly non-binding. */
+export function bindingSections(flat: FlatSection[]): FlatSection[] {
+  return flat.filter(
+    (s) => (s.rubric === 'controls' || s.rubric === 'requirements') && s.raw_text.length > 0,
+  )
+}
+
+/** Citation path in the DCP's own address format:
+ *  "C1 Low Density Residential > 3.3.2 > Controls (page 24)" */
+export function citationPath(flat: FlatSection[], localId: string): string | null {
+  const byId = new Map(flat.map((s) => [s.local_id, s]))
+  const node = byId.get(localId)
+  if (!node) return null
+
+  const chain: FlatSection[] = []
+  let cur: FlatSection | undefined = node
+  while (cur) {
+    chain.unshift(cur)
+    cur = cur.parent_local_id ? byId.get(cur.parent_local_id) : undefined
+  }
+
+  const parts = chain.map((s) => {
+    if (s.block_kind === 'part') return `${s.number} ${s.heading}`
+    if (s.block_kind === 'clause') return s.number ?? s.heading ?? ''
+    return s.heading ?? ''
+  }).filter(Boolean)
+
+  const path = parts.join(' > ')
+  return node.page !== null ? `${path} (page ${node.page})` : path
 }

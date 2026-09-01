@@ -54,6 +54,24 @@ export interface NswSection {
   page:         number | null
 }
 
+// ── DCP block structure ─────────────────────────────────────────────────
+//
+// NSW DCPs follow a standard internal rubric: a numbered clause is divided
+// into Objectives / Explanation / Controls / Note blocks, and only Controls
+// is enforceable. Those blocks are unnumbered headings in the converted
+// markdown (68% of headings in Randwick), so without classification they
+// are indistinguishable from clauses.
+//
+// A `scope` block is an unnumbered heading inside a rubric that narrows it
+// to a development type — e.g. clause 3.4.2 Controls carries separate
+// blocks for "Residential flat buildings" and "Attached Dwellings".
+
+export type BlockKind = 'part' | 'clause' | 'rubric' | 'scope'
+
+export type Rubric =
+  | 'objectives' | 'explanation' | 'controls'
+  | 'note' | 'background' | 'requirements'
+
 /** In-memory section tree node used by parsers in Stage 0 (no DB ids yet). */
 export interface SectionTreeNode {
   local_id:    string
@@ -68,6 +86,19 @@ export interface SectionTreeNode {
    *  observed inside this section's body by the structured-md parser. */
   source_file: string | null
   page:        number | null
+
+  // ── DCP-only, set by the structured-md parser. Undefined for legislation
+  // parsed from PCO XML, which has no rubric convention.
+  /** What this heading is structurally. */
+  block_kind?:  BlockKind
+  /** Effective rubric, inherited down the subtree. `controls` marks the
+   *  only blocks that carry binding obligations — the decomposer uses this
+   *  to avoid extracting Objectives and Explanation as if they bound. */
+  rubric?:      Rubric | null
+  /** For scope blocks: the development type or sub-topic being narrowed to. */
+  scope_label?: string | null
+  /** Part code this section sits under, e.g. 'C1'. */
+  part?:        string | null
 }
 
 // ── Proposition ─────────────────────────────────────────────────────────
