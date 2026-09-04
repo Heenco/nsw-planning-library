@@ -8,6 +8,7 @@ import { retrieveCandidates } from './retrieve'
 import { expandGraph } from './expand'
 import { applyHierarchyFilter } from './hierarchy'
 import { synthesize } from './synthesize'
+import type { RetrievalCandidate } from './types'
 import type { QueryEvent } from './types'
 
 export interface QueryOrchestratorOptions {
@@ -29,6 +30,9 @@ export interface QueryOrchestratorOptions {
   /** When true, orchestrator does NOT call res.end() on completion — caller
    *  owns stream lifetime (used when multiple orchestrators share one stream). */
   keepOpen?:    boolean
+  /** Sources supplied as established facts in the query, so the model can cite
+   *  them. See SynthesizeOptions.citableExtras. */
+  citableExtras?: RetrievalCandidate[]
   res:          any                 // Node response stream for SSE
 }
 
@@ -135,6 +139,7 @@ export async function runQuery(opts: QueryOrchestratorOptions): Promise<void> {
       apiKey: opts.apiKey,
       groqKey: opts.groqKey,
       systemPrompt: opts.systemPrompt,
+      citableExtras: opts.citableExtras,
       onChunk: (text) => sseEvent(res, `${tag}answer_chunk`, { text }),
     })
     step('Answer', 'done', `${result.full_text.length} chars · ${result.citations.length} citations · ${result.ms}ms`)

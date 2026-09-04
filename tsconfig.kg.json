@@ -7,6 +7,7 @@
   },
   "include": [
     "server/utils/nsw-kg/**/*.ts",
+    "shared/**/*.ts",
     "server/utils/embeddings.ts",
     "server/utils/sitewise/**/*.ts",
     "server/utils/kgPool.ts",

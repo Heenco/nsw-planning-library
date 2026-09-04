@@ -86,9 +86,9 @@ export default defineEventHandler(async (event) => {
     WITH matches AS (
       SELECT DISTINCT ON (address)
         address, lga_name, suburbname, postcode,
-        centroid_lat, centroid_lon, lzn_sym_code AS zone,
+        centroid_lat, centroid_lon, lzn_sym_code_p AS zone,
         ${rankCols}
-      FROM up_property_comprehensive
+      FROM nsw.up_property_d_3
       WHERE ${whereParts.join(' AND ')}
       ORDER BY address
     )

@@ -24,22 +24,40 @@ export interface NumberCandidate {
   category: 'obvious' | 'with_unit' | 'with_comparator' | 'bare'
 }
 
-// Units we recognise. Order matters — longer first so "metres" beats "m".
+// Units we recognise. Order matters — longer first so "metres" beats "m",
+// "m2" beats "m", and "km" is not read as a bare "m".
+//
+// Bare 'm' is load-bearing and was missing until it was noticed that no
+// Hornsby DCP setback value had been extracted. Control tables write "6m",
+// "0.9m", "7.6m" — never "6 metres" — so without this token every one of
+// those numbers scored as 'bare' and was discarded, while the storey
+// qualifier beside it ("up to 1 storey") kept its unit and was taken as the
+// setback instead. It is last in the list so the longer distance units win.
 const UNIT_TOKENS = [
-  'square\\s+metres', 'square\\s+metre', 'sqm', 'm²', 'm2',
+  'square\\s+metres', 'square\\s+metre', 'sqm', 'm²',
+  // PDF extraction loses the superscript, so m² reaches us as "m2" or "m 2"
+  // ("Lots < 4,000m 2"). The lookahead keeps the spaced form from eating the
+  // storey count in "0.9m 2 storey element", where the 2 starts a new clause.
+  'm\\s*2(?!\\s*store)',
   'metres', 'metre', 'km',
   'hectares', 'hectare', 'ha',
   'per\\s*cent', 'percent', '%',
   'dwellings?', 'persons?', 'storeys?', 'spaces?',
   'litres?', 'L',
   ':\\s*1',       // FSR ratio e.g. "0.5:1"
+  'm',            // "6m" — must stay last, after m², m2, km and metre(s)
 ]
 
-const UNIT_RE = new RegExp(`^\\s*(${UNIT_TOKENS.join('|')})\\b`, 'i')
+// Terminated by "not another alphanumeric" rather than \b. A \b after the
+// unit cannot match when the unit ends in a symbol — there is no boundary
+// between "%" and the space that follows it — so "25%" scored as a bare
+// number and was dropped, while "25 percent" was kept. This still refuses
+// "6mm", where the following character is alphanumeric.
+const UNIT_RE = new RegExp(`^\\s*(${UNIT_TOKENS.join('|')})(?![A-Za-z0-9])`, 'i')
 
 // Unit tokens → canonical unit string (matching llm-schema.ts expectations).
 const UNIT_CANONICAL: Array<[RegExp, string]> = [
-  [/^(square\s+metres?|sqm|m²|m2)$/i,         'sqm'],
+  [/^(square\s+metres?|sqm|m²|m\s*2)$/i,       'sqm'],
   [/^(metres?|m)$/i,                           'metre'],
   [/^km$/i,                                    'km'],
   [/^(hectares?|ha)$/i,                        'hectare'],
@@ -92,7 +110,18 @@ function isLikelyYear(value: number, raw: string): boolean {
 // Skip list ordinals like "(1)", "(2)", "(a)" — handled because we only match
 // bare digits and the paren patterns don't look like numbers anyway.
 
-const NUMBER_RE = /\b(\d+(?:\.\d+)?)\b/g
+// The trailing \b this pattern used to carry made every number written flush
+// against its unit invisible: in "6m" the digit and the letter are both word
+// characters, so there is no boundary between them and the scan simply never
+// fired. DCP control tables write "6m", "0.9m", "4,000m2" — almost never
+// "6 metres" — so that one anchor silently dropped most of a document's
+// numbers, and the loosely-spaced storey counts beside them ("1 storey")
+// were all that survived to be mistaken for the value.
+//
+// Leading (?<![\w.,]) still refuses to start mid-number, so "3.1.2" yields
+// 3.1 once rather than three fragments. The comma-grouped alternative comes
+// first so "4,000" is one number and not 4 followed by 000.
+const NUMBER_RE = /(?<![\w.,])(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)/g
 
 export function findNumberCandidates(text: string): NumberCandidate[] {
   if (!text) return []
@@ -105,7 +134,7 @@ export function findNumberCandidates(text: string): NumberCandidate[] {
   while ((m = NUMBER_RE.exec(text)) !== null) {
     const raw = m[1]!
     const idx = m.index
-    const value = Number(raw)
+    const value = Number(raw.replace(/,/g, ''))
     if (!Number.isFinite(value)) continue
     if (isLikelyYear(value, raw)) continue
 
@@ -120,6 +149,12 @@ export function findNumberCandidates(text: string): NumberCandidate[] {
 
     // Look at the following 30 chars for a unit token
     const after = text.slice(idx + raw.length, idx + raw.length + 30)
+
+    // Either half of a fraction is not a threshold. "reduced to 3m for a
+    // maximum of 1/3 of the building width" was yielding a candidate of 1
+    // with the comparator 'maximum' attached, which reached the rule layer
+    // as a setback of "≤ 1" — a plausible-looking number that means nothing.
+    if (/^\s*\/\s*\d/.test(after) || /\d\s*\/\s*$/.test(before)) continue
     let unit: string | null = null
     const unitMatch = after.match(UNIT_RE)
     if (unitMatch) {

@@ -4,7 +4,7 @@
     <!-- ── Landing: Property search first, then state map ────────────────── -->
     <div v-if="view === 'landing'" class="landing">
       <h1 class="landing-title">Australian Planning Library</h1>
-      <p class="landing-desc">Get a planning report for any NSW property, or browse instruments by state</p>
+      <p class="landing-desc">Get a planning report for a {{ PROPERTY_LGA_LABEL }} property, or browse NSW instruments by state</p>
       <div v-if="viewCount !== null" class="view-counter">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         {{ viewCount.toLocaleString() }} views
@@ -13,8 +13,9 @@
       <!-- Disclaimer -->
       <div class="landing-disclaimer">
         <strong>Testing Only</strong> — This tool is experimental and covers a limited set of NSW planning instruments
-        (selected LEPs, SEPPs, and some DCPs). AI-generated answers may be incomplete or inaccurate.
-        Always verify with official sources.
+        (selected LEPs, SEPPs, and some DCPs). Property data currently covers the
+        <strong>{{ PROPERTY_LGA_LABEL }}</strong> {{ PROPERTY_LGAS.length > 1 ? 'LGAs' : 'LGA' }} only.
+        AI-generated answers may be incomplete or inaccurate. Always verify with official sources.
       </div>
 
       <!-- Property report (now at the top) -->
@@ -49,174 +50,26 @@
             </div>
           </div>
 
-          <!-- Sample addresses -->
-          <div class="sample-addresses">
-            <span class="sample-addresses-label">Try one of these:</span>
+          <!-- Sample addresses, grouped by council: with two LGAs covered,
+               an unlabelled row of nine chips gives no clue which council a
+               suburb belongs to. -->
+          <div v-for="group in sampleAddressGroups" :key="group.lga" class="sample-addresses">
+            <span class="sample-addresses-label">{{ group.lga }}</span>
             <button
-              v-for="s in sampleAddresses"
+              v-for="s in group.items"
               :key="s.address"
               type="button"
               class="sample-address-chip"
               @click="pickSampleAddress(s)"
             >
-              <span class="sample-address-council">{{ s.council }}</span>
+              <span class="sample-address-council">{{ s.zone }}</span>
               <span class="sample-address-text">{{ s.address }}</span>
             </button>
           </div>
 
           <!-- Persona selector -->
-          <div class="persona-selector">
-            <label class="property-field-label">I am a…</label>
-            <div class="persona-cards">
-              <button
-                v-for="p in personas"
-                :key="p.id"
-                type="button"
-                :class="['persona-card', { 'persona-card--active': selectedPersona === p.id }]"
-                @click="selectedPersona = p.id"
-              >
-                <!-- Owner / Buyer: due diligence — magnifying glass inspecting a house -->
-                <svg v-if="p.id === 'owner'" class="persona-illus" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="roof-grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#15803d"/>
-                      <stop offset="100%" stop-color="#16a34a"/>
-                    </linearGradient>
-                    <radialGradient id="lens-grad" cx="0.35" cy="0.35" r="0.6">
-                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
-                      <stop offset="50%" stop-color="#bae6fd" stop-opacity="0.25"/>
-                      <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.12"/>
-                    </radialGradient>
-                    <clipPath id="lens-clip">
-                      <circle cx="0" cy="0" r="14"/>
-                    </clipPath>
-                  </defs>
 
-                  <!-- Ground shadow -->
-                  <ellipse class="illus-shadow" cx="50" cy="90" rx="28" ry="3" fill="#0f172a" opacity="0.08"/>
-
-                  <!-- Small isometric house (being inspected) -->
-                  <g class="illus-house">
-                    <!-- side wall -->
-                    <path d="M52 55 L72 66 L72 82 L52 71 Z" fill="#cbd5e1"/>
-                    <!-- front wall -->
-                    <path d="M32 66 L52 55 L52 71 L32 82 Z" fill="#e2e8f0"/>
-                    <!-- roof -->
-                    <path d="M32 66 L52 49 L72 66 L52 55 Z" fill="url(#roof-grad)"/>
-                    <!-- door -->
-                    <rect x="40" y="67" width="6" height="10" fill="#15803d" rx="1"/>
-                    <!-- window -->
-                    <rect x="58" y="68" width="6" height="4" fill="#bae6fd" opacity="0.8"/>
-                  </g>
-
-                  <!-- Magnifying glass (scans across on hover) -->
-                  <g class="illus-magnifier">
-                    <!-- Handle (angled) -->
-                    <line x1="42" y1="42" x2="22" y2="22" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
-                    <line x1="42" y1="42" x2="22" y2="22" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
-                    <!-- Lens ring -->
-                    <circle cx="52" cy="52" r="15" fill="url(#lens-grad)" stroke="#334155" stroke-width="3"/>
-                    <!-- Lens shine -->
-                    <ellipse class="illus-shine" cx="46" cy="46" rx="4" ry="2.5" fill="#ffffff" opacity="0.7" transform="rotate(-30 46 46)"/>
-                  </g>
-                </svg>
-
-                <!-- Developer / Builder: crane with swinging hook -->
-                <svg v-else-if="p.id === 'developer'" class="persona-illus" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- ground shadow -->
-                  <ellipse class="illus-shadow" cx="50" cy="88" rx="32" ry="4" fill="#0f172a" opacity="0.08"/>
-                  <!-- building under construction -->
-                  <rect x="20" y="55" width="30" height="30" fill="#e2e8f0"/>
-                  <rect class="illus-floor-1" x="22" y="75" width="10" height="8" fill="#15803d"/>
-                  <rect class="illus-floor-2" x="34" y="70" width="10" height="13" fill="#15803d" opacity="0.7"/>
-                  <rect class="illus-floor-3" x="22" y="63" width="10" height="10" fill="#15803d" opacity="0.4"/>
-                  <!-- Crane vertical mast -->
-                  <rect x="70" y="20" width="3" height="65" fill="#334155"/>
-                  <!-- Crane base -->
-                  <path d="M64 85 L79 85 L76 82 L67 82 Z" fill="#334155"/>
-                  <!-- Crane arm (horizontal) -->
-                  <g class="illus-crane-arm">
-                    <rect x="50" y="22" width="30" height="3" fill="#334155"/>
-                    <rect x="70" y="17" width="3" height="8" fill="#334155"/>
-                    <!-- cable -->
-                    <line class="illus-cable" x1="55" y1="25" x2="55" y2="45" stroke="#64748b" stroke-width="0.8"/>
-                    <!-- hook -->
-                    <rect class="illus-hook" x="53" y="45" width="4" height="4" fill="#15803d" rx="0.5"/>
-                  </g>
-                </svg>
-
-                <!-- Urban Planner: planner figure writing on a clipboard with a city skyline behind -->
-                <svg v-else-if="p.id === 'planner'" class="persona-illus" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- ground shadow -->
-                  <ellipse class="illus-shadow" cx="50" cy="90" rx="32" ry="3" fill="#0f172a" opacity="0.08"/>
-
-                  <!-- City skyline (in the background, right side) -->
-                  <g class="illus-skyline">
-                    <!-- tallest building (back) -->
-                    <rect class="illus-tower-1" x="56" y="20" width="12" height="58" fill="#334155"/>
-                    <rect x="58" y="24" width="2" height="3" fill="#475569"/>
-                    <rect x="62" y="24" width="2" height="3" fill="#475569"/>
-                    <rect x="58" y="30" width="2" height="3" fill="#475569"/>
-                    <rect x="62" y="30" width="2" height="3" fill="#475569"/>
-                    <rect x="58" y="36" width="2" height="3" fill="#475569"/>
-                    <rect x="62" y="36" width="2" height="3" fill="#475569"/>
-                    <!-- roof shape -->
-                    <path d="M56 20 L62 14 L68 20 Z" fill="#334155"/>
-
-                    <!-- medium building -->
-                    <rect class="illus-tower-2" x="72" y="32" width="14" height="46" fill="#475569"/>
-                    <rect x="74" y="36" width="2" height="3" fill="#64748b"/>
-                    <rect x="78" y="36" width="2" height="3" fill="#64748b"/>
-                    <rect x="82" y="36" width="2" height="3" fill="#64748b"/>
-                    <rect x="74" y="44" width="2" height="3" fill="#64748b"/>
-                    <rect x="78" y="44" width="2" height="3" fill="#64748b"/>
-                    <rect x="82" y="44" width="2" height="3" fill="#64748b"/>
-                    <!-- flat roof with notch -->
-                    <rect x="76" y="28" width="6" height="4" fill="#475569"/>
-                  </g>
-
-                  <!-- Planner figure (front-left) -->
-                  <g class="illus-planner">
-                    <!-- Head (with hard-hat curve) -->
-                    <circle cx="25" cy="32" r="8" fill="#334155"/>
-                    <!-- Hard hat band -->
-                    <path d="M17 31 Q25 27 33 31 L33 33 L17 33 Z" fill="#15803d"/>
-
-                    <!-- Body / torso -->
-                    <path d="M14 42 Q14 40 16 40 L34 40 Q36 40 36 42 L38 70 Q38 72 36 72 L14 72 Q12 72 12 70 Z" fill="#334155"/>
-
-                    <!-- Arm holding clipboard -->
-                    <path class="illus-arm" d="M14 48 Q10 55 18 62 L30 62 L30 58 Q22 56 20 50 Z" fill="#334155"/>
-                  </g>
-
-                  <!-- Clipboard (in front of the planner) -->
-                  <g class="illus-clipboard">
-                    <!-- Board outline -->
-                    <rect x="26" y="48" width="30" height="24" rx="1.5" fill="#15803d"/>
-                    <!-- Paper -->
-                    <rect x="28" y="50" width="26" height="20" fill="#fff"/>
-                    <!-- Clip at top -->
-                    <rect x="36" y="45" width="10" height="5" rx="1" fill="#166534"/>
-                    <!-- Lines on paper (being written) -->
-                    <line class="illus-line-1" x1="31" y1="55" x2="48" y2="55" stroke="#15803d" stroke-width="1.2" stroke-linecap="round"/>
-                    <line class="illus-line-2" x1="31" y1="60" x2="44" y2="60" stroke="#15803d" stroke-width="1.2" stroke-linecap="round"/>
-                    <line class="illus-line-3" x1="31" y1="65" x2="40" y2="65" stroke="#15803d" stroke-width="1.2" stroke-linecap="round"/>
-
-                    <!-- Pen (being held) -->
-                    <g class="illus-pen">
-                      <line x1="46" y1="64" x2="54" y2="56" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
-                      <circle cx="46" cy="64" r="1" fill="#166534"/>
-                    </g>
-                  </g>
-                </svg>
-
-                <span class="persona-name">{{ p.label }}</span>
-                <span class="persona-desc">{{ p.desc }}</span>
-              </button>
-            </div>
-          </div>
-
-          <button class="property-btn" :disabled="!selectedLat || !selectedPersona" type="submit">
+          <button class="property-btn" :disabled="!selectedLat" type="submit">
             Generate Report
           </button>
         </form>
@@ -268,6 +121,10 @@
           Coming soon
         </span>
       </div>
+
+      <NuxtLink to="/library" class="library-link">
+        Browse the full library &rarr;
+      </NuxtLink>
     </div>
 
     <!-- Disclaimer modal (first visit only) -->
@@ -333,37 +190,6 @@
       </div>
     </div>
 
-    <!-- ── Document viewer ──────────────────────────────────────────────── -->
-    <div v-if="view === 'document'" class="doc-view">
-      <div class="doc-topbar">
-        <button class="back-btn" @click="closeDocument">&larr; Back to list</button>
-        <span class="doc-topbar-title">{{ currentDoc?.title }}</span>
-      </div>
-
-      <div class="doc-layout">
-        <!-- TOC sidebar -->
-        <aside class="doc-toc">
-          <h3 class="doc-toc-title">Contents</h3>
-          <div class="doc-toc-list">
-            <button
-              v-for="(item, i) in toc"
-              :key="i"
-              :class="['doc-toc-item', 'doc-toc-level-' + item.level]"
-              @click="scrollToHeading(item.id)"
-            >
-              {{ item.text }}
-            </button>
-          </div>
-        </aside>
-
-        <!-- Document content -->
-        <div class="doc-content-wrap" ref="docContentEl">
-          <div v-if="docLoading" class="doc-loading">Loading document...</div>
-          <div v-else class="doc-content" v-html="renderedHtml"></div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -374,6 +200,8 @@ import { usePageViews } from '~/composables/usePageViews'
 
 const { viewCount } = usePageViews()
 import Australia from '@svg-maps/australia'
+import { withVisibleDcpsOnly } from '~/utils/instrument-visibility'
+import { PROPERTY_LGAS, PROPERTY_LGA_LABEL } from '#shared/property-columns'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -408,24 +236,42 @@ const rawMarkdown = ref('')
 const docContentEl = ref<HTMLDivElement | null>(null)
 const hoveredState = ref<{ name: string; key: string; active: boolean } | null>(null)
 const propertyAddress = ref('')
-const selectedPersona = ref('')
+// One persona: the report always gives the full planner-level detail.
+const selectedPersona = ref('planner')
 const showDisclaimer = ref(false)
 
-const personas = [
-  { id: 'owner',     label: 'Owner / Buyer',       desc: 'Due diligence report' },
-  { id: 'developer', label: 'Developer / Builder', desc: 'What can I build here?' },
-  { id: 'planner',   label: 'Urban Planner',       desc: 'What controls apply?' },
-]
-
+/**
+ * One per council, spread across zones rather than picked for looks.
+ *
+ * The Randwick entries sit in precincts the new DCP 2025 gives their own
+ * part — Kensington/Kingsford (D1), Maroubra Junction (D3) — so a sample
+ * click lands on controls that plan actually introduced. Coordinates and
+ * zones are read from nsw.up_property_d_3, not typed by hand.
+ */
 const sampleAddresses = [
-  { council: 'Albury',        address: '500 DEAN STREET ALBURY',         lat: -36.0808585, lng: 146.9186013 },
-  { council: 'Georges River', address: '11 MACMAHON STREET HURSTVILLE',  lat: -33.9645623, lng: 151.1030536 },
-  { council: 'Parramatta',    address: '10 BOUNDARY STREET PARRAMATTA',  lat: -33.8252794, lng: 150.9978345 },
-  { council: 'Randwick',      address: '43 GREVILLE STREET CLOVELLY',    lat: -33.9100136, lng: 151.2583506 },
-  { council: 'Sydney',        address: '1 MARTIN PLACE SYDNEY',          lat: -33.8677948, lng: 151.2077467 },
+  { lga: 'Hornsby',  zone: 'R2',  address: '100 GALSTON ROAD HORNSBY HEIGHTS', lat: -33.6811405, lng: 151.0974353 },
+  { lga: 'Hornsby',  zone: 'R3',  address: '15 MILDRED AVENUE HORNSBY',        lat: -33.6932249, lng: 151.1002495 },
+  { lga: 'Hornsby',  zone: 'R4',  address: '9 BELL STREET HORNSBY',            lat: -33.6904113, lng: 151.1027866 },
+  { lga: 'Hornsby',  zone: 'RU4', address: '307 GALSTON ROAD GALSTON',         lat: -33.6536012, lng: 151.0547281 },
+  { lga: 'Randwick', zone: 'R3',  address: '63 COWPER STREET RANDWICK',        lat: -33.9090242, lng: 151.2400042 },
+  { lga: 'Randwick', zone: 'R2',  address: '903 ANZAC PARADE MAROUBRA',        lat: -33.9473258, lng: 151.2399913 },
+  { lga: 'Randwick', zone: 'R3',  address: '46 KENNEDY STREET KINGSFORD',      lat: -33.9224242, lng: 151.2323735 },
+  { lga: 'Randwick', zone: 'R1',  address: '15 THE SERPENTINE KENSINGTON',     lat: -33.9056454, lng: 151.2192903 },
+  { lga: 'Randwick', zone: 'E1',  address: '21 MAROUBRA ROAD MAROUBRA',        lat: -33.9405432, lng: 151.2294223 },
 ]
 
-function pickSampleAddress(s: { address: string; lat: number; lng: number }) {
+/** Chips grouped by council, in the order the samples are declared. */
+const sampleAddressGroups = computed(() => {
+  const out: Array<{ lga: string; items: typeof sampleAddresses }> = []
+  for (const s of sampleAddresses) {
+    const g = out.find((x) => x.lga === s.lga)
+    if (g) g.items.push(s)
+    else out.push({ lga: s.lga, items: [s] })
+  }
+  return out
+})
+
+function pickSampleAddress(s: { address: string; lat: number; lng: number; zone?: string }) {
   propertyAddress.value = s.address
   selectedLat.value = s.lat
   selectedLng.value = s.lng
@@ -453,7 +299,9 @@ function onAddressInput() {
 
 async function fetchAddressSuggestions(q: string) {
   try {
-    const resp = await fetch(`/api/address-autocomplete?q=${encodeURIComponent(q)}`)
+    // /api/property/search reads nsw.up_property_d_3 and is Hornsby-only;
+    // the old /api/address-autocomplete queried a table that no longer exists.
+    const resp = await fetch(`/api/property/search?q=${encodeURIComponent(q)}`)
     if (!resp.ok) return
     const data = await resp.json()
     acResults.value = (data.results || []).map((r: any, i: number) => ({
@@ -533,7 +381,7 @@ function handleMapHover(locId: string) {
 onMounted(async () => {
   try {
     const resp = await fetch('/instruments.json')
-    index.value = await resp.json()
+    index.value = withVisibleDcpsOnly(await resp.json())
   } catch (e) {
     console.error('Failed to load instruments index:', e)
   }
@@ -622,7 +470,24 @@ const toc = computed((): TocItem[] => {
 
 // ── Rendered HTML ────────────────────────────────────────────────────────────
 
+/** Images checked into public/ — served by Nuxt at this path. */
+const LOCAL_IMG_BASE = '/EPI/DCPs'
+/** Fallback for DCPs whose images live only on the CDN. */
 const IMG_BASE = 'https://static.heenco.com/EPI/DCPs'
+
+/** Swap to the CDN when the local copy is missing. `error` does not bubble
+ *  from <img>, so this listens in the capture phase; each image retries
+ *  once, since `data-fallback` is cleared on use. */
+function imgFallback(ev: Event) {
+  const el = ev.target as HTMLImageElement | null
+  if (!el || el.tagName !== 'IMG' || !el.dataset.fallback) return
+  const next = el.dataset.fallback
+  delete el.dataset.fallback
+  el.src = next
+}
+
+onMounted(() => document.addEventListener('error', imgFallback, true))
+onBeforeUnmount(() => document.removeEventListener('error', imgFallback, true))
 
 const renderedHtml = computed(() => {
   if (!rawMarkdown.value) return ''
@@ -632,12 +497,16 @@ const renderedHtml = computed(() => {
     const id = 'heading-' + (headingIndex++)
     return `<h${depth} id="${id}">${text}</h${depth}>\n`
   }
-  // Resolve relative image paths to static.heenco.com for DCP documents
+  // DCP images are written relative ("images/hornsby/p0001-ab12.png").
+  // Prefer the copy in public/, which Nuxt serves directly, and fall back
+  // to the CDN for the older DCPs whose images were never checked in.
   renderer.image = function ({ href, text }: { href: string; text: string }) {
-    const src = href.startsWith('http') || href.startsWith('/')
-      ? href
-      : `${IMG_BASE}/${href}`
-    return `<img src="${src}" alt="${text || ''}" loading="lazy" style="max-width:100%;height:auto;border-radius:6px;margin:1em 0;border:1px solid #e5e7eb;" />`
+    const style = 'max-width:100%;height:auto;border-radius:6px;margin:1em 0;border:1px solid #e5e7eb;'
+    if (href.startsWith('http') || href.startsWith('/')) {
+      return `<img src="${href}" alt="${text || ''}" loading="lazy" style="${style}" />`
+    }
+    return `<img src="${LOCAL_IMG_BASE}/${href}" data-fallback="${IMG_BASE}/${href}"`
+      + ` alt="${text || ''}" loading="lazy" style="${style}" />`
   }
   return marked.parse(rawMarkdown.value, { renderer }) as string
 })
@@ -654,35 +523,19 @@ function selectState(stateKey: string) {
   view.value = 'list'
 }
 
-async function openDocument(doc: DocItem) {
-  currentDoc.value = doc
-  docLoading.value = true
-  rawMarkdown.value = ''
-  view.value = 'document'
-
-  try {
-    const resp = await fetch('/' + doc.file)
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-    rawMarkdown.value = await resp.text()
-  } catch (e) {
-    rawMarkdown.value = `# Error\n\nFailed to load document: ${e}`
-  } finally {
-    docLoading.value = false
-  }
+/**
+ * Open a document in /doc-viewer rather than the inline reader below.
+ *
+ * This page used to render documents itself, which meant two viewers with
+ * separate image handling, anchor logic and format support — the inline one
+ * has no structured-HTML tab and no citation anchors, so the same document
+ * looked different depending on which list you reached it from. One viewer
+ * is the fix.
+ */
+function openDocument(doc: DocItem) {
+  router.push({ path: '/doc-viewer', query: { doc: doc.slug, from: 'home' } })
 }
 
-function closeDocument() {
-  view.value = 'list'
-  currentDoc.value = null
-  rawMarkdown.value = ''
-}
-
-function scrollToHeading(id: string) {
-  nextTick(() => {
-    const el = docContentEl.value?.querySelector(`#${CSS.escape(id)}`)
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  })
-}
 </script>
 
 <style>
@@ -824,6 +677,24 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 3px;
+}
+
+.library-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  text-decoration: none;
+}
+
+.library-link:hover {
+  border-color: #15803d;
+  color: #15803d;
 }
 
 .map-legend-dot--active {

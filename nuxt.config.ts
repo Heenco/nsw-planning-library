@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     groqApiKey: process.env.GROQ_API_KEY,
     public: {
       mapboxToken: process.env.NUXT_PUBLIC_MAPBOX_TOKEN,
+      martinUrl: process.env.NUXT_PUBLIC_MARTIN_URL || 'http://172.105.184.178:3000',
       upstashRedisUrl: process.env.UPSTASH_REDIS_REST_URL,
       upstashRedisToken: process.env.UPSTASH_REDIS_REST_TOKEN,
     }

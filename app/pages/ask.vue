@@ -255,6 +255,10 @@ async function submitQuery() {
     const decoder = new TextDecoder()
     let buffer = ''
 
+    // Held across reads, not per chunk: a large event puts its `event:` line and
+    // its `data:` line in different chunks, and resetting per chunk dropped the
+    // event with no error at all.
+    let eventType = ''
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
@@ -262,8 +266,6 @@ async function submitQuery() {
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split('\n')
       buffer = lines.pop() || ''
-
-      let eventType = ''
       for (const line of lines) {
         if (line.startsWith('event: ')) {
           eventType = line.slice(7).trim()

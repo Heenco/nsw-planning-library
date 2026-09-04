@@ -6,7 +6,7 @@
 // onChunk callback, then extracts the citations the LLM emitted.
 
 import type { Citation, FilteredContext, OverrideDecision, RetrievalCandidate, QueryPlan } from './types'
-import { formatSectionId, shortDocumentLabel } from './citation-format'
+import { formatSectionId, shortDocumentLabel } from '../../../../shared/citation-format'
 
 // Provider config — Groq is preferred because its LPU inference runs
 // Llama 3.3 70B at ~10× the throughput of DeepInfra (~500-1000 tok/s vs
@@ -35,6 +35,17 @@ export interface SynthesizeOptions {
    *  specific callers (e.g. per-use controls analysis) inject their own prompt
    *  while still getting the full retrieval + citation pipeline. */
   systemPrompt?: string
+  /**
+   * Sources supplied to the model as established facts rather than retrieved.
+   *
+   * The report hands the model DCP controls straight from nsw.rule_effect,
+   * because the proposition layer never captured those tables. The model then
+   * cites the clause it was given, extractCitations finds no matching retrieval
+   * candidate, and the chip renders as an unresolvable [?]. Listing them here
+   * makes exactly the clauses we supplied citable — and nothing else, so a
+   * clause the model invents still fails to resolve.
+   */
+  citableExtras?: RetrievalCandidate[]
   onChunk:  (text: string) => void
 }
 
@@ -87,17 +98,38 @@ function extractCitations(
  * /doc-viewer?doc=<key> uses these keys to resolve the MD file.
  * Keys must match DOC_MAP in app/pages/doc-viewer.vue.
  */
-function dcpDocKey(title: string): string | null {
-  const t = title.toLowerCase()
-  if (t.includes('albury')) return 'albury-dcp'
-  if (t.includes('georges river')) return 'georges-river-dcp'
-  if (t.includes('parramatta')) return 'parramatta-dcp'
-  if (t.includes('randwick')) return 'randwick-dcp'
-  if (t.includes('liverpool')) {
-    if (t.includes('schedule 1')) return 'liverpool-dcp-sch1'
-    if (t.includes('schedule 2')) return 'liverpool-dcp-sch2'
-    if (t.includes('schedule 3')) return 'liverpool-dcp-sch3'
-    return 'liverpool-dcp-main'
+/**
+ * Slug for a document we hold locally, so a citation can open in /doc-viewer
+ * at the exact clause instead of leaving the app.
+ *
+ * Hornsby was missing, which is why its DCP citations rendered as dead text:
+ * with no key, clause_url stayed null and the renderer emitted a span.
+ *
+ * LEPs are included now too. The XML-to-HTML conversion carries the source's
+ * own ids, so a citation's section_local_id ("sec.4.6") is already the anchor
+ * in our rendered copy — the deep link lands on the clause.
+ */
+function docViewerKey(title: string, docType?: string): string | null {
+  const t = (title || '').toLowerCase()
+
+  if (docType === 'dcp') {
+    if (t.includes('hornsby')) return 'hornsby-dcp-2024'
+    if (t.includes('albury')) return 'albury-dcp'
+    if (t.includes('georges river')) return 'georges-river-dcp'
+    if (t.includes('parramatta')) return 'parramatta-dcp'
+    if (t.includes('randwick')) return 'randwick-dcp'
+    if (t.includes('liverpool')) {
+      if (t.includes('schedule 1')) return 'liverpool-dcp-sch1'
+      if (t.includes('schedule 2')) return 'liverpool-dcp-sch2'
+      if (t.includes('schedule 3')) return 'liverpool-dcp-sch3'
+      return 'liverpool-dcp-main'
+    }
+    return null
+  }
+
+  // LEP / SEPP: instruments.json slugs are the kebab-cased title.
+  if (t.includes('local environmental plan') || t.includes('state environmental planning policy')) {
+    return t.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   }
   return null
 }
@@ -112,13 +144,13 @@ function buildCitation(c: RetrievalCandidate, number: number): Citation {
   //      — opens the Docling-rendered markdown in-app, jumps to the section
   //   3. Otherwise: null (the UI will fall back to document_source_url)
   let clause_url: string | null = null
-  if (isLegislation && c.document_source_url) {
+  const viewerKey = docViewerKey(c.document_title, c.document_doc_type)
+  if (viewerKey) {
+    // Our own rendering, anchored at the clause — keeps the reader in the app
+    // and works for the DCP, which has no public per-clause URL.
+    clause_url = `/doc-viewer?doc=${viewerKey}&anchor=${encodeURIComponent(c.section_local_id)}`
+  } else if (isLegislation && c.document_source_url) {
     clause_url = `${c.document_source_url}#${c.section_local_id}`
-  } else if (c.document_doc_type === 'dcp') {
-    const key = dcpDocKey(c.document_title)
-    if (key) {
-      clause_url = `/doc-viewer?doc=${key}&anchor=${encodeURIComponent(c.section_local_id)}`
-    }
   }
 
   // Trim source_quote to first sentence or 200 chars
@@ -211,17 +243,30 @@ function buildOverridesBlock(decisions: OverrideDecision[]): string {
 const SYSTEM_PROMPT = `You are a NSW planning law assistant. Your job is to answer questions about NSW Local Environmental Plans (LEP), State Environmental Planning Policies (SEPP), and Development Control Plans (DCP).
 
 CRITICAL RULES:
-1. Answer ONLY from the propositions provided. Never use general knowledge.
-2. CITE every factual claim with the proposition's section id in square brackets, like [sec.4.3-ssec.2] or [dcp.10.4.2]. Use the EXACT section id from the propositions.
+1. Answer ONLY from the sources provided. Never use general knowledge.
+2. CITE a claim only with a proposition that actually states it. Use the EXACT section id, like [sec.4.3-ssec.2] or [dcp.10.4.2].
+2a. NEVER attach a citation to a fact that no source states. An absence is never citable: "no floor space ratio is mapped for this lot" and "no minimum lot size applies" come from the site context and take no clause reference at all, because no clause says a standard is absent. For example, the zone of a parcel comes from the site context, not from a clause — write "is in zone R2" with no citation, never "is in zone R2 [sec.6.9]". Facts given in the site context (zone, mapped height, minimum lot size, lot dimensions) are already established — report them plainly, and say where they came from ("from the Height of Buildings Map", "from the property record"). A wrong citation is worse than none. Square brackets are reserved for citation markers: write "from the Height of Buildings Map" as ordinary prose, never "[from the property record]", which renders as a broken citation chip.
+2b. If the sources do not cover something the question asks about, say the instruments do not state it — "the DCP does not set a site coverage control for this use". Do not substitute a nearby clause, and do not describe the state of this system.
 3. If a value is "deferred to map:Xxx_Map", say so explicitly — never invent a numeric value.
-4. If the propositions don't contain enough information to answer, say so.
+4. If the sources don't contain enough to answer, say which instrument is silent on the point.
 5. Prefer the higher-tier source when multiple instruments cover the same topic. SEPPs override LEPs, and the propositions block will tell you when overrides apply.
+6. A DCP section applies only to the development type named in its heading. If a proposition comes from a section about a different development type (for example "Garden Centres" or "Industrial Development" when the question is about a dwelling), it does not apply here — leave it out rather than reporting it as a control.
+7. Do not convert a control for one boundary into another. Front, rear, side and secondary setbacks are separate controls with separate values.
+8. Never use the words "proposition", "knowledge base", "provided context" or "the data" in the answer. The reader is a planner reading a planning report, not a user of this system. Write "the LEP does not state" or "no floor space ratio is mapped for this lot", never "not explicitly stated in the provided propositions".
+9. A standard that is absent is a finding, not a gap, and carries no citation. When the site context says no floor space ratio or no minimum lot size is mapped for the lot, report that plainly as the result — it means no such standard constrains the development, which is what the reader needs to know. Do not hedge it as missing information.
+10. Do not write a sentence that carries no fact. Never write "certain", "some", "various" or "a certain limit" in place of the thing a control governs — if the source does not say what the 2.4m applies to, drop the control rather than writing "the maximum height of certain elements is 2.4m". Likewise "a dwelling cannot be erected on a lot below the minimum lot size" says nothing when no minimum lot size applies. Name the thing or leave it out.
+11. Do not contradict the site context. If it says no minimum lot size or no floor space ratio is mapped, do not then write that development is "subject to the minimum lot size" — no such standard applies here, and a clause that mentions one does not reinstate it. Say nothing further about it.
+11a. The DCP controls are grouped by land use, most significant for this lot first. Report the first group in full and name the use it belongs to ("For a residential flat building..."). Where a later group states materially different figures, give those too under their own use. Never merge two uses into one set of numbers, and never answer an R3 or R4 lot as though a dwelling house were the only thing that could be built on it.
+12. A control shown with "[applies at N storeys]" only holds at that building scale. State the condition alongside the value ("12m at 3 storeys"), never the bare number — the same control takes a different value at another scale, and a height quoted without its band is the wrong height for most buildings.
+13. Do not end with a coverage disclaimer. "No other relevant controls were found", "nothing further was located" and similar closing sentences describe this system rather than the planning controls, and they are wrong whenever a control exists that you simply did not list. Stop after the last fact.
 
 FORMATTING RULES (strict):
 • Plain prose, 1-3 short paragraphs. Lead with the direct answer.
 • Bullet lists only when listing 3+ discrete items. Use "- " at line start.
-• NEVER emit markdown headings. No "#", "##", "###", "####" anywhere.
+• The DCP controls ARE such a list. Never run them together into one paragraph — one control per bullet, and a separate short lead-in line per land use.
+• No markdown headings UNLESS the question specifies a section structure. When it does, use exactly the headings it names and no others.
 • NEVER write a "Sources:" or "References:" section — the UI renders citations separately.
+• NEVER end with a coverage sentence. "No other relevant provisions were found", "nothing further applies", "no other controls were located" — all forbidden. The last sentence of the answer must be a planning fact. This is the single most common thing to get wrong: stop writing after the last control.
 • Use **bold** ONLY for numeric values with units (e.g. **8.5m**, **450 m²**, **2:1 FSR**).
 • Do NOT bold clause references, section numbers, chapter numbers, years, zone codes, or instrument names. Leave them plain.
 • Don't repeat the same citation more than necessary. If three facts come from the same clause, cite it once.
@@ -397,7 +442,10 @@ export async function synthesize(opts: SynthesizeOptions): Promise<SynthesizeRes
   }
 
   const fullText = result.fullText
-  const { citations, cite_index } = extractCitations(fullText, opts.context.kept)
+  const { citations, cite_index } = extractCitations(
+    fullText,
+    [...opts.context.kept, ...(opts.citableExtras ?? [])],
+  )
 
   return {
     full_text: fullText,

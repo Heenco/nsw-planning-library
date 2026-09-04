@@ -17,3 +17,15 @@ public/EPI/DCPs/AlburyDCP.md
 public/EPI/DCPs/AlburyDCP-structured.md
 public/EPI/DCPs/*.pdf
 
+
+# DCP register downloads (bulk PDFs, fetched by scripts/fetch-dcp-register.mjs)
+public/EPI/DCPs/pdf/
+public/EPI/nsw-dcp/dcp-register.html
+public/EPI/DCPs/images/
+
+# Python venv for the Docling converter (large; keep out of git)
+.venv/
+
+# Intermediate DCP conversion artefacts (docling JSON + per-part html/md).
+# Regenerable from the manifest; the merged instrument in public/ is the output.
+build/

@@ -1,0 +1,48 @@
+/* Local overrides — ours, not upstream's.
+ *
+ * Kept in a separate file and loaded after style.css so the vendored viewer
+ * stays a clean copy: re-copying from upstream overwrites style.css but leaves
+ * this alone. The only edit to an upstream file is the <link> in index.html.
+ *
+ * TO CHANGE THE FONT: edit --local-ui-font below. Nothing else needs touching —
+ * upstream sets the family once on body, and its buttons and selects use
+ * `font: inherit`, so the whole GUI follows.
+ *
+ * To go back to the original look, delete the <link> from index.html; the
+ * bundled MEK-Mono.otf and its @font-face rule are untouched.
+ */
+
+:root {
+  /* Same stack the rest of the app uses (see nuxt.config.ts / app pages). */
+  --local-ui-font: "Figtree", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", system-ui, sans-serif;
+
+  /* Upstream's font, kept for the code spans below and for switching back. */
+  --local-mono-font: "MEK-Mono", "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+
+body {
+  font-family: var(--local-ui-font);
+}
+
+/* Upstream draws the takeoff numbers in a right-aligned <table>, so they line
+ * up without a monospace font — but tabular figures keep the digits in true
+ * columns as the numbers change between models. */
+table.stats,
+.dim-label {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The rationale panel quotes file paths, commands and element names. Those
+ * read as code, so they stay monospace even though the UI no longer is. */
+.md code,
+.md pre {
+  font-family: var(--local-mono-font);
+  font-size: 0.92em;
+}
+
+/* Proportional type sits slightly tighter than the mono it replaces; give the
+ * GUI labels back a little breathing room. */
+#gui {
+  letter-spacing: 0.01em;
+}

@@ -1,0 +1,48 @@
+{
+  "instrument": "hornsby-dcp-2024",
+  "title": "Hornsby Development Control Plan 2024",
+  "council": "Hornsby",
+  "lga": "Hornsby Shire Council",
+  "jurisdiction": "nsw",
+  "kind": "dcp",
+  "shape": "consolidated",
+  "commenced": "2024-07-18",
+  "as_at": "2025-06-23",
+  "date_evidence": {
+    "commenced": "Title page: 'Prepared by Planning and Compliance Division, Hornsby Shire Council. In force: 18 July 2024'",
+    "as_at": "Amendments table lists 26 August 2024, 19 May 2025 and 23 June 2025; part footers read 'THIS PART WAS LAST AMENDED ON 23 JUNE 2025'",
+    "note": "The source filename says '26-june-2026-current', which is when the book-version PDF was published/retrieved, not the document's legal currency date. as_at follows the document's own stated last amendment."
+  },
+  "amendments": [
+    { "date": "2024-08-26", "summary": "Part 1 'Air Quality' — prohibit indoor gas; require electric cooktops, ovens and heaters in new residential development" },
+    { "date": "2025-05-19", "summary": "Part 1 'Watercourses' — Riparian Land Map references, Hornsby Town Centre Masterplan and TOD parking requirements, bush fire assessment notes; Part 4 'Hornsby Town Centre' controls" },
+    { "date": "2025-06-23", "summary": "Part 1 Stormwater Management (dual occupancy OSD) and Transport and Parking (dual occupancy minimums); Part 3 Dwellings expanded to incorporate dual occupancy, Beecroft Heritage Precinct provisions moved to Residential Flat Buildings (5 Storeys)" }
+  ],
+  "source_page": "https://www.hornsby.nsw.gov.au/property/build/policies/development-control-plan",
+  "retrieved_at": "2026-09-02T00:00:00.000Z",
+  "part_count": 1,
+  "total_pages": 489,
+  "page_count_source": "pdfjs numPages via unpdf; the converter records data-pages=489",
+  "parts": [
+    {
+      "part": null,
+      "title": "Hornsby Development Control Plan 2024 (book version)",
+      "label": "Hornsby DCP 2024 — book version",
+      "vintage": "hdcp-2024",
+      "anchor_prefix": null,
+      "part_label": null,
+      "url": null,
+      "file": "hdcp-2024-book-version-26-june-2026-current.pdf",
+      "bytes": 41985417,
+      "pages": 489,
+      "has_text_layer": true,
+      "note": "One consolidated PDF whose depth-1 outline bookmarks mark its 11 internal parts, so the converter derives parts from the outline and anchors need no prefix. Source URL not recorded at download time — this file predates the manifest convention and was retrieved by hand."
+    }
+  ],
+  "conversion": {
+    "md": "public/EPI/DCPs/hornsby-dcp-2024.md",
+    "html": "public/EPI/DCPs/hornsby-dcp-2024.html",
+    "images": "public/EPI/DCPs/images/hornsby",
+    "anchor_scheme": "unprefixed (dcp.<clause>) — single consolidated source, clause numbers already carry their part"
+  }
+}

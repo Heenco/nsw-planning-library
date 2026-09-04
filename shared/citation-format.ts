@@ -88,17 +88,33 @@ export function formatSectionId(localId: string, docType?: 'lep' | 'sepp' | 'dcp
   // Special cases first
   if (id === 'dict' || id === 'dictionary') return 'Dictionary'
 
-  // DCP ids: 'dcp.10.4.2' or 'dcp.h4.5890.<slug>'
+  // DCP ids: 'dcp.10.4.2', 'dcp.3.1.2.desired_outcome', 'dcp.h4.5890.<slug>'
   if (id.startsWith('dcp.')) {
-    const rest = id.slice(4)
+    let rest = id.slice(4)
+    // A disambiguating suffix is not part of the citation.
+    rest = rest.replace(/_\d+$/, '')
+
     // dcp.h4.5890.<slug> — heading-derived, not a real numbered section
     if (/^h\d+\./.test(rest)) {
       const parts = rest.split('.')
       const slug = parts.slice(2).join('.').replace(/_/g, ' ')
       return slug ? `${slug} (DCP)` : 'DCP section'
     }
+
+    // dcp.3.1.2.desired_outcome — a rubric block scoped to its clause.
+    // Cite the clause and name the block, since "Desired Outcome" alone
+    // identifies nothing.
+    const scoped = rest.match(/^(\d+(?:\.\d+)*)\.([a-z][a-z0-9_]*)$/i)
+    if (scoped) {
+      const label = scoped[2]!.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+      return `s ${scoped[1]} (${label})`
+    }
+
     // dcp.10.4.2 → s 10.4.2
-    return `s ${rest}`
+    if (/^\d+(?:\.\d+)*$/.test(rest)) return `s ${rest}`
+
+    // Unnumbered top-level heading — no clause to cite.
+    return ''
   }
 
   // LEP / SEPP ids: dot-segmented hierarchy joined with '-'
@@ -146,9 +162,13 @@ export function formatSectionId(localId: string, docType?: 'lep' | 'sepp' | 'dcp
         parts.push(fmtParagraph(seg))
       }
     } else {
-      // Unknown segment — keep as-is so we don't lose information
-      parts.push(seg)
-      lastWasClause = false
+      // Not a recognised provision segment, so this id has no legal citation:
+      // the Land Use Table's rows (`sec.2-oc.5`) and zone groups
+      // (`pt-cg1.Zone_RU1`) are structural ids, not references. Passing them
+      // through produced citations like "cl 2 oc.5" — an internal occurrence
+      // counter offered as a legal reference. An empty string means
+      // "not citable", which is how the DCP branch above already signals it.
+      return ''
     }
   }
 
@@ -195,6 +215,13 @@ export function shortDocumentLabel(title: string, docType?: 'lep' | 'sepp' | 'dc
     return 'SEPP'
   }
   if (docType === 'lep') return t.replace(/Local Environmental Plan.*/i, 'LEP').trim()
-  if (docType === 'dcp') return t.replace(/Development Control Plan.*/i, 'DCP').trim()
+  if (docType === 'dcp') {
+    // Keep the year. Hornsby's property records name "Hornsby DCP 2013" while
+    // the ingested plan is the 2024 one, so dropping the year from the label
+    // hides the very distinction a reader needs to notice.
+    const year = (t.match(/(19|20)\d{2}/) || [])[0]
+    const base = t.replace(/Development Control Plan.*/i, 'DCP').trim()
+    return year && !base.includes(year) ? `${base} ${year}` : base
+  }
   return t
 }

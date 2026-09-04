@@ -68,6 +68,45 @@
         <!-- Map -->
         <div class="lot-map-container">
           <div ref="mapEl" class="lot-map"></div>
+
+          <!-- Measure tool. Same geodesic maths as the tile-catalog map
+               (shared/geo-measure.mjs), so the two never disagree. -->
+          <div class="lot-measure-control">
+            <button
+              type="button"
+              class="lot-measure-btn"
+              :class="{ 'lot-measure-btn--on': measureMode === 'distance' }"
+              title="Measure distance — click points on the map"
+              @click="toggleMeasure('distance')"
+            >distance</button>
+            <button
+              type="button"
+              class="lot-measure-btn"
+              :class="{ 'lot-measure-btn--on': measureMode === 'area' }"
+              title="Measure area — click points to enclose it"
+              @click="toggleMeasure('area')"
+            >area</button>
+            <button
+              v-if="measurePoints.length"
+              type="button"
+              class="lot-measure-btn lot-measure-btn--clear"
+              title="Clear measurement"
+              @click="clearMeasure"
+            >clear</button>
+          </div>
+
+          <div v-if="measureMode || measurePoints.length" class="lot-measure-readout">
+            <div v-if="measureTotal" class="lot-measure-value">{{ measureTotal }}</div>
+            <div v-if="measureSecondary" class="lot-measure-secondary">{{ measureSecondary }}</div>
+            <div class="lot-measure-hint">
+              <template v-if="measureMode">
+                {{ measurePoints.length < measureMinPoints
+                  ? `Click ${measureMinPoints - measurePoints.length} more point${measureMinPoints - measurePoints.length > 1 ? 's' : ''}`
+                  : 'Double-click to finish' }} · Esc to cancel
+              </template>
+              <template v-else>Finished · {{ measurePoints.length }} points</template>
+            </div>
+          </div>
         </div>
         <!-- Dimensions -->
         <div class="lot-dims">
@@ -78,26 +117,50 @@
             <div class="dim" v-if="p.average_slope"><span class="dim-label">Avg slope</span><span class="dim-value">{{ Number(p.average_slope).toFixed(1) }}°</span></div>
           </div>
 
-          <!-- Edge measurements -->
-          <div v-if="edgeMeasurements.length" class="edge-list">
-            <div class="edge-heading">Side lengths</div>
-            <div class="edge-items">
-              <span v-for="(e, i) in edgeMeasurements" :key="i" class="edge-chip">{{ e }}</span>
+          <!-- Boundary side lengths.
+               Drawn on the boundary itself wherever the map geometry can be
+               trusted; the list is the fallback for when it cannot, so the
+               numbers are never simply lost. -->
+          <div class="edge-list">
+            <div class="edge-heading">
+              Side lengths
+              <span v-if="sideLabelsDrawn" class="edge-count">{{ sideLabelsDrawn }} on map</span>
+              <span v-else-if="edgeMeasurements.length" class="edge-count">{{ edgeMeasurements.length }} sides</span>
             </div>
+
+            <p v-if="sideLabelsDrawn" class="edge-onmap">Shown on each boundary.</p>
+
+            <template v-else-if="edgeMeasurements.length">
+              <div class="edge-items">
+                <span v-for="(e, i) in edgeMeasurements" :key="i" class="edge-chip">
+                  <span class="edge-n">{{ i + 1 }}</span>
+                  <span class="edge-num">{{ e.value }}</span><span class="edge-unit">{{ e.unit }}</span>
+                </span>
+              </div>
+              <p v-if="sideLabelsSkipped" class="edge-note">Not drawn on the map — {{ sideLabelsSkipped }}.</p>
+            </template>
+
+            <!-- Absence is stated rather than rendered as a blank gap: the
+                 panel used to disappear silently whenever the column was
+                 missing, which read as a bug rather than as missing data. -->
+            <p v-else class="edge-empty">Not recorded for this lot.</p>
           </div>
 
           <!-- Frontages -->
           <div v-if="frontageItems.length" class="edge-list">
             <div class="edge-heading">Frontages</div>
             <div class="edge-items">
-              <span v-for="(f, i) in frontageItems" :key="i" class="edge-chip edge-chip--frontage">{{ f }}</span>
+              <span v-for="(f, i) in frontageItems" :key="i" class="edge-chip edge-chip--frontage">
+                <span class="edge-road">{{ f.road }}</span>
+                <span class="edge-num">{{ f.value }}</span><span class="edge-unit">{{ f.unit }}</span>
+              </span>
             </div>
           </div>
 
           <!-- Flags -->
           <div class="lot-flags">
-            <span v-if="p.is_corner_lot === 'true'" class="lot-flag lot-flag--green">Corner lot</span>
-            <span v-if="p.is_battleaxe === 'true'" class="lot-flag lot-flag--amber">Battle-axe</span>
+            <span v-if="isYes(p.is_corner_lot)" class="lot-flag lot-flag--green">Corner lot</span>
+            <span v-if="isYes(p.is_battleaxe)" class="lot-flag lot-flag--amber">Battle-axe</span>
             <span v-if="p.num_frontages" class="lot-flag">{{ p.num_frontages }} frontage(s)</span>
           </div>
         </div>
@@ -128,8 +191,8 @@
     <details v-if="property" class="rpt-section" open>
       <summary class="rpt-section-title">Complying Development (CDC) Eligibility</summary>
       <div class="cdc-summary">
-        <span :class="['cdc-badge', p.cdc_eligible === 'true' ? 'cdc-badge--yes' : 'cdc-badge--no']">
-          {{ p.cdc_eligible === 'true' ? '✓ CDC Eligible' : '✗ Not CDC Eligible' }}
+        <span :class="['cdc-badge', isYes(p.cdc_eligible) ? 'cdc-badge--yes' : 'cdc-badge--no']">
+          {{ isYes(p.cdc_eligible) ? '✓ CDC Eligible' : '✗ Not CDC Eligible' }}
         </span>
         <span v-if="p.total_cdc_eligible" class="cdc-count">{{ p.total_cdc_eligible }} pathway(s)</span>
       </div>
@@ -142,10 +205,28 @@
       </div>
     </details>
 
+    <!-- ── Additional controls on part of the lot ──────────────────────
+         A comma in the _p columns means the lot is split: two zones, two FSRs,
+         two minimum lot sizes. Worth stating plainly, because the headline
+         zone above then applies to only part of the site. -->
+    <details v-if="additionalControls.length" class="rpt-section" open>
+      <summary class="rpt-section-title">Additional controls on part of the lot</summary>
+      <p class="envelope-blurb">
+        This lot is split — the controls below apply to part of the site, so the
+        headline values above do not cover all of it.
+      </p>
+      <div class="facts-grid">
+        <div v-for="a in additionalControls" :key="a.label" class="fact">
+          <span class="fact-label">{{ a.label }}</span>
+          <span class="fact-value">{{ a.value }}</span>
+        </div>
+      </div>
+    </details>
+
     <!-- ── Section 7: LMR Housing & Pattern Book ───────────────────────── -->
-    <details v-if="property && (p.in_lmr_housing_area === 'true' || patternBookItems.length > 0)" class="rpt-section" open>
+    <details v-if="property && (isYes(p.in_lmr_housing_area) || patternBookItems.length > 0)" class="rpt-section" open>
       <summary class="rpt-section-title">Low-Mid Rise Housing & Pattern Book</summary>
-      <div v-if="p.in_lmr_housing_area === 'true'" class="lmr-badge">In LMR Housing Area</div>
+      <div v-if="isYes(p.in_lmr_housing_area)" class="lmr-badge">In LMR Housing Area</div>
       <div class="facts-grid" v-if="p.lmr_permissible || p.lmr_height_rfb || p.lmr_height_sth">
         <div class="fact" v-if="p.lmr_permissible"><span class="fact-label">LMR Permissible</span><span class="fact-value">{{ p.lmr_permissible }}</span></div>
         <div class="fact" v-if="p.lmr_height_rfb"><span class="fact-label">RFB Height</span><span class="fact-value">{{ p.lmr_height_rfb }}</span></div>
@@ -155,8 +236,108 @@
         <div v-for="pb in patternBookItems" :key="pb.key" class="cdc-item">
           <span :class="['cdc-dot', pb.eligible ? 'cdc-dot--yes' : 'cdc-dot--no']"></span>
           <span class="cdc-name">{{ pb.label }}</span>
+          <span v-if="!pb.eligible && pb.reasons" class="cdc-excl">{{ pb.reasons }}</span>
         </div>
       </div>
+    </details>
+
+    <!-- ── Uses permitted via SEPP ──────────────────────────────────────
+         sepp_landuses is the lot's SEPP-permissible list, distinct from the
+         zone's LEP permitted uses — a use can be available under a SEPP that
+         the LEP does not list. -->
+    <details v-if="seppUses.length" class="rpt-section" open>
+      <summary class="rpt-section-title">Uses Permitted via SEPP ({{ seppUses.length }})</summary>
+      <p v-if="seppInstruments.length" class="envelope-blurb">
+        Under {{ seppInstruments.join(' and ') }}.
+      </p>
+      <div class="uses-list">
+        <span v-for="u in seppUses" :key="u" class="use-chip">{{ u }}</span>
+      </div>
+    </details>
+
+    <!-- ── Key numerical rules ─────────────────────────────────────────
+         One row per control with its clause, after PropCode's Rapid Planning
+         Report. Where a control is banded and the selector was not captured,
+         the range is shown rather than a single figure. -->
+    <details v-if="numericRuleGroups.length" class="rpt-section" open>
+      <summary class="rpt-section-title">Key Numerical Rules ({{ numericRuleCount }})</summary>
+      <p class="envelope-blurb">
+        From the {{ ruleSourceLabel }} control tables for zone {{ p?.zone }},
+        grouped by what each control applies to. Controls listed under a land use
+        are stated by the DCP for that use; controls under a development type name
+        no land use, so they apply to that part of the DCP generally.
+      </p>
+      <p v-if="dcpNameMismatch" class="rules-mismatch">
+        The property record names <strong>{{ p?.dcp_plan_name }}</strong> as the DCP for
+        this lot. The clause numbers below are from {{ ruleSourceLabel }}, which is the
+        version held here — check the clause before relying on the numbering.
+      </p>
+
+      <details
+        v-for="(g, i) in numericRuleGroups"
+        :key="g.key"
+        class="rules-group"
+        :open="groupOpen(i)"
+      >
+        <summary class="rules-group-title">
+          {{ g.label }}
+          <span class="rules-axis" :class="`rules-axis-${g.axis}`">
+            {{ g.axis === 'land_use' ? 'use-specific' : 'general' }}
+          </span>
+          <span class="rules-count">{{ g.rules.length }}</span>
+        </summary>
+        <p class="rules-group-note">{{ g.note }}</p>
+        <table class="rules-table">
+          <thead><tr><th>Control</th><th>Requirement</th><th>Applies when</th><th>Clause</th></tr></thead>
+          <tbody>
+            <tr v-for="r in g.rules" :key="r.key">
+              <td>{{ r.label }}</td>
+              <td>
+                {{ r.requirement }}
+                <span
+                  v-if="r.suspect"
+                  class="rules-suspect"
+                  title="The unit recorded for this control does not match what the topic measures — read the clause before relying on it."
+                >check clause</span>
+              </td>
+              <td class="rules-cond">{{ r.condition || '—' }}</td>
+              <td>
+                <a v-if="r.clauseHref" :href="r.clauseHref" class="rules-cite">cl {{ r.clause }}</a>
+                <span v-else>cl {{ r.clause }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
+    </details>
+
+    <!-- ── Special constraints ─────────────────────────────────────────
+         Stating "no overlay applies" is a finding, not an omission — an empty
+         column and an unchecked constraint look identical otherwise. -->
+    <details v-if="property" class="rpt-section" open>
+      <summary class="rpt-section-title">Special Constraints</summary>
+      <div class="constraint-list">
+        <div v-for="c in specialConstraints" :key="c.label" class="constraint-row">
+          <span :class="['cdc-dot', c.applies ? 'cdc-dot--no' : 'cdc-dot--yes']"></span>
+          <span class="constraint-name">{{ c.label }}</span>
+          <span class="constraint-detail">{{ c.detail }}</span>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Section 8: the envelope in 3D ────────────────────────────────
+         /api/property/envelope builds the model when the viewer asks for it, so
+         the link is available for every lot rather than only the handful the
+         batch script had been run over. -->
+    <details v-if="envelopeModel" class="rpt-section" open>
+      <summary class="rpt-section-title">Building envelope (3D)</summary>
+      <p class="envelope-blurb">
+        The setbacks and height limit above, drawn as the volume this lot can build
+        inside. Each plane is named after the clause that sets it.
+      </p>
+      <a class="envelope-link" :href="envelopeModel" target="_blank" rel="noopener">
+        Open in 3D Viewer &rarr;
+      </a>
     </details>
 
     <!-- ── Section 8: Proximity & Amenity ──────────────────────────────── -->
@@ -175,20 +356,20 @@
     <!-- ── Permitted uses ──────────────────────────────────────────────── -->
     <details v-if="permittedUses.length > 0" class="rpt-section" open>
       <summary class="rpt-section-title">Permitted Uses in Zone {{ p?.zone }} ({{ permittedUses.length }})</summary>
-      <div v-if="persona === 'planner'" class="uses-hint">Click a use to pull its LEP / SEPP / DCP controls for this lot.</div>
+      <div class="uses-hint">Click a use to pull its LEP / SEPP / DCP controls for this lot.</div>
       <div class="uses-list">
         <button
           v-for="u in permittedUses"
           :key="u"
           type="button"
-          :class="['use-chip', persona === 'planner' && 'use-chip--clickable', selectedUse === u && 'use-chip--active']"
-          :disabled="persona !== 'planner' || useAnalysisLoading"
-          @click="persona === 'planner' && selectUse(u)"
+          :class="['use-chip', 'use-chip--clickable', selectedUse === u && 'use-chip--active']"
+          :disabled="useAnalysisLoading"
+          @click="selectUse(u)"
         >{{ u }}</button>
       </div>
 
       <!-- Use-specific controls panel (planner persona only) -->
-      <div v-if="selectedUse && persona === 'planner'" class="use-analysis">
+      <div v-if="selectedUse" class="use-analysis">
         <div class="use-analysis-header">
           <span class="use-analysis-label">Controls for</span>
           <span class="use-analysis-use">{{ selectedUse }}</span>
@@ -223,8 +404,8 @@
     </details>
 
     <!-- Planning Summary — split into LEP / SEPP / DCP sections.
-         Hidden for Owner/Buyer persona (they get property facts + due diligence only). -->
-    <div v-if="(answerHtml || loading) && persona !== 'owner'" class="answer-section">
+         Shown for every report. -->
+    <div v-if="answerHtml || loading" class="answer-section">
       <h2 class="answer-heading">Planning Summary</h2>
       <div v-if="loading && !answerText" class="answer-loading">Analysing planning instruments…</div>
 
@@ -265,7 +446,7 @@
 
     <!-- Deep legal cards — replaced by use-specific controls panel above.
          Kept commented for potential reuse; see also server/utils/sitewise/deep-legal-cards.ts.
-    <div v-if="legalCards.length > 0 && persona === 'planner'" class="legal-cards-section">
+    <div v-if="legalCards.length > 0" class="legal-cards-section">
       <h2 class="answer-heading">Detailed Planning Analysis</h2>
       <div class="legal-cards-grid">
         <div v-for="card in legalCards" :key="card.id" class="legal-card">
@@ -385,8 +566,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
+import { haversine, pathLength, ringArea, fmtDistance, fmtArea } from '#shared/geo-measure.mjs'
+import { lotSides, ringPerimeter, findRingContaining } from '#shared/lot-edges.mjs'
 import { renderMarkdownWithCitations, type Citation } from '~/utils/citation-render'
+import { conditionLabel, DEV_TYPE_LABEL, unitLooksWrong } from '#shared/dcp-scope'
+import { DCP_SLUG_BY_LGA } from '#shared/property-columns'
 let mapboxgl: any = null
 
 const route = useRoute()
@@ -400,7 +585,39 @@ const PERSONA_LABELS: Record<string, string> = {
   developer: 'Developer / Builder',
   planner: 'Urban Planner',
 }
-const personaLabel = PERSONA_LABELS[persona] || persona
+// One audience: the report is always the full planner-level view.
+/** Postgres returns these columns as real booleans; earlier code compared them
+ *  to the string 'true', so every flag silently read false — pattern book
+ *  never rendered and CDC always showed "No". Accept both shapes. */
+function isYes(v: unknown): boolean {
+  return v === true || v === 'true' || v === 't' || v === 1 || v === '1'
+}
+
+/**
+ * Deep link to this lot's envelope in the 3D viewer.
+ *
+ * scripts/build-envelope-model.mjs writes one model per address under
+ * models/nsw/<slug>.json and registers it in the viewer index. The link is only
+ * offered when that file exists, so a lot nobody has generated yet shows no
+ * broken button.
+ */
+/**
+ * Deep link to this lot's envelope in the 3D viewer.
+ *
+ * /api/property/envelope builds the model on request, so every lot has one.
+ * The previous version looked for a pre-generated file and so only ever showed
+ * the link for the four addresses someone had run the script over.
+ */
+const envelopeModel = computed(() => {
+  const addr = property.value?.address
+  if (!addr) return null
+  const api = `/api/property/envelope?address=${encodeURIComponent(addr)}`
+  // `label` names the model in the viewer's picker; without it an external model
+  // shows up under whichever showcase entry happened to be selected.
+  return `/craftbot?model=${encodeURIComponent(api)}&label=${encodeURIComponent(addr)}`
+})
+
+const personaLabel = 'Urban Planner'
 
 const loading = ref(true)
 const property = ref<any>(null)
@@ -464,26 +681,306 @@ function renderCardAnswer(answer: string, cardCitations: Citation[] = []): strin
   return renderMarkdownWithCitations(answer, cardCitations, citeIdx)
 }
 let mapInstance: mapboxgl.Map | null = null
+let mapInitStarted = false
+let edgeLabelsDrawn = false
 
 // ── Lot edge / frontage parsing ──────────────────────────────────────────────
 
+/**
+ * "14.10m,1.19m,12.14m" -> [{ value: '14.10', unit: 'm' }, …]
+ *
+ * Split rather than rendered as one string so the digits can be set in
+ * tabular figures and the unit demoted — a row of nine chips reading
+ * "14.10m 1.19m 12.14m" is a wall of same-weight text where nothing lines up.
+ */
 const edgeMeasurements = computed(() => {
   const raw = p.value?.all_edges_measurements
   if (!raw) return []
-  return raw.split(',').map((s: string) => s.trim()).filter(Boolean)
+  return String(raw).split(',').map((s: string) => s.trim()).filter(Boolean)
+    .map((s: string) => {
+      const m = s.match(/^([\d.]+)\s*(.*)$/)
+      return m ? { value: m[1]!, unit: m[2] || 'm' } : { value: s, unit: '' }
+    })
 })
 
+/** "THORNLEIGH:39.67m,WOOD:36.52m" -> [{ road, value, unit }, …] */
 const frontageItems = computed(() => {
   const raw = p.value?.all_frontages
   if (!raw) return []
-  return raw.split(',').map((s: string) => s.trim()).filter(Boolean)
+  return String(raw).split(',').map((s: string) => s.trim()).filter(Boolean)
+    .map((s: string) => {
+      const m = s.match(/^(.*?):\s*([\d.]+)\s*(.*)$/)
+      if (!m) return { road: '', value: s, unit: '' }
+      return { road: titleCaseRoad(m[1]!), value: m[2]!, unit: m[3] || 'm' }
+    })
+})
+
+/** Road names arrive shouting ("THORNLEIGH"); sentence case reads better. */
+function titleCaseRoad(s: string) {
+  return s.trim().toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase())
+}
+
+// ── Boundary side labels ────────────────────────────────────────────────────
+//
+// The property-report (safebuy.app) treatment: a length pill sits on each
+// side of the parcel, so a reader sees which boundary is 36 m without
+// mapping a list back onto the drawing. Listing the sides beside the map
+// cannot do that — and the raw list is not even the set of sides a person
+// would name, because a cadastral ring splits one straight street boundary
+// across several vertices.
+//
+// Geometry comes from the rendered lot tiles, since no exact parcel polygon
+// is stored: `geom_1` and `centroid_geom` are empty on every row, and
+// `buffered_geom` is an inward buffer (~1 m) whose area runs ~15% under the
+// recorded `area_sqm`. Tiles are simplified and clipped at tile edges, so
+// the result is checked against the authoritative `perimeter_m` before any
+// label is drawn — a wrong number on a boundary is worse than none.
+
+const sideLabelsDrawn = ref(0)
+const sideLabelsSkipped = ref<string | null>(null)
+let sideMarkers: any[] = []
+
+/** Tolerance on the tile-derived perimeter before we distrust the geometry. */
+const PERIMETER_TOLERANCE = 0.05
+
+function clearSideLabels() {
+  for (const m of sideMarkers) { try { m.remove() } catch {} }
+  sideMarkers = []
+  sideLabelsDrawn.value = 0
+}
+
+async function renderSideLabels() {
+  const map = mapInstance
+  if (!map || !p.value?.centroid_lat || !p.value?.centroid_lon) return
+  if (!map.getSource(LOT_SRC)) return
+  clearSideLabels()
+
+  const centre: [number, number] = [Number(p.value.centroid_lon), Number(p.value.centroid_lat)]
+  let feats: any[] = []
+  try { feats = map.querySourceFeatures(LOT_SRC, { sourceLayer: LOT_LAYER }) } catch { return }
+  const ring = findRingContaining(centre, feats)
+  if (!ring) { sideLabelsSkipped.value = 'lot boundary not found in the map tiles'; return }
+
+  // Trust check. A clipped or heavily simplified ring shows up as a
+  // perimeter that disagrees with the recorded figure.
+  const recorded = Number(p.value.perimeter_m)
+  const measured = ringPerimeter(ring)
+  if (recorded > 0 && Math.abs(measured - recorded) / recorded > PERIMETER_TOLERANCE) {
+    sideLabelsSkipped.value =
+      `map outline measures ${measured.toFixed(0)} m against a recorded ${recorded.toFixed(0)} m`
+    return
+  }
+  sideLabelsSkipped.value = null
+
+  const { default: mapboxgl } = await import('mapbox-gl')
+
+  // Inline styles, not classes: markers are injected straight into the map
+  // container, outside the tree Vue's scoped CSS is rewritten to match, so
+  // a scoped selector would never apply.
+  const PILL = [
+    'background:#ea580c',
+    'color:#fff',
+    'font:700 11px system-ui,-apple-system,"Segoe UI",sans-serif',
+    'font-variant-numeric:tabular-nums',
+    'padding:3px 9px',
+    'border-radius:999px',
+    'white-space:nowrap',
+    'box-shadow:0 2px 6px rgba(15,23,42,0.25)',
+    'pointer-events:none',
+    'letter-spacing:-0.005em',
+  ].join(';')
+  const AREA_PILL = [
+    'background:#fff',
+    'color:#ea580c',
+    'border:1.5px solid #ea580c',
+    'font:700 13px system-ui,-apple-system,"Segoe UI",sans-serif',
+    'font-variant-numeric:tabular-nums',
+    'padding:4px 12px',
+    'border-radius:999px',
+    'white-space:nowrap',
+    'box-shadow:0 2px 8px rgba(15,23,42,0.2)',
+    'pointer-events:none',
+  ].join(';')
+
+  // Longest side first, skipping any whose midpoint lands within 42px of a
+  // pill already placed — otherwise short rear boundaries stack into an
+  // unreadable clump.
+  const MIN_SEP_PX = 42
+  const placed: Array<[number, number]> = []
+  for (const side of lotSides(ring)) {
+    let x = 0, y = 0
+    try { const q = map.project(side.mid as any); x = q.x; y = q.y } catch { continue }
+    if (placed.some(([px, py]) => Math.hypot(x - px, y - py) < MIN_SEP_PX)) continue
+    placed.push([x, y])
+    const el = document.createElement('div')
+    el.textContent = `${Math.round(side.length)} m`
+    el.setAttribute('style', PILL)
+    sideMarkers.push(new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat(side.mid as any).addTo(map))
+  }
+  sideLabelsDrawn.value = placed.length
+
+  if (p.value.area_sqm) {
+    const el = document.createElement('div')
+    el.textContent = `${Math.round(Number(p.value.area_sqm)).toLocaleString()} m²`
+    el.setAttribute('style', AREA_PILL)
+    sideMarkers.push(new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat(centre).addTo(map))
+  }
+}
+
+// ── Measurement ─────────────────────────────────────────────────────────────
+//
+// A planning report is read with a ruler in hand — "how far is that boundary
+// from the proposed wall?" — so the map carries the same tool as the tile
+// catalog, sharing its geodesic maths so the two never disagree.
+
+type MeasureMode = 'distance' | 'area' | null
+
+const measureMode = ref<MeasureMode>(null)
+const measurePoints = ref<[number, number][]>([])
+const measureHover = ref<[number, number] | null>(null)
+const MEASURE_SRC = 'measure'
+const MEASURE_LAYERS = ['measure::fill', 'measure::line', 'measure::points']
+/** Orange, matching the boundary chips: measurements read as one family. */
+const MEASURE_COLOR = '#ea580c'
+
+const measureMinPoints = computed(() => (measureMode.value === 'area' ? 3 : 2))
+
+/** Points plus the cursor, so the run updates as the mouse moves. */
+const measureLive = computed<[number, number][]>(() =>
+  measureMode.value && measureHover.value
+    ? [...measurePoints.value, measureHover.value]
+    : measurePoints.value,
+)
+
+const measureTotal = computed(() => {
+  const pts = measureLive.value
+  if (measureMode.value === 'area' || (!measureMode.value && measurePoints.value.length > 2)) {
+    return pts.length >= 3 ? fmtArea(ringArea(pts)) : ''
+  }
+  return pts.length >= 2 ? fmtDistance(pathLength(pts)) : ''
+})
+
+const measureSecondary = computed(() => {
+  const pts = measureLive.value
+  if (pts.length < 2) return ''
+  // Area mode also wants the perimeter; distance mode wants the last leg.
+  if (measureMode.value === 'area' || (!measureMode.value && pts.length > 2)) {
+    return pts.length >= 3 ? `Perimeter ${fmtDistance(pathLength([...pts, pts[0]!]))}` : ''
+  }
+  return `Last leg ${fmtDistance(haversine(pts[pts.length - 2]!, pts[pts.length - 1]!))}`
+})
+
+function ensureMeasureLayers() {
+  const map = mapInstance
+  if (!map || map.getSource(MEASURE_SRC)) return
+  map.addSource(MEASURE_SRC, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } })
+  map.addLayer({
+    id: 'measure::fill',
+    type: 'fill',
+    source: MEASURE_SRC,
+    filter: ['==', '$type', 'Polygon'],
+    paint: { 'fill-color': MEASURE_COLOR, 'fill-opacity': 0.15 },
+  })
+  map.addLayer({
+    id: 'measure::line',
+    type: 'line',
+    source: MEASURE_SRC,
+    filter: ['==', '$type', 'LineString'],
+    paint: { 'line-color': MEASURE_COLOR, 'line-width': 2.2, 'line-dasharray': [2, 1] },
+  })
+  map.addLayer({
+    id: 'measure::points',
+    type: 'circle',
+    source: MEASURE_SRC,
+    filter: ['==', '$type', 'Point'],
+    paint: {
+      'circle-radius': 4,
+      'circle-color': '#ffffff',
+      'circle-stroke-color': MEASURE_COLOR,
+      'circle-stroke-width': 2,
+    },
+  })
+}
+
+function renderMeasure() {
+  const map = mapInstance
+  if (!map || !map.getSource(MEASURE_SRC)) return
+  const pts = measureLive.value
+  const features: any[] = pts.map((c) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: c }, properties: {} }))
+  const areaMode = measureMode.value === 'area' || (!measureMode.value && measurePoints.value.length > 2)
+  if (pts.length >= 2) {
+    features.push({
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: areaMode ? [...pts, pts[0]!] : pts },
+      properties: {},
+    })
+  }
+  if (areaMode && pts.length >= 3) {
+    features.push({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [[...pts, pts[0]!]] }, properties: {} })
+  }
+  ;(map.getSource(MEASURE_SRC) as any).setData({ type: 'FeatureCollection', features })
+}
+
+function toggleMeasure(mode: Exclude<MeasureMode, null>) {
+  if (measureMode.value === mode) { measureMode.value = null; measureHover.value = null }
+  else { measureMode.value = mode; measurePoints.value = []; measureHover.value = null }
+  if (mapInstance) mapInstance.getCanvas().style.cursor = measureMode.value ? 'crosshair' : ''
+  ensureMeasureLayers()
+  renderMeasure()
+}
+
+function clearMeasure() {
+  measureMode.value = null
+  measurePoints.value = []
+  measureHover.value = null
+  if (mapInstance) mapInstance.getCanvas().style.cursor = ''
+  renderMeasure()
+}
+
+function onMeasureClick(e: any) {
+  if (!measureMode.value) return
+  measurePoints.value = [...measurePoints.value, [e.lngLat.lng, e.lngLat.lat]]
+  renderMeasure()
+}
+
+function onMeasureMove(e: any) {
+  if (!measureMode.value || !measurePoints.value.length) return
+  measureHover.value = [e.lngLat.lng, e.lngLat.lat]
+  renderMeasure()
+}
+
+/** Finish, keeping the result on screen. */
+function finishMeasure() {
+  if (!measureMode.value) return
+  measureHover.value = null
+  if (measurePoints.value.length >= measureMinPoints.value) measureMode.value = null
+  if (mapInstance) mapInstance.getCanvas().style.cursor = ''
+  renderMeasure()
+}
+
+function onMeasureKey(e: KeyboardEvent) {
+  if (e.key === 'Escape') clearMeasure()
+  else if (e.key === 'Enter') finishMeasure()
+}
+
+onBeforeUnmount(() => {
+  if (import.meta.client) window.removeEventListener('keydown', onMeasureKey)
+  // Markers live in the map container, not in Vue's tree, so unmounting the
+  // page does not take them with it.
+  clearSideLabels()
 })
 
 // ── Map initialization ──────────────────────────────────────────────────────
 
 async function initMap() {
-  if (mapInstance || !mapEl.value || !p.value?.centroid_lat || !p.value?.centroid_lon) return
+  if (mapInstance || mapInitStarted || !mapEl.value || !p.value?.centroid_lat || !p.value?.centroid_lon) return
   if (!import.meta.client) return
+  // Set before the first await. `mapInstance` alone is not enough of a guard:
+  // the dynamic import below yields, so two callers (the property watcher and
+  // the section's open handler) both passed the null check, both built a map,
+  // and the second one's addSource threw "already a source" — leaving the live
+  // map with no cadastre and no tile requests at all.
+  mapInitStarted = true
 
   const config = useRuntimeConfig()
   const token = config.public.mapboxToken as string
@@ -506,7 +1003,7 @@ async function initMap() {
 
   mapInstance = new mapboxgl.Map({
     container: mapEl.value,
-    style: 'mapbox://styles/mapbox/satellite-streets-v12',
+    style: 'mapbox://styles/mapbox/light-v11',
     center: [lng, lat],
     zoom: 18,
     pitch: 0,
@@ -516,102 +1013,262 @@ async function initMap() {
   mapInstance.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
 
   mapInstance.on('load', () => {
-    // Build approximate polygon from edge measurements + orientation
-    const polygon = buildApproxPolygon(lat, lng)
-
-    if (polygon) {
-      mapInstance!.addSource('lot-boundary', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: { type: 'Polygon', coordinates: [polygon] },
-        },
-      })
-
-      // Fill
-      mapInstance!.addLayer({
-        id: 'lot-fill',
-        type: 'fill',
-        source: 'lot-boundary',
-        paint: { 'fill-color': '#15803d', 'fill-opacity': 0.15 },
-      })
-
-      // Outline
-      mapInstance!.addLayer({
-        id: 'lot-outline',
-        type: 'line',
-        source: 'lot-boundary',
-        paint: { 'line-color': '#15803d', 'line-width': 2.5, 'line-opacity': 0.9 },
-      })
-
-      // Add edge labels at midpoints of each side
-      const edges = edgeMeasurements.value
-      for (let i = 0; i < polygon.length - 1 && i < edges.length; i++) {
-        const [x1, y1] = polygon[i]
-        const [x2, y2] = polygon[i + 1]
-        const el = document.createElement('div')
-        el.className = 'map-edge-label'
-        el.textContent = edges[i]
-        new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([(x1 + x2) / 2, (y1 + y2) / 2])
-          .addTo(mapInstance!)
-      }
-    }
-
-    // Add centroid marker
-    new mapboxgl.Marker({ color: '#15803d', scale: 0.7 })
-      .setLngLat([lng, lat])
-      .setPopup(new mapboxgl.Popup({ offset: 20 }).setHTML(
-        `<div style="font-family:inherit;font-size:12px;line-height:1.4">
-          <strong>${p.value.address || 'Property'}</strong><br/>
-          ${p.value.area_h ? Number(p.value.area_h).toFixed(3) + ' ha' : ''}
-          ${p.value.zone ? ' · Zone ' + p.value.zone : ''}
-        </div>`
-      ))
-      .addTo(mapInstance!)
+    addLotLayer(lat, lng)
+    ensureMeasureLayers()
   })
+
+  // Tiles arrive after 'load', and the pills are positioned by projecting
+  // map coordinates to pixels — so they are placed once the view has settled
+  // and re-placed after a zoom, when what fits without overlapping changes.
+  mapInstance.on('idle', () => { if (!sideMarkers.length) renderSideLabels() })
+  mapInstance.on('zoomend', () => renderSideLabels())
+
+  // `dblclick` fires after two `click`s, so the second point is already
+  // recorded by the time the run is finished — no point is lost.
+  mapInstance.on('click', onMeasureClick)
+  mapInstance.on('mousemove', onMeasureMove)
+  mapInstance.on('dblclick', (e: any) => {
+    if (!measureMode.value) return
+    e.preventDefault()
+    finishMeasure()
+  })
+  window.addEventListener('keydown', onMeasureKey)
 }
 
-/** Build an approximate polygon from edge measurements + orientation.
- *  Walks edges starting from centroid, turning by equal angles for each edge.
- *  Returns array of [lng, lat] coordinates (closed ring), or null. */
-function buildApproxPolygon(lat: number, lng: number): [number, number][] | null {
-  const edges = edgeMeasurements.value
-  if (edges.length < 3) return null
+/**
+ * The lot layer from the Martin tile server, drawn over the aerial.
+ *
+ * `lot` is `urbanportaldbp.lot.geometry` - real parcel polygons, the same tile
+ * server and the same layer set the map page reads. The whole layer is added
+ * rather than one filtered parcel: the surrounding cadastre is what makes a
+ * boundary legible, and the map is already centred on the searched address.
+ *
+ * Not `up_property_d_3`, despite that being the table the report reads its
+ * facts from. The tile server publishes that table on its centroid column, so
+ * every feature in it is a Point, and fill and line layers over point geometry
+ * draw nothing at all and raise no error - the map came back as a bare aerial
+ * with no way to tell why.
+ */
+const LOT_SRC = 'martin:lot'
+const LOT_LAYER = 'lot'
 
-  const edgeMs = edges.map((e: string) => parseFloat(e))
-  if (edgeMs.some(isNaN)) return null
+/**
+ * Tile server base, resolved during setup.
+ *
+ * Not read inside addLotLayer: that runs from a mapbox-gl 'load' callback where
+ * the Nuxt instance is gone and useRuntimeConfig() throws. mapbox-gl swallows
+ * exceptions raised in its event handlers, so the only symptom was a map with
+ * no lot layer and nothing in the console.
+ */
+const martinBase = String((useRuntimeConfig().public as any).martinUrl || '')
+  .replace(/\/+$/, '')
 
-  const orientRad = (Number(p.value.orientation_degrees) || 0) * Math.PI / 180
-  const mPerDegLat = 111320
-  const mPerDegLon = 111320 * Math.cos(lat * Math.PI / 180)
+function addLotLayer(lat: number, lng: number) {
+  const map = mapInstance!
+  if (!map.getSource(LOT_SRC) && martinBase) {
+    // Martin's TileJSON advertises its tiles on a host without the port it is
+    // served on, and carries no minzoom/maxzoom - without those mapbox-gl
+    // requests no tiles at all. Both are supplied here, as on the map page.
+    map.addSource(LOT_SRC, {
+      type: 'vector',
+      tiles: [`${martinBase}/${LOT_LAYER}/{z}/{x}/{y}`],
+      minzoom: 0,
+      maxzoom: 22,
+    })
 
-  // Walk edges, turning by exterior angle (360° / N) each step
-  const angleStep = (2 * Math.PI) / edgeMs.length
-  let angle = orientRad
-  const pts: [number, number][] = []
-  let x = 0, y = 0
-
-  for (const len of edgeMs) {
-    pts.push([x, y])
-    x += len * Math.sin(angle)
-    y += len * Math.cos(angle)
-    angle += angleStep
+    map.addLayer({
+      id: 'lot-fill',
+      type: 'fill',
+      source: LOT_SRC,
+      'source-layer': LOT_LAYER,
+      paint: { 'fill-color': '#15803d', 'fill-opacity': 0.1 },
+    })
+    map.addLayer({
+      id: 'lot-outline',
+      type: 'line',
+      source: LOT_SRC,
+      'source-layer': LOT_LAYER,
+      paint: { 'line-color': '#fbbf24', 'line-width': 1.4, 'line-opacity': 0.9 },
+    })
+    map.addLayer({
+      id: 'lot-label',
+      type: 'symbol',
+      source: LOT_SRC,
+      'source-layer': LOT_LAYER,
+      minzoom: 17,
+      layout: {
+        // Strata parcels carry no lotnumber, and concatenating regardless
+        // labelled them "/SP99840". Drop the separator when there is no lot.
+        'text-field': [
+          'case',
+          ['all', ['has', 'lotnumber'], ['!=', ['to-string', ['get', 'lotnumber']], '']],
+          ['concat', ['to-string', ['get', 'lotnumber']], '/', ['to-string', ['get', 'planlabel']]],
+          ['to-string', ['get', 'planlabel']],
+        ],
+        'text-size': 10,
+        'text-allow-overlap': false,
+      },
+      paint: {
+        'text-color': '#fff',
+        'text-halo-color': 'rgba(0,0,0,0.7)',
+        'text-halo-width': 1.2,
+      },
+    })
   }
 
-  // Center the polygon on the centroid
-  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length
-  const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length
+  new mapboxgl.Marker({ color: '#15803d', scale: 0.7 })
+    .setLngLat([lng, lat])
+    .setPopup(new mapboxgl.Popup({ offset: 20 }).setHTML(
+      `<div style="font-family:inherit;font-size:12px;line-height:1.4">
+        <strong>${p.value.address || 'Property'}</strong><br/>
+        ${p.value.area_h ? Number(p.value.area_h).toFixed(3) + ' ha' : ''}
+        ${p.value.zone ? ' \u00b7 Zone ' + p.value.zone : ''}
+      </div>`
+    ))
+    .addTo(map)
 
-  const coords: [number, number][] = pts.map(([px, py]) => [
-    lng + (px - cx) / mPerDegLon,
-    lat + (py - cy) / mPerDegLat,
-  ])
-  coords.push(coords[0]) // close ring
-
-  return coords
+  // Side lengths are drawn once the tile holding this lot has arrived.
+  // queryRenderedFeatures only sees what is already painted, so this cannot run
+  // from the 'load' handler.
+  const onData = (ev: any) => {
+    if (ev.sourceId !== LOT_SRC || !ev.isSourceLoaded) return
+    if (labelEdgesAt(lng, lat)) map.off('sourcedata', onData)
+  }
+  map.on('sourcedata', onData)
+  labelEdgesAt(lng, lat)
 }
+
+/**
+ * Measure and label the sides of the lot under the address marker.
+ *
+ * The lot is identified by what is drawn beneath the searched address rather
+ * than by matching an id, so the whole `lot` layer stays unfiltered and the
+ * surrounding parcels keep their outlines.
+ *
+ * Lengths are computed from the geometry, not read from the property record.
+ * `all_edges_measurements` lists every vertex-to-vertex segment, and a cadastral
+ * ring carries runs of sub-metre slivers — this lot has seven consecutive 0.26m
+ * entries — which would paper the parcel in labels a planner cannot use. Only
+ * segments of 3m or more are labelled.
+ *
+ * @returns true once the lot has been found and labelled.
+ */
+/**
+ * Shortest boundary worth a label, in metres.
+ *
+ * A cadastral ring is full of short segments that are not boundaries a planner
+ * reads: 9 Bell Street has seven consecutive 0.26m slivers, and 22 Leighton
+ * Place a stepped edge of six 3.6m segments that put six identical labels on one
+ * side. The panel's chip list still shows every segment.
+ */
+const MIN_LABEL_M = 5
+
+function labelEdgesAt(lng: number, lat: number): boolean {
+  const map = mapInstance
+  if (!map || edgeLabelsDrawn) return edgeLabelsDrawn
+
+  let feats: any[] = []
+  try {
+    feats = map.queryRenderedFeatures(map.project([lng, lat]), { layers: ['lot-fill'] })
+  } catch {
+    return false
+  }
+  if (!feats.length) return false
+
+  // Several parcels can sit under one point - a strata lot inside its parent,
+  // or a neighbour whose tile-clipped edge crosses the marker. Taking the first
+  // hit labelled an 87.6m boundary on a lot whose longest side is 35.1m.
+  // The property record's plan decides it; failing that, the smallest parcel
+  // under the marker, which is the most specific one.
+  const plan = String(p.value?.plan_label ?? '').trim().toUpperCase()
+  const byPlan = plan
+    ? feats.find(f => String(f.properties?.planlabel ?? '').trim().toUpperCase() === plan)
+    : undefined
+  const target = byPlan ?? [...feats].sort((a, b) => ringArea(a.geometry) - ringArea(b.geometry))[0]
+  if (!target) return false
+
+  // The record's own edge lengths, which sum exactly to perimeter_m.
+  const recorded = String(p.value?.all_edges_measurements ?? '')
+    .split(',').map(x => parseFloat(x)).filter(n => !Number.isNaN(n) && n >= MIN_LABEL_M)
+  const unused = [...recorded]
+
+  const R = 6378137
+  const seen = new Set<string>()
+  let drawn = 0
+
+  for (const ring of ringsOf(target.geometry)) {
+    for (let i = 0; i < ring.length - 1; i++) {
+      const [x1, y1] = ring[i] as [number, number]
+      const [x2, y2] = ring[i + 1] as [number, number]
+      const dLat = ((y2 - y1) * Math.PI) / 180
+      const dLon = ((x2 - x1) * Math.PI) / 180
+      const midLat = (((y1 + y2) / 2) * Math.PI) / 180
+      const metres = Math.hypot(dLat * R, dLon * R * Math.cos(midLat))
+      if (metres < MIN_LABEL_M) continue
+
+      // The geometry fixes where a label goes; the record fixes what it says.
+      //
+      // Vector tiles quantise to a 4096-unit grid and clip at tile boundaries,
+      // so a boundary crossing a tile edge arrives as a fragment: this lot's
+      // 95.3m side measured 87.6m off the tile, and two others were out by more
+      // than a metre. An edge with no match in the record is left unlabelled
+      // rather than labelled with a figure the record contradicts.
+      let best = -1
+      let bestDiff = Infinity
+      for (let k = 0; k < unused.length; k++) {
+        const d = Math.abs(unused[k]! - metres)
+        if (d < bestDiff) { bestDiff = d; best = k }
+      }
+      if (best < 0 || bestDiff > 0.75) continue
+      const exact = unused.splice(best, 1)[0]!
+
+      const mid: [number, number] = [(x1 + x2) / 2, (y1 + y2) / 2]
+      const key = `${mid[0].toFixed(6)},${mid[1].toFixed(6)}`
+      if (seen.has(key)) continue
+      seen.add(key)
+
+      const el = document.createElement('div')
+      el.className = 'map-edge-label'
+      el.textContent = `${exact.toFixed(1)}m`
+      new mapboxgl.Marker({ element: el, anchor: 'center' })
+        .setLngLat(mid)
+        .addTo(map)
+      drawn++
+    }
+  }
+
+  if (!drawn) return false
+  edgeLabelsDrawn = true
+  return true
+}
+
+/**
+ * Relative size of a feature, for picking the most specific parcel under a
+ * point. The shoelace formula on degrees is not an area in any unit, but it
+ * orders candidates correctly, which is all this is for.
+ */
+function ringArea(geom: any): number {
+  let total = 0
+  for (const ring of ringsOf(geom)) {
+    let a = 0
+    for (let i = 0; i < ring.length - 1; i++) {
+      const [x1, y1] = ring[i] as [number, number]
+      const [x2, y2] = ring[i + 1] as [number, number]
+      a += x1 * y2 - x2 * y1
+    }
+    total += Math.abs(a) / 2
+  }
+  return total
+}
+
+/** Every linear ring of a Polygon or MultiPolygon. */
+function ringsOf(geom: any): number[][][] {
+  if (!geom) return []
+  if (geom.type === 'Polygon') return geom.coordinates
+  if (geom.type === 'MultiPolygon') return geom.coordinates.flat()
+  return []
+}
+
 
 function onMapToggle(e: Event) {
   const details = e.target as HTMLDetailsElement
@@ -701,33 +1358,297 @@ const cdcPathways = computed(() => {
   if (!property.value) return []
   const v = property.value
   return [
-    { key: 'general', label: 'General', eligible: v.cdc_general === 'true', exclusions: v.cdc_general_exclusions },
-    { key: 'dwelling', label: 'Dwelling Houses', eligible: v.cdc_dwelling_houses === 'true', exclusions: v.cdc_dwelling_houses_exclusions },
-    { key: 'dual', label: 'Dual Occupancy', eligible: v.cdc_dual_occupancy === 'true', exclusions: v.cdc_dual_occupancy_exclusions },
-    { key: 'secondary', label: 'Secondary Dwellings', eligible: v.cdc_secondary_dwellings === 'true', exclusions: v.cdc_secondary_dwellings_exclusions },
-    { key: 'terraces', label: 'Multi-Dwelling Terraces', eligible: v.cdc_multi_dwelling_terraces === 'true', exclusions: v.cdc_multi_dwelling_terraces_exclusions },
-    { key: 'manor', label: 'Manor Homes', eligible: v.cdc_manor_homes === 'true', exclusions: v.cdc_manor_homes_exclusions },
-    { key: 'greenfield', label: 'Greenfield Housing', eligible: v.cdc_greenfield_housing === 'true', exclusions: v.cdc_greenfield_housing_exclusions },
-    { key: 'rural', label: 'Rural Housing', eligible: v.cdc_rural_housing === 'true', exclusions: v.cdc_rural_housing_exclusions },
-    { key: 'agri', label: 'Agritourism', eligible: v.cdc_agritourism === 'true', exclusions: v.cdc_agritourism_exclusions },
-    { key: 'farmstay', label: 'Farmstay', eligible: v.cdc_farmstay === 'true', exclusions: v.cdc_farmstay_exclusions },
+    { key: 'general', label: 'General', eligible: isYes(v.cdc_general), exclusions: v.cdc_general_exclusions },
+    { key: 'dwelling', label: 'Dwelling Houses', eligible: isYes(v.cdc_dwelling_houses), exclusions: v.cdc_dwelling_houses_exclusions },
+    { key: 'dual', label: 'Dual Occupancy', eligible: isYes(v.cdc_dual_occupancy), exclusions: v.cdc_dual_occupancy_exclusions },
+    { key: 'secondary', label: 'Secondary Dwellings', eligible: isYes(v.cdc_secondary_dwellings), exclusions: v.cdc_secondary_dwellings_exclusions },
+    { key: 'terraces', label: 'Multi-Dwelling Terraces', eligible: isYes(v.cdc_multi_dwelling_terraces), exclusions: v.cdc_multi_dwelling_terraces_exclusions },
+    { key: 'manor', label: 'Manor Homes', eligible: isYes(v.cdc_manor_homes), exclusions: v.cdc_manor_homes_exclusions },
+    { key: 'greenfield', label: 'Greenfield Housing', eligible: isYes(v.cdc_greenfield_housing), exclusions: v.cdc_greenfield_housing_exclusions },
+    { key: 'rural', label: 'Rural Housing', eligible: isYes(v.cdc_rural_housing), exclusions: v.cdc_rural_housing_exclusions },
+    { key: 'agri', label: 'Agritourism', eligible: isYes(v.cdc_agritourism), exclusions: v.cdc_agritourism_exclusions },
+    { key: 'farmstay', label: 'Farmstay', eligible: isYes(v.cdc_farmstay), exclusions: v.cdc_farmstay_exclusions },
   ]
 })
 
+/**
+ * Controls that apply to only part of the lot.
+ *
+ * The `_p` columns list every value intersecting the parcel, so "RU4, R2" means
+ * the lot straddles two zones. The report's headline zone is the primary one,
+ * which on a split lot is true of only part of the site.
+ */
+const additionalControls = computed(() => {
+  const v = property.value
+  if (!v) return []
+  const split = (raw: unknown, primary: unknown, label: string) => {
+    if (typeof raw !== 'string' || !raw.includes(',')) return null
+    const others = raw.split(',').map(x => x.trim())
+      .filter(x => x && String(x) !== String(primary ?? '').trim())
+    return others.length ? { label, value: others.join(', ') } : null
+  }
+  return [
+    split(v.lzn_sym_code_p, v.zone, 'Also zoned'),
+    split(v.fsr_fsr_p, v.fsr_value, 'Other FSR on lot'),
+    split(v.lsz_sym_code_p, null, 'Other min lot size codes'),
+  ].filter(Boolean) as { label: string; value: string }[]
+})
+
+const siteRules = ref<any[]>([])
+const ruleLandUses = ref<string[]>([])
+
+const ruleDevTypes = ref<string[]>([])
+const ruleSourceDocs = ref<string[]>([])
+
+const TOPIC_LABEL: Record<string, string> = {
+  setback: 'Setback', parking: 'Car parking', landscaping: 'Landscaping',
+  open_space: 'Private open space', site_coverage: 'Site coverage', height: 'Height',
+  floor_area: 'Floor area', lot_size: 'Lot size', density: 'Density', fsr: 'Floor space ratio',
+  width: 'Width', privacy: 'Privacy', solar_access: 'Solar access', deep_soil: 'Deep soil',
+}
+
+/** Title case for a land use as the DCP writes it ("dual occupancy"). */
+function useLabel(v: string) {
+  return String(v || '').replace(/^./, c => c.toUpperCase())
+}
+
+/**
+ * One row per control, with every value for that control shown together.
+ *
+ * The DCP bands several controls — landscaping runs 10/15/20/30/40/45/50% —
+ * without recording which band applies. Collapsing that to one number would be
+ * wrong for most lots, so the range is stated and the clause carries the detail.
+ */
+/**
+ * How each comparator reads.
+ *
+ * `lt` and `lte` are kept apart deliberately: cl 3.3.4 states both "under 1 m"
+ * and "max 12 m", and folding them into one direction merged two unrelated
+ * controls into an invented band. A missing comparator maps to nothing — 158
+ * DCP effects record no bound, and calling those "min" states one the document
+ * never set.
+ */
+const BOUND_WORD: Record<string, string> = {
+  gte: 'min', lte: 'max', gt: 'over', lt: 'under',
+}
+
+/**
+ * One row per control, where a control is one clause stating one bound.
+ *
+ * The clause and the direction are part of the key on purpose. Grouping only on
+ * topic + unit merged cl 3.3.4 (12 m at 3 storeys), cl 3.4.4 (16.5 m at 5) and
+ * cl 3.5.4 (20.5–72 m at 6+) into a single invented band reading
+ * "1 / 12 / 16.5 / … / 72 m", attributed to whichever clause happened to sort
+ * first. A 72 m height limit in R4 Hornsby is not a rounding error, it is a
+ * different building. Direction is in the key for the same reason: cl 3.3.4
+ * carries both "< 1 m" and "≤ 12 m" and they are not one control.
+ */
+function buildRules(source: any[]) {
+  const groups = new Map<string, any[]>()
+  for (const r of source) {
+    const key = [
+      r.topic, r.measured_from ?? r.relative_to ?? '', r.unit ?? '',
+      r.clause, r.comparator ?? '', conditionLabel(r),
+    ].join('|')
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key)!.push(r)
+  }
+
+  return [...groups.entries()].map(([key, rows]) => {
+    const r0 = rows[0]
+    const unit = r0.unit === 'metre' ? 'm' : r0.unit === 'percent' ? '%'
+      : r0.unit === 'sqm' ? 'm²' : r0.unit ? ` ${r0.unit}` : ''
+    const where = r0.measured_from || r0.relative_to
+      ? ` — ${String(r0.measured_from || r0.relative_to).replace(/_/g, ' ')}` : ''
+    // 158 DCP effects carry no comparator. Defaulting those to "min" states a
+    // bound the document never set, so an unknown direction says nothing.
+    const dir = BOUND_WORD[r0.comparator as string] ?? ''
+    const vals = [...new Set(rows.map(x => Number(x.value)))].sort((a, b) => a - b)
+
+    // Several values under one clause and one bound are alternatives inside that
+    // clause's table. Stating the span is honest; picking one would not be.
+    const body = vals.length === 1
+      ? `${vals[0]}${unit}`
+      : vals.length <= 3
+        ? `${vals.join(' / ')}${unit} — see clause`
+        : `${vals[0]}–${vals[vals.length - 1]}${unit} — table, see clause`
+    const requirement = dir ? `${dir} ${body}` : body
+
+    const cond = conditionLabel(r0)
+    // Both come from the row itself. The document is whichever DCP the rule
+    // was ingested from, and the anchor is the id the converter authored —
+    // neither can be derived from the property's `dcp_plan_name`, which for
+    // Randwick lists several plans at once, nor from the clause number, which
+    // restarts in every part of a multi-part DCP.
+    const slug = r0.document_slug || dcpDocSlug.value
+    const anchor = r0.anchor || (r0.clause ? `dcp.${r0.clause}` : null)
+    return {
+      key,
+      label: (TOPIC_LABEL[r0.topic] || r0.topic) + where,
+      requirement,
+      condition: cond,
+      // Shown, not dropped: the control is in the DCP, but its recorded unit
+      // does not match what the topic measures, so it must not be read as-is.
+      suspect: unitLooksWrong(r0.topic, r0.unit),
+      clause: r0.clause,
+      clauseHref: slug && anchor
+        ? `/doc-viewer?doc=${slug}&anchor=${encodeURIComponent(anchor)}` : null,
+    }
+  }).sort((a, b) =>
+    a.label.localeCompare(b.label) || String(a.clause).localeCompare(String(b.clause)))
+}
+
+/**
+ * Controls grouped by what they apply to, not flattened into one table.
+ *
+ * Widening the query from two land uses to both applicability axes takes an R2
+ * lot from 82 numeric effects to several hundred. One table of that length is a
+ * dump rather than a report, and worse, it silently mixes controls that bind a
+ * dwelling house with controls that bind a subdivision. Each group names its own
+ * scope and says which axis put it there.
+ *
+ * `land_use` groups are the specific ones and come first. A `dev_type` group is
+ * a rule that names no land use at all, so it is general to that part of the
+ * DCP — true for the lot, but not evidence about any particular use.
+ */
+const numericRuleGroups = computed(() => {
+  const byScope = new Map<string, any[]>()
+  for (const r of siteRules.value) {
+    const key = `${r.axis}|${r.applies_to}`
+    if (!byScope.has(key)) byScope.set(key, [])
+    byScope.get(key)!.push(r)
+  }
+
+  const groups = [...byScope.entries()].map(([key, rows]) => {
+    const axis = rows[0].axis as string
+    const appliesTo = String(rows[0].applies_to ?? '')
+    return {
+      key,
+      axis,
+      appliesTo,
+      label: axis === 'land_use' ? useLabel(appliesTo) : ((DEV_TYPE_LABEL as Record<string, string>)[appliesTo] || appliesTo),
+      note: axis === 'land_use'
+        ? 'Controls the DCP states for this use.'
+        : 'Controls in this part of the DCP that name no specific land use, so they apply to development of this type generally.',
+      rules: buildRules(rows),
+    }
+  })
+
+  // Specific before general, then the better-evidenced group first.
+  return groups.sort((a, b) =>
+    (a.axis === b.axis ? b.rules.length - a.rules.length : a.axis === 'land_use' ? -1 : 1))
+})
+
+const numericRuleCount = computed(() =>
+  numericRuleGroups.value.reduce((n, g) => n + g.rules.length, 0))
+
+/**
+ * The document these clauses are actually in.
+ *
+ * Not `dcp_plan_name`: the property record says "Hornsby DCP 2013 - as amended
+ * 31 May 2019" while the ingested rule layer is HDCP 2024. Printing the record's
+ * name over 2024 clause numbers attributes them to a plan they are not in, which
+ * is the kind of error a planner would carry into a submission.
+ */
+const ruleSourceLabel = computed(() =>
+  ruleSourceDocs.value.length ? ruleSourceDocs.value.join(' and ') : 'DCP')
+
+/** True when the record's DCP and the one we hold are different documents. */
+const dcpNameMismatch = computed(() => {
+  const recorded = String(property.value?.dcp_plan_name || '').trim()
+  if (!recorded || !ruleSourceDocs.value.length) return false
+  const year = (s: string) => (s.match(/\b(19|20)\d{2}\b/) || [])[0] ?? ''
+  return ruleSourceDocs.value.some(d => year(d) && year(recorded) && year(d) !== year(recorded))
+})
+
+/** Open the two best-evidenced groups; the rest stay one click away. */
+function groupOpen(i: number) { return i < 2 }
+
+/**
+ * Fallback slug for the DCP we hold, used only where a row carries no
+ * `document_slug` of its own.
+ *
+ * Keyed on the property's LGA, not on `dcp_plan_name`: that column is a
+ * spatial roll-up, so a Randwick lot reads "Randwick DCP 2013 - as amended
+ * Apr 2016, Bayside DCP 2022, Waverley DCP 2012…" — several councils' plans,
+ * none of them necessarily the one we ingested.
+ */
+const dcpDocSlug = computed(() => {
+  const lga = String(property.value?.lga_name || '').trim().toUpperCase()
+  return DCP_SLUG_BY_LGA[lga] ?? null
+})
+
+/**
+ * The five overlays a planning report is expected to clear explicitly.
+ * "No overlay applies" is the finding; silence would be ambiguous.
+ */
+const specialConstraints = computed(() => {
+  const v = property.value
+  if (!v) return []
+  const rows: [string, unknown][] = [
+    ['Acid sulfate soils', v.acid_sulfate],
+    ['Biodiversity', v.biodiversity],
+    ['Bushfire prone land', v.bushfireproneland],
+    ['Flood', v.floodmapping],
+    ['Heritage', v.heritage_name || v.heritage_id],
+  ]
+  return rows.map(([label, val]) => ({
+    label,
+    applies: !!val && String(val).trim() !== '',
+    detail: val && String(val).trim() ? String(val) : `No ${label.toLowerCase()} overlay applies to this property.`,
+  }))
+})
+
+/**
+ * Uses this lot can pursue under a State policy.
+ *
+ * `sepp_landuses` is the SEPP-permissible list and `sepps` the instruments that
+ * grant them. Both were only being handed to the model as prompt context, so
+ * they never appeared on the page even though they are recorded per lot.
+ */
+const seppUses = computed(() => {
+  const raw = property.value?.sepp_landuses
+  if (typeof raw !== 'string' || !raw.trim()) return []
+  return [...new Set(raw.split(/[;,]/).map(x => x.trim()).filter(x => x && x.toLowerCase() !== 'null'))]
+    .sort((a, b) => a.localeCompare(b))
+})
+
+const seppInstruments = computed(() => {
+  const raw = property.value?.sepps
+  if (typeof raw !== 'string' || !raw.trim()) return []
+  return [...new Set(raw.split(/,(?=\s*State)/).map(x => x.trim()).filter(Boolean))]
+})
+
+const PATTERN_BOOK = [
+  ['semis_01_anthony_gill', 'Semis — Anthony Gill'],
+  ['semis_02_sibling', 'Semis — Sibling'],
+  ['manor_homes_01_studio', 'Manor Homes — Studio'],
+  ['row_homes_01_saha', 'Row Homes — SAHA'],
+  ['terraces_01_carter', 'Terraces — Carter'],
+  ['terraces_02_sam_crawford', 'Terraces — Sam Crawford'],
+  ['terraces_03_officer_woods', 'Terraces — Officer Woods'],
+  ['terraces_04_other', 'Terraces — Other'],
+] as const
+
+/**
+ * Every pattern the lot was assessed against, eligible or not, each with the
+ * reason recorded against it. Previously the list was filtered to eligible
+ * patterns unless the lot was in an LMR area, which meant a lot assessed and
+ * rejected showed nothing at all — the reason is the interesting part.
+ */
 const patternBookItems = computed(() => {
   if (!property.value) return []
   const v = property.value
-  return [
-    { key: 'semis1', label: 'Semis — Anthony Gill', eligible: v.semis_01_anthony_gill_eligible === 'true' },
-    { key: 'semis2', label: 'Semis — Sibling', eligible: v.semis_02_sibling_eligible === 'true' },
-    { key: 'manor1', label: 'Manor Homes — Studio', eligible: v.manor_homes_01_studio_eligible === 'true' },
-    { key: 'row1', label: 'Row Homes — SAHA', eligible: v.row_homes_01_saha_eligible === 'true' },
-    { key: 'terr1', label: 'Terraces — Carter', eligible: v.terraces_01_carter_eligible === 'true' },
-    { key: 'terr2', label: 'Terraces — Sam Crawford', eligible: v.terraces_02_sam_crawford_eligible === 'true' },
-    { key: 'terr3', label: 'Terraces — Officer Woods', eligible: v.terraces_03_officer_woods_eligible === 'true' },
-    { key: 'terr4', label: 'Terraces — Other', eligible: v.terraces_04_other_eligible === 'true' },
-  ].filter(pb => pb.eligible || property.value.in_lmr_housing_area === 'true')
+  return PATTERN_BOOK
+    .filter(([col]) => v[`${col}_eligible`] !== undefined && v[`${col}_eligible`] !== null)
+    .map(([col, label]) => ({
+      key: col,
+      label,
+      eligible: isYes(v[`${col}_eligible`]),
+      reasons: v[`${col}_reasons`] || null,
+    }))
 })
+
 
 // ── Use-specific controls (planner persona) ─────────────────────────────────
 
@@ -800,13 +1721,16 @@ async function selectUse(use: string) {
     const reader = resp.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
+    // Held across reads, not per chunk: a large event puts its `event:` line and
+    // its `data:` line in different chunks, and resetting per chunk dropped the
+    // event with no error at all.
+    let eventType = ''
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split('\n')
       buffer = lines.pop() || ''
-      let eventType = ''
       for (const line of lines) {
         if (line.startsWith('event: ')) eventType = line.slice(7).trim()
         else if (line.startsWith('data: ') && eventType) {
@@ -921,13 +1845,16 @@ async function submitFollowup() {
     const decoder = new TextDecoder()
     let buffer = ''
 
+    // Held across reads, not per chunk: a large event puts its `event:` line and
+    // its `data:` line in different chunks, and resetting per chunk dropped the
+    // event with no error at all.
+    let eventType = ''
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split('\n')
       buffer = lines.pop() || ''
-      let eventType = ''
       for (const line of lines) {
         if (line.startsWith('event: ')) eventType = line.slice(7).trim()
         else if (line.startsWith('data: ') && eventType) {
@@ -994,6 +1921,10 @@ onMounted(async () => {
     const decoder = new TextDecoder()
     let buffer = ''
 
+    // Held across reads, not per chunk: a large event puts its `event:` line and
+    // its `data:` line in different chunks, and resetting per chunk dropped the
+    // event with no error at all.
+    let eventType = ''
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
@@ -1001,8 +1932,6 @@ onMounted(async () => {
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split('\n')
       buffer = lines.pop() || ''
-
-      let eventType = ''
       for (const line of lines) {
         if (line.startsWith('event: ')) {
           eventType = line.slice(7).trim()
@@ -1043,6 +1972,12 @@ function handleSSE(type: string, data: any) {
       else steps.value.push(step)
       break
     }
+    case 'site_rules':
+      siteRules.value = data.rules || []
+      ruleLandUses.value = data.land_uses || []
+      ruleDevTypes.value = data.dev_types || []
+      ruleSourceDocs.value = data.source_documents || []
+      break
     case 'property':
       property.value = data.property
       break
@@ -1342,14 +2277,70 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 }
 
 .lot-map-container {
+  position: relative;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #e2e8f0;
-  min-height: 280px;
+  min-height: 520px;
 }
+
+/* Measure tool, floated over the map. */
+.lot-measure-control {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  display: flex;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.12);
+}
+.lot-measure-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.35rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.7rem;
+  color: #64748b;
+}
+.lot-measure-btn + .lot-measure-btn { border-left: 1px solid #e2e8f0; }
+.lot-measure-btn:hover { background: #f8fafc; }
+.lot-measure-btn--on { background: #fff7ed; color: #ea580c; font-weight: 600; }
+.lot-measure-btn--clear { color: #94a3b8; }
+.lot-measure-btn--clear:hover { color: #ea580c; }
+
+.lot-measure-readout {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.12);
+  max-width: 15rem;
+}
+.lot-measure-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ea580c;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.lot-measure-secondary {
+  font-size: 0.68rem;
+  color: #64748b;
+  margin-top: 0.1rem;
+  font-variant-numeric: tabular-nums;
+}
+.lot-measure-hint { font-size: 0.64rem; color: #94a3b8; margin-top: 0.2rem; }
 .lot-map {
   width: 100%;
-  height: 280px;
+  height: 520px;
 }
 
 .lot-dims {
@@ -1398,19 +2389,78 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   flex-wrap: wrap;
   gap: 0.25rem;
 }
+/* Measurements are numbers first. Tabular figures so the digits line up
+   down a wrapped row, the unit demoted so nine chips do not read as nine
+   equally-weighted words, and a muted ordinal so a side can be referred to
+   ("side 4") without counting along the row. */
 .edge-chip {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: 5px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  line-height: 1.35;
+}
+.edge-n {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #fb923c;
+  font-variant-numeric: tabular-nums;
+  min-width: 0.75rem;
+  text-align: right;
+}
+.edge-num {
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: #c2410c;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.edge-unit {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: #fb923c;
+  margin-left: -0.16rem;
 }
 .edge-chip--frontage {
   background: #f0fdf4;
-  color: #15803d;
   border-color: #bbf7d0;
+}
+.edge-chip--frontage .edge-num { color: #15803d; }
+.edge-chip--frontage .edge-unit { color: #4ade80; }
+.edge-road {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #16a34a;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.edge-count {
+  font-size: 0.58rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.35rem;
+}
+.edge-empty {
+  margin: 0;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+.edge-onmap {
+  margin: 0;
+  font-size: 0.68rem;
+  color: #ea580c;
+}
+.edge-note {
+  margin: 0.25rem 0 0;
+  font-size: 0.62rem;
+  color: #94a3b8;
 }
 
 .lot-flags {
@@ -1736,4 +2786,101 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   padding: 0.75rem 1rem; font-size: 0.78rem; color: #92400e; line-height: 1.5;
   margin-top: 2rem;
 }
+/* ── Building envelope link ─────────────────────────────────────────────── */
+.envelope-blurb { font-size: 0.82rem; color: #64748b; margin: 0 0 0.6rem; }
+.envelope-link {
+  display: inline-block; padding: 0.45rem 0.8rem; border-radius: 8px;
+  background: #15803d; color: #fff; font-size: 0.85rem; font-weight: 600;
+  text-decoration: none;
+}
+.envelope-link:hover { background: #166534; }
+
+/* ── Key numerical rules + constraints ──────────────────────────────────── */
+.rules-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 0.4rem; }
+.rules-table th {
+  text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em;
+  color: #94a3b8; padding: 0.3rem 0.5rem 0.3rem 0; border-bottom: 1px solid #e2e8f0;
+}
+.rules-table td { padding: 0.35rem 0.5rem 0.35rem 0; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+
+/* ── Numeric rules, grouped by what they apply to ─────────────────────────── */
+.rules-group {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin: 10px 0;
+  background: #fff;
+}
+.rules-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  list-style: none;
+}
+.rules-group-title::-webkit-details-marker { display: none; }
+.rules-group-title::before {
+  content: 'b8';
+  color: #94a3b8;
+  transition: transform 0.15s;
+}
+.rules-group[open] > .rules-group-title::before { transform: rotate(90deg); }
+.rules-axis {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.rules-axis-land_use { background: #dcfce7; color: #166534; }
+.rules-axis-dev_type { background: #f1f5f9; color: #64748b; }
+.rules-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+.rules-group-note {
+  margin: 0 12px 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+}
+.rules-group .rules-table { margin: 0 0 4px; }
+.rules-cond { color: #64748b; font-size: 12px; white-space: nowrap; }
+.rules-mismatch {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.rules-suspect {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: help;
+}
+
+.rules-cite { color: #15803d; text-decoration: none; white-space: nowrap; }
+.rules-cite:hover { text-decoration: underline; }
+
+.constraint-list { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem; }
+.constraint-row { display: grid; grid-template-columns: 12px 10rem 1fr; gap: 0.5rem; align-items: baseline; }
+.constraint-name { font-size: 0.82rem; font-weight: 600; color: #1e293b; }
+.constraint-detail { font-size: 0.8rem; color: #64748b; }
+
 </style>

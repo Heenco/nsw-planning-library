@@ -826,6 +826,12 @@
             "file": "EPI/DCPs/georges-river-dcp-2021.md"
           },
           {
+            "slug": "hornsby-dcp-2024",
+            "title": "Hornsby Development Control Plan 2024",
+            "file": "EPI/DCPs/hornsby-dcp-2024.md",
+            "pdf": "EPI/DCPs/pdf/hdcp-2024-book-version-26-june-2026-current.pdf"
+          },
+          {
             "slug": "liverpool-gcp-main-body",
             "title": "Liverpool Growth Centre Precincts DCP — Main Body",
             "file": "EPI/DCPs/liverpool-gcp-main-body.md"
@@ -854,6 +860,12 @@
             "slug": "randwick-comprehensive-dcp-2013",
             "title": "Randwick Comprehensive Development Control Plan 2013",
             "file": "EPI/DCPs/randwick-comprehensive-dcp-2013.md"
+          },
+          {
+            "slug": "randwick-dcp-2025",
+            "title": "Randwick Development Control Plan 2025",
+            "file": "EPI/DCPs/randwick-dcp-2025.md",
+            "manifest": "EPI/DCPs/manifests/randwick-dcp-2025.json"
           }
         ]
       }
