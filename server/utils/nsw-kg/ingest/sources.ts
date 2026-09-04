@@ -61,6 +61,23 @@ export const SOURCES: Record<string, DocumentSource> = {
     raw_format: 'xml',
     as_at_date: DEFAULT_AS_AT,
   },
+  // Hornsby is the LGA every property route targets, and its LEP was the one
+  // document never registered here. It reached the database through a one-off
+  // import from a pilot SQLite store instead (document.raw_path still records
+  // "pilot:lep_store.sqlite (Parts 4-6 only)"), which carried clause headings
+  // but none of the subclause or paragraph text beneath them.
+  'hornsby-lep': {
+    label: 'hornsby-lep',
+    title: 'Hornsby Local Environmental Plan 2013',
+    doc_type: 'lep',
+    scope: 'local',
+    hierarchy_level: 3,
+    lga_name: 'Hornsby',
+    source_url: 'https://legislation.nsw.gov.au/view/whole/html/inforce/current/epi-2013-0569',
+    raw_path: path.join(REPO_ROOT, 'public', 'EPI', 'xml', 'epi-2013-0569.xml'),
+    raw_format: 'xml',
+    as_at_date: DEFAULT_AS_AT,
+  },
   'randwick-lep': {
     label: 'randwick-lep',
     title: 'Randwick Local Environmental Plan 2012',

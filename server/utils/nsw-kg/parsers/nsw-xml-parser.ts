@@ -189,6 +189,52 @@ function buildNode(el: any, depth: number, sortOrder: { value: number }, parentC
       continue
     }
 
+    // Structural wrappers that carry no meaning of their own but hold half
+    // the document beneath them. Skipping these dropped 50% of Hornsby's
+    // structural elements and 73% of its text:
+    //
+    //   <content type="auto-inserted">  54 in Hornsby, 10 under a
+    //     <level type="schedule">. This is why Schedule 1 "Additional
+    //     permitted uses" parsed with zero children - every item sits inside
+    //     one. It also held the entire Land Use Table (23 clausegroups ->
+    //     92 clauses of permitted/prohibited uses per zone) and Parts 7-8.
+    //   <pre type="auto-inserted">     24 in Hornsby, wrapping 29 subclauses
+    //     including cl 4.4(1)-(2), the operative floor space ratio control.
+    //
+    // They are transparent: recurse through them so the tree keeps the shape
+    // of the document rather than gaining a phantom level.
+    if (tag === 'content' || tag === 'pre' || tag === 'post') {
+      for (const inner of childElements(child)) {
+        const innerTag = inner.tagName
+        if (innerTag === 'level' || innerTag === 'tier') {
+          const sub = buildNode(inner, depth + 1, sortOrder, node.children)
+          if (sub) node.children.push(sub)
+        } else if (innerTag === 'block') {
+          const r = extractBlock(inner, depth + 1, sortOrder)
+          if (r.text) {
+            node.raw_text = node.raw_text
+              ? `${node.raw_text}\n\n${r.text}`
+              : r.text
+          }
+          for (const para of r.listItems) node.children.push(para)
+        }
+      }
+      continue
+    }
+
+    // A <note> hanging directly off a level or tier rather than inside a
+    // <block>. Schedule 2 "Exempt development" is built entirely of these,
+    // so it parsed empty even with the wrapper fix above.
+    if (tag === 'note') {
+      const t = textContent(child).trim()
+      if (t) {
+        node.raw_text = node.raw_text
+          ? `${node.raw_text}\n\n${t}`
+          : t
+      }
+      continue
+    }
+
     // Skip head, parentattributes, list inside head, etc.
   }
 
@@ -230,10 +276,21 @@ function extractBlock(blockEl: any, depth: number, sortOrder: { value: number })
       continue
     }
 
-    // Skip <note>, <example>, <table> for now — they often contain text we'd
-    // want eventually but they're noisy in v1. We log them as text content
-    // so the recall verifier still sees the numbers inside.
-    if (tag === 'note' || tag === 'example' || tag === 'editorial') {
+    // Text-only capture for containers we do not model structurally.
+    //
+    // The comment here used to list <table> among them, but the condition
+    // omitted it, so 12 tables and 75,002 characters were dropped from
+    // Hornsby alone - Schedule 5 Environmental heritage (51,077 ch), the
+    // cl 6.1 acid sulfate soils class table, and the cl 4.4(2A) floor space
+    // ratio area table among them.
+    //
+    // <deflist> is the Dictionary: 453 defined terms, 108,821 characters,
+    // none of which reached the graph. Flattening both to text is a stopgap.
+    // Tables belong in nsw.section_table, which exists and is populated by
+    // the DCP path but has no writer on the XML path; the Dictionary's terms
+    // deserve their own nodes rather than one flat blob.
+    if (tag === 'note' || tag === 'example' || tag === 'editorial'
+        || tag === 'table' || tag === 'deflist') {
       const t = textContent(child).trim()
       if (t) textParts.push(t)
     }
