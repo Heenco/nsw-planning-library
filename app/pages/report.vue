@@ -148,9 +148,17 @@
                and cl 6.12 caps seniors housing at 20.5m where the map shows
                35.5m -- so on this land the mapped figure is not the operative
                limit for those uses. -->
-          <tr v-if="a.effect && a.effect.length">
+          <tr v-if="(a.effect && a.effect.length) || (a.values && a.values.length)">
             <td colspan="3" class="prov-effect">
-              <p v-for="e in a.effect" :key="e.local_id">{{ e.text }}</p>
+              <!-- The figure first. Where the clause tabulates a value per area
+                   only this lot's row matters, and it is the one thing the
+                   reader has to act on. -->
+              <p v-for="v in a.values" :key="v.area" class="prov-value">
+                {{ v.area }}: <strong>{{ v.value }}</strong>
+              </p>
+              <p v-for="e in a.effect" :key="e.local_id" class="prov-para">
+                <span v-if="e.number" class="prov-num">{{ e.number }}</span>{{ ' ' + e.text }}
+              </p>
             </td>
           </tr>
           </template>
@@ -709,7 +717,13 @@ function isYes(v: unknown): boolean {
 const envelopeModel = computed(() => {
   const addr = property.value?.address
   if (!addr) return null
+  // Follow the use the reader is actually looking at. The link used to carry
+  // no `use` at all, so every lot got the endpoint's default pair and the
+  // envelope never answered the question on screen — open "dual occupancy"
+  // and the model was still the dwelling-house-and-dual-occupancy worst case.
+  const use = selectedUse.value || ''
   const api = `/api/property/envelope?address=${encodeURIComponent(addr)}`
+    + (use ? `&use=${encodeURIComponent(use.toLowerCase())}` : '')
   // `label` names the model in the viewer's picker; without it an external model
   // shows up under whichever showcase entry happened to be selected.
   return `/craftbot?model=${encodeURIComponent(api)}&label=${encodeURIComponent(addr)}`
@@ -3004,6 +3018,23 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 }
 .prov-effect p { margin: 0 0 6px; }
 .prov-effect p:last-child { margin-bottom: 0; }
+.prov-value {
+  font-size: 13px;
+  color: #0f172a;
+  padding: 4px 8px;
+  background: #dcfce7;
+  border-radius: 4px;
+  display: inline-block;
+}
+/* Hanging indent, so (a) and (b) line up as a list rather than running on. */
+.prov-para { padding-left: 30px; text-indent: -30px; }
+.prov-num {
+  display: inline-block;
+  width: 30px;
+  text-indent: 0;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
 .rules-mismatch {
   margin: 0 0 10px;
   padding: 8px 10px;

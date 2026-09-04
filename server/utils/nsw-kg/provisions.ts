@@ -41,7 +41,13 @@ export interface AreaProvision {
   map_layer: string | null
   ref_type: string
   /** The subclauses that actually say what happens on this land. */
-  effect: Array<{ local_id: string; text: string }>
+  effect: Array<{ local_id: string; number: string | null; text: string }>
+  /**
+   * The figure this clause sets for this particular area, where it states one
+   * in a table. cl 4.4(2A) tabulates a ratio per area; only the row for the
+   * lot's own area is of any use to the reader.
+   */
+  values: Array<{ area: string; value: string }>
 }
 
 export interface MappedStandard {
@@ -169,8 +175,10 @@ export async function getLotProvisions(
   // Saying "this lot is in Area 3" without that is a flag the reader cannot act
   // on.
   for (const prov of areaProvisions) {
-    prov.effect = await clauseEffectForArea(
+    const { effect, values } = await clauseEffectForArea(
       client, prov.clause, prov.area, lot.lga_name ?? null)
+    prov.effect = effect
+    prov.values = values
   }
 
   return { additionalUses, areaProvisions, mappedStandards }
@@ -201,9 +209,12 @@ async function clauseEffectForArea(
   clause: string,
   area: string,
   lgaName: string | null,
-): Promise<Array<{ local_id: string; text: string }>> {
+): Promise<{
+  effect: Array<{ local_id: string; number: string | null; text: string }>
+  values: Array<{ area: string; value: string }>
+}> {
   const rows = (await client.query(
-    `SELECT s.local_id, s.raw_text, s.sort_order
+    `SELECT s.local_id, s.number, s.raw_text, s.sort_order
        FROM nsw.section s
        JOIN nsw.document d ON d.id = s.document_id
       WHERE d.doc_type = 'lep'
@@ -225,16 +236,35 @@ async function clauseEffectForArea(
   const areasIn = (t: string) => [...t.matchAll(AREA_TOKEN)].map(m => m[1]!.toLowerCase())
   const target = (area.match(/\bArea\s+(\w+)\b/i)?.[1] ?? area).toLowerCase()
 
-  const out: Array<{ local_id: string; text: string }> = []
+  const out: Array<{ local_id: string; number: string | null; text: string }> = []
+  const values: Array<{ area: string; value: string }> = []
   let collecting = false
   for (const r of rows) {
-    const text = String(r.raw_text)
-    const found = areasIn(text)
+    const raw = String(r.raw_text)
+    const found = areasIn(raw)
     const mentionsThisArea = found.includes(target)
     const namesOnlyOthers = found.length > 0 && !mentionsThisArea
     if (mentionsThisArea) { collecting = true }
     else if (collecting && namesOnlyOthers) { break }
-    if (collecting) out.push({ local_id: r.local_id, text })
+    if (!collecting) continue
+
+    // A table in the source arrives as one flattened line, because the XML path
+    // has no writer for nsw.section_table and extractBlock falls back to text.
+    // Rendered as prose it reads "Column 1 Column 2 Area Floor space ratio Area
+    // 3 1:1 Area 6 0.6:1", which is not something to put in front of a planner.
+    // The row for this lot's area is pulled out as a value; the rest of the
+    // table is dropped, since the ratios for other land are not this lot's.
+    const prose: string[] = []
+    for (const line of raw.split('\n')) {
+      if (/^Column\s+\d/i.test(line.trim())) {
+        for (const m of line.matchAll(/\bArea\s+(\w+)\s+(\d[\d.]*(?::[\d.]+)?%?)/gi)) {
+          if (m[1]!.toLowerCase() === target) values.push({ area: `Area ${m[1]}`, value: m[2]! })
+        }
+        continue
+      }
+      if (line.trim()) prose.push(line.trim())
+    }
+    out.push({ local_id: r.local_id, number: r.number ?? null, text: prose.join(' ') })
   }
-  return out
+  return { effect: out, values }
 }
