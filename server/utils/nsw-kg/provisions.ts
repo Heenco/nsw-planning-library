@@ -40,6 +40,8 @@ export interface AreaProvision {
   area: string
   map_layer: string | null
   ref_type: string
+  /** The subclauses that actually say what happens on this land. */
+  effect: Array<{ local_id: string; text: string }>
 }
 
 export interface MappedStandard {
@@ -73,7 +75,8 @@ const CONTAINS = `
 export async function getLotProvisions(
   client: pg.PoolClient,
   lot: { centroid_lat: number | null; centroid_lon: number | null;
-         lot_size: unknown; max_height_m: unknown; fsr_value: unknown },
+         lot_size: unknown; max_height_m: unknown; fsr_value: unknown;
+         lga_name?: string | null },
 ): Promise<LotProvisions> {
   const lat = Number(lot.centroid_lat)
   const lon = Number(lot.centroid_lon)
@@ -141,5 +144,81 @@ export async function getLotProvisions(
       }
     })
 
+  // ── What the area provisions actually do ───────────────────────────
+  //
+  // Naming the area is only half a finding. cl 4.4(2A) caps residential
+  // accommodation in Area 3 at 1:1 where the map shows 5, and cl 6.12 caps
+  // seniors housing in its Area 3 at 20.5m where the map shows 35.5m -- so on
+  // those lots the mapped figure is not the operative limit for those uses.
+  // Saying "this lot is in Area 3" without that is a flag the reader cannot act
+  // on.
+  for (const prov of areaProvisions) {
+    prov.effect = await clauseEffectForArea(
+      client, prov.clause, prov.area, lot.lga_name ?? null)
+  }
+
   return { additionalUses, areaProvisions, mappedStandards }
+}
+
+/**
+ * The subclauses of `clause` that govern `area`, in this lot's own LEP.
+ *
+ * A clause can carry a separate rule per area -- cl 4.4 has (2A) for Areas 3
+ * and 6, (2C) for Area 5 and (2D) for Area 8 -- so returning the whole clause
+ * would show a reader the rules for land they are not on. This takes the
+ * subclause that names the area and the ones following it, stopping at the next
+ * subclause that names a different area. That keeps cl 6.12(1) with its
+ * operative (2), and keeps cl 4.4(2A) away from (2C).
+ *
+ * Scoped by LGA as well as by level. Every LEP numbers its clauses the same way,
+ * so `sec.4.4-ssec.1` exists in Hornsby's and Randwick's alike; without the LGA
+ * filter the two interleave by sort_order and the walk below terminates on the
+ * wrong council's text, which is how this first showed up -- as empty results
+ * rather than as visibly foreign clauses.
+ *
+ * The level filter still does useful work: it excludes the pilot-imported
+ * document, which produced no subclause or paragraph rows, so no document id has
+ * to be named here and nothing changes at cutover.
+ */
+async function clauseEffectForArea(
+  client: pg.PoolClient,
+  clause: string,
+  area: string,
+  lgaName: string | null,
+): Promise<Array<{ local_id: string; text: string }>> {
+  const rows = (await client.query(
+    `SELECT s.local_id, s.raw_text, s.sort_order
+       FROM nsw.section s
+       JOIN nsw.document d ON d.id = s.document_id
+      WHERE d.doc_type = 'lep'
+        -- Case-insensitive: the source registry records "Hornsby" while
+        -- up_property_d_3 carries "HORNSBY", and an exact match silently
+        -- returned nothing.
+        AND ($2::text IS NULL OR lower(d.lga_name) = lower($2))
+        AND s.level IN ('subclause', 'paragraph')
+        AND s.local_id LIKE $1
+        AND coalesce(s.raw_text, '') <> ''
+      ORDER BY s.sort_order`,
+    [`sec.${clause}-%`, lgaName],
+  )).rows
+
+  // Compared as bare tokens rather than by building a regex from `area`,
+  // which would need escaping for no benefit: the values are always
+  // "Area <n>".
+  const AREA_TOKEN = /\bArea\s+(\w+)\b/gi
+  const areasIn = (t: string) => [...t.matchAll(AREA_TOKEN)].map(m => m[1]!.toLowerCase())
+  const target = (area.match(/\bArea\s+(\w+)\b/i)?.[1] ?? area).toLowerCase()
+
+  const out: Array<{ local_id: string; text: string }> = []
+  let collecting = false
+  for (const r of rows) {
+    const text = String(r.raw_text)
+    const found = areasIn(text)
+    const mentionsThisArea = found.includes(target)
+    const namesOnlyOthers = found.length > 0 && !mentionsThisArea
+    if (mentionsThisArea) { collecting = true }
+    else if (collecting && namesOnlyOthers) { break }
+    if (collecting) out.push({ local_id: r.local_id, text })
+  }
+  return out
 }

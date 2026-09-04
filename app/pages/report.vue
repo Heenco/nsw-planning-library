@@ -130,7 +130,8 @@
       <table class="rules-table">
         <thead><tr><th>Clause</th><th>Provision</th><th>Applies to</th></tr></thead>
         <tbody>
-          <tr v-for="a in areaProvisions" :key="a.clause + a.area">
+          <template v-for="a in areaProvisions" :key="a.clause + a.area">
+          <tr>
             <td>
               <a v-if="lepClauseHref(a.clause)" :href="lepClauseHref(a.clause)" class="rules-cite">
                 cl {{ a.clause }}
@@ -142,6 +143,17 @@
               {{ a.area }}<template v-if="a.map_layer"> on the {{ a.map_layer }}</template>
             </td>
           </tr>
+          <!-- Naming the area is only half a finding. cl 4.4(2A) caps
+               residential accommodation in Area 3 at 1:1 where the map shows 5,
+               and cl 6.12 caps seniors housing at 20.5m where the map shows
+               35.5m -- so on this land the mapped figure is not the operative
+               limit for those uses. -->
+          <tr v-if="a.effect && a.effect.length">
+            <td colspan="3" class="prov-effect">
+              <p v-for="e in a.effect" :key="e.local_id">{{ e.text }}</p>
+            </td>
+          </tr>
+          </template>
         </tbody>
       </table>
     </details>
@@ -2982,6 +2994,16 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 .apu-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
 .apu-ref { font-size: 12px; color: #64748b; }
 .standards-source { margin-top: 12px; }
+.prov-effect {
+  padding: 8px 10px 10px;
+  background: #f8fafc;
+  border-left: 2px solid #cbd5e1;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #334155;
+}
+.prov-effect p { margin: 0 0 6px; }
+.prov-effect p:last-child { margin-bottom: 0; }
 .rules-mismatch {
   margin: 0 0 10px;
   padding: 8px 10px;

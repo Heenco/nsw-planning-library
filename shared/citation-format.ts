@@ -219,7 +219,7 @@ export function shortDocumentLabel(title: string, docType?: 'lep' | 'sepp' | 'dc
     // Keep the year. Hornsby's property records name "Hornsby DCP 2013" while
     // the ingested plan is the 2024 one, so dropping the year from the label
     // hides the very distinction a reader needs to notice.
-    const year = (t.match(/(19|20)\d{2}/) || [])[0]
+    const year = (t.match(/\b(19|20)\d{2}\b/) || [])[0]
     const base = t.replace(/Development Control Plan.*/i, 'DCP').trim()
     return year && !base.includes(year) ? `${base} ${year}` : base
   }
