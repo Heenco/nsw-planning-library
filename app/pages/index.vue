@@ -247,12 +247,26 @@ const showDisclaimer = ref(false)
  * part — Kensington/Kingsford (D1), Maroubra Junction (D3) — so a sample
  * click lands on controls that plan actually introduced. Coordinates and
  * zones are read from nsw.up_property_d_3, not typed by hand.
+ *
+ * The last four Hornsby entries are chosen for the provisions they trigger
+ * rather than the zone, because those sections are otherwise unreachable by
+ * clicking around: only two lots in the LGA resolve to a Schedule 1 additional
+ * permitted use, and the floor space ratio areas under cl 4.4 cover a few
+ * streets each. They are labelled by what they demonstrate.
  */
 const sampleAddresses = [
   { lga: 'Hornsby',  zone: 'R2',  address: '100 GALSTON ROAD HORNSBY HEIGHTS', lat: -33.6811405, lng: 151.0974353 },
   { lga: 'Hornsby',  zone: 'R3',  address: '15 MILDRED AVENUE HORNSBY',        lat: -33.6932249, lng: 151.1002495 },
   { lga: 'Hornsby',  zone: 'R4',  address: '9 BELL STREET HORNSBY',            lat: -33.6904113, lng: 151.1027866 },
   { lga: 'Hornsby',  zone: 'RU4', address: '307 GALSTON ROAD GALSTON',         lat: -33.6536012, lng: 151.0547281 },
+  // Schedule 1 additional permitted uses - the only two lots in Hornsby whose
+  // clause resolves to a parcel: item 9 (restaurant or cafe), item 1 (car park).
+  { lga: 'Hornsby',  zone: 'Sch 1', address: '344 GALSTON ROAD GALSTON',        lat: -33.65299756516887, lng: 151.04739982294285 },
+  { lga: 'Hornsby',  zone: 'Sch 1', address: '69-73 BAY ROAD BERRILEE',         lat: -33.609801994336244, lng: 151.10426339795012 },
+  // Site-specific provisions: cl 4.4 Area 3 plus cl 6.12 seniors housing
+  // (FSR 5, height 35.5m), and cl 4.4 Area 5 (FSR 0.5).
+  { lga: 'Hornsby',  zone: 'cl 4.4', address: '194 PACIFIC HIGHWAY HORNSBY',    lat: -33.7074360700871, lng: 151.09909621305334 },
+  { lga: 'Hornsby',  zone: 'cl 4.4', address: '1/42 DENMAN PARADE NORMANHURST', lat: -33.72167202074099, lng: 151.09673245047756 },
   { lga: 'Randwick', zone: 'R3',  address: '63 COWPER STREET RANDWICK',        lat: -33.9090242, lng: 151.2400042 },
   { lga: 'Randwick', zone: 'R2',  address: '903 ANZAC PARADE MAROUBRA',        lat: -33.9473258, lng: 151.2399913 },
   { lga: 'Randwick', zone: 'R3',  address: '46 KENNEDY STREET KINGSFORD',      lat: -33.9224242, lng: 151.2323735 },

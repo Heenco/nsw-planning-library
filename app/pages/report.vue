@@ -59,6 +59,91 @@
         <div class="fact" v-if="p.max_height_m"><span class="fact-label">Max Building Height</span><span class="fact-value fact-value--num">{{ p.max_height_m }}m</span></div>
         <div class="fact" v-if="p.min_lot_size"><span class="fact-label">Min Lot Size</span><span class="fact-value fact-value--num">{{ p.min_lot_size }} {{ p.lot_size_units || 'sqm' }}</span></div>
       </div>
+
+      <!-- Each figure above is a map value, and the clause that gives the map
+           its force is what makes it citable. The LEP states the control and
+           defers the number: cl 4.3 sets height "as shown on the Height of
+           Buildings Map", so the record's 16.5m and the clause are two halves
+           of one fact. An unmapped standard is stated rather than hidden --
+           92% of Hornsby lots carry no FSR, and "none applies" is the finding. -->
+      <table v-if="mappedStandards.length" class="rules-table standards-source">
+        <thead><tr><th>Standard</th><th>This lot</th><th>Set by</th></tr></thead>
+        <tbody>
+          <tr v-for="m in mappedStandards" :key="m.clause">
+            <td>{{ m.heading || m.map_name }}</td>
+            <td :class="m.unmapped ? 'rules-cond' : ''">
+              {{ m.unmapped ? 'none mapped' : m.value }}
+            </td>
+            <td>
+              <a v-if="lepClauseHref(m.clause)" :href="lepClauseHref(m.clause)" class="rules-cite">
+                cl {{ m.clause }}
+              </a>
+              <span v-else>cl {{ m.clause }}</span>
+              <span class="rules-cond"> · {{ m.map_name }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <!-- ── Additional permitted uses (LEP Schedule 1) ──────────────────
+         The one provision the property record cannot carry: up_property_d_3 has
+         no column for it, so this comes from the knowledge graph, matched to
+         the lot by the clause's own land reference. -->
+    <details v-if="additionalUses.length" class="rpt-section rpt-section--flag" open>
+      <summary class="rpt-section-title">
+        Additional Permitted Uses ({{ additionalUses.length }})
+      </summary>
+      <p class="envelope-blurb">
+        Schedule 1 permits these uses on this land in addition to the zone. They
+        are not in the zone's permitted-use list, so a check against the zone
+        alone would miss them.
+      </p>
+      <div v-for="a in additionalUses" :key="a.clause" class="apu-item">
+        <div class="apu-head">
+          <a v-if="lepClauseHref(a.clause)" :href="lepClauseHref(a.clause)" class="rules-cite">
+            {{ a.clause }}
+          </a>
+          <span v-else>{{ a.clause }}</span>
+          <span class="apu-ref">applies to {{ a.ref_value }}</span>
+        </div>
+        <div class="uses-list">
+          <span v-for="u in a.uses" :key="u" class="use-chip">{{ u }}</span>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Site-specific provisions elsewhere in the LEP ───────────────
+         Area-based clauses whose polygon contains this lot: the cl 4.4 floor
+         space ratio areas and the Part 6 additional local provisions. These are
+         what a planner means by "additional controls" -- distinct from the
+         split-lot values further down, which are two mapped figures on one
+         parcel rather than an extra provision. -->
+    <details v-if="areaProvisions.length" class="rpt-section rpt-section--flag" open>
+      <summary class="rpt-section-title">
+        Site-specific provisions ({{ areaProvisions.length }})
+      </summary>
+      <p class="envelope-blurb">
+        This lot falls inside land the LEP singles out by name, so these clauses
+        apply in addition to the standards above.
+      </p>
+      <table class="rules-table">
+        <thead><tr><th>Clause</th><th>Provision</th><th>Applies to</th></tr></thead>
+        <tbody>
+          <tr v-for="a in areaProvisions" :key="a.clause + a.area">
+            <td>
+              <a v-if="lepClauseHref(a.clause)" :href="lepClauseHref(a.clause)" class="rules-cite">
+                cl {{ a.clause }}
+              </a>
+              <span v-else>cl {{ a.clause }}</span>
+            </td>
+            <td>{{ a.heading || '—' }}</td>
+            <td class="rules-cond">
+              {{ a.area }}<template v-if="a.map_layer"> on the {{ a.map_layer }}</template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </details>
 
     <!-- ── Section 3: Lot Map & Dimensions ────────────────────────────── -->
@@ -1573,6 +1658,34 @@ function groupOpen(i: number) { return i < 2 }
  * Apr 2016, Bayside DCP 2022, Waverley DCP 2012…" — several councils' plans,
  * none of them necessarily the one we ingested.
  */
+/**
+ * Provisions that apply to this lot because of where it is, from the graph.
+ *
+ * Additional permitted uses have no column in up_property_d_3 at all, and the
+ * Part 4 standards are a clause in the graph plus a number in the record, so
+ * neither source can produce these sections on its own.
+ */
+const additionalUses = ref<any[]>([])
+const areaProvisions = ref<any[]>([])
+const mappedStandards = ref<any[]>([])
+
+/** Deep link to a LEP clause in the in-app viewer. */
+function lepClauseHref(clause: string) {
+  const slug = lepDocSlug.value
+  if (!slug || !clause) return null
+  // Schedule 1 items are cited as "Sch 1 item 9" but anchored as "sch.1-sec.9",
+  // which is the identifier the instrument itself uses.
+  const m = String(clause).match(/^Sch\s*(\w+)\s*item\s*(\w+)$/i)
+  const anchor = m ? `sch.${m[1]}-sec.${m[2]}` : `sec.${clause}`
+  return `/doc-viewer?doc=${slug}&anchor=${encodeURIComponent(anchor)}`
+}
+
+/** Slug for the LEP we hold, so a clause number can open at the clause. */
+const lepDocSlug = computed(() => {
+  const t = String(property.value?.lep_name || '').toLowerCase()
+  return t ? t.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : null
+})
+
 const dcpDocSlug = computed(() => {
   const lga = String(property.value?.lga_name || '').trim().toUpperCase()
   return DCP_SLUG_BY_LGA[lga] ?? null
@@ -1699,6 +1812,10 @@ function clearSelectedUse() {
 
 async function selectUse(use: string) {
   if (useAnalysisLoading.value) return
+  // The endpoint needs the property row, and rejects a request without one.
+  // A use can be clicked while the lookup is still in flight, which posted
+  // `property: null` and surfaced as a raw 400 in the dev overlay.
+  if (!property.value) return
   if (selectedUse.value === use) { clearSelectedUse(); return }
   clearSelectedUse()
   selectedUse.value = use
@@ -1972,6 +2089,11 @@ function handleSSE(type: string, data: any) {
       else steps.value.push(step)
       break
     }
+    case 'provisions':
+      additionalUses.value = data.additionalUses || []
+      areaProvisions.value = data.areaProvisions || []
+      mappedStandards.value = data.mappedStandards || []
+      break
     case 'site_rules':
       siteRules.value = data.rules || []
       ruleLandUses.value = data.land_uses || []
@@ -2852,6 +2974,14 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 }
 .rules-group .rules-table { margin: 0 0 4px; }
 .rules-cond { color: #64748b; font-size: 12px; white-space: nowrap; }
+
+/* ── Provisions that single out this land ─────────────────────────────────── */
+.rpt-section--flag { border-left: 3px solid #15803d; }
+.apu-item { padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+.apu-item:last-child { border-bottom: none; }
+.apu-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.apu-ref { font-size: 12px; color: #64748b; }
+.standards-source { margin-top: 12px; }
 .rules-mismatch {
   margin: 0 0 10px;
   padding: 8px 10px;

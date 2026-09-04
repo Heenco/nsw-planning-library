@@ -353,6 +353,13 @@ export default defineEventHandler(async (event) => {
       )
       return r.rows
     })
+    // Provisions that apply because of where the lot is, not what it is.
+    // Additional permitted uses exist only in the graph -- up_property_d_3 has
+    // no column for them -- and the Part 4 standards exist only as a clause in
+    // the graph plus a number in the record, so neither source answers alone.
+    const provisions = await withNswClient(c => getLotProvisions(c, property))
+    sseWrite(res, 'provisions', provisions)
+
     sseWrite(res, 'site_rules', {
       land_uses: dcpLandUses,
       dev_types: scope.devTypes,
