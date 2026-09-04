@@ -8,13 +8,20 @@
 import type { Citation, FilteredContext, OverrideDecision, RetrievalCandidate, QueryPlan } from './types'
 import { formatSectionId, shortDocumentLabel } from '../../../../shared/citation-format'
 
-// Provider config — Groq is preferred because its LPU inference runs
-// Llama 3.3 70B at ~10× the throughput of DeepInfra (~500-1000 tok/s vs
-// ~50-80 tok/s). Same model weights, different inference engine, so
-// answer quality is identical. DeepInfra stays as the fallback when
-// Groq is unavailable or rate-limited.
+// Provider config.
+//
+// Groq was preferred because its LPU inference ran the same Llama 3.3 70B
+// weights at ~10x DeepInfra's throughput, so speed came free of any change in
+// answer quality. That is no longer true: Groq has decommissioned
+// llama-3.3-70b-versatile and offers no Llama 70B instruct model, so a Groq
+// answer now comes from different weights than a DeepInfra one. The prompt
+// rules in this file were written and checked against Llama 3.3 70B.
+//
+// DeepInfra therefore remains the reference path. Groq is used only when
+// GROQ_API_KEY is set, and any Groq failure now falls through to DeepInfra
+// rather than failing the request — see the fallback below.
 const GROQ_URL     = 'https://api.groq.com/openai/v1/chat/completions'
-const GROQ_MODEL   = 'llama-3.3-70b-versatile'
+const GROQ_MODEL   = process.env.GROQ_MODEL || 'openai/gpt-oss-120b'
 const FALLBACK_URL   = 'https://api.deepinfra.com/v1/openai/chat/completions'
 const FALLBACK_MODEL = 'meta-llama/Llama-3.3-70B-Instruct'
 
@@ -413,21 +420,23 @@ export async function synthesize(opts: SynthesizeOptions): Promise<SynthesizeRes
   const userPrompt = buildUserPrompt(opts.query, opts.plan, contextBlock, overridesBlock)
   const systemPrompt = opts.systemPrompt || SYSTEM_PROMPT
 
-  // Try Groq first when configured — ~10× faster streaming on the same
-  // Llama 3.3 70B weights. Fall back to DeepInfra on any retryable error
-  // (network, timeout, 429, 5xx). Non-retryable errors (bad key, malformed
-  // request) bubble up as-is since the fallback would fail the same way.
+  // Try Groq first when configured, then fall back to DeepInfra on ANY failure.
+  //
+  // Previously only 429 and 5xx fell back, on the reasoning that a malformed
+  // request or bad key would fail identically on the fallback. That reasoning
+  // does not hold: the fallback is a different provider, with its own key and
+  // its own model name. When Groq decommissioned llama-3.3-70b-versatile, every
+  // report on Vercel died with `Synthesis failed: groq 404: model_not_found`
+  // while DeepInfra sat there able to answer — and local, which has no
+  // GROQ_API_KEY, was unaffected, so it never showed up in development.
   let result: StreamAttempt | null = null
   if (opts.groqKey) {
     result = await streamFromProvider(
       GROQ_URL, GROQ_MODEL, opts.groqKey,
       systemPrompt, userPrompt, 'groq', opts.onChunk,
     )
-    if (!result.ok && !result.retryable) {
-      throw new Error(`Synthesis failed: ${result.error}`)
-    }
     if (!result.ok) {
-      console.warn(`[synthesize] Groq failed, falling back to DeepInfra: ${result.error}`)
+      console.warn(`[synthesize] Groq failed (${GROQ_MODEL}), falling back to DeepInfra: ${result.error}`)
     }
   }
 
@@ -439,6 +448,9 @@ export async function synthesize(opts: SynthesizeOptions): Promise<SynthesizeRes
     if (!result.ok) {
       throw new Error(`Synthesis failed: ${result.error}`)
     }
+    console.log(`[synthesize] answered by deepinfra/${FALLBACK_MODEL}`)
+  } else {
+    console.log(`[synthesize] answered by groq/${GROQ_MODEL}`)
   }
 
   const fullText = result.fullText

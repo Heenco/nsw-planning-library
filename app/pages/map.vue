@@ -189,6 +189,7 @@
 </template>
 
 <script setup lang="ts">
+import { martinTileBase } from '#shared/martin'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { haversine, pathLength, ringArea, fmtDistance, fmtArea } from '#shared/geo-measure.mjs'
 
@@ -214,7 +215,7 @@ interface CatalogLayer {
 }
 
 const config = useRuntimeConfig()
-const martinUrl = String((config.public as any).martinUrl || '').replace(/\/+$/, '')
+const martinUrl = martinTileBase(String((config.public as any).martinUrl || ''))
 const mapboxToken = String((config.public as any).mapboxToken || '')
 const hasToken = computed(() => !!mapboxToken)
 

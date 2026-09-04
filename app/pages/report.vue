@@ -571,6 +571,7 @@ import { haversine, pathLength, ringArea, fmtDistance, fmtArea } from '#shared/g
 import { lotSides, ringPerimeter, findRingContaining } from '#shared/lot-edges.mjs'
 import { renderMarkdownWithCitations, type Citation } from '~/utils/citation-render'
 import { conditionLabel, DEV_TYPE_LABEL, unitLooksWrong } from '#shared/dcp-scope'
+import { martinTileBase } from '#shared/martin'
 import { DCP_SLUG_BY_LGA } from '#shared/property-columns'
 let mapboxgl: any = null
 
@@ -1060,8 +1061,7 @@ const LOT_LAYER = 'lot'
  * exceptions raised in its event handlers, so the only symptom was a map with
  * no lot layer and nothing in the console.
  */
-const martinBase = String((useRuntimeConfig().public as any).martinUrl || '')
-  .replace(/\/+$/, '')
+const martinBase = martinTileBase(String((useRuntimeConfig().public as any).martinUrl || ''))
 
 function addLotLayer(lat: number, lng: number) {
   const map = mapInstance!
