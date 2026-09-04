@@ -8,6 +8,19 @@
 import { withNswTx } from '../pool'
 import type { DocumentSource, NswDocument } from '../types'
 
+/**
+ * Kebab-cased title, which is what `document.instrument_slug` holds today and
+ * what the doc-viewer and the `public/EPI/**` filenames key off.
+ *
+ * The column is NOT NULL and UNIQUE but this insert never supplied it, so every
+ * XML ingest failed at the first document with `null value in column
+ * "instrument_slug" violates not-null constraint`. Only the DCP path, which
+ * writes documents elsewhere, had ever run.
+ */
+function slugify(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
 export async function upsertDocument(src: DocumentSource & {
   consolidation_id?: string | null
   ingest_model: string
@@ -24,16 +37,17 @@ export async function upsertDocument(src: DocumentSource & {
       `INSERT INTO document (
         title, doc_type, scope, hierarchy_level, lga_name,
         source_url, raw_path, md_path, as_at_date, consolidation_id,
-        ingest_model, ingest_provider
+        ingest_model, ingest_provider, instrument_slug
       ) VALUES (
         $1, $2, $3, $4, $5,
         $6, $7, NULL, $8, $9,
-        $10, $11
+        $10, $11, $12
       ) RETURNING *`,
       [
         src.title, src.doc_type, src.scope, src.hierarchy_level, src.lga_name,
         src.source_url, src.raw_path, src.as_at_date, src.consolidation_id ?? null,
         src.ingest_model, src.ingest_provider,
+        src.instrument_slug ?? slugify(src.title),
       ],
     )
     return rows[0]!

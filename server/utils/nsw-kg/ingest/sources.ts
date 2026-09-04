@@ -73,8 +73,16 @@ export const SOURCES: Record<string, DocumentSource> = {
     scope: 'local',
     hierarchy_level: 3,
     lga_name: 'Hornsby',
-    source_url: 'https://legislation.nsw.gov.au/view/whole/html/inforce/current/epi-2013-0569',
+    // Deliberately distinct from the pilot row's URL so upsert-document, which
+    // deletes by source_url, lands this beside the pilot import rather than on
+    // top of it. The pilot rows carry the entire rule layer -- 88 rules, 64
+    // override edges, and 26 spatial refs with resolved geometry linking
+    // Schedule 1 items to real parcels -- and nothing in the XML pipeline
+    // rebuilds any of it, so replacing in place would destroy data this ingest
+    // cannot reproduce. Reverts to the canonical URL at cutover.
+    source_url: 'https://legislation.nsw.gov.au/view/whole/html/inforce/current/epi-2013-0569?src=xml',
     raw_path: path.join(REPO_ROOT, 'public', 'EPI', 'xml', 'epi-2013-0569.xml'),
+    instrument_slug: 'hornsby-local-environmental-plan-2013-xml',
     raw_format: 'xml',
     as_at_date: DEFAULT_AS_AT,
   },

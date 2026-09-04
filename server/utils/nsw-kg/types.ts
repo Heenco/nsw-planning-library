@@ -243,4 +243,13 @@ export interface DocumentSource {
   // HTML parser (A3). Until that lands the orchestrator throws on it.
   raw_format:      'xml' | 'structured-md' | 'html'
   as_at_date:      string                              // ISO
+  /**
+   * Overrides the slug derived from the title.
+   *
+   * `document.instrument_slug` is NOT NULL and UNIQUE and doubles as the
+   * doc-viewer key and the `public/EPI/**` filename, so it usually wants to be
+   * the kebab-cased title. Set this only to ingest a second copy of a document
+   * that already exists under that slug.
+   */
+  instrument_slug?: string
 }
