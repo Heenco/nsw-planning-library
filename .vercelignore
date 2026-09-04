@@ -1,0 +1,25 @@
+# What not to upload when deploying from the CLI.
+#
+# public/EPI holds 3,868 files totalling 1.5GB, of which git tracks 494 (46MB).
+# The rest is source and intermediate material from the ingest pipeline — the
+# PDFs documents were converted from, the raw XML, and the page images pulled
+# out of each PDF. `vercel deploy` uploads the working directory rather than the
+# commit, so it tried to push all 1.5GB and failed with "Upload aborted".
+#
+# None of this has ever been deployed: it is untracked, so no git-triggered
+# build has ever included it either. Excluding it here makes a CLI deploy match
+# what the repository would produce, rather than changing what production serves.
+#
+# The consequence, which predates this file: the rendered DCP in /doc-viewer
+# references 481 extracted images under DCPs/images, and those images are not in
+# the repository, so they do not render in production. Committing them (222MB
+# for Hornsby alone) or moving them to object storage is the fix; ignoring them
+# here neither causes nor worsens it.
+
+public/EPI/DCPs/images/
+public/EPI/DCPs/pdf/
+public/EPI/xml/
+
+# Scratch and local-only material.
+Notebooks/
+*.ipynb
