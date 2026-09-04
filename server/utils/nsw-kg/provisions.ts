@@ -74,8 +74,15 @@ const CONTAINS = `
 
 export async function getLotProvisions(
   client: pg.PoolClient,
+  // Named as PROPERTY_SELECT aliases them, not as up_property_d_3 spells them.
+  // The projection renames lot_size to min_lot_size, and reading lot.lot_size
+  // here yielded undefined on every lot, so the Lot Size Map row always claimed
+  // "none mapped" -- including for the lots that do carry a minimum. `unknown`
+  // hid it: the property object is `any`, so nothing objected to a field that
+  // was never there.
   lot: { centroid_lat: number | null; centroid_lon: number | null;
-         lot_size: unknown; max_height_m: unknown; fsr_value: unknown;
+         min_lot_size: string | number | null; max_height_m: string | number | null;
+         fsr_value: string | number | null;
          lga_name?: string | null },
 ): Promise<LotProvisions> {
   const lat = Number(lot.centroid_lat)
@@ -119,17 +126,26 @@ export async function getLotProvisions(
   // cl 4.4 -> Floor Space Ratio Map. The graph knows which clause points at
   // which map; the property record holds the number the map carries here.
   const MAP_TO_VALUE: Record<string, unknown> = {
-    'Lot Size Map': lot.lot_size,
+    'Lot Size Map': lot.min_lot_size,
     'Height of Buildings Map': lot.max_height_m,
     'Floor Space Ratio Map': lot.fsr_value,
   }
 
+  // Scoped by LGA for the same reason clauseEffectForArea is: these refs carry
+  // no geometry, so nothing else confines them to this lot's council, and every
+  // LEP has its own cl 4.3 pointing at its own Height of Buildings Map. It is
+  // latent rather than visible today only because nsw.rule_spatial_ref holds
+  // Hornsby's 26 rows and nobody else's -- the rule layer exists for one
+  // council. Giving Randwick one would have put its clauses on Hornsby reports.
   const mappedStandards: MappedStandard[] = (await client.query(
     `SELECT DISTINCT sr.clause, sr.value AS map_name, s.heading
        FROM nsw.rule_spatial_ref sr
+       JOIN nsw.document d ON d.id = sr.document_id
        LEFT JOIN nsw.section s ON s.id = sr.section_id
       WHERE sr.geom IS NULL AND sr.ref_type = 'map'
+        AND ($1::text IS NULL OR lower(d.lga_name) = lower($1))
       ORDER BY sr.clause`,
+    [lot.lga_name ?? null],
   )).rows
     .filter(r => r.map_name in MAP_TO_VALUE)
     .map((r) => {
