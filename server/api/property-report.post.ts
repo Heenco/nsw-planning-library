@@ -393,6 +393,37 @@ export default defineEventHandler(async (event) => {
     }
     sseWrite(res, 'derived', derived)
 
+    // ── Instruments this report draws on ───────────────────────────────
+    //
+    // The lot's own LEP and DCP plus every State policy, each with the
+    // consolidation date held. A clause citation is only checkable against a
+    // stated version, and the version held is not always the one the property
+    // record names: Hornsby's record says DCP 2013 where our clauses come from
+    // the 2024 plan.
+    const governing = await withNswClient(async (c) => {
+      const r = await c.query(
+        `SELECT instrument_slug AS slug, title, doc_type, as_at_date, lga_name
+           FROM nsw.document
+          WHERE scope = 'state' OR lower(lga_name) = lower($1)
+          ORDER BY CASE doc_type WHEN 'lep' THEN 1 WHEN 'dcp' THEN 2 ELSE 3 END, title`,
+        [property.lga_name ?? ''],
+      )
+      return r.rows
+    })
+    sseWrite(res, 'governing_docs', {
+      documents: governing.map((d: any) => ({
+        slug: d.slug,
+        title: d.title,
+        docType: d.doc_type,
+        // Date only: the timestamp's time component is an artefact of storage,
+        // not something the consolidation records.
+        asAt: d.as_at_date ? String(new Date(d.as_at_date).toISOString().slice(0, 10)) : null,
+        // Linked only where /doc-viewer can actually open it.
+        viewerHref: d.doc_type === 'dcp' || d.doc_type === 'lep'
+          ? `/doc-viewer?doc=${d.slug}` : null,
+      })),
+    })
+
     sseWrite(res, 'site_rules', {
       land_uses: dcpLandUses,
       dev_types: scope.devTypes,

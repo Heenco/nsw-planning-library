@@ -94,9 +94,9 @@
       </div>
 
       <div class="facts-grid">
-        <div class="fact" v-if="p.fsr_value"><span class="fact-label">Floor Space Ratio</span><span class="fact-value fact-value--num">{{ p.fsr_value }}<span class="fact-sub" v-if="p.fsr_lay_class">{{ p.fsr_lay_class }}</span></span></div>
-        <div class="fact" v-if="p.max_height_m"><span class="fact-label">Max Building Height</span><span class="fact-value fact-value--num">{{ p.max_height_m }}m</span></div>
-        <div class="fact" v-if="p.min_lot_size"><span class="fact-label">Min Lot Size</span><span class="fact-value fact-value--num">{{ p.min_lot_size }} {{ p.lot_size_units || 'sqm' }}</span></div>
+        <div class="fact" v-if="p.fsr_value"><span class="fact-label">Floor Space Ratio</span><span class="fact-value fact-value--num">{{ p.fsr_value }}<span class="fact-sub" v-if="p.fsr_lay_class">{{ p.fsr_lay_class }}</span></span><span class="fact-def">{{ define('fsr') }}</span></div>
+        <div class="fact" v-if="p.max_height_m"><span class="fact-label">Max Building Height</span><span class="fact-value fact-value--num">{{ p.max_height_m }}m</span><span class="fact-def">{{ define('height') }}</span></div>
+        <div class="fact" v-if="p.min_lot_size"><span class="fact-label">Min Lot Size</span><span class="fact-value fact-value--num">{{ p.min_lot_size }} {{ p.lot_size_units || 'sqm' }}</span><span class="fact-def">{{ define('minLotSize') }}</span></div>
       </div>
 
       <!-- Each figure above is a map value, and the clause that gives the map
@@ -308,26 +308,6 @@
       </div>
     </details>
 
-    <!-- ── Section 4: Environmental Constraints ────────────────────────── -->
-    <details v-if="property && constraints.length > 0" class="rpt-section" open>
-      <summary class="rpt-section-title">Environmental Constraints ({{ constraints.length }})</summary>
-      <div class="constraint-chips">
-        <span v-for="c in constraints" :key="c.label" :class="['constraint-chip', 'constraint-chip--' + c.severity]">
-          {{ c.label }}
-        </span>
-      </div>
-    </details>
-
-    <!-- ── Section 5: Heritage ─────────────────────────────────────────── -->
-    <details v-if="property && p.heritage_name" class="rpt-section" open>
-      <summary class="rpt-section-title">Heritage</summary>
-      <div class="facts-grid">
-        <div class="fact"><span class="fact-label">Heritage Item</span><span class="fact-value">{{ p.heritage_name }}</span></div>
-        <div class="fact" v-if="p.heritage_id"><span class="fact-label">Heritage ID</span><span class="fact-value">{{ p.heritage_id }}</span></div>
-        <div class="fact" v-if="p.heritage_class"><span class="fact-label">Classification</span><span class="fact-value">{{ p.heritage_class }}</span></div>
-      </div>
-    </details>
-
     <!-- ── Section 6: CDC Eligibility ──────────────────────────────────── -->
     <details v-if="property" class="rpt-section" open>
       <summary class="rpt-section-title">Complying Development (CDC) Eligibility</summary>
@@ -452,13 +432,47 @@
       </details>
     </details>
 
-    <!-- ── Special constraints ─────────────────────────────────────────
-         Stating "no overlay applies" is a finding, not an omission — an empty
-         column and an unchecked constraint look identical otherwise. -->
+    <!-- ── Governing planning documents ────────────────────────────────
+         Which instruments this report draws on, and as at when. A planning
+         report that cites clauses without naming the consolidation they came
+         from cannot be checked, and the version actually held is not always
+         the one the property record names. -->
+    <details v-if="governingDocs.length" class="rpt-section" open>
+      <summary class="rpt-section-title">Governing Planning Documents ({{ governingDocs.length }})</summary>
+      <p v-if="dcpNameMismatch" class="rules-mismatch">
+        The property record names <strong>{{ p?.dcp_plan_name }}</strong> as the DCP for
+        this lot, but the version held here is {{ ruleSourceLabel }}. Clause numbers
+        below follow the version held.
+      </p>
+      <table class="rules-table">
+        <thead><tr><th>Instrument</th><th>Type</th><th>As at</th></tr></thead>
+        <tbody>
+          <tr v-for="d in governingDocs" :key="d.slug">
+            <td>
+              <a v-if="d.viewerHref" :href="d.viewerHref" class="rules-cite">{{ d.title }}</a>
+              <span v-else>{{ d.title }}</span>
+            </td>
+            <td class="rules-cond">{{ d.docType.toUpperCase() }}</td>
+            <td class="rules-cond">{{ d.asAt || 'not recorded' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <!-- ── Site constraints ────────────────────────────────────────────
+         One section, one row per overlay. Stating "no overlay applies" is a
+         finding, not an omission: an unchecked constraint and an absent one
+         look identical otherwise. This replaced three sections that covered
+         the same ground — a chip list of whatever happened to be set, a
+         Heritage panel, and a five-row list — so a reader had to visit all
+         three to learn that nothing applied. -->
     <details v-if="property" class="rpt-section" open>
-      <summary class="rpt-section-title">Special Constraints</summary>
+      <summary class="rpt-section-title">
+        Site Constraints
+        <span v-if="constraintsApplying" class="rpt-count">{{ constraintsApplying }} apply</span>
+      </summary>
       <div class="constraint-list">
-        <div v-for="c in specialConstraints" :key="c.label" class="constraint-row">
+        <div v-for="c in siteConstraints" :key="c.label" class="constraint-row">
           <span :class="['cdc-dot', c.applies ? 'cdc-dot--no' : 'cdc-dot--yes']"></span>
           <span class="constraint-name">{{ c.label }}</span>
           <span class="constraint-detail">{{ c.detail }}</span>
@@ -1363,27 +1377,6 @@ watch(() => property.value?.centroid_lat, () => {
   })
 })
 
-const constraints = computed(() => {
-  if (!property.value) return []
-  const c: { label: string; severity: string }[] = []
-  const v = property.value
-  if (v.floodmapping && v.floodmapping !== 'No') c.push({ label: `Flood: ${v.floodmapping}`, severity: 'high' })
-  if (v.bushfireproneland && v.bushfireproneland !== 'No') c.push({ label: `Bushfire: ${v.bushfireproneland}`, severity: 'high' })
-  if (v.contamination_sitename) c.push({ label: `Contamination: ${v.contamination_sitename}`, severity: 'high' })
-  if (v.mine_subsidence_district) c.push({ label: `Mine subsidence: ${v.mine_subsidence_district}`, severity: 'high' })
-  if (v.biodiversity) c.push({ label: `Biodiversity: ${v.biodiversity}`, severity: 'medium' })
-  if (v.landsliderisk) c.push({ label: `Landslide risk: ${v.landsliderisk}`, severity: 'medium' })
-  if (v.coastal_wetlands) c.push({ label: `Coastal wetlands: ${v.coastal_wetlands}`, severity: 'medium' })
-  if (v.coastal_environment_area) c.push({ label: `Coastal environment: ${v.coastal_environment_area}`, severity: 'medium' })
-  if (v.coastal_use_area) c.push({ label: `Coastal use area: ${v.coastal_use_area}`, severity: 'medium' })
-  if (v.riparianlandwatercourse) c.push({ label: `Riparian/watercourse: ${v.riparianlandwatercourse}`, severity: 'medium' })
-  if (v.drinking_water_catchment) c.push({ label: `Drinking water catchment: ${v.drinking_water_catchment}`, severity: 'medium' })
-  if (v.scenicprotectionland) c.push({ label: `Scenic protection: ${v.scenicprotectionland}`, severity: 'medium' })
-  if (v.groundwatervulnerability) c.push({ label: `Groundwater vulnerability: ${v.groundwatervulnerability}`, severity: 'low' })
-  if (v.acid_sulfate) c.push({ label: `Acid sulfate soils: ${v.acid_sulfate}`, severity: 'low' })
-  return c
-})
-
 const cdcPathways = computed(() => {
   if (!property.value) return []
   const v = property.value
@@ -1667,30 +1660,71 @@ function onUseChange(e: Event) {
     + `&address=${encodeURIComponent(address)}&use=${encodeURIComponent(next)}`
 }
 
+/**
+ * Every overlay a planning report is expected to answer, in one place.
+ *
+ * The five a purchaser asks about first, then the rest the property record
+ * carries. Each is stated either way: "no acid sulfate soil overlay applies" is
+ * a finding, and an unchecked constraint looks identical to an absent one
+ * unless it is said out loud.
+ */
+const CONSTRAINT_FIELDS: Array<[string, string]> = [
+  ['Acid sulfate soils', 'acid_sulfate'],
+  ['Biodiversity', 'biodiversity'],
+  ['Bushfire prone land', 'bushfireproneland'],
+  ['Flood', 'floodmapping'],
+  ['Heritage', 'heritage_name'],
+  ['Contamination', 'contamination_sitename'],
+  ['Mine subsidence', 'mine_subsidence_district'],
+  ['Landslide risk', 'landsliderisk'],
+  ['Riparian land / watercourse', 'riparianlandwatercourse'],
+  ['Drinking water catchment', 'drinking_water_catchment'],
+  ['Scenic protection', 'scenicprotectionland'],
+  ['Groundwater vulnerability', 'groundwatervulnerability'],
+  ['Coastal wetlands', 'coastal_wetlands'],
+  ['Coastal environment area', 'coastal_environment_area'],
+  ['Coastal use area', 'coastal_use_area'],
+]
+
+const siteConstraints = computed(() => {
+  const v = property.value
+  if (!v) return []
+  return CONSTRAINT_FIELDS.map(([label, field]) => {
+    const raw = v[field]
+    // "No" is a recorded answer, not a value: the mapping was checked and came
+    // back negative, which is the same finding as an empty column here.
+    const set = raw != null && String(raw).trim() !== '' && String(raw).trim().toLowerCase() !== 'no'
+    let detail = set ? String(raw) : `No ${label.toLowerCase()} overlay applies to this property.`
+    if (set && field === 'heritage_name') {
+      detail = [v.heritage_name, v.heritage_class, v.heritage_id && `item ${v.heritage_id}`]
+        .filter(Boolean).join(' · ')
+    }
+    return { label, applies: set, detail }
+  })
+})
+
+const constraintsApplying = computed(() => siteConstraints.value.filter(c => c.applies).length)
+
+/**
+ * The instruments this report draws on, with the consolidation date held.
+ *
+ * A clause citation is only checkable against a stated version, and the version
+ * held is not always the one the property record names — Hornsby's record says
+ * DCP 2013 where the clauses come from the 2024 plan.
+ */
+const governingDocs = ref<any[]>([])
+
+/** One-line definitions, so a grid of numbers reads to a non-planner. */
+const FACT_DEFINITIONS: Record<string, string> = {
+  fsr: 'Gross floor area permitted, as a multiple of the site area.',
+  height: 'Maximum height of a building, from the Height of Buildings Map.',
+  minLotSize: 'Smallest lot that may be created here by subdivision.',
+}
+const define = (k: string) => FACT_DEFINITIONS[k] ?? ''
+
 const dcpDocSlug = computed(() => {
   const lga = String(property.value?.lga_name || '').trim().toUpperCase()
   return DCP_SLUG_BY_LGA[lga] ?? null
-})
-
-/**
- * The five overlays a planning report is expected to clear explicitly.
- * "No overlay applies" is the finding; silence would be ambiguous.
- */
-const specialConstraints = computed(() => {
-  const v = property.value
-  if (!v) return []
-  const rows: [string, unknown][] = [
-    ['Acid sulfate soils', v.acid_sulfate],
-    ['Biodiversity', v.biodiversity],
-    ['Bushfire prone land', v.bushfireproneland],
-    ['Flood', v.floodmapping],
-    ['Heritage', v.heritage_name || v.heritage_id],
-  ]
-  return rows.map(([label, val]) => ({
-    label,
-    applies: !!val && String(val).trim() !== '',
-    detail: val && String(val).trim() ? String(val) : `No ${label.toLowerCase()} overlay applies to this property.`,
-  }))
 })
 
 /**
@@ -2070,6 +2104,9 @@ function handleSSE(type: string, data: any) {
       else steps.value.push(step)
       break
     }
+    case 'governing_docs':
+      governingDocs.value = data.documents || []
+      break
     case 'derived':
       derived.value = data || {}
       // The server resolves the default when none was given, so the selector
@@ -2961,6 +2998,11 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 }
 .rules-group .rules-table { margin: 0 0 4px; }
 .rules-cond { color: #64748b; font-size: 12px; white-space: nowrap; }
+
+.rpt-count { margin-left: 8px; font-size: 12px; font-weight: 500; color: #b45309; }
+.fact-def {
+  display: block; margin-top: 3px; font-size: 11.5px; line-height: 1.45; color: #94a3b8;
+}
 
 /* ── What the report is about ─────────────────────────────────────────────── */
 .scope-bar {
