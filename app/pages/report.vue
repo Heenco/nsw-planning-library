@@ -6,6 +6,18 @@
       <NuxtLink to="/" class="back-link">&larr; Home</NuxtLink>
       <h1 class="report-title">Property Report</h1>
       <p class="report-subtitle">{{ personaLabel }} · {{ address || 'Loading…' }}</p>
+
+      <!-- What the report is about. Without this every figure below is a ratio
+           the reader has to apply themselves, and the DCP tables lead with
+           whichever use happens to carry the most rules rather than the one
+           being asked about. -->
+      <div v-if="property" class="scope-bar">
+        <label class="scope-label" for="proposed-use">Report is written about a proposed</label>
+        <select id="proposed-use" class="scope-select" :value="proposedUse" @change="onUseChange">
+          <option v-for="u in useOptions" :key="u" :value="u">{{ u }}</option>
+        </select>
+        <span class="scope-note">on this lot. Complying development is not assessed here.</span>
+      </div>
     </div>
 
     <!-- Pipeline steps (at the top, open by default) -->
@@ -54,6 +66,33 @@
     <!-- ── Section 2: Development Standards ────────────────────────────── -->
     <details v-if="property && (p.fsr_value || p.max_height_m || p.min_lot_size)" class="rpt-section" open>
       <summary class="rpt-section-title">Development Standards</summary>
+      <!-- The arithmetic, done. A floor space ratio is not what anyone builds
+           to; the gross floor area it permits on this lot is. -->
+      <div v-if="derived.maxGrossFloorArea || derived.approxStoreys" class="derived-row">
+        <div v-if="derived.maxGrossFloorArea" class="derived">
+          <span class="derived-num">{{ derived.maxGrossFloorArea.toLocaleString() }} m²</span>
+          <span class="derived-label">
+            maximum gross floor area &mdash; {{ derived.fsr }}:1 on {{ derived.areaSqm?.toLocaleString() }} m²
+          </span>
+        </div>
+        <div v-if="derived.heightM" class="derived">
+          <span class="derived-num">{{ derived.heightM }} m</span>
+          <span class="derived-label">
+            maximum height<template v-if="derived.approxStoreys">
+              &mdash; about {{ derived.approxStoreys }} storeys at 3.1 m each</template>
+          </span>
+        </div>
+        <div v-if="derived.meetsMinLotSize !== null" class="derived">
+          <span class="derived-num" :class="derived.meetsMinLotSize ? 'derived-pass' : 'derived-fail'">
+            {{ derived.meetsMinLotSize ? 'Meets' : 'Below' }}
+          </span>
+          <span class="derived-label">
+            minimum lot size &mdash; {{ derived.areaSqm?.toLocaleString() }} m²
+            against {{ derived.minLotSize?.toLocaleString() }} m²
+          </span>
+        </div>
+      </div>
+
       <div class="facts-grid">
         <div class="fact" v-if="p.fsr_value"><span class="fact-label">Floor Space Ratio</span><span class="fact-value fact-value--num">{{ p.fsr_value }}<span class="fact-sub" v-if="p.fsr_lay_class">{{ p.fsr_lay_class }}</span></span></div>
         <div class="fact" v-if="p.max_height_m"><span class="fact-label">Max Building Height</span><span class="fact-value fact-value--num">{{ p.max_height_m }}m</span></div>
@@ -229,20 +268,17 @@
           <div class="edge-list">
             <div class="edge-heading">
               Side lengths
-              <span v-if="sideLabelsDrawn" class="edge-count">{{ sideLabelsDrawn }} on map</span>
-              <span v-else-if="edgeMeasurements.length" class="edge-count">{{ edgeMeasurements.length }} sides</span>
+              <span v-if="edgeMeasurements.length" class="edge-count">{{ edgeMeasurements.length }} sides</span>
             </div>
 
-            <p v-if="sideLabelsDrawn" class="edge-onmap">Shown on each boundary.</p>
-
-            <template v-else-if="edgeMeasurements.length">
+            <template v-if="edgeMeasurements.length">
+              <p class="edge-onmap">Each boundary is labelled with its own recorded length on the map.</p>
               <div class="edge-items">
                 <span v-for="(e, i) in edgeMeasurements" :key="i" class="edge-chip">
                   <span class="edge-n">{{ i + 1 }}</span>
                   <span class="edge-num">{{ e.value }}</span><span class="edge-unit">{{ e.unit }}</span>
                 </span>
               </div>
-              <p v-if="sideLabelsSkipped" class="edge-note">Not drawn on the map — {{ sideLabelsSkipped }}.</p>
             </template>
 
             <!-- Absence is stated rather than rendered as a blank gap: the
@@ -673,7 +709,6 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { haversine, pathLength, ringArea, fmtDistance, fmtArea } from '#shared/geo-measure.mjs'
-import { lotSides, ringPerimeter, findRingContaining } from '#shared/lot-edges.mjs'
 import { renderMarkdownWithCitations, type Citation } from '~/utils/citation-render'
 import { conditionLabel, DEV_TYPE_LABEL, unitLooksWrong } from '#shared/dcp-scope'
 import { martinTileBase } from '#shared/martin'
@@ -794,7 +829,6 @@ function renderCardAnswer(answer: string, cardCitations: Citation[] = []): strin
 }
 let mapInstance: mapboxgl.Map | null = null
 let mapInitStarted = false
-let edgeLabelsDrawn = false
 
 // ── Lot edge / frontage parsing ──────────────────────────────────────────────
 
@@ -832,112 +866,19 @@ function titleCaseRoad(s: string) {
   return s.trim().toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase())
 }
 
-// ── Boundary side labels ────────────────────────────────────────────────────
+// ── Boundary side lengths ───────────────────────────────────────────────────
 //
-// The property-report (safebuy.app) treatment: a length pill sits on each
-// side of the parcel, so a reader sees which boundary is 36 m without
-// mapping a list back onto the drawing. Listing the sides beside the map
-// cannot do that — and the raw list is not even the set of sides a person
-// would name, because a cadastral ring splits one straight street boundary
-// across several vertices.
+// Nothing is computed here any more. Each boundary edge is drawn by the
+// `lot-edge-label` layer above, labelled with the `edge_length_m` the tile
+// carries for it, and the panel beside the map lists the same figures from the
+// record's own `all_edges_measurements`.
 //
-// Geometry comes from the rendered lot tiles, since no exact parcel polygon
-// is stored: `geom_1` and `centroid_geom` are empty on every row, and
-// `buffered_geom` is an inward buffer (~1 m) whose area runs ~15% under the
-// recorded `area_sqm`. Tiles are simplified and clipped at tile edges, so
-// the result is checked against the authoritative `perimeter_m` before any
-// label is drawn — a wrong number on a boundary is worse than none.
-
-const sideLabelsDrawn = ref(0)
-const sideLabelsSkipped = ref<string | null>(null)
-let sideMarkers: any[] = []
-
-/** Tolerance on the tile-derived perimeter before we distrust the geometry. */
-const PERIMETER_TOLERANCE = 0.05
-
-function clearSideLabels() {
-  for (const m of sideMarkers) { try { m.remove() } catch {} }
-  sideMarkers = []
-  sideLabelsDrawn.value = 0
-}
-
-async function renderSideLabels() {
-  const map = mapInstance
-  if (!map || !p.value?.centroid_lat || !p.value?.centroid_lon) return
-  if (!map.getSource(LOT_SRC)) return
-  clearSideLabels()
-
-  const centre: [number, number] = [Number(p.value.centroid_lon), Number(p.value.centroid_lat)]
-  let feats: any[] = []
-  try { feats = map.querySourceFeatures(LOT_SRC, { sourceLayer: LOT_LAYER }) } catch { return }
-  const ring = findRingContaining(centre, feats)
-  if (!ring) { sideLabelsSkipped.value = 'lot boundary not found in the map tiles'; return }
-
-  // Trust check. A clipped or heavily simplified ring shows up as a
-  // perimeter that disagrees with the recorded figure.
-  const recorded = Number(p.value.perimeter_m)
-  const measured = ringPerimeter(ring)
-  if (recorded > 0 && Math.abs(measured - recorded) / recorded > PERIMETER_TOLERANCE) {
-    sideLabelsSkipped.value =
-      `map outline measures ${measured.toFixed(0)} m against a recorded ${recorded.toFixed(0)} m`
-    return
-  }
-  sideLabelsSkipped.value = null
-
-  const { default: mapboxgl } = await import('mapbox-gl')
-
-  // Inline styles, not classes: markers are injected straight into the map
-  // container, outside the tree Vue's scoped CSS is rewritten to match, so
-  // a scoped selector would never apply.
-  const PILL = [
-    'background:#ea580c',
-    'color:#fff',
-    'font:700 11px system-ui,-apple-system,"Segoe UI",sans-serif',
-    'font-variant-numeric:tabular-nums',
-    'padding:3px 9px',
-    'border-radius:999px',
-    'white-space:nowrap',
-    'box-shadow:0 2px 6px rgba(15,23,42,0.25)',
-    'pointer-events:none',
-    'letter-spacing:-0.005em',
-  ].join(';')
-  const AREA_PILL = [
-    'background:#fff',
-    'color:#ea580c',
-    'border:1.5px solid #ea580c',
-    'font:700 13px system-ui,-apple-system,"Segoe UI",sans-serif',
-    'font-variant-numeric:tabular-nums',
-    'padding:4px 12px',
-    'border-radius:999px',
-    'white-space:nowrap',
-    'box-shadow:0 2px 8px rgba(15,23,42,0.2)',
-    'pointer-events:none',
-  ].join(';')
-
-  // Longest side first, skipping any whose midpoint lands within 42px of a
-  // pill already placed — otherwise short rear boundaries stack into an
-  // unreadable clump.
-  const MIN_SEP_PX = 42
-  const placed: Array<[number, number]> = []
-  for (const side of lotSides(ring)) {
-    let x = 0, y = 0
-    try { const q = map.project(side.mid as any); x = q.x; y = q.y } catch { continue }
-    if (placed.some(([px, py]) => Math.hypot(x - px, y - py) < MIN_SEP_PX)) continue
-    placed.push([x, y])
-    const el = document.createElement('div')
-    el.textContent = `${Math.round(side.length)} m`
-    el.setAttribute('style', PILL)
-    sideMarkers.push(new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat(side.mid as any).addTo(map))
-  }
-  sideLabelsDrawn.value = placed.length
-
-  if (p.value.area_sqm) {
-    const el = document.createElement('div')
-    el.textContent = `${Math.round(Number(p.value.area_sqm)).toLocaleString()} m²`
-    el.setAttribute('style', AREA_PILL)
-    sideMarkers.push(new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat(centre).addTo(map))
-  }
-}
+// The page previously derived them twice over: `renderSideLabels` measured the
+// tile ring, merged its collinear segments and placed pills on the result, and
+// `labelEdgesAt` measured every segment again to decide where a label went.
+// Both read lengths off simplified, tile-clipped geometry and both had to be
+// checked against `perimeter_m` before they could be trusted. The source
+// publishes the number per edge, so it is read rather than re-derived.
 
 // ── Measurement ─────────────────────────────────────────────────────────────
 //
@@ -1079,7 +1020,6 @@ onBeforeUnmount(() => {
   if (import.meta.client) window.removeEventListener('keydown', onMeasureKey)
   // Markers live in the map container, not in Vue's tree, so unmounting the
   // page does not take them with it.
-  clearSideLabels()
 })
 
 // ── Map initialization ──────────────────────────────────────────────────────
@@ -1132,8 +1072,6 @@ async function initMap() {
   // Tiles arrive after 'load', and the pills are positioned by projecting
   // map coordinates to pixels — so they are placed once the view has settled
   // and re-placed after a zoom, when what fits without overlapping changes.
-  mapInstance.on('idle', () => { if (!sideMarkers.length) renderSideLabels() })
-  mapInstance.on('zoomend', () => renderSideLabels())
 
   // `dblclick` fires after two `click`s, so the second point is already
   // recorded by the time the run is finished — no point is lost.
@@ -1161,8 +1099,23 @@ async function initMap() {
  * draw nothing at all and raise no error - the map came back as a bare aerial
  * with no way to tell why.
  */
+/**
+ * The lot layers, drawn the way /prop-width draws them.
+ *
+ * `lot_metrics_3` rather than the raw `lot` cadastre: it is the same parcel
+ * geometry with the frontage and boundary metrics already attached, and its
+ * companion `lot_metrics_3_edges` publishes one LineString per boundary edge
+ * carrying that edge's own `edge_length_m`.
+ *
+ * That recorded length is what the map now labels. The page used to derive the
+ * side lengths instead — measuring the tile ring segment by segment and
+ * placing pills on it — which meant the numbers on the map were computed from
+ * simplified, tile-clipped geometry rather than read from the source.
+ */
 const LOT_SRC = 'martin:lot'
-const LOT_LAYER = 'lot'
+const LOT_LAYER = 'lot_metrics_3'
+const EDGE_SRC = 'martin:lot-edges'
+const EDGE_LAYER = 'lot_metrics_3_edges'
 
 /**
  * Tile server base, resolved during setup.
@@ -1173,6 +1126,24 @@ const LOT_LAYER = 'lot'
  * no lot layer and nothing in the console.
  */
 const martinBase = martinTileBase(String((useRuntimeConfig().public as any).martinUrl || ''))
+
+/**
+ * A mapbox filter selecting this report's own parcel.
+ *
+ * A strata plan records no lot number — the record holds an empty `lotnumber`
+ * and the tile omits the field — so those are matched on the plan alone rather
+ * than on a lot number neither side has. With no plan to match on, the filter
+ * selects nothing instead of everything.
+ */
+function subjectLotFilter(): any[] {
+  const plan = String(p.value?.plan_label ?? '').trim().toUpperCase()
+  const lot = String(p.value?.lotnumber ?? '').trim().toUpperCase()
+  if (!plan) return ['==', ['literal', 1], 0]
+
+  const byPlan = ['==', ['upcase', ['to-string', ['get', 'planlabel']]], plan]
+  if (!lot) return byPlan
+  return ['all', byPlan, ['==', ['upcase', ['to-string', ['get', 'lotnumber']]], lot]]
+}
 
 function addLotLayer(lat: number, lng: number) {
   const map = mapInstance!
@@ -1201,6 +1172,24 @@ function addLotLayer(lat: number, lng: number) {
       'source-layer': LOT_LAYER,
       paint: { 'line-color': '#fbbf24', 'line-width': 1.4, 'line-opacity': 0.9 },
     })
+
+    // The lot this report is about, picked out of its neighbours the way
+    // /prop-width marks the selected one. Matched on the record's own lot and
+    // plan rather than on what sits under the marker — a strata parcel and its
+    // parent can both cover the pin, and the record is unambiguous.
+    map.addLayer({
+      id: 'lot-subject',
+      type: 'line',
+      source: LOT_SRC,
+      'source-layer': LOT_LAYER,
+      filter: subjectLotFilter(),
+      paint: {
+        'line-color': '#dc2626',
+        'line-width': ['interpolate', ['linear'], ['zoom'], 15, 2.5, 19, 5],
+        'line-opacity': 1,
+      },
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+    })
     map.addLayer({
       id: 'lot-label',
       type: 'symbol',
@@ -1225,6 +1214,78 @@ function addLotLayer(lat: number, lng: number) {
         'text-halo-width': 1.2,
       },
     })
+
+    // ── Boundary edges, straight from the tile ─────────────────────────────
+    map.addSource(EDGE_SRC, {
+      type: 'vector',
+      tiles: [`${martinBase}/${EDGE_LAYER}/{z}/{x}/{y}`],
+      minzoom: 0,
+      maxzoom: 22,
+    })
+    map.addLayer({
+      id: 'lot-edge-line',
+      type: 'line',
+      source: EDGE_SRC,
+      'source-layer': EDGE_LAYER,
+      minzoom: 16,
+      paint: {
+        'line-color': '#fbbf24',
+        'line-width': ['interpolate', ['linear'], ['zoom'], 16, 1.4, 19, 3],
+        'line-opacity': 0.85,
+      },
+      layout: { 'line-cap': 'round' },
+    })
+    // The edge's own recorded length, along the edge it belongs to.
+    // `number-format` only sets the decimal places; the value is verbatim.
+    map.addLayer({
+      id: 'lot-edge-label',
+      type: 'symbol',
+      source: EDGE_SRC,
+      'source-layer': EDGE_LAYER,
+      minzoom: 17,
+      layout: {
+        'text-field': [
+          'concat',
+          ['number-format', ['get', 'edge_length_m'], { 'max-fraction-digits': 2 }],
+          ' m',
+        ],
+        'symbol-placement': 'line-center',
+        'text-size': ['interpolate', ['linear'], ['zoom'], 17, 10.5, 19, 13],
+        'text-max-angle': 25,
+        'text-padding': 3,
+        'text-offset': [0, -0.8],
+      },
+      paint: {
+        'text-color': '#7c2d12',
+        'text-halo-color': '#ffffff',
+        'text-halo-width': 2,
+      },
+    })
+    // The lot's recorded frontage road and length, both off lot_metrics_3.
+    map.addLayer({
+      id: 'lot-frontage-label',
+      type: 'symbol',
+      source: LOT_SRC,
+      'source-layer': LOT_LAYER,
+      minzoom: 17,
+      filter: ['has', 'primary_frontage_road'],
+      layout: {
+        'text-field': [
+          'concat',
+          ['get', 'primary_frontage_road'],
+          ' · ',
+          ['number-format', ['get', 'primary_frontage_length_m'], { 'max-fraction-digits': 2 }],
+          ' m',
+        ],
+        'text-size': ['interpolate', ['linear'], ['zoom'], 17, 10.5, 19, 13],
+        'text-padding': 4,
+      },
+      paint: {
+        'text-color': '#7f1d1d',
+        'text-halo-color': '#ffffff',
+        'text-halo-width': 2.2,
+      },
+    })
   }
 
   new mapboxgl.Marker({ color: '#15803d', scale: 0.7 })
@@ -1237,149 +1298,7 @@ function addLotLayer(lat: number, lng: number) {
       </div>`
     ))
     .addTo(map)
-
-  // Side lengths are drawn once the tile holding this lot has arrived.
-  // queryRenderedFeatures only sees what is already painted, so this cannot run
-  // from the 'load' handler.
-  const onData = (ev: any) => {
-    if (ev.sourceId !== LOT_SRC || !ev.isSourceLoaded) return
-    if (labelEdgesAt(lng, lat)) map.off('sourcedata', onData)
-  }
-  map.on('sourcedata', onData)
-  labelEdgesAt(lng, lat)
 }
-
-/**
- * Measure and label the sides of the lot under the address marker.
- *
- * The lot is identified by what is drawn beneath the searched address rather
- * than by matching an id, so the whole `lot` layer stays unfiltered and the
- * surrounding parcels keep their outlines.
- *
- * Lengths are computed from the geometry, not read from the property record.
- * `all_edges_measurements` lists every vertex-to-vertex segment, and a cadastral
- * ring carries runs of sub-metre slivers — this lot has seven consecutive 0.26m
- * entries — which would paper the parcel in labels a planner cannot use. Only
- * segments of 3m or more are labelled.
- *
- * @returns true once the lot has been found and labelled.
- */
-/**
- * Shortest boundary worth a label, in metres.
- *
- * A cadastral ring is full of short segments that are not boundaries a planner
- * reads: 9 Bell Street has seven consecutive 0.26m slivers, and 22 Leighton
- * Place a stepped edge of six 3.6m segments that put six identical labels on one
- * side. The panel's chip list still shows every segment.
- */
-const MIN_LABEL_M = 5
-
-function labelEdgesAt(lng: number, lat: number): boolean {
-  const map = mapInstance
-  if (!map || edgeLabelsDrawn) return edgeLabelsDrawn
-
-  let feats: any[] = []
-  try {
-    feats = map.queryRenderedFeatures(map.project([lng, lat]), { layers: ['lot-fill'] })
-  } catch {
-    return false
-  }
-  if (!feats.length) return false
-
-  // Several parcels can sit under one point - a strata lot inside its parent,
-  // or a neighbour whose tile-clipped edge crosses the marker. Taking the first
-  // hit labelled an 87.6m boundary on a lot whose longest side is 35.1m.
-  // The property record's plan decides it; failing that, the smallest parcel
-  // under the marker, which is the most specific one.
-  const plan = String(p.value?.plan_label ?? '').trim().toUpperCase()
-  const byPlan = plan
-    ? feats.find(f => String(f.properties?.planlabel ?? '').trim().toUpperCase() === plan)
-    : undefined
-  const target = byPlan ?? [...feats].sort((a, b) => ringArea(a.geometry) - ringArea(b.geometry))[0]
-  if (!target) return false
-
-  // The record's own edge lengths, which sum exactly to perimeter_m.
-  const recorded = String(p.value?.all_edges_measurements ?? '')
-    .split(',').map(x => parseFloat(x)).filter(n => !Number.isNaN(n) && n >= MIN_LABEL_M)
-  const unused = [...recorded]
-
-  const R = 6378137
-  const seen = new Set<string>()
-  let drawn = 0
-
-  for (const ring of ringsOf(target.geometry)) {
-    for (let i = 0; i < ring.length - 1; i++) {
-      const [x1, y1] = ring[i] as [number, number]
-      const [x2, y2] = ring[i + 1] as [number, number]
-      const dLat = ((y2 - y1) * Math.PI) / 180
-      const dLon = ((x2 - x1) * Math.PI) / 180
-      const midLat = (((y1 + y2) / 2) * Math.PI) / 180
-      const metres = Math.hypot(dLat * R, dLon * R * Math.cos(midLat))
-      if (metres < MIN_LABEL_M) continue
-
-      // The geometry fixes where a label goes; the record fixes what it says.
-      //
-      // Vector tiles quantise to a 4096-unit grid and clip at tile boundaries,
-      // so a boundary crossing a tile edge arrives as a fragment: this lot's
-      // 95.3m side measured 87.6m off the tile, and two others were out by more
-      // than a metre. An edge with no match in the record is left unlabelled
-      // rather than labelled with a figure the record contradicts.
-      let best = -1
-      let bestDiff = Infinity
-      for (let k = 0; k < unused.length; k++) {
-        const d = Math.abs(unused[k]! - metres)
-        if (d < bestDiff) { bestDiff = d; best = k }
-      }
-      if (best < 0 || bestDiff > 0.75) continue
-      const exact = unused.splice(best, 1)[0]!
-
-      const mid: [number, number] = [(x1 + x2) / 2, (y1 + y2) / 2]
-      const key = `${mid[0].toFixed(6)},${mid[1].toFixed(6)}`
-      if (seen.has(key)) continue
-      seen.add(key)
-
-      const el = document.createElement('div')
-      el.className = 'map-edge-label'
-      el.textContent = `${exact.toFixed(1)}m`
-      new mapboxgl.Marker({ element: el, anchor: 'center' })
-        .setLngLat(mid)
-        .addTo(map)
-      drawn++
-    }
-  }
-
-  if (!drawn) return false
-  edgeLabelsDrawn = true
-  return true
-}
-
-/**
- * Relative size of a feature, for picking the most specific parcel under a
- * point. The shoelace formula on degrees is not an area in any unit, but it
- * orders candidates correctly, which is all this is for.
- */
-function ringArea(geom: any): number {
-  let total = 0
-  for (const ring of ringsOf(geom)) {
-    let a = 0
-    for (let i = 0; i < ring.length - 1; i++) {
-      const [x1, y1] = ring[i] as [number, number]
-      const [x2, y2] = ring[i + 1] as [number, number]
-      a += x1 * y2 - x2 * y1
-    }
-    total += Math.abs(a) / 2
-  }
-  return total
-}
-
-/** Every linear ring of a Polygon or MultiPolygon. */
-function ringsOf(geom: any): number[][][] {
-  if (!geom) return []
-  if (geom.type === 'Polygon') return geom.coordinates
-  if (geom.type === 'MultiPolygon') return geom.coordinates.flat()
-  return []
-}
-
 
 function onMapToggle(e: Event) {
   const details = e.target as HTMLDetailsElement
@@ -1711,6 +1630,42 @@ const lepDocSlug = computed(() => {
   const t = String(property.value?.lep_name || '').toLowerCase()
   return t ? t.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : null
 })
+
+/**
+ * The development this report is written about.
+ *
+ * Held in the URL so a scoped report is a shareable link, and so changing it
+ * re-runs the whole pipeline rather than filtering what is already on screen --
+ * the DCP scope, the prompt and the derived figures are all computed for it
+ * server-side.
+ */
+const proposedUse = ref(String(route.query.use ?? ''))
+const derived = ref<any>({})
+
+/**
+ * Uses offered in the selector.
+ *
+ * The ones the DCP actually holds controls for, first, because those are the
+ * only ones the numeric sections can say anything about. The lot's own
+ * permitted uses follow, so a reader can still scope the report to something
+ * the DCP is silent on and see that silence.
+ */
+const useOptions = computed(() => {
+  const withControls = ruleLandUses.value || []
+  const rest = (permittedUses.value || [])
+    .map(u => String(u).toLowerCase())
+    .filter(u => !withControls.includes(u))
+  return [...new Set([...withControls, ...rest])]
+})
+
+function onUseChange(e: Event) {
+  const next = (e.target as HTMLSelectElement).value
+  if (!next || next === proposedUse.value) return
+  // A full navigation, not a client-side filter: the server recomputes the
+  // scope, the prompt and every derived figure for the chosen use.
+  window.location.href = `/report?lat=${lat}&lng=${lng}`
+    + `&address=${encodeURIComponent(address)}&use=${encodeURIComponent(next)}`
+}
 
 const dcpDocSlug = computed(() => {
   const lga = String(property.value?.lga_name || '').trim().toUpperCase()
@@ -2051,7 +2006,7 @@ onMounted(async () => {
     const resp = await fetch('/api/property-report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lat, lng, address, persona }),
+      body: JSON.stringify({ lat, lng, address, persona, use: proposedUse.value || undefined }),
     })
 
     if (!resp.ok || !resp.body) {
@@ -2115,6 +2070,12 @@ function handleSSE(type: string, data: any) {
       else steps.value.push(step)
       break
     }
+    case 'derived':
+      derived.value = data || {}
+      // The server resolves the default when none was given, so the selector
+      // shows what the report was actually written about.
+      if (data?.proposedUse) proposedUse.value = data.proposedUse
+      break
     case 'provisions':
       additionalUses.value = data.additionalUses || []
       areaProvisions.value = data.areaProvisions || []
@@ -3000,6 +2961,34 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 }
 .rules-group .rules-table { margin: 0 0 4px; }
 .rules-cond { color: #64748b; font-size: 12px; white-space: nowrap; }
+
+/* ── What the report is about ─────────────────────────────────────────────── */
+.scope-bar {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px;
+  margin-top: 10px; font-size: 13px; color: #475569;
+}
+.scope-label { color: #64748b; }
+.scope-select {
+  font: inherit; font-weight: 600; color: #0f172a;
+  padding: 2px 6px; border: 1px solid #cbd5e1; border-radius: 5px; background: #fff;
+}
+.scope-note { color: #94a3b8; }
+
+/* ── Derived figures ──────────────────────────────────────────────────────── */
+.derived-row {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
+}
+.derived {
+  flex: 1 1 210px; padding: 10px 12px;
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+}
+.derived-num {
+  display: block; font-size: 19px; font-weight: 700; color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+.derived-pass { color: #15803d; }
+.derived-fail { color: #b91c1c; }
+.derived-label { display: block; font-size: 12px; color: #64748b; margin-top: 2px; line-height: 1.45; }
 
 /* ── Provisions that single out this land ─────────────────────────────────── */
 .rpt-section--flag { border-left: 3px solid #15803d; }

@@ -1,7 +1,7 @@
 import { withNswClient } from '../utils/nsw-kg/pool'
 import { PROPERTY_TABLE, PROPERTY_SELECT, parsePermissibleUses } from '../../shared/property-columns'
 import {
-  resolveDcpScope, conditionLabel, TOPIC_PROSE, unitLooksWrong,
+  resolveDcpScope, defaultProposedUse, conditionLabel, TOPIC_PROSE, unitLooksWrong,
   operativeStoreyBand, matchesStoreyBand,
 } from '../../shared/dcp-scope'
 
@@ -95,7 +95,7 @@ ${SECTION_INSTRUCTION}`
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { lat, lng, address, persona } = body || {}
+  const { lat, lng, address, persona, use } = body || {}
 
   if (!address && (!lat || !lng)) {
     throw createError({ statusCode: 400, message: 'Missing address and lat/lng' })
@@ -275,11 +275,17 @@ export default defineEventHandler(async (event) => {
       return r.rows.map((x: any) => x.value as string)
     })
 
+    // The development this report is about. Everything numeric below is computed
+    // for it: a floor space ratio only becomes a floor area, and a minimum lot
+    // size only becomes a pass or a fail, once there is a proposal to test.
+    const proposedUse = String(use ?? '').trim() || defaultProposedUse(property.zone)
+
     const scope = resolveDcpScope(
       property.zone,
       permittedUses,
       ruleVocab,
       Boolean(property.heritage_id || property.heritage_name),
+      proposedUse,
     )
     const dcpLandUses = scope.landUses
 
@@ -359,6 +365,33 @@ export default defineEventHandler(async (event) => {
     // the graph plus a number in the record, so neither source answers alone.
     const provisions = await withNswClient(c => getLotProvisions(c, property))
     sseWrite(res, 'provisions', provisions)
+
+    // ── Figures derived for the proposed use ───────────────────────────
+    //
+    // A ratio is not what anyone builds to. 0.5:1 on a 651 m² lot is 325 m² of
+    // gross floor area, and that is the number a planner checks a drawing
+    // against. Same for the deep soil percentage and the storey count.
+    const areaSqm = Number(property.area_sqm) || null
+    const fsr = Number(property.fsr_value) || null
+    const heightM = Number(property.max_height_m) || null
+
+    const derived = {
+      proposedUse,
+      areaSqm,
+      // Floor space ratio is expressed n:1, so the multiplier is the ratio.
+      maxGrossFloorArea: areaSqm && fsr ? Math.round(areaSqm * fsr * 100) / 100 : null,
+      fsr,
+      heightM,
+      // Storeys are not mapped anywhere; this is the DCP's own implied figure
+      // for residential floor-to-floor, and is labelled as indicative.
+      approxStoreys: heightM ? Math.max(1, Math.floor(heightM / 3.1)) : null,
+      minLotSize: property.min_lot_size == null ? null : Number(property.min_lot_size),
+      // Whether this lot meets the minimum its own LEP maps for it.
+      meetsMinLotSize: areaSqm && property.min_lot_size != null
+        ? areaSqm >= Number(property.min_lot_size) : null,
+      frontageM: Number(property.primary_frontage_length_m) || null,
+    }
+    sseWrite(res, 'derived', derived)
 
     sseWrite(res, 'site_rules', {
       land_uses: dcpLandUses,
@@ -556,7 +589,12 @@ export default defineEventHandler(async (event) => {
       }),
     ).values()] as any[]
 
-    const enrichedQuery = `${kgQuery}\n\nKnown property facts:\n${contextLines}${dcpBlock}\n\nPermitted uses in zone ${property.zone}: ${permittedUses.slice(0, 30).join(', ') || 'unknown'}`
+    const useLine = `
+
+This report is written about a proposed ${proposedUse} on this lot. `
+      + 'Answer for that development. Where a control applies only to a different '
+      + 'use, leave it out rather than reporting it as though it applied here.'
+    const enrichedQuery = `${kgQuery}${useLine}\n\nKnown property facts:\n${contextLines}${dcpBlock}\n\nPermitted uses in zone ${property.zone}: ${permittedUses.slice(0, 30).join(', ') || 'unknown'}`
 
     // Persona-gated AI work:
     //   owner     → no AI (facts + permissibility only)

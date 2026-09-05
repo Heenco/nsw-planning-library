@@ -95,6 +95,27 @@ export function normaliseUse(value: string): string {
     .replace(/s$/, '')
 }
 
+/**
+ * The use a report is written about, when the reader has not chosen one.
+ *
+ * A report scoped to a proposed development can compute the figures a planner
+ * actually needs -- a floor space ratio becomes a floor area, a minimum lot size
+ * becomes a pass or a fail. An unscoped report can only list ratios and leave
+ * the arithmetic to the reader, which is what ours did.
+ *
+ * The default is the least intensive use the zone contemplates rather than the
+ * most, because that is the one an owner is most often asking about, and because
+ * overstating what a site can take is the more damaging error.
+ */
+export function defaultProposedUse(zoneCode: string | null | undefined): string {
+  const zones = String(zoneCode ?? '').split(',').map(z => z.trim().toUpperCase())
+  for (const z of zones) {
+    const uses = ZONE_LAND_USES[z]
+    if (uses?.length) return uses[0]!
+  }
+  return 'dwelling house'
+}
+
 export interface DcpScope {
   /** Zone codes read off the lot, split — `lzn_sym_code_p` can be "RU2, C3". */
   zones: string[]
@@ -102,6 +123,8 @@ export interface DcpScope {
   landUses: string[]
   /** Development types to match where a rule names no land use at all. */
   devTypes: DevType[]
+  /** The use this report is written about, if one was chosen. */
+  proposedUse: string | null
 }
 
 /**
@@ -115,6 +138,7 @@ export function resolveDcpScope(
   permissible: string[],
   ruleVocab: string[],
   isHeritage = false,
+  proposedUse: string | null = null,
 ): DcpScope {
   const zones = String(zoneCode ?? '')
     .split(',').map(z => z.trim().toUpperCase()).filter(Boolean)
@@ -146,7 +170,21 @@ export function resolveDcpScope(
   if (!devTypes.size) devTypes.add('residential')
   if (!landUses.size) landUses.add('dwelling house')
 
-  return { zones, landUses: [...landUses].sort(), devTypes: [...devTypes].sort() }
+  // The proposed use is always in scope even where the zone table does not name
+  // it: the reader has said this is what they are asking about.
+  const chosen = proposedUse ? normaliseUse(proposedUse) : null
+  if (proposedUse) {
+    const match = [...vocab.entries()].find(([k]) => k === chosen)
+    landUses.add(match ? match[1] : proposedUse.toLowerCase())
+  }
+
+  // Sorted, then the chosen use lifted to the front so every consumer -- the
+  // prompt, the rules table, the envelope -- leads with what was asked about.
+  const ordered = [...landUses].sort()
+  const lead = ordered.findIndex(u => normaliseUse(u) === chosen)
+  if (lead > 0) ordered.unshift(...ordered.splice(lead, 1))
+
+  return { zones, landUses: ordered, devTypes: [...devTypes].sort(), proposedUse: proposedUse ?? null }
 }
 
 /** Headings the report groups rows under. */
