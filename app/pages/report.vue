@@ -125,6 +125,126 @@
       </table>
     </details>
 
+    <!-- ── Lot requirements and subdivision ────────────────────────────
+         The mapped minimum lot size answers neither question on its own. It is
+         the subdivision standard, and the LEP sets a separate, larger figure
+         for the development itself — Hornsby's cl 4.1C wants 700 m² for an
+         attached dual occupancy where the map shows 500. A reader comparing
+         their area against the mapped figure concludes the site qualifies for
+         something it does not, so both tests are shown, each against the
+         clause that actually imposes it. -->
+    <details v-if="lotReq.areaSqm" class="rpt-section" open>
+      <summary class="rpt-section-title">
+        Lot Requirements &amp; Subdivision
+        <span v-if="lotReq.meetsAny === false" class="rpt-count">below minimum</span>
+        <span v-else-if="lotReq.meetsAll === false" class="rpt-count">some variants only</span>
+      </summary>
+
+      <p v-if="!lotReq.hasRuleLayer" class="lotreq-warn">
+        This council's LEP has not been decomposed into testable rules yet, so
+        the minimum lot size the LEP sets for a {{ lotReq.proposedUse }} cannot be
+        checked here. That is a gap in this tool, not a finding that no minimum
+        applies &mdash; read cl 4.1 and Part 4 of the LEP directly. The
+        subdivision figure below still holds: it comes from the Lot Size Map.
+      </p>
+
+      <div v-if="lotReq.requirements?.length" class="lotreq-group">
+        <h4 class="lotreq-head">Minimum lot size for a {{ lotReq.proposedUse }}</h4>
+        <div class="lotreq-scroll">
+        <table class="rules-table">
+          <thead>
+            <tr><th>Clause</th><th>Applies to</th><th class="rules-num">Required</th><th class="rules-num">This lot</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="r in lotReq.requirements" :key="r.clause">
+              <td>
+                <a v-if="lepClauseHref(r.clause)" :href="lepClauseHref(r.clause)" class="rules-cite">cl {{ r.clause }}</a>
+                <span v-else>cl {{ r.clause }}</span>
+                <span v-if="r.heading" class="lotreq-heading">{{ r.heading }}</span>
+              </td>
+              <td class="rules-cond">{{ r.uses.join(', ') || lotReq.proposedUse }}</td>
+              <td class="rules-num">
+                {{ r.binding.toLocaleString() }} m²
+                <!-- Where the clause bands its figure by variant, showing only
+                     the ceiling hides the option the reader may actually want. -->
+                <span v-if="r.values.length > 1" class="rules-cond">
+                  ({{ r.values.map((v: number) => v.toLocaleString()).join(' / ') }})
+                </span>
+              </td>
+              <td class="rules-num">{{ lotReq.areaSqm?.toLocaleString() ?? '—' }} m²</td>
+              <td>
+                <span v-if="r.meets === null" class="lotreq-unknown">no recorded area</span>
+                <span v-else-if="r.meets" class="lotreq-pass">Satisfied</span>
+                <span v-else class="lotreq-fail">
+                  Short by {{ r.shortfall?.toLocaleString() }} m²
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p v-if="lotReq.requirements.some((r: any) => r.values.length > 1)" class="lotreq-note">
+          Where a clause states more than one figure for the same use, the larger
+          is tested: the instrument bands them by a condition this report cannot
+          resolve from the record, so the smaller applies only if the proposal
+          can show it meets that condition.
+        </p>
+      </div>
+
+      <div v-if="lotReq.subdivision?.length" class="lotreq-group">
+        <h4 class="lotreq-head">Subdivision</h4>
+        <div class="lotreq-scroll">
+        <table class="rules-table">
+          <thead>
+            <tr><th>Clause</th><th>Type</th><th class="rules-num">Min per lot</th><th class="rules-num">Lots possible</th><th>Source of figure</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="r in lotReq.subdivision" :key="r.clause">
+              <td>
+                <template v-if="r.clause">
+                  <a v-if="lepClauseHref(r.clause)" :href="lepClauseHref(r.clause)" class="rules-cite">cl {{ r.clause }}</a>
+                  <span v-else>cl {{ r.clause }}</span>
+                </template>
+                <span v-else class="lotreq-unknown">clause not extracted</span>
+                <span v-if="r.heading" class="lotreq-heading">{{ r.heading }}</span>
+              </td>
+              <td class="rules-cond">
+                {{ r.kind }}<template v-if="r.uses.length"> · {{ r.uses.join(', ') }}</template>
+              </td>
+              <td class="rules-num">{{ r.minLotSize ? r.minLotSize.toLocaleString() + ' m²' : '—' }}</td>
+              <td class="rules-num">
+                <span v-if="r.maxChildLots === null" class="lotreq-unknown">&mdash;</span>
+                <span v-else-if="r.maxChildLots < 2" class="lotreq-fail">too small</span>
+                <span v-else class="lotreq-pass">{{ r.maxChildLots }}</span>
+              </td>
+              <td class="rules-cond">{{ r.fromMap ? 'Lot Size Map' : 'stated in the clause' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="lotreq-note">
+          Lots possible is area divided by the minimum, and is a ceiling rather
+          than a yield: it takes no account of road or access requirements, lot
+          shape, battle-axe handle area, or any easement over the land.
+          &ldquo;Too small&rdquo; means the lot does not reach twice the minimum,
+          so the clause permits no subdivision at all.
+        </p>
+        <p v-if="lotReq.hasRuleLayer" class="lotreq-note">
+          Clauses are filtered to this lot's zone and to the use above. A clause
+          whose remaining condition the property record cannot settle is listed
+          anyway, with its heading, rather than dropped &mdash; so read the
+          heading before relying on a figure.
+        </p>
+      </div>
+
+      <p class="lotreq-note">
+        Only the LEP is tested here. State policies can set their own minimums —
+        the Housing SEPP's non-discretionary standards among them — and those
+        are not held in this graph yet, so their absence here is not a finding
+        that none applies.
+      </p>
+    </details>
+
     <!-- ── Additional permitted uses (LEP Schedule 1) ──────────────────
          The one provision the property record cannot carry: up_property_d_3 has
          no column for it, so this comes from the knowledge graph, matched to
@@ -1722,6 +1842,13 @@ const FACT_DEFINITIONS: Record<string, string> = {
 }
 const define = (k: string) => FACT_DEFINITIONS[k] ?? ''
 
+/**
+ * The lot's size tested against the LEP's own minimums, and its subdivision
+ * ceiling. Computed server-side against the rule layer, because the comparison
+ * needs the clause's figure for the proposed use and not the mapped one.
+ */
+const lotReq = ref<any>({})
+
 const dcpDocSlug = computed(() => {
   const lga = String(property.value?.lga_name || '').trim().toUpperCase()
   return DCP_SLUG_BY_LGA[lga] ?? null
@@ -2106,6 +2233,9 @@ function handleSSE(type: string, data: any) {
     }
     case 'governing_docs':
       governingDocs.value = data.documents || []
+      break
+    case 'lot_requirements':
+      lotReq.value = data || {}
       break
     case 'derived':
       derived.value = data || {}
@@ -2998,6 +3128,32 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 }
 .rules-group .rules-table { margin: 0 0 4px; }
 .rules-cond { color: #64748b; font-size: 12px; white-space: nowrap; }
+
+.rules-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ── Lot requirements ─────────────────────────────────────────────────────── */
+.lotreq-group + .lotreq-group { margin-top: 18px; }
+.lotreq-head {
+  margin: 0 0 6px; font-size: 12px; font-weight: 600; color: #475569;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.lotreq-pass { color: #15803d; font-weight: 600; }
+.lotreq-fail { color: #b91c1c; font-weight: 600; }
+.lotreq-unknown { color: #94a3b8; }
+.lotreq-note {
+  margin: 8px 0 0; font-size: 12px; line-height: 1.55; color: #64748b;
+}
+.lotreq-scroll { overflow-x: auto; }
+.lotreq-warn {
+  margin: 0 0 14px; padding: 9px 12px; font-size: 12.5px; line-height: 1.55;
+  color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 7px;
+}
+/* The heading sits under the clause number rather than beside it: inline, it
+   pushed the figures off the right of the page, and the figures are the point. */
+.lotreq-heading {
+  display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.4;
+  color: #94a3b8; max-width: 34ch;
+}
 
 .rpt-count { margin-left: 8px; font-size: 12px; font-weight: 500; color: #b45309; }
 .fact-def {

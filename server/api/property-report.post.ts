@@ -366,6 +366,14 @@ export default defineEventHandler(async (event) => {
     const provisions = await withNswClient(c => getLotProvisions(c, property))
     sseWrite(res, 'provisions', provisions)
 
+    // Whether this lot is big enough for what is being proposed, and how far it
+    // could be subdivided. The mapped minimum lot size answers neither: it is
+    // the subdivision standard, while cl 4.1C/4.1D set a different and usually
+    // larger figure for the development itself.
+    const lotRequirements = await withNswClient(c =>
+      getLotRequirements(c, property, proposedUse))
+    sseWrite(res, 'lot_requirements', lotRequirements)
+
     // ── Figures derived for the proposed use ───────────────────────────
     //
     // A ratio is not what anyone builds to. 0.5:1 on a 651 m² lot is 325 m² of
@@ -620,12 +628,88 @@ export default defineEventHandler(async (event) => {
       }),
     ).values()] as any[]
 
+    // The LEP minimum-lot-size clauses are supplied the same way, for the same
+    // reason: the report asserts "cl 4.1C requires 700 m2 and this lot has 651"
+    // as a fact, and a fact the reader cannot open is not much use. These carry
+    // the LEP's real `sec.` ids, so where retrieval also returned the clause the
+    // two resolve to the same chip instead of competing.
+    for (const r of [...lotRequirements.requirements, ...lotRequirements.subdivision]) {
+      // A map-sourced row carries no clause, so there is nothing to cite.
+      if (!r.clause) continue
+      const localId = `sec.${r.clause}`
+      if (citableExtras.some(e => e.section_local_id === localId)) continue
+      citableExtras.push({
+        id: `lep-rule-${r.clause}`,
+        document_id: 'lep-rule-layer',
+        document_title: String(property.lep_name || `${property.lga_name} LEP`),
+        document_doc_type: 'lep' as const,
+        document_lga: property.lga_name ?? null,
+        document_hierarchy_level: 2,
+        document_source_url: null,
+        section_id: localId,
+        section_local_id: localId,
+        section_number: String(r.clause),
+        section_heading: r.heading ?? null,
+        section_source_file: null,
+        section_page: null,
+        type: 'control' as any,
+        subject: 'minimum lot size',
+        predicate: 'lot_size',
+        object: 'binding' in r ? String(r.binding) : String(r.minLotSize ?? ''),
+        source_span: 'binding' in r
+          ? `LEP cl ${r.clause}: minimum lot size ${r.binding} m2 for `
+            + `${r.uses.join(' / ') || proposedUse}.`
+          : `LEP cl ${r.clause}: subdivision minimum lot size, from the Lot Size Map. ${r.note}`,
+      } as any)
+    }
+
+    /**
+     * The lot's own size against the minimums its LEP sets for this use.
+     *
+     * Handed over as a settled arithmetic result rather than as two numbers to
+     * compare, because the model reliably reads the mapped minimum lot size as
+     * the standard for the development when it is in fact the subdivision one.
+     */
+    const lotBlock = lotRequirements.requirements.length || lotRequirements.subdivision.length
+      ? [
+          '',
+          '',
+          `Minimum lot size tested against this lot (${lotRequirements.areaSqm ?? '?'} m2).`,
+          'These comparisons are already made; state the result, do not recompute it.',
+          ...(lotRequirements.hasRuleLayer ? [] : [
+            "  This council's LEP is not decomposed into testable rules here, so no",
+            '  LEP minimum for the proposed use can be stated. Say that it could not be',
+            '  checked; do not report that none applies.',
+          ]),
+          ...lotRequirements.requirements.map(r =>
+            `  LEP cl ${r.clause} requires ${r.binding} m2 for `
+            + `${r.uses.join(' / ') || proposedUse}`
+            + (r.values.length > 1 ? ` (it bands ${r.values.join(' / ')} m2)` : '')
+            + '. This lot '
+            + (r.meets === null ? 'has no recorded area, so this cannot be tested.'
+               : r.meets ? 'satisfies it.' : `falls short by ${r.shortfall} m2.`)
+            + ` [sec.${r.clause}]`),
+          ...lotRequirements.subdivision.map(r =>
+            `  LEP cl ${r.clause} sets the ${r.kind.toLowerCase()} subdivision minimum`
+            + (r.uses.length ? ` for ${r.uses.join(' / ')}` : '')
+            + `: ${r.note}`
+            + (r.maxChildLots
+                ? ` At that figure this lot yields at most ${r.maxChildLots}`
+                  + ` lot${r.maxChildLots === 1 ? '' : 's'}, before any road, access or shape`
+                  + ' requirement is applied.'
+                : '')
+            + (r.clause ? ` [sec.${r.clause}]` : ' (from the Lot Size Map; the clause is not extracted here)')),
+          'No State policy minimum is compared here: the SEPPs in this graph carry no',
+          'clause-level standards yet. Say so rather than implying none exists.',
+        ].join("\n")
+      : ''
+
     const useLine = `
 
 This report is written about a proposed ${proposedUse} on this lot. `
       + 'Answer for that development. Where a control applies only to a different '
       + 'use, leave it out rather than reporting it as though it applied here.'
-    const enrichedQuery = `${kgQuery}${useLine}\n\nKnown property facts:\n${contextLines}${dcpBlock}\n\nPermitted uses in zone ${property.zone}: ${permittedUses.slice(0, 30).join(', ') || 'unknown'}`
+    const enrichedQuery = `${kgQuery}${useLine}\n\nKnown property facts:\n${contextLines}${lotBlock}${dcpBlock}\n\nPermitted uses in zone ${property.zone}: ${permittedUses.slice(0, 30).join(', ') || 'unknown'}`
 
     // Persona-gated AI work:
     //   owner     → no AI (facts + permissibility only)

@@ -261,3 +261,46 @@ directly comparable against the eight existing DCPs.
 
 Success criterion for the pilot: **zero substantial `controls` sections with
 no rule**, which is precisely the failure mode the current DCP ingest has.
+
+---
+
+## 8. What the report reads back out
+
+Onboarding a council is only finished when the report can answer with its
+numbers. Two consumers depend on specific fields, and both fail *quietly* when
+a field is missing — the section simply does not render — so each one has a
+stated acceptance test to run against a real lot in the new LGA.
+
+### `getLotProvisions` — additional permitted uses, area provisions, mapped standards
+
+Needs `rule.kind = 'additional_use'`, `rule_applicability` rows carrying the
+uses, and `rule_spatial_ref` with resolved geometry. Nothing else reaches the
+report for Schedule 1.
+
+### `getLotRequirements` — minimum lot size and subdivision (`server/utils/nsw-kg/lot-requirements.ts`)
+
+Reads `rule_effect.topic = 'lot_size'` on `doc_type = 'lep'`, and depends on
+three applicability dimensions, each of which changes the answer:
+
+| dimension | value shape | what breaks without it |
+|---|---|---|
+| `act` | `subdivision`, `strata subdivision`, `community title subdivision`, `erection of a building` | Development standards and subdivision standards merge. Hornsby cl 4.1C (700–900 m² to *build* a dual occupancy) and cl 4.1D (350–450 m² to *subdivide* one) would be reported as one contradictory pair. The heading is only a fallback: cl 4.1B is a subdivision standard whose heading never says so. |
+| `zone` | `R2`, `RU1`, … | Every clause applies everywhere. Rural subdivision lands on suburban lots. Note the scope is pooled **per clause**, not per rule: the ingest attaches the zone list to whichever subclause names it, and a sibling that inherits it looks unscoped. |
+| `land_use` | `dual occupancy (attached)`, unqualified where the clause is | The variant that governs is lost. The report tests each qualified variant separately and reports "satisfied for attached, short 77.5 m² for detached" — collapsing them yields a minimum the instrument never states. |
+
+A clause that states no figure is read as deferring to the Lot Size Map, whose
+value for the lot comes from `up_property_d_3.min_lot_size`.
+
+**Acceptance test.** Pick a lot in the new LGA and open its report:
+
+1. The amber "not decomposed into testable rules yet" banner is **gone**.
+   While it shows, the only figure in the section is the mapped one.
+2. Minimum lot size rows name the proposed use and its variants, and each says
+   satisfied or short by a number.
+3. Subdivision rows name a type — Torrens, Strata, Community title. All rows
+   reading "Torrens" usually means `act` was not populated.
+4. No clause appears whose heading is obviously about another zone.
+5. Clause chips resolve to `/doc-viewer` rather than rendering as `[?]`.
+
+Run it for at least one lot in a residential zone and one in a rural or
+split-zone one; the zone-pooling and `act` bugs both only surface on the second.
