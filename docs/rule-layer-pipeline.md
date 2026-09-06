@@ -304,3 +304,116 @@ value for the lot comes from `up_property_d_3.min_lot_size`.
 
 Run it for at least one lot in a residential zone and one in a rural or
 split-zone one; the zone-pooling and `act` bugs both only surface on the second.
+
+---
+
+## 9. Onboarding a council, end to end
+
+Randwick is the worked example. Its DCP already had a rule layer; its LEP had
+1,173 sections and nothing else — no propositions, no rules, no spatial refs —
+so every LEP-driven section of the report was either absent or answered from the
+property record alone. This is the sequence that closed it, and the order
+matters.
+
+```
+1. XML ingest        -> nsw.section          the full clause tree
+2. pilot merge       -> nsw.rule + children  the numbers, scoped
+3. verify on lots    -> a report per case    APU, area provision, lot size
+```
+
+### Step 2 is the one with a trap in it
+
+`scripts/import-pilot-lep.mjs` seeds the rule layer from the audited Part 4
+pilot store, which covers eight LEPs. **Run it with `--merge`.** Without that
+flag it opens by deleting any document with the same title, and every section
+cascading from it — which is how Hornsby's XML tree was destroyed once already
+and had to be rebuilt by `scripts/migrate-lep-to-xml.mjs`.
+
+```
+node scripts/import-pilot-lep.mjs --epi epi-2013-0036 --merge          # rehearsal
+node scripts/import-pilot-lep.mjs --epi epi-2013-0036 --merge --apply
+```
+
+`--merge` resolves every pilot clause onto the existing document's own section
+ids, refuses to write if any clause is unresolvable, and replaces only the rule
+layer — never sections, never the document row. It prints what it is about to
+delete before deleting it.
+
+Clause ids do not line up between the two sources, and they disagree differently
+per instrument. `scripts/lib/lep-clause-map.mjs` holds the correspondences:
+
+| pilot | XML | seen in |
+|---|---|---|
+| `4.1A` | `sec.4.1A` | everywhere |
+| `Sch 1 item 6` | `sch.1-sec.6` | Hornsby, Randwick |
+| `Sch 2 item 1` | `sch.2-sec` | Randwick — unnumbered items |
+| `Sch 2 item 7` | `sch.2-sec-oc.7` | Randwick — ordinal suffix |
+
+Every inferred correspondence is corroborated before it is used, by heading
+match or by finding one of the clause's grounded spans — verbatim quotes from
+the instrument — inside that section's own subtree. A guess that lands on a
+plausible but wrong clause is worse than an import that fails, because nothing
+downstream can tell the rule is in the wrong place.
+
+### Scope is not a matter of pooling zones
+
+`shared/lep-scope.ts` decides whether a clause reaches a lot, and it exists
+because the obvious implementations are both wrong. Zone applicability is
+recorded per *rule*, and a clause is several rules. Pooling every zone a clause
+mentions drops Randwick's cl 4.3, the Height of Buildings clause, from an R2 lot
+because one of its subclauses is R3-specific. Not filtering at all puts "Rural
+subdivision" on a lot in Maroubra.
+
+These two have identical applicability and opposite answers:
+
+```
+Hornsby  cl 4.2  Rural subdivision    { act, land_use=dwelling, zone=RU1..RU6 }
+                                      { act }                    <- no zone
+Randwick cl 4.3  Height of buildings  { land_use=dwelling house, zone=R3 }
+                                      { act }                    <- no zone
+```
+
+So the module applies two rules. Zones on a *use-qualified* rule scope that
+sub-provision, not the clause — which keeps cl 4.3. And a clause the instrument
+names as rural does not reach a lot in no rural zone — which drops both cl 4.2s.
+The second reads the heading because that is the only place the distinction
+survives.
+
+Two related traps, both cost a wrong figure on the page:
+
+- **Fetch clause scope over every rule, not the ones your query already
+  filtered.** Randwick's cl 4.2 keeps its rural zones on a `permission` rule
+  that states no lot size, so a lot-size query cannot see them.
+- **Pool the `act` per clause before naming the subdivision kind.** Randwick's
+  cl 4.1A is two rules, `strata subdivision` and a bare `subdivision`; read
+  separately the same clause appears twice, once as Strata and once as Torrens.
+
+### Step 3: what to open, and what should be on the page
+
+| case | Randwick lot | expect |
+|---|---|---|
+| Additional permitted use | 62 Carr Street Coogee | Sch 1 item 1, restaurant or cafe |
+| APU, several uses | 6 Aeolia Street Randwick | Sch 1 item 5, five uses |
+| Mapped area provision | 472 Bunnerong Road Matraville | cl 4.3A Area 3 and cl 6.27, each with the subclause that does the work |
+| Area with a condition | 204-230 Marine Parade Maroubra | cl 4.3B Area 7 — height raised only on consolidation |
+| Minimum lot size tested | 903 Anzac Parade Maroubra | cl 4.1C, 550 m², satisfied at 749.29 m² |
+
+Then check the negatives, which are where the scope bugs show: no rural
+subdivision clause on a suburban lot, no exception clause listed under "Set by"
+in the mapped standards table, and cl 4.3 present with the lot's mapped height.
+
+### Known gaps, carried forward
+
+- **Schedule 2 imports but does nothing.** The 12 exempt-development rules
+  resolve and load; no report section reads them, and CDC is still answered from
+  `up_property_d_3`.
+- **cl 6.24 resolves to the wrong land.** Its "Area 4" gets the Special
+  Provisions Area Map polygon in Kensington, while the clause is headed "Use of
+  certain land at Maroubra". Area labels appear to be resolved per map layer
+  rather than per clause, so a clause referring to its own Area 4 can collect
+  another map's. Three lots are affected; that is why 95 Anzac Parade Kensington
+  is not a sample address.
+- **Six map references go unread.** `MAP_TO_VALUE` in `provisions.ts` knows the
+  Lot Size, Height of Buildings and Floor Space Ratio maps. Randwick's cl 6.19
+  Non-Residential Floor Space Ratio Map, cl 6.20 Active Street Frontages Map and
+  cl 4.3B Alternative Building Heights Map are in the graph and unused.

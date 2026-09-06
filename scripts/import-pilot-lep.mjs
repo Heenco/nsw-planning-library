@@ -7,14 +7,27 @@
  * shape the new schema was designed around, so it seeds the pilot database
  * rather than being re-extracted.
  *
- *   node scripts/import-pilot-lep.mjs --epi epi-2013-0569 [--dry-run]
+ *   node scripts/import-pilot-lep.mjs --epi epi-2013-0036 --merge [--apply]
  *
- * Idempotent: re-running deletes the document and everything cascading from
- * it, then reinserts.
+ * Two modes, and --merge is the one to use for a council whose LEP is already
+ * in the database.
  *
- * Scope note: the pilot covers Parts 4-6 only. The imported document is
- * marked as such on `nsw.document.raw_path` so nobody later mistakes it for
- * a whole-of-LEP ingest.
+ * Standalone (the original, no flag) creates its own document from the pilot's
+ * clause list. That is only right when nothing else has ingested the LEP,
+ * because it begins by deleting any document with the same title -- and every
+ * section, proposition and rule cascading from it. Hornsby reached the database
+ * this way first and had to be repaired afterwards by scripts/migrate-lep-to-xml.mjs.
+ *
+ * --merge attaches the rule layer to the LEP already there. It resolves every
+ * pilot clause onto that document's own section ids, refuses to run if any
+ * clause cannot be resolved, and never touches sections or the document row.
+ * It replaces only the rule layer, and says exactly what it is replacing.
+ * Nothing is written without --apply.
+ *
+ * Scope note: the pilot covers Parts 4-6 and the schedules, not the whole
+ * instrument. In standalone mode that limit is recorded on
+ * `nsw.document.raw_path`; in merge mode the document is a full ingest already
+ * and only its rule layer comes from here.
  */
 
 import 'dotenv/config'
@@ -22,8 +35,13 @@ import pg from 'pg'
 import { DatabaseSync } from 'node:sqlite'
 import path from 'node:path'
 
+import { candidateIds, headingsAgree, textContainsSpan } from './lib/lep-clause-map.mjs'
+
 const argv = process.argv.slice(2)
-const dryRun = argv.includes('--dry-run')
+const MERGE = argv.includes('--merge')
+// --merge writes only with --apply, so the default is always a rehearsal. The
+// original mode keeps --dry-run, which is how it has always been invoked.
+const dryRun = MERGE ? !argv.includes('--apply') : argv.includes('--dry-run')
 const arg = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] ? argv[i + 1] : d }
 
 const epi = arg('--epi', 'epi-2013-0569')
@@ -142,7 +160,7 @@ const clauses = [...new Set([
 
 L(`  distinct clauses: ${clauses.length}`)
 
-if (dryRun) {
+if (dryRun && !MERGE) {
   L('\nDRY RUN — nothing written.')
   const unmappedSrc = [...new Set(rules.map((r) => r.src))].filter((s) => s && !SRC[s])
   const unmappedKind = [...new Set(rules.map((r) => r.kind))].filter((k) => k && !KIND[k])
@@ -161,29 +179,145 @@ await client.connect()
 try {
   await client.query('BEGIN')
 
-  // Idempotent: the document cascade clears sections, propositions, rules.
-  await client.query('DELETE FROM nsw.document WHERE title = $1', [lep.epi_name])
-
-  const { rows: [doc] } = await client.query(`
-    INSERT INTO nsw.document
-      (title, doc_type, scope, hierarchy_level, lga_name, source_url, raw_path,
-       as_at_date, ingest_model, ingest_provider)
-    VALUES ($1,'lep','local',3,$2,$3,$4,CURRENT_DATE,'part4-pilot','import')
-    RETURNING id`,
-  [lep.epi_name, lep.lga,
-    `https://legislation.nsw.gov.au/view/html/inforce/current/${epi}`,
-    'pilot:lep_store.sqlite (Parts 4-6 only)'])
-
-  // ── sections ────────────────────────────────────────────────────────
+  let doc
   const sectionId = new Map()
-  for (const [i, clause] of clauses.entries()) {
-    const text = props.filter((p) => p.clause === clause)
-      .map((p) => p.source_span).filter(Boolean).join('\n')
-    const { rows: [s] } = await client.query(`
-      INSERT INTO nsw.section (document_id, local_id, level, number, heading, raw_text, depth, sort_order)
-      VALUES ($1,$2,'clause',$3,NULL,$4,1,$5) RETURNING id`,
-    [doc.id, `sec.${clause}`, String(clause), text, i])
-    sectionId.set(String(clause), s.id)
+
+  if (MERGE) {
+    // -- Attach to the LEP already in the database ---------------------
+    const { rows: [existing] } = await client.query(
+      `SELECT id, title, instrument_slug FROM nsw.document
+        WHERE title = $1 AND doc_type = 'lep'`, [lep.epi_name])
+    if (!existing) {
+      throw new Error(`--merge needs "${lep.epi_name}" to be ingested already; `
+        + 'no such LEP document. Ingest the XML first, or drop --merge to create one.')
+    }
+    doc = existing
+
+    // Every section of that document, with the text of its whole subtree. The
+    // subtree is what corroborates an inferred clause mapping: a schedule item
+    // keeps its conditions in child sections, so the pilot's grounded span sits
+    // below the item rather than in it.
+    const { rows: sections } = await client.query(
+      `SELECT s.id, s.local_id, s.heading,
+              coalesce(s.raw_text, '') || ' ' || coalesce((
+                SELECT string_agg(c.raw_text, ' ')
+                  FROM nsw.section c
+                 WHERE c.document_id = s.document_id
+                   AND c.local_id LIKE s.local_id || '-%'), '') AS subtree_text
+         FROM nsw.section s WHERE s.document_id = $1`, [doc.id])
+    const byLocal = new Map(sections.map((r) => [r.local_id, r]))
+
+    const spansByClause = new Map()
+    for (const p of props) {
+      if (!p.grounded || !p.source_span) continue
+      const k = String(p.clause)
+      if (!spansByClause.has(k)) spansByClause.set(k, [])
+      spansByClause.get(k).push(p.source_span)
+    }
+    const headingByClause = new Map()
+    for (const o of objectives) {
+      if (o.clause && o.text) headingByClause.set(String(o.clause), o.text)
+    }
+
+    const unresolved = []
+    const inferredOk = []
+    for (const clause of clauses) {
+      let hit = null
+      for (const cand of candidateIds(clause)) {
+        const sec = byLocal.get(cand.id)
+        if (!sec) continue
+        if (cand.inferred) {
+          // An inferred id is a claim about correspondence, so it has to be
+          // corroborated. Either the headings agree, or one of the clause's
+          // grounded spans -- verbatim quotes from the instrument -- is found
+          // in that section's own subtree.
+          const byHeading = headingsAgree(headingByClause.get(String(clause)), sec.heading)
+          const bySpan = (spansByClause.get(String(clause)) ?? [])
+            .some((sp) => textContainsSpan(sec.subtree_text, sp))
+          if (!byHeading && !bySpan) continue
+          inferredOk.push(`${clause} -> ${cand.id} (${byHeading ? 'heading' : 'text'})`)
+        }
+        hit = sec
+        break
+      }
+      if (hit) sectionId.set(String(clause), hit.id)
+      else unresolved.push(clause)
+    }
+
+    L(`\nmerge target   : ${doc.title} (${doc.instrument_slug})`)
+    L(`  sections in document : ${sections.length}`)
+    L(`  clauses resolved     : ${sectionId.size} of ${clauses.length}`)
+    if (inferredOk.length) {
+      L('  inferred and verified:')
+      for (const line of inferredOk) L(`    ${line}`)
+    }
+    if (unresolved.length) {
+      throw new Error(`${unresolved.length} pilot clause(s) have no section in `
+        + `${doc.title}, and their rules would be orphaned: ${unresolved.join(', ')}`)
+    }
+
+    // What is about to be replaced, reported before it happens -- the whole
+    // reason this mode exists is that the other one silently destroyed a layer
+    // nobody had noticed was there.
+    const { rows: [before] } = await client.query(
+      `SELECT (SELECT count(*) FROM nsw.rule WHERE document_id=$1) rules,
+              (SELECT count(*) FROM nsw.rule_spatial_ref WHERE document_id=$1) spatial,
+              (SELECT count(*) FROM nsw.objective WHERE document_id=$1) objectives,
+              (SELECT count(*) FROM nsw.proposition WHERE document_id=$1) props_all,
+              (SELECT count(*) FROM nsw.proposition
+                WHERE document_id=$1 AND extraction_model='part4-pilot') props_pilot`,
+      [doc.id])
+    L(`  existing rule layer  : ${before.rules} rules, ${before.spatial} spatial refs,`
+      + ` ${before.objectives} objectives, ${before.props_pilot} pilot propositions`)
+    if (Number(before.props_all) > Number(before.props_pilot)) {
+      L(`  keeping              : ${Number(before.props_all) - Number(before.props_pilot)}`
+        + ' propositions from other extractors')
+    }
+    L('  sections and the document row are not touched.')
+
+    if (dryRun) {
+      L('\nDry run. Re-run with --apply to write.')
+      await client.query('ROLLBACK')
+      await client.end().catch(() => {})
+      db.close()
+      process.exit(0)
+    }
+
+    // Rules cascade to effects, applicability, edges and their spatial refs.
+    // Spatial refs with no rule, and objectives, hang off the document and need
+    // their own delete. Propositions are narrowed to this extractor so a later
+    // AI or XML proposition layer survives a re-import.
+    await client.query('DELETE FROM nsw.rule WHERE document_id = $1', [doc.id])
+    await client.query('DELETE FROM nsw.rule_spatial_ref WHERE document_id = $1', [doc.id])
+    await client.query('DELETE FROM nsw.objective WHERE document_id = $1', [doc.id])
+    await client.query(
+      "DELETE FROM nsw.proposition WHERE document_id = $1 AND extraction_model = 'part4-pilot'",
+      [doc.id])
+  } else {
+    // -- Standalone: the pilot's own document --------------------------
+    // Destructive by design, and only safe when nothing else holds this LEP.
+    await client.query('DELETE FROM nsw.document WHERE title = $1', [lep.epi_name])
+
+    const { rows: [created] } = await client.query(`
+      INSERT INTO nsw.document
+        (title, doc_type, scope, hierarchy_level, lga_name, source_url, raw_path,
+         as_at_date, ingest_model, ingest_provider)
+      VALUES ($1,'lep','local',3,$2,$3,$4,CURRENT_DATE,'part4-pilot','import')
+      RETURNING id`,
+    [lep.epi_name, lep.lga,
+      `https://legislation.nsw.gov.au/view/html/inforce/current/${epi}`,
+      'pilot:lep_store.sqlite (Parts 4-6 only)'])
+    doc = created
+
+    for (const [i, clause] of clauses.entries()) {
+      const text = props.filter((p) => p.clause === clause)
+        .map((p) => p.source_span).filter(Boolean).join('\n')
+      const { rows: [sec] } = await client.query(`
+        INSERT INTO nsw.section (document_id, local_id, level, number, heading, raw_text, depth, sort_order)
+        VALUES ($1,$2,'clause',$3,NULL,$4,1,$5) RETURNING id`,
+      [doc.id, `sec.${clause}`, String(clause), text, i])
+      sectionId.set(String(clause), sec.id)
+    }
   }
 
   // ── rules ───────────────────────────────────────────────────────────
@@ -332,7 +466,12 @@ try {
 
   L(`\nimported into planningai:`)
   L(`  document        1  (${lep.epi_name})`)
-  L(`  sections        ${clauses.length}`)
+  // In merge mode no section is created; the count is of clauses attached to
+  // sections the document already had, and saying "sections" would read as
+  // though this had added 75 of them.
+  L(MERGE
+    ? `  clauses attached ${sectionId.size} (to existing sections)`
+    : `  sections        ${clauses.length}`)
   L(`  rules           ${ruleId.size}`)
   L(`  rule_effect     ${effN}`)
   L(`  applicability   ${appN}`)

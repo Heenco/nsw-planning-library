@@ -21,6 +21,7 @@
  */
 
 import type pg from 'pg'
+import { clauseAppliesToLot } from '../../../shared/lep-scope'
 
 export interface LotRequirement {
   clause: string
@@ -94,7 +95,20 @@ function useMatches(ruleUse: string, proposed: string): boolean {
   return a === b || a.startsWith(`${b} (`) || b.startsWith(`${a} (`)
 }
 
-/** The kind of subdivision an `act` names, for the reader. */
+/**
+ * The kind of subdivision a clause governs, from the acts across all its rules.
+ *
+ * Pooled per clause, not read per rule. Randwick's cl 4.1A is the strata
+ * clause, but it is two rules: one carrying `act = strata subdivision` with the
+ * 275 m2 figure, and one carrying the bare `act = subdivision` where the clause
+ * defers to the Lot Size Map. Read separately those became two rows, the same
+ * clause listed once as Strata and again as Torrens, which reads as two
+ * different pathways when it is one.
+ *
+ * The qualified act wins because it is the more specific description of what
+ * the clause does; a bare "subdivision" says only that it is a subdivision
+ * standard, which is already implied.
+ */
 function subdivisionKind(acts: string[]): string {
   const joined = acts.join(' ').toLowerCase()
   if (joined.includes('strata')) return 'Strata'
@@ -118,8 +132,54 @@ interface LotSizeRow {
   acts: string[] | null
 }
 
+/** A clause's own scope: its heading, and the applicability of all its rules. */
+interface ClauseScope {
+  heading: string | null
+  rules: Array<{ zones: string[], uses: string[] }>
+}
+
+interface LotSizeData {
+  rows: LotSizeRow[]
+  scope: Map<string, ClauseScope>
+}
+
 /**
- * Every minimum-lot-size effect this council's LEP states.
+ * Zone scope gathered over every rule of a clause, not only the ones that state
+ * a lot size.
+ *
+ * Randwick's cl 4.2 keeps its rural zones on a `permission` rule that states no
+ * lot size at all. Read from the effect rows alone -- which are filtered to
+ * lot_size -- that clause looks unzoned, and "Rural subdivision" turned up on a
+ * lot in Maroubra with a subdivision yield printed beside it.
+ */
+async function fetchClauseScope(client: pg.PoolClient, lgaName: string | null): Promise<Map<string, ClauseScope>> {
+  const rows = (await client.query(
+    `SELECT r.clause, s.heading,
+            coalesce((SELECT array_agg(a.value) FROM nsw.rule_applicability a
+                       WHERE a.rule_id = r.id AND a.dimension = 'zone'), '{}') AS zones,
+            coalesce((SELECT array_agg(a.value) FROM nsw.rule_applicability a
+                       WHERE a.rule_id = r.id AND a.dimension = 'land_use'), '{}') AS uses
+       FROM nsw.rule r
+       JOIN nsw.document d ON d.id = r.document_id
+       LEFT JOIN nsw.section s ON s.id = r.section_id
+      WHERE d.doc_type = 'lep'
+        AND ($1::text IS NULL OR lower(d.lga_name) = lower($1))`,
+    [lgaName],
+  )).rows as Array<{ clause: string, heading: string | null, zones: string[], uses: string[] }>
+
+  const out = new Map<string, ClauseScope>()
+  for (const r of rows) {
+    const key = String(r.clause)
+    if (!out.has(key)) out.set(key, { heading: r.heading, rules: [] })
+    const entry = out.get(key)!
+    if (!entry.heading) entry.heading = r.heading
+    entry.rules.push({ zones: r.zones ?? [], uses: r.uses ?? [] })
+  }
+  return out
+}
+
+/**
+ * Every minimum-lot-size effect this council's LEP states, with clause scope.
  *
  * Fetched once and evaluated many times, because choosing which use a report is
  * about means testing the lot against each candidate, and doing that with a
@@ -146,38 +206,30 @@ async function fetchLotSizeRows(client: pg.PoolClient, lgaName: string | null): 
   )).rows as LotSizeRow[]
 }
 
-function evaluate(rows: LotSizeRow[], lot: Lot, proposedUse: string): LotRequirements {
+function evaluate(data: LotSizeData, lot: Lot, proposedUse: string): LotRequirements {
+  const { rows, scope } = data
   const areaSqm = Number(lot.area_sqm) || null
   const mappedMin = lot.min_lot_size == null ? null : Number(lot.min_lot_size)
-  const zones = String(lot.zone ?? '').split(',').map(z => z.trim().toUpperCase()).filter(Boolean)
 
-  /*
-   * Zone scope is a property of the clause, not of the row.
-   *
-   * A clause is split across several rules -- one per subclause -- and the
-   * ingest attaches the zone list to whichever of them names it. Read row by
-   * row, a subclause that inherits its zones from the parent looks unscoped,
-   * and "no zone named" means "applies everywhere". That put cl 4.2, Rural
-   * subdivision, on an R2 lot. So the zones are pooled per clause first, and
-   * every row of the clause is tested against the pool.
-   */
-  const clauseZones = new Map<string, Set<string>>()
-  for (const r of rows) {
-    const key = String(r.clause)
-    if (!clauseZones.has(key)) clauseZones.set(key, new Set())
-    for (const z of r.zones ?? []) clauseZones.get(key)!.add(String(z).toUpperCase())
-  }
+  // Whether the clause reaches this lot at all -- see shared/lep-scope.ts for
+  // why this is not a matter of pooling the zones a clause mentions.
   const inZone = (clause: string) => {
-    const scope = clauseZones.get(String(clause))
-    // A clause that names no zone anywhere really does apply across the
-    // instrument -- cl 4.1 is one -- so an empty pool passes.
-    return !scope?.size || zones.some(z => scope.has(z))
+    const cs = scope.get(String(clause))
+    return clauseAppliesToLot(cs?.rules ?? [], cs?.heading ?? null, lot.zone)
   }
 
   // A clause naming no use applies to any; one naming uses answers only for
   // those. An unqualified proposal matches every qualified variant of itself.
   const forUse = (ruleUses: string[]) =>
     !ruleUses.length || ruleUses.some(u => useMatches(String(u), proposedUse))
+
+  // Acts pooled per clause, so the kind is settled once for the whole clause.
+  const actsByClause = new Map<string, Set<string>>()
+  for (const r of rows) {
+    const key = String(r.clause)
+    if (!actsByClause.has(key)) actsByClause.set(key, new Set())
+    for (const a of r.acts ?? []) actsByClause.get(key)!.add(String(a))
+  }
 
   const requirements = new Map<string, LotRequirement>()
   const subdivision = new Map<string, SubdivisionOption>()
@@ -219,10 +271,11 @@ function evaluate(rows: LotSizeRow[], lot: Lot, proposedUse: string): LotRequire
     }
 
     if (isSubdivision) {
-      // Keyed on the kind as well, because cl 4.1A covers both a plain and a
-      // strata subdivision and they are different answers to the reader.
-      const kind = subdivisionKind(subActs.length ? subActs : acts)
-      const key = `${r.clause}|${kind}|${[...ruleUses].sort().join(',')}`
+      const kind = subdivisionKind([...(actsByClause.get(String(r.clause)) ?? [])])
+      // Keyed on the clause and the use it names. Not on the kind: that is now
+      // a property of the clause, so including it could only ever split one
+      // clause into two rows again.
+      const key = `${r.clause}|${[...ruleUses].sort().join(',')}`
       const existing = subdivision.get(key)
       if (existing) {
         // Several bands on one clause: every child lot has to clear the
@@ -303,7 +356,11 @@ export async function getLotRequirements(
   lot: Lot,
   proposedUse: string,
 ): Promise<LotRequirements> {
-  return evaluate(await fetchLotSizeRows(client, lot.lga_name ?? null), lot, proposedUse)
+  const [rows, scope] = await Promise.all([
+    fetchLotSizeRows(client, lot.lga_name ?? null),
+    fetchClauseScope(client, lot.lga_name ?? null),
+  ])
+  return evaluate({ rows, scope }, lot, proposedUse)
 }
 
 /**
@@ -334,7 +391,10 @@ export async function pickProposedUse(
   const fallback = candidates[0] ?? 'dwelling house'
   if (candidates.length < 2) return { use: fallback, tested: false, considered: [] }
 
-  const rows = await fetchLotSizeRows(client, lot.lga_name ?? null)
+  const [rows, scope] = await Promise.all([
+    fetchLotSizeRows(client, lot.lga_name ?? null),
+    fetchClauseScope(client, lot.lga_name ?? null),
+  ])
   const considered = candidates.map(use => ({
     use,
     // meetsAny, not meetsAll: cl 4.1C sets 800 m² for an attached dual occupancy
@@ -343,7 +403,7 @@ export async function pickProposedUse(
     // house and bury the one form the lot does support. This does not overstate
     // the site, because the requirements table states the verdict per variant --
     // "Satisfied" beside "Short by 77.5 m²" -- rather than a single headline.
-    meets: evaluate(rows, lot, use).meetsAny,
+    meets: evaluate({ rows, scope }, lot, use).meetsAny,
   }))
 
   for (let i = considered.length - 1; i >= 0; i--) {

@@ -25,6 +25,7 @@
  */
 
 import type pg from 'pg'
+import { clauseAppliesToLot } from '../../../shared/lep-scope'
 
 export interface AdditionalUse {
   clause: string
@@ -149,15 +150,21 @@ export async function getLotProvisions(
   // council. Giving Randwick one would have put its clauses on Hornsby reports.
   const mappedStandards: MappedStandard[] = (await client.query(
     `SELECT DISTINCT sr.clause, sr.value AS map_name, s.heading,
-            -- Every zone any rule on this clause names, pooled. A spatial ref
-            -- carries no applicability of its own, so the clause's rules are
-            -- the only thing that says where it bites -- and without it cl 4.2,
-            -- Rural subdivision, was listed as a standard for a suburban lot.
-            (SELECT array_agg(DISTINCT a.value)
-               FROM nsw.rule r2
-               JOIN nsw.rule_applicability a
-                 ON a.rule_id = r2.id AND a.dimension = 'zone'
-              WHERE r2.document_id = sr.document_id AND r2.clause = sr.clause) AS zones
+            -- The clause's rules, each with the zones and uses it names. A
+            -- spatial ref carries no applicability of its own, so the rules are
+            -- the only record of where the clause bites -- and without them
+            -- cl 4.2, Rural subdivision, was listed as a standard for a lot in
+            -- Maroubra. Zones and uses both, because a zone attached to a
+            -- use-qualified rule scopes that sub-provision and not the clause:
+            -- see shared/lep-scope.ts.
+            (SELECT jsonb_agg(jsonb_build_object('zones', z.zones, 'uses', z.uses))
+               FROM (SELECT
+                       coalesce((SELECT array_agg(a.value) FROM nsw.rule_applicability a
+                                  WHERE a.rule_id = r2.id AND a.dimension = 'zone'), '{}') AS zones,
+                       coalesce((SELECT array_agg(a.value) FROM nsw.rule_applicability a
+                                  WHERE a.rule_id = r2.id AND a.dimension = 'land_use'), '{}') AS uses
+                     FROM nsw.rule r2
+                    WHERE r2.document_id = sr.document_id AND r2.clause = sr.clause) z) AS clause_rules
        FROM nsw.rule_spatial_ref sr
        JOIN nsw.document d ON d.id = sr.document_id
        LEFT JOIN nsw.section s ON s.id = sr.section_id
@@ -166,15 +173,22 @@ export async function getLotProvisions(
       ORDER BY sr.clause`,
     [lot.lga_name ?? null],
   )).rows
-    // A clause naming no zone anywhere applies across the instrument; one that
-    // names zones applies only in them.
-    .filter((r) => {
-      const zones: string[] = r.zones ?? []
-      if (!zones.length) return true
-      const lotZones = String(lot.zone ?? '').split(',').map(z => z.trim().toUpperCase())
-      return zones.some(z => lotZones.includes(String(z).toUpperCase()))
-    })
+    .filter(r => clauseAppliesToLot(r.clause_rules ?? [], r.heading, lot.zone))
     .filter(r => r.map_name in MAP_TO_VALUE)
+    // A clause that excepts from a standard does not set it.
+    //
+    // Randwick's cl 4.3A and 4.3B both cite the Height of Buildings Map, but
+    // they are headed "Exceptions to height of buildings in Matraville" and
+    // "...on land with dual frontages": they vary the mapped figure inside a
+    // named area, they do not establish it. Listed under "Set by" they read as
+    // three clauses each independently setting 13 m, which is not what the plan
+    // says -- and the area provisions section already reports what they
+    // actually do, with the subclause that does it.
+    //
+    // Read off the instrument's own heading rather than inferred from geometry:
+    // Hornsby's cl 4.4 carries four FSR-area geometries and is still the clause
+    // that sets the floor space ratio, so "has an area" would drop a real one.
+    .filter(r => !/^exception/i.test(String(r.heading ?? '').trim()))
     .map((r) => {
       const v = MAP_TO_VALUE[r.map_name]
       const has = v !== null && v !== undefined && String(v).trim() !== ''

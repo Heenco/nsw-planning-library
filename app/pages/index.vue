@@ -248,13 +248,13 @@ const showDisclaimer = ref(false)
  * click lands on controls that plan actually introduced. Coordinates and
  * zones are read from nsw.up_property_d_3, not typed by hand.
  *
- * The last four Hornsby entries are chosen for the provisions they trigger
+ * Each council also carries four entries chosen for the provisions they trigger
  * rather than the zone, because those sections are otherwise unreachable by
- * clicking around: only two lots in the LGA resolve to a Schedule 1 additional
- * permitted use, and the floor space ratio areas under cl 4.4 cover a few
- * streets each. They are tagged by what they demonstrate rather than by zone:
- * APU for a Schedule 1 additional permitted use, AC for the additional controls
- * that attach to named land in Part 4 and Part 6.
+ * clicking around: an additional permitted use resolves to a handful of parcels
+ * per LGA, and the special-provision areas cover a few streets each. They are
+ * tagged by what they demonstrate rather than by zone: APU for a Schedule 1
+ * additional permitted use, AC for the additional controls that attach to named
+ * land or a mapped area in Part 4 and Part 6.
  */
 const sampleAddresses = [
   { lga: 'Hornsby',  zone: 'R2',  address: '100 GALSTON ROAD HORNSBY HEIGHTS', lat: -33.6811405, lng: 151.0974353 },
@@ -274,6 +274,17 @@ const sampleAddresses = [
   { lga: 'Randwick', zone: 'R3',  address: '46 KENNEDY STREET KINGSFORD',      lat: -33.9224242, lng: 151.2323735 },
   { lga: 'Randwick', zone: 'R1',  address: '15 THE SERPENTINE KENSINGTON',     lat: -33.9056454, lng: 151.2192903 },
   { lga: 'Randwick', zone: 'E1',  address: '21 MAROUBRA ROAD MAROUBRA',        lat: -33.9405432, lng: 151.2294223 },
+  // Schedule 1 additional permitted uses. Carr Street is the smallest case —
+  // one R3 lot that may be a restaurant or cafe — and Aeolia Street the widest,
+  // carrying five uses at once under item 5.
+  { lga: 'Randwick', zone: 'APU', address: '62 CARR STREET COOGEE',            lat: -33.923157801769506, lng: 151.25735546096573 },
+  { lga: 'Randwick', zone: 'APU', address: '6 AEOLIA STREET RANDWICK',         lat: -33.91933739723603, lng: 151.24342838365155 },
+  // Special-provision areas: cl 4.3A Area 3 excepts the mapped height in
+  // Matraville and cl 6.27 adds an affordable housing contribution to the same
+  // land; cl 4.3B Area 7 raises the height only if the whole area is
+  // consolidated into one lot, which is a control no mapped figure can show.
+  { lga: 'Randwick', zone: 'AC',  address: '472 BUNNERONG ROAD MATRAVILLE',    lat: -33.956873941610596, lng: 151.2302174851344 },
+  { lga: 'Randwick', zone: 'AC',  address: '204-230 MARINE PARADE MAROUBRA',   lat: -33.946805487356855, lng: 151.2557380830788 },
 ]
 
 /** Chips grouped by council, in the order the samples are declared. */
