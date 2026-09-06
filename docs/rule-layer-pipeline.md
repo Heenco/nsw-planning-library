@@ -398,6 +398,17 @@ Two related traps, both cost a wrong figure on the page:
 | Area with a condition | 204-230 Marine Parade Maroubra | cl 4.3B Area 7 — height raised only on consolidation |
 | Minimum lot size tested | 903 Anzac Parade Maroubra | cl 4.1C, 550 m², satisfied at 749.29 m² |
 
+Then open `/graph` and read the new council's row. **Scopable** is the share of
+rules carrying a land use or a development type, which is what the report's own
+scope query matches on: Hornsby's DCP is at 93%, Randwick's at 20%, so four
+rules in five of the larger document cannot reach a report at all. The
+**Applicability** chips say which dimensions the extractor filled — a greyed
+`act` means subdivision and development standards will merge, a greyed `zone`
+means clauses cannot be kept off the wrong land, and `geom N` counts the spatial
+references that resolved, which is what the additional-permitted-use and area
+sections are built on. A document can sit at stage `rules` with every one of
+those empty.
+
 Then check the negatives, which are where the scope bugs show: no rural
 subdivision clause on a suburban lot, no exception clause listed under "Set by"
 in the mapped standards table, and cl 4.3 present with the lot's mapped height.

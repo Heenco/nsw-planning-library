@@ -48,11 +48,33 @@ export interface DocCoverage {
   textPct: number | null
   /** How far down the pipeline this document got. */
   stage: 'none' | 'sections' | 'propositions' | 'rules'
+  /**
+   * Whether the rule layer can answer the questions the report asks of it.
+   *
+   * Reaching stage `rules` says a rule layer exists, not that it works. Randwick's
+   * DCP holds 1,658 rules and only 326 of them carry a land use or a development
+   * type, which are the two things the report's scope query matches on -- so
+   * four rules in five are in the graph and cannot reach a property report. That
+   * is invisible in a rule count, and it is the failure this section exists to
+   * name.
+   */
+  reach: {
+    /** Rules the report's scope query could match: land_use or dev_type. */
+    scopable: number
+    /** Dimensions present at all. A missing one disables a specific behaviour. */
+    dimensions: { zone: number, act: number, landUse: number, devType: number }
+    /** Spatial refs, and how many resolved to real geometry. */
+    spatialResolved: number
+    /** Effects banded by lot size, which the report filters on. */
+    lotSizeBanded: number
+  }
   quality: {
     emptySections: number
     effectsWithoutBound: number
     effectsUnspecifiedTopic: number
     rulesWithoutApplicability: number
+    /** Effects whose unit contradicts what the topic measures. */
+    unitMismatches: number
   }
 }
 
@@ -124,7 +146,40 @@ export async function getGraphCoverage(client: pg.PoolClient): Promise<DocCovera
            (SELECT count(*) FROM nsw.rule_effect e JOIN nsw.rule r ON r.id = e.rule_id
              WHERE r.document_id = d.id AND e.topic = 'unspecified') AS effects_unspecified,
            (SELECT count(*) FROM nsw.rule r WHERE r.document_id = d.id
-              AND NOT EXISTS (SELECT 1 FROM nsw.rule_applicability a WHERE a.rule_id = r.id)) AS rules_no_app
+              AND NOT EXISTS (SELECT 1 FROM nsw.rule_applicability a WHERE a.rule_id = r.id)) AS rules_no_app,
+           -- Reachability. The scopable count mirrors the join in property-report's
+           -- siteRules query, so this counts what that query could match rather
+           -- than what merely exists.
+           (SELECT count(DISTINCT r.id) FROM nsw.rule r
+              JOIN nsw.rule_applicability a ON a.rule_id = r.id
+             WHERE r.document_id = d.id
+               AND a.dimension IN ('land_use', 'dev_type')) AS scopable,
+           (SELECT count(DISTINCT r.id) FROM nsw.rule r
+              JOIN nsw.rule_applicability a ON a.rule_id = r.id
+             WHERE r.document_id = d.id AND a.dimension = 'zone') AS dim_zone,
+           (SELECT count(DISTINCT r.id) FROM nsw.rule r
+              JOIN nsw.rule_applicability a ON a.rule_id = r.id
+             WHERE r.document_id = d.id AND a.dimension = 'act') AS dim_act,
+           (SELECT count(DISTINCT r.id) FROM nsw.rule r
+              JOIN nsw.rule_applicability a ON a.rule_id = r.id
+             WHERE r.document_id = d.id AND a.dimension = 'land_use') AS dim_land_use,
+           (SELECT count(DISTINCT r.id) FROM nsw.rule r
+              JOIN nsw.rule_applicability a ON a.rule_id = r.id
+             WHERE r.document_id = d.id AND a.dimension = 'dev_type') AS dim_dev_type,
+           (SELECT count(*) FROM nsw.rule_spatial_ref sr
+             WHERE sr.document_id = d.id AND sr.geom IS NOT NULL) AS spatial_resolved,
+           (SELECT count(*) FROM nsw.rule_effect e JOIN nsw.rule r ON r.id = e.rule_id
+             WHERE r.document_id = d.id AND e.condition_metric = 'lot_size') AS lot_size_banded,
+           -- A unit that contradicts its topic. Kept in step with
+           -- shared/dcp-scope.ts TOPIC_UNITS, which is what the report reads to
+           -- badge a control "check clause".
+           (SELECT count(*) FROM nsw.rule_effect e JOIN nsw.rule r ON r.id = e.rule_id
+             WHERE r.document_id = d.id AND e.unit IS NOT NULL
+               AND ((e.topic IN ('setback', 'width', 'height') AND e.unit <> 'metre')
+                 OR (e.topic = 'fsr' AND e.unit <> 'ratio')
+                 OR (e.topic = 'site_coverage' AND e.unit <> 'percent')
+                 OR (e.topic = 'lot_size'
+                     AND e.unit NOT IN ('sqm', 'm²', 'hectare', 'map')))) AS unit_mismatches
       FROM nsw.document d
      ORDER BY d.doc_type, d.instrument_slug`)).rows
 
@@ -157,6 +212,17 @@ export async function getGraphCoverage(client: pg.PoolClient): Promise<DocCovera
       db,
       structuralPct: source ? pct(db.sections, source.elements) : null,
       textPct: source ? pct(db.chars, source.chars) : null,
+      reach: {
+        scopable: Number(d.scopable),
+        dimensions: {
+          zone: Number(d.dim_zone),
+          act: Number(d.dim_act),
+          landUse: Number(d.dim_land_use),
+          devType: Number(d.dim_dev_type),
+        },
+        spatialResolved: Number(d.spatial_resolved),
+        lotSizeBanded: Number(d.lot_size_banded),
+      },
       stage: db.rules > 0 ? 'rules'
         : db.propositions > 0 ? 'propositions'
           : db.sections > 0 ? 'sections' : 'none',
@@ -164,6 +230,7 @@ export async function getGraphCoverage(client: pg.PoolClient): Promise<DocCovera
         emptySections: Number(d.empty_sections),
         effectsWithoutBound: Number(d.effects_no_bound),
         effectsUnspecifiedTopic: Number(d.effects_unspecified),
+        unitMismatches: Number(d.unit_mismatches),
         rulesWithoutApplicability: Number(d.rules_no_app),
       },
     })
