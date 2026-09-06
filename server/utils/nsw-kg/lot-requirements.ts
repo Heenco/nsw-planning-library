@@ -102,21 +102,31 @@ function subdivisionKind(acts: string[]): string {
   return 'Torrens'
 }
 
-export async function getLotRequirements(
-  client: pg.PoolClient,
-  lot: {
-    zone: string | null
-    area_sqm: unknown
-    min_lot_size: unknown
-    lga_name?: string | null
-  },
-  proposedUse: string,
-): Promise<LotRequirements> {
-  const areaSqm = Number(lot.area_sqm) || null
-  const mappedMin = lot.min_lot_size == null ? null : Number(lot.min_lot_size)
-  const zones = String(lot.zone ?? '').split(',').map(z => z.trim().toUpperCase()).filter(Boolean)
+export interface Lot {
+  zone: string | null
+  area_sqm: unknown
+  min_lot_size: unknown
+  lga_name?: string | null
+}
 
-  const rows = (await client.query(
+interface LotSizeRow {
+  clause: string
+  heading: string | null
+  value: number | null
+  uses: string[] | null
+  zones: string[] | null
+  acts: string[] | null
+}
+
+/**
+ * Every minimum-lot-size effect this council's LEP states.
+ *
+ * Fetched once and evaluated many times, because choosing which use a report is
+ * about means testing the lot against each candidate, and doing that with a
+ * query per use turns one round trip into four.
+ */
+async function fetchLotSizeRows(client: pg.PoolClient, lgaName: string | null): Promise<LotSizeRow[]> {
+  return (await client.query(
     `SELECT r.clause, s.heading, e.value::float8 AS value,
             (SELECT array_agg(DISTINCT a.value) FROM nsw.rule_applicability a
               WHERE a.rule_id = r.id AND a.dimension = 'land_use') AS uses,
@@ -132,15 +142,14 @@ export async function getLotRequirements(
         AND ($1::text IS NULL OR lower(d.lga_name) = lower($1))
         AND e.topic = 'lot_size'
       ORDER BY r.clause`,
-    [lot.lga_name ?? null],
-  )).rows as Array<{
-    clause: string
-    heading: string | null
-    value: number | null
-    uses: string[] | null
-    zones: string[] | null
-    acts: string[] | null
-  }>
+    [lgaName],
+  )).rows as LotSizeRow[]
+}
+
+function evaluate(rows: LotSizeRow[], lot: Lot, proposedUse: string): LotRequirements {
+  const areaSqm = Number(lot.area_sqm) || null
+  const mappedMin = lot.min_lot_size == null ? null : Number(lot.min_lot_size)
+  const zones = String(lot.zone ?? '').split(',').map(z => z.trim().toUpperCase()).filter(Boolean)
 
   /*
    * Zone scope is a property of the clause, not of the row.
@@ -287,4 +296,58 @@ export async function getLotRequirements(
     meetsAll: testable.length ? testable.every(r => r.meets === true) : null,
     meetsAny: testable.length ? testable.some(r => r.meets === true) : null,
   }
+}
+
+export async function getLotRequirements(
+  client: pg.PoolClient,
+  lot: Lot,
+  proposedUse: string,
+): Promise<LotRequirements> {
+  return evaluate(await fetchLotSizeRows(client, lot.lga_name ?? null), lot, proposedUse)
+}
+
+/**
+ * The use a report should be written about when the reader has not chosen one.
+ *
+ * The old default was the least intensive use the zone contemplates, on the
+ * reasoning that overstating what a site can take is the more damaging error.
+ * On a 949.72 m² R2 lot in Hornsby that produced a report about a dwelling
+ * house, and every figure that made the site interesting -- cl 4.1C permitting
+ * a dual occupancy, cl 4.1D permitting it to be subdivided into two lots --
+ * was filtered out before the reader ever saw it. Silence about a pathway the
+ * instrument allows is its own kind of wrong answer.
+ *
+ * So the default is now the most intensive candidate whose minimum lot size
+ * this lot actually clears. That is a tested result rather than an assumption,
+ * which is what makes it safe to lead with. Where nothing can be tested -- the
+ * council has no rule layer, or none of its clauses name these uses -- it falls
+ * back to the least intensive, because an untested claim of the most intensive
+ * would be exactly the error the old default was guarding against.
+ *
+ * `candidates` must be ordered least to most intensive.
+ */
+export async function pickProposedUse(
+  client: pg.PoolClient,
+  lot: Lot,
+  candidates: string[],
+): Promise<{ use: string; tested: boolean; considered: Array<{ use: string; meets: boolean | null }> }> {
+  const fallback = candidates[0] ?? 'dwelling house'
+  if (candidates.length < 2) return { use: fallback, tested: false, considered: [] }
+
+  const rows = await fetchLotSizeRows(client, lot.lga_name ?? null)
+  const considered = candidates.map(use => ({
+    use,
+    // meetsAny, not meetsAll: cl 4.1C sets 800 m² for an attached dual occupancy
+    // and 900 for a detached one, so an 822 m² lot fails the pair and clears the
+    // attached variant. Requiring both would scope that report to a dwelling
+    // house and bury the one form the lot does support. This does not overstate
+    // the site, because the requirements table states the verdict per variant --
+    // "Satisfied" beside "Short by 77.5 m²" -- rather than a single headline.
+    meets: evaluate(rows, lot, use).meetsAny,
+  }))
+
+  for (let i = considered.length - 1; i >= 0; i--) {
+    if (considered[i]!.meets === true) return { use: considered[i]!.use, tested: true, considered }
+  }
+  return { use: fallback, tested: false, considered }
 }

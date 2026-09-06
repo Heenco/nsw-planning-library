@@ -89,6 +89,10 @@ export async function getLotProvisions(
   lot: { centroid_lat: number | null; centroid_lon: number | null;
          min_lot_size: string | number | null; max_height_m: string | number | null;
          fsr_value: string | number | null;
+         // Typed, not `unknown`: reading a field the projection does not have
+         // is exactly how the Lot Size Map row came to say "none mapped" on
+         // every lot, and nothing objected because the property object is any.
+         zone?: string | null;
          lga_name?: string | null },
 ): Promise<LotProvisions> {
   const lat = Number(lot.centroid_lat)
@@ -144,7 +148,16 @@ export async function getLotProvisions(
   // Hornsby's 26 rows and nobody else's -- the rule layer exists for one
   // council. Giving Randwick one would have put its clauses on Hornsby reports.
   const mappedStandards: MappedStandard[] = (await client.query(
-    `SELECT DISTINCT sr.clause, sr.value AS map_name, s.heading
+    `SELECT DISTINCT sr.clause, sr.value AS map_name, s.heading,
+            -- Every zone any rule on this clause names, pooled. A spatial ref
+            -- carries no applicability of its own, so the clause's rules are
+            -- the only thing that says where it bites -- and without it cl 4.2,
+            -- Rural subdivision, was listed as a standard for a suburban lot.
+            (SELECT array_agg(DISTINCT a.value)
+               FROM nsw.rule r2
+               JOIN nsw.rule_applicability a
+                 ON a.rule_id = r2.id AND a.dimension = 'zone'
+              WHERE r2.document_id = sr.document_id AND r2.clause = sr.clause) AS zones
        FROM nsw.rule_spatial_ref sr
        JOIN nsw.document d ON d.id = sr.document_id
        LEFT JOIN nsw.section s ON s.id = sr.section_id
@@ -153,6 +166,14 @@ export async function getLotProvisions(
       ORDER BY sr.clause`,
     [lot.lga_name ?? null],
   )).rows
+    // A clause naming no zone anywhere applies across the instrument; one that
+    // names zones applies only in them.
+    .filter((r) => {
+      const zones: string[] = r.zones ?? []
+      if (!zones.length) return true
+      const lotZones = String(lot.zone ?? '').split(',').map(z => z.trim().toUpperCase())
+      return zones.some(z => lotZones.includes(String(z).toUpperCase()))
+    })
     .filter(r => r.map_name in MAP_TO_VALUE)
     .map((r) => {
       const v = MAP_TO_VALUE[r.map_name]

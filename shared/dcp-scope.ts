@@ -107,6 +107,21 @@ export function normaliseUse(value: string): string {
  * most, because that is the one an owner is most often asking about, and because
  * overstating what a site can take is the more damaging error.
  */
+/**
+ * The uses a report could be scoped to on this lot, least intensive first.
+ *
+ * Order is the point: the caller walks it from the top to find the most
+ * intensive use the lot's own minimum lot size clears, so a list in any other
+ * order picks the wrong default silently.
+ */
+export function candidateUsesForZone(zoneCode: string | null | undefined): string[] {
+  const out: string[] = []
+  for (const z of String(zoneCode ?? '').split(',').map(x => x.trim().toUpperCase())) {
+    for (const u of ZONE_LAND_USES[z] ?? []) if (!out.includes(u)) out.push(u)
+  }
+  return out
+}
+
 export function defaultProposedUse(zoneCode: string | null | undefined): string {
   const zones = String(zoneCode ?? '').split(',').map(z => z.trim().toUpperCase())
   for (const z of zones) {
@@ -245,6 +260,15 @@ const TOPIC_UNITS: Record<string, string[]> = {
   width: ['metre'],
   height: ['metre'],
   fsr: ['ratio'],
+  // Site coverage is a proportion of the lot in every DCP held here: 21 effects
+  // in percent against 2 in sqm, and those two are the lot-area thresholds of
+  // Hornsby's "at least 450m² but less than 500m²" proviso, captured as though
+  // they were coverage figures.
+  site_coverage: ['percent'],
+  // Lot size is an area. The 4 effects recorded in metres are cl 6.2.1's
+  // minimum lot *widths* and the 6 in percent are its landscaping proportions,
+  // both filed under the wrong topic; read as lot sizes they are nonsense.
+  lot_size: ['sqm', 'm²', 'hectare', 'map'],
 }
 
 /**
@@ -335,6 +359,91 @@ export function operativeStoreyBand(
     ? (lo === hi ? `${lo} storeys` : `${lo}–${hi} storeys`)
     : lo != null ? `${lo}+ storeys` : `up to ${hi} storeys`
   return { label, lo, hi }
+}
+
+/**
+ * True when a control's lot-size condition covers this lot's area.
+ *
+ * Hornsby's DCP bands site coverage, floor area and landscaping by lot size --
+ * 65% at 200-249 m2, down to 30% at 1500 m2 or larger. Only one band can ever
+ * apply to a lot, but the report listed all of them: on a 949.72 m2 lot, 43 of
+ * the 49 banded controls in scope were for lot sizes it is not. The reader was
+ * left to do the filtering, and the model, handed all of them as facts, wrote
+ * out the whole ladder as though every rung applied.
+ *
+ * A control with no lot-size condition is unbanded and always applies, so it
+ * passes -- the same convention `matchesStoreyBand` uses.
+ */
+export function matchesLotSizeBand(
+  e: { condition_metric?: string | null; condition_lo?: number | string | null; condition_hi?: number | string | null },
+  areaSqm: number | null | undefined,
+): boolean {
+  if (e.condition_metric !== 'lot_size') return true
+  // Without an area there is nothing to test, so nothing is excluded: hiding a
+  // control because a figure is missing is the worse error.
+  const area = Number(areaSqm)
+  if (!area || Number.isNaN(area)) return true
+  const lo = e.condition_lo == null || e.condition_lo === '' ? -Infinity : Number(e.condition_lo)
+  const hi = e.condition_hi == null || e.condition_hi === '' ? Infinity : Number(e.condition_hi)
+  if (Number.isNaN(lo) || Number.isNaN(hi)) return true
+  return area >= lo && area <= hi
+}
+
+interface BandedControl {
+  applies_to?: string | null
+  clause?: string | null
+  topic?: string | null
+  comparator?: string | null
+  measured_from?: string | null
+  relative_to?: string | null
+  condition_metric?: string | null
+  condition_lo?: number | string | null
+  condition_hi?: number | string | null
+}
+
+/** What makes two controls the same control stated at different lot sizes. */
+const controlIdentity = (c: BandedControl) => [
+  c.applies_to ?? '', c.clause ?? '', c.topic ?? '', c.comparator ?? '',
+  c.measured_from ?? c.relative_to ?? '',
+].join('|')
+
+/**
+ * Controls superseded by a more specific figure for this lot's size band.
+ *
+ * Hornsby's cl 3.1.1 caps site coverage at 40% for lots of 900-1499 m² and at
+ * 30% for lots of 1500 m² or larger -- but the second row lost its band at
+ * ingest, so it reads as a general rule and matches every lot. A 949.72 m² lot
+ * then carries two live site-coverage caps from the same clause, and the
+ * summary picked the unbanded one: the report stated 30% where the plan says
+ * 40%.
+ *
+ * The rule is specificity, which holds whether the missing band is an ingest
+ * fault or the plan's own drafting: where one clause states a figure for this
+ * lot's band and another states one generally about the same thing, the banded
+ * figure governs. Returns the identities of the controls to set aside, so the
+ * caller can demote rather than delete -- the general row is still in the plan.
+ */
+export function bandSupersededIdentities(
+  rules: BandedControl[],
+  areaSqm: number | null | undefined,
+): Set<string> {
+  const specific = new Set<string>()
+  for (const c of rules) {
+    if (c.condition_metric === 'lot_size' && matchesLotSizeBand(c, areaSqm)) {
+      specific.add(controlIdentity(c))
+    }
+  }
+  const out = new Set<string>()
+  for (const c of rules) {
+    const id = controlIdentity(c)
+    if (c.condition_metric !== 'lot_size' && specific.has(id)) out.add(id)
+  }
+  return out
+}
+
+/** True when this control is the general one a banded sibling has displaced. */
+export function isBandSuperseded(c: BandedControl, superseded: Set<string>): boolean {
+  return c.condition_metric !== 'lot_size' && superseded.has(controlIdentity(c))
 }
 
 /** True when a control's storey condition covers the lot's operative band. */

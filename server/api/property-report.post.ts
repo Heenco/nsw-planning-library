@@ -1,8 +1,9 @@
 import { withNswClient } from '../utils/nsw-kg/pool'
 import { PROPERTY_TABLE, PROPERTY_SELECT, parsePermissibleUses } from '../../shared/property-columns'
 import {
-  resolveDcpScope, defaultProposedUse, conditionLabel, TOPIC_PROSE, unitLooksWrong,
-  operativeStoreyBand, matchesStoreyBand,
+  resolveDcpScope, defaultProposedUse, candidateUsesForZone, conditionLabel, TOPIC_PROSE,
+  unitLooksWrong, operativeStoreyBand, matchesStoreyBand, matchesLotSizeBand, normaliseUse,
+  bandSupersededIdentities, isBandSuperseded,
 } from '../../shared/dcp-scope'
 
 /**
@@ -278,7 +279,30 @@ export default defineEventHandler(async (event) => {
     // The development this report is about. Everything numeric below is computed
     // for it: a floor space ratio only becomes a floor area, and a minimum lot
     // size only becomes a pass or a fail, once there is a proposal to test.
-    const proposedUse = String(use ?? '').trim() || defaultProposedUse(property.zone)
+    //
+    // Where the reader has not chosen, the use is picked by testing the lot
+    // rather than assumed. Defaulting to the least intensive use produced a
+    // report about a dwelling house on a 949 m² R2 lot whose whole interest was
+    // that it clears cl 4.1C for a dual occupancy and cl 4.1D to subdivide it.
+    const requested = String(use ?? '').trim()
+    // Only uses the lot is actually permitted, so a zone-level list cannot scope
+    // the report to something this lot may not do.
+    //
+    // Both lists, because they are different permissions. Galston's record does
+    // not carry dual occupancy in `permissible_uses` at all -- it is permitted
+    // there by the Housing SEPP and appears only in `sepp_landuses` -- so
+    // filtering on the LEP list alone dropped the one use that made the site
+    // worth a report.
+    const permittedSet = new Set([
+      ...permittedUses,
+      ...String(property.sepp_landuses ?? '').split(/[;,]/),
+    ].map(u => normaliseUse(String(u))).filter(Boolean))
+    const candidates = candidateUsesForZone(property.zone)
+      .filter(u => !permittedSet.size || permittedSet.has(normaliseUse(u)))
+    const picked = requested
+      ? { use: requested, tested: false, considered: [] as Array<{ use: string; meets: boolean | null }> }
+      : await withNswClient(c => pickProposedUse(c, property, candidates.length ? candidates : candidateUsesForZone(property.zone)))
+    const proposedUse = picked.use || defaultProposedUse(property.zone)
 
     const scope = resolveDcpScope(
       property.zone,
@@ -320,6 +344,12 @@ export default defineEventHandler(async (event) => {
                 -- came from is what a reader needs to open. Trimming lifts
                 -- the share of clause links that resolve from 87% to 100%.
                 split_part(r.rule_key, ':', 1) AS anchor,
+                -- The section the clause sits under. DCP rules carry no zone
+                -- applicability at all, so the heading is the only thing that
+                -- separates cl 6.2.1 "Residential Lands Subdivision" from
+                -- cl 6.3.1 "Rural Lands Subdivision" -- which is why a 949 m²
+                -- suburban lot was being shown 2-to-40-hectare minimums.
+                sec.heading AS section_heading,
                 r.clause, e.topic, e.comparator,
                 -- value_upper is null on all 887 DCP effects; not selected.
                 e.value::float8 AS value, e.unit, e.measured_from, e.relative_to,
@@ -327,6 +357,7 @@ export default defineEventHandler(async (event) => {
          FROM nsw.rule r
          JOIN nsw.rule_effect e ON e.rule_id = r.id
          JOIN nsw.document d ON d.id = r.document_id
+         LEFT JOIN nsw.section sec ON sec.id = r.section_id
          LEFT JOIN nsw.rule_applicability lu
                 ON lu.rule_id = r.id AND lu.dimension = 'land_use'
                AND lower(lu.value) = ANY($1)
@@ -383,20 +414,88 @@ export default defineEventHandler(async (event) => {
     const fsr = Number(property.fsr_value) || null
     const heightM = Number(property.max_height_m) || null
 
+    // Which storey band this lot sits in, read off the DCP's own height table.
+    // Without it the per-scope cap fed the model cl 3.3.x (the 3-storey set) for
+    // a lot mapped at 16.5m, whose operative set is cl 3.4.x at 5 storeys — the
+    // right clause numbers for the wrong building.
+    const storeyBand = operativeStoreyBand(siteRules as any[], property.max_height_m)
+
+    /*
+     * What caps floor area when no floor space ratio is mapped.
+     *
+     * Roughly half of Hornsby is unmapped for FSR, and the report answered
+     * those lots with "no floor space ratio is mapped" and stopped -- as though
+     * floor area were uncontrolled. It is not: the DCP's own table caps it, by
+     * lot size band and by use. Those numbers are already in scope; nothing was
+     * doing the arithmetic on them.
+     *
+     * Percentages are resolved against the lot; absolute figures are taken as
+     * they stand. Where the clause states more than one figure for this band the
+     * cap is deliberately left null: Hornsby's dual occupancy row reads "25% of
+     * the lot area + 300m²" and the ingest split it into two independent rows,
+     * so collapsing them to the smaller would report 237m² where the plan allows
+     * 537m². Better to show both and name the clause than to assert a wrong
+     * number confidently.
+     */
+    const floorAreaCaps = (siteRules as any[])
+      .filter(c => c.topic === 'floor_area'
+        && c.comparator === 'lte'
+        && c.value != null
+        && normaliseUse(String(c.applies_to ?? '')) === normaliseUse(proposedUse)
+        && matchesLotSizeBand(c, areaSqm)
+        && matchesStoreyBand(c, storeyBand))
+      .map(c => ({
+        clause: String(c.clause),
+        // Whether the clause states this figure for this lot-size band, or
+        // states it generally. The distinction decides which set is operative.
+        banded: c.condition_metric === 'lot_size',
+        sqm: c.unit === 'percent'
+          ? (areaSqm ? Math.round(areaSqm * Number(c.value)) / 100 : null)
+          : c.unit === 'sqm' ? Number(c.value) : null,
+        stated: c.unit === 'percent' ? `${c.value}% of the lot area` : `${c.value} m²`,
+      }))
+      .filter(c => c.sqm != null)
+
+    /*
+     * Where the clause states figures for this lot-size band specifically, those
+     * are the operative ones and the unbanded rows are set aside.
+     *
+     * Hornsby's dual occupancy row is banded to 700-2000 m2 and reads "25% of
+     * the lot area + 300m2"; the dwelling house row for "900m2 or larger" lost
+     * its band at ingest and so matches every lot. Without this preference a
+     * 949 m2 lot is offered all four figures at once -- 25%, 300, 430 and 100 --
+     * which is a worse answer than either table alone.
+     */
+    const banded = floorAreaCaps.filter(c => c.banded)
+    const caps = banded.length ? banded : floorAreaCaps
+
     const derived = {
       proposedUse,
       areaSqm,
       // Floor space ratio is expressed n:1, so the multiplier is the ratio.
       maxGrossFloorArea: areaSqm && fsr ? Math.round(areaSqm * fsr * 100) / 100 : null,
       fsr,
+      // Where the FSR map is silent, the DCP is not. One figure is a cap; more
+      // than one is a clause to read, for the reason above.
+      floorAreaSource: fsr ? 'fsr_map' : caps.length ? 'dcp' : null,
+      dcpFloorAreaCap: !fsr && caps.length === 1 ? caps[0]!.sqm : null,
+      dcpFloorAreaCaps: fsr ? [] : caps,
       heightM,
-      // Storeys are not mapped anywhere; this is the DCP's own implied figure
-      // for residential floor-to-floor, and is labelled as indicative.
-      approxStoreys: heightM ? Math.max(1, Math.floor(heightM / 3.1)) : null,
+      // The DCP states the height-to-storey translation in its own table, but
+      // that table is not extracted, so this stays an estimate and is labelled
+      // as one. 3.0m is the floor-to-floor the DCP says its height controls are
+      // built on, which is a better basis than a number of our own choosing.
+      approxStoreys: heightM ? Math.max(1, Math.floor(heightM / 3.0)) : null,
+      // The band the DCP's own storey-conditioned controls put this lot in,
+      // where it has any. Unlike the estimate above, this is sourced.
+      storeyBand: storeyBand?.label ?? null,
       minLotSize: property.min_lot_size == null ? null : Number(property.min_lot_size),
-      // Whether this lot meets the minimum its own LEP maps for it.
-      meetsMinLotSize: areaSqm && property.min_lot_size != null
-        ? areaSqm >= Number(property.min_lot_size) : null,
+      // No pass/fail here any more. The mapped minimum lot size is the
+      // subdivision standard, and presenting it as one the development had to
+      // clear is the confusion the Lot Requirements section exists to remove;
+      // that section tests the clause that actually governs the proposed use.
+      maxChildLots: lotRequirements.subdivision.reduce(
+        (n, o) => Math.max(n, o.maxChildLots ?? 0), 0) || null,
       frontageM: Number(property.primary_frontage_length_m) || null,
     }
     sseWrite(res, 'derived', derived)
@@ -472,11 +571,6 @@ export default defineEventHandler(async (event) => {
       const k = `${c.axis}|${c.applies_to}`
       scopeWeight.set(k, (scopeWeight.get(k) ?? 0) + 1)
     }
-    // Which storey band this lot sits in, read off the DCP's own height table.
-    // Without it the per-scope cap fed the model cl 3.3.x (the 3-storey set) for
-    // a lot mapped at 16.5m, whose operative set is cl 3.4.x at 5 storeys — the
-    // right clause numbers for the wrong building.
-    const storeyBand = operativeStoreyBand(siteRules as any[], property.max_height_m)
 
     const orderedGroups = [...controlGroups.values()].sort((a, b) => {
       const ka = `${a[0].axis}|${a[0].applies_to}`
@@ -486,9 +580,10 @@ export default defineEventHandler(async (event) => {
       if (w) return w
       // Inside a scope, the clause set this lot's height actually selects first,
       // so the cap trims the bands that do not apply rather than the ones that do.
-      const ma = matchesStoreyBand(a[0], storeyBand) ? 0 : 1
-      const mb = matchesStoreyBand(b[0], storeyBand) ? 0 : 1
-      return (ma - mb) || String(a[0].clause).localeCompare(String(b[0].clause))
+      const lotArea = Number(property.area_sqm) || null
+      const fit = (c: any) =>
+        (matchesStoreyBand(c, storeyBand) ? 0 : 2) + (matchesLotSizeBand(c, lotArea) ? 0 : 1)
+      return (fit(a[0]) - fit(b[0])) || String(a[0].clause).localeCompare(String(b[0].clause))
     })
 
     const describe = (group: any[]) => {
@@ -540,10 +635,22 @@ export default defineEventHandler(async (event) => {
      * silence. The report's table still lists every one of them, flagged, so the
      * record is complete and only the prose is restrained.
      */
+    // Where one clause caps a thing for this lot's band and also caps it
+    // generally, the banded figure is the specific one and governs. Without
+    // this the summary reported cl 3.1.1's unbanded 30% site coverage on a
+    // 949.72 m² lot whose band says 40%.
+    const superseded = bandSupersededIdentities(siteRules as any[], Number(property.area_sqm) || null)
+
     const withhold = (c: any) =>
       !BOUND[c.comparator as string]
       || unitLooksWrong(c.topic, c.unit)
       || (storeyBand ? !matchesStoreyBand(c, storeyBand) : false)
+      // A lot sits in exactly one lot-size band. Of the 49 banded controls in
+      // scope for a 949.72 m² lot, 43 are for sizes it is not, and the model,
+      // handed all of them as facts, wrote out the whole ladder -- "site
+      // coverage <= 65% at 200-249" on a 949 m² site.
+      || !matchesLotSizeBand(c, Number(property.area_sqm) || null)
+      || isBandSuperseded(c, superseded)
 
     let first = true
     let withheldCount = 0
@@ -577,6 +684,12 @@ export default defineEventHandler(async (event) => {
           'first. Do not carry a control from one group to another. The bracketed',
           'reference on each line is the citation marker to reproduce verbatim,',
           'e.g. [dcp.3.1.2]:',
+          Number(property.area_sqm)
+            ? `  Every control below has already been filtered to this lot's size of`
+              + ` ${Number(property.area_sqm)}m2. The DCP bands site coverage, floor area and`
+              + ` landscaping by lot size; only the band this lot falls in is listed, so do`
+              + ` not report a figure for any other band and do not describe these as a range.`
+            : '',
           storeyBand
             ? `  This lot's mapped height of ${property.max_height_m}m puts it in the DCP's`
               + ` ${storeyBand.label} band, so the clause set stated for that band is the`
@@ -670,37 +783,88 @@ export default defineEventHandler(async (event) => {
      * compare, because the model reliably reads the mapped minimum lot size as
      * the standard for the development when it is in fact the subdivision one.
      */
+    /*
+     * Two lot-size questions, kept apart on the page and in the prompt.
+     *
+     * The LEP sets one minimum to build a dual occupancy (cl 4.1C: 800-900 m2)
+     * and a different, smaller one to subdivide it afterwards (cl 4.1D: 400-450
+     * m2). Given both as a flat list the model merged them and reported cl 4.1D
+     * figures under cl 4.1C -- the right shape of answer with the wrong numbers
+     * against the wrong clause. So each list gets its own heading, and the
+     * instruction says in terms that a figure may not cross between them.
+     */
     const lotBlock = lotRequirements.requirements.length || lotRequirements.subdivision.length
       ? [
           '',
           '',
-          `Minimum lot size tested against this lot (${lotRequirements.areaSqm ?? '?'} m2).`,
+          `Minimum lot size, tested against this lot's ${lotRequirements.areaSqm ?? '?'} m2.`,
           'These comparisons are already made; state the result, do not recompute it.',
+          'The two lists below answer different questions and their figures are',
+          'different. Never report a figure from one as though it belonged to the',
+          'other, and always keep each figure with the clause it is listed under.',
           ...(lotRequirements.hasRuleLayer ? [] : [
             "  This council's LEP is not decomposed into testable rules here, so no",
             '  LEP minimum for the proposed use can be stated. Say that it could not be',
             '  checked; do not report that none applies.',
           ]),
-          ...lotRequirements.requirements.map(r =>
-            `  LEP cl ${r.clause} requires ${r.binding} m2 for `
-            + `${r.uses.join(' / ') || proposedUse}`
-            + (r.values.length > 1 ? ` (it bands ${r.values.join(' / ')} m2)` : '')
-            + '. This lot '
-            + (r.meets === null ? 'has no recorded area, so this cannot be tested.'
-               : r.meets ? 'satisfies it.' : `falls short by ${r.shortfall} m2.`)
-            + ` [sec.${r.clause}]`),
-          ...lotRequirements.subdivision.map(r =>
-            `  LEP cl ${r.clause} sets the ${r.kind.toLowerCase()} subdivision minimum`
-            + (r.uses.length ? ` for ${r.uses.join(' / ')}` : '')
-            + `: ${r.note}`
-            + (r.maxChildLots
-                ? ` At that figure this lot yields at most ${r.maxChildLots}`
-                  + ` lot${r.maxChildLots === 1 ? '' : 's'}, before any road, access or shape`
-                  + ' requirement is applied.'
-                : '')
-            + (r.clause ? ` [sec.${r.clause}]` : ' (from the Lot Size Map; the clause is not extracted here)')),
+          ...(lotRequirements.requirements.length ? [
+            '',
+            `A. How large the lot must be to build a ${proposedUse} on it:`,
+            ...lotRequirements.requirements.map(r =>
+              `  LEP cl ${r.clause} requires ${r.binding} m2 for `
+              + `${r.uses.join(' / ') || proposedUse}`
+              + (r.values.length > 1 ? ` (it bands ${r.values.join(' / ')} m2)` : '')
+              + '. This lot '
+              + (r.meets === null ? 'has no recorded area, so this cannot be tested.'
+                 : r.meets ? 'satisfies it.' : `falls short by ${r.shortfall} m2.`)
+              + ` [sec.${r.clause}]`),
+          ] : []),
+          ...(lotRequirements.subdivision.length ? [
+            '',
+            'B. How large each lot must be if the land is subdivided. These are',
+            '   subdivision minimums only; they are not what A requires:',
+            ...lotRequirements.subdivision.map(r =>
+              `  LEP cl ${r.clause} sets the ${r.kind.toLowerCase()} subdivision minimum`
+              + (r.uses.length ? ` for ${r.uses.join(' / ')}` : '')
+              + `: ${r.note}`
+              + (r.maxChildLots
+                  ? ` At that figure this lot yields at most ${r.maxChildLots}`
+                    + ` lot${r.maxChildLots === 1 ? '' : 's'}, before any road, access or shape`
+                    + ' requirement is applied.'
+                  : ' At that figure this lot is too small to subdivide at all.')
+              + (r.clause ? ` [sec.${r.clause}]` : ' (from the Lot Size Map; the clause is not extracted here)')),
+          ] : []),
+          '',
           'No State policy minimum is compared here: the SEPPs in this graph carry no',
           'clause-level standards yet. Say so rather than implying none exists.',
+        ].join("\n")
+      : ''
+
+    /*
+     * What governs floor area, stated once so the summary cannot get it wrong.
+     *
+     * Left to itself the model reported "no floor space ratio is mapped for this
+     * lot" and moved on, which reads as though nothing capped floor area.
+     */
+    const gfaBlock = derived.floorAreaSource === 'dcp'
+      ? [
+          '',
+          '',
+          'No floor space ratio is mapped for this lot, but floor area is still capped:',
+          ...(derived.dcpFloorAreaCap != null
+            ? [`  DCP cl ${derived.dcpFloorAreaCaps[0]!.clause} allows at most`
+               + ` ${derived.dcpFloorAreaCap} m2 of floor area for a ${proposedUse} on a lot`
+               + ` of this size (${derived.dcpFloorAreaCaps[0]!.stated}). [dcp.${derived.dcpFloorAreaCaps[0]!.clause}]`]
+            : [
+                `  DCP cl ${derived.dcpFloorAreaCaps[0]!.clause} caps it. That clause states`
+                + ` ${derived.dcpFloorAreaCaps.map(c => c.stated).join(', ')} for a`
+                + ` ${proposedUse} on a lot of this size.`
+                + ` [dcp.${derived.dcpFloorAreaCaps[0]!.clause}]`,
+                '  How those figures combine is not recorded here. Name the clause and say',
+                '  it has to be read. Do not present any one of them as the maximum, and do',
+                '  not add or multiply them together.',
+              ]),
+          'Say that the DCP caps it. Do not report that floor area is uncontrolled.',
         ].join("\n")
       : ''
 
@@ -709,7 +873,7 @@ export default defineEventHandler(async (event) => {
 This report is written about a proposed ${proposedUse} on this lot. `
       + 'Answer for that development. Where a control applies only to a different '
       + 'use, leave it out rather than reporting it as though it applied here.'
-    const enrichedQuery = `${kgQuery}${useLine}\n\nKnown property facts:\n${contextLines}${lotBlock}${dcpBlock}\n\nPermitted uses in zone ${property.zone}: ${permittedUses.slice(0, 30).join(', ') || 'unknown'}`
+    const enrichedQuery = `${kgQuery}${useLine}\n\nKnown property facts:\n${contextLines}${lotBlock}${gfaBlock}${dcpBlock}\n\nPermitted uses in zone ${property.zone}: ${permittedUses.slice(0, 30).join(', ') || 'unknown'}`
 
     // Persona-gated AI work:
     //   owner     → no AI (facts + permissibility only)

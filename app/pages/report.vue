@@ -68,27 +68,68 @@
       <summary class="rpt-section-title">Development Standards</summary>
       <!-- The arithmetic, done. A floor space ratio is not what anyone builds
            to; the gross floor area it permits on this lot is. -->
-      <div v-if="derived.maxGrossFloorArea || derived.approxStoreys" class="derived-row">
+      <div v-if="derived.maxGrossFloorArea || derived.heightM || derived.dcpFloorAreaCaps?.length" class="derived-row">
         <div v-if="derived.maxGrossFloorArea" class="derived">
           <span class="derived-num">{{ derived.maxGrossFloorArea.toLocaleString() }} m²</span>
           <span class="derived-label">
             maximum gross floor area &mdash; {{ derived.fsr }}:1 on {{ derived.areaSqm?.toLocaleString() }} m²
           </span>
         </div>
+
+        <!-- No FSR mapped does not mean floor area is uncontrolled: the DCP caps
+             it by lot size band. A single figure is a cap; more than one is a
+             clause to read, because the ingest splits "25% of the lot area +
+             300m²" into two rows and the smaller of them is not the answer. -->
+        <div v-else-if="derived.dcpFloorAreaCap" class="derived">
+          <span class="derived-num">{{ derived.dcpFloorAreaCap.toLocaleString() }} m²</span>
+          <span class="derived-label">
+            maximum floor area for a {{ derived.proposedUse }} &mdash;
+            {{ derived.dcpFloorAreaCaps[0].stated }},
+            <a :href="dcpClauseHref(derived.dcpFloorAreaCaps[0].clause)" class="rules-cite">cl {{ derived.dcpFloorAreaCaps[0].clause }}</a>.
+            No FSR is mapped.
+          </span>
+        </div>
+        <!-- Several figures and no recorded relation between them. Joining
+             them into one headline number would invent a maximum: Hornsby's
+             table reads "25% of the lot area + 300m²" for a dual occupancy and
+             "430m²" for a dwelling house, and the ingest flattened both into
+             the same list. So the clause leads, and the figures are named
+             underneath as what the clause says rather than as an answer. -->
+        <div v-else-if="derived.dcpFloorAreaCaps?.length" class="derived">
+          <span class="derived-num derived-num--sm">
+            <a :href="dcpClauseHref(derived.dcpFloorAreaCaps[0].clause)" class="rules-cite">cl {{ derived.dcpFloorAreaCaps[0].clause }}</a>
+          </span>
+          <span class="derived-label">
+            caps floor area for a {{ derived.proposedUse }} &mdash; no FSR is mapped.
+            It states
+            <template v-for="(c, i) in derived.dcpFloorAreaCaps" :key="c.clause + i"
+              ><template v-if="i">{{ i === derived.dcpFloorAreaCaps.length - 1 ? ' and ' : ', ' }}</template
+              ><strong>{{ c.stated }}</strong><template v-if="c.stated.indexOf('%') !== -1"> ({{ c.sqm.toLocaleString() }} m² here)</template></template>.
+            How those combine is not recorded here, so read the clause rather than
+            taking any one of them as the maximum.
+          </span>
+        </div>
+
         <div v-if="derived.heightM" class="derived">
           <span class="derived-num">{{ derived.heightM }} m</span>
           <span class="derived-label">
-            maximum height<template v-if="derived.approxStoreys">
-              &mdash; about {{ derived.approxStoreys }} storeys at 3.1 m each</template>
+            maximum height<template v-if="derived.storeyBand">
+              &mdash; the DCP's {{ derived.storeyBand }} band</template
+            ><template v-else-if="derived.approxStoreys">
+              &mdash; roughly {{ derived.approxStoreys }} storeys at the 3 m floor-to-floor the
+              DCP's height controls assume; the plan's own height-to-storey table is not
+              held here, so treat this as an estimate</template>
           </span>
         </div>
-        <div v-if="derived.meetsMinLotSize !== null" class="derived">
-          <span class="derived-num" :class="derived.meetsMinLotSize ? 'derived-pass' : 'derived-fail'">
-            {{ derived.meetsMinLotSize ? 'Meets' : 'Below' }}
-          </span>
+
+        <!-- Not "meets minimum lot size" any more. That figure is the
+             subdivision standard, and testing the development against it was
+             the confusion the Lot Requirements section exists to remove. -->
+        <div v-if="derived.maxChildLots" class="derived">
+          <span class="derived-num derived-pass">{{ derived.maxChildLots }} lots</span>
           <span class="derived-label">
-            minimum lot size &mdash; {{ derived.areaSqm?.toLocaleString() }} m²
-            against {{ derived.minLotSize?.toLocaleString() }} m²
+            the most this lot could be subdivided into, before road, access or
+            shape requirements &mdash; see Lot Requirements below
           </span>
         </div>
       </div>
@@ -123,126 +164,6 @@
           </tr>
         </tbody>
       </table>
-    </details>
-
-    <!-- ── Lot requirements and subdivision ────────────────────────────
-         The mapped minimum lot size answers neither question on its own. It is
-         the subdivision standard, and the LEP sets a separate, larger figure
-         for the development itself — Hornsby's cl 4.1C wants 700 m² for an
-         attached dual occupancy where the map shows 500. A reader comparing
-         their area against the mapped figure concludes the site qualifies for
-         something it does not, so both tests are shown, each against the
-         clause that actually imposes it. -->
-    <details v-if="lotReq.areaSqm" class="rpt-section" open>
-      <summary class="rpt-section-title">
-        Lot Requirements &amp; Subdivision
-        <span v-if="lotReq.meetsAny === false" class="rpt-count">below minimum</span>
-        <span v-else-if="lotReq.meetsAll === false" class="rpt-count">some variants only</span>
-      </summary>
-
-      <p v-if="!lotReq.hasRuleLayer" class="lotreq-warn">
-        This council's LEP has not been decomposed into testable rules yet, so
-        the minimum lot size the LEP sets for a {{ lotReq.proposedUse }} cannot be
-        checked here. That is a gap in this tool, not a finding that no minimum
-        applies &mdash; read cl 4.1 and Part 4 of the LEP directly. The
-        subdivision figure below still holds: it comes from the Lot Size Map.
-      </p>
-
-      <div v-if="lotReq.requirements?.length" class="lotreq-group">
-        <h4 class="lotreq-head">Minimum lot size for a {{ lotReq.proposedUse }}</h4>
-        <div class="lotreq-scroll">
-        <table class="rules-table">
-          <thead>
-            <tr><th>Clause</th><th>Applies to</th><th class="rules-num">Required</th><th class="rules-num">This lot</th><th>Result</th></tr>
-          </thead>
-          <tbody>
-            <tr v-for="r in lotReq.requirements" :key="r.clause">
-              <td>
-                <a v-if="lepClauseHref(r.clause)" :href="lepClauseHref(r.clause)" class="rules-cite">cl {{ r.clause }}</a>
-                <span v-else>cl {{ r.clause }}</span>
-                <span v-if="r.heading" class="lotreq-heading">{{ r.heading }}</span>
-              </td>
-              <td class="rules-cond">{{ r.uses.join(', ') || lotReq.proposedUse }}</td>
-              <td class="rules-num">
-                {{ r.binding.toLocaleString() }} m²
-                <!-- Where the clause bands its figure by variant, showing only
-                     the ceiling hides the option the reader may actually want. -->
-                <span v-if="r.values.length > 1" class="rules-cond">
-                  ({{ r.values.map((v: number) => v.toLocaleString()).join(' / ') }})
-                </span>
-              </td>
-              <td class="rules-num">{{ lotReq.areaSqm?.toLocaleString() ?? '—' }} m²</td>
-              <td>
-                <span v-if="r.meets === null" class="lotreq-unknown">no recorded area</span>
-                <span v-else-if="r.meets" class="lotreq-pass">Satisfied</span>
-                <span v-else class="lotreq-fail">
-                  Short by {{ r.shortfall?.toLocaleString() }} m²
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
-        <p v-if="lotReq.requirements.some((r: any) => r.values.length > 1)" class="lotreq-note">
-          Where a clause states more than one figure for the same use, the larger
-          is tested: the instrument bands them by a condition this report cannot
-          resolve from the record, so the smaller applies only if the proposal
-          can show it meets that condition.
-        </p>
-      </div>
-
-      <div v-if="lotReq.subdivision?.length" class="lotreq-group">
-        <h4 class="lotreq-head">Subdivision</h4>
-        <div class="lotreq-scroll">
-        <table class="rules-table">
-          <thead>
-            <tr><th>Clause</th><th>Type</th><th class="rules-num">Min per lot</th><th class="rules-num">Lots possible</th><th>Source of figure</th></tr>
-          </thead>
-          <tbody>
-            <tr v-for="r in lotReq.subdivision" :key="r.clause">
-              <td>
-                <template v-if="r.clause">
-                  <a v-if="lepClauseHref(r.clause)" :href="lepClauseHref(r.clause)" class="rules-cite">cl {{ r.clause }}</a>
-                  <span v-else>cl {{ r.clause }}</span>
-                </template>
-                <span v-else class="lotreq-unknown">clause not extracted</span>
-                <span v-if="r.heading" class="lotreq-heading">{{ r.heading }}</span>
-              </td>
-              <td class="rules-cond">
-                {{ r.kind }}<template v-if="r.uses.length"> · {{ r.uses.join(', ') }}</template>
-              </td>
-              <td class="rules-num">{{ r.minLotSize ? r.minLotSize.toLocaleString() + ' m²' : '—' }}</td>
-              <td class="rules-num">
-                <span v-if="r.maxChildLots === null" class="lotreq-unknown">&mdash;</span>
-                <span v-else-if="r.maxChildLots < 2" class="lotreq-fail">too small</span>
-                <span v-else class="lotreq-pass">{{ r.maxChildLots }}</span>
-              </td>
-              <td class="rules-cond">{{ r.fromMap ? 'Lot Size Map' : 'stated in the clause' }}</td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
-        <p class="lotreq-note">
-          Lots possible is area divided by the minimum, and is a ceiling rather
-          than a yield: it takes no account of road or access requirements, lot
-          shape, battle-axe handle area, or any easement over the land.
-          &ldquo;Too small&rdquo; means the lot does not reach twice the minimum,
-          so the clause permits no subdivision at all.
-        </p>
-        <p v-if="lotReq.hasRuleLayer" class="lotreq-note">
-          Clauses are filtered to this lot's zone and to the use above. A clause
-          whose remaining condition the property record cannot settle is listed
-          anyway, with its heading, rather than dropped &mdash; so read the
-          heading before relying on a figure.
-        </p>
-      </div>
-
-      <p class="lotreq-note">
-        Only the LEP is tested here. State policies can set their own minimums —
-        the Housing SEPP's non-discretionary standards among them — and those
-        are not held in this graph yet, so their absence here is not a finding
-        that none applies.
-      </p>
     </details>
 
     <!-- ── Additional permitted uses (LEP Schedule 1) ──────────────────
@@ -428,6 +349,171 @@
       </div>
     </details>
 
+    <!-- ── Lot requirements and subdivision ────────────────────────────
+         The mapped minimum lot size answers neither question on its own. It is
+         the subdivision standard, and the LEP sets a separate, larger figure
+         for the development itself — Hornsby's cl 4.1C wants 700 m² for an
+         attached dual occupancy where the map shows 500. A reader comparing
+         their area against the mapped figure concludes the site qualifies for
+         something it does not, so both tests are shown, each against the
+         clause that actually imposes it. -->
+    <details v-if="lotReq.areaSqm" class="rpt-section" open>
+      <summary class="rpt-section-title">
+        Lot Requirements &amp; Subdivision
+        <span v-if="lotReq.meetsAny === false" class="rpt-count">below minimum</span>
+        <span v-else-if="lotReq.meetsAll === false" class="rpt-count">some variants only</span>
+      </summary>
+
+      <p v-if="!lotReq.hasRuleLayer" class="lotreq-warn">
+        This council's LEP has not been decomposed into testable rules yet, so
+        the minimum lot size the LEP sets for a {{ lotReq.proposedUse }} cannot be
+        checked here. That is a gap in this tool, not a finding that no minimum
+        applies &mdash; read cl 4.1 and Part 4 of the LEP directly. The
+        subdivision figure below still holds: it comes from the Lot Size Map.
+      </p>
+
+      <div v-if="lotReq.requirements?.length" class="lotreq-group">
+        <h4 class="lotreq-head">Minimum lot size for a {{ lotReq.proposedUse }}</h4>
+        <div class="lotreq-scroll">
+        <table class="rules-table">
+          <thead>
+            <tr><th>Clause</th><th>Applies to</th><th class="rules-num">Required</th><th class="rules-num">This lot</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="r in lotReq.requirements" :key="r.clause">
+              <td>
+                <a v-if="lepClauseHref(r.clause)" :href="lepClauseHref(r.clause)" class="rules-cite">cl {{ r.clause }}</a>
+                <span v-else>cl {{ r.clause }}</span>
+                <span v-if="r.heading" class="lotreq-heading">{{ r.heading }}</span>
+              </td>
+              <td class="rules-cond">{{ r.uses.join(', ') || lotReq.proposedUse }}</td>
+              <td class="rules-num">
+                {{ r.binding.toLocaleString() }} m²
+                <!-- Where the clause bands its figure by variant, showing only
+                     the ceiling hides the option the reader may actually want. -->
+                <span v-if="r.values.length > 1" class="rules-cond">
+                  ({{ r.values.map((v: number) => v.toLocaleString()).join(' / ') }})
+                </span>
+              </td>
+              <td class="rules-num">{{ lotReq.areaSqm?.toLocaleString() ?? '—' }} m²</td>
+              <td>
+                <span v-if="r.meets === null" class="lotreq-unknown">no recorded area</span>
+                <span v-else-if="r.meets" class="lotreq-pass">Satisfied</span>
+                <span v-else class="lotreq-fail">
+                  Short by {{ r.shortfall?.toLocaleString() }} m²
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p v-if="lotReq.requirements.some((r: any) => r.values.length > 1)" class="lotreq-note">
+          Where a clause states more than one figure for the same use, the larger
+          is tested: the instrument bands them by a condition this report cannot
+          resolve from the record, so the smaller applies only if the proposal
+          can show it meets that condition.
+        </p>
+      </div>
+
+      <div v-if="lotReq.subdivision?.length" class="lotreq-group">
+        <h4 class="lotreq-head">Subdivision</h4>
+        <div class="lotreq-scroll">
+        <table class="rules-table">
+          <thead>
+            <tr><th>Clause</th><th>Type</th><th class="rules-num">Min per lot</th><th class="rules-num">Lots possible</th><th>Source of figure</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="r in lotReq.subdivision" :key="r.clause">
+              <td>
+                <template v-if="r.clause">
+                  <a v-if="lepClauseHref(r.clause)" :href="lepClauseHref(r.clause)" class="rules-cite">cl {{ r.clause }}</a>
+                  <span v-else>cl {{ r.clause }}</span>
+                </template>
+                <span v-else class="lotreq-unknown">clause not extracted</span>
+                <span v-if="r.heading" class="lotreq-heading">{{ r.heading }}</span>
+              </td>
+              <td class="rules-cond">
+                {{ r.kind }}<template v-if="r.uses.length"> · {{ r.uses.join(', ') }}</template>
+              </td>
+              <td class="rules-num">{{ r.minLotSize ? r.minLotSize.toLocaleString() + ' m²' : '—' }}</td>
+              <td class="rules-num">
+                <span v-if="r.maxChildLots === null" class="lotreq-unknown">&mdash;</span>
+                <span v-else-if="r.maxChildLots < 2" class="lotreq-fail">too small</span>
+                <span v-else class="lotreq-pass">{{ r.maxChildLots }}</span>
+              </td>
+              <td class="rules-cond">{{ r.fromMap ? 'Lot Size Map' : 'stated in the clause' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="lotreq-note">
+          Lots possible is area divided by the minimum, and is a ceiling rather
+          than a yield: it takes no account of road or access requirements, lot
+          shape, battle-axe handle area, or any easement over the land.
+          &ldquo;Too small&rdquo; means the lot does not reach twice the minimum,
+          so the clause permits no subdivision at all.
+        </p>
+        <p v-if="lotReq.hasRuleLayer" class="lotreq-note">
+          Clauses are filtered to this lot's zone and to the use above. A clause
+          whose remaining condition the property record cannot settle is listed
+          anyway, with its heading, rather than dropped &mdash; so read the
+          heading before relying on a figure.
+        </p>
+      </div>
+
+      <div v-if="subdivisionGroups.length" class="lotreq-group">
+        <h4 class="lotreq-head">What else the DCP requires of a subdivision</h4>
+        <p class="lotreq-note" style="margin-top:0">
+          Clearing the minimum lot size is not the whole test. These are the
+          {{ ruleSourceLabel }}'s own subdivision controls, which set lot width,
+          setbacks and accessway dimensions for the lots a subdivision creates.
+          They sat at the foot of the numeric table before, under a heading that
+          did not say they were about subdividing. They carry no zone of their own,
+          so they are grouped by the part of the plan they come from &mdash; read
+          the part that matches this lot.
+        </p>
+        <div v-for="sg in subdivisionGroups" :key="sg.heading" class="lotreq-scroll">
+          <h5 class="lotreq-subhead">{{ sg.heading }}</h5>
+          <table class="rules-table">
+            <thead><tr><th>Control</th><th>Requirement</th><th>Applies when</th><th>Clause</th></tr></thead>
+            <tbody>
+              <tr v-for="r in sg.rules" :key="r.key" :class="{ 'rules-row--off': !r.inBand || r.superseded }">
+                <td>{{ r.label }}</td>
+                <td>
+                  {{ r.requirement }}
+                  <span
+                    v-if="r.suspect"
+                    class="rules-suspect"
+                    title="The unit recorded for this control does not match what the topic measures — read the clause before relying on it."
+                  >check clause</span>
+                </td>
+                <td class="rules-cond">
+                  <span v-if="r.banded && r.inBand" class="rules-applies">{{ r.condition }}</span>
+                  <template v-else>{{ r.condition || '—' }}</template>
+                </td>
+                <td>
+                  <a v-if="r.clauseHref" :href="r.clauseHref" class="rules-cite">cl {{ r.clause }}</a>
+                  <span v-else>cl {{ r.clause }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lotreq-note">
+          A control marked &ldquo;check clause&rdquo; has a unit that does not match
+          what its topic measures &mdash; a lot <em>width</em> in metres recorded
+          against lot size, for one &mdash; so read the clause rather than the row.
+        </p>
+      </div>
+
+      <p class="lotreq-note">
+        Only the LEP is tested here. State policies can set their own minimums —
+        the Housing SEPP's non-discretionary standards among them — and those
+        are not held in this graph yet, so their absence here is not a finding
+        that none applies.
+      </p>
+    </details>
+
     <!-- ── Section 6: CDC Eligibility ──────────────────────────────────── -->
     <details v-if="property" class="rpt-section" open>
       <summary class="rpt-section-title">Complying Development (CDC) Eligibility</summary>
@@ -507,6 +593,16 @@
         grouped by what each control applies to. Controls listed under a land use
         are stated by the DCP for that use; controls under a development type name
         no land use, so they apply to that part of the DCP generally.
+        Subdivision controls are answered under Lot Requirements &amp; Subdivision
+        rather than repeated here.
+      </p>
+      <p v-if="p?.area_sqm" class="envelope-blurb">
+        This DCP bands site coverage, floor area and landscaping by lot size.
+        The band this lot's <strong>{{ Number(p.area_sqm).toLocaleString() }} m²</strong>
+        falls in is <span class="rules-applies">highlighted</span>; the other bands
+        are shown dimmed so the ladder stays visible, but they do not apply here.
+        A control with no band is not highlighted &mdash; it applies, but nothing
+        about this lot's size was tested to reach that.
       </p>
       <p v-if="dcpNameMismatch" class="rules-mismatch">
         The property record names <strong>{{ p?.dcp_plan_name }}</strong> as the DCP for
@@ -531,7 +627,11 @@
         <table class="rules-table">
           <thead><tr><th>Control</th><th>Requirement</th><th>Applies when</th><th>Clause</th></tr></thead>
           <tbody>
-            <tr v-for="r in g.rules" :key="r.key">
+            <!-- A control stated for a lot-size band this lot is not in is
+                 dimmed rather than removed: the reader can still see the whole
+                 ladder and where their lot sits on it, but the row that governs
+                 is the one that reads as a finding. -->
+            <tr v-for="r in g.rules" :key="r.key" :class="{ 'rules-row--off': !r.inBand || r.superseded }">
               <td>{{ r.label }}</td>
               <td>
                 {{ r.requirement }}
@@ -541,7 +641,15 @@
                   title="The unit recorded for this control does not match what the topic measures — read the clause before relying on it."
                 >check clause</span>
               </td>
-              <td class="rules-cond">{{ r.condition || '—' }}</td>
+              <td class="rules-cond">
+                <span v-if="r.banded && r.inBand" class="rules-applies">{{ r.condition }}</span>
+                <span
+                  v-else-if="r.superseded"
+                  class="rules-superseded"
+                  title="This clause also states a figure for this lot's size band, which is the more specific one."
+                >other lot sizes</span>
+                <template v-else>{{ r.condition || '—' }}</template>
+              </td>
               <td>
                 <a v-if="r.clauseHref" :href="r.clauseHref" class="rules-cite">cl {{ r.clause }}</a>
                 <span v-else>cl {{ r.clause }}</span>
@@ -844,7 +952,10 @@
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { haversine, pathLength, ringArea, fmtDistance, fmtArea } from '#shared/geo-measure.mjs'
 import { renderMarkdownWithCitations, type Citation } from '~/utils/citation-render'
-import { conditionLabel, DEV_TYPE_LABEL, unitLooksWrong } from '#shared/dcp-scope'
+import {
+  conditionLabel, DEV_TYPE_LABEL, unitLooksWrong, matchesLotSizeBand,
+  bandSupersededIdentities, isBandSuperseded,
+} from '#shared/dcp-scope'
 import { martinTileBase } from '#shared/martin'
 import { DCP_SLUG_BY_LGA } from '#shared/property-columns'
 let mapboxgl: any = null
@@ -1587,6 +1698,11 @@ const BOUND_WORD: Record<string, string> = {
  * carries both "< 1 m" and "≤ 12 m" and they are not one control.
  */
 function buildRules(source: any[]) {
+  // Computed over the whole rule set, not this group: the general figure and
+  // the banded one that displaces it are siblings in the same clause and can
+  // land in different groups here.
+  const superseded = bandSupersededIdentities(
+    siteRules.value, Number(property.value?.area_sqm) || null)
   const groups = new Map<string, any[]>()
   for (const r of source) {
     const key = [
@@ -1633,12 +1749,33 @@ function buildRules(source: any[]) {
       // Shown, not dropped: the control is in the DCP, but its recorded unit
       // does not match what the topic measures, so it must not be read as-is.
       suspect: unitLooksWrong(r0.topic, r0.unit),
+      // Whether this lot's own area falls in the band the control is stated
+      // for. A lot sits in exactly one band, so the rest are noise: on a
+      // 949.72 m² lot, 43 of the 49 banded controls in scope are for sizes it
+      // is not, and reading "site coverage max 65% at 200–249" beside "max 40%
+      // at 900–1499" leaves the reader to work out which is theirs.
+      inBand: matchesLotSizeBand(r0, Number(property.value?.area_sqm) || null),
+      // Only a control the DCP states per lot size was actually tested against
+      // this lot. An unbanded control applies too, but badging it "this is your
+      // band" would claim a check that never happened -- and some unbanded rows
+      // are banded rows that lost their band at ingest, so the claim would
+      // sometimes be false.
+      banded: r0.condition_metric === 'lot_size',
+      // The clause's general figure for this control, where it also states one
+      // for this lot's band. Shown, because it is in the plan, but demoted:
+      // the specific figure is the one that governs.
+      superseded: isBandSuperseded(r0, superseded),
       clause: r0.clause,
       clauseHref: slug && anchor
         ? `/doc-viewer?doc=${slug}&anchor=${encodeURIComponent(anchor)}` : null,
     }
   }).sort((a, b) =>
-    a.label.localeCompare(b.label) || String(a.clause).localeCompare(String(b.clause)))
+    // The control that governs this lot leads its topic; the other bands follow
+    // so nothing is hidden, only demoted.
+    a.label.localeCompare(b.label)
+    || Number(b.inBand) - Number(a.inBand)
+    || Number(a.superseded) - Number(b.superseded)
+    || String(a.clause).localeCompare(String(b.clause)))
 }
 
 /**
@@ -1654,9 +1791,46 @@ function buildRules(source: any[]) {
  * a rule that names no land use at all, so it is general to that part of the
  * DCP — true for the lot, but not evidence about any particular use.
  */
+/**
+ * True for a control that governs subdividing the land rather than building on
+ * it. The DCP marks it as a development type of its own, which is how these 49
+ * controls came to sit in a collapsed group at the foot of the numeric table,
+ * below Farm stay accommodation, on a lot whose only real question was whether
+ * it could be split.
+ */
+const isSubdivisionRule = (r: any) => String(r.applies_to ?? '') === 'subdivision'
+
+/**
+ * The DCP's subdivision controls, split by the part of the plan they sit in.
+ *
+ * DCP rules carry no zone applicability, so nothing in the rule layer stops
+ * cl 6.3.1 "Rural Lands Subdivision" -- minimums of 2 to 40 hectares -- being
+ * listed against a 949 m2 suburban lot. The section heading is the only thing
+ * separating it from cl 6.2.1 "Residential Lands Subdivision", and it says so
+ * plainly. Grouping on it puts the reader in front of the right part without
+ * this code guessing which part that is.
+ */
+const subdivisionGroups = computed(() => {
+  const by = new Map<string, any[]>()
+  for (const r of siteRules.value.filter(isSubdivisionRule)) {
+    const key = String(r.section_heading || 'Subdivision')
+    if (!by.has(key)) by.set(key, [])
+    by.get(key)!.push(r)
+  }
+  return [...by.entries()]
+    .map(([heading, rows]) => ({
+      // The heading repeats its own clause number; the table already has one.
+      heading: heading.replace(/^[0-9.]+\s*/, ''),
+      rules: buildRules(rows),
+    }))
+    .sort((a, b) => a.heading.localeCompare(b.heading))
+})
+
 const numericRuleGroups = computed(() => {
   const byScope = new Map<string, any[]>()
-  for (const r of siteRules.value) {
+  // Subdivision controls are answered in their own section, beside the LEP
+  // minimums they qualify, rather than repeated here.
+  for (const r of siteRules.value.filter(r => !isSubdivisionRule(r))) {
     const key = `${r.axis}|${r.applies_to}`
     if (!byScope.has(key)) byScope.set(key, [])
     byScope.get(key)!.push(r)
@@ -1848,6 +2022,19 @@ const define = (k: string) => FACT_DEFINITIONS[k] ?? ''
  * needs the clause's figure for the proposed use and not the mapped one.
  */
 const lotReq = ref<any>({})
+
+/**
+ * Deep link to a DCP clause in the viewer.
+ *
+ * The rules table builds this inline from each row's own `document_slug`, which
+ * a derived figure does not carry -- the server hands it a clause number and
+ * nothing else -- so this falls back to the lot's DCP.
+ */
+function dcpClauseHref(clause: string | null | undefined): string | undefined {
+  const slug = dcpDocSlug.value
+  if (!slug || !clause) return undefined
+  return `/doc-viewer?doc=${slug}&anchor=${encodeURIComponent(`dcp.${clause}`)}`
+}
 
 const dcpDocSlug = computed(() => {
   const lga = String(property.value?.lga_name || '').trim().toUpperCase()
@@ -3144,6 +3331,16 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   margin: 8px 0 0; font-size: 12px; line-height: 1.55; color: #64748b;
 }
 .lotreq-scroll { overflow-x: auto; }
+.rules-row--off { color: #94a3b8; }
+.rules-row--off .rules-cite { color: #94a3b8; }
+.lotreq-subhead {
+  margin: 14px 0 4px; font-size: 12.5px; font-weight: 600; color: #334155;
+}
+.rules-superseded { color: #94a3b8; font-style: italic; }
+.rules-applies {
+  display: inline-block; padding: 1px 7px; border-radius: 10px;
+  background: #dcfce7; color: #166534; font-weight: 600;
+}
 .lotreq-warn {
   margin: 0 0 14px; padding: 9px 12px; font-size: 12.5px; line-height: 1.55;
   color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 7px;
@@ -3184,6 +3381,7 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   display: block; font-size: 19px; font-weight: 700; color: #0f172a;
   font-variant-numeric: tabular-nums;
 }
+.derived-num--sm { font-size: 15px; }
 .derived-pass { color: #15803d; }
 .derived-fail { color: #b91c1c; }
 .derived-label { display: block; font-size: 12px; color: #64748b; margin-top: 2px; line-height: 1.45; }
