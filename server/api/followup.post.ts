@@ -14,6 +14,7 @@
 
 import { callLLM } from '../utils/sitewise/llm'
 import { runQuery } from '../utils/nsw-kg/query/orchestrator'
+import { isYes } from '../../shared/property-columns'
 
 function sseWrite(res: any, event: string, data: object) {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
@@ -117,8 +118,8 @@ function buildContextBlock(p: any, permittedUses: string[], previousAnswer: stri
   const constraintCount = env.length
   if (constraintCount === 0) assess.push(`✓ No mapped environmental constraints (heritage / flood / bushfire / biodiversity).`)
   else assess.push(`⚠ ${constraintCount} environmental constraint(s) apply — each can independently trigger DA pathway, add design controls, or disqualify CDC.`)
-  if (p.cdc_eligible === 'true' && constraintCount === 0) assess.push(`✓ CDC pathway likely viable (${p.total_cdc_eligible || 'multiple'} pathways flagged, no disqualifying constraints).`)
-  else if (p.cdc_eligible === 'true' && constraintCount > 0) assess.push(`⚠ CDC flagged available but environmental constraints may exclude specific pathways — verify against the Codes SEPP clause.`)
+  if (isYes(p.cdc_eligible) && constraintCount === 0) assess.push(`✓ CDC pathway likely viable (${p.total_cdc_eligible || 'multiple'} pathways flagged, no disqualifying constraints).`)
+  else if (isYes(p.cdc_eligible) && constraintCount > 0) assess.push(`⚠ CDC flagged available but environmental constraints may exclude specific pathways — verify against the Codes SEPP clause.`)
   else assess.push(`✗ CDC not flagged — DA pathway required.`)
 
   let block = `KNOWN PROPERTY FACTS:\n${facts.join('\n')}`
@@ -189,7 +190,7 @@ export default defineEventHandler(async (event) => {
   const { question, property, permittedUses = [], previousAnswer = '' } = body || {} as any
 
   if (!question?.trim() || !property) {
-    throw createError({ statusCode: 400, message: 'Missing question or property' })
+    throw createError({ statusCode: 400, statusMessage: 'Missing question or property', message: 'Missing question or property' })
   }
 
   const config = useRuntimeConfig()

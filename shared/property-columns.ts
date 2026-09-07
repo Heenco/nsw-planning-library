@@ -23,6 +23,20 @@ export const PROPERTY_TABLE = 'nsw.up_property_d_3'
 export const PROPERTY_LGAS = ['HORNSBY', 'RANDWICK'] as const
 
 /**
+ * Truthiness for the table's yes/no columns.
+ *
+ * `is_corner_lot`, `is_battleaxe`, `cdc_eligible` and `in_lmr_housing_area` are
+ * real Postgres booleans, so `pg` hands back `true`, not `'true'`. Comparing
+ * them to the string was silently false everywhere: corner and battle-axe lots
+ * never reached the use analysis, and every property was told "CDC flagged: No"
+ * whatever its data said. Accepts the string forms too, because some columns
+ * elsewhere in this table are varchar 'Y'/'true'.
+ */
+export function isYes(v: unknown): boolean {
+  return v === true || v === 'true' || v === 't' || v === 'Y' || v === 'y' || v === 1 || v === '1'
+}
+
+/**
  * The DCP currently in force for each covered LGA, by instruments.json slug.
  *
  * Only a fallback for linking a clause when a rule row carries no document of
@@ -39,6 +53,108 @@ export const DCP_SLUG_BY_LGA: Record<string, string> = {
 export const PROPERTY_LGA_LABEL = PROPERTY_LGAS
   .map((l) => l.charAt(0) + l.slice(1).toLowerCase())
   .reduce((acc, l, i, arr) => (i === 0 ? l : i === arr.length - 1 ? `${acc} and ${l}` : `${acc}, ${l}`), '')
+
+/**
+ * The rest of the table.
+ *
+ * The projection above was written to keep the frontend's existing field names
+ * working, so it only ever named the columns the page already read — 117 of
+ * 307. An audit against the field lineage in the Notebooks repo
+ * (`d3-field-lineage.html`, which traces all 308 documented columns back to the
+ * notebook or GIS layer that produced them) found 117 more that carry real data
+ * for Hornsby and Randwick and were never fetched at all: every Pattern Book
+ * apartment type, the zoning history, the lot shape metrics, the reason CDC was
+ * refused, and the map/instrument provenance behind each control.
+ *
+ * They are selected under their own names — no aliases — so a reader of the
+ * report is looking at the column as the table spells it.
+ *
+ * Deliberately left out:
+ *   geom, geom_1, centroid_geom, buffered_geom   WKT blobs, megabytes per lot
+ *   width                                        not lot width. 1.38 m on 307
+ *                                                Galston Road, whose frontage
+ *                                                is 42.88 m, and 0.78 m at 15
+ *                                                Mildred Avenue. Whatever it
+ *                                                measures, it is not a
+ *                                                dimension anyone can use, and
+ *                                                wiring it to min_width_m would
+ *                                                put a wrong number on the page.
+ *   rule_ids                                     an id list, not a fact
+ * and the 68 columns that are null on every row of both councils — an airport
+ * development area or a Ramsar wetland reference for lots that have neither.
+ * Those are for parts of NSW this table does not yet cover; selecting them
+ * would add 68 empty rows to every report.
+ */
+const PROPERTY_EXTRA_SELECT = `
+  -- Identity and keys
+  , objectid, gurasid, property_id, propid_count, lot_section_plan, postcode_1,
+  area, area_type,
+
+  -- Which map and which instrument each control was read from. The standards
+  -- above are map values; these say which map, under which plan, as at when.
+  epi_name_p, lzn_epi_name_p, lep_lga_name, lep_lay_class, lep_currency_date,
+  hob_epi_name, hob_sym_code,
+  fsr_sym_code, fsr_label, fsr_sym_code_p, fsr_label_p, fsr_lay_class_p,
+  mls_epi_name, lsz_sym_code, lsz_lay_class_p, lsz_lay_size_p,
+  dcp_council_name, dcp_lga_name, dcp_plan_type,
+
+  -- Zoning history: what this land was zoned before the current instrument,
+  -- which amendment changed it and when that commenced.
+  historic_zone, historic_lay_class, historic_amendment,
+  historic_commenced_date, historic_published_date,
+
+  -- Lot shape, measured off the cadastre in notebook 04D. Present on 98.4% of
+  -- lots. Between them they say whether a parcel is a clean rectangle or an
+  -- awkward one, which is the first thing a feasibility asks and the report
+  -- could not previously answer.
+  corners_count, rectangularity, convexity, elongation, shape_index,
+  circular_compactness, square_compactness, equivalent_rectangular_index,
+  fractal_dimension, effective_diameter_m, frontage_area_ratio, neck_ratio,
+  all_frontage_road_ids,
+
+  -- CDC: the overall reason, and the inland pathways the projection omitted.
+  cdc_reasons,
+  cdc_inland_dwelling_houses,
+  cdc_inland_dwelling_houses_ru1246, cdc_inland_dwelling_houses_ru1246_exclusions,
+  cdc_inland_dwelling_houses_ru5_r1_r2_r3_r4, cdc_inland_dwelling_houses_ru5_r1_r2_r3_r4_exclusions,
+  cdc_inland_dwelling_houses_r5, cdc_inland_dwelling_houses_r5_exclusions,
+  cdc_inland_farm_buildings, cdc_inland_farm_buildings_exclusions,
+
+  -- Pattern Book: the apartment patterns. The report assessed eight patterns
+  -- and the table holds fourteen more, each with its own reason — 2,296 lots
+  -- are eligible for large_lot_apt_02 at 3-4 storeys and were shown nothing.
+  corner_lot_apt_01_4_6storeys_eligible, corner_lot_apt_01_4_6storeys_reasons,
+  corner_lot_apt_02_4_6storeys_eligible, corner_lot_apt_02_4_6storeys_reasons,
+  large_lot_apt_01_4storeys_eligible, large_lot_apt_01_4storeys_reasons,
+  large_lot_apt_01_6storeys_eligible, large_lot_apt_01_6storeys_reasons,
+  large_lot_apt_02_3_4storeys_eligible, large_lot_apt_02_3_4storeys_reasons,
+  large_lot_apt_02_5_6storeys_eligible, large_lot_apt_02_5_6storeys_reasons,
+  large_lot_apt_03_4_6storeys_eligible, large_lot_apt_03_4_6storeys_reasons,
+  small_lot_apt_01_3storeys_eligible, small_lot_apt_01_3storeys_reasons,
+  small_lot_apt_01_3storeys_min_eligible, small_lot_apt_01_3storeys_min_reasons,
+  small_lot_apt_01_4storeys_eligible, small_lot_apt_01_4storeys_reasons,
+  small_lot_apt_02_3storeys_eligible, small_lot_apt_02_3storeys_reasons,
+  small_lot_apt_02_4storeys_eligible, small_lot_apt_02_4storeys_reasons,
+  small_lot_apt_03_4_6storeys_eligible, small_lot_apt_03_4_6storeys_reasons,
+  small_lot_apt_04_4_5storeys_eligible, small_lot_apt_04_4_5storeys_reasons,
+
+  -- LMR and TOD detail behind the flag the report already showed.
+  in_tod_area, lmr_sym_code, lmr_fsr, lmr_lotsize, lmr_lot_width,
+  lmr_train_stations, buffer,
+
+  -- Overlays the constraint list never asked about.
+  localprov_lay_class, localprov_lay_name,
+  landres_lay_class, landres_lra_type,
+  fbl_epi_name, fbl_lay_class, fbl_lga_name,
+  biovalue_category, biovalue_boset_class,
+  hawkesbury_lay_class, hawkesbury_lay_name,
+  crown_reserve_name, bct_controllin, npws_ogc_fid, floodsdf_ogc_fid,
+  activestreetfrontage, asf_epi_name, asf_lga_name,
+  localcomplying_lay_class, wetland,
+  coastalmanagement_env, coastalmanagement_use,
+  cenv_map_name, cuse_map_name, cwet_map_name,
+  scenic_epi_name, scenic_lga_name
+`
 
 /**
  * Aliased to the names the report page already consumes.
@@ -125,6 +241,7 @@ export const PROPERTY_SELECT = `
 
   -- Location
   centroid_lat, centroid_lon, region_name, permissible_uses, sepp_landuses, sepps
+  ${PROPERTY_EXTRA_SELECT}
 `
 
 /**

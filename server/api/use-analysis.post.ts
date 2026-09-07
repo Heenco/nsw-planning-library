@@ -12,6 +12,7 @@
 // on the report page.
 
 import { runQuery } from '../utils/nsw-kg/query/orchestrator'
+import { isYes } from '../../shared/property-columns'
 
 type Instrument = 'lep' | 'sepp' | 'dcp'
 
@@ -100,15 +101,15 @@ function buildPropertyContext(p: any): string {
     p.min_width_m ? `Min lot width: ${p.min_width_m} m` : null,
     p.fsr_value ? `FSR cap: ${p.fsr_value}` : null,
     p.max_height_m ? `Max height cap: ${p.max_height_m} m` : null,
-    p.is_corner_lot === 'true' ? 'Corner lot: Yes' : null,
-    p.is_battleaxe === 'true' ? 'Battle-axe lot: Yes' : null,
+    isYes(p.is_corner_lot) ? 'Corner lot: Yes' : null,
+    isYes(p.is_battleaxe) ? 'Battle-axe lot: Yes' : null,
     p.heritage_name ? `Heritage: ${p.heritage_name}` : null,
     p.floodmapping && p.floodmapping !== 'No' ? `Flood: ${p.floodmapping}` : null,
     p.bushfireproneland && p.bushfireproneland !== 'No' ? `Bushfire: ${p.bushfireproneland}` : null,
     p.biodiversity ? `Biodiversity: ${p.biodiversity}` : null,
     p.contamination_sitename ? `Contamination: ${p.contamination_sitename}` : null,
-    p.cdc_eligible === 'true' ? `CDC flagged: Yes (${p.total_cdc_eligible || 'multiple'} pathways)` : 'CDC flagged: No',
-    p.in_lmr_housing_area === 'true' ? 'In LMR Housing Area' : null,
+    isYes(p.cdc_eligible) ? `CDC flagged: Yes (${p.total_cdc_eligible || 'multiple'} pathways)` : 'CDC flagged: No',
+    isYes(p.in_lmr_housing_area) ? 'In LMR Housing Area' : null,
   ].filter(Boolean).join('\n')
 }
 
@@ -139,7 +140,10 @@ export default defineEventHandler(async (event) => {
   const { property, use } = body || {} as any
 
   if (!property || !use?.trim()) {
-    throw createError({ statusCode: 400, message: 'Missing property or use' })
+    // statusMessage as well as message: h3 reports only statusMessage as the
+    // status text, so a message-only error shows as "Server Error" and the
+    // caller has to read the stack to find out what was actually wrong.
+    throw createError({ statusCode: 400, statusMessage: 'Missing property or use', message: 'Missing property or use' })
   }
 
   const config = useRuntimeConfig()

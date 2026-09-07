@@ -29,3 +29,5 @@ public/EPI/DCPs/images/
 # Intermediate DCP conversion artefacts (docling JSON + per-part html/md).
 # Regenerable from the manifest; the merged instrument in public/ is the output.
 build/
+
+.env*

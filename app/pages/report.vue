@@ -46,6 +46,12 @@
         <div class="fact" v-if="p.lga_name"><span class="fact-label">LGA</span><span class="fact-value">{{ p.lga_name }}</span></div>
         <div class="fact" v-if="p.council_name"><span class="fact-label">Council</span><span class="fact-value">{{ p.council_name }}</span></div>
         <div class="fact" v-if="lots.length <= 1 && p.plan_label"><span class="fact-label">Lot / Plan</span><span class="fact-value">{{ p.plan_label }}</span></div>
+        <!-- The title reference as the cadastre spells it, which is what the
+             SIX Maps lookup behind the 3D envelope queries on. -->
+        <div class="fact" v-if="p.lot_section_plan"><span class="fact-label">Title reference</span><span class="fact-value">{{ p.lot_section_plan }}</span></div>
+        <!-- On a strata plan lot_section_plan is only "//SP79598"; this is the
+             one column that says which lots that plan actually contains. -->
+        <div class="fact fact--wide" v-if="p.property_description"><span class="fact-label">Property description</span><span class="fact-value">{{ p.property_description }}</span></div>
         <div class="fact" v-if="p.dcp_plan_name"><span class="fact-label">DCP</span><span class="fact-value">{{ p.dcp_plan_name }}</span></div>
         <div class="fact" v-if="p.land_value_1"><span class="fact-label">Land Value</span><span class="fact-value fact-value--num">${{ Number(p.land_value_1).toLocaleString() }}</span></div>
         <div class="fact" v-if="p.region_name"><span class="fact-label">Region</span><span class="fact-value">{{ p.region_name }}</span></div>
@@ -300,6 +306,29 @@
             <div class="dim" v-if="p.longest_axis_m"><span class="dim-label">Longest axis</span><span class="dim-value">{{ Number(p.longest_axis_m).toFixed(1) }}m</span></div>
             <div class="dim" v-if="p.min_width_m"><span class="dim-label">Min width</span><span class="dim-value">{{ Number(p.min_width_m).toFixed(1) }}m</span></div>
             <div class="dim" v-if="p.average_slope"><span class="dim-label">Avg slope</span><span class="dim-value">{{ Number(p.average_slope).toFixed(1) }}°</span></div>
+            <!-- Both are measured in the same notebook as the frontage above
+                 and both feed the 3D envelope; neither had ever appeared on
+                 the page the envelope is linked from. -->
+            <div class="dim" v-if="p.lot_depth_m"><span class="dim-label">Depth</span><span class="dim-value">{{ Number(p.lot_depth_m).toFixed(1) }}m</span></div>
+            <div class="dim" v-if="p.orientation_degrees"><span class="dim-label">Orientation</span><span class="dim-value">{{ Number(p.orientation_degrees).toFixed(0) }}°</span></div>
+          </div>
+
+          <!-- Lot shape.
+               Twelve indices measured off the cadastre, each with its reading,
+               because a bare 0.82 tells a reader nothing and they should not
+               have to guess which direction is good. -->
+          <div v-if="lotShape.length" class="shape-list">
+            <div class="edge-heading">
+              Lot shape
+              <span class="edge-count">measured from the boundary</span>
+            </div>
+            <div class="shape-items">
+              <div v-for="s in lotShape" :key="s.key" class="shape-row">
+                <span class="shape-label">{{ s.label }}</span>
+                <span class="shape-value">{{ s.value }}<span class="shape-unit" v-if="s.unit">{{ s.unit }}</span></span>
+                <span class="shape-note">{{ s.note }}</span>
+              </div>
+            </div>
           </div>
 
           <!-- Boundary side lengths.
@@ -523,11 +552,67 @@
         </span>
         <span v-if="p.total_cdc_eligible" class="cdc-count">{{ p.total_cdc_eligible }} pathway(s)</span>
       </div>
+      <!-- Why, for the lot as a whole. Recorded as layer=value pairs, so the
+           layer that decided it is named rather than left to be inferred from
+           whichever pathway happens to list a matching exclusion. -->
+      <div v-if="cdcReasons.length" class="cdc-reasons">
+        <span class="cdc-reasons-label">Recorded against this lot</span>
+        <span v-for="(r, i) in cdcReasons" :key="i" class="cdc-reason">
+          <strong>{{ r.label }}</strong>{{ r.field ? ' — ' : '' }}{{ r.value }}
+        </span>
+      </div>
       <div class="cdc-grid">
         <div v-for="c in cdcPathways" :key="c.key" class="cdc-item">
           <span :class="['cdc-dot', c.eligible ? 'cdc-dot--yes' : 'cdc-dot--no']"></span>
           <span class="cdc-name">{{ c.label }}</span>
           <span v-if="!c.eligible && c.exclusions" class="cdc-excl">{{ c.exclusions }}</span>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Zoning history ──────────────────────────────────────────────
+         What this land was zoned before, and the amendment that changed it.
+         Held on effectively every row and never shown: a consent, a valuation
+         or a neighbour's approval that predates the change was granted under
+         the earlier zone, and nothing on the page said what that was. -->
+    <details v-if="zoningHistory.length" class="rpt-section" open>
+      <summary class="rpt-section-title">
+        Zoning history
+        <span class="rpt-count">{{ zoningHistory.length }} recorded</span>
+      </summary>
+      <p class="envelope-blurb">
+        Each row is an amendment that set this land's zone, newest first — so the
+        current zone usually appears here too, with the instrument and date that
+        put it in place. A consent or valuation predating the top row was made
+        under a different zone.
+      </p>
+      <div class="constraint-list">
+        <div v-for="(h, i) in zoningHistory" :key="i" class="constraint-row">
+          <span :class="['cdc-dot', h.current ? 'cdc-dot--yes' : 'cdc-dot--no']"></span>
+          <span class="constraint-name">
+            {{ h.zone }}<template v-if="h.zoneClass"> — {{ h.zoneClass }}</template>
+            <template v-if="h.current"> (current)</template>
+          </span>
+          <span class="constraint-detail">
+            <template v-if="h.amendment">{{ h.amendment }}</template>
+            <template v-if="h.commenced"> · commenced {{ h.commenced }}</template>
+            <template v-if="h.published"> · published {{ h.published }}</template>
+          </span>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Which map each standard came from ───────────────────────────
+         The standards above are values read off mapped layers. This says which
+         layer, under which instrument, and the map's own symbol code — the
+         letter printed on the FSR map, which is what a reader checking the map
+         itself is looking for. -->
+    <details v-if="mapProvenance.length" class="rpt-section">
+      <summary class="rpt-section-title">Source maps &amp; instruments</summary>
+      <div class="facts-grid">
+        <div v-for="m in mapProvenance" :key="m.label" class="fact">
+          <span class="fact-label">{{ m.label }}</span>
+          <span class="fact-value">{{ m.value }}<span class="fact-sub" v-if="m.code">code {{ m.code }}</span></span>
         </div>
       </div>
     </details>
@@ -552,12 +637,24 @@
 
     <!-- ── Section 7: LMR Housing & Pattern Book ───────────────────────── -->
     <details v-if="property && (isYes(p.in_lmr_housing_area) || patternBookItems.length > 0)" class="rpt-section" open>
-      <summary class="rpt-section-title">Low-Mid Rise Housing & Pattern Book</summary>
+      <summary class="rpt-section-title">
+        Low-Mid Rise Housing &amp; Pattern Book
+        <span v-if="patternBookItems.length" class="rpt-count">
+          {{ patternBookEligible }} of {{ patternBookItems.length }} patterns
+        </span>
+      </summary>
       <div v-if="isYes(p.in_lmr_housing_area)" class="lmr-badge">In LMR Housing Area</div>
-      <div class="facts-grid" v-if="p.lmr_permissible || p.lmr_height_rfb || p.lmr_height_sth">
+      <div v-if="isYes(p.in_tod_area)" class="lmr-badge">In TOD Accelerated Precinct</div>
+      <div class="facts-grid" v-if="p.lmr_permissible || p.lmr_height_rfb || p.lmr_height_sth || lmrDetail.length">
         <div class="fact" v-if="p.lmr_permissible"><span class="fact-label">LMR Permissible</span><span class="fact-value">{{ p.lmr_permissible }}</span></div>
         <div class="fact" v-if="p.lmr_height_rfb"><span class="fact-label">RFB Height</span><span class="fact-value">{{ p.lmr_height_rfb }}</span></div>
         <div class="fact" v-if="p.lmr_height_sth"><span class="fact-label">STH Height</span><span class="fact-value">{{ p.lmr_height_sth }}</span></div>
+        <!-- The LMR standards behind the flag: the policy sets its own FSR,
+             minimum lot size and minimum width, and names the station the
+             distance band is measured from. -->
+        <div class="fact" v-for="d in lmrDetail" :key="d.label">
+          <span class="fact-label">{{ d.label }}</span><span class="fact-value">{{ d.value }}</span>
+        </div>
       </div>
       <div v-if="patternBookItems.length" class="cdc-grid" style="margin-top:0.5rem">
         <div v-for="pb in patternBookItems" :key="pb.key" class="cdc-item">
@@ -721,6 +818,34 @@
       <a class="envelope-link" :href="envelopeModel" target="_blank" rel="noopener">
         Open in 3D Viewer &rarr;
       </a>
+    </details>
+
+    <!-- ── Everything held for this lot ────────────────────────────────
+         The sections above choose what to say about the record; this one says
+         what is in it. Closed by default and grouped, so it is a reference
+         rather than a wall — and it means a column the curated sections do not
+         cover is still visible, including one added upstream tomorrow. -->
+    <details v-if="allFieldCount" class="rpt-section">
+      <summary class="rpt-section-title">
+        All data held for this lot
+        <span class="rpt-count">{{ allFieldCount }} fields</span>
+      </summary>
+      <p class="envelope-blurb">
+        Every non-empty column of <code>up_property_d_3</code> for this property,
+        as the table stores it. Empty columns are omitted — most of the 307 are
+        empty for any given lot, and an absent overlay is not a finding here the
+        way it is under Site Constraints.
+      </p>
+      <div v-for="cat in allFields" :key="cat.key" class="raw-group">
+        <h3 class="raw-group-title">{{ cat.label }}</h3>
+        <p v-if="cat.blurb" class="raw-group-blurb">{{ cat.blurb }}</p>
+        <div class="raw-grid">
+          <div v-for="f in cat.fields" :key="f.key" class="raw-row">
+            <span class="raw-label" :title="f.key">{{ f.label }}</span>
+            <span class="raw-value">{{ f.value }}<span class="raw-unit" v-if="f.unit">{{ f.unit }}</span></span>
+          </div>
+        </div>
+      </div>
     </details>
 
     <!-- ── Section 8: Proximity & Amenity ──────────────────────────────── -->
@@ -958,6 +1083,9 @@ import {
 } from '#shared/dcp-scope'
 import { martinTileBase } from '#shared/martin'
 import { DCP_SLUG_BY_LGA } from '#shared/property-columns'
+// Categorising and labelling the whole row, so the sections below can name the
+// fields they curate and a catch-all can still show everything else.
+import { categorise, patternEligibility, humanise } from '#shared/property-fields'
 let mapboxgl: any = null
 
 const route = useRoute()
@@ -1622,7 +1750,34 @@ const cdcPathways = computed(() => {
     { key: 'rural', label: 'Rural Housing', eligible: isYes(v.cdc_rural_housing), exclusions: v.cdc_rural_housing_exclusions },
     { key: 'agri', label: 'Agritourism', eligible: isYes(v.cdc_agritourism), exclusions: v.cdc_agritourism_exclusions },
     { key: 'farmstay', label: 'Farmstay', eligible: isYes(v.cdc_farmstay), exclusions: v.cdc_farmstay_exclusions },
+    // The Inland Code pathways. Held for every lot and never fetched, so the
+    // pathway count in the badge could exceed the number of rows listed under
+    // it and nothing explained the difference.
+    { key: 'inland', label: 'Inland Dwelling Houses', eligible: isYes(v.cdc_inland_dwelling_houses), exclusions: null },
+    { key: 'inland_ru', label: 'Inland Dwelling Houses (RU1/2/4/6)', eligible: isYes(v.cdc_inland_dwelling_houses_ru1246), exclusions: v.cdc_inland_dwelling_houses_ru1246_exclusions },
+    { key: 'inland_r', label: 'Inland Dwelling Houses (RU5, R1-R4)', eligible: isYes(v.cdc_inland_dwelling_houses_ru5_r1_r2_r3_r4), exclusions: v.cdc_inland_dwelling_houses_ru5_r1_r2_r3_r4_exclusions },
+    { key: 'inland_r5', label: 'Inland Dwelling Houses (R5)', eligible: isYes(v.cdc_inland_dwelling_houses_r5), exclusions: v.cdc_inland_dwelling_houses_r5_exclusions },
+    { key: 'inland_farm', label: 'Inland Farm Buildings', eligible: isYes(v.cdc_inland_farm_buildings), exclusions: v.cdc_inland_farm_buildings_exclusions },
   ]
+})
+
+/**
+ * Why CDC was refused for the lot as a whole.
+ *
+ * `cdc_reasons` records it as `column=value` pairs — "bushfireproneland=Vegetation
+ * Buffer", "h_name=Beecroft, Cheltenham Heritage Conservation Area". The
+ * per-pathway exclusions were already shown; this is the overall finding, and
+ * it names the layer that produced it, which the exclusions text does not.
+ */
+const cdcReasons = computed(() => {
+  const raw = property.value?.cdc_reasons
+  if (typeof raw !== 'string' || !raw.trim()) return []
+  return raw.split(/[;,](?=\s*\w+=)/).map(s => s.trim()).filter(Boolean).map((pair) => {
+    const i = pair.indexOf('=')
+    return i < 0
+      ? { field: null, label: pair, value: pair }
+      : { field: pair.slice(0, i), label: humanise(pair.slice(0, i)), value: pair.slice(i + 1) }
+  })
 })
 
 /**
@@ -1978,7 +2133,38 @@ const CONSTRAINT_FIELDS: Array<[string, string]> = [
   ['Coastal wetlands', 'coastal_wetlands'],
   ['Coastal environment area', 'coastal_environment_area'],
   ['Coastal use area', 'coastal_use_area'],
+  // Overlays the table carries and this list never asked about. Each is
+  // populated for at least one lot across the two councils — the ones that are
+  // null everywhere (Ramsar, airport noise, koala habitat, mineral resources)
+  // are left out rather than stated as absent, because "no overlay applies"
+  // would be a claim the data cannot support for a layer that was never
+  // mapped here.
+  ['Local provisions', 'localprov_lay_class'],
+  ['Land reservation / acquisition', 'landres_lay_class'],
+  ['Foreshore building line', 'fbl_lay_class'],
+  ['Biodiversity values', 'biovalue_category'],
+  ['Hawkesbury-Nepean scenic area', 'hawkesbury_lay_class'],
+  ['Crown / council reserve', 'crown_reserve_name'],
+  ['Biodiversity Conservation Trust agreement', 'bct_controllin'],
+  ['National Parks estate', 'npws_ogc_fid'],
+  ['Flood — 1% AEP (SDF)', 'floodsdf_ogc_fid'],
+  ['Active street frontage', 'activestreetfrontage'],
+  ['Coastal management (environment)', 'coastalmanagement_env'],
+  ['Coastal management (use)', 'coastalmanagement_use'],
+  ['Wetland', 'wetland'],
+  ['Local complying development exclusion', 'localcomplying_lay_class'],
 ]
+
+/** Extra text shown beside a constraint when a second column qualifies it. */
+const CONSTRAINT_DETAIL: Record<string, string[]> = {
+  localprov_lay_class: ['localprov_lay_name'],
+  landres_lay_class: ['landres_lra_type'],
+  fbl_lay_class: ['fbl_epi_name'],
+  biovalue_category: ['biovalue_boset_class'],
+  hawkesbury_lay_class: ['hawkesbury_lay_name'],
+  activestreetfrontage: ['asf_epi_name'],
+  scenicprotectionland: ['scenic_epi_name'],
+}
 
 const siteConstraints = computed(() => {
   const v = property.value
@@ -1992,12 +2178,194 @@ const siteConstraints = computed(() => {
     if (set && field === 'heritage_name') {
       detail = [v.heritage_name, v.heritage_class, v.heritage_id && `item ${v.heritage_id}`]
         .filter(Boolean).join(' · ')
+    } else if (set && CONSTRAINT_DETAIL[field]) {
+      // The qualifying columns say which provision or which plan, which is the
+      // difference between "a local provision applies" and knowing which one.
+      detail = [String(raw), ...CONSTRAINT_DETAIL[field].map(k => v[k]).filter(Boolean)]
+        .filter((x, i, a) => x && a.indexOf(x) === i).join(' · ')
     }
     return { label, applies: set, detail }
   })
 })
 
 const constraintsApplying = computed(() => siteConstraints.value.filter(c => c.applies).length)
+
+/**
+ * Dates in this table arrive in three shapes.
+ *
+ * `historic_commenced_date` is "2023-04-26 00:00:00", `lep_currency_date` is
+ * epoch milliseconds as a string ("1749772800000"), and a split lot carries
+ * several of either joined by " | ". Printing the raw value put a 13-digit
+ * number on the page where a date belongs.
+ */
+function fmtDate(v: unknown): string {
+  if (v == null || v === '') return '—'
+  return String(v).split('|').map((part) => {
+    const s = part.trim()
+    if (!s) return ''
+    const n = Number(s)
+    const d = /^\d{12,14}$/.test(s) ? new Date(n) : new Date(s.replace(' ', 'T'))
+    return Number.isNaN(d.getTime())
+      ? s
+      : d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  }).filter(Boolean).join(' · ')
+}
+
+/** Split a "a | b" multi-value column into its parts. */
+function splitMulti(v: unknown): string[] {
+  if (typeof v !== 'string' || !v.trim()) return []
+  return v.split('|').map(s => s.trim()).filter(Boolean)
+}
+
+/**
+ * How this land was zoned before, and what changed it.
+ *
+ * `historic_zone` and its siblings are populated on effectively every row and
+ * were never fetched. A lot that reads R2 today may have been RU4 until the
+ * 2023 Land Use Zones amendment, and that is the first thing anyone asks when a
+ * consent or a valuation predates the change. Where the columns hold several
+ * values joined by " | " the lot has been rezoned more than once, so they are
+ * zipped back into one entry per amendment rather than printed as three lists.
+ */
+const zoningHistory = computed(() => {
+  const v = property.value
+  if (!v) return []
+  const zones = splitMulti(v.historic_zone)
+  if (!zones.length) return []
+  const classes = splitMulti(v.historic_lay_class)
+  const amendments = splitMulti(v.historic_amendment)
+  const commenced = splitMulti(v.historic_commenced_date)
+  const published = splitMulti(v.historic_published_date)
+  const rows = zones.map((zone, i) => ({
+    zone,
+    zoneClass: classes[i] ?? classes[0] ?? null,
+    amendment: amendments[i] ?? amendments[0] ?? null,
+    commenced: commenced[i] ? fmtDate(commenced[i]) : null,
+    published: published[i] ? fmtDate(published[i]) : null,
+    sortKey: commenced[i] ? Date.parse(String(commenced[i]).replace(' ', 'T')) || 0 : 0,
+    current: false,
+  }))
+  // Newest first. The columns are not ordered by date — 42 Shackel Avenue
+  // lists the 2023 zones amendment before Amendment No 9 — so the reading
+  // order has to come from the commencement dates rather than the column.
+  rows.sort((a, b) => b.sortKey - a.sortKey)
+  // The zone appearing in the history is often the current one: these rows
+  // record the amendment that *set* a zone, not only changes away from it. Mark
+  // the most recent match, not every match, or a lot amended twice to the same
+  // zone reads as current twice.
+  const cur = rows.find(r => r.zone === v.zone)
+  if (cur) cur.current = true
+  return rows
+})
+
+/**
+ * Lot shape, as measured off the cadastre.
+ *
+ * Twelve indices computed in notebook 04D and present on 98.4% of lots, none of
+ * which reached the page. They are the difference between a parcel that takes a
+ * standard footprint and one that does not: `rectangularity` is the share of
+ * the lot's own bounding rectangle it fills, `neck_ratio` falls away on a
+ * battle-axe, `corners_count` climbs on a splayed or curved boundary.
+ *
+ * Each carries its own reading of the number, because "0.82" means nothing on
+ * its own and a reader should not have to guess which direction is good.
+ */
+const SHAPE_FIELDS: Array<[string, string, (n: number) => string]> = [
+  ['corners_count', 'Corners', n => (n <= 4 ? 'a simple quadrilateral' : `${n} boundary corners`)],
+  ['rectangularity', 'Rectangularity', n => (n > 0.9 ? 'fills its bounding rectangle' : n > 0.7 ? 'moderately rectangular' : 'well off rectangular')],
+  ['convexity', 'Convexity', n => (n > 0.95 ? 'no re-entrant corners' : 'has a re-entrant corner')],
+  ['elongation', 'Elongation', n => (n > 0.7 ? 'long and narrow' : 'squarish')],
+  ['neck_ratio', 'Neck ratio', n => (n < 0.3 ? 'pinched — typical of a battle-axe handle' : 'no pinch point')],
+  ['shape_index', 'Shape index', () => 'perimeter against area; 1.0 is a circle'],
+  ['circular_compactness', 'Circular compactness', () => 'area against its enclosing circle'],
+  ['square_compactness', 'Square compactness', () => 'area against its enclosing square'],
+  ['equivalent_rectangular_index', 'Equivalent rectangle', () => 'area against the rectangle of equal perimeter'],
+  ['fractal_dimension', 'Fractal dimension', n => (n > 1.15 ? 'an irregular boundary' : 'a regular boundary')],
+  ['effective_diameter_m', 'Effective diameter', () => 'the circle of equal area'],
+  ['frontage_area_ratio', 'Frontage : area', () => 'street frontage per square metre of site'],
+]
+
+const lotShape = computed(() => {
+  const v = property.value
+  if (!v) return []
+  return SHAPE_FIELDS
+    .filter(([k]) => v[k] != null && v[k] !== '')
+    .map(([k, label, read]) => {
+      const n = Number(v[k])
+      return {
+        key: k,
+        label,
+        value: k === 'corners_count' ? String(n) : n.toFixed(k === 'effective_diameter_m' ? 1 : 2),
+        unit: k === 'effective_diameter_m' ? 'm' : '',
+        note: Number.isFinite(n) ? read(n) : '',
+      }
+    })
+})
+
+/**
+ * Which map, under which instrument, as at when.
+ *
+ * Every development standard on this page is a value read off a mapped layer,
+ * and until now the page showed the value without saying which layer it came
+ * from or which plan was in force when it was read. On a lot split between two
+ * instruments — Randwick's FSR map naming a different LEP from the zoning
+ * map — that difference is the finding.
+ */
+const MAP_PROVENANCE: Array<[string, string, string | null]> = [
+  ['Zoning map', 'lzn_epi_name_p', null],
+  ['Height of Buildings map', 'hob_epi_name', 'hob_sym_code'],
+  ['Floor Space Ratio map', 'fsr_epi_name', 'fsr_label'],
+  ['Minimum Lot Size map', 'mls_epi_name', 'lsz_sym_code'],
+  ['LEP layer', 'lep_lga_name', 'lep_lay_class'],
+  ['DCP layer', 'dcp_council_name', 'dcp_plan_type'],
+]
+
+const mapProvenance = computed(() => {
+  const v = property.value
+  if (!v) return []
+  const out = MAP_PROVENANCE
+    .filter(([, field]) => v[field] != null && String(v[field]).trim() !== '')
+    .map(([label, field, codeField]) => ({
+      label,
+      value: String(v[field]),
+      code: codeField && v[codeField] != null && String(v[codeField]).trim() !== ''
+        ? String(v[codeField])
+        : null,
+    }))
+  if (v.lep_currency_date) {
+    out.push({ label: 'LEP currency date', value: fmtDate(v.lep_currency_date), code: null })
+  }
+  return out
+})
+
+/** LMR and TOD detail that sat behind the flag the page already showed. */
+const lmrDetail = computed(() => {
+  const v = property.value
+  if (!v) return []
+  return ([
+    ['LMR code', 'lmr_sym_code'],
+    ['LMR floor space ratio', 'lmr_fsr'],
+    ['LMR minimum lot size', 'lmr_lotsize'],
+    ['LMR minimum lot width', 'lmr_lot_width'],
+    ['Station / centre', 'lmr_train_stations'],
+    ['Distance band', 'buffer'],
+  ] as Array<[string, string]>)
+    .filter(([, k]) => v[k] != null && String(v[k]).trim() !== '')
+    .map(([label, k]) => ({ label, value: String(v[k]) }))
+})
+
+/**
+ * Everything held for this lot, grouped, with nothing curated away.
+ *
+ * The sections above choose what to say about the row. This one says what is in
+ * it — all 234 columns the projection now fetches, minus the empty ones,
+ * grouped by shared/property-fields.ts. It exists so a reader is never in the
+ * position of wondering whether the report simply did not look at a field, and
+ * so that a column added upstream is visible the day it lands rather than
+ * whenever someone edits this page.
+ */
+const allFields = computed(() => (property.value ? categorise(property.value) : []))
+const allFieldCount = computed(() => allFields.value.reduce((n, c) => n + c.fields.length, 0))
 
 /**
  * The instruments this report draws on, with the consolidation date held.
@@ -2061,35 +2429,76 @@ const seppInstruments = computed(() => {
   return [...new Set(raw.split(/,(?=\s*State)/).map(x => x.trim()).filter(Boolean))]
 })
 
-const PATTERN_BOOK = [
-  ['semis_01_anthony_gill', 'Semis — Anthony Gill'],
-  ['semis_02_sibling', 'Semis — Sibling'],
-  ['manor_homes_01_studio', 'Manor Homes — Studio'],
-  ['row_homes_01_saha', 'Row Homes — SAHA'],
-  ['terraces_01_carter', 'Terraces — Carter'],
-  ['terraces_02_sam_crawford', 'Terraces — Sam Crawford'],
-  ['terraces_03_officer_woods', 'Terraces — Officer Woods'],
-  ['terraces_04_other', 'Terraces — Other'],
-] as const
+/**
+ * Names for the Pattern Book designs, where the column name is not one.
+ *
+ * The list is no longer the source of truth for *which* patterns exist — that
+ * comes from the row itself, so a pattern added upstream appears here without
+ * an edit. This only supplies a readable label; anything unlisted falls back to
+ * humanise(), which turns small_lot_apt_04_4_5storeys into something legible
+ * rather than dropping it.
+ */
+const PATTERN_LABELS: Record<string, string> = {
+  semis_01_anthony_gill: 'Semis — Anthony Gill',
+  semis_02_sibling: 'Semis — Sibling',
+  manor_homes_01_studio: 'Manor Homes — Studio',
+  row_homes_01_saha: 'Row Homes — SAHA',
+  terraces_01_carter: 'Terraces — Carter',
+  terraces_02_sam_crawford: 'Terraces — Sam Crawford',
+  terraces_03_officer_woods: 'Terraces — Officer Woods',
+  terraces_04_other: 'Terraces — Other',
+  // The apartment patterns. Held for every lot since the Pattern Book landed
+  // and never fetched, so a lot eligible for a 3-4 storey apartment building
+  // was shown nothing at all.
+  small_lot_apt_01_3storeys: 'Small Lot Apartments 01 — 3 storeys',
+  small_lot_apt_01_3storeys_min: 'Small Lot Apartments 01 — 3 storeys (minimum lot)',
+  small_lot_apt_01_4storeys: 'Small Lot Apartments 01 — 4 storeys',
+  small_lot_apt_02_3storeys: 'Small Lot Apartments 02 — 3 storeys',
+  small_lot_apt_02_4storeys: 'Small Lot Apartments 02 — 4 storeys',
+  small_lot_apt_03_4_6storeys: 'Small Lot Apartments 03 — 4-6 storeys',
+  small_lot_apt_04_4_5storeys: 'Small Lot Apartments 04 — 4-5 storeys',
+  large_lot_apt_01_4storeys: 'Large Lot Apartments 01 — 4 storeys',
+  large_lot_apt_01_6storeys: 'Large Lot Apartments 01 — 6 storeys',
+  large_lot_apt_02_3_4storeys: 'Large Lot Apartments 02 — 3-4 storeys',
+  large_lot_apt_02_5_6storeys: 'Large Lot Apartments 02 — 5-6 storeys',
+  large_lot_apt_03_4_6storeys: 'Large Lot Apartments 03 — 4-6 storeys',
+  corner_lot_apt_01_4_6storeys: 'Corner Lot Apartments 01 — 4-6 storeys',
+  corner_lot_apt_02_4_6storeys: 'Corner Lot Apartments 02 — 4-6 storeys',
+}
+
+/** Houses before apartments, and inside each, eligible first. */
+const PATTERN_FAMILY_ORDER = ['semis', 'manor', 'row', 'terraces', 'small', 'large', 'corner']
 
 /**
  * Every pattern the lot was assessed against, eligible or not, each with the
  * reason recorded against it. Previously the list was filtered to eligible
  * patterns unless the lot was in an LMR area, which meant a lot assessed and
  * rejected showed nothing at all — the reason is the interesting part.
+ *
+ * Derived from the row rather than from a fixed list: the hardcoded list named
+ * eight of the twenty-two patterns the table holds, and the other fourteen were
+ * invisible for as long as it was the source of truth.
  */
 const patternBookItems = computed(() => {
   if (!property.value) return []
-  const v = property.value
-  return PATTERN_BOOK
-    .filter(([col]) => v[`${col}_eligible`] !== undefined && v[`${col}_eligible`] !== null)
-    .map(([col, label]) => ({
-      key: col,
-      label,
-      eligible: isYes(v[`${col}_eligible`]),
-      reasons: v[`${col}_reasons`] || null,
+  return patternEligibility(property.value)
+    .map(x => ({
+      key: x.key,
+      label: PATTERN_LABELS[x.key] ?? x.label,
+      eligible: x.eligible,
+      reasons: x.reasons,
+      family: x.family,
     }))
+    .sort((a, b) => {
+      const fa = PATTERN_FAMILY_ORDER.indexOf(a.family)
+      const fb = PATTERN_FAMILY_ORDER.indexOf(b.family)
+      if (fa !== fb) return (fa < 0 ? 99 : fa) - (fb < 0 ? 99 : fb)
+      if (a.eligible !== b.eligible) return Number(b.eligible) - Number(a.eligible)
+      return a.key.localeCompare(b.key)
+    })
 })
+
+const patternBookEligible = computed(() => patternBookItems.value.filter(x => x.eligible).length)
 
 
 // ── Use-specific controls (planner persona) ─────────────────────────────────
@@ -3450,5 +3859,86 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 .constraint-row { display: grid; grid-template-columns: 12px 10rem 1fr; gap: 0.5rem; align-items: baseline; }
 .constraint-name { font-size: 0.82rem; font-weight: 600; color: #1e293b; }
 .constraint-detail { font-size: 0.8rem; color: #64748b; }
+
+/* Why CDC was refused, above the per-pathway grid. */
+.cdc-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin: 0 0 0.6rem;
+  padding: 8px 10px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  color: #92400e;
+}
+.cdc-reasons-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #b45309;
+  width: 100%;
+}
+.cdc-reason strong { font-weight: 600; }
+.cdc-reason + .cdc-reason::before { content: '·'; margin-right: 10px; color: #d6b271; }
+
+/* Lot shape indices, under the boundary lengths. */
+.shape-list { margin-top: 0.9rem; }
+.shape-items { display: flex; flex-direction: column; gap: 2px; margin-top: 0.4rem; }
+.shape-row {
+  display: grid;
+  grid-template-columns: 8.5rem 4.5rem 1fr;
+  gap: 8px;
+  align-items: baseline;
+  padding: 3px 0;
+  border-bottom: 1px dotted #eef1f5;
+  font-size: 0.76rem;
+}
+.shape-label { color: #475569; }
+.shape-value { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.shape-unit { font-weight: 400; color: #94a3b8; margin-left: 1px; }
+.shape-note { color: #94a3b8; }
+
+/* The catch-all: every column held, grouped. */
+.raw-group { margin-top: 1rem; }
+.raw-group:first-of-type { margin-top: 0.4rem; }
+.raw-group-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 0 0 2px;
+}
+.raw-group-blurb { font-size: 0.72rem; color: #94a3b8; margin: 0 0 0.4rem; }
+.raw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+  gap: 0 1.2rem;
+}
+.raw-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+  border-bottom: 1px dotted #eef1f5;
+  font-size: 0.75rem;
+}
+.raw-label { color: #64748b; flex: none; max-width: 55%; }
+.raw-value {
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.raw-unit { color: #94a3b8; margin-left: 2px; }
+
+/* A description that runs to fifty lot numbers needs the full row. */
+.fact--wide { grid-column: 1 / -1; }
+.fact--wide .fact-value { overflow-wrap: anywhere; font-size: 0.78rem; }
 
 </style>

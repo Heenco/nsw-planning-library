@@ -30,8 +30,8 @@ export const FIELD_GROUPS: FieldGroup[] = [
     key: 'identity',
     label: 'Identity',
     lead: ['address', 'lot_section_plan', 'lotnumber', 'sectionnumber', 'planlabel',
-      'suburbname', 'postcode', 'lga_name', 'council_name', 'region_name',
-      'propid', 'gurasid', 'objectid', 'property_id', 'property_description'],
+      'plan_label', 'suburbname', 'postcode', 'postcode_1', 'lga_name', 'council_name',
+      'region_name', 'propid', 'gurasid', 'objectid', 'property_id', 'property_description'],
   },
   {
     key: 'lot',
@@ -39,16 +39,22 @@ export const FIELD_GROUPS: FieldGroup[] = [
     blurb: 'Measured from the cadastre — the inputs an envelope is built from.',
     lead: ['area_sqm', 'area_h', 'primary_frontage_length_m', 'lot_depth_m', 'width', 'depth',
       'all_frontages', 'primary_frontage_road', 'propertyfrontagecount',
-      'is_corner_lot', 'is_battleaxe', 'average_slope', 'orientation_degrees', 'perimeter_m'],
-    match: /^(all_edges|all_frontage|corners_count|do_width|do_depth|effective_diameter|longest_axis|elongation|convexity|rectangularity|circular_compactness|square_compactness|equivalent_rectangular|frontage_area_ratio|neck_ratio|shape_index|min_width|centroid_|area$|area_type|kcorr_area)/,
+      'is_corner_lot', 'is_battleaxe', 'average_slope', 'orientation_degrees', 'perimeter_m',
+      'num_frontages'],
+    match: /^(all_edges|all_frontage|corners_count|do_width|do_depth|effective_diameter|longest_axis|elongation|convexity|rectangularity|circular_compactness|square_compactness|equivalent_rectangular|fractal_dimension|frontage_area_ratio|neck_ratio|shape_index|min_width|centroid_|area$|area_type|kcorr_area)/,
   },
   {
     key: 'controls',
     label: 'Planning controls',
     blurb: 'Zone, height, floor space and minimum lot size — LEP Part 4 standards.',
     lead: ['epi_name', 'lzn_sym_code_p', 'lzn_label', 'lzn_lay_class', 'hob_max_b_h_m', 'hob_units',
-      'fsr_fsr', 'fsr_label', 'lot_size', 'lot_size_units', 'dualoccupancy'],
-    match: /^(lzn_|hob_|fsr_|lsz_|lot_size|epi_name|in_lmr|in_tod|lmr_|tod_|historic_zone|historic_amendment|historic_commenced)/,
+      'max_height', 'max_height_m', 'height_units',
+      'fsr_fsr', 'fsr_label', 'fsr_value', 'lot_size', 'min_lot_size', 'lot_size_units',
+      'lot_size_class', 'dualoccupancy'],
+    // historic_ and lep_/mls_ join the controls rather than falling through:
+    // the zoning history and the map provenance are statements about the
+    // standards above, not constraints on the land.
+    match: /^(lzn_|hob_|fsr_|lsz_|lot_size|epi_name|lep_|mls_|in_lmr|in_tod|lmr_|tod_|historic_)/,
   },
   {
     key: 'uses',
@@ -64,7 +70,13 @@ export const FIELD_GROUPS: FieldGroup[] = [
       'salinity', 'wetland', 'riparianlandwatercouse', 'scenicprotectionland',
       'drinking_water_catchment', 'groundwatervulnerability', 'mine_subsidence_district',
       'mineralresoureland', 'australian_noise_exposure_forecast',
-      'ols_minimum_height', 'ols_maximum_height'],
+      'ols_minimum_height', 'ols_maximum_height',
+      // The projection's own names for the same overlays. Listed so they land
+      // here rather than falling through to "Other", which is meant to hold
+      // columns nothing has claimed yet, not ones we renamed ourselves.
+      'acid_sulfate', 'landsliderisk', 'riparianlandwatercourse',
+      'contamination_sitename', 'heritage_name', 'heritage_id', 'heritage_class',
+      'coastal_wetlands', 'coastal_environment_area', 'coastal_use_area'],
     match: /^(ada_|asb_|asf_|biomap_|biovalue_|bct_|cenv_|chaz_|crown_|cuse_|cwet_|dwc_|envsensi_|fbl_|koala|mls_|npws_|nrbio_|nrsensi_|nrwater_|ramsar_|rfa_|rip_|salinity_|sca_|scenic_|wilderness|buffer$|coastalmanagement_|activestreetfrontage|ass_lay_class|pnf_)/,
   },
   {
@@ -83,8 +95,10 @@ export const FIELD_GROUPS: FieldGroup[] = [
   {
     key: 'amenity',
     label: 'Amenity & market',
-    lead: ['closest_school', 'closest_school_distance', 'closest_railway_station',
-      'closest_railway_station_distance', 'closest_hospital', 'closest_hospital_distance',
+    lead: ['closest_school', 'closest_school_distance', 'closest_school_distance_m',
+      'closest_railway_station', 'closest_railway_station_distance',
+      'closest_railway_station_distance_m', 'closest_hospital', 'closest_hospital_distance',
+      'closest_hospital_distance_m',
       'walkable_score', 'land_value_1', 'estimated_price', 'no_of_beds', 'no_of_baths', 'no_of_cars'],
   },
   {
@@ -94,8 +108,17 @@ export const FIELD_GROUPS: FieldGroup[] = [
   },
 ]
 
-/** Geometry blobs and internals — never worth showing. */
-const HIDDEN = /^(geom_1|centroid_geom|buffered_geom|normalized_address|rule_ids|propid_count)$/
+/**
+ * Geometry blobs, internals, and the four projection aliases whose own source
+ * column is also selected.
+ *
+ * `zone` is `lzn_sym_code_p` under another name. Once the projection widened to
+ * fetch the raw columns too, showing both put the same value on the page twice
+ * under two spellings — and the alias, which is ours rather than the table's,
+ * is the one to drop. The other aliases (`max_height_m`, `min_lot_size`, the
+ * distance fields) have no raw twin in the projection, so they stay.
+ */
+const HIDDEN = /^(geom_1|centroid_geom|buffered_geom|normalized_address|rule_ids|propid_count|zone|zone_class|zone_label|lep_name)$/
 
 /** Columns whose value is a metre measurement, for unit display. */
 const METRES = /(_m|_length_m|_depth_m|height|_distance)$/
