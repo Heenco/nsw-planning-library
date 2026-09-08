@@ -10,13 +10,14 @@
 # build has ever included it either. Excluding it here makes a CLI deploy match
 # what the repository would produce, rather than changing what production serves.
 #
-# The consequence, which predates this file: the rendered DCP in /doc-viewer
-# references 481 extracted images under DCPs/images, and those images are not in
-# the repository, so they do not render in production. Committing them (222MB
-# for Hornsby alone) or moving them to object storage is the fix; ignoring them
-# here neither causes nor worsens it.
+# The figures under DCPs/images used to be the exception this file warned about:
+# excluded here, ignored by git, and absent from production, so every DCP
+# rendered without a single diagram. They are now converted to WebP and tracked
+# (scripts/optimise-dcp-images.mjs), so only the PNG sources are excluded — the
+# WebP the documents actually reference must ship.
 
-public/EPI/DCPs/images/
+# Only the PNG sources. The WebP the documents actually reference has to ship.
+public/EPI/DCPs/images/**/*.png
 public/EPI/DCPs/pdf/
 public/EPI/xml/
 

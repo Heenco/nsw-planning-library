@@ -1,11 +1,11 @@
 
 <!-- SRC: HDCP 2024 Contents - 23 June 2025.pdf | PAGE: 1 -->
 
-![page 1 img 1 (2554x1586)](images/hornsby/p0001-7afaa0284e6a.png)
+![page 1 img 1 (2554x1586)](images/hornsby/p0001-7afaa0284e6a.webp)
 
 Hornsby Development Control Plan 2024
 
-![page 1 img 2 (207x164)](images/hornsby/p0001-440caaf958e1.png)
+![page 1 img 2 (207x164)](images/hornsby/p0001-440caaf958e1.webp)
 
 
 <!-- SRC: HDCP 2024 Contents - 23 June 2025.pdf | PAGE: 2 -->
@@ -552,7 +552,7 @@ Part 1 General
 
 c
 
-![page 9 img 1 (206x162)](images/hornsby/p0009-40182b59fdfd.png)
+![page 9 img 1 (206x162)](images/hornsby/p0009-40182b59fdfd.webp)
 
 
 <!-- SRC: HDCP 2024 Part 1 General - 23 June 2025.pdf | PAGE: 10 -->
@@ -1412,12 +1412,12 @@ Separate DCP controls for Extractive Industries are provided in Section 2.5 of t
 
 <!-- SRC: HDCP 2024 Part 1 General - 23 June 2025.pdf | PAGE: 30 -->
 
-![page 30 img 1 (1012x1382)](images/hornsby/p0030-d3ba271722fc.png)
+![page 30 img 1 (1012x1382)](images/hornsby/p0030-d3ba271722fc.webp)
 
 
 *Figure 1.3-a: Development should be sited and designed to minimise disturbance of land with topographic and geotechnical constraints. (I)*
 
-![page 30 img 2 (1012x32)](images/hornsby/p0030-de26091412db.png)
+![page 30 img 2 (1012x32)](images/hornsby/p0030-de26091412db.webp)
 
 
 <!-- SRC: HDCP 2024 Part 1 General - 23 June 2025.pdf | PAGE: 31 -->
@@ -1681,7 +1681,7 @@ Table 1.3.2-c: On Site Car Parking Rates
 
 <!-- SRC: HDCP 2024 Part 1 General - 23 June 2025.pdf | PAGE: 37 -->
 
-![page 37 img 1 (696x880)](images/hornsby/p0037-cc13b0a3668d.png)
+![page 37 img 1 (696x880)](images/hornsby/p0037-cc13b0a3668d.webp)
 
 
 *Figure 1.3-b: Hornsby Town Centre Parking Rate Application Area (C)*
@@ -2467,7 +2467,7 @@ Note:
 - (ii) the nature of the business carried on by the person at the premises or place at which the sign is displayed, and
 (b) that may include the address of the premises or place and a logo or other symbol that identifies the business, but that does not contain any advertising relating to a person who does not carry on business at the premises or place.
 
-![page 54 img 1 (596x416)](images/hornsby/p0054-16076c1d04d5.png)
+![page 54 img 1 (596x416)](images/hornsby/p0054-16076c1d04d5.webp)
 
 
 *Figure 1.3-c: Illustration of signage types (I)*
@@ -2737,7 +2737,7 @@ For further information refer to:
 
 Part 2 Rural
 
-![page 60 img 1 (207x163)](images/hornsby/p0060-d4a1c34e8444.png)
+![page 60 img 1 (207x163)](images/hornsby/p0060-d4a1c34e8444.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 61 -->
@@ -2785,16 +2785,16 @@ Rural uses will be protected and promoted in Hornsby Shire as they are important
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 63 -->
 
-![page 63 img 1 (2045x466)](images/hornsby/p0063-34f8785ec6ad.png)
+![page 63 img 1 (2045x466)](images/hornsby/p0063-34f8785ec6ad.webp)
 
 
 *Figure 2-a: The Rural Area of Hornsby Shire. (C)*
 
-![page 63 img 2 (2045x466)](images/hornsby/p0063-68afe62b7e6c.png)
-![page 63 img 3 (2045x466)](images/hornsby/p0063-4a3b42a43b56.png)
-![page 63 img 4 (2045x466)](images/hornsby/p0063-024ebc44c959.png)
-![page 63 img 5 (2045x466)](images/hornsby/p0063-13a74419c47d.png)
-![page 63 img 6 (2045x465)](images/hornsby/p0063-55ef70a4d78f.png)
+![page 63 img 2 (2045x466)](images/hornsby/p0063-68afe62b7e6c.webp)
+![page 63 img 3 (2045x466)](images/hornsby/p0063-4a3b42a43b56.webp)
+![page 63 img 4 (2045x466)](images/hornsby/p0063-024ebc44c959.webp)
+![page 63 img 5 (2045x466)](images/hornsby/p0063-13a74419c47d.webp)
+![page 63 img 6 (2045x465)](images/hornsby/p0063-55ef70a4d78f.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 64 -->
@@ -2864,7 +2864,7 @@ Attic means any habitable space, but not a separate dwelling, contained wholly w
 
 Height controls are based on a typical residential floor to floor height of 3 metres, with allowances for roof articulation and undercroft areas for steeply sloping sites.
 
-![page 64 img 1 (370x309)](images/hornsby/p0064-0d038d901ec8.png)
+![page 64 img 1 (370x309)](images/hornsby/p0064-0d038d901ec8.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 65 -->
@@ -2911,7 +2911,7 @@ Lot size (or site area) in relation to development, means the area of the lot to
 - Roadside stalls on land zoned RU1, RU2, and RU4 should be no greater than 40m 2 pursuant to Clause 5.4 of the HLEP.
 - Roadside stalls should be constructed in a form and of materials that are of a rural character.
 - Roadside stalls should provide a concession to the setbacks contained in Table 2.1.2-a to enable a temporary structure to have a minimum setback of 1 metre from the front property.
-![page 65 img 1 (366x446)](images/hornsby/p0065-c5a50a0d3d39.png)
+![page 65 img 1 (366x446)](images/hornsby/p0065-c5a50a0d3d39.webp)
 
 
 *Figure 2.1-b: Examples of roadside stalls that are of a rural character (Globe Notes Travel 2014, Fruit Growers Tasmania Inc 2008). (E)*
@@ -3051,20 +3051,20 @@ Development adjoining roads that are subject to Section 2.119 of the Transport a
 - Fences should be open style and constructed of materials such as timber or post and wire, with a maximum height of 1.8 metres.
 - Any masonry gate entry feature should not extend more than 3 metres either side of the driveway entrance.
 - High, solid fences constructed as sound barriers should be avoided. On main roads alternative measures of reducing traffic noise should be explored, such as double glazing, internal layout, earth mounds and vegetation, rather than high solid fences.
-![page 67 img 1 (536x119)](images/hornsby/p0067-5b286f4f7569.png)
+![page 67 img 1 (536x119)](images/hornsby/p0067-5b286f4f7569.webp)
 
 
 *Figure 2.1-c: Example of a suitable open style rural fence (E)*
 
-![page 67 img 2 (536x119)](images/hornsby/p0067-e57b10b79c22.png)
+![page 67 img 2 (536x119)](images/hornsby/p0067-e57b10b79c22.webp)
 
 
 *Figure 2.1-d: Example of a masonry entry feature that does not extend more than 3 metres either side of the driveway (E)*
 
-![page 67 img 3 (536x119)](images/hornsby/p0067-e9bbae0382a6.png)
-![page 67 img 4 (536x119)](images/hornsby/p0067-425246773627.png)
-![page 67 img 5 (536x119)](images/hornsby/p0067-68087b354362.png)
-![page 67 img 6 (536x119)](images/hornsby/p0067-3e633444e023.png)
+![page 67 img 3 (536x119)](images/hornsby/p0067-e9bbae0382a6.webp)
+![page 67 img 4 (536x119)](images/hornsby/p0067-425246773627.webp)
+![page 67 img 5 (536x119)](images/hornsby/p0067-68087b354362.webp)
+![page 67 img 6 (536x119)](images/hornsby/p0067-3e633444e023.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 68 -->
@@ -3138,7 +3138,7 @@ Refer to Part 1 General of the DCP for more detailed parking and service vehicle
 - Buildings, structures and driveways should be located to retain natural vegetation and follow the natural contours of the land.
 - Parking areas and driveways should not dominate the streetscape.
 - Development along main roads should be designed and sited to contribute positively to the surrounding rural landscape.
-![page 69 img 1 (536x119)](images/hornsby/p0069-5a554238389a.png)
+![page 69 img 1 (536x119)](images/hornsby/p0069-5a554238389a.webp)
 
 
 *Figure 2.1-e: Example of a dwelling house designed and sited to contribute positively to the rural landscape. (E)*
@@ -3160,15 +3160,15 @@ Refer to Part 1 General of the DCP for more detailed parking and service vehicle
 - Undercroft spaces with a vertical height at any point of more than 1.5 metres above existing ground level should not be enclosed.
 - Undercrofts, including any plumbing or rainwater tanks located within, should be painted in dark recessive colours.
 - Supports to habitable platforms above undercrofts should be setback a minimum of 2 metres from the leading platform edge to reduce the overall bulk and scale of the undercroft area.
-![page 69 img 2 (536x119)](images/hornsby/p0069-1e75292a17bc.png)
+![page 69 img 2 (536x119)](images/hornsby/p0069-1e75292a17bc.webp)
 
 
 *Figure 2.1-f: Example of a rural outbuilding sited and designed to contribute positively to the rural landscape. (E)*
 
-![page 69 img 3 (536x119)](images/hornsby/p0069-32e550f83e60.png)
-![page 69 img 4 (536x119)](images/hornsby/p0069-d645eb2dda4c.png)
-![page 69 img 5 (536x119)](images/hornsby/p0069-6ac7821d940d.png)
-![page 69 img 6 (536x119)](images/hornsby/p0069-c59345d0bb30.png)
+![page 69 img 3 (536x119)](images/hornsby/p0069-32e550f83e60.webp)
+![page 69 img 4 (536x119)](images/hornsby/p0069-d645eb2dda4c.webp)
+![page 69 img 5 (536x119)](images/hornsby/p0069-6ac7821d940d.webp)
+![page 69 img 6 (536x119)](images/hornsby/p0069-c59345d0bb30.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 70 -->
@@ -3252,18 +3252,18 @@ The minimum separations prescribed in Table 2.2.1-a aim to minimise rather than 
 - Dam design guidelines are illustrated in Figure 2.2-a. The dam spillway should be designed for the 1 in 20 year storm event.
 - Development applications for a dam that has a maximum capacity greater than 0.4 megalitres or for an additional dam that results in the total capacity of all dams on the property exceeding 1 megalitre should be accompanied by a report from a suitably qualified hydraulic services consultant, assessing the impact that the proposed dam will have on downstream flows and environments.
 - Water quality management measures should be incorporated with the dam, such as vegetation on the perimeter of the dam and within the dam to reduce the occurrence of problematic algae.
-![page 71 img 1 (885x210)](images/hornsby/p0071-d94d6b82e169.png)
+![page 71 img 1 (885x210)](images/hornsby/p0071-d94d6b82e169.webp)
 
 Figure 2.2-a: Dam Design Guidelines (C)
 
 
 *Figure 2.2-a: Dam Design Guidelines (C)*
 
-![page 71 img 2 (885x210)](images/hornsby/p0071-8d5440d7dafd.png)
-![page 71 img 3 (885x209)](images/hornsby/p0071-80f42952db48.png)
-![page 71 img 4 (898x189)](images/hornsby/p0071-32a53ba894d3.png)
-![page 71 img 5 (898x189)](images/hornsby/p0071-fed1cff55c42.png)
-![page 71 img 6 (776x239)](images/hornsby/p0071-fa4bc2a33db2.png)
+![page 71 img 2 (885x210)](images/hornsby/p0071-8d5440d7dafd.webp)
+![page 71 img 3 (885x209)](images/hornsby/p0071-80f42952db48.webp)
+![page 71 img 4 (898x189)](images/hornsby/p0071-32a53ba894d3.webp)
+![page 71 img 5 (898x189)](images/hornsby/p0071-fed1cff55c42.webp)
+![page 71 img 6 (776x239)](images/hornsby/p0071-fa4bc2a33db2.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 72 -->
@@ -3580,7 +3580,7 @@ The following controls apply to the development of Attached Dual Occupancies on 
 
 *Covered walkways are not acceptable means*
 
-![page 77 img 1 (365x199)](images/hornsby/p0077-99a19a3fe242.png)
+![page 77 img 1 (365x199)](images/hornsby/p0077-99a19a3fe242.webp)
 
 
 *Figure 2.2-b: of attaching the two dwellings (E)*
@@ -3844,13 +3844,13 @@ The following section provides controls for the Rural area localities identified
 
 #### Dural Village Masterplan
 
-![page 84 img 1 (1102x216)](images/hornsby/p0084-dc580bf31c63.png)
+![page 84 img 1 (1102x216)](images/hornsby/p0084-dc580bf31c63.webp)
 
-![page 84 img 2 (1102x216)](images/hornsby/p0084-125dd68763ca.png)
-![page 84 img 3 (1102x216)](images/hornsby/p0084-153929cc65c9.png)
-![page 84 img 4 (1102x216)](images/hornsby/p0084-b8d62e36d4d7.png)
-![page 84 img 5 (1102x216)](images/hornsby/p0084-a26945a01eaa.png)
-![page 84 img 6 (1102x214)](images/hornsby/p0084-ee17a6aee08e.png)
+![page 84 img 2 (1102x216)](images/hornsby/p0084-125dd68763ca.webp)
+![page 84 img 3 (1102x216)](images/hornsby/p0084-153929cc65c9.webp)
+![page 84 img 4 (1102x216)](images/hornsby/p0084-b8d62e36d4d7.webp)
+![page 84 img 5 (1102x216)](images/hornsby/p0084-a26945a01eaa.webp)
+![page 84 img 6 (1102x214)](images/hornsby/p0084-ee17a6aee08e.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 85 -->
@@ -3858,19 +3858,19 @@ The following section provides controls for the Rural area localities identified
 
 #### Dural Village Masterplan (Figure 2)
 
-![page 85 img 1 (1028x581)](images/hornsby/p0085-79a5fbfd6a04.png)
+![page 85 img 1 (1028x581)](images/hornsby/p0085-79a5fbfd6a04.webp)
 
-![page 85 img 2 (1028x581)](images/hornsby/p0085-bed8128e3052.png)
+![page 85 img 2 (1028x581)](images/hornsby/p0085-bed8128e3052.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 86 -->
 
-![page 86 img 1 (855x779)](images/hornsby/p0086-49647b001c5f.png)
+![page 86 img 1 (855x779)](images/hornsby/p0086-49647b001c5f.webp)
 
 
 *Dural Village Masterplan (Figure 2 cont)*
 
-![page 86 img 2 (728x368)](images/hornsby/p0086-310b3ebf0b49.png)
+![page 86 img 2 (728x368)](images/hornsby/p0086-310b3ebf0b49.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 87 -->
@@ -3878,9 +3878,9 @@ The following section provides controls for the Rural area localities identified
 
 #### Dural Village Masterplan (Elevation)
 
-![page 87 img 1 (1031x1356)](images/hornsby/p0087-4769fa1fc687.png)
+![page 87 img 1 (1031x1356)](images/hornsby/p0087-4769fa1fc687.webp)
 
-![page 87 img 2 (1031x80)](images/hornsby/p0087-3fea2f853b8d.png)
+![page 87 img 2 (1031x80)](images/hornsby/p0087-3fea2f853b8d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 88 -->
@@ -3888,15 +3888,15 @@ The following section provides controls for the Rural area localities identified
 
 #### Galston Village Masterplan
 
-![page 88 img 1 (1122x220)](images/hornsby/p0088-633e0d7e4fbd.png)
+![page 88 img 1 (1122x220)](images/hornsby/p0088-633e0d7e4fbd.webp)
 
-![page 88 img 2 (1122x220)](images/hornsby/p0088-8094a416290b.png)
-![page 88 img 3 (1122x220)](images/hornsby/p0088-bf8e367031fd.png)
-![page 88 img 4 (1122x220)](images/hornsby/p0088-3433c1d1eb5c.png)
-![page 88 img 5 (1122x220)](images/hornsby/p0088-9e825152c17f.png)
-![page 88 img 6 (1122x220)](images/hornsby/p0088-8d43ac50232c.png)
-![page 88 img 7 (1122x220)](images/hornsby/p0088-22993d01b7f5.png)
-![page 88 img 8 (1122x218)](images/hornsby/p0088-b5da1e891110.png)
+![page 88 img 2 (1122x220)](images/hornsby/p0088-8094a416290b.webp)
+![page 88 img 3 (1122x220)](images/hornsby/p0088-bf8e367031fd.webp)
+![page 88 img 4 (1122x220)](images/hornsby/p0088-3433c1d1eb5c.webp)
+![page 88 img 5 (1122x220)](images/hornsby/p0088-9e825152c17f.webp)
+![page 88 img 6 (1122x220)](images/hornsby/p0088-8d43ac50232c.webp)
+![page 88 img 7 (1122x220)](images/hornsby/p0088-22993d01b7f5.webp)
+![page 88 img 8 (1122x218)](images/hornsby/p0088-b5da1e891110.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 89 -->
@@ -3904,7 +3904,7 @@ The following section provides controls for the Rural area localities identified
 
 #### Galston Village Masterplan
 
-![page 89 img 1 (999x1416)](images/hornsby/p0089-7f35f40805c0.png)
+![page 89 img 1 (999x1416)](images/hornsby/p0089-7f35f40805c0.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 90 -->
@@ -3912,7 +3912,7 @@ The following section provides controls for the Rural area localities identified
 
 #### Wisemans Ferry Village Masterplan
 
-![page 90 img 1 (1046x1320)](images/hornsby/p0090-115594a27c30.png)
+![page 90 img 1 (1046x1320)](images/hornsby/p0090-115594a27c30.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 91 -->
@@ -3920,10 +3920,10 @@ The following section provides controls for the Rural area localities identified
 
 #### Wisemans Ferry Village Masterplan
 
-![page 91 img 1 (1338x594)](images/hornsby/p0091-c10e88496f3c.png)
+![page 91 img 1 (1338x594)](images/hornsby/p0091-c10e88496f3c.webp)
 
-![page 91 img 2 (1338x594)](images/hornsby/p0091-44b5dc3d6ae8.png)
-![page 91 img 3 (1338x593)](images/hornsby/p0091-ea958083e51e.png)
+![page 91 img 2 (1338x594)](images/hornsby/p0091-44b5dc3d6ae8.webp)
+![page 91 img 3 (1338x593)](images/hornsby/p0091-ea958083e51e.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 92 -->
@@ -3986,11 +3986,11 @@ Figure 2.4-a: residential floor to floor height of 3 metres,
 
 Explanation of building height controls (I) Height controls are based on a typical with allowances for roof articulation and undercroft areas for steeply sloping sites.
 
-![page 92 img 1 (589x316)](images/hornsby/p0092-8547a624f70d.png)
+![page 92 img 1 (589x316)](images/hornsby/p0092-8547a624f70d.webp)
 
-![page 92 img 2 (589x316)](images/hornsby/p0092-e45e37045ce3.png)
+![page 92 img 2 (589x316)](images/hornsby/p0092-e45e37045ce3.webp)
 
-![page 92 img 3 (589x316)](images/hornsby/p0092-2838e848370d.png)
+![page 92 img 3 (589x316)](images/hornsby/p0092-2838e848370d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 2 Rural - 18 July 2024.pdf | PAGE: 93 -->
@@ -4013,7 +4013,7 @@ Table 2.4.1-b: Maximum Site Coverage
 
 *Table 2.4.1-b: Maximum Site Coverage*
 
-![page 93 img 1 (545x579)](images/hornsby/p0093-381f0a33d516.png)
+![page 93 img 1 (545x579)](images/hornsby/p0093-381f0a33d516.webp)
 
 
 *Figure 2.4-b: Site coverage calculation (I)*
@@ -4146,7 +4146,7 @@ The applicant is encouraged to incorporate plant species indigenous to Hornsby S
 - Within front setbacks, fences should not be higher than 1.2 metres. The use of picket fencing on the front property alignment is encouraged.
 - Front fencing should be constructed from predominately lightweight materials with the design allowing at least 50 percent openings.
 - Side and rear boundary fences should be a maximum of 1.8 metres high, sited behind the front building line.
-![page 95 img 1 (732x1015)](images/hornsby/p0095-2aacdfacb525.png)
+![page 95 img 1 (732x1015)](images/hornsby/p0095-2aacdfacb525.webp)
 
 
 *Figure 2.4-c: Landscaped area (I)*
@@ -4222,7 +4222,7 @@ The Sustainable Buildings SEPP requires a BASIX certificate for new dwellings to
 -  the window has a sill height of less than 1.5 metres.
 - A deck, balcony, terrace or the like should be located within 600mm of existing ground level where possible to minimise potential visual and acoustic privacy conflicts.
 - Decks and the like that need to be located more than 600mm above existing ground should not face a window of a habitable room, balcony or private open space of another dwelling located within 9 metres of the proposed deck unless appropriately screened.
-![page 97 img 1 (583x591)](images/hornsby/p0097-4185e0e1e391.png)
+![page 97 img 1 (583x591)](images/hornsby/p0097-4185e0e1e391.webp)
 
 
 *Figure 2.4-d: Decks adjoining a neighbouring dwelling should be screened (I)*
@@ -4306,7 +4306,7 @@ The following provides controls for extractive industries at Maroota to which th
 
 Extractive industry means the winning or removal of extractive materials (otherwise than from a mine) by methods such as excavating, dredging, tunnelling, or quarrying, including the storing, stockpiling, or processing of extractive materials by methods such as recycling, washing, crushing, sawing or separating, but does not include turf farming.
 
-![page 99 img 1 (654x1162)](images/hornsby/p0099-a8499c363d33.png)
+![page 99 img 1 (654x1162)](images/hornsby/p0099-a8499c363d33.webp)
 
 
 *Figure 2.5-a: Resources and Energy SEPP locality. (C)*
@@ -4710,7 +4710,7 @@ The collection, processing and storage of native seeds should utilise current be
 
 Part 3 Residential
 
-![page 108 img 1 (207x163)](images/hornsby/p0108-fd9eaab94e4d.png)
+![page 108 img 1 (207x163)](images/hornsby/p0108-fd9eaab94e4d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 109 -->
@@ -4929,7 +4929,7 @@ The Hornsby Local Housing Strategy (2020) supports the Hornsby LSPS, outlining a
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 111 -->
 
-![page 111 img 1 (1359x1922)](images/hornsby/p0111-6c04831d1207.png)
+![page 111 img 1 (1359x1922)](images/hornsby/p0111-6c04831d1207.webp)
 
 
 *Figure 3-a: Hornsby Housing Strategy Precincts (I)*
@@ -5004,7 +5004,7 @@ Basement means the space of a building where the floor level of that space is pr
 
 Height controls are based on a typical residential floor to floor height of 3 metres, with allowances for roof articulation and undercroft areas for steeply sloping sites.
 
-![page 113 img 1 (636x1022)](images/hornsby/p0113-628a28df80a7.png)
+![page 113 img 1 (636x1022)](images/hornsby/p0113-628a28df80a7.webp)
 
 
 #### Lot Width (dual occupancies)
@@ -5032,7 +5032,7 @@ Table 3.1.1-b:  Maximum Site Coverage
 
 *Table 3.1.1-b: Maximum Site Coverage*
 
-![page 113 img 2 (565x675)](images/hornsby/p0113-e642baee0831.png)
+![page 113 img 2 (565x675)](images/hornsby/p0113-e642baee0831.webp)
 
 
 *Figure 3.1-b: Site coverage calculation (Dwelling House example shown) (l)*
@@ -5040,7 +5040,7 @@ Table 3.1.1-b:  Maximum Site Coverage
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 114 -->
 
-![page 114 img 1 (1010x1239)](images/hornsby/p0114-dc1c923407a2.png)
+![page 114 img 1 (1010x1239)](images/hornsby/p0114-dc1c923407a2.webp)
 
 
 *Figure 3.1-c: Lot configuration for dual occupancies and showing potential future subdivision (E)*
@@ -5180,42 +5180,42 @@ Table 3.1.2-a:  Minimum boundary setbacks for dwellings and dual occupancies
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 117 -->
 
-![page 117 img 1 (639x499)](images/hornsby/p0117-d0594a4a0b1f.png)
+![page 117 img 1 (639x499)](images/hornsby/p0117-d0594a4a0b1f.webp)
 
 
 *Figure 3.1-d: Setbacks on corner lots (I)*
 
-![page 117 img 2 (649x624)](images/hornsby/p0117-fc1bc811ac88.png)
+![page 117 img 2 (649x624)](images/hornsby/p0117-fc1bc811ac88.webp)
 
 
 *Figure 3.1-e: Setbacks on battle-axe lots (I)*
 
-![page 117 img 3 (559x564)](images/hornsby/p0117-28c917108a1d.png)
+![page 117 img 3 (559x564)](images/hornsby/p0117-28c917108a1d.webp)
 
 
 *Figure 3.1-f: Attached dual occupancy - corner lot setbacks (I)*
 
-![page 117 img 4 (230x41)](images/hornsby/p0117-07f083ef4654.png)
+![page 117 img 4 (230x41)](images/hornsby/p0117-07f083ef4654.webp)
 
 
 *Figure 3.1-g: Detached dual occupancy - corner lot setbacks (I)*
 
-![page 117 img 5 (194x40)](images/hornsby/p0117-c98cf2192ced.png)
+![page 117 img 5 (194x40)](images/hornsby/p0117-c98cf2192ced.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 118 -->
 
-![page 118 img 1 (562x565)](images/hornsby/p0118-1545c24c0b60.png)
+![page 118 img 1 (562x565)](images/hornsby/p0118-1545c24c0b60.webp)
 
 
 *Figure 3.1-h: Attached dual occupancy - standard lot setbacks (I)*
 
-![page 118 img 2 (477x860)](images/hornsby/p0118-1a4e5997e48e.png)
+![page 118 img 2 (477x860)](images/hornsby/p0118-1a4e5997e48e.webp)
 
 
 *Figure 3.1-i: Detached dual occupancy - standard lot setbacks (l)*
 
-![page 118 img 3 (415x829)](images/hornsby/p0118-e8e62dffd029.png)
+![page 118 img 3 (415x829)](images/hornsby/p0118-e8e62dffd029.webp)
 
 
 *Figure 3.1-j: Dual occupancy (only detached permitted) - battle axe lot setbacks (l)*
@@ -5276,7 +5276,7 @@ Note 2: The Housing SEPP states that prior to granting development consent to a 
 - Within front setbacks, fences should not be higher than 1.2 metres.
 - Front fencing should be constructed from predominately lightweight materials with the design allowing at least 50 percent openings.
 - Side and rear boundary fences should be a maximum of 1.8 metres high, sited behind the front building line.
-![page 119 img 1 (572x791)](images/hornsby/p0119-9d9c68cf1108.png)
+![page 119 img 1 (572x791)](images/hornsby/p0119-9d9c68cf1108.webp)
 
 
 *Figure 3.1-k: Landscaped area (I)*
@@ -5337,7 +5337,7 @@ Note:
 
 The Sustainable Buildings SEPP requires a BASIX certificate for new dwellings to facilitate energy efficient housing.
 
-![page 120 img 1 (306x327)](images/hornsby/p0120-d83d3f882490.png)
+![page 120 img 1 (306x327)](images/hornsby/p0120-d83d3f882490.webp)
 
 
 *Figure 3.1-l: Sun shading devices are essential elements of a well designed home (E)*
@@ -5362,7 +5362,7 @@ The Sustainable Buildings SEPP requires a BASIX certificate for new dwellings to
 - the window has a sill height of less than 1.5 metres.
 - A deck, balcony, terrace or the like should be located within 600mm of existing ground level where possible to minimise potential visual and acoustic privacy conflicts.
 - Decks and the like that need to be located more than 600mm above existing ground should not face a window of another habitable room, balcony or private open space of another dwelling located within 9 metres of the proposed deck unless appropriately screened.
-![page 121 img 1 (649x552)](images/hornsby/p0121-50dce9f43a1d.png)
+![page 121 img 1 (649x552)](images/hornsby/p0121-50dce9f43a1d.webp)
 
 
 *Figure 3.1-m: Decks adjoining a neighbouring dwelling are to be screened (I)*
@@ -5423,7 +5423,7 @@ For dual occupancies:
 - 16-20m lot width = 6m;
 - >20m-25m lot width = 9m; and
 - >25m lot width = 12m.
-![page 122 img 1 (615x473)](images/hornsby/p0122-a85fef944583.png)
+![page 122 img 1 (615x473)](images/hornsby/p0122-a85fef944583.webp)
 
 
 *Figure 3.1-n: The main entry should be clearly visible from the street and sheltered from the weather, and the garages set back from the front facade (E)*
@@ -5431,7 +5431,7 @@ For dual occupancies:
 
 *Source: Landcom, Built Form Design Guidelines.*
 
-![page 122 img 2 (608x349)](images/hornsby/p0122-382eaafc9caf.png)
+![page 122 img 2 (608x349)](images/hornsby/p0122-382eaafc9caf.webp)
 
 
 *Figure 3.1-o: dual occupancy double garages separated by building design elements to minimise street impact (E)*
@@ -5439,7 +5439,7 @@ For dual occupancies:
 
 *Source: Hornsby Shire Council*
 
-![page 122 img 3 (719x765)](images/hornsby/p0122-81e3345a3a85.png)
+![page 122 img 3 (719x765)](images/hornsby/p0122-81e3345a3a85.webp)
 
 
 *Figure 3.1-p: sample plan attached dual occupancy (E)*
@@ -5522,7 +5522,7 @@ A high standard of architectural and urban design quality is achieved. Contempor
 
 Developments incorporate a mix of dwelling sizes to provide housing choice. Developments embody active living principles including prioritised pedestrian and cyclist entrances to buildings, connectivity to the public domain and bicycle parking and storage.
 
-![page 124 img 1 (1027x606)](images/hornsby/p0124-76feb1f0b05c.png)
+![page 124 img 1 (1027x606)](images/hornsby/p0124-76feb1f0b05c.webp)
 
 Figure 3.2-a: Town houses with basement parking are the most effective form of attached or multi dwelling housing. Positive responses to desired future character include deep soil landscaping along all site boundaries, dwellings that address the street or a central walkway, and that are not oriented towards neighbouring properties, and car parking that is concealed below ground level. (I)
 
@@ -5543,9 +5543,9 @@ To achieve active living principles development should have regard to NSW Health
 
 that is concealed below ground level and within the building footprint. (I)
 
-![page 125 img 1 (1193x574)](images/hornsby/p0125-0dbb901cc58c.png)
+![page 125 img 1 (1193x574)](images/hornsby/p0125-0dbb901cc58c.webp)
 
-![page 125 img 2 (1193x581)](images/hornsby/p0125-bf062959fd4c.png)
+![page 125 img 2 (1193x581)](images/hornsby/p0125-bf062959fd4c.webp)
 
 
 *Figure 3.2-c: Town houses with ground level parking potentially provide for lower site yields and are not the preferred form for attached or multi dwelling housing. However where this built form is proposed, positive responses to desired future character include driveways that are flanked by landscaping, visible entrances to every dwelling and facades not dominated by garages. (I)*
@@ -5571,7 +5571,7 @@ that is concealed below ground level and within the building footprint. (I)
 - Driveways should be consolidated on large sites and adjacent development lots where topographically possible to avoid large expanses of driveway to street frontages.
 - Where a development proposal results in an adjoining site within the precinct with no street frontage or a primary street frontage of less than 30 metres, proponents should demonstrate that orderly and economic development of the site can be achieved under this DCP.
 - Where a property is likely to be isolated by a proposed development and it cannot be demonstrated that the site can be developed to its full potential, applicants should provide documentary evidence that a genuine and reasonable attempt has been made to purchase an isolated site based on a fair market value.
-![page 126 img 1 (1861x1230)](images/hornsby/p0126-0afe16822f16.png)
+![page 126 img 1 (1861x1230)](images/hornsby/p0126-0afe16822f16.webp)
 
 
 *Figure 3.2-d: Lot amalgamation should avoid isolating small sites (I)*
@@ -5628,7 +5628,7 @@ Storey means a space within a building that is situated between one floor level 
 
 Attic means any habitable space, but not a separate dwelling, contained wholly within a roof above the ceiling line of the storey immediately below, except for minor elements such as dormer windows and the like.
 
-![page 127 img 1 (612x329)](images/hornsby/p0127-6d93f29a4d26.png)
+![page 127 img 1 (612x329)](images/hornsby/p0127-6d93f29a4d26.webp)
 
 
 *Figure 3.2-e: Building Height Controls - residential flat building of 2 storeys + attic. (I) Height controls are based on a typical residential floor to floor height of 3 metres, with a 3.5 metre allowance for roof articulation and a 1 metre basement projection.*
@@ -5659,7 +5659,7 @@ Basement means the space of a building where the floor level of that space is pr
 - Dormers should not be wider than 2 metres and the sides of adjoining dormers should be separated by at least 2 metres, and
 - Preferably face the front and rear boundaries of the site.
 - Roof fixtures and lift overruns or service plants should be incorporated into the design of the roof to minimise visual intrusiveness and support an integrated building design.
-![page 128 img 1 (651x534)](images/hornsby/p0128-71bafe4b8fa3.png)
+![page 128 img 1 (651x534)](images/hornsby/p0128-71bafe4b8fa3.webp)
 
 
 *Figure 3.2-f: Building Height Controls - 2 storey town houses with a maximum roof pitch of 25 degrees and basement car parking (E)*
@@ -5726,7 +5726,7 @@ Orientation of a dwelling is perpendicular to the principal windows of living ro
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 130 -->
 
-![page 130 img 1 (603x855)](images/hornsby/p0130-b2240518c4bf.png)
+![page 130 img 1 (603x855)](images/hornsby/p0130-b2240518c4bf.webp)
 
 
 *Figure 3.2-g: Setbacks of town houses that are oriented towards the front and/or rear boundary (E)*
@@ -5748,12 +5748,12 @@ Designated roads are Council identified roads that require development to have a
 
 Lightweight verandahs or pergolas typically comprise timber or metal frames. They are not supported by brick or concrete columns and do not have brick or concrete balustrades and should not include the main roof of the building.
 
-![page 130 img 2 (606x855)](images/hornsby/p0130-6c8bcbab4e43.png)
+![page 130 img 2 (606x855)](images/hornsby/p0130-6c8bcbab4e43.webp)
 
 
 *Figure 3.2-h: Setbacks of town houses that are oriented towards a side boundary (E)*
 
-![page 130 img 3 (606x794)](images/hornsby/p0130-1ce64dac0d6c.png)
+![page 130 img 3 (606x794)](images/hornsby/p0130-1ce64dac0d6c.webp)
 
 
 *Figure 3.2-i : Setbacks of residential flat buildings (E)*
@@ -5776,7 +5776,7 @@ Lightweight verandahs or pergolas typically comprise timber or metal frames. The
 
 - Floorplates of residential flat buildings should have a maximum dimension of 35 metres measured in a perpendicular direction between opposing exterior walls at any point. Balconies and terraces may project beyond this maximum provided that there is no adverse impact in relation to shadowing or privacy.
 - Floorplates exceeding 25 metres for residential flat buildings should incorporate a distinct indentation which measures at least 4 metres by 4 metres and should create the appearance of two separate 'building pavilions' rather than a single building mass. The appearance of separate pavilions should be accentuated by individual roofs above each pavilion element.
-![page 131 img 1 (650x379)](images/hornsby/p0131-20a41059c065.png)
+![page 131 img 1 (650x379)](images/hornsby/p0131-20a41059c065.webp)
 
 
 *Figure 3.2-j: Internal separation and articulation of town house buildings (E)*
@@ -5851,7 +5851,7 @@ Table 3.2.6-a:  Deep Soil Landscaped Areas
 
 *Table 3.2.6-a: Deep Soil Landscaped Areas*
 
-![page 132 img 1 (1401x718)](images/hornsby/p0132-4f30de18e526.png)
+![page 132 img 1 (1401x718)](images/hornsby/p0132-4f30de18e526.webp)
 
 
 *Figure 3.2-k: Landscaped areas for town house developments: deep soil adjacent to the property boundary and landscape planters between townhouses above basements. (I)*
@@ -5953,7 +5953,7 @@ Table 3.2.7-a:  Minimum Private Open Space
 - receive at least 2 hours of sunlight during mid winter,
 - be located to provide direct sight lines and convenient access from the building lobby, and
 - be sited and designed to protect the amenity of adjacent dwellings.
-![page 134 img 1 (641x853)](images/hornsby/p0134-603fef466685.png)
+![page 134 img 1 (641x853)](images/hornsby/p0134-603fef466685.webp)
 
 
 *Figure 3.2-l: Private open space in a residential flat (I)*
@@ -5990,7 +5990,7 @@ Table 3.2.8-a:  Minimum Separation between Rooms
 
 *Table 3.2.8-a: Minimum Separation between Rooms*
 
-![page 135 img 1 (1396x828)](images/hornsby/p0135-23b119bdfa74.png)
+![page 135 img 1 (1396x828)](images/hornsby/p0135-23b119bdfa74.webp)
 
 
 *Figure 3.2-m: Fixed screens and communal planters provide privacy for ground level open spaces and rooms but allow casual surveillance of common areas from each dwelling. Adjustable screens on balconies provide for microclimate control. (E)*
@@ -6184,7 +6184,7 @@ The Key Development Principles Diagrams are indicative only and are not to scale
 
 The following symbols appear in the Key Development Principles Diagrams.
 
-![page 139 img 1 (419x750)](images/hornsby/p0139-af1bac755455.png)
+![page 139 img 1 (419x750)](images/hornsby/p0139-af1bac755455.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 140 -->
@@ -6192,7 +6192,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Pacific Highway, Mount Colah and Asquith Precinct
 
-![page 140 img 1 (1875x2335)](images/hornsby/p0140-ebceefc9051a.png)
+![page 140 img 1 (1875x2335)](images/hornsby/p0140-ebceefc9051a.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 141 -->
@@ -6200,7 +6200,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Stokes Avenue, Asquith Precinct Key Development Principles Diagram
 
-![page 141 img 1 (1767x2313)](images/hornsby/p0141-0533d308413d.png)
+![page 141 img 1 (1767x2313)](images/hornsby/p0141-0533d308413d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 142 -->
@@ -6211,7 +6211,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Key Development Principles Diagram
 
-![page 142 img 1 (1908x2349)](images/hornsby/p0142-3fd27454c503.png)
+![page 142 img 1 (1908x2349)](images/hornsby/p0142-3fd27454c503.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 143 -->
@@ -6222,7 +6222,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Key Development Principles Diagram
 
-![page 143 img 1 (1031x641)](images/hornsby/p0143-0a71bc06bb3d.png)
+![page 143 img 1 (1031x641)](images/hornsby/p0143-0a71bc06bb3d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 144 -->
@@ -6233,7 +6233,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Key Development Principles Diagram
 
-![page 144 img 1 (1875x2229)](images/hornsby/p0144-f4801328b097.png)
+![page 144 img 1 (1875x2229)](images/hornsby/p0144-f4801328b097.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 145 -->
@@ -6243,7 +6243,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 Key Development Principles Diagram
 
-![page 145 img 1 (1878x2300)](images/hornsby/p0145-72f52a2e58c5.png)
+![page 145 img 1 (1878x2300)](images/hornsby/p0145-72f52a2e58c5.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 146 -->
@@ -6254,7 +6254,7 @@ Key Development Principles Diagram
 
 #### Key Development Principles Diagram
 
-![page 146 img 1 (1389x1717)](images/hornsby/p0146-4084a1b3ff9a.png)
+![page 146 img 1 (1389x1717)](images/hornsby/p0146-4084a1b3ff9a.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 147 -->
@@ -6291,7 +6291,7 @@ A high standard of architectural and urban design quality is achieved. Contempor
 
 To achieve active living principles development should have regard to NSW Health's Healthy Urban Development Checklist and the National Heart Foundation's Blueprint for an Active Australia.
 
-![page 147 img 1 (1846x1087)](images/hornsby/p0147-3ca7f6fa4b12.png)
+![page 147 img 1 (1846x1087)](images/hornsby/p0147-3ca7f6fa4b12.webp)
 
 
 *Figure 3.3-a: Example of Desired Character - 3 storey residential flat building (I)*
@@ -6348,7 +6348,7 @@ Development applications should be accompanied by a statement of environmental e
 - Where practicable locate driveway entries beneath building envelope.
 - Driveways should run perpendicular to the street for sites with a regular geometry.
 - Driveways should be consolidated on large sites and adjacent development lots where topographically possible to avoid large expanses of driveway to street frontages.
-![page 149 img 1 (1012x669)](images/hornsby/p0149-993398e6957b.png)
+![page 149 img 1 (1012x669)](images/hornsby/p0149-993398e6957b.webp)
 
 
 *Figure 3.3-b: Lot amalgamation should avoid isolating small sites (I)*
@@ -6408,7 +6408,7 @@ Storey means a space within a building that is situated between one floor level 
 
 Basement means the space of a building where the floor level of that space is predominantly below ground level (existing) and where the floor level of the storey immediately above is less than 1 metre above ground level (existing).
 
-![page 150 img 1 (1317x618)](images/hornsby/p0150-14d7e0ae0c4b.png)
+![page 150 img 1 (1317x618)](images/hornsby/p0150-14d7e0ae0c4b.webp)
 
 
 *Figure 3.3-c: Building Height. (I) Height controls are based on a typical residential floor to floor height of 3 metres, with a 2-metre allowance for roof articulation and a 1 metre basement projection.*
@@ -6511,7 +6511,7 @@ Table 3.3.6-a:  Façade Articulation
 
 - Facades should incorporate a mix of compatible materials such as face or rendered brickwork and contrasting areas of lightweight structures such as wrap around balconies with operable louvres.
 - Balconies should appear as open structures with lightweight balustrades. Solid masonry walls should be minimised.
-![page 152 img 1 (651x414)](images/hornsby/p0152-16482d4ed495.png)
+![page 152 img 1 (651x414)](images/hornsby/p0152-16482d4ed495.webp)
 
 
 *Figure 3.3-d: Articulation of facades. (E)*
@@ -6648,7 +6648,7 @@ Table 3.3.8-a:  Minimum Private Open Space
 - achieve a minimum 50% direct sunlight to the principal usable part of the communal open space for a minimum of 2 hours between 9am and 3pm on 21 June (mid-winter),
 - be located to provide direct sight lines and convenient access from the building lobby, and
 - be sited and designed to protect the amenity of adjacent dwellings.
-![page 155 img 1 (651x336)](images/hornsby/p0155-a253cfe4b3e6.png)
+![page 155 img 1 (651x336)](images/hornsby/p0155-a253cfe4b3e6.webp)
 
 
 *Figure 3.3-e: Articulation of facades (E)*
@@ -6676,7 +6676,7 @@ Table 3.3.8-a:  Minimum Private Open Space
 - Identify safe, clear and direct pedestrian and cyclist entrance to the building/s from the primary street frontage.
 - Private open spaces, living room windows and lobbies should be designed and oriented to overlook the street and communal open spaces on the site.
 - Communal hallways, including access to entrance foyers, should be limited in length and desirably provide windows, so that hallways may overlook the street or communal areas.
-![page 155 img 2 (659x353)](images/hornsby/p0155-c56b7fdcfa85.png)
+![page 155 img 2 (659x353)](images/hornsby/p0155-c56b7fdcfa85.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 156 -->
@@ -6688,7 +6688,7 @@ All developments should comply with the minimum building setback and separation 
 
 A privacy screen means a screen that is at least 1.5m high, measured from the floor level, and has no individual opening more than 30mm wide, and has a total of all openings less than 30% of the surface area of the screen. A privacy screen required to protect an adjacent residence is to be fixed.
 
-![page 156 img 1 (651x404)](images/hornsby/p0156-0d15cc9ad346.png)
+![page 156 img 1 (651x404)](images/hornsby/p0156-0d15cc9ad346.webp)
 
 
 *Figure 3.3-f: Residential flats oriented to the front and rear boundary to promote privacy between development sites and security of communal areas and the public domain.(I)*
@@ -6871,7 +6871,7 @@ Note:
 
 The established tree canopy is complemented by new trees and shrubs throughout all gardens. Facade widths To achieve active living principles development should have regard to NSW Health's Healthy Urban Development Checklist and the National Heart Foundation's Blueprint for an Active Australia.
 
-![page 159 img 1 (800x424)](images/hornsby/p0159-c50cb066a2ae.png)
+![page 159 img 1 (800x424)](images/hornsby/p0159-c50cb066a2ae.webp)
 
 
 *Figure 3.4-a: Example of Desired Character - 5 storey residential flat building (I)*
@@ -6879,7 +6879,7 @@ The established tree canopy is complemented by new trees and shrubs throughout a
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 160 -->
 
-![page 160 img 1 (651x981)](images/hornsby/p0160-d2020a2d26e2.png)
+![page 160 img 1 (651x981)](images/hornsby/p0160-d2020a2d26e2.webp)
 
 
 *Figure 3.4-b: Desirable features - buildings in a landscaped setting with canopy trees (E)*
@@ -6945,7 +6945,7 @@ Development applications should be accompanied by a statement of environmental e
 - Where practicable locate driveway entries beneath building envelope.
 - Driveways should run perpendicular to the street for sites with a regular geometry.
 - Driveways should be consolidated on large sites and adjacent development lots where topographically possible to avoid large expanses of driveway to street frontages.
-![page 161 img 1 (1401x881)](images/hornsby/p0161-faaf3fee565f.png)
+![page 161 img 1 (1401x881)](images/hornsby/p0161-faaf3fee565f.webp)
 
 
 *Figure 3.4-c: Lot amalgamation should avoid isolating small sites (I)*
@@ -6994,9 +6994,9 @@ Table 3.4.4-a:  Translations of Height to Storeys
 - Roof design is to respond to solar access and prevailing weather with use of eaves, skillion roof, awnings, and the like with a minimum overhang of 0.6m.
 Figure 3.4-d: Building Height. (I) Height controls are based on a typical residential floor to floor height of 3 metres, with a 0.5 metre allowance for roof articulation and a 1 metre basement projection.
 
-![page 162 img 1 (800x424)](images/hornsby/p0162-bca8035ca6a2.png)
+![page 162 img 1 (800x424)](images/hornsby/p0162-bca8035ca6a2.webp)
 
-![page 162 img 2 (277x239)](images/hornsby/p0162-ef370820f801.png)
+![page 162 img 2 (277x239)](images/hornsby/p0162-ef370820f801.webp)
 
 
 *Figure 3.4-e: Example of perimeter sleaving with pergola and perimeter planters for greenery at upper levels*
@@ -7023,12 +7023,12 @@ Basement means the space of a building where the floor level of that space is pr
 
 Development involving or adjoining heritage items should have regard to Part 9 Heritage of this DCP. Sensitive interface areas are indicated on the Key Development Principles Diagrams.
 
-![page 163 img 1 (651x554)](images/hornsby/p0163-516a3b511f95.png)
+![page 163 img 1 (651x554)](images/hornsby/p0163-516a3b511f95.webp)
 
 
 *Figure 3.4-f: Desirable features - top storey set back with wide eaves (no parapets) (E)*
 
-![page 163 img 2 (323x241)](images/hornsby/p0163-8cb305422646.png)
+![page 163 img 2 (323x241)](images/hornsby/p0163-8cb305422646.webp)
 
 
 *Figure 3.4-g: Example of Desired Character - Beecroft Heritage Precinct (E)*
@@ -7132,7 +7132,7 @@ Development involving or adjoining heritage items should have regard to Part 9 H
 
 - Floorplates should have a maximum dimension of 35 metres measured in a perpendicular direction between opposing exterior walls at any point. Balconies, terraces and ground floor lobbies may project beyond this maximum.
 - Floorplates exceeding 25 metres should incorporate a distinct indentation which measures at least 4 metres by 4 metres recess, and creates the appearance of two separate 'building pavilions' rather than a single building mass. The appearance of separate pavilions should be accentuated by individual roofs above each pavilion element.
-![page 165 img 1 (651x706)](images/hornsby/p0165-abe712903269.png)
+![page 165 img 1 (651x706)](images/hornsby/p0165-abe712903269.webp)
 
 
 *Figure 3.4-h: Building floorplates should be limited in width and depth I*
@@ -7147,7 +7147,7 @@ Development involving or adjoining heritage items should have regard to Part 9 H
 - Building separation should comply with Part 2F Building Separation of the Apartment Design Guide.
 - For properties with a boundary interface with a lower density zone, an additional 3 metre building separation should be provided.
 - On large sites where the floorplate control requires more than one building, adjoining buildings should be separated by a minimum of 9 metres.
-![page 166 img 1 (877x913)](images/hornsby/p0166-8af46cc118b2.png)
+![page 166 img 1 (877x913)](images/hornsby/p0166-8af46cc118b2.webp)
 
 
 *Figure 3.4-i: Separation of buildings on the same site I*
@@ -7182,12 +7182,12 @@ To achieve the above elements in the Beecroft Heritage Precinct the following is
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 167 -->
 
-![page 167 img 1 (1362x907)](images/hornsby/p0167-e098f647b874.png)
+![page 167 img 1 (1362x907)](images/hornsby/p0167-e098f647b874.webp)
 
 
 *Figure 3.4-j: Articulation of facades (l)*
 
-![page 167 img 2 (1251x946)](images/hornsby/p0167-9ad788328f01.png)
+![page 167 img 2 (1251x946)](images/hornsby/p0167-9ad788328f01.webp)
 
 
 *Figure 3.4-k: Articulation of facades Beecroft heritage Precinct*
@@ -7285,7 +7285,7 @@ Deep soil zones are areas of soil not covered by buildings or structures within 
 
 Deep soil zones have important environmental benefits, such as allowing infiltration of rainwater to the water table and reducing stormwater runoff, promoting healthy growth of large trees with large canopies and protecting existing mature trees which assist with temperature reduction in urban environments.
 
-![page 169 img 1 (651x366)](images/hornsby/p0169-11422d2c7a6f.png)
+![page 169 img 1 (651x366)](images/hornsby/p0169-11422d2c7a6f.webp)
 
 
 *Figure 3.4-l : Example of the preferred style of screening for fire hydrants.*
@@ -7327,12 +7327,12 @@ Table 3.4.8-a:  Minimum Private Open Space
 
 *Table 3.4.8-a: Minimum Private Open Space*
 
-![page 170 img 1 (651x312)](images/hornsby/p0170-4030d8fec03c.png)
+![page 170 img 1 (651x312)](images/hornsby/p0170-4030d8fec03c.webp)
 
 
 *Figure 3.4-m: Separation of buildings on the same site (E)*
 
-![page 170 img 2 (659x353)](images/hornsby/p0170-fae07b55c193.png)
+![page 170 img 2 (659x353)](images/hornsby/p0170-fae07b55c193.webp)
 
 
 #### Clothes Drying Area
@@ -7580,7 +7580,7 @@ The Key Development Principles Diagrams are indicative only and are not to scale
 
 The following symbols appear in the Key Development Principles Diagrams.
 
-![page 174 img 1 (651x1153)](images/hornsby/p0174-f7ac2d7cfe37.png)
+![page 174 img 1 (651x1153)](images/hornsby/p0174-f7ac2d7cfe37.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 175 -->
@@ -7588,7 +7588,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Pacific Highway, Mount Colah precinct Key Development Principles Diagram
 
-![page 175 img 1 (1401x1671)](images/hornsby/p0175-816514d0244a.png)
+![page 175 img 1 (1401x1671)](images/hornsby/p0175-816514d0244a.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 176 -->
@@ -7599,7 +7599,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Key Development Principles Diagram
 
-![page 176 img 1 (1031x641)](images/hornsby/p0143-0a71bc06bb3d.png)
+![page 176 img 1 (1031x641)](images/hornsby/p0143-0a71bc06bb3d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 177 -->
@@ -7610,7 +7610,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Key Development Principles Diagram
 
-![page 177 img 1 (1401x1806)](images/hornsby/p0177-e5ad3b30e711.png)
+![page 177 img 1 (1401x1806)](images/hornsby/p0177-e5ad3b30e711.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 178 -->
@@ -7618,7 +7618,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Jersey Street Nth, Asquith precinct
 
-![page 178 img 1 (1401x1701)](images/hornsby/p0178-9135d493f13d.png)
+![page 178 img 1 (1401x1701)](images/hornsby/p0178-9135d493f13d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 179 -->
@@ -7626,7 +7626,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Bouvardia Street, Asquith precinct
 
-![page 179 img 1 (1401x1720)](images/hornsby/p0179-c9256ceb2cd3.png)
+![page 179 img 1 (1401x1720)](images/hornsby/p0179-c9256ceb2cd3.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 180 -->
@@ -7634,7 +7634,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Hyacinth Street, Asquith precinct Key Development Principles Diagram
 
-![page 180 img 1 (1401x1587)](images/hornsby/p0180-8cbde51df26b.png)
+![page 180 img 1 (1401x1587)](images/hornsby/p0180-8cbde51df26b.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 181 -->
@@ -7642,7 +7642,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Pacific Highway, Asquith precinct Key Development Principles Diagram
 
-![page 181 img 1 (1401x1726)](images/hornsby/p0181-e137c5e8b802.png)
+![page 181 img 1 (1401x1726)](images/hornsby/p0181-e137c5e8b802.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 182 -->
@@ -7653,7 +7653,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Key Development Principles Diagram
 
-![page 182 img 1 (1401x1652)](images/hornsby/p0182-0320dff97bdf.png)
+![page 182 img 1 (1401x1652)](images/hornsby/p0182-0320dff97bdf.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 183 -->
@@ -7664,7 +7664,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 #### Key Development Principles Diagram
 
-![page 183 img 1 (1401x1713)](images/hornsby/p0183-4c47f8c9b193.png)
+![page 183 img 1 (1401x1713)](images/hornsby/p0183-4c47f8c9b193.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 184 -->
@@ -7674,7 +7674,7 @@ The following symbols appear in the Key Development Principles Diagrams.
 
 Key Development Principles Diagram
 
-![page 184 img 1 (1401x1771)](images/hornsby/p0184-61ca19c1abed.png)
+![page 184 img 1 (1401x1771)](images/hornsby/p0184-61ca19c1abed.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 185 -->
@@ -7685,7 +7685,7 @@ Key Development Principles Diagram
 
 #### Key Development Principles Diagram
 
-![page 185 img 1 (1401x1724)](images/hornsby/p0185-27b67d3c6163.png)
+![page 185 img 1 (1401x1724)](images/hornsby/p0185-27b67d3c6163.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 186 -->
@@ -7696,7 +7696,7 @@ Key Development Principles Diagram
 
 #### Key Development Principles Diagram
 
-![page 186 img 1 (1401x1041)](images/hornsby/p0186-32a09815bf42.png)
+![page 186 img 1 (1401x1041)](images/hornsby/p0186-32a09815bf42.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 187 -->
@@ -7707,7 +7707,7 @@ Key Development Principles Diagram
 
 #### Key Development Principles Diagram
 
-![page 187 img 1 (1401x1775)](images/hornsby/p0187-f35676568172.png)
+![page 187 img 1 (1401x1775)](images/hornsby/p0187-f35676568172.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 188 -->
@@ -7717,7 +7717,7 @@ Key Development Principles Diagram
 
 Key Development Principles Diagram - Typical cross section
 
-![page 188 img 1 (1056x1826)](images/hornsby/p0188-5edfc2626aff.png)
+![page 188 img 1 (1056x1826)](images/hornsby/p0188-5edfc2626aff.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 189 -->
@@ -7727,7 +7727,7 @@ Key Development Principles Diagram - Typical cross section
 
 Key Development Principles Diagram - typical cross section
 
-![page 189 img 1 (1087x1841)](images/hornsby/p0189-8c716164076a.png)
+![page 189 img 1 (1087x1841)](images/hornsby/p0189-8c716164076a.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 190 -->
@@ -7761,7 +7761,7 @@ Balconies provide outdoor living areas which wrap around the corners of the buil
 
 Developments embody active living principles including bicycle parking and storage, prioritised pedestrian and cyclist entrances to buildings, and connectivity to the public domain.
 
-![page 190 img 1 (1653x1063)](images/hornsby/p0190-15a8924839fc.png)
+![page 190 img 1 (1653x1063)](images/hornsby/p0190-15a8924839fc.webp)
 
 
 *Figure 3.5-a: Example of Desired Character - 8 storey residential flat building (excluding Pound Road, Hornsby precinct) (I)*
@@ -7781,7 +7781,7 @@ Development footprints incorporate a podium of 3 storeys that is consistent with
 
 Buildings are integrated into a campus like setting with large areas of consolidated public and communal open space. Communal open space is predominantly located between the 2 residential towers. Development is setback from the Pacific Highway and other public areas to ensure continuity of the building alignment and to allow for landscape corridors with trees that will mature to a height above the podium.
 
-![page 191 img 1 (1746x1087)](images/hornsby/p0191-3e4861139a35.png)
+![page 191 img 1 (1746x1087)](images/hornsby/p0191-3e4861139a35.webp)
 
 
 *Figure 3.5-b: Example of Desired Character - 9 storey residential flat building (Pound Road, Hornsby precinct) (I)*
@@ -7859,7 +7859,7 @@ Table 3.5.3-a:  Minimum Site Width
 
 Refer to Section 1.3.2.12 of the DCP for detailed provisions on Isolated Sites
 
-![page 193 img 1 (1390x897)](images/hornsby/p0193-d4ffcaa727c9.png)
+![page 193 img 1 (1390x897)](images/hornsby/p0193-d4ffcaa727c9.webp)
 
 
 *Figure 3.5-c: Lot amalgamation should avoid isolating small sites (excluding Pound Road Hornsby) (I)*
@@ -7993,7 +7993,7 @@ A transition in setbacks should be provided at sensitive interface areas adjacen
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 196 -->
 
-![page 196 img 1 (1401x1268)](images/hornsby/p0196-61596adf412b.png)
+![page 196 img 1 (1401x1268)](images/hornsby/p0196-61596adf412b.webp)
 
 
 *Figure 3.5-d: Minimum setbacks (excluding the Pound Road Hornsby Precinct) (E)*
@@ -8125,7 +8125,7 @@ For the purposes of the Pound Road Hornsby Precinct, the first residential store
 - being varied in form and design across each facade in a variety of shapes and dimensions repeated in semi-regular patterns,
 - not extending continuously across the full width of any facade, and
 - varying the form and design of balcony balustrades and limiting the use of masonry upstands to avoid a bulky character.
-![page 199 img 1 (711x499)](images/hornsby/p0199-e72314d2b0a9.png)
+![page 199 img 1 (711x499)](images/hornsby/p0199-e72314d2b0a9.webp)
 
 
 *Figure 3.5-e: Articulation of facades (Pound Road Hornsby Precinct) (E)*
@@ -8223,12 +8223,12 @@ The applicant is encouraged to incorporate plant species indigenous to Hornsby S
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 202 -->
 
-![page 202 img 1 (1400x937)](images/hornsby/p0202-869461fd4a51.png)
+![page 202 img 1 (1400x937)](images/hornsby/p0202-869461fd4a51.webp)
 
 
 *Figure 3.5-f: Deep soil planting (E)*
 
-![page 202 img 2 (1401x605)](images/hornsby/p0202-6bd691ef032b.png)
+![page 202 img 2 (1401x605)](images/hornsby/p0202-6bd691ef032b.webp)
 
 
 *Figure 3.5-g: Soil depth (E)*
@@ -8284,7 +8284,7 @@ Table 3.5.8-a:  Minimum Private Open Space
 - Roof terraces should include a minimum 25% planted area, with the majority of the planting around the edge to reduce opportunities for overlooking and improve the visual amenity of the building when viewed from the public domain.
 Figure 3.5-h : L-shaped balconies and terraces accommodate a number of activities, and adjustable screens provide shade, privacy and enclosure for outdoor rooms.(E)
 
-![page 203 img 1 (651x424)](images/hornsby/p0203-c262c368216b.png)
+![page 203 img 1 (651x424)](images/hornsby/p0203-c262c368216b.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 204 -->
@@ -8487,7 +8487,7 @@ The Key Development Principles Diagrams are indicative only and are not to scale
 
 The following symbols appear in the Key Development Principles diagrams for Park Avenue, Waitara precinct, and Pound Road, Hornsby precinct:
 
-![page 208 img 1 (651x1153)](images/hornsby/p0174-f7ac2d7cfe37.png)
+![page 208 img 1 (651x1153)](images/hornsby/p0174-f7ac2d7cfe37.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 209 -->
@@ -8498,7 +8498,7 @@ The following symbols appear in the Key Development Principles diagrams for Park
 
 #### Key Development Principles Diagram
 
-![page 209 img 1 (1389x1831)](images/hornsby/p0209-10e0b01fce60.png)
+![page 209 img 1 (1389x1831)](images/hornsby/p0209-10e0b01fce60.webp)
 
 
 <!-- SRC: HDCP 2024 Part 3 Residential - 26 June 2026.pdf | PAGE: 210 -->
@@ -8508,7 +8508,7 @@ The following symbols appear in the Key Development Principles diagrams for Park
 
 Key Development Principles Diagram
 
-![page 210 img 1 (1385x1826)](images/hornsby/p0210-75351e219f9d.png)
+![page 210 img 1 (1385x1826)](images/hornsby/p0210-75351e219f9d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 211 -->
@@ -8518,7 +8518,7 @@ Key Development Principles Diagram
 
 Part 4 Business
 
-![page 211 img 1 (206x162)](images/hornsby/p0009-40182b59fdfd.png)
+![page 211 img 1 (206x162)](images/hornsby/p0009-40182b59fdfd.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 212 -->
@@ -8588,7 +8588,7 @@ Where sites contain a heritage item, are in the vicinity of a heritage item or w
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 215 -->
 
-![page 215 img 1 (1400x1196)](images/hornsby/p0215-e9f803b7a143.png)
+![page 215 img 1 (1400x1196)](images/hornsby/p0215-e9f803b7a143.webp)
 
 
 *Figure 4.1-a: Commercial Centres Hierarchy (C)*
@@ -8757,7 +8757,7 @@ Table 4.2.2-a:  Minimum Boundary Setbacks
 -  Pergolas for private or communal open spaces which are situated upon a podium,
 -  Sunshades and screens, and
 -  Blade columns which support roofs or sunshades.
-![page 218 img 1 (391x450)](images/hornsby/p0218-4be6a49c36af.png)
+![page 218 img 1 (391x450)](images/hornsby/p0218-4be6a49c36af.webp)
 
 
 *Figure 4.2-a: Setback principles, including a podium (I)*
@@ -8765,12 +8765,12 @@ Table 4.2.2-a:  Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 219 -->
 
-![page 219 img 1 (846x637)](images/hornsby/p0219-9b05193fb6b2.png)
+![page 219 img 1 (846x637)](images/hornsby/p0219-9b05193fb6b2.webp)
 
 
 *Figure 4.2-b: Berowra Heights Setbacks (C)*
 
-![page 219 img 2 (846x668)](images/hornsby/p0219-2826af92bb90.png)
+![page 219 img 2 (846x668)](images/hornsby/p0219-2826af92bb90.webp)
 
 
 *Figure 4.2-c: Dural Service Centre Setbacks (C)*
@@ -8778,12 +8778,12 @@ Table 4.2.2-a:  Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 220 -->
 
-![page 220 img 1 (830x660)](images/hornsby/p0220-051eab71a69a.png)
+![page 220 img 1 (830x660)](images/hornsby/p0220-051eab71a69a.webp)
 
 
 *Figure 4.2-d: Hornsby (Bridge Road) Setbacks (C)*
 
-![page 220 img 2 (843x674)](images/hornsby/p0220-a9a502de462b.png)
+![page 220 img 2 (843x674)](images/hornsby/p0220-a9a502de462b.webp)
 
 
 *Figure 4.2-e: Hornsby (Romsey Street) Setbacks (C)*
@@ -8791,7 +8791,7 @@ Table 4.2.2-a:  Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 221 -->
 
-![page 221 img 1 (1050x840)](images/hornsby/p0221-3d0a7e49a04f.png)
+![page 221 img 1 (1050x840)](images/hornsby/p0221-3d0a7e49a04f.webp)
 
 
 *Figure 4.2-f: Pennant Hills Setbacks (C)*
@@ -8799,7 +8799,7 @@ Table 4.2.2-a:  Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 222 -->
 
-![page 222 img 1 (988x1369)](images/hornsby/p0222-53491a00c55e.png)
+![page 222 img 1 (988x1369)](images/hornsby/p0222-53491a00c55e.webp)
 
 
 *Figure 4.2-g: Thornleigh Setbacks. The setback controls in Section 4.4 of the DCP supersede the above setback diagram in the event of any inconsistency (C)*
@@ -8807,7 +8807,7 @@ Table 4.2.2-a:  Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 223 -->
 
-![page 223 img 1 (1050x800)](images/hornsby/p0223-2e105c08f0da.png)
+![page 223 img 1 (1050x800)](images/hornsby/p0223-2e105c08f0da.webp)
 
 
 *Figure 4.2-h: Waitara Setbacks (C)*
@@ -8848,7 +8848,7 @@ Table 4.2.3-a:  Minimum Private Open Space
 
 *Table 4.2.3-a: Minimum Private Open Space*
 
-![page 224 img 1 (488x304)](images/hornsby/p0224-1f20f0fbe5c9.png)
+![page 224 img 1 (488x304)](images/hornsby/p0224-1f20f0fbe5c9.webp)
 
 
 *Figure 4.2-i: Private open space in a residential flat (I)*
@@ -9034,7 +9034,7 @@ Refer to Part 1 General of the DCP for car parking, service vehicle, bicycle par
 
 Development adjoining roads that are subject to Section 2.119 of the Transport and Infrastructure SEPP require separate approval from Transport for NSW (TfNSW) for access to State and Regional Roads as classified by TfNSW. A list of classified and unclassified main roads for Hornsby Shire is provided in Annexure C.
 
-![page 228 img 1 (711x473)](images/hornsby/p0228-04fd218c6bb7.png)
+![page 228 img 1 (711x473)](images/hornsby/p0228-04fd218c6bb7.webp)
 
 
 *Figure 4.2-j: Car park siting principles (I)*
@@ -9105,7 +9105,7 @@ This DCP will inform Council's Civic Works Program and Street Tree Planting Prog
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 230 -->
 
-![page 230 img 1 (841x540)](images/hornsby/p0230-c74df9279528.png)
+![page 230 img 1 (841x540)](images/hornsby/p0230-c74df9279528.webp)
 
 
 *Figure 4.2-k: Traffic Management Improvement Plan - Asquith (C)*
@@ -9113,7 +9113,7 @@ This DCP will inform Council's Civic Works Program and Street Tree Planting Prog
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 231 -->
 
-![page 231 img 1 (980x1417)](images/hornsby/p0231-35147de6fd04.png)
+![page 231 img 1 (980x1417)](images/hornsby/p0231-35147de6fd04.webp)
 
 
 *Figure 4.2-l: Dural Service Centre Traffic Management Strategy - Sheet 1 (C)*
@@ -9121,7 +9121,7 @@ This DCP will inform Council's Civic Works Program and Street Tree Planting Prog
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 232 -->
 
-![page 232 img 1 (976x1417)](images/hornsby/p0232-b00c89a0b911.png)
+![page 232 img 1 (976x1417)](images/hornsby/p0232-b00c89a0b911.webp)
 
 
 *Figure 4.2-m: Dural Service Centre Traffic Management Strategy - Sheet 2 (C)*
@@ -9153,7 +9153,7 @@ This DCP will inform Council's Civic Works Program and Street Tree Planting Prog
 -  incorporate distinctive features to enhance the streetscape, and
 -  incorporate a splayed or square recess treatment to give form to the intersection and provide more circulation space for pedestrians at the corner.
 - Roof fixtures and lift overruns or service plants should be incorporated into the design of the roof to minimise visual intrusiveness and support an integrated building design.
-![page 233 img 1 (1050x696)](images/hornsby/p0233-e2d22e8dfd77.png)
+![page 233 img 1 (1050x696)](images/hornsby/p0233-e2d22e8dfd77.webp)
 
 
 *Figure 4.2-n: A two - three storey development with an active commercial ground floor (I)*
@@ -9177,7 +9177,7 @@ To achieve active living principles development should have regard to NSW Health
 - Where adjacent to bushland areas, buildings should have recessive colours and external finishes consistent with the nearby bushland areas (i.e. grey greens, grey blues, browns etc).
 - A balance between horizontal and vertical elements should be provided through careful placement of windows, colour patterns and signage.
 - Security screens, grilles and bars should provide minimum 60 percent transparency.
-![page 234 img 1 (1013x552)](images/hornsby/p0234-cded7447aab4.png)
+![page 234 img 1 (1013x552)](images/hornsby/p0234-cded7447aab4.webp)
 
 
 *Figure 4.2-o: Infill development design principles. (C)*
@@ -9218,7 +9218,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Berowra Town Centre Masterplan
 
-![page 236 img 1 (783x1148)](images/hornsby/p0236-9dcaecd2dd94.png)
+![page 236 img 1 (783x1148)](images/hornsby/p0236-9dcaecd2dd94.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 237 -->
@@ -9226,7 +9226,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Galston Town Centre Masterplan
 
-![page 237 img 1 (974x1417)](images/hornsby/p0237-fc4770322d6f.png)
+![page 237 img 1 (974x1417)](images/hornsby/p0237-fc4770322d6f.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 238 -->
@@ -9234,7 +9234,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Mount Colah Town Centre Masterplan
 
-![page 238 img 1 (951x1420)](images/hornsby/p0238-2e7925d58f2d.png)
+![page 238 img 1 (951x1420)](images/hornsby/p0238-2e7925d58f2d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 239 -->
@@ -9242,7 +9242,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Pennant Hills Town Centre Masterplan
 
-![page 239 img 1 (993x1420)](images/hornsby/p0239-7fe8c6f63b76.png)
+![page 239 img 1 (993x1420)](images/hornsby/p0239-7fe8c6f63b76.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 240 -->
@@ -9250,7 +9250,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Pennant Hills Town Centre Masterplan - Urban Design Guidelines
 
-![page 240 img 1 (1021x1416)](images/hornsby/p0240-835be189be44.png)
+![page 240 img 1 (1021x1416)](images/hornsby/p0240-835be189be44.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 241 -->
@@ -9258,7 +9258,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Pennant Hills Town Centre Masterplan - Urban Design Guidelines
 
-![page 241 img 1 (998x1416)](images/hornsby/p0241-4b5681e373db.png)
+![page 241 img 1 (998x1416)](images/hornsby/p0241-4b5681e373db.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 242 -->
@@ -9266,7 +9266,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Pennant Hills Town Centre Masterplan - Urban Design Guidelines
 
-![page 242 img 1 (1044x1360)](images/hornsby/p0242-98d260105b8e.png)
+![page 242 img 1 (1044x1360)](images/hornsby/p0242-98d260105b8e.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 243 -->
@@ -9274,7 +9274,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Pennant Hills Town Centre Masterplan - Pedestrian Network
 
-![page 243 img 1 (888x1332)](images/hornsby/p0243-dede8e279ff0.png)
+![page 243 img 1 (888x1332)](images/hornsby/p0243-dede8e279ff0.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 244 -->
@@ -9282,7 +9282,7 @@ The Masterplan may comprise one or more diagrams for a locality. All of the diag
 
 #### Pennant Hills Town Centre Masterplan - Traffic Management
 
-![page 244 img 1 (1048x1432)](images/hornsby/p0244-3b282acd20b9.png)
+![page 244 img 1 (1048x1432)](images/hornsby/p0244-3b282acd20b9.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 245 -->
@@ -9295,48 +9295,48 @@ The following provides controls for the redevelopment of the following precincts
 
 *Figure 4.4-a: Mixed Use Precinct Boundaries. (C)*
 
-![page 245 img 1 (381x324)](images/hornsby/p0245-b0110c4278b2.png)
+![page 245 img 1 (381x324)](images/hornsby/p0245-b0110c4278b2.webp)
 
 
 *Asquith Commercial Centre Precinct*
 
-![page 245 img 2 (381x331)](images/hornsby/p0245-e86fb8b506f8.png)
+![page 245 img 2 (381x331)](images/hornsby/p0245-e86fb8b506f8.webp)
 
 
 *Bouvardia Street, Asquith Precinct (mixed use portion)*
 
-![page 245 img 3 (383x318)](images/hornsby/p0245-6fa5ce8aa053.png)
+![page 245 img 3 (383x318)](images/hornsby/p0245-6fa5ce8aa053.webp)
 
 
 *Palmerston Road, Waitara Precinct*
 
-![page 245 img 4 (395x279)](images/hornsby/p0245-9056aabdf461.png)
+![page 245 img 4 (395x279)](images/hornsby/p0245-9056aabdf461.webp)
 
 
 *Normanhurst Road, Normanhurst Precinct*
 
-![page 245 img 5 (395x274)](images/hornsby/p0245-280bec95884d.png)
+![page 245 img 5 (395x274)](images/hornsby/p0245-280bec95884d.webp)
 
 
 *Pennant Hills Road, Thornleigh Precinct*
 
-![page 245 img 6 (395x284)](images/hornsby/p0245-4c908baa1291.png)
+![page 245 img 6 (395x284)](images/hornsby/p0245-4c908baa1291.webp)
 
 
 *Thompsons Corner, West Pennant Hills Precinct*
 
-![page 245 img 7 (282x52)](images/hornsby/p0245-fc179789cc46.png)
+![page 245 img 7 (282x52)](images/hornsby/p0245-fc179789cc46.webp)
 
 
 *Beecroft Heritage Precinct*
 
-![page 245 img 8 (282x52)](images/hornsby/p0245-5ed99ad5e396.png)
-![page 245 img 9 (282x52)](images/hornsby/p0245-49e4ac0a60b0.png)
-![page 245 img 10 (282x52)](images/hornsby/p0245-88fa8ad36bfb.png)
-![page 245 img 11 (282x52)](images/hornsby/p0245-dd58b083c938.png)
-![page 245 img 12 (282x52)](images/hornsby/p0245-245f73ec018e.png)
-![page 245 img 13 (282x52)](images/hornsby/p0245-6da058db515c.png)
-![page 245 img 14 (282x52)](images/hornsby/p0245-65598041d694.png)
+![page 245 img 8 (282x52)](images/hornsby/p0245-5ed99ad5e396.webp)
+![page 245 img 9 (282x52)](images/hornsby/p0245-49e4ac0a60b0.webp)
+![page 245 img 10 (282x52)](images/hornsby/p0245-88fa8ad36bfb.webp)
+![page 245 img 11 (282x52)](images/hornsby/p0245-dd58b083c938.webp)
+![page 245 img 12 (282x52)](images/hornsby/p0245-245f73ec018e.webp)
+![page 245 img 13 (282x52)](images/hornsby/p0245-6da058db515c.webp)
+![page 245 img 14 (282x52)](images/hornsby/p0245-65598041d694.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 246 -->
@@ -9369,7 +9369,7 @@ Business uses are located on the lower 2 storeys providing a broad podium for dw
 
 Low level business facades incorporate ribbons of shopfront windows and contrasting panels of light cladding, face brick or painted masonry. Mid-level and upper-storey residential facades incorporate indentations or projections in the alignment of exterior walls, balconies that are indented behind and/or project forward of exterior walls and steel framed balconies and balustrades of steel or glass that contrast the weight of masonry walls, with operable louvres for privacy, shade and glare control.
 
-![page 246 img 1 (1050x616)](images/hornsby/p0246-6fec586db795.png)
+![page 246 img 1 (1050x616)](images/hornsby/p0246-6fec586db795.webp)
 
 
 *Figure 4.4-b: Example of Desired Character - 5 storey mixed use development. (E)*
@@ -9461,11 +9461,11 @@ Refer to Section 1.3.2.12 of the DCP for detailed provisions on Isolated Sites.
 
 Lot amalgamation should avoid isolating small sites (I)
 
-![page 248 img 1 (1003x408)](images/hornsby/p0248-de5a49e59bcd.png)
+![page 248 img 1 (1003x408)](images/hornsby/p0248-de5a49e59bcd.webp)
 
 Proposed development site resulting in an adjoining isolated site Isolated site with frontage less than 30m wide
 
-![page 248 img 2 (601x376)](images/hornsby/p0248-f365fe3b1cad.png)
+![page 248 img 2 (601x376)](images/hornsby/p0248-f365fe3b1cad.webp)
 
 
 *Figure 4.4-d: Lot amalgamation (Beecroft Heritage Precinct) should avoid isolating small sites (I)*
@@ -9712,7 +9712,7 @@ Development involving or adjoining heritage items should have regard to Part 9 H
 
 For the purposes of the separation controls in Table 4.4.5-d (Beecroft Heritage Precinct only) the first residential storey above a commercial podium is counted as the first storey for the purposes of the separation controls within the table.
 
-![page 252 img 1 (489x405)](images/hornsby/p0252-3462210b617f.png)
+![page 252 img 1 (489x405)](images/hornsby/p0252-3462210b617f.webp)
 
 
 *Figure 4.4-e: Pedestrian walkways between buildings at street level (E)*
@@ -9781,12 +9781,12 @@ To achieve desired articulation in the Beecroft Heritage Precinct the following 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 254 -->
 
-![page 254 img 1 (1019x600)](images/hornsby/p0254-02ff13d22967.png)
+![page 254 img 1 (1019x600)](images/hornsby/p0254-02ff13d22967.webp)
 
 
 *Figure 4.4-f: Articulation of facades (E)*
 
-![page 254 img 2 (1032x600)](images/hornsby/p0254-c63d6fbce1ad.png)
+![page 254 img 2 (1032x600)](images/hornsby/p0254-c63d6fbce1ad.webp)
 
 
 *Figure 4.4-g: Articulation of facades for Beecroft Heritage Precinct (I)*
@@ -9838,7 +9838,7 @@ Table 4.4.7-a:  Minimum Private Open Space
 -  achieve a minimum 50% direct sunlight to the principal usable part of the communal open space for a minimum of 2 hours between 9am and 3pm on 21 June (midwinter),
 -  be located to provide direct sight lines and convenient access from the building lobby, and
 -  be sited and designed to protect the amenity of adjacent dwellings.
-![page 255 img 1 (496x314)](images/hornsby/p0255-a7f5ea05f2f3.png)
+![page 255 img 1 (496x314)](images/hornsby/p0255-a7f5ea05f2f3.webp)
 
 
 *Figure 4.4-h: Private open space in a residential flat.(I)*
@@ -9881,7 +9881,7 @@ All developments should comply with the minimum building setback and separation 
 
 A privacy screen means a screen that is at least 1.5 metres high, measured from the floor level, and has no individual opening more than 30 millimetres wide, and has a total of all openings less than 30 percent of the surface area of the screen. A privacy screen required to protect an adjacent residence is to be fixed.
 
-![page 256 img 1 (477x376)](images/hornsby/p0256-8945014dd114.png)
+![page 256 img 1 (477x376)](images/hornsby/p0256-8945014dd114.webp)
 
 
 *Figure 4.4-i: Private open space in a residential flat (I)*
@@ -10120,7 +10120,7 @@ The Key Development Principles Diagrams are indicative only and are not to scale
 
 The following symbols appear in the Key Development Principles Diagrams:
 
-![page 261 img 1 (495x738)](images/hornsby/p0261-35337a22bf3c.png)
+![page 261 img 1 (495x738)](images/hornsby/p0261-35337a22bf3c.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 262 -->
@@ -10131,7 +10131,7 @@ The following symbols appear in the Key Development Principles Diagrams:
 
 ##### Key Development Principles Diagram
 
-![page 262 img 1 (1051x1304)](images/hornsby/p0262-a5b5860cf64c.png)
+![page 262 img 1 (1051x1304)](images/hornsby/p0262-a5b5860cf64c.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 263 -->
@@ -10142,7 +10142,7 @@ The following symbols appear in the Key Development Principles Diagrams:
 
 ##### Key Development Principles Diagram
 
-![page 263 img 1 (1051x1320)](images/hornsby/p0263-53200a239a16.png)
+![page 263 img 1 (1051x1320)](images/hornsby/p0263-53200a239a16.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 264 -->
@@ -10151,7 +10151,7 @@ Traffic Management Plan Improvement Plan, Asquith Precincts Key Development Prin
 
 Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
-![page 264 img 1 (1051x640)](images/hornsby/p0264-e1a22e8746b0.png)
+![page 264 img 1 (1051x640)](images/hornsby/p0264-e1a22e8746b0.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 265 -->
@@ -10162,7 +10162,7 @@ Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
 ##### Key Development Principles Diagram
 
-![page 265 img 1 (1051x1304)](images/hornsby/p0265-40cf7724e967.png)
+![page 265 img 1 (1051x1304)](images/hornsby/p0265-40cf7724e967.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 266 -->
@@ -10173,7 +10173,7 @@ Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
 ##### Key Development Principles Diagram
 
-![page 266 img 1 (1051x1328)](images/hornsby/p0266-58ca43f1160c.png)
+![page 266 img 1 (1051x1328)](images/hornsby/p0266-58ca43f1160c.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 267 -->
@@ -10181,7 +10181,7 @@ Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
 #### Pennant Hills Road, Thornleigh Precinct Key Development Principles Diagram
 
-![page 267 img 1 (1051x1328)](images/hornsby/p0267-d52d76e95694.png)
+![page 267 img 1 (1051x1328)](images/hornsby/p0267-d52d76e95694.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 268 -->
@@ -10192,7 +10192,7 @@ Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
 ##### Key Development Principles Diagram
 
-![page 268 img 1 (1051x1296)](images/hornsby/p0268-224ecf3b01be.png)
+![page 268 img 1 (1051x1296)](images/hornsby/p0268-224ecf3b01be.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 269 -->
@@ -10203,7 +10203,7 @@ Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
 ##### Key Development Principles Diagram
 
-![page 269 img 1 (1033x1312)](images/hornsby/p0269-1392d60d2060.png)
+![page 269 img 1 (1033x1312)](images/hornsby/p0269-1392d60d2060.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 270 -->
@@ -10214,7 +10214,7 @@ Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
 ##### Key Development Principles Diagram - Typical cross section
 
-![page 270 img 1 (1027x1705)](images/hornsby/p0270-af3bc4294897.png)
+![page 270 img 1 (1027x1705)](images/hornsby/p0270-af3bc4294897.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 271 -->
@@ -10225,7 +10225,7 @@ Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
 ##### Key Development Principles Diagram - typical
 
-![page 271 img 1 (1035x1798)](images/hornsby/p0271-aa52a0131dbc.png)
+![page 271 img 1 (1035x1798)](images/hornsby/p0271-aa52a0131dbc.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 272 -->
@@ -10235,7 +10235,7 @@ Figure 4.4-j: Traffic Management Improvement Plan - Asquith (C)
 
 The following provides controls for development in the Hornsby Town Centre. The Hornsby Town Centre is divided into six planning precincts. The location of the Hornsby Town Centre and the planning precincts is depicted in Figure 4.5-a below.
 
-![page 272 img 1 (771x943)](images/hornsby/p0272-38f47c9f33b1.png)
+![page 272 img 1 (771x943)](images/hornsby/p0272-38f47c9f33b1.webp)
 
 
 *Figure 4.5-a: Hornsby Town Centre and Planning Precinct Boundaries (C)*
@@ -10261,7 +10261,7 @@ The Hornsby Town Centre will become a place for people that reflects the uniquen
 
 Future growth will promote development that takes advantage of the location of the Town Centre on a major transport node, which provides local and regional connections across Hornsby, Sydney and to the Central Coast.
 
-![page 273 img 1 (1050x837)](images/hornsby/p0273-f7cdcad3b761.png)
+![page 273 img 1 (1050x837)](images/hornsby/p0273-f7cdcad3b761.webp)
 
 
 *Figure 4.5-b: Hornsby Town Centre (I)*
@@ -10292,7 +10292,7 @@ Redevelopment includes a new multi-purpose facility and library fronting Florenc
 
 Florence Street will be fully pedestrianised and integrated into Hornsby Mall. Vehicular access to existing and new developments is via a northern laneway connecting Hunter Lane to George Street.
 
-![page 274 img 1 (390x370)](images/hornsby/p0274-f0048a180cdd.png)
+![page 274 img 1 (390x370)](images/hornsby/p0274-f0048a180cdd.webp)
 
 
 *Figure 4.5-c: Central Heart Precinct (I)*
@@ -10306,7 +10306,7 @@ The further integration of Westfield Hornsby into the greater Town Centre will c
 
 Active frontages at ground level contribute to an increased day and night time economy for new workers, residents and visitors.
 
-![page 274 img 2 (651x611)](images/hornsby/p0274-572cd2ebc956.png)
+![page 274 img 2 (651x611)](images/hornsby/p0274-572cd2ebc956.webp)
 
 
 *Figure 4.5-d: Retail Core Precinct (I)*
@@ -10323,7 +10323,7 @@ The George Street, Burdett Street, Linda Street and Hunter Street interfaces wil
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 275 -->
 
-![page 275 img 1 (651x637)](images/hornsby/p0275-a560c30b5ff7.png)
+![page 275 img 1 (651x637)](images/hornsby/p0275-a560c30b5ff7.webp)
 
 
 *Figure 4.5-e: Central North (I)*
@@ -10337,7 +10337,7 @@ Business redevelopment in four storey buildings provides additional employment o
 
 An east-west street is provided between Peats Ferry Road and Jersey Street north of TAFE, increasing eastwest pedestrian permeability and servicing proposed bus networks.
 
-![page 275 img 2 (651x637)](images/hornsby/p0275-b9bfecfe05fc.png)
+![page 275 img 2 (651x637)](images/hornsby/p0275-b9bfecfe05fc.webp)
 
 
 *Figure 4.5-f: Northern Employment Precinct (I)*
@@ -10349,7 +10349,7 @@ The Transport Corridor bisects the Hornsby Town Centre, with Hornsby Station at 
 
 The public and active transport connections that will be provided within the Transport Corridor are essential for the delivery of jobs and housing across the centre. These links will connect the western and eastern portions of the centre, improving access to amenities and the function of the station.
 
-![page 275 img 3 (651x637)](images/hornsby/p0275-db2d6ef1cf67.png)
+![page 275 img 3 (651x637)](images/hornsby/p0275-db2d6ef1cf67.webp)
 
 
 *Figure 4.5-g: Transport Corridor Precinct (I)*
@@ -10374,7 +10374,7 @@ Development along the Peats Ferry Road and Coronation Street should strengthen t
 
 A new interchange for north and west bus services is located on Jersey Street. In turn, Station Street provides a high quality pedestrian experience, connection to an expanded Cenotaph Plaza and a gateway to Hornsby Train Station. East-west connections at each end of Station Street enable access to Hornsby Mall and Central Heart Precinct.
 
-![page 276 img 1 (488x858)](images/hornsby/p0276-f0eb25dc86a0.png)
+![page 276 img 1 (488x858)](images/hornsby/p0276-f0eb25dc86a0.webp)
 
 
 *Figure 4.5-h: Western Heritage Precinct (I)*
@@ -10586,7 +10586,7 @@ a. Corner buildings:
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 281 -->
 
-![page 281 img 1 (840x988)](images/hornsby/p0281-33aa881400fd.png)
+![page 281 img 1 (840x988)](images/hornsby/p0281-33aa881400fd.webp)
 
 
 *Figure 4.5-i: Gateways, arrival and feature points (C)*
@@ -10594,12 +10594,12 @@ a. Corner buildings:
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 282 -->
 
-![page 282 img 1 (698x968)](images/hornsby/p0282-de324118ef47.png)
+![page 282 img 1 (698x968)](images/hornsby/p0282-de324118ef47.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 283 -->
 
-![page 283 img 1 (840x988)](images/hornsby/p0283-546562335bcf.png)
+![page 283 img 1 (840x988)](images/hornsby/p0283-546562335bcf.webp)
 
 
 *Figure 4.5-k: Active frontages (C)*
@@ -10607,7 +10607,7 @@ a. Corner buildings:
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 284 -->
 
-![page 284 img 1 (648x816)](images/hornsby/p0284-cfec21003617.png)
+![page 284 img 1 (648x816)](images/hornsby/p0284-cfec21003617.webp)
 
 
 *Figure 4.5-l: Heritage and Facade Retention Plan (C)*
@@ -10699,7 +10699,7 @@ Table 4.5.5-a:  Minimum floor to floor heights
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 287 -->
 
-![page 287 img 1 (840x1102)](images/hornsby/p0287-7b0760210fd6.png)
+![page 287 img 1 (840x1102)](images/hornsby/p0287-7b0760210fd6.webp)
 
 
 *Figure 4.5-m: Building height strategy (C)*
@@ -10783,7 +10783,7 @@ Refer to Part 9 Heritage of this DCP for additional heritage controls.
 
 Scale controls provide basic guidance for the massing of podiums, towers and other built form elements. This example shows how floorplate, podium setbacks and floor to floor heights define an initial building envelope, prior to consideration of design and amenity.
 
-![page 289 img 1 (1400x851)](images/hornsby/p0289-cc5d7cd7c91e.png)
+![page 289 img 1 (1400x851)](images/hornsby/p0289-cc5d7cd7c91e.webp)
 
 
 ### 4.5.6 Affordable housing and unit mix
@@ -10800,7 +10800,7 @@ Scale controls provide basic guidance for the massing of podiums, towers and oth
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 290 -->
 
-![page 290 img 1 (840x988)](images/hornsby/p0290-e13d315078d2.png)
+![page 290 img 1 (840x988)](images/hornsby/p0290-e13d315078d2.webp)
 
 
 *Figure 4.5-o: Podium heights (C)*
@@ -10808,7 +10808,7 @@ Scale controls provide basic guidance for the massing of podiums, towers and oth
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 291 -->
 
-![page 291 img 1 (840x1026)](images/hornsby/p0291-62a4900b9a6d.png)
+![page 291 img 1 (840x1026)](images/hornsby/p0291-62a4900b9a6d.webp)
 
 
 *Figure 4.5-p: Primary ground floor setbacks (C)*
@@ -10816,7 +10816,7 @@ Scale controls provide basic guidance for the massing of podiums, towers and oth
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 292 -->
 
-![page 292 img 1 (840x1064)](images/hornsby/p0292-71d61136f3a2.png)
+![page 292 img 1 (840x1064)](images/hornsby/p0292-71d61136f3a2.webp)
 
 
 *Figure 4.5-q: Primary ground floor setbacks (Western Heritage Precinct) (C)*
@@ -10824,7 +10824,7 @@ Scale controls provide basic guidance for the massing of podiums, towers and oth
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 293 -->
 
-![page 293 img 1 (840x1026)](images/hornsby/p0293-7aa057cba585.png)
+![page 293 img 1 (840x1026)](images/hornsby/p0293-7aa057cba585.webp)
 
 
 *Figure 4.5-r: Secondary above podium setbacks (C)*
@@ -10832,7 +10832,7 @@ Scale controls provide basic guidance for the massing of podiums, towers and oth
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 294 -->
 
-![page 294 img 1 (840x1178)](images/hornsby/p0294-9b27d1246691.png)
+![page 294 img 1 (840x1178)](images/hornsby/p0294-9b27d1246691.webp)
 
 
 *Figure 4.5-s: Secondary above podium setbacks and podium heights (Western Heritage Precinct) (C)*
@@ -11105,7 +11105,7 @@ Refer to Part 1 General of the DCP for car parking and bicycle parking rates and
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 300 -->
 
-![page 300 img 1 (700x900)](images/hornsby/p0300-89f84ec9a0c2.png)
+![page 300 img 1 (700x900)](images/hornsby/p0300-89f84ec9a0c2.webp)
 
 
 *Figure 4.5-t: Access Routes Strategy Map (C)*
@@ -11113,7 +11113,7 @@ Refer to Part 1 General of the DCP for car parking and bicycle parking rates and
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 301 -->
 
-![page 301 img 1 (1050x1230)](images/hornsby/p0301-67fb09e5d917.png)
+![page 301 img 1 (1050x1230)](images/hornsby/p0301-67fb09e5d917.webp)
 
 
 *Figure 4.5-u: Public Car Parking Strategy (C)*
@@ -11179,7 +11179,7 @@ Outdoor dining proposed on Council land should comply with Council's Outdoor Din
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 303 -->
 
-![page 303 img 1 (1047x1344)](images/hornsby/p0303-f6cb90487be4.png)
+![page 303 img 1 (1047x1344)](images/hornsby/p0303-f6cb90487be4.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 304 -->
@@ -11211,7 +11211,7 @@ Outdoor dining proposed on Council land should comply with Council's Outdoor Din
 - achieve changes of level by means of ramps suitable for disabled persons (i.e. not greater than a grade of 1:14) or escalators;
 - be functional and practical; and
 - be well lit, ventilated, cleaned, and maintained to standards approved by Council.
-![page 304 img 1 (626x343)](images/hornsby/p0304-df188fb92de3.png)
+![page 304 img 1 (626x343)](images/hornsby/p0304-df188fb92de3.webp)
 
 
 *Figure 4.5-w: Florence Street Pedestrian Streets (E)*
@@ -11237,12 +11237,12 @@ Outdoor dining proposed on Council land should comply with Council's Outdoor Din
 - On road bicycle lanes should be marked by signs and pavement markings.
 - Bicycle parking should be provided in all developments in accordance with 1.C.2.1 Transport and Parking.
 - On site bicycle parking should also be provided in public spaces in the Town Centre including in bicycle storage areas at Figure 4.5-aa.
-![page 305 img 1 (544x378)](images/hornsby/p0305-5c131b2e479f.png)
+![page 305 img 1 (544x378)](images/hornsby/p0305-5c131b2e479f.webp)
 
 
 *Figure 4.5-x: Coronation Street Bicycle Shared Path (E)*
 
-![page 305 img 2 (471x315)](images/hornsby/p0305-55fb293c29ca.png)
+![page 305 img 2 (471x315)](images/hornsby/p0305-55fb293c29ca.webp)
 
 
 *Figure 4.5-y: Florence Street Bicycle On-Road Path (E)*
@@ -11264,7 +11264,7 @@ Outdoor dining proposed on Council land should comply with Council's Outdoor Din
 - Shared zones should be provided in accordance with the Movement and Place Network Plan at Figure 4.5-aa.
 - All new shared zones should demonstrate consistency with the provisions of RMS Technical Direction TTD 2016/001 - Shared Zones and the TfNSW Policy & Guidelines for shared zones (July 2012 Version 1.0).
 - Bicycle pedestrian shared links should be a minimum of 3m wide, with an example shown in Figure 4.5-z.
-![page 306 img 1 (482x315)](images/hornsby/p0306-14ebbaf217dc.png)
+![page 306 img 1 (482x315)](images/hornsby/p0306-14ebbaf217dc.webp)
 
 
 *Figure 4.5-z: Station Street Kiss and Ride and Bicycle/Pedestrian Shared Link (E)*
@@ -11272,12 +11272,12 @@ Outdoor dining proposed on Council land should comply with Council's Outdoor Din
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 307 -->
 
-![page 307 img 1 (790x920)](images/hornsby/p0307-a4d9fc4a7a22.png)
+![page 307 img 1 (790x920)](images/hornsby/p0307-a4d9fc4a7a22.webp)
 
 
 *Figure 4.5-aa: Movement and place strategy (C)*
 
-![page 307 img 2 (839x120)](images/hornsby/p0307-cd18d199d405.png)
+![page 307 img 2 (839x120)](images/hornsby/p0307-cd18d199d405.webp)
 
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 308 -->
@@ -11310,7 +11310,7 @@ Traffic management works should be undertaken in accordance with Figure 4.5-bb:
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 309 -->
 
-![page 309 img 1 (708x924)](images/hornsby/p0309-a0ef3323d953.png)
+![page 309 img 1 (708x924)](images/hornsby/p0309-a0ef3323d953.webp)
 
 
 *Figure 4.5-bb: Traffic Management Projects (C)*
@@ -11366,7 +11366,7 @@ Traffic management works should be undertaken in accordance with Figure 4.5-bb:
 
 <!-- SRC: HDCP 2024 Part 4 Business - 23 June 2025.pdf | PAGE: 311 -->
 
-![page 311 img 1 (517x696)](images/hornsby/p0311-cd2adec4afb2.png)
+![page 311 img 1 (517x696)](images/hornsby/p0311-cd2adec4afb2.webp)
 
 
 *Figure 4.5-cc: Open space (C)*
@@ -11503,7 +11503,7 @@ Schemes must comply with Sydney Water Guidelines and the Australian Guidelines f
 
 Part 5 Industrial
 
-![page 315 img 1 (207x163)](images/hornsby/p0060-d4a1c34e8444.png)
+![page 315 img 1 (207x163)](images/hornsby/p0060-d4a1c34e8444.webp)
 
 
 <!-- SRC: HDCP 2024 Part 5 Industrial - 18 July 2024.pdf | PAGE: 316 -->
@@ -11708,16 +11708,16 @@ Sensitive areas include any adjoining residential lands, community uses, educati
 
 - The setback of buildings should accommodate required bushfire APZs on the site as detailed in the 'Bushfire' element in Section 1.3.3.1 of this DCP.
 - APZs should be located within buffer areas that protect significant vegetation, threatened species and populations as detailed in the 'Biodiversity' element in Section 1.3.1.1 of this DCP.
-![page 320 img 1 (493x120)](images/hornsby/p0320-804bd5f05b4f.png)
+![page 320 img 1 (493x120)](images/hornsby/p0320-804bd5f05b4f.webp)
 
 
 *Figure 5.1-a: 15 metre wide setback at the western interface of the Asquith industrial area (C)*
 
-![page 320 img 2 (493x120)](images/hornsby/p0320-0be6d1e05dfa.png)
-![page 320 img 3 (493x120)](images/hornsby/p0320-a80a8e45b809.png)
-![page 320 img 4 (493x120)](images/hornsby/p0320-c4b6dc4c741f.png)
-![page 320 img 5 (493x120)](images/hornsby/p0320-b96fbc2a6360.png)
-![page 320 img 6 (493x119)](images/hornsby/p0320-c388d1dab913.png)
+![page 320 img 2 (493x120)](images/hornsby/p0320-0be6d1e05dfa.webp)
+![page 320 img 3 (493x120)](images/hornsby/p0320-a80a8e45b809.webp)
+![page 320 img 4 (493x120)](images/hornsby/p0320-c4b6dc4c741f.webp)
+![page 320 img 5 (493x120)](images/hornsby/p0320-b96fbc2a6360.webp)
+![page 320 img 6 (493x119)](images/hornsby/p0320-c388d1dab913.webp)
 
 
 <!-- SRC: HDCP 2024 Part 5 Industrial - 18 July 2024.pdf | PAGE: 321 -->
@@ -11772,21 +11772,21 @@ For further information on potentially containing significant flora and fauna ha
 
 <!-- SRC: HDCP 2024 Part 5 Industrial - 18 July 2024.pdf | PAGE: 322 -->
 
-![page 322 img 1 (1229x208)](images/hornsby/p0322-c8640a4e6290.png)
+![page 322 img 1 (1229x208)](images/hornsby/p0322-c8640a4e6290.webp)
 
 
 *Figure 5.1-b: Location of potentially significant flora and fauna habitats on industrial zoned land at Mount Kuring-gai (C)*
 
-![page 322 img 2 (1229x208)](images/hornsby/p0322-d053c790405d.png)
+![page 322 img 2 (1229x208)](images/hornsby/p0322-d053c790405d.webp)
 
 
 *Figure 5.1-c: Location of potentially significant flora and fauna habitats on industrial zoned land at Asquith/Hornsby (C)*
 
-![page 322 img 3 (1229x208)](images/hornsby/p0322-00ce0745ea5c.png)
-![page 322 img 4 (1229x208)](images/hornsby/p0322-a8af659cff32.png)
-![page 322 img 5 (1972x386)](images/hornsby/p0322-bfd79fc452fd.png)
-![page 322 img 6 (1972x386)](images/hornsby/p0322-2653088d3ee3.png)
-![page 322 img 7 (1972x385)](images/hornsby/p0322-b3d0f3fcb289.png)
+![page 322 img 3 (1229x208)](images/hornsby/p0322-00ce0745ea5c.webp)
+![page 322 img 4 (1229x208)](images/hornsby/p0322-a8af659cff32.webp)
+![page 322 img 5 (1972x386)](images/hornsby/p0322-bfd79fc452fd.webp)
+![page 322 img 6 (1972x386)](images/hornsby/p0322-2653088d3ee3.webp)
+![page 322 img 7 (1972x385)](images/hornsby/p0322-b3d0f3fcb289.webp)
 
 
 <!-- SRC: HDCP 2024 Part 5 Industrial - 18 July 2024.pdf | PAGE: 323 -->
@@ -11891,33 +11891,33 @@ Development adjoining roads that are subject to Section 2.119 of the Transport a
 
 <!-- SRC: HDCP 2024 Part 5 Industrial - 18 July 2024.pdf | PAGE: 325 -->
 
-![page 325 img 1 (1093x221)](images/hornsby/p0325-0211c29aa652.png)
+![page 325 img 1 (1093x221)](images/hornsby/p0325-0211c29aa652.webp)
 
 
 *Figure 5.1-d: Dural Service Centre Traffic Management Strategy - Sheet 1 (C)*
 
-![page 325 img 2 (1093x221)](images/hornsby/p0325-6f9ff27ab33b.png)
-![page 325 img 3 (1093x221)](images/hornsby/p0325-627b25febdd6.png)
-![page 325 img 4 (1093x221)](images/hornsby/p0325-761948176eab.png)
-![page 325 img 5 (1093x221)](images/hornsby/p0325-38fba8a5070b.png)
-![page 325 img 6 (1093x221)](images/hornsby/p0325-c8dffe32b2c8.png)
-![page 325 img 7 (1093x219)](images/hornsby/p0325-977d15bc10a6.png)
+![page 325 img 2 (1093x221)](images/hornsby/p0325-6f9ff27ab33b.webp)
+![page 325 img 3 (1093x221)](images/hornsby/p0325-627b25febdd6.webp)
+![page 325 img 4 (1093x221)](images/hornsby/p0325-761948176eab.webp)
+![page 325 img 5 (1093x221)](images/hornsby/p0325-38fba8a5070b.webp)
+![page 325 img 6 (1093x221)](images/hornsby/p0325-c8dffe32b2c8.webp)
+![page 325 img 7 (1093x219)](images/hornsby/p0325-977d15bc10a6.webp)
 
 
 <!-- SRC: HDCP 2024 Part 5 Industrial - 18 July 2024.pdf | PAGE: 326 -->
 
-![page 326 img 1 (1172x211)](images/hornsby/p0326-a56aa214d958.png)
+![page 326 img 1 (1172x211)](images/hornsby/p0326-a56aa214d958.webp)
 
 
 *Figure 5.1-e: Dural Service Centre Traffic Management Strategy - Sheet 2 (C)*
 
-![page 326 img 2 (1172x211)](images/hornsby/p0326-74da44fc0d31.png)
-![page 326 img 3 (1172x211)](images/hornsby/p0326-2c2cd65ae8ee.png)
-![page 326 img 4 (1172x211)](images/hornsby/p0326-b8ab107cb21e.png)
-![page 326 img 5 (1172x211)](images/hornsby/p0326-fcdc93adf66a.png)
-![page 326 img 6 (1172x211)](images/hornsby/p0326-f928c9f7c0c1.png)
-![page 326 img 7 (1172x211)](images/hornsby/p0326-e9c0cea51f14.png)
-![page 326 img 8 (1172x208)](images/hornsby/p0326-6b9d18f997db.png)
+![page 326 img 2 (1172x211)](images/hornsby/p0326-74da44fc0d31.webp)
+![page 326 img 3 (1172x211)](images/hornsby/p0326-2c2cd65ae8ee.webp)
+![page 326 img 4 (1172x211)](images/hornsby/p0326-b8ab107cb21e.webp)
+![page 326 img 5 (1172x211)](images/hornsby/p0326-fcdc93adf66a.webp)
+![page 326 img 6 (1172x211)](images/hornsby/p0326-f928c9f7c0c1.webp)
+![page 326 img 7 (1172x211)](images/hornsby/p0326-e9c0cea51f14.webp)
+![page 326 img 8 (1172x208)](images/hornsby/p0326-6b9d18f997db.webp)
 
 
 <!-- SRC: HDCP 2024 Part 5 Industrial - 18 July 2024.pdf | PAGE: 327 -->
@@ -12075,7 +12075,7 @@ Sensitive areas include any adjoining residential lands, community uses, educati
 
 Part 6 Subdivision
 
-![page 330 img 1 (207x164)](images/hornsby/p0330-c311a948f284.png)
+![page 330 img 1 (207x164)](images/hornsby/p0330-c311a948f284.webp)
 
 
 <!-- SRC: HDCP 2024 Part 6 Subdivision - 23 June 2025.pdf | PAGE: 331 -->
@@ -12202,7 +12202,7 @@ Table 6.2.1-a:  Minimum Lot Size - R2 Zone
 
 *Table 6.2.1-a: Minimum Lot Size - R2 Zone*
 
-![page 334 img 1 (1050x400)](images/hornsby/p0334-ed25bcb9a564.png)
+![page 334 img 1 (1050x400)](images/hornsby/p0334-ed25bcb9a564.webp)
 
 
 *Battle-axe or other allotment with accessway*
@@ -12242,7 +12242,7 @@ Table 6.2.1-b:  Minimum Lot Width - R2 Zone
 
 *Table 6.2.1-b: Minimum Lot Width - R2 Zone*
 
-![page 335 img 1 (377x489)](images/hornsby/p0335-eca868796549.png)
+![page 335 img 1 (377x489)](images/hornsby/p0335-eca868796549.webp)
 
 
 *Figure 6.2-b: Minimum lot width required for all allotments. (I)*
@@ -12250,7 +12250,7 @@ Table 6.2.1-b:  Minimum Lot Width - R2 Zone
 Note:
 
 - A building envelope is the area of land identified for the purpose of the future erection of a dwelling and its immediate curtilage.
-![page 335 img 2 (481x649)](images/hornsby/p0335-e3cf9d8fe870.png)
+![page 335 img 2 (481x649)](images/hornsby/p0335-e3cf9d8fe870.webp)
 
 
 *Figure 6.2-c: Proposed subdivision plans should identify a potential developable area for each new lot. (I)*
@@ -12280,7 +12280,7 @@ Table 6.2.1-c:  Minimum Boundary Setbacks
 
 *Table 6.2.1-c: Minimum Boundary Setbacks*
 
-![page 336 img 1 (492x545)](images/hornsby/p0336-e4f104990b7d.png)
+![page 336 img 1 (492x545)](images/hornsby/p0336-e4f104990b7d.webp)
 
 
 *Figure 6.2-d: Setbacks on battle-axe lots. (I)*
@@ -12354,7 +12354,7 @@ Any approved and constructed dual occupancy development in the R2 zone can be co
 
 The Housing SEPP contains non-refusal standards regarding lot size for dual occupancy development within nominated centres which will override Council's LEP.
 
-![page 337 img 1 (325x410)](images/hornsby/p0337-a987e1ae6681.png)
+![page 337 img 1 (325x410)](images/hornsby/p0337-a987e1ae6681.webp)
 
 
 *Figure 6.2-e: Dual occupancy lot size configurations (e)*
@@ -12407,7 +12407,7 @@ Table 6.3.1-a:  Minimum Lot Size - Rural Area
 
 Figure 6.3-a: Application of minimum lot size controls to land within different zones and different areas in the HLEP Maps. (e.g. in the below example, the complying subdivision creates 2 lots both of which comply with the minimum lot size as they have both a total area in excess of the minimum rural zone lot size of 2 hectares and both include a component of rural zoned land greater than 1 acre.
 
-![page 338 img 1 (867x370)](images/hornsby/p0338-60f9f47984ac.png)
+![page 338 img 1 (867x370)](images/hornsby/p0338-60f9f47984ac.webp)
 
 
 <!-- SRC: HDCP 2024 Part 6 Subdivision - 23 June 2025.pdf | PAGE: 339 -->
@@ -12615,7 +12615,7 @@ These provisions apply to all subdivision applications.
 
 Part 7 Community
 
-![page 344 img 1 (207x163)](images/hornsby/p0060-d4a1c34e8444.png)
+![page 344 img 1 (207x163)](images/hornsby/p0060-d4a1c34e8444.webp)
 
 
 <!-- SRC: HDCP 2024 Part 7 Community - 18 July 2024.pdf | PAGE: 345 -->
@@ -12741,7 +12741,7 @@ Table 7.1.2-a: Scale of Buildings by Location
 
 *Table 7.1.2-a: Scale of Buildings by Location*
 
-![page 348 img 1 (546x881)](images/hornsby/p0348-585137fa8b02.png)
+![page 348 img 1 (546x881)](images/hornsby/p0348-585137fa8b02.webp)
 
 
 *Figure 7.1-a: illustration of maximum building heights in the R2 Low Density Residential Zone. (I)*
@@ -13286,7 +13286,7 @@ The following section provides guidelines for the development of land zoned SP2 
 
 The planning controls for a health service facility in other localities should apply the relevant development standards from the HLEP 2013 and the DCP controls for the predominant land use in that zone (for example, in the R3 Medium Density Residential area, apply the built form controls for medium density housing at Section 3.2 of the DCP).
 
-![page 360 img 1 (804x283)](images/hornsby/p0360-c7b86604150b.png)
+![page 360 img 1 (804x283)](images/hornsby/p0360-c7b86604150b.webp)
 
 
 *Figure 7.5-a: Location of Health Services Facility Precinct (C)*
@@ -13301,8 +13301,8 @@ A health services facility means a building or place used to provide medical or 
 - (c) Health consulting rooms,
 - (d) Patient transport facilities, including helipads and ambulance facilities,
 - (e) Hospital.
-![page 360 img 2 (804x283)](images/hornsby/p0360-915b49e4ba2a.png)
-![page 360 img 3 (804x283)](images/hornsby/p0360-1d4c7dccd07c.png)
+![page 360 img 2 (804x283)](images/hornsby/p0360-915b49e4ba2a.webp)
+![page 360 img 3 (804x283)](images/hornsby/p0360-1d4c7dccd07c.webp)
 
 
 <!-- SRC: HDCP 2024 Part 7 Community - 18 July 2024.pdf | PAGE: 361 -->
@@ -13531,7 +13531,7 @@ To achieve active living principles development should have regard to NSW Health
 
 Part 8 River Settlements
 
-![page 365 img 1 (207x163)](images/hornsby/p0365-045985c6a306.png)
+![page 365 img 1 (207x163)](images/hornsby/p0365-045985c6a306.webp)
 
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 366 -->
@@ -13581,7 +13581,7 @@ Community services and facilities will be provided in accordance with existing a
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 368 -->
 
-![page 368 img 1 (1322x1870)](images/hornsby/p0368-84187db32fe0.png)
+![page 368 img 1 (1322x1870)](images/hornsby/p0368-84187db32fe0.webp)
 
 
 *Figure 8-a: : River Settlements of Hornsby Shire (C)*
@@ -13762,7 +13762,7 @@ Table 8.1.2-d: Maximum Site Coverage - SP3 Zone
 
 *Table 8.1.2-d: Maximum Site Coverage - SP3 Zone*
 
-![page 371 img 1 (388x822)](images/hornsby/p0371-cb03018f48d3.png)
+![page 371 img 1 (388x822)](images/hornsby/p0371-cb03018f48d3.webp)
 
 
 *Figure 8.1-a: Buildings in the C4 zone are to be broken up into smaller 'elements' to ensure a more appropriate scale to the built structures along the waterway (I)*
@@ -13822,7 +13822,7 @@ Table 8.1.3-a: Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 373 -->
 
-![page 373 img 1 (1323x1871)](images/hornsby/p0373-2ec0912a0256.png)
+![page 373 img 1 (1323x1871)](images/hornsby/p0373-2ec0912a0256.webp)
 
 
 *Figure 8.1-b: Rear Building Limit - Berowra Waters (C)*
@@ -13830,7 +13830,7 @@ Table 8.1.3-a: Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 374 -->
 
-![page 374 img 1 (1345x1903)](images/hornsby/p0374-168ce5d9bbe7.png)
+![page 374 img 1 (1345x1903)](images/hornsby/p0374-168ce5d9bbe7.webp)
 
 
 *Figure 8.1-c: Rear Building Limit - Calabash Point (C)*
@@ -13838,7 +13838,7 @@ Table 8.1.3-a: Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 375 -->
 
-![page 375 img 1 (1312x1856)](images/hornsby/p0375-6ed83d1bd22d.png)
+![page 375 img 1 (1312x1856)](images/hornsby/p0375-6ed83d1bd22d.webp)
 
 
 *Figure 8.1-d: Rear Building Limit - Coba Point (C)*
@@ -13846,7 +13846,7 @@ Table 8.1.3-a: Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 376 -->
 
-![page 376 img 1 (1342x1899)](images/hornsby/p0376-bfcc74586af0.png)
+![page 376 img 1 (1342x1899)](images/hornsby/p0376-bfcc74586af0.webp)
 
 
 *Figure 8.1-e: Rear Building Limit - Marra Marra Creek (C)*
@@ -13854,7 +13854,7 @@ Table 8.1.3-a: Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 377 -->
 
-![page 377 img 1 (1342x1898)](images/hornsby/p0377-6e685f819fd6.png)
+![page 377 img 1 (1342x1898)](images/hornsby/p0377-6e685f819fd6.webp)
 
 
 *Figure 8.1-f: Rear Building Limit - Milsons Passage (C)*
@@ -13862,7 +13862,7 @@ Table 8.1.3-a: Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 378 -->
 
-![page 378 img 1 (1343x1899)](images/hornsby/p0378-479d25dc84f3.png)
+![page 378 img 1 (1343x1899)](images/hornsby/p0378-479d25dc84f3.webp)
 
 
 *Figure 8.1-g: : Rear Building Limit - Neverfail Bay (C)*
@@ -13870,7 +13870,7 @@ Table 8.1.3-a: Minimum Boundary Setbacks
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 379 -->
 
-![page 379 img 1 (1343x1899)](images/hornsby/p0379-26524bd55125.png)
+![page 379 img 1 (1343x1899)](images/hornsby/p0379-26524bd55125.webp)
 
 
 *Figure 8.1-h: Rear Building Limit - Sunny Corner (C)*
@@ -13920,12 +13920,12 @@ The applicant is encouraged to incorporate plant species indigenous to Hornsby S
 - avoid being adjacent to the windows and private outdoor areas of buildings on adjoining properties,
 - avoid a motor that is audible from within the nearest habitable room of any adjacent premises (windows open), and
 - avoid glare and light spill.
-![page 380 img 1 (651x203)](images/hornsby/p0380-9daf486c332e.png)
+![page 380 img 1 (651x203)](images/hornsby/p0380-9daf486c332e.webp)
 
 
 *Figure 8.1-i: New access stairways should not cut into the landform. This approach disrupts indigenous vegetation and watercourses and increases the risk of soil erosion.(I)*
 
-![page 380 img 2 (651x213)](images/hornsby/p0380-7c4db433ffb9.png)
+![page 380 img 2 (651x213)](images/hornsby/p0380-7c4db433ffb9.webp)
 
 
 *Figure 8.1-j: New access stairways should have minimal disruption to the landform. They should be lightweight and constructed from steel or timber.(I)*
@@ -14099,21 +14099,21 @@ To achieve active living principles development should have regard to NSW Health
 
 - Roofs should be constructed of lightweight materials such as metal deck roofing rather than roof tiles as illustrated in Figure 8.1-m.
 - Habitable roof spaces are discouraged and dormer windows should not be incorporated into roofs as illustrated in Figure 8.1-n.
-![page 384 img 1 (468x494)](images/hornsby/p0384-8261dffccf73.png)
+![page 384 img 1 (468x494)](images/hornsby/p0384-8261dffccf73.webp)
 
 
 *Figure 8.1-m: Tiled roof forms are strongly discouraged (I)*
 
-![page 384 img 2 (494x480)](images/hornsby/p0384-ba1c8d68fce9.png)
+![page 384 img 2 (494x480)](images/hornsby/p0384-ba1c8d68fce9.webp)
 
 
 *Figure 8.1-l: Roofs should be 'broken' up into smaller areas (I)*
 
 
 
-![page 384 img 3 (474x481)](images/hornsby/p0384-a244abf81bf6.png)
+![page 384 img 3 (474x481)](images/hornsby/p0384-a244abf81bf6.webp)
 
-![page 384 img 4 (482x490)](images/hornsby/p0384-31981a86fc24.png)
+![page 384 img 4 (482x490)](images/hornsby/p0384-31981a86fc24.webp)
 
 
 *Figure 8.1-n: Dormer windows should not be incorporated into roofs (I)*
@@ -14128,12 +14128,12 @@ To achieve active living principles development should have regard to NSW Health
 - Any undercrofts below a height of 1.5 metres which are enclosed should be constructed of timber battens with a minimum 50 percent openings as illustrated in Figure 8.1-o.
 - Undercrofts, including any plumbing or rainwater tanks located within, should be painted in dark recessive colours.
 - Supports to habitable platforms above undercrofts should be setback a minimum of 2 metres from the leading platform edge to reduce the overall bulk and scale of the undercroft area as illustrated in Figure 8.1-p.
-![page 385 img 1 (495x433)](images/hornsby/p0385-6ef9bbdcbcd2.png)
+![page 385 img 1 (495x433)](images/hornsby/p0385-6ef9bbdcbcd2.webp)
 
 
 *Figure 8.1-o: Enclosed undercrofts below a height of 1.5 metres (I)*
 
-![page 385 img 2 (495x459)](images/hornsby/p0385-694568d165d8.png)
+![page 385 img 2 (495x459)](images/hornsby/p0385-694568d165d8.webp)
 
 
 *Figure 8.1-p: Location of supports to habitable platforms above undercrofts (I)*
@@ -14165,7 +14165,7 @@ The following section provides controls for ancillary uses and works in the Rive
 - have a maximum floor area of 30m 2 , and
 - the frontage of the boat shed (facing the water) should not be more than half the depth of the shed (see Figure 8.2-a).
 - Boat sheds should not contain any services not associated with maritime activities, including kitchens, living areas, bedrooms or any other living facilities.
-![page 386 img 1 (555x595)](images/hornsby/p0386-c9b4824be881.png)
+![page 386 img 1 (555x595)](images/hornsby/p0386-c9b4824be881.webp)
 
 
 *Figure 8.2-a: Boat shed design (C)*
@@ -14234,7 +14234,7 @@ For further information on protecting aquatic habitats refer to the Policy and g
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 388 -->
 
-![page 388 img 1 (1877x1327)](images/hornsby/p0388-6287145a9ddd.png)
+![page 388 img 1 (1877x1327)](images/hornsby/p0388-6287145a9ddd.webp)
 
 
 *Figure 8.2-b: Dangar Island - Private Waterway Structure Limits (C)*
@@ -14242,7 +14242,7 @@ For further information on protecting aquatic habitats refer to the Policy and g
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 389 -->
 
-![page 389 img 1 (1925x1304)](images/hornsby/p0389-d24f592055a9.png)
+![page 389 img 1 (1925x1304)](images/hornsby/p0389-d24f592055a9.webp)
 
 
 *Figure 8.2-c: Brooklyn - Jetty Limits (C)*
@@ -14250,7 +14250,7 @@ For further information on protecting aquatic habitats refer to the Policy and g
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 390 -->
 
-![page 390 img 1 (1919x1378)](images/hornsby/p0390-a5dc8d061d03.png)
+![page 390 img 1 (1919x1378)](images/hornsby/p0390-a5dc8d061d03.webp)
 
 
 *Figure 8.2-d: Brooklyn - Jetty Limits (C)*
@@ -14299,9 +14299,9 @@ Consideration should be given to the Environmentally friendly seawall guidelines
 - Seawalls should be designed to maximise habitat for marine flora and fauna through the provision of small horizontal shelves, pools, crevices and the like.
 Figure 8.2-e: Vertical seawalls provide an intrusive built edge to the waterway. Seawalls should have a slope commensurate with the surrounding natural landscape. (I)
 
-![page 391 img 1 (651x172)](images/hornsby/p0391-8e19520a972a.png)
+![page 391 img 1 (651x172)](images/hornsby/p0391-8e19520a972a.webp)
 
-![page 391 img 2 (651x296)](images/hornsby/p0391-5fd609c89336.png)
+![page 391 img 2 (651x296)](images/hornsby/p0391-5fd609c89336.webp)
 
 
 *Figure 8.2-f: Seawalls should mediate in plan between adjoining conditions. At no point should a seawall create a physical step in plan.(I)*
@@ -14314,7 +14314,7 @@ Figure 8.2-e: Vertical seawalls provide an intrusive built edge to the waterway.
 
 - Seawalls should be constructed of permeable materials such as sandstone and not mortar, solid masonry or poured in-situ concrete. Mortar should only be used for the addition of ecological features (such as ecological pools and horizontal shelves) (see Figure 8.2-g).
 - Seawalls should not restrict planting of riparian vegetation or impede the potential for estuarine vegetation to recolonise. Incorporation of estuarine vegetation, such as seagrasses, mangroves and saltmarshes into seawall design is encouraged.
-![page 392 img 1 (606x254)](images/hornsby/p0392-0c3ccc4ac07b.png)
+![page 392 img 1 (606x254)](images/hornsby/p0392-0c3ccc4ac07b.webp)
 
 
 *Figure 8.2-g: Seawalls should be constructed from rough sandstone blocks. The nature of the material reduces the wash, provides a habitat for marine flora and fauna while presenting a more natural shoreline.(I)*
@@ -14412,7 +14412,7 @@ The Masterplan diagrams are indicative only and are not to scale.
 
 #### Berowra Waters Masterplan (eastern side)
 
-![page 395 img 1 (786x1070)](images/hornsby/p0395-beffad574db2.png)
+![page 395 img 1 (786x1070)](images/hornsby/p0395-beffad574db2.webp)
 
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 396 -->
@@ -14420,7 +14420,7 @@ The Masterplan diagrams are indicative only and are not to scale.
 
 #### Berowra Waters Masterplan (western side)
 
-![page 396 img 1 (667x1072)](images/hornsby/p0396-7700974b5dce.png)
+![page 396 img 1 (667x1072)](images/hornsby/p0396-7700974b5dce.webp)
 
 
 <!-- SRC: HDCP 2024 Part 8 River Settlements - 18 July 2024.pdf | PAGE: 397 -->
@@ -14524,7 +14524,7 @@ The Masterplan diagrams are indicative only and are not to scale.
 
 #### Kangaroo Point Masterplan
 
-![page 399 img 1 (749x1070)](images/hornsby/p0399-765e66d1342d.png)
+![page 399 img 1 (749x1070)](images/hornsby/p0399-765e66d1342d.webp)
 
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 400 -->
@@ -14534,7 +14534,7 @@ The Masterplan diagrams are indicative only and are not to scale.
 
 Part 9 Heritage
 
-![page 400 img 1 (207x164)](images/hornsby/p0330-c311a948f284.png)
+![page 400 img 1 (207x164)](images/hornsby/p0330-c311a948f284.webp)
 
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 401 -->
@@ -15232,7 +15232,7 @@ For an understanding of the definition of Aboriginal Cultural Heritage in NSW, r
 
 Examples of disturbed land may include ploughing, construction of rural infrastructure (such as dams and fences), construction of roads, trails, and tracks, clearing vegetation, construction of buildings and the erection of other structures, construction or installation of utilities, and other similar services.
 
-![page 410 img 1 (489x366)](images/hornsby/p0410-131177cbee38.png)
+![page 410 img 1 (489x366)](images/hornsby/p0410-131177cbee38.webp)
 
 
 *Figure 9.2-a: Example of a land feature that could indicate the likely presence of Aboriginal objects (E).*
@@ -15283,7 +15283,7 @@ Where a proposed development may impact a known or potential archaeological site
 
 For further information on the historical archaeology of Hornsby Shire, refer to Council's website: https://www.hornsby.nsw.gov.au/property/build/heritage/theheritage-of-hornsby-shire/historical-archaeology
 
-![page 411 img 1 (489x652)](images/hornsby/p0411-d334ae1292fa.png)
+![page 411 img 1 (489x652)](images/hornsby/p0411-d334ae1292fa.webp)
 
 
 *Figure 9.3-a: Example of a known archaeological site that would require an excavation permit prior to undertaking works (E)*
@@ -15448,7 +15448,7 @@ Applications for subdivision of a heritage item will require a curtilage analysi
 - Where additions to the side of buildings are proposed, the addition should be set back as far as possible from the front building line.
 - Development on corner sites should address the corner and retain the original built form as it turns the corner. Additions should be located in the secondary street, at the rear of the original building.
 - Generous setbacks should be provided between new and old where appropriate.
-![page 414 img 1 (889x620)](images/hornsby/p0414-ca00b31ccb1b.png)
+![page 414 img 1 (889x620)](images/hornsby/p0414-ca00b31ccb1b.webp)
 
 
 *Figure 9.4-a: Sensitive located alterations and additions smaller in scale and located to the rear (E)*
@@ -15456,34 +15456,34 @@ Applications for subdivision of a heritage item will require a curtilage analysi
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 415 -->
 
-![page 415 img 1 (519x425)](images/hornsby/p0415-44a56bfd71d9.png)
+![page 415 img 1 (519x425)](images/hornsby/p0415-44a56bfd71d9.webp)
 
 
 *Figure 9.4-b: Appropriate additions (I).*
 
-![page 415 img 2 (532x436)](images/hornsby/p0415-fa874d3b5665.png)
-![page 415 img 3 (519x423)](images/hornsby/p0415-5b560a8082f0.png)
-![page 415 img 4 (532x431)](images/hornsby/p0415-ce953db8ea45.png)
+![page 415 img 2 (532x436)](images/hornsby/p0415-fa874d3b5665.webp)
+![page 415 img 3 (519x423)](images/hornsby/p0415-5b560a8082f0.webp)
+![page 415 img 4 (532x431)](images/hornsby/p0415-ce953db8ea45.webp)
 
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 416 -->
 
-![page 416 img 1 (816x106)](images/hornsby/p0416-af5f1b346212.png)
+![page 416 img 1 (816x106)](images/hornsby/p0416-af5f1b346212.webp)
 
 
 *Figure 9.4-c: Inappropriate additions (I)*
 
-![page 416 img 2 (816x106)](images/hornsby/p0416-fde8bb01f904.png)
+![page 416 img 2 (816x106)](images/hornsby/p0416-fde8bb01f904.webp)
 
-![page 416 img 3 (816x106)](images/hornsby/p0416-800ca0d3beef.png)
+![page 416 img 3 (816x106)](images/hornsby/p0416-800ca0d3beef.webp)
 
-![page 416 img 4 (760x295)](images/hornsby/p0416-390c03b5395d.png)
+![page 416 img 4 (760x295)](images/hornsby/p0416-390c03b5395d.webp)
 
-![page 416 img 5 (816x106)](images/hornsby/p0416-961d0ed09d00.png)
+![page 416 img 5 (816x106)](images/hornsby/p0416-961d0ed09d00.webp)
 
-![page 416 img 6 (816x106)](images/hornsby/p0416-fc4d0f91f4b5.png)
+![page 416 img 6 (816x106)](images/hornsby/p0416-fc4d0f91f4b5.webp)
 
-![page 416 img 7 (816x106)](images/hornsby/p0416-2118a386da41.png)
+![page 416 img 7 (816x106)](images/hornsby/p0416-2118a386da41.webp)
 
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 417 -->
@@ -15604,9 +15604,9 @@ Dark colours, such as black and grey, should not be used on heritage items unles
 
 #### Figure 9.4-d: Appropriate dormer location and scale (I)
 
-![page 419 img 1 (590x590)](images/hornsby/p0419-a0cd85f3e706.png)
+![page 419 img 1 (590x590)](images/hornsby/p0419-a0cd85f3e706.webp)
 
-![page 419 img 2 (590x590)](images/hornsby/p0419-994c61afd0f6.png)
+![page 419 img 2 (590x590)](images/hornsby/p0419-994c61afd0f6.webp)
 
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 420 -->
@@ -15656,19 +15656,19 @@ Dark colours, such as black and grey, should not be used on heritage items unles
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 421 -->
 
-![page 421 img 1 (486x416)](images/hornsby/p0421-59c3e44abfa1.png)
+![page 421 img 1 (486x416)](images/hornsby/p0421-59c3e44abfa1.webp)
 
 
 *Figure 9.4-e: Appropriate location of garages and driveways (I)*
 
-![page 421 img 2 (486x416)](images/hornsby/p0421-2c591fbc96ac.png)
+![page 421 img 2 (486x416)](images/hornsby/p0421-2c591fbc96ac.webp)
 
 
 *Figure 9.4-f: Inappropriate location of garages and driveways (I).*
 
-![page 421 img 3 (486x416)](images/hornsby/p0421-e02b50953c86.png)
-![page 421 img 4 (511x357)](images/hornsby/p0421-383a7c94d8fb.png)
-![page 421 img 5 (511x357)](images/hornsby/p0421-52f64d8807dd.png)
+![page 421 img 3 (486x416)](images/hornsby/p0421-e02b50953c86.webp)
+![page 421 img 4 (511x357)](images/hornsby/p0421-383a7c94d8fb.webp)
+![page 421 img 5 (511x357)](images/hornsby/p0421-52f64d8807dd.webp)
 
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 422 -->
@@ -15704,12 +15704,12 @@ Roads with significant traffic volumes include Pacific Highway (south of Edgewor
 
 Historical photographs can assist with identifying original fences. The Hornsby Shire Local Studies Library resources are a valuable source of historical records.
 
-![page 422 img 1 (489x372)](images/hornsby/p0422-578ededde7c2.png)
+![page 422 img 1 (489x372)](images/hornsby/p0422-578ededde7c2.webp)
 
 
 *Figure 9.4-g: Hedges are a traditional form of fencing for many heritage items (E)*
 
-![page 422 img 2 (490x855)](images/hornsby/p0422-f12033d435d1.png)
+![page 422 img 2 (490x855)](images/hornsby/p0422-f12033d435d1.webp)
 
 
 *Figure 9.4-h: Typical fences and gates (C)*
@@ -15865,7 +15865,7 @@ Heritage items may not always comply with current building and access standards 
 - Building materials, new fencing, and new landscaping should be consistent with the significance and character of the heritage item.
 - Screening measures that may be needed if the new development is much larger in scale than the heritage item.
 - Development that involves a new dwelling on a rural heritage site should provide for conservation works to the heritage item and its setting. A Conservation Management Plan or Heritage Asset Action Plan may be required depending on the scale of the site and scope of works.
-![page 425 img 1 (921x711)](images/hornsby/p0425-4b13f2a8035b.png)
+![page 425 img 1 (921x711)](images/hornsby/p0425-4b13f2a8035b.webp)
 
 
 *Figure 9.4-i: Elements to be taken into consideration (C)*
@@ -15910,7 +15910,7 @@ Hornsby Shire's commercial heritage items are predominantly from the Federation 
 
 While some shopfronts have been altered, most of Hornsby Shire's commercial heritage retains period detailing above awning level. Important considerations for future proposals are sympathetic signs, colour schemes, and façade treatments.
 
-![page 426 img 1 (422x288)](images/hornsby/p0426-7ba9a050a1a4.png)
+![page 426 img 1 (422x288)](images/hornsby/p0426-7ba9a050a1a4.webp)
 
 
 *Figure 9.4-j: Elements of a traditional early twentieth century shop front (I)*
@@ -16161,7 +16161,7 @@ Each heritage conservation area has important views and vistas that form part of
 - New development should preserve significant aspects of the heritage conservation area, such as scale, roofscape, building form, setbacks, external materials, details, bulk, window placement and openings, verandahs, and landscape elements.
 - New development should be designed and located to have minimal visibility from the street, such as behind the front building line.
 - Ensure front gardens are part of the streetscape and appropriate to the character of the heritage conservation area. Use traditionally designed gardens that enhance the appearance of historic houses and the streetscape.
-![page 432 img 1 (488x360)](images/hornsby/p0432-711963bb40bc.png)
+![page 432 img 1 (488x360)](images/hornsby/p0432-711963bb40bc.webp)
 
 
 *Figure 9.6-a: Take clues from traditional fences in the heritage conservation area (E)*
@@ -16393,7 +16393,7 @@ Roofscapes of conservation areas are highly significant to their cohesive charac
 
 Design new work to complement front setbacks, materials and colours, landscaping and garden treatments (I)
 
-![page 437 img 1 (512x354)](images/hornsby/p0437-cb19dfedf224.png)
+![page 437 img 1 (512x354)](images/hornsby/p0437-cb19dfedf224.webp)
 
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 438 -->
@@ -16466,7 +16466,7 @@ Development in each precinct should have regard for both the general controls an
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 440 -->
 
-![page 440 img 1 (569x810)](images/hornsby/p0440-8fe447ef5e13.png)
+![page 440 img 1 (569x810)](images/hornsby/p0440-8fe447ef5e13.webp)
 
 
 *Figure 9.7-a: Beecroft-Cheltenham HCA*
@@ -16758,7 +16758,7 @@ Development in each precinct should have regard for both the general controls an
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 449 -->
 
-![page 449 img 1 (575x825)](images/hornsby/p0449-7d8e3324af5b.png)
+![page 449 img 1 (575x825)](images/hornsby/p0449-7d8e3324af5b.webp)
 
 
 *Figure 9.8-a: Hornsby West Side HCA.*
@@ -16959,7 +16959,7 @@ Pennant Hills was not listed in the Sands Directory until after 1910. However, t
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 456 -->
 
-![page 456 img 1 (868x629)](images/hornsby/p0456-800a6cecf4b8.png)
+![page 456 img 1 (868x629)](images/hornsby/p0456-800a6cecf4b8.webp)
 
 
 *Figure 9.9-a: The Crescent, Pennant Hills HCA.*
@@ -17042,7 +17042,7 @@ The south-eastern portion of the subdivision was resumed in the 1980s for the co
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 459 -->
 
-![page 459 img 1 (868x629)](images/hornsby/p0459-240567f427e8.png)
+![page 459 img 1 (868x629)](images/hornsby/p0459-240567f427e8.webp)
 
 
 *Figure 9.10-a: Wahroonga HCA.*
@@ -17146,7 +17146,7 @@ There was some overlap in the area as part of the Bundarra Estate did not sell, 
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 462 -->
 
-![page 462 img 1 (868x629)](images/hornsby/p0462-cdbafe95b00d.png)
+![page 462 img 1 (868x629)](images/hornsby/p0462-cdbafe95b00d.webp)
 
 
 *Figure 9.11-a: Wahroonga North HCA.*
@@ -17235,7 +17235,7 @@ The school curtilage remained largely unchanged until the late 1940s. The Post-W
 
 <!-- SRC: HDCP 2024 Part 9 Heritage - 23 June 2025.pdf | PAGE: 465 -->
 
-![page 465 img 1 (868x629)](images/hornsby/p0465-ef04f37e3359.png)
+![page 465 img 1 (868x629)](images/hornsby/p0465-ef04f37e3359.webp)
 
 
 *Figure 9.12-a: Barker College HCA.*
@@ -17325,12 +17325,12 @@ It is important to understand the relationship of a heritage item, or heritage c
 -  Could development on the site change the visual backdrop of the heritage item or heritage conservation area?
 -  Is the heritage item or heritage conservation area physically separated from the development site by a road, gully or escarpment, creek or similar?
 -  Are there any trees or remnant features on the development site that may have had an association with the heritage item?
-![page 467 img 1 (513x384)](images/hornsby/p0467-67edba072b74.png)
+![page 467 img 1 (513x384)](images/hornsby/p0467-67edba072b74.webp)
 
 
 *Figure 9.13-a: Development in the vicinity of a heritage item*
 
-![page 467 img 2 (601x379)](images/hornsby/p0467-a202f7b5ba49.png)
+![page 467 img 2 (601x379)](images/hornsby/p0467-a202f7b5ba49.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 468 -->
@@ -17340,7 +17340,7 @@ It is important to understand the relationship of a heritage item, or heritage c
 
 Part 10 Annexures
 
-![page 468 img 1 (207x163)](images/hornsby/p0060-d4a1c34e8444.png)
+![page 468 img 1 (207x163)](images/hornsby/p0060-d4a1c34e8444.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 469 -->
@@ -17427,70 +17427,70 @@ The following provides Town Centre Linkage diagrams for the Housing Strategy pre
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 473 -->
 
-![page 473 img 1 (1820x515)](images/hornsby/p0473-d5cad9cafdf1.png)
+![page 473 img 1 (1820x515)](images/hornsby/p0473-d5cad9cafdf1.webp)
 
-![page 473 img 2 (1820x515)](images/hornsby/p0473-0b42c2d668d8.png)
-![page 473 img 3 (1820x515)](images/hornsby/p0473-ddd2cfff1071.png)
-![page 473 img 4 (1820x515)](images/hornsby/p0473-6b8f6fc1a067.png)
-![page 473 img 5 (1820x514)](images/hornsby/p0473-e0ce1473a233.png)
+![page 473 img 2 (1820x515)](images/hornsby/p0473-0b42c2d668d8.webp)
+![page 473 img 3 (1820x515)](images/hornsby/p0473-ddd2cfff1071.webp)
+![page 473 img 4 (1820x515)](images/hornsby/p0473-6b8f6fc1a067.webp)
+![page 473 img 5 (1820x514)](images/hornsby/p0473-e0ce1473a233.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 474 -->
 
-![page 474 img 1 (1489x702)](images/hornsby/p0474-106fd9b0f59c.png)
+![page 474 img 1 (1489x702)](images/hornsby/p0474-106fd9b0f59c.webp)
 
-![page 474 img 2 (1489x702)](images/hornsby/p0474-628fa8f75fe3.png)
-![page 474 img 3 (1489x702)](images/hornsby/p0474-4a13d12ab5da.png)
+![page 474 img 2 (1489x702)](images/hornsby/p0474-628fa8f75fe3.webp)
+![page 474 img 3 (1489x702)](images/hornsby/p0474-4a13d12ab5da.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 475 -->
 
-![page 475 img 1 (1489x702)](images/hornsby/p0475-901528259e34.png)
+![page 475 img 1 (1489x702)](images/hornsby/p0475-901528259e34.webp)
 
-![page 475 img 2 (1489x702)](images/hornsby/p0475-4b229a3e39e5.png)
-![page 475 img 3 (1489x702)](images/hornsby/p0475-b30643308d29.png)
+![page 475 img 2 (1489x702)](images/hornsby/p0475-4b229a3e39e5.webp)
+![page 475 img 3 (1489x702)](images/hornsby/p0475-b30643308d29.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 476 -->
 
-![page 476 img 1 (1489x702)](images/hornsby/p0476-71bed9644dce.png)
+![page 476 img 1 (1489x702)](images/hornsby/p0476-71bed9644dce.webp)
 
-![page 476 img 2 (1489x702)](images/hornsby/p0476-35c15d1efaf5.png)
-![page 476 img 3 (1489x702)](images/hornsby/p0476-1ca57c711570.png)
+![page 476 img 2 (1489x702)](images/hornsby/p0476-35c15d1efaf5.webp)
+![page 476 img 3 (1489x702)](images/hornsby/p0476-1ca57c711570.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 477 -->
 
-![page 477 img 1 (1075x218)](images/hornsby/p0477-854e2b572850.png)
+![page 477 img 1 (1075x218)](images/hornsby/p0477-854e2b572850.webp)
 
-![page 477 img 2 (1075x218)](images/hornsby/p0477-124c596fd264.png)
-![page 477 img 3 (1075x218)](images/hornsby/p0477-ccf2627f9975.png)
-![page 477 img 4 (1075x218)](images/hornsby/p0477-dee002c8309b.png)
-![page 477 img 5 (1075x218)](images/hornsby/p0477-acd1a4980d10.png)
-![page 477 img 6 (1075x218)](images/hornsby/p0477-830028a6f824.png)
-![page 477 img 7 (1075x216)](images/hornsby/p0477-7598149b81f8.png)
+![page 477 img 2 (1075x218)](images/hornsby/p0477-124c596fd264.webp)
+![page 477 img 3 (1075x218)](images/hornsby/p0477-ccf2627f9975.webp)
+![page 477 img 4 (1075x218)](images/hornsby/p0477-dee002c8309b.webp)
+![page 477 img 5 (1075x218)](images/hornsby/p0477-acd1a4980d10.webp)
+![page 477 img 6 (1075x218)](images/hornsby/p0477-830028a6f824.webp)
+![page 477 img 7 (1075x216)](images/hornsby/p0477-7598149b81f8.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 478 -->
 
 [
 
-![page 478 img 1 (1489x702)](images/hornsby/p0478-5534479f5772.png)
+![page 478 img 1 (1489x702)](images/hornsby/p0478-5534479f5772.webp)
 
-![page 478 img 2 (1489x702)](images/hornsby/p0478-ff373e6f113e.png)
-![page 478 img 3 (1489x702)](images/hornsby/p0478-cb35131b6fd9.png)
+![page 478 img 2 (1489x702)](images/hornsby/p0478-ff373e6f113e.webp)
+![page 478 img 3 (1489x702)](images/hornsby/p0478-cb35131b6fd9.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 479 -->
 
-![page 479 img 1 (1075x218)](images/hornsby/p0479-4aa876f6814d.png)
+![page 479 img 1 (1075x218)](images/hornsby/p0479-4aa876f6814d.webp)
 
-![page 479 img 2 (1075x218)](images/hornsby/p0479-3af6ea8778c5.png)
-![page 479 img 3 (1075x218)](images/hornsby/p0479-ec4f7aa8e3ff.png)
-![page 479 img 4 (1075x218)](images/hornsby/p0479-82fbafb2965f.png)
-![page 479 img 5 (1075x218)](images/hornsby/p0479-ee2abf246fa4.png)
-![page 479 img 6 (1075x218)](images/hornsby/p0479-15395a687a17.png)
-![page 479 img 7 (1075x216)](images/hornsby/p0479-f34e967d4201.png)
+![page 479 img 2 (1075x218)](images/hornsby/p0479-3af6ea8778c5.webp)
+![page 479 img 3 (1075x218)](images/hornsby/p0479-ec4f7aa8e3ff.webp)
+![page 479 img 4 (1075x218)](images/hornsby/p0479-82fbafb2965f.webp)
+![page 479 img 5 (1075x218)](images/hornsby/p0479-ee2abf246fa4.webp)
+![page 479 img 6 (1075x218)](images/hornsby/p0479-15395a687a17.webp)
+![page 479 img 7 (1075x216)](images/hornsby/p0479-f34e967d4201.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 480 -->
@@ -17607,147 +17607,147 @@ State and Regional Roads are roads that require concurrence with Transport for N
 
 #### Beecroft-Cheltenham Heritage Conservation Area Precinct Boundaries
 
-![page 484 img 1 (1247x52)](images/hornsby/p0484-986357b8df6c.png)
+![page 484 img 1 (1247x52)](images/hornsby/p0484-986357b8df6c.webp)
 
 
 *Beecroft - Cheltenham Heritage Conservation Area: Precinct 1 - Beecroft/Cheltenham Plateau*
 
-![page 484 img 2 (1247x52)](images/hornsby/p0484-8b5a1ff5e502.png)
-![page 484 img 3 (1247x52)](images/hornsby/p0484-f3c0818a11fe.png)
-![page 484 img 4 (1247x52)](images/hornsby/p0484-5e12b67fa727.png)
-![page 484 img 5 (1247x52)](images/hornsby/p0484-a2e368088558.png)
-![page 484 img 6 (1247x52)](images/hornsby/p0484-7f64a8282c90.png)
-![page 484 img 7 (1247x52)](images/hornsby/p0484-6e5e52f21c4e.png)
-![page 484 img 8 (1247x52)](images/hornsby/p0484-37e15961dd9c.png)
-![page 484 img 9 (1247x52)](images/hornsby/p0484-10c95c462003.png)
-![page 484 img 10 (1247x52)](images/hornsby/p0484-a2d8a901a899.png)
-![page 484 img 11 (1247x52)](images/hornsby/p0484-b691cbd14a8e.png)
-![page 484 img 12 (1247x52)](images/hornsby/p0484-814a7844841a.png)
-![page 484 img 13 (1247x52)](images/hornsby/p0484-f3c73a4fdbe1.png)
-![page 484 img 14 (1247x52)](images/hornsby/p0484-de072d068076.png)
-![page 484 img 15 (1247x52)](images/hornsby/p0484-3206bf9caf29.png)
-![page 484 img 16 (1247x52)](images/hornsby/p0484-280a3488e6a5.png)
-![page 484 img 17 (1247x52)](images/hornsby/p0484-13f0f9b9d950.png)
-![page 484 img 18 (1247x52)](images/hornsby/p0484-172706a5c891.png)
-![page 484 img 19 (1247x52)](images/hornsby/p0484-533520f6b6e7.png)
-![page 484 img 20 (1247x50)](images/hornsby/p0484-f8d2211b5749.png)
+![page 484 img 2 (1247x52)](images/hornsby/p0484-8b5a1ff5e502.webp)
+![page 484 img 3 (1247x52)](images/hornsby/p0484-f3c0818a11fe.webp)
+![page 484 img 4 (1247x52)](images/hornsby/p0484-5e12b67fa727.webp)
+![page 484 img 5 (1247x52)](images/hornsby/p0484-a2e368088558.webp)
+![page 484 img 6 (1247x52)](images/hornsby/p0484-7f64a8282c90.webp)
+![page 484 img 7 (1247x52)](images/hornsby/p0484-6e5e52f21c4e.webp)
+![page 484 img 8 (1247x52)](images/hornsby/p0484-37e15961dd9c.webp)
+![page 484 img 9 (1247x52)](images/hornsby/p0484-10c95c462003.webp)
+![page 484 img 10 (1247x52)](images/hornsby/p0484-a2d8a901a899.webp)
+![page 484 img 11 (1247x52)](images/hornsby/p0484-b691cbd14a8e.webp)
+![page 484 img 12 (1247x52)](images/hornsby/p0484-814a7844841a.webp)
+![page 484 img 13 (1247x52)](images/hornsby/p0484-f3c73a4fdbe1.webp)
+![page 484 img 14 (1247x52)](images/hornsby/p0484-de072d068076.webp)
+![page 484 img 15 (1247x52)](images/hornsby/p0484-3206bf9caf29.webp)
+![page 484 img 16 (1247x52)](images/hornsby/p0484-280a3488e6a5.webp)
+![page 484 img 17 (1247x52)](images/hornsby/p0484-13f0f9b9d950.webp)
+![page 484 img 18 (1247x52)](images/hornsby/p0484-172706a5c891.webp)
+![page 484 img 19 (1247x52)](images/hornsby/p0484-533520f6b6e7.webp)
+![page 484 img 20 (1247x50)](images/hornsby/p0484-f8d2211b5749.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 485 -->
 
-![page 485 img 1 (1230x52)](images/hornsby/p0485-a55a3ad75d7f.png)
+![page 485 img 1 (1230x52)](images/hornsby/p0485-a55a3ad75d7f.webp)
 
 
 *Beecroft - Cheltenham Heritage Conservation Area: Precinct 2 - Beecroft North*
 
-![page 485 img 2 (1230x52)](images/hornsby/p0485-8a7c2671360d.png)
-![page 485 img 3 (1230x52)](images/hornsby/p0485-7fd6cf795c09.png)
-![page 485 img 4 (1230x52)](images/hornsby/p0485-dbde01e78de9.png)
-![page 485 img 5 (1230x52)](images/hornsby/p0485-35fe74ab5169.png)
-![page 485 img 6 (1230x52)](images/hornsby/p0485-398b75523d6d.png)
-![page 485 img 7 (1230x52)](images/hornsby/p0485-d241c4d557d4.png)
-![page 485 img 8 (1230x52)](images/hornsby/p0485-b5038689ff2b.png)
-![page 485 img 9 (1230x52)](images/hornsby/p0485-00b3b2f7015f.png)
-![page 485 img 10 (1230x52)](images/hornsby/p0485-6dc27c789681.png)
-![page 485 img 11 (1230x52)](images/hornsby/p0485-700ef9eb77dd.png)
-![page 485 img 12 (1230x52)](images/hornsby/p0485-5cb3a1ee3112.png)
-![page 485 img 13 (1230x52)](images/hornsby/p0485-d1badf79dd58.png)
-![page 485 img 14 (1230x52)](images/hornsby/p0485-024d282b722c.png)
-![page 485 img 15 (1230x52)](images/hornsby/p0485-b1aeb71cf3a7.png)
-![page 485 img 16 (1230x52)](images/hornsby/p0485-692639259b87.png)
-![page 485 img 17 (1230x52)](images/hornsby/p0485-e8ad415581ca.png)
-![page 485 img 18 (1230x52)](images/hornsby/p0485-2485f87eb5ea.png)
-![page 485 img 19 (1230x52)](images/hornsby/p0485-3cc6ddf80bd0.png)
-![page 485 img 20 (1230x49)](images/hornsby/p0485-4af1ccb02337.png)
+![page 485 img 2 (1230x52)](images/hornsby/p0485-8a7c2671360d.webp)
+![page 485 img 3 (1230x52)](images/hornsby/p0485-7fd6cf795c09.webp)
+![page 485 img 4 (1230x52)](images/hornsby/p0485-dbde01e78de9.webp)
+![page 485 img 5 (1230x52)](images/hornsby/p0485-35fe74ab5169.webp)
+![page 485 img 6 (1230x52)](images/hornsby/p0485-398b75523d6d.webp)
+![page 485 img 7 (1230x52)](images/hornsby/p0485-d241c4d557d4.webp)
+![page 485 img 8 (1230x52)](images/hornsby/p0485-b5038689ff2b.webp)
+![page 485 img 9 (1230x52)](images/hornsby/p0485-00b3b2f7015f.webp)
+![page 485 img 10 (1230x52)](images/hornsby/p0485-6dc27c789681.webp)
+![page 485 img 11 (1230x52)](images/hornsby/p0485-700ef9eb77dd.webp)
+![page 485 img 12 (1230x52)](images/hornsby/p0485-5cb3a1ee3112.webp)
+![page 485 img 13 (1230x52)](images/hornsby/p0485-d1badf79dd58.webp)
+![page 485 img 14 (1230x52)](images/hornsby/p0485-024d282b722c.webp)
+![page 485 img 15 (1230x52)](images/hornsby/p0485-b1aeb71cf3a7.webp)
+![page 485 img 16 (1230x52)](images/hornsby/p0485-692639259b87.webp)
+![page 485 img 17 (1230x52)](images/hornsby/p0485-e8ad415581ca.webp)
+![page 485 img 18 (1230x52)](images/hornsby/p0485-2485f87eb5ea.webp)
+![page 485 img 19 (1230x52)](images/hornsby/p0485-3cc6ddf80bd0.webp)
+![page 485 img 20 (1230x49)](images/hornsby/p0485-4af1ccb02337.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 486 -->
 
-![page 486 img 1 (1237x53)](images/hornsby/p0486-4c8f7d9f3c55.png)
+![page 486 img 1 (1237x53)](images/hornsby/p0486-4c8f7d9f3c55.webp)
 
 
 *Beecroft - Cheltenham Heritage Conservation Area: Precinct 3 - Northern Triangle*
 
-![page 486 img 2 (1237x53)](images/hornsby/p0486-5ddce819c5ec.png)
-![page 486 img 3 (1237x53)](images/hornsby/p0486-1d80d43cf1a1.png)
-![page 486 img 4 (1237x53)](images/hornsby/p0486-6de040a90156.png)
-![page 486 img 5 (1237x53)](images/hornsby/p0486-f71024561799.png)
-![page 486 img 6 (1237x53)](images/hornsby/p0486-1860acde48ac.png)
-![page 486 img 7 (1237x53)](images/hornsby/p0486-7e5a3b3cceb2.png)
-![page 486 img 8 (1237x53)](images/hornsby/p0486-2c25c368f84c.png)
-![page 486 img 9 (1237x53)](images/hornsby/p0486-114879771f63.png)
-![page 486 img 10 (1237x53)](images/hornsby/p0486-ec1ae3bc394d.png)
-![page 486 img 11 (1237x53)](images/hornsby/p0486-66df7828d88f.png)
-![page 486 img 12 (1237x53)](images/hornsby/p0486-7e05b80727b4.png)
-![page 486 img 13 (1237x53)](images/hornsby/p0486-f0590f7becff.png)
-![page 486 img 14 (1237x53)](images/hornsby/p0486-30884c46862b.png)
-![page 486 img 15 (1237x53)](images/hornsby/p0486-665ffec7a778.png)
-![page 486 img 16 (1237x53)](images/hornsby/p0486-275e35a3c71f.png)
-![page 486 img 17 (1237x53)](images/hornsby/p0486-c7aec88e2aa3.png)
-![page 486 img 18 (1237x53)](images/hornsby/p0486-8bd48de3e1d5.png)
-![page 486 img 19 (1237x53)](images/hornsby/p0486-e403cc3c0f52.png)
+![page 486 img 2 (1237x53)](images/hornsby/p0486-5ddce819c5ec.webp)
+![page 486 img 3 (1237x53)](images/hornsby/p0486-1d80d43cf1a1.webp)
+![page 486 img 4 (1237x53)](images/hornsby/p0486-6de040a90156.webp)
+![page 486 img 5 (1237x53)](images/hornsby/p0486-f71024561799.webp)
+![page 486 img 6 (1237x53)](images/hornsby/p0486-1860acde48ac.webp)
+![page 486 img 7 (1237x53)](images/hornsby/p0486-7e5a3b3cceb2.webp)
+![page 486 img 8 (1237x53)](images/hornsby/p0486-2c25c368f84c.webp)
+![page 486 img 9 (1237x53)](images/hornsby/p0486-114879771f63.webp)
+![page 486 img 10 (1237x53)](images/hornsby/p0486-ec1ae3bc394d.webp)
+![page 486 img 11 (1237x53)](images/hornsby/p0486-66df7828d88f.webp)
+![page 486 img 12 (1237x53)](images/hornsby/p0486-7e05b80727b4.webp)
+![page 486 img 13 (1237x53)](images/hornsby/p0486-f0590f7becff.webp)
+![page 486 img 14 (1237x53)](images/hornsby/p0486-30884c46862b.webp)
+![page 486 img 15 (1237x53)](images/hornsby/p0486-665ffec7a778.webp)
+![page 486 img 16 (1237x53)](images/hornsby/p0486-275e35a3c71f.webp)
+![page 486 img 17 (1237x53)](images/hornsby/p0486-c7aec88e2aa3.webp)
+![page 486 img 18 (1237x53)](images/hornsby/p0486-8bd48de3e1d5.webp)
+![page 486 img 19 (1237x53)](images/hornsby/p0486-e403cc3c0f52.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 487 -->
 
-![page 487 img 1 (1212x53)](images/hornsby/p0487-04af0fd19a80.png)
+![page 487 img 1 (1212x53)](images/hornsby/p0487-04af0fd19a80.webp)
 
 
 *Beecroft - Cheltenham Heritage Conservation Area: Precinct 4 -The Gullies*
 
-![page 487 img 2 (1212x53)](images/hornsby/p0487-73b827e671d6.png)
-![page 487 img 3 (1212x53)](images/hornsby/p0487-0e8b98cbe28c.png)
-![page 487 img 4 (1212x53)](images/hornsby/p0487-bc646b24e2b6.png)
-![page 487 img 5 (1212x53)](images/hornsby/p0487-8cc41a6e7fed.png)
-![page 487 img 6 (1212x53)](images/hornsby/p0487-84673c3899fb.png)
-![page 487 img 7 (1212x53)](images/hornsby/p0487-87f017c846e9.png)
-![page 487 img 8 (1212x53)](images/hornsby/p0487-d3db0fdb17e6.png)
-![page 487 img 9 (1212x53)](images/hornsby/p0487-c462be0817d5.png)
-![page 487 img 10 (1212x53)](images/hornsby/p0487-648acd94fabf.png)
-![page 487 img 11 (1212x53)](images/hornsby/p0487-1bab48e48ef2.png)
-![page 487 img 12 (1212x53)](images/hornsby/p0487-fc12bf247acb.png)
-![page 487 img 13 (1212x53)](images/hornsby/p0487-d768eadae085.png)
-![page 487 img 14 (1212x53)](images/hornsby/p0487-ab739da7ab2f.png)
-![page 487 img 15 (1212x53)](images/hornsby/p0487-f0dcce84b6b1.png)
-![page 487 img 16 (1212x53)](images/hornsby/p0487-2699fc374001.png)
-![page 487 img 17 (1212x53)](images/hornsby/p0487-c91ffe8ba723.png)
-![page 487 img 18 (1212x53)](images/hornsby/p0487-3b5eb7a7fcd7.png)
-![page 487 img 19 (1212x53)](images/hornsby/p0487-29ea5ce465d2.png)
-![page 487 img 20 (1212x52)](images/hornsby/p0487-bb979755da44.png)
+![page 487 img 2 (1212x53)](images/hornsby/p0487-73b827e671d6.webp)
+![page 487 img 3 (1212x53)](images/hornsby/p0487-0e8b98cbe28c.webp)
+![page 487 img 4 (1212x53)](images/hornsby/p0487-bc646b24e2b6.webp)
+![page 487 img 5 (1212x53)](images/hornsby/p0487-8cc41a6e7fed.webp)
+![page 487 img 6 (1212x53)](images/hornsby/p0487-84673c3899fb.webp)
+![page 487 img 7 (1212x53)](images/hornsby/p0487-87f017c846e9.webp)
+![page 487 img 8 (1212x53)](images/hornsby/p0487-d3db0fdb17e6.webp)
+![page 487 img 9 (1212x53)](images/hornsby/p0487-c462be0817d5.webp)
+![page 487 img 10 (1212x53)](images/hornsby/p0487-648acd94fabf.webp)
+![page 487 img 11 (1212x53)](images/hornsby/p0487-1bab48e48ef2.webp)
+![page 487 img 12 (1212x53)](images/hornsby/p0487-fc12bf247acb.webp)
+![page 487 img 13 (1212x53)](images/hornsby/p0487-d768eadae085.webp)
+![page 487 img 14 (1212x53)](images/hornsby/p0487-ab739da7ab2f.webp)
+![page 487 img 15 (1212x53)](images/hornsby/p0487-f0dcce84b6b1.webp)
+![page 487 img 16 (1212x53)](images/hornsby/p0487-2699fc374001.webp)
+![page 487 img 17 (1212x53)](images/hornsby/p0487-c91ffe8ba723.webp)
+![page 487 img 18 (1212x53)](images/hornsby/p0487-3b5eb7a7fcd7.webp)
+![page 487 img 19 (1212x53)](images/hornsby/p0487-29ea5ce465d2.webp)
+![page 487 img 20 (1212x52)](images/hornsby/p0487-bb979755da44.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 488 -->
 
-![page 488 img 1 (1237x52)](images/hornsby/p0488-d5077b66de6d.png)
+![page 488 img 1 (1237x52)](images/hornsby/p0488-d5077b66de6d.webp)
 
 
 *Beecroft - Cheltenham Heritage Conservation Area: Precinct 5 - Beecroft Village*
 
-![page 488 img 2 (1237x52)](images/hornsby/p0488-a88134e98968.png)
-![page 488 img 3 (1237x52)](images/hornsby/p0488-314ebf44bdd8.png)
-![page 488 img 4 (1237x52)](images/hornsby/p0488-794c036d8efb.png)
-![page 488 img 5 (1237x52)](images/hornsby/p0488-b4fec6662762.png)
-![page 488 img 6 (1237x52)](images/hornsby/p0488-6d13ca7cecae.png)
-![page 488 img 7 (1237x52)](images/hornsby/p0488-b3f0f32a86f8.png)
-![page 488 img 8 (1237x52)](images/hornsby/p0488-18b7a07ad3a6.png)
-![page 488 img 9 (1237x52)](images/hornsby/p0488-9823fc8deb72.png)
-![page 488 img 10 (1237x52)](images/hornsby/p0488-a554f3ec5ee8.png)
-![page 488 img 11 (1237x52)](images/hornsby/p0488-f56fdceaf679.png)
-![page 488 img 12 (1237x52)](images/hornsby/p0488-f95704e75ada.png)
-![page 488 img 13 (1237x52)](images/hornsby/p0488-47ca43381419.png)
-![page 488 img 14 (1237x52)](images/hornsby/p0488-21184fdcc542.png)
-![page 488 img 15 (1237x52)](images/hornsby/p0488-11890983fbc7.png)
-![page 488 img 16 (1237x52)](images/hornsby/p0488-e62151f06d7b.png)
-![page 488 img 17 (1237x52)](images/hornsby/p0488-0605f4eb1154.png)
-![page 488 img 18 (1237x52)](images/hornsby/p0488-ac7e87f426a6.png)
-![page 488 img 19 (1237x52)](images/hornsby/p0488-2f618eed1f63.png)
-![page 488 img 20 (1237x51)](images/hornsby/p0488-ecc1a50d5ef9.png)
+![page 488 img 2 (1237x52)](images/hornsby/p0488-a88134e98968.webp)
+![page 488 img 3 (1237x52)](images/hornsby/p0488-314ebf44bdd8.webp)
+![page 488 img 4 (1237x52)](images/hornsby/p0488-794c036d8efb.webp)
+![page 488 img 5 (1237x52)](images/hornsby/p0488-b4fec6662762.webp)
+![page 488 img 6 (1237x52)](images/hornsby/p0488-6d13ca7cecae.webp)
+![page 488 img 7 (1237x52)](images/hornsby/p0488-b3f0f32a86f8.webp)
+![page 488 img 8 (1237x52)](images/hornsby/p0488-18b7a07ad3a6.webp)
+![page 488 img 9 (1237x52)](images/hornsby/p0488-9823fc8deb72.webp)
+![page 488 img 10 (1237x52)](images/hornsby/p0488-a554f3ec5ee8.webp)
+![page 488 img 11 (1237x52)](images/hornsby/p0488-f56fdceaf679.webp)
+![page 488 img 12 (1237x52)](images/hornsby/p0488-f95704e75ada.webp)
+![page 488 img 13 (1237x52)](images/hornsby/p0488-47ca43381419.webp)
+![page 488 img 14 (1237x52)](images/hornsby/p0488-21184fdcc542.webp)
+![page 488 img 15 (1237x52)](images/hornsby/p0488-11890983fbc7.webp)
+![page 488 img 16 (1237x52)](images/hornsby/p0488-e62151f06d7b.webp)
+![page 488 img 17 (1237x52)](images/hornsby/p0488-0605f4eb1154.webp)
+![page 488 img 18 (1237x52)](images/hornsby/p0488-ac7e87f426a6.webp)
+![page 488 img 19 (1237x52)](images/hornsby/p0488-2f618eed1f63.webp)
+![page 488 img 20 (1237x51)](images/hornsby/p0488-ecc1a50d5ef9.webp)
 
 
 <!-- SRC: HDCP 2024 Part 10 Annexures - 18 July 2024.pdf | PAGE: 489 -->
 
 HORNSBY DEVELOPMENT CONTROL PLAN 2024 | ANNEXURES
 
-![page 489 img 1 (229x181)](images/hornsby/p0489-53aa73099bed.png)
+![page 489 img 1 (229x181)](images/hornsby/p0489-53aa73099bed.webp)
 
 10-22

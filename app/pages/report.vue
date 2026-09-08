@@ -313,24 +313,6 @@
             <div class="dim" v-if="p.orientation_degrees"><span class="dim-label">Orientation</span><span class="dim-value">{{ Number(p.orientation_degrees).toFixed(0) }}°</span></div>
           </div>
 
-          <!-- Lot shape.
-               Twelve indices measured off the cadastre, each with its reading,
-               because a bare 0.82 tells a reader nothing and they should not
-               have to guess which direction is good. -->
-          <div v-if="lotShape.length" class="shape-list">
-            <div class="edge-heading">
-              Lot shape
-              <span class="edge-count">measured from the boundary</span>
-            </div>
-            <div class="shape-items">
-              <div v-for="s in lotShape" :key="s.key" class="shape-row">
-                <span class="shape-label">{{ s.label }}</span>
-                <span class="shape-value">{{ s.value }}<span class="shape-unit" v-if="s.unit">{{ s.unit }}</span></span>
-                <span class="shape-note">{{ s.note }}</span>
-              </div>
-            </div>
-          </div>
-
           <!-- Boundary side lengths.
                Drawn on the boundary itself wherever the map geometry can be
                trusted; the list is the fallback for when it cannot, so the
@@ -374,6 +356,35 @@
             <span v-if="isYes(p.is_battleaxe)" class="lot-flag lot-flag--amber">Battle-axe</span>
             <span v-if="p.num_frontages" class="lot-flag">{{ p.num_frontages }} frontage(s)</span>
           </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Lot shape ───────────────────────────────────────────────────
+         Its own section, not a fourth block in the column beside the map.
+         That column shares a grid row with the map, so anything added to it
+         drives the row past the map's fixed 520px and the map ends up sitting
+         in a box taller than itself. Twelve indices is more than that column
+         can carry.
+
+         Closed by default: these are supporting measurements, and the numbers
+         a reader came for — frontage, depth, area, side lengths — are still
+         beside the map where they were. -->
+    <details v-if="lotShape.length" class="rpt-section">
+      <summary class="rpt-section-title">
+        Lot shape
+        <span class="rpt-count">{{ lotShape.length }} measures</span>
+      </summary>
+      <p class="envelope-blurb">
+        Measured off the surveyed boundary. Each carries its own reading, because
+        a bare 0.82 says nothing on its own about whether the shape helps or
+        hinders.
+      </p>
+      <div class="shape-items">
+        <div v-for="s in lotShape" :key="s.key" class="shape-row">
+          <span class="shape-label">{{ s.label }}</span>
+          <span class="shape-value">{{ s.value }}<span class="shape-unit" v-if="s.unit">{{ s.unit }}</span></span>
+          <span class="shape-note">{{ s.note }}</span>
         </div>
       </div>
     </details>
@@ -3143,6 +3154,10 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   grid-template-columns: 1fr 260px;
   gap: 1rem;
   padding: 0 1rem 0.5rem;
+  /* Both cells sit at the top rather than stretching to the taller of them.
+     Without this the dimensions column sets the row height, and the map — which
+     is a fixed 520px — is left inside a bordered box taller than the canvas. */
+  align-items: start;
 }
 @media (max-width: 640px) {
   .lot-map-layout { grid-template-columns: 1fr; }
@@ -3885,17 +3900,21 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 .cdc-reason strong { font-weight: 600; }
 .cdc-reason + .cdc-reason::before { content: '·'; margin-right: 10px; color: #d6b271; }
 
-/* Lot shape indices, under the boundary lengths. */
-.shape-list { margin-top: 0.9rem; }
-.shape-items { display: flex; flex-direction: column; gap: 2px; margin-top: 0.4rem; }
+/* Lot shape indices — their own section, so the rows get the full width. */
+.shape-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+  gap: 0 1.5rem;
+  margin-top: 0.5rem;
+}
 .shape-row {
   display: grid;
-  grid-template-columns: 8.5rem 4.5rem 1fr;
+  grid-template-columns: 10rem 5rem 1fr;
   gap: 8px;
   align-items: baseline;
-  padding: 3px 0;
+  padding: 4px 0;
   border-bottom: 1px dotted #eef1f5;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
 }
 .shape-label { color: #475569; }
 .shape-value { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }

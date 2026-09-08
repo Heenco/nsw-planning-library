@@ -21,7 +21,14 @@ public/EPI/DCPs/*.pdf
 # DCP register downloads (bulk PDFs, fetched by scripts/fetch-dcp-register.mjs)
 public/EPI/DCPs/pdf/
 public/EPI/nsw-dcp/dcp-register.html
-public/EPI/DCPs/images/
+
+# DCP figures. The PNGs the extractor writes are the intermediate — 3,319 files
+# and 728 MB, straight out of the PDFs at source resolution — and stay out of
+# git, regenerable from the manifest like the rest of build/. The WebP beside
+# each one is the published output and IS tracked: without it every figure 404s
+# in production, which is exactly what happened.
+# See scripts/optimise-dcp-images.mjs.
+public/EPI/DCPs/images/**/*.png
 
 # Python venv for the Docling converter (large; keep out of git)
 .venv/
