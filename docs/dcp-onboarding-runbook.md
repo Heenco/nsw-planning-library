@@ -57,15 +57,43 @@ Write `public/EPI/DCPs/manifests/<instrument-slug>.json` (this directory *is*
 committable). Model: `public/EPI/DCPs/manifests/randwick-dcp-2025.json`.
 
 Instrument level: `instrument`, `title`, `council`, `lga`, `kind`, `supersedes`,
-`endorsed`, `commenced`, `savings_provision`, `stage_N_pending`, `source_page`,
-`retrieved_at`.
+`endorsed`, `commenced`, `as_at`, `date_evidence`, `savings_provision`,
+`stage_N_pending`, `source_page`, `retrieved_at`.
 
 Per part: `part` code, `title`, `vintage`, `url`, `file`, `bytes`, `sha256`,
 `pages`, `text_chars`, `has_text_layer`.
 
-`commenced` matters especially — it is the correct value for the document's
-legal currency date, and nothing else in the pipeline currently captures it
-(see §5).
+### The two dates
+
+`commenced` is when the plan began. `as_at` is the latest date the version you
+hold is current to. **They are different the moment a plan is amended, and the
+report shows `as_at`.**
+
+Hornsby is the cautionary case. HDCP 2024 commenced 18 July 2024 and has been
+amended three times since — 26 Aug 2024, 19 May 2025, 23 June 2025 — and its
+part footers read "THIS PART WAS LAST AMENDED ON 23 JUNE 2025". This runbook
+used to say `commenced` was "the correct value for the document's legal currency
+date", the ingest did exactly that, and the report told planners a plan was
+current to a day eleven months and three amendments behind itself.
+
+Set `as_at` whenever the document states a later amendment, and put the passage
+you read it from in `date_evidence.as_at` — that quote is carried into
+`nsw.document.currency_basis` and shown on the report, so the date is
+attributed rather than asserted. Omit `as_at` only when the plan has never been
+amended; the ingest then falls back to `commenced` and says so.
+
+**There is no departmental date to use instead.** The Planning Portal DCP
+register (`scripts/fetch-dcp-register.mjs`) publishes a title and a link and no
+date field of any kind, and it lags council adoption by years — it still lists
+"Hornsby DCP 2013 - 2019" and "Randwick DCP 2013 - as amended Apr 2016", both
+superseded by what we hold. `up_property_d_3.dcp_plan_name` repeats that same
+stale naming lot by lot and has no currency column. LEPs and SEPPs *do* have one
+(the legislation register's `/inforce/<date>/` consolidation); DCPs do not, so
+the instrument's own words, recorded in the manifest, are the authority.
+
+Do not put an ingest date, a retrieval date, or a source filename's date in
+either field. Hornsby's book-version PDF is named `…26-june-2026-current`,
+which is when the file was published — see that manifest's `date_evidence.note`.
 
 ## 2. Download the PDFs
 
@@ -349,13 +377,16 @@ evidence audit join). Those are reachable only via the one-off pilot importer
 So after ingest you have grounded, citable controls — but no automated
 override resolution and no rule-to-evidence join.
 
-### No date or version modelling
+### Partial date modelling; no version modelling
 
-There are **no** `commenced` / `repealed` / `superseded_by` / `effective_from`
-/ `version` columns anywhere in `db/nsw-schema.sql` or migrations 01–07. The
-single date column, `nsw.document.as_at_date`, is hardcoded to `CURRENT_DATE`
-(`ingest-dcp.ts:232`) — the date the ingest *ran*, not the instrument's legal
-currency date. The `resolver(property, proposal, date)` in
+Migration 10 gives `nsw.document` four date-and-status columns —
+`commenced_date`, `currency_basis`, `savings_provision`, `pending_parts` — beside
+`as_at_date`, all written from the manifest. That covers "when did this plan
+begin", "what is our copy current to", "where did that date come from" and "what
+is not in it yet", and the report renders all four.
+
+What is still missing is `repealed` / `superseded_by` / `effective_from` /
+`version`. The `resolver(property, proposal, date)` in
 [rule-layer-pipeline.md](rule-layer-pipeline.md) is design, not code.
 
 Consequence: the graph cannot represent "plan B supersedes plan A from date D,
@@ -397,6 +428,8 @@ cite the design doc as evidence the numbers are clean.
 
 - [ ] Council page read; current instrument, staging, savings provision, pending parts recorded
 - [ ] Manifest written to `public/EPI/DCPs/manifests/`, with `commenced` and per-part `vintage`
+- [ ] `as_at` set to the plan's latest stated amendment (not `commenced`, not the file's date), with `date_evidence.as_at` quoting where it was read
+- [ ] `ingest-dcp.ts --dry-run` "current to" line matches that date before the real run
 - [ ] PDFs downloaded and validated (`%PDF`, >10 KB, HTTP 200)
 - [ ] Text layers pre-flighted (>200 chars/page for every part)
 - [ ] Converted to `.md` and `.html`, `--images` passed explicitly on both runs
