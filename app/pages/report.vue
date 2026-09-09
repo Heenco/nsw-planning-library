@@ -717,6 +717,24 @@
         this lot. The clause numbers below are from {{ ruleSourceLabel }}, which is the
         version held here — check the clause before relying on the numbering.
       </p>
+      <!-- A savings provision is not background: while its window is open, an
+           application already lodged is assessed under the plan the controls
+           below replaced. Randwick DCP 2025 commenced 27 July 2026 and saves
+           DAs lodged before then, so as at today this table can be the wrong
+           set of numbers for a live application — which is exactly the case a
+           reader would not think to check. -->
+      <p v-for="s in dcpSavings" :key="s.slug" class="rules-mismatch">
+        <strong>{{ s.title }}</strong> commenced {{ fmtDate(s.commenced) }} and carries a
+        savings provision: {{ s.savingsProvision }}
+        <template v-if="s.windowOpen">
+          An application lodged before that date and not yet finally determined is
+          therefore assessed under the superseded plan, not the controls below.
+        </template>
+        <template v-if="s.pendingParts?.length">
+          Not yet in the plan: {{ s.pendingParts.join('; ') }} — silence below on
+          those topics means not published, not unregulated.
+        </template>
+      </p>
 
       <details
         v-for="(g, i) in numericRuleGroups"
@@ -781,16 +799,30 @@
         below follow the version held.
       </p>
       <table class="rules-table">
-        <thead><tr><th>Instrument</th><th>Type</th><th>As at</th></tr></thead>
+        <thead><tr><th>Instrument</th><th>Type</th><th>Current to</th></tr></thead>
         <tbody>
-          <tr v-for="d in governingDocs" :key="d.slug">
-            <td>
-              <a v-if="d.viewerHref" :href="d.viewerHref" class="rules-cite">{{ d.title }}</a>
-              <span v-else>{{ d.title }}</span>
-            </td>
-            <td class="rules-cond">{{ d.docType.toUpperCase() }}</td>
-            <td class="rules-cond">{{ d.asAt || 'not recorded' }}</td>
-          </tr>
+          <template v-for="d in governingDocRows" :key="d.slug">
+            <tr :class="{ 'docnote-parent': d.notes.length }">
+              <td>
+                <a v-if="d.viewerHref" :href="d.viewerHref" class="rules-cite">{{ d.title }}</a>
+                <span v-else>{{ d.title }}</span>
+              </td>
+              <td class="rules-cond">{{ d.docType.toUpperCase() }}</td>
+              <td class="rules-cond">{{ d.asAt ? fmtDate(d.asAt) : 'not recorded' }}</td>
+            </tr>
+            <!-- Everything the instrument says about its own dates that a
+                 single "current to" cell cannot carry: when it commenced if
+                 that is a different day, what it saves, and what is not in it
+                 yet. Randwick DCP 2025 has all three, and the report used to
+                 state none of them. -->
+            <tr v-if="d.notes.length" class="docnote-row">
+              <td colspan="3">
+                <p v-for="(n, i) in d.notes" :key="i" :class="['docnote', n.emphasis ? 'docnote--warn' : '']">
+                  <span class="docnote-label">{{ n.label }}</span>{{ n.text }}
+                </p>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </details>
@@ -1093,6 +1125,7 @@ import {
   bandSupersededIdentities, isBandSuperseded,
 } from '#shared/dcp-scope'
 import { martinTileBase } from '#shared/martin'
+import { formatDay } from '#shared/dates'
 import { DCP_SLUG_BY_LGA } from '#shared/property-columns'
 // Categorising and labelling the whole row, so the sections below can name the
 // fields they curate and a catch-all can still show everything else.
@@ -2202,24 +2235,69 @@ const siteConstraints = computed(() => {
 const constraintsApplying = computed(() => siteConstraints.value.filter(c => c.applies).length)
 
 /**
- * Dates in this table arrive in three shapes.
+ * Dates on this page arrive in four shapes.
  *
  * `historic_commenced_date` is "2023-04-26 00:00:00", `lep_currency_date` is
- * epoch milliseconds as a string ("1749772800000"), and a split lot carries
- * several of either joined by " | ". Printing the raw value put a 13-digit
- * number on the page where a date belongs.
+ * epoch milliseconds as a string ("1749772800000"), an instrument's `asAt` is
+ * a bare "2025-06-23", and a split lot carries several of any of them joined
+ * by " | ". Printing the raw value put a 13-digit number on the page where a
+ * date belongs.
+ *
+ * `formatDay` fixes the second fault: this used `toLocaleDateString` with no
+ * zone, so the day rendered was the reader's local day rather than the Sydney
+ * day the instrument states. Combined with the API's UTC slicing that showed
+ * both LEPs as 6 April 2026 when their own source URL says 7 April.
  */
 function fmtDate(v: unknown): string {
   if (v == null || v === '') return '—'
-  return String(v).split('|').map((part) => {
-    const s = part.trim()
-    if (!s) return ''
-    const n = Number(s)
-    const d = /^\d{12,14}$/.test(s) ? new Date(n) : new Date(s.replace(' ', 'T'))
-    return Number.isNaN(d.getTime())
-      ? s
-      : d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
-  }).filter(Boolean).join(' · ')
+  return String(v).split('|').map(part => formatDay(part.trim(), ''))
+    .filter(Boolean).join(' · ')
+}
+
+/**
+ * What an instrument states about its own dates beyond the one in the cell.
+ *
+ * Kept out of the "Current to" column on purpose: that column answers "is the
+ * copy quoted here the operative one", and a commencement date, a savings
+ * provision and a list of unpublished parts are three different answers to
+ * three different questions. Crowding them into one cell was how they ended up
+ * omitted altogether.
+ */
+function docNotes(d: any): Array<{ label: string, text: string, emphasis?: boolean }> {
+  const notes: Array<{ label: string, text: string, emphasis?: boolean }> = []
+  if (d.commenced && d.commenced !== d.asAt) {
+    notes.push({ label: 'Commenced ', text: `${fmtDate(d.commenced)} — amended since.` })
+  }
+  if (d.savingsProvision) {
+    notes.push({ label: 'Savings provision ', text: d.savingsProvision, emphasis: savingsWindowOpen(d) })
+  }
+  if (d.pendingParts?.length) {
+    notes.push({ label: 'Not yet in the plan ', text: `${d.pendingParts.join('; ')}.` })
+  }
+  if (d.currencyBasis) notes.push({ label: 'Date from ', text: d.currencyBasis })
+  return notes
+}
+
+/**
+ * Is the savings window still open?
+ *
+ * A savings provision only saves applications lodged before commencement, so
+ * once every one of them has been finally determined it is history. Nothing
+ * here can know that. What it can say is whether commencement is recent enough
+ * for such an application to plausibly still be running: Randwick DCP 2025
+ * commenced 27 July 2026, weeks before this was written, so the answer is
+ * plainly yes and the report has to say so rather than quietly assume not.
+ *
+ * Two years is a deliberately generous bound — it decides only how loudly the
+ * provision is shown, never whether it is shown at all.
+ */
+function savingsWindowOpen(d: any): boolean {
+  if (!d.savingsProvision || !d.commenced) return false
+  // Midday, so the hour of the Sydney/UTC offset cannot move the day.
+  const commenced = Date.parse(`${d.commenced}T12:00:00Z`)
+  if (Number.isNaN(commenced)) return false
+  const TWO_YEARS = 2 * 365 * 24 * 60 * 60 * 1000
+  return Date.now() - commenced < TWO_YEARS
 }
 
 /** Split a "a | b" multi-value column into its parts. */
@@ -2386,6 +2464,17 @@ const allFieldCount = computed(() => allFields.value.reduce((n, c) => n + c.fiel
  * DCP 2013 where the clauses come from the 2024 plan.
  */
 const governingDocs = ref<any[]>([])
+
+/** DCPs whose savings provision or pending parts change how the controls
+ *  should be read. Shown beside those controls, not only in the document
+ *  list — a reader checking setbacks never scrolls to the document list. */
+const dcpSavings = computed(() => governingDocs.value
+  .filter(d => d.docType === 'dcp' && (d.savingsProvision || d.pendingParts?.length))
+  .map(d => ({ ...d, windowOpen: savingsWindowOpen(d) })))
+
+/** The document table's rows, with their notes resolved once. */
+const governingDocRows = computed(() =>
+  governingDocs.value.map(d => ({ ...d, notes: docNotes(d) })))
 
 /** One-line definitions, so a grid of numbers reads to a non-planner. */
 const FACT_DEFINITIONS: Record<string, string> = {
@@ -3869,6 +3958,22 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 
 .rules-cite { color: #15803d; text-decoration: none; white-space: nowrap; }
 .rules-cite:hover { text-decoration: underline; }
+
+/* Notes hanging off an instrument row: indented under its title, with the
+   dividing rule between the two suppressed so they read as part of that
+   instrument rather than as further instruments. */
+.docnote-parent td { border-bottom: none; padding-bottom: 0.15rem; }
+.docnote-row td { padding-top: 0; padding-bottom: 0.5rem; }
+.docnote {
+  margin: 0 0 3px 0.9rem;
+  color: #64748b;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.docnote:last-child { margin-bottom: 0; }
+.docnote-label { font-weight: 600; color: #475569; }
+.docnote--warn { color: #92400e; }
+.docnote--warn .docnote-label { color: #b45309; }
 
 .constraint-list { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem; }
 .constraint-row { display: grid; grid-template-columns: 12px 10rem 1fr; gap: 0.5rem; align-items: baseline; }

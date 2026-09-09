@@ -27,6 +27,7 @@ import 'dotenv/config'
 import pg from 'pg'
 import { readFileSync } from 'node:fs'
 import { parseDcpHtml } from './lib/dcp-html-parse.mjs'
+import { resolveManifestDates } from './lib/manifest-dates.mjs'
 import { matchLandUses } from './lib/si-landuse.mjs'
 import {
   datumOf, datumAt, groundDatumOf, parseSizeBand, splitStoreyBands, headingBand,
@@ -50,15 +51,25 @@ const arg = (f: string, d = '') => {
  * not the date the instrument took legal effect, which is the one thing
  * that column is for.
  *
- * `--manifest` supplies title, LGA, source URL, slug and commencement date
- * together, so they cannot drift apart between runs. Explicit flags still
- * win, for the pre-manifest documents that have none.
+ * `--manifest` supplies title, LGA, source URL, slug and every date together,
+ * so they cannot drift apart between runs. Explicit flags still win, for the
+ * pre-manifest documents that have none.
+ *
+ * The dates then went wrong a second way. This read `manifest.commenced` and
+ * ignored `manifest.as_at` entirely, so Hornsby DCP 2024 — commenced 18 July
+ * 2024, amended 26 Aug 2024, 19 May 2025 and 23 June 2025, with part footers
+ * reading "THIS PART WAS LAST AMENDED ON 23 JUNE 2025" — was stored as current
+ * to 2024-07-18. A re-ingest on 2026-09-09 regressed it from 2025-06-23 back
+ * to that, silently. `resolveManifestDates` now decides both dates from the
+ * manifest and nothing else, so a re-ingest is reproducible.
  */
 const manifestPath = arg('--manifest')
 const manifest = manifestPath
   ? JSON.parse(readFileSync(manifestPath, 'utf8')) as {
     instrument: string; title: string; council?: string; lga?: string
-    source_page?: string; commenced?: string; endorsed?: string
+    source_page?: string; commenced?: string; as_at?: string; endorsed?: string
+    date_evidence?: Record<string, string>
+    savings_provision?: string; stage_3_pending?: string[]
   }
   : null
 
@@ -68,8 +79,6 @@ const lga = arg('--lga', manifest?.council ?? '')
 const sourceUrl = arg('--url', manifest?.source_page ?? '')
 /** Idempotency key. See db/nsw-schema-migration-08-document-identity.sql. */
 const slug = arg('--slug', manifest?.instrument ?? '')
-/** Legal currency date: when the instrument commenced, not when we ran. */
-const asAtDate = arg('--as-at', manifest?.commenced ?? '')
 
 const missingArgs = Object.entries({ '--file': file, '--title': title, '--lga': lga, '--url': sourceUrl, '--slug': slug })
   .filter(([, v]) => !v).map(([k]) => k)
@@ -82,17 +91,52 @@ if (missingArgs.length) {
   )
   process.exit(1)
 }
-if (!asAtDate) {
+
+/**
+ * `as_at_date` is the latest date the version held is current to; a separate
+ * `commenced_date` holds when it began. See db/nsw-schema-migration-10-*.sql
+ * for why a DCP's currency date comes from the manifest and not from the
+ * department: the Planning Portal DCP register publishes no date at all.
+ */
+const asAtOverride = arg('--as-at')
+if (asAtOverride && !/^\d{4}-\d{2}-\d{2}$/.test(asAtOverride)) {
+  process.stderr.write(`--as-at must be YYYY-MM-DD, got "${asAtOverride}"\n`)
+  process.exit(1)
+}
+if (!manifest && !asAtOverride) {
   process.stderr.write(
-    'No commencement date: pass --as-at YYYY-MM-DD, or a manifest carrying `commenced`.\n'
-    + 'nsw.document.as_at_date is the instrument\'s legal currency date; defaulting it to\n'
-    + 'today would record every document as current as of its ingest.\n',
+    'No date: pass --manifest <manifest.json>, or --as-at YYYY-MM-DD for a\n'
+    + 'pre-manifest document. nsw.document.as_at_date is the date the instrument\n'
+    + 'is current to; defaulting it to today would record every document as\n'
+    + 'current as of its own ingest.\n',
   )
   process.exit(1)
 }
-if (!/^\d{4}-\d{2}-\d{2}$/.test(asAtDate)) {
-  process.stderr.write(`--as-at must be YYYY-MM-DD, got "${asAtDate}"\n`)
-  process.exit(1)
+
+let dates
+if (manifest) {
+  try {
+    dates = resolveManifestDates(manifest, manifestPath)
+  } catch (err) {
+    process.stderr.write(`${(err as Error).message}\n`)
+    process.exit(1)
+  }
+  // An explicit --as-at still wins over the manifest, but it now moves only the
+  // currency date: commencement stays whatever the manifest states, because the
+  // two are no longer the same fact.
+  if (asAtOverride) {
+    dates = { ...dates, asAt: asAtOverride, basis: `Supplied on the command line as --as-at ${asAtOverride}.` }
+  }
+} else {
+  // No manifest, so there is nothing that says whether this date is a
+  // commencement or a currency date. It is recorded as currency — that is what
+  // the column means — and the basis says plainly that it was asserted rather
+  // than read from the instrument.
+  dates = {
+    asAt: asAtOverride, commenced: null,
+    basis: `Supplied on the command line as --as-at ${asAtOverride}; this document has no manifest, so nothing in the instrument was read to confirm it.`,
+    savingsProvision: null, pendingParts: null,
+  }
 }
 
 const url = (process.env.DATABASE_URL || '').trim()
@@ -213,6 +257,10 @@ const { meta, sections } = parseDcpHtml(readFileSync(file, 'utf8'))
 L(`document   : ${title}`)
 L(`source     : ${meta.source} (${meta.pages} pages)`)
 L(`sections   : ${sections.length}`)
+// Printed because this is the field that regressed silently: a re-ingest that
+// moved as_at_date backwards looked identical to one that did not.
+L(`current to : ${dates.asAt}${dates.commenced && dates.commenced !== dates.asAt ? `  (commenced ${dates.commenced})` : ''}`)
+L(`  basis    : ${dates.basis}`)
 
 /** Text that belongs to a section including its non-clause descendants —
  *  a "Prescriptive Measures" block holds its content in child blocks. */
@@ -315,10 +363,12 @@ try {
   const { rows: [doc] } = await client.query(`
     INSERT INTO nsw.document
       (title, doc_type, scope, hierarchy_level, lga_name, source_url, raw_path,
-       as_at_date, instrument_slug, ingest_model, ingest_provider)
-    VALUES ($1,'dcp','local',4,$2,$3,$4,$5,$6,'deterministic-v1','dcp-convert')
+       as_at_date, commenced_date, currency_basis, savings_provision, pending_parts,
+       instrument_slug, ingest_model, ingest_provider)
+    VALUES ($1,'dcp','local',4,$2,$3,$4,$5,$6,$7,$8,$9,$10,'deterministic-v1','dcp-convert')
     RETURNING id`,
-  [title, lga, sourceUrl, file, asAtDate, slug])
+  [title, lga, sourceUrl, file, dates.asAt, dates.commenced, dates.basis,
+    dates.savingsProvision, dates.pendingParts, slug])
 
   const { rows: [run] } = await client.query(`
     INSERT INTO nsw.ingest_run (document_id, doc_label, status, started_at)

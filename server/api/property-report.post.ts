@@ -5,6 +5,7 @@ import {
   unitLooksWrong, operativeStoreyBand, matchesStoreyBand, matchesLotSizeBand, normaliseUse,
   bandSupersededIdentities, isBandSuperseded,
 } from '../../shared/dcp-scope'
+import { isoDate } from '../../shared/dates'
 
 /**
  * Topics the numeric-rules table renders.
@@ -509,7 +510,14 @@ export default defineEventHandler(async (event) => {
     // the 2024 plan.
     const governing = await withNswClient(async (c) => {
       const r = await c.query(
-        `SELECT instrument_slug AS slug, title, doc_type, as_at_date, lga_name
+        // `::text` rather than the DATE itself: node-postgres turns a DATE into
+        // a JS Date at the process's local midnight, and every consumer that
+        // then took a UTC calendar day off it lost a day. Postgres renders the
+        // stored calendar day with no zone in the loop at all.
+        `SELECT instrument_slug AS slug, title, doc_type, lga_name,
+                as_at_date::text AS as_at_date,
+                commenced_date::text AS commenced_date,
+                currency_basis, savings_provision, pending_parts
            FROM nsw.document
           WHERE scope = 'state' OR lower(lga_name) = lower($1)
           ORDER BY CASE doc_type WHEN 'lep' THEN 1 WHEN 'dcp' THEN 2 ELSE 3 END, title`,
@@ -522,9 +530,29 @@ export default defineEventHandler(async (event) => {
         slug: d.slug,
         title: d.title,
         docType: d.doc_type,
-        // Date only: the timestamp's time component is an artefact of storage,
-        // not something the consolidation records.
-        asAt: d.as_at_date ? String(new Date(d.as_at_date).toISOString().slice(0, 10)) : null,
+        // Date only, read in Australia/Sydney. This used to be
+        // `new Date(d.as_at_date).toISOString().slice(0, 10)`, which printed the
+        // UTC calendar day of a Sydney-local midnight and so came out one day
+        // early on every instrument: both LEPs display 2026-04-06 while their
+        // own source_url ends `/inforce/2026-04-07`. See shared/dates.ts.
+        asAt: isoDate(d.as_at_date),
+        // Commencement, where it is a different day. Hornsby DCP 2024 began on
+        // 18 July 2024 and is current to 23 June 2025; a reader needs both,
+        // because the first says which applications the plan caught and the
+        // second says whether the copy quoted here is the operative one.
+        commenced: isoDate(d.commenced_date),
+        // Where the "as at" date came from. DCPs have no departmental currency
+        // date to cite — see db/nsw-schema-migration-10-*.sql — so the report
+        // attributes the reading rather than stating the date bare.
+        currencyBasis: d.currency_basis ?? null,
+        // Randwick DCP 2025 saves DAs lodged before 27 July 2026 and not
+        // finally determined: as at today that window is open, so a live
+        // application on this lot may be assessed under the 2013 plan instead.
+        // The report named the DCP and said nothing about that.
+        savingsProvision: d.savings_provision ?? null,
+        // Parts announced but not yet in the plan. Without them, silence on a
+        // topic reads as "unregulated" rather than "not published yet".
+        pendingParts: Array.isArray(d.pending_parts) ? d.pending_parts : null,
         // Linked only where /doc-viewer can actually open it.
         viewerHref: d.doc_type === 'dcp' || d.doc_type === 'lep'
           ? `/doc-viewer?doc=${d.slug}` : null,

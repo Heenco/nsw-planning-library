@@ -74,7 +74,11 @@ try {
 
   // ── documents and pipeline progress per document ─────────────────────
   const docs = await q(`
-    SELECT d.id, d.title, d.doc_type, d.lga_name, d.as_at_date,
+    -- ::text, not the DATE. node-postgres turns a DATE into a JS Date at the
+    -- process's local midnight, and String(thatDate).slice(0, 10) printed
+    -- "Thu Jul 18" in the as-at column. Postgres renders the calendar day.
+    SELECT d.id, d.title, d.doc_type, d.lga_name,
+           d.as_at_date::text AS as_at_date, d.commenced_date::text AS commenced_date,
            d.prop_count, d.edge_count, d.ingested_at,
            (SELECT count(*) FROM nsw.section  s WHERE s.document_id = d.id)::int AS sections
     FROM nsw.document d
@@ -83,11 +87,11 @@ try {
 
   if (docs.length) {
     line(`\ndocuments ingested: ${docs.length}`)
-    line(`  ${'type'.padEnd(5)} ${'title'.padEnd(52)} ${'sections'.padStart(8)} ${'props'.padStart(8)} ${'edges'.padStart(7)}  as-at`)
+    line(`  ${'type'.padEnd(5)} ${'title'.padEnd(52)} ${'sections'.padStart(8)} ${'props'.padStart(8)} ${'edges'.padStart(7)}  current to  commenced`)
     for (const d of docs) {
       line(`  ${String(d.doc_type).padEnd(5)} ${String(d.title).slice(0, 51).padEnd(52)} `
         + `${String(d.sections).padStart(8)} ${String(d.prop_count).padStart(8)} `
-        + `${String(d.edge_count).padStart(7)}  ${String(d.as_at_date).slice(0, 10)}`)
+        + `${String(d.edge_count).padStart(7)}  ${String(d.as_at_date ?? '—').padEnd(11)} ${d.commenced_date ?? '—'}`)
     }
   }
 
