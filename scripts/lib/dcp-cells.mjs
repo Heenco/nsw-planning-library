@@ -49,14 +49,66 @@ const DATUM_PATTERNS = [
 ]
 
 /**
+ * Phrases that name a MEASUREMENT AXIS, not a boundary.
+ *
+ * "Existing primary frontage width" is the label on a column of size bands —
+ * it says what the rows are keyed on, not where a distance is measured from.
+ * The `primary frontage` datum pattern matched it anyway, so Randwick's C1
+ * side-setback table came out with its height-band column headers (4.5 m and
+ * 7 m "from ground level") recorded as FRONT boundary setbacks, while the real
+ * side setbacks in the cells below carried no datum at all.
+ *
+ * Stripped before datum matching rather than added as an exception to each
+ * pattern, so a new axis phrase disables every datum at once instead of one.
+ */
+const AXIS_RE = /\b(?:existing\s+)?(?:(?:primary|secondary)\s+)?(?:street\s+)?(?:frontage|site|lot|allotment|building|wall|boundary)\s+(?:widths?|depths?|areas?|lengths?|heights?)\b/gi
+
+/** The axis a header names, and the band metric it implies. */
+export function axisOf(text) {
+  if (!text) return null
+  AXIS_RE.lastIndex = 0
+  const m = AXIS_RE.exec(text)
+  if (!m) return null
+  const phrase = m[0].toLowerCase()
+  if (/areas?$/.test(phrase)) return { metric: 'lot_size', unit: 'sqm' }
+  if (/depths?$/.test(phrase)) return { metric: 'lot_depth', unit: 'metre' }
+  if (/heights?$/.test(phrase)) return { metric: 'building_height', unit: 'metre' }
+  // Width, of whatever it is measured across. A frontage width is the one that
+  // actually keys a control table; a bare "site width" is the same axis.
+  return { metric: 'frontage_width', unit: 'metre' }
+}
+
+/**
  * Which boundary (or feature) a distance is measured from.
  * Reads a row header, a heading, or a line of prose. null when unrecognised.
  */
 export function datumOf(...texts) {
-  const hay = texts.filter(Boolean).join(' ')
-  if (!hay) return null
+  const hay = texts.filter(Boolean).join(' ').replace(AXIS_RE, ' ')
+  if (!hay.trim()) return null
   for (const [re, datum] of DATUM_PATTERNS) if (re.test(hay)) return datum
   return null
+}
+
+/** Datums specific enough to inherit from a heading — see headingDatum. */
+const SPECIFIC_DATUMS = new Set([
+  'front_boundary', 'side_boundary', 'rear_boundary', 'secondary_boundary',
+  'waterfront_boundary', 'road_boundary',
+])
+
+/**
+ * The datum a clause heading states, for cells whose own row header gives none.
+ *
+ * Deliberately narrower than datumOf. Falling back to a table CAPTION is
+ * unsafe — every row of "Minimum boundary setbacks …" would inherit
+ * `property_boundary`, which is how a specific datum becomes a vague one — so
+ * only a specific boundary is inherited, never the generic. A heading that
+ * says "3.3.2 Side setbacks" is naming the datum for everything beneath it,
+ * and without this Randwick's 0.9 m and 1.2 m side setbacks were stored with
+ * no boundary and could never be applied to one.
+ */
+export function headingDatum(...texts) {
+  const d = datumOf(...texts)
+  return d && SPECIFIC_DATUMS.has(d) ? d : null
 }
 
 /**
@@ -123,6 +175,62 @@ export function parseSizeBand(text) {
     if (m) return { metric: 'lot_size', unit: 'sqm', ...read(m) }
   }
   return null
+}
+
+/**
+ * The same bands, measured in metres rather than square metres.
+ *
+ * Randwick keys its side setbacks on frontage width — "Less than 6m", "6m to
+ * less than 9m", "9m to less than 12m", "12m and above" — and every one of
+ * those row headers parsed as nothing, so the 0.9 m and 1.2 m setbacks beneath
+ * them were stored unconditioned. Four different controls that look identical
+ * and apply to different lots.
+ *
+ * The metric is supplied by the caller rather than guessed: a bare "6m to less
+ * than 9m" does not say whether it bands frontage width, lot depth or building
+ * height. The axis is named in the header above it, which is where axisOf
+ * reads it from.
+ */
+const LEN = String.raw`(\d+(?:\.\d+)?)\s*(?:m\b|metres?)`
+const LENGTH_BAND_PATTERNS = [
+  // "6m to less than 9m"  |  "6m to 9m"  |  "between 6m and 9m"
+  [new RegExp(String.raw`${LEN}\s*(?:to|–|—|-|and)\s*(?:less than\s*|under\s*)?${LEN}`, 'i'),
+    (m) => ({ lo: Number(m[1]), hi: Number(m[2]) })],
+  [new RegExp(String.raw`(?:<|less than|under|below|up to)\s*${LEN}`, 'i'),
+    (m) => ({ lo: null, hi: Number(m[1]) })],
+  [new RegExp(String.raw`(?:>|greater than|more than|over|above|at least)\s*${LEN}`, 'i'),
+    (m) => ({ lo: Number(m[1]), hi: null })],
+  [new RegExp(String.raw`${LEN}\s*(?:or (?:greater|more|above|wider)|and (?:above|over|greater))`, 'i'),
+    (m) => ({ lo: Number(m[1]), hi: null })],
+]
+
+export function parseLengthBand(text, metric = 'frontage_width') {
+  if (!text) return null
+  // An area band wins: "700m2 to 2,000m2" also matches the length pattern once
+  // the superscript is lost, and it is a lot size, not a width.
+  if (parseSizeBand(text)) return null
+  for (const [re, read] of LENGTH_BAND_PATTERNS) {
+    const m = re.exec(text)
+    if (m) return { metric, unit: 'metre', ...read(m) }
+  }
+  return null
+}
+
+/**
+ * A band measured up the building rather than across the lot.
+ *
+ * Randwick's side-setback columns are "Setback up to 4.5m from ground level",
+ * "between 4.5m to 7m from ground level", "above 7m from ground level" — the
+ * setback grows with height up the wall. Those numbers are the band, not the
+ * setback, and reading them as distances is what put a 7 m front setback on
+ * every low-density Randwick lot.
+ */
+export function parseHeightBand(text) {
+  if (!text || !/\b(?:from|above|over)\s+(?:existing\s+|natural\s+|finished\s+)?ground\s*level/i.test(text)) {
+    return null
+  }
+  const band = parseLengthBand(text, 'height_above_ground')
+  return band ?? { metric: 'height_above_ground', unit: 'metre', lo: null, hi: null }
 }
 
 // ── storey bands inside a single cell ──────────────────────────────────
@@ -276,6 +384,24 @@ export function headerUnit(...headers) {
 
 /** A cell holding nothing but a number, which is what needs the header's unit. */
 export const isBareNumber = (cell) => /^\s*\d{1,3}(?:,\d{3})*(?:\.\d+)?\s*$/.test(cell ?? '')
+
+/**
+ * A cell whose value is an expression, not a number.
+ *
+ * Randwick's side setbacks grow with wall height, and the upper cells of the
+ * table say so in algebra: "0.9𝑚 +(𝑏𝑢𝑖𝑙𝑑𝑖𝑛𝑔 ℎ𝑒𝑖𝑔ℎ𝑡 -7𝑚)". Every number in
+ * there is an operand — the 7 is the height the extra setback is measured
+ * from, the 0.9 only the base — so reading them as setbacks yields values that
+ * are true of no lot.
+ *
+ * Detected by the character block rather than by the arithmetic: the PDF sets
+ * these in maths italic, so the variables arrive as Mathematical Alphanumeric
+ * Symbols (U+1D400–U+1D7FF) and Letterlike Symbols (ℎ, U+210E), which ordinary
+ * cell prose never uses. That is a far more reliable signal than looking for a
+ * '+', which appears in "3+ storeys".
+ */
+const MATH_CHARS_RE = /[\u{1D400}-\u{1D7FF}\u{2100}-\u{214F}]/u
+export const isFormulaCell = (cell) => MATH_CHARS_RE.test(cell ?? '')
 
 // ── deferrals ──────────────────────────────────────────────────────────
 // "See Clause 6.1 of HLEP Foreshore Building Line Map" carries no number and

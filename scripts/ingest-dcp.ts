@@ -31,6 +31,7 @@ import { matchLandUses } from './lib/si-landuse.mjs'
 import {
   datumOf, datumAt, groundDatumOf, parseSizeBand, splitStoreyBands, headingBand,
   mapAreaOf, isAreaKeyed, headerUnit, isBareNumber, parseDeferral, tableNoOf,
+  axisOf, headingDatum, parseLengthBand, parseHeightBand, isFormulaCell,
 } from './lib/dcp-cells.mjs'
 import { findNumberCandidates } from '../server/utils/nsw-kg/verifiers/candidates'
 
@@ -138,6 +139,26 @@ const PART_DEV_TYPE: Array<[RegExp, string]> = [
   [/\bcommunity\b/i, 'community'],
   [/river settlements?/i, 'river_settlement'],
 ]
+/**
+ * Clauses that govern something OTHER than the principal building.
+ *
+ * A DCP states setbacks for a great many things — a satellite dish, a pool, a
+ * retaining wall, the edge of an excavation — and read as bare numbers they are
+ * indistinguishable from the setbacks that shape the house. Randwick C1 cl 8.3
+ * ("Communications dishes and aerial antennae", under "8. Ancillary
+ * development") says 900mm from the side and rear boundaries; with nothing to
+ * mark it as ancillary, the envelope generator applied a satellite dish's
+ * setback to the whole dwelling and put the rear wall 900mm off the fence.
+ *
+ * The document says which is which in its own heading chain, so this is read
+ * rather than inferred — the same principle as taking the development type
+ * from the Part.
+ */
+const ANCILLARY_RE = /\bancillary\b|\boutbuilding|\bswimming pool|\bspa\b|\bfenc(?:e|ing)|\bearthworks?\b|\bexcavation|\bretaining wall|\baerial|\bcommunications? dish|\bantenna|\bair conditioning|\bwater tank|\bsolar panel|\bdriveway|\bletterbox|\bclothes ?line/i
+
+/** True when any heading above this clause names an ancillary subject. */
+const isAncillary = (headings: string[]) => headings.some((h) => ANCILLARY_RE.test(h ?? ''))
+
 const devTypeOf = (part?: string | null): string | null => {
   if (!part) return null
   for (const [re, t] of PART_DEV_TYPE) if (re.test(part)) return t
@@ -168,6 +189,17 @@ const CMP: Record<string, string> = {
   // this stays unresolved rather than becoming a one-sided comparison.
   between: '',
 }
+/**
+ * Lengths are stored in metres, whatever the document wrote them in.
+ *
+ * "900mm" and "0.9m" are the same setback, and a graph that holds both as
+ * written makes every consumer convert — or, more likely, not convert: the
+ * envelope generator compares raw values, so a 900 would have outranked every
+ * real setback on the lot. The source span keeps the document's own wording.
+ */
+const asMetres = (value: number, unit: string | null) =>
+  (unit === 'millimetre' ? { value: value / 1000, unit: 'metre' } : { value, unit })
+
 const cmpOf = (hint: string | null): string | null => {
   if (!hint) return null
   const key = hint.trim().toLowerCase()
@@ -406,9 +438,14 @@ try {
     if (dev) clauseScope.push(['dev_type', dev])
     // Land uses from this heading and from every numbered ancestor, so a
     // control under "3.1 Dwelling Houses" keeps that scope in its subtree.
-    for (const heading of headingChain(s)) {
+    const chain = headingChain(s)
+    for (const heading of chain) {
       for (const use of matchLandUses(heading)) clauseScope.push(['land_use', use])
     }
+    // What the clause governs, where that is not the principal building. A
+    // consumer building an envelope wants the house's setbacks, not the
+    // aerial's, and cannot tell them apart from the numbers alone.
+    if (isAncillary(chain)) clauseScope.push(['dev_element', 'ancillary'])
 
     /** Write a scope list against a rule, ignoring repeats. */
     const writeScope = async (ruleId: string, scope: Array<[string, string]>, span: string) => {
@@ -452,6 +489,31 @@ try {
       // a header here without being removed from the rows, which it can be
       // safely because a label row contributes no numbers of its own.
       const colLabels: string[] = t.headers.length ? t.headers : (t.rows[0] ?? [])
+
+      /**
+       * A second header row, and the axis its row headers are keyed on.
+       *
+       * Randwick's C1 side-setback table has a spanned title in row 0 — the
+       * parser takes "Minimum side setbacks" as the headers — so the REAL
+       * header row arrives as row 1: "Existing primary frontage width |
+       * Setback up to 4.5m from ground level | …". Read as data it produced
+       * five setbacks of 4.5 m and 7 m, which are the height bands the columns
+       * are keyed on, and stamped them `front_boundary` because "primary
+       * frontage" was in the row header.
+       *
+       * A row header that names a measurement axis is labelling the column of
+       * row headers beneath it, never stating a control, so the row is skipped
+       * and the axis is kept — it is the only thing that says whether "6m to
+       * less than 9m" three rows down bands frontage width or lot depth.
+       */
+      let rowAxis: { metric: string, unit: string } | null = axisOf(colLabels[0] ?? '')
+      const headerRows = new Set<number>()
+      for (const [ri, row] of (t.rows as string[][]).slice(0, 3).entries()) {
+        const a = axisOf(row?.[0] ?? '')
+        if (!a) continue
+        headerRows.add(ri)
+        rowAxis ??= a
+      }
       // A caption's comparator governs the whole table ("Minimum Boundary
       // Setbacks"), so a bare "3m" cell beneath it is still a minimum.
       const tableCmp = /\bminimum|\bmin\b/i.test(t.caption ?? '') ? 'gte'
@@ -460,16 +522,27 @@ try {
       for (const [ri, row] of (t.rows as string[][]).entries()) {
         const rowHeader = row[0]
         if (!rowHeader) continue
+        if (headerRows.has(ri)) continue     // a label row, not a control
         // A row header states EITHER a band ("700m² to 2,000m²") or a datum
         // ("Side boundary") — never both, so reading it as a band first
         // keeps a lot-size row from being mistaken for a boundary.
+        // Once the table has declared an axis, a bare "6m to less than 9m" is
+        // a band on that axis rather than an unreadable header.
         const rowBand = parseSizeBand(rowHeader)
+          ?? (rowAxis ? parseLengthBand(rowHeader, rowAxis.metric) : null)
         // The row header alone. Falling back to the caption looks helpful
         // and is not: every row of "Minimum boundary setbacks …" would then
         // inherit `property_boundary`, so the "Attached dual occupancy" row
         // — whose real datum is the front boundary — would come out stated
         // and wrong instead of NULL and honest.
-        const datum = rowBand ? null : datumOf(rowHeader)
+        // The row header first; the clause heading second, and only when it
+        // names a specific boundary. "3.3.2 Side setbacks" is stating the
+        // datum for every cell beneath it — without this Randwick's 0.9 m and
+        // 1.2 m side setbacks were stored with no boundary at all and could
+        // never be applied to one. A caption is still not consulted: see
+        // headingDatum for why the generic property_boundary is refused.
+        const datum = (rowBand ? null : datumOf(rowHeader))
+          ?? headingDatum(s.heading, t.caption)
 
         // ── the row's own scope ──────────────────────────────────────
         // A row header carries scope the clause heading never states: the
@@ -514,8 +587,21 @@ try {
         for (let col = 1; col < row.length; col++) {
           const cell = row[col]
           if (!cell) continue
+          // A formula cell states how to compute the control, not what it is.
+          // Recorded as a gap so the clause is visibly unresolved rather than
+          // yielding an operand — Randwick's height-dependent side setbacks
+          // were contributing a bare 4.5 m and 7 m this way.
+          if (isFormulaCell(cell)) {
+            await addFinding('computed_control', false, clause,
+              `${rowHeader} | ${t.headers[col] || colLabels[col] || ''}`,
+              `control stated as an expression: ${cell.slice(0, 200)}`)
+            continue
+          }
           const colHeader = t.headers[col] || colLabels[col] || ''
-          const colBand = parseSizeBand(colHeader)
+          // A column can band on lot size, or — where the setback grows up the
+          // wall — on height above ground. Either way its own numbers are the
+          // band, not the control.
+          const colBand = parseSizeBand(colHeader) ?? parseHeightBand(colHeader)
           const cellId = (t as any)._cells?.[ri]?.[col] ?? null
           const span = `${rowHeader} | ${colHeader} | ${cell}`.slice(0, 2000)
           let wrote = 0
@@ -533,7 +619,8 @@ try {
               // storey" being recorded as a 1-storey setback.
               if (seg.condition && c.unit === 'storeys') continue
               const cond = seg.condition ?? colBand ?? rowBand ?? clauseBand
-              const isLength = c.unit === 'metre' || c.unit === 'km'
+              const { value: cValue, unit: cUnit } = asMetres(c.value, c.unit)
+              const isLength = cUnit === 'metre' || cUnit === 'km'
               // The number's own words first, the row header second. In the
               // basement-parking tables the header names the subject and
               // only the cell says which boundary, and the two datums in
@@ -553,7 +640,7 @@ try {
                    condition_metric, condition_lo, condition_hi, condition_unit)
                 VALUES ($1,'numeric',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
               [await ruleFor(), topic ?? 'unspecified', cmp,
-                c.value, c.unit, span,
+                cValue, cUnit, span,
                 isLength ? cellDatum : null,
                 topic === 'height' ? ground : null,
                 cellId,
@@ -603,6 +690,27 @@ try {
     for (const line of text.split('\n')) {
       const trimmed = line.trim()
       if (!trimmed) continue
+
+      /**
+       * A control computed from the lot rather than stated as a number.
+       *
+       * Randwick C1: "The minimum rear setback must be 25% of the allotment
+       * depth or 8m, whichever is the lesser." Neither number is the control —
+       * the setback is min(0.25 x depth, 8), so on a 30 m deep lot it is 7.5 m,
+       * not 8 m — and `rule_effect` holds a value, not an expression. Writing
+       * the 8 would be a wrong answer on every lot shallower than 32 m.
+       *
+       * So it is recorded as a gap rather than guessed at. Randwick's rear
+       * setback for low-density housing produced nothing at all before this,
+       * and nothing said so: the clause looked extracted because it had a rule
+       * row, and the report quietly fell back to a hardcoded default.
+       */
+      if (/\bwhichever is the (?:lesser|greater|lower|higher)\b/i.test(trimmed)
+        || /\d+\s*(?:%|per\s*cent|percent)\s+of\s+the\s+\w+\s*(?:depth|width|area|frontage|length)/i.test(trimmed)) {
+        await addFinding('computed_control', false, clause, s.heading ?? '',
+          `stated as a calculation, not a value — needs an expression the schema cannot hold: ${trimmed.slice(0, 200)}`)
+      }
+
       for (const c of findNumberCandidates(trimmed)) {
         if (c.category !== 'obvious') continue
         const cmp = cmpOf(c.comparator_hint)
@@ -629,7 +737,8 @@ try {
         // of a tennis court should be 3 metres" — so read it from the line
         // first and fall back to the heading the line sits under.
         const proseTopic = topicOf(s.heading, trimmed) ?? 'unspecified'
-        const proseDatum = (c.unit === 'metre' || c.unit === 'km')
+        const { value: pValue, unit: pUnit } = asMetres(c.value, c.unit)
+        const proseDatum = (pUnit === 'metre' || pUnit === 'km')
           ? datumOf(trimmed) ?? datumOf(s.heading)
           : null
         // Prose inherits the clause's band for the same reason a table cell
@@ -645,7 +754,7 @@ try {
              measured_from, relative_to,
              condition_metric, condition_lo, condition_hi, condition_unit)
           VALUES ($1,'numeric',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-        [rule.id, proseTopic, cmp, c.value, c.unit, trimmed.slice(0, 2000),
+        [rule.id, proseTopic, cmp, pValue, pUnit, trimmed.slice(0, 2000),
           proseDatum, groundDatumOf(trimmed) ?? (proseTopic === 'height' ? ground : null),
           proseBand?.metric ?? null, proseBand?.lo ?? null,
           proseBand?.hi ?? null, proseBand?.unit ?? null])

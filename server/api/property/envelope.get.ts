@@ -79,8 +79,24 @@ export default defineEventHandler(async (event) => {
        )
        AND e.topic IN ('setback', 'height') AND e.value IS NOT NULL
        AND ($2::numeric IS NULL OR e.condition_metric IS DISTINCT FROM 'storeys'
-            OR ($2 >= COALESCE(e.condition_lo, -1e9) AND $2 <= COALESCE(e.condition_hi, 1e9)))`,
-    [landUses, storeys, lot.lga_name ?? '', devTypes],
+            OR ($2 >= COALESCE(e.condition_lo, -1e9) AND $2 <= COALESCE(e.condition_hi, 1e9)))
+       -- Randwick keys its side setbacks on frontage width: 0.9 m under 12 m,
+       -- 1.2 m at 12 m and above. Without this every band matched and the
+       -- widest value won on every lot, so a 9 m frontage was given the 12 m
+       -- setback. A lot whose frontage is unknown keeps them all rather than
+       -- silently taking none.
+       AND ($5::numeric IS NULL OR e.condition_metric IS DISTINCT FROM 'frontage_width'
+            OR ($5 >= COALESCE(e.condition_lo, -1e9) AND $5 <= COALESCE(e.condition_hi, 1e9)))
+       -- A clause about an aerial, a pool or an excavation states a real
+       -- setback for a real thing, and none of them is the house. Randwick C1
+       -- cl 8.3 requires 900 mm from the rear boundary for a satellite dish;
+       -- taken as the dwelling's rear setback it put the back wall on the
+       -- fence. See migration 09.
+       AND NOT EXISTS (
+         SELECT 1 FROM nsw.rule_applicability anc
+         WHERE anc.rule_id = r.id AND anc.dimension = 'dev_element'
+           AND anc.value = 'ancillary')`,
+    [landUses, storeys, lot.lga_name ?? '', devTypes, Number(lot.primary_frontage_length_m) || null],
   )).rows
 
   /**

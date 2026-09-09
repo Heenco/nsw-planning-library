@@ -40,6 +40,14 @@ const UNIT_TOKENS = [
   // storey count in "0.9m 2 storey element", where the 2 starts a new clause.
   'm\\s*2(?!\\s*store)',
   'metres', 'metre', 'km',
+  // Millimetres are a real control unit, not noise: Randwick states its
+  // secondary-frontage setback as "900mm for allotments with a primary
+  // frontage width of less than 7m". Without this token the 900 scored as a
+  // bare number and was discarded, so the only number the line yielded was
+  // the 7 m CONDITION — the control was dropped and its qualifier kept.
+  // Must precede bare 'm', which would otherwise match the first character
+  // and fail the "not another alphanumeric" test.
+  'millimetres', 'millimetre', 'mm',
   'hectares', 'hectare', 'ha',
   'per\\s*cent', 'percent', '%',
   'dwellings?', 'persons?', 'storeys?', 'spaces?',
@@ -59,6 +67,7 @@ const UNIT_RE = new RegExp(`^\\s*(${UNIT_TOKENS.join('|')})(?![A-Za-z0-9])`, 'i'
 const UNIT_CANONICAL: Array<[RegExp, string]> = [
   [/^(square\s+metres?|sqm|m²|m\s*2)$/i,       'sqm'],
   [/^(metres?|m)$/i,                           'metre'],
+  [/^(millimetres?|mm)$/i,                     'millimetre'],
   [/^km$/i,                                    'km'],
   [/^(hectares?|ha)$/i,                        'hectare'],
   [/^(per\s*cent|percent|%)$/i,                'percent'],
