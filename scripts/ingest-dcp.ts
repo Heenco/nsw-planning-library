@@ -31,7 +31,9 @@ import { matchLandUses } from './lib/si-landuse.mjs'
 import {
   datumOf, datumAt, groundDatumOf, parseSizeBand, splitStoreyBands, headingBand,
   mapAreaOf, isAreaKeyed, headerUnit, isBareNumber, parseDeferral, tableNoOf,
-  axisOf, headingDatum, parseLengthBand, parseHeightBand, isFormulaCell,
+  headingDatum, parseLengthBand, parseHeightBand, isFormulaCell,
+  topicOf, topicCandidates, relativeDatumAt, statesTieBreak, tieBreakInvertsValue,
+  statesPercentageOf, readTableShape, chooseCondition, storeyBandOf,
 } from './lib/dcp-cells.mjs'
 import { findNumberCandidates } from '../server/utils/nsw-kg/verifiers/candidates'
 
@@ -100,27 +102,24 @@ if (!url) { process.stderr.write('DATABASE_URL is not set (see .env).\n'); proce
 
 const L = (s = '') => process.stdout.write(s + '\n')
 
-/** Topic vocabulary, matched against a heading or caption. */
-const TOPIC_PATTERNS: Array<[RegExp, string]> = [
-  [/\bsetback/i, 'setback'],
-  [/\bheight/i, 'height'],
-  [/floor space ratio|\bfsr\b/i, 'fsr'],
-  [/\blot size|subdivision/i, 'lot_size'],
-  [/\bsite cover/i, 'site_coverage'],
-  [/\blandscap/i, 'landscaping'],
-  [/\bparking|car park/i, 'parking'],
-  [/\bopen space/i, 'open_space'],
-  [/\bsolar|sunlight|overshadow/i, 'solar_access'],
-  [/\bprivacy/i, 'privacy'],
-  [/\bdeep soil/i, 'deep_soil'],
-  [/\bfloor area|\bgfa\b/i, 'floor_area'],
-  [/\bdensity|dwelling/i, 'density'],
-  [/\bwidth|frontage/i, 'width'],
-]
-const topicOf = (...texts: Array<string | null | undefined>): string | null => {
-  const hay = texts.filter(Boolean).join(' ')
-  for (const [re, t] of TOPIC_PATTERNS) if (re.test(hay)) return t
-  return null
+/**
+ * Does this text state a value the cell loop would extract?
+ *
+ * Handed to readTableShape so it can tell a label row from a control row
+ * using the same detector the extraction uses, rather than a second opinion
+ * that could disagree with it. A formula cell states no value (its numbers
+ * are operands) and a storey count inside a band is the band, not the value —
+ * both exactly as the loop below treats them.
+ */
+const statesValue = (text: string | null | undefined): boolean => {
+  if (!text || isFormulaCell(text)) return false
+  for (const seg of splitStoreyBands(text)) {
+    for (const c of findNumberCandidates(seg.text)) {
+      if (seg.condition && c.unit === 'storeys') continue
+      return true
+    }
+  }
+  return false
 }
 
 /**
@@ -261,8 +260,18 @@ const isClause = (s: any) => s.kind === 'clause' && s.number
  * it, and every other rule source skips it.
  */
 const tableOwner = new Map<any, any>()
+/**
+ * The section a table literally sits in, which is not always the rule that
+ * owns it. Randwick D4's front-setback table hangs off an unnumbered block
+ * headed "Front setback" beneath clause 2.3 "Setbacks"; the rule is the
+ * clause, so reading the datum from the RULE's heading gave "Setbacks" — no
+ * boundary — and five front setbacks were stored with nowhere to measure
+ * from. The block heading is the document naming the datum, one level down.
+ */
+const tableSection = new Map<any, any>()
 for (const owner of sections) {
   for (const t of owner.tables) {
+    tableSection.set(t, owner)
     let node: any = owner
     while (node && !(isClause(node) || isControls(node))) {
       const cut: number = node.id ? node.id.lastIndexOf('.') : -1
@@ -480,49 +489,45 @@ try {
     // the scope of one table's row and the values of another's.
     for (const [ti, t] of (tables as any[]).entries()) {
       if (tableOwner.get(t) !== s) continue   // read once, by its owner
-      const topic = topicOf(t.caption, s.heading)
+      // What the document says above this TABLE — not above the rule that
+      // owns it, because a table can sit in an unnumbered block whose heading
+      // is the only thing naming its subject.
+      //
+      // The caption and that heading go in together, so the topic and datum
+      // vocabularies decide between them exactly as they always have; the
+      // headings above follow, outwards, as a fallback for a table neither
+      // names. Randwick hangs its controls off blocks headed "Controls", so
+      // without the fallback more than half its effects had no topic at all.
+      const tableHeadings: string[] = headingChain(tableSection.get(t) ?? s)
+      const tableChain: string[] = [
+        [t.caption, tableHeadings[0]].filter(Boolean).join(' '),
+        ...tableHeadings.slice(1),
+      ].filter(Boolean)
       // Decided once per table so every row agrees about it.
       const areaKeyed = isAreaKeyed(t.headers, t.caption, t.rows[0] ?? [])
-      // Most of these tables are built from <td>, so the parser finds no
-      // header row and row 0 arrives as data. It still carries the column
-      // labels — and with them the units the cells omit — so it is read as
-      // a header here without being removed from the rows, which it can be
-      // safely because a label row contributes no numbers of its own.
-      const colLabels: string[] = t.headers.length ? t.headers : (t.rows[0] ?? [])
-
-      /**
-       * A second header row, and the axis its row headers are keyed on.
-       *
-       * Randwick's C1 side-setback table has a spanned title in row 0 — the
-       * parser takes "Minimum side setbacks" as the headers — so the REAL
-       * header row arrives as row 1: "Existing primary frontage width |
-       * Setback up to 4.5m from ground level | …". Read as data it produced
-       * five setbacks of 4.5 m and 7 m, which are the height bands the columns
-       * are keyed on, and stamped them `front_boundary` because "primary
-       * frontage" was in the row header.
-       *
-       * A row header that names a measurement axis is labelling the column of
-       * row headers beneath it, never stating a control, so the row is skipped
-       * and the axis is kept — it is the only thing that says whether "6m to
-       * less than 9m" three rows down bands frontage width or lot depth.
-       */
-      let rowAxis: { metric: string, unit: string } | null = axisOf(colLabels[0] ?? '')
-      const headerRows = new Set<number>()
-      for (const [ri, row] of (t.rows as string[][]).slice(0, 3).entries()) {
-        const a = axisOf(row?.[0] ?? '')
-        if (!a) continue
-        headerRows.add(ri)
-        rowAxis ??= a
-      }
-      // A caption's comparator governs the whole table ("Minimum Boundary
-      // Setbacks"), so a bare "3m" cell beneath it is still a minimum.
-      const tableCmp = /\bminimum|\bmin\b/i.test(t.caption ?? '') ? 'gte'
-        : /\bmaximum|\bmax\b/i.test(t.caption ?? '') ? 'lte' : null
+      // Which rows label and which state controls, and where in each row the
+      // values start. Most of these tables are built from <td>, so the parser
+      // finds no header row and row 0 arrives as data; it still carries the
+      // column labels — and with them the units the cells omit — so it is read
+      // as a header without being removed from the rows.
+      const shape = readTableShape(t.headers, t.rows, statesValue)
+      const rowAxis = shape.rowAxis
+      // Which way a number points, read off a label. A caption's comparator
+      // governs the whole table ("Minimum Boundary Setbacks"), so a bare "3m"
+      // cell beneath it is still a minimum.
+      const dirOf = (text?: string | null) => (/\bminimum|\bmin\b/i.test(text ?? '') ? 'gte'
+        : /\bmaximum|\bmax\b/i.test(text ?? '') ? 'lte' : null)
+      const tableCmp = dirOf(t.caption)
 
       for (const [ri, row] of (t.rows as string[][]).entries()) {
-        const rowHeader = row[0]
-        if (!rowHeader) continue
-        if (headerRows.has(ri)) continue     // a label row, not a control
+        const shaped = shape.rows[ri]!
+        if (shaped.role !== 'data') continue  // a label or title row, not a control
+        const { labels: colLabels, firstDataCol } = shaped
+        // Column 0 is a label in almost every table and a control column in
+        // the few whose row key is a band; where it is a control column there
+        // is no row header at all, and each cell has to say its own datum.
+        const rowHeader = firstDataCol === 0 ? '' : row[0]
+        if (firstDataCol > 0 && !rowHeader) continue
         // A row header states EITHER a band ("700m² to 2,000m²") or a datum
         // ("Side boundary") — never both, so reading it as a band first
         // keeps a lot-size row from being mistaken for a boundary.
@@ -530,19 +535,30 @@ try {
         // a band on that axis rather than an unreadable header.
         const rowBand = parseSizeBand(rowHeader)
           ?? (rowAxis ? parseLengthBand(rowHeader, rowAxis.metric) : null)
-        // The row header alone. Falling back to the caption looks helpful
-        // and is not: every row of "Minimum boundary setbacks …" would then
-        // inherit `property_boundary`, so the "Attached dual occupancy" row
-        // — whose real datum is the front boundary — would come out stated
-        // and wrong instead of NULL and honest.
-        // The row header first; the clause heading second, and only when it
-        // names a specific boundary. "3.3.2 Side setbacks" is stating the
-        // datum for every cell beneath it — without this Randwick's 0.9 m and
-        // 1.2 m side setbacks were stored with no boundary at all and could
-        // never be applied to one. A caption is still not consulted: see
-        // headingDatum for why the generic property_boundary is refused.
+        // Whatever the document names, filtered to the boundaries specific
+        // enough to inherit — see headingDatum, and why the generic
+        // property_boundary is refused. Letting a caption like "Minimum
+        // boundary setbacks …" through would give every row beneath it
+        // `property_boundary`, so the "Attached dual occupancy" row — whose
+        // real datum is the front boundary — would come out stated and wrong
+        // instead of NULL and honest.
+        //
+        // The row header first; then the title row above it INSIDE the table;
+        // then the caption and headings above the table — and only where they
+        // name a specific boundary. "3.3.2 Side setbacks" states the datum for
+        // every cell beneath it; without that Randwick's 0.9 m and 1.2 m side
+        // setbacks had no boundary and could never be applied to one. D12's
+        // Table C needs the title row for the same reason: its row keys are
+        // street NAMES, and "Street frontages:" three rows up is the only
+        // thing saying what the 5.0 m is measured from.
+        //
+        // Consulted one text at a time, nearest first, so a nearer heading
+        // that says nothing hands over to its parent rather than being joined
+        // with it — which would let the order of the datum pattern list decide
+        // instead of the order of the document.
         const datum = (rowBand ? null : datumOf(rowHeader))
-          ?? headingDatum(s.heading, t.caption)
+          ?? [shaped.title, ...tableChain].map((x) => headingDatum(x ?? '')).find(Boolean)
+          ?? null
 
         // ── the row's own scope ──────────────────────────────────────
         // A row header carries scope the clause heading never states: the
@@ -584,7 +600,7 @@ try {
           return rr.id
         }
 
-        for (let col = 1; col < row.length; col++) {
+        for (let col = firstDataCol; col < row.length; col++) {
           const cell = row[col]
           if (!cell) continue
           // A formula cell states how to compute the control, not what it is.
@@ -593,23 +609,45 @@ try {
           // were contributing a bare 4.5 m and 7 m this way.
           if (isFormulaCell(cell)) {
             await addFinding('computed_control', false, clause,
-              `${rowHeader} | ${t.headers[col] || colLabels[col] || ''}`,
+              `${rowHeader} | ${colLabels[col] || ''}`,
               `control stated as an expression: ${cell.slice(0, 200)}`)
             continue
           }
-          const colHeader = t.headers[col] || colLabels[col] || ''
-          // A column can band on lot size, or — where the setback grows up the
-          // wall — on height above ground. Either way its own numbers are the
-          // band, not the control.
+          // The same gap, written in words instead of algebra. The prose stage
+          // has always recorded these; the table stage said nothing, so C2's
+          // "a minimum of 15% of the site depth, or 5m, whichever is the
+          // greater" looked like a plain 5 m rear setback. It is still stored
+          // — 5 m is a true floor — but the clause is no longer silent about
+          // being incomplete. Only the inverting form is dropped outright.
+          if (statesTieBreak(cell)) {
+            await addFinding('computed_control', false, clause,
+              `${rowHeader} | ${colLabels[col] || ''}`,
+              tieBreakInvertsValue(cell)
+                ? `control is the LESSER of two expressions, so the stated number is not it: ${cell.slice(0, 200)}`
+                : `control is the greater of two expressions; the stated number is a floor, not the whole rule: ${cell.slice(0, 200)}`)
+            if (tieBreakInvertsValue(cell)) continue
+          }
+          const colHeader = colLabels[col] || ''
+          // A column can band on lot size, on storeys, or — where the setback
+          // grows up the wall — on height above ground. Either way its own
+          // numbers are the band, not the control.
           const colBand = parseSizeBand(colHeader) ?? parseHeightBand(colHeader)
+            ?? storeyBandOf(colHeader)
           const cellId = (t as any)._cells?.[ri]?.[col] ?? null
           const span = `${rowHeader} | ${colHeader} | ${cell}`.slice(0, 2000)
           let wrote = 0
 
-          const colCmp = /\bminimum|\bmin\b/i.test(colHeader) ? 'gte'
-            : /\bmaximum|\bmax\b/i.test(colHeader) ? 'lte' : null
+          // Both labels, nearest first. An in-body label row replaces the
+          // parser's headers as the NEAREST label; it does not replace what
+          // they say. C1's spanned title is "Minimum side setbacks", and
+          // reading only the row beneath it — "Setback up to 4.5m from ground
+          // level (existing)" — left every Randwick side setback with no
+          // comparator at all, which is a number that does not say which way
+          // it points, and the envelope generator dropped the lot.
+          const colCmp = dirOf(colHeader) ?? dirOf(shaped.title) ?? dirOf(t.headers[col])
           // A bare number takes its unit from the column that names it.
-          const hUnit = isBareNumber(cell) ? headerUnit(colHeader, t.caption) : null
+          const hUnit = isBareNumber(cell)
+            ? headerUnit(colHeader, t.headers[col], t.caption) : null
           const scanned = hUnit ? `${cell.trim()}${hUnit}` : cell
 
           for (const seg of splitStoreyBands(scanned)) {
@@ -618,15 +656,50 @@ try {
               // not the value. Dropping it here is what stops "up to 1
               // storey" being recorded as a 1-storey setback.
               if (seg.condition && c.unit === 'storeys') continue
-              const cond = seg.condition ?? colBand ?? rowBand ?? clauseBand
+              // A table states more conditions than rule_effect can hold —
+              // C1's side setbacks are banded on frontage width AND on height
+              // above ground — so one is chosen on a stated principle and the
+              // rest are recorded rather than silently discarded.
+              const { condition: cond, dropped } = chooseCondition([
+                seg.condition ? { ...seg.condition, fromCell: true } : null,
+                colBand, rowBand, clauseBand,
+              ])
+              for (const d of dropped) {
+                await addFinding('dropped_condition', false, clause,
+                  `${rowHeader} | ${colHeader}`,
+                  `this control is also conditioned on ${d.metric} `
+                  + `${d.lo ?? '−∞'}–${d.hi ?? '∞'} ${d.unit}, which rule_effect `
+                  + `cannot hold beside ${cond!.metric}: ${cell.slice(0, 120)}`)
+              }
               const { value: cValue, unit: cUnit } = asMetres(c.value, c.unit)
               const isLength = cUnit === 'metre' || cUnit === 'km'
+              // A datum the document states and the vocabulary cannot hold —
+              // "1m setback from level below" — is a gap, not a licence to
+              // fall back to the row header. See relativeDatumAt.
+              const relative = relativeDatumAt(seg.text, c.index, c.raw)
+              if (relative && isLength) {
+                await addFinding('relative_datum', false, clause,
+                  `${rowHeader} | ${colHeader}`,
+                  `measured "${relative}", which is not a boundary `
+                  + `measured_from can name: ${cell.slice(0, 160)}`)
+              }
               // The number's own words first, the row header second. In the
               // basement-parking tables the header names the subject and
               // only the cell says which boundary, and the two datums in
               // "8m from the front boundary and 4m from all other
               // boundaries" belong to different numbers.
-              const cellDatum = datumAt(seg.text, c.index, c.raw) ?? datum
+              const cellDatum = relative ? null : (datumAt(seg.text, c.index, c.raw) ?? datum)
+              // What the control is about. Decided per effect, not per table,
+              // because the unit gets a veto: "Table 1: Floor Space Ratio and
+              // Building Heights" is two topics in one caption, and only the
+              // unit says which of them a given cell states.
+              const topic = topicOf(tableChain, cUnit)
+              if (!topic && topicCandidates(tableChain).length) {
+                await addFinding('topic_unit_mismatch', false, clause,
+                  `${rowHeader} | ${colHeader}`,
+                  `nothing named above this cell can be measured in ${cUnit}: `
+                  + `${topicCandidates(tableChain).join(', ')} — left unspecified`)
+              }
               // The direction can be stated by the cell, the column
               // ("Maximum Building Height (m)") or the caption ("Minimum
               // Boundary Setbacks"), nearest first. Taking only the caption
@@ -675,7 +748,8 @@ try {
                 (rule_id, effect_type, topic, source_span, measured_from,
                  value_source, map_layer, cell_id)
               VALUES ($1,'numeric',$2,$3,$4,$5,$6,$7)`,
-            [await ruleFor(), topic ?? 'unspecified', span, datum,
+            // A deferral carries no number, so nothing can veto the topic.
+            [await ruleFor(), topicOf(tableChain) ?? 'unspecified', span, datum,
               def.value_source ?? null, def.map_layer ?? null, cellId])
             stats.deferrals++
             stats.effects++
@@ -705,8 +779,7 @@ try {
        * and nothing said so: the clause looked extracted because it had a rule
        * row, and the report quietly fell back to a hardcoded default.
        */
-      if (/\bwhichever is the (?:lesser|greater|lower|higher)\b/i.test(trimmed)
-        || /\d+\s*(?:%|per\s*cent|percent)\s+of\s+the\s+\w+\s*(?:depth|width|area|frontage|length)/i.test(trimmed)) {
+      if (statesTieBreak(trimmed) || statesPercentageOf(trimmed)) {
         await addFinding('computed_control', false, clause, s.heading ?? '',
           `stated as a calculation, not a value — needs an expression the schema cannot hold: ${trimmed.slice(0, 200)}`)
       }
@@ -733,12 +806,27 @@ try {
           c.value, cmp, c.unit])
         stats.propositions++
 
+        const { value: pValue, unit: pUnit } = asMetres(c.value, c.unit)
+        // The line and its own heading first — together, so the vocabulary's
+        // precedence decides between them exactly as it always has — then
+        // each heading above, outwards, for a line that neither names.
+        //
+        // Ordering the line and its heading against each other instead would
+        // re-decide controls that were already right: Hornsby's "3.3.4 Height"
+        // holds "the floor level of the lowest residential storey should be a
+        // maximum of 1.5 metres above natural ground level", and reading the
+        // line ahead of the heading made that a PARKING control because the
+        // sentence opens "For development involving parking in an undercroft".
+        const proseChain = headingChain(s)
+        const proseTopic = topicOf(
+          [[proseChain[0], trimmed].filter(Boolean).join(' '), ...proseChain.slice(1)],
+          pUnit,
+        ) ?? 'unspecified'
         // Prose states its datum too — "the minimum side boundary setback
         // of a tennis court should be 3 metres" — so read it from the line
         // first and fall back to the heading the line sits under.
-        const proseTopic = topicOf(s.heading, trimmed) ?? 'unspecified'
-        const { value: pValue, unit: pUnit } = asMetres(c.value, c.unit)
-        const proseDatum = (pUnit === 'metre' || pUnit === 'km')
+        const proseRelative = relativeDatumAt(trimmed, c.index, c.raw)
+        const proseDatum = (pUnit === 'metre' || pUnit === 'km') && !proseRelative
           ? datumOf(trimmed) ?? datumOf(s.heading)
           : null
         // Prose inherits the clause's band for the same reason a table cell

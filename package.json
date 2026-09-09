@@ -19,7 +19,8 @@
     "kg:embed": "tsx scripts/embed-nsw-props.ts",
     "dcp:register": "node scripts/fetch-dcp-register.mjs",
     "dcp:convert": "node scripts/dcp-convert.mjs",
-    "dcp:score": "node scripts/score-dcp-md.mjs"
+    "dcp:score": "node scripts/score-dcp-md.mjs",
+    "dcp:check-cells": "tsx scripts/dcp-cells-check.mjs"
   },
   "dependencies": {
     "@svg-maps/australia": "^2.0.0",

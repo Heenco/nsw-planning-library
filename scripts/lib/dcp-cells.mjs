@@ -18,10 +18,135 @@
  *   - a cell may hold no number at all and still be the rule — a deferral to
  *     another instrument or to a map layer.
  *
+ * Randwick DCP 2025 adds three shapes Hornsby never uses, and readTableShape
+ * below is what reads them (C2 Table 2, Table 3 and Table 4 are the workers):
+ *
+ *   - the row key is a BAND, so column 0 holds values like every other column.
+ *     C2's Table 2 is headed "Zero to 4 storeys | 5 to 7 storeys | Top level",
+ *     and its only real control — "a minimum setback of 6m setback from front
+ *     property boundary" — sits in column 0, which a reader that always treats
+ *     column 0 as a label never opens.
+ *   - two sub-tables stacked in one grid, separated by a spanned title row
+ *     ("Minimum side setback in the LMR area" … "outside the LMR area") and a
+ *     repeat of the column-label row. The second block's labels are not the
+ *     first's: "Zero to 4 storeys" becomes "Zero to 3 storeys".
+ *   - a title row that states the datum for the rows beneath it. D12's Table C
+ *     keys its setbacks on street NAMES — "Barker Street | 5.0m" — and the only
+ *     thing that says these are measured from the street is the "Street
+ *     frontages:" row above them.
+ *
  * Everything here is deterministic and reads only what the document states.
  * Anything unrecognised returns null, so a new phrasing surfaces as a gap to
  * triage rather than as a plausible-looking wrong answer.
  */
+
+// ── topic ──────────────────────────────────────────────────────────────
+
+/**
+ * What a control is ABOUT, matched against the words the document puts above
+ * it. Order is precedence within a single text: "Minimum side setback
+ * (buildings above 9.5m)" is a setback clause that mentions a height.
+ */
+const TOPIC_PATTERNS = [
+  [/\bsetback/i, 'setback'],
+  [/\bheight/i, 'height'],
+  [/floor space ratio|\bfsr\b/i, 'fsr'],
+  [/\blot size|subdivision/i, 'lot_size'],
+  [/\bsite cover/i, 'site_coverage'],
+  [/\blandscap/i, 'landscaping'],
+  [/\bparking|car park/i, 'parking'],
+  [/\bopen space/i, 'open_space'],
+  [/\bsolar|sunlight|overshadow/i, 'solar_access'],
+  [/\bprivacy/i, 'privacy'],
+  [/\bdeep soil/i, 'deep_soil'],
+  [/\bfloor area|\bgfa\b/i, 'floor_area'],
+  // "dwelling" alone used to land here, which was tolerable while only the
+  // clause's own heading was consulted and became a menace once the whole
+  // heading chain was: a DCP puts the word "dwelling" above half its
+  // controls, so "Controls < 4.3.4 Ceiling heights < 4. Dwelling design"
+  // came out as a density control. A density control counts dwellings.
+  [/\bdensit(?:y|ies)\b|\bdwellings? per\b|\bdwelling (?:yield|mix)\b|\bnumber of dwellings\b/i, 'density'],
+  [/\bwidth|frontage/i, 'width'],
+]
+
+/**
+ * Units each topic can actually be expressed in.
+ *
+ * The graph held an `fsr` effect measured in `spaces` and a `floor_area` in
+ * `metre`, both from tables whose caption named two subjects at once —
+ * "Table 1: Floor Space Ratio and Building Heights" gives every cell the same
+ * topic however the cell is measured. A floor space ratio is a ratio; a number
+ * of parking spaces is not one, and no amount of context makes it one.
+ *
+ * So the unit vetoes the topic rather than decorating it: a candidate topic
+ * the unit cannot express is passed over for the next candidate, and if none
+ * survives the effect is left `unspecified` — which is a gap someone can find,
+ * where a confidently wrong topic is not. Deliberately generous, because the
+ * cost of an entry that is too tight is a control that disappears: parking
+ * keeps `metre` (a space is 2.4 m wide) and landscaping keeps `litre` (soil
+ * volume).
+ */
+const TOPIC_UNITS = {
+  setback: ['metre', 'millimetre', 'km'],
+  height: ['metre', 'millimetre', 'storeys'],
+  fsr: ['ratio'],
+  // Deliberately area only: a minimum lot WIDTH is a width, not a lot size,
+  // and letting metres through here made Hornsby's accessway table — under
+  // "Part 6 Subdivision" — a set of lot sizes measured in metres.
+  lot_size: ['sqm', 'hectare'],
+  site_coverage: ['percent', 'sqm'],
+  landscaping: ['percent', 'sqm', 'metre', 'millimetre', 'litre'],
+  parking: ['spaces', 'dwellings', 'persons', 'sqm', 'metre', 'millimetre', 'percent'],
+  open_space: ['percent', 'sqm', 'metre'],
+  solar_access: ['percent', 'sqm', 'metre'],
+  privacy: ['metre', 'millimetre', 'percent'],
+  deep_soil: ['percent', 'sqm', 'metre'],
+  floor_area: ['sqm', 'percent'],
+  density: ['dwellings', 'persons', 'hectare', 'sqm', 'percent'],
+  width: ['metre', 'millimetre'],
+}
+
+/** True when `topic` can be stated in `unit`. An unknown unit vetoes nothing. */
+export const topicAllowsUnit = (topic, unit) =>
+  !topic || !unit || !TOPIC_UNITS[topic] || TOPIC_UNITS[topic].includes(unit)
+
+/**
+ * Every topic these texts name, nearest text first.
+ *
+ * `texts` is ordered by how close it sits to the control: the words that
+ * describe it directly, then each heading above those, outwards. The caller
+ * joins the direct words into ONE first entry, so within them the order of the
+ * pattern list still decides — the ancestors are a fallback for a control
+ * whose own words and heading say nothing, not a second opinion about one
+ * they have already described.
+ *
+ * Which matters because a DCP's controls hang off blocks headed "Controls",
+ * and the subject is one level up: "4. Setbacks", "2.4. Site coverage", "4.5.
+ * Minimum soil depth for landscaping". Randwick lost 492 of 945 effects to
+ * topic 'unspecified' that way. Consulting the ancestors only where the
+ * nearer text is silent is what keeps that from re-deciding controls the
+ * document has already labelled.
+ */
+export function topicCandidates(texts) {
+  const out = []
+  for (const t of texts) {
+    if (!t) continue
+    for (const [re, topic] of TOPIC_PATTERNS) {
+      if (re.test(t) && !out.includes(topic)) out.push(topic)
+    }
+  }
+  return out
+}
+
+/**
+ * The topic of one control: the nearest topic its context names that the
+ * control's own unit can express. null when nothing matches, or when nothing
+ * that matches fits the unit.
+ */
+export function topicOf(texts, unit = null) {
+  const cands = topicCandidates(Array.isArray(texts) ? texts : [texts])
+  return cands.find((t) => topicAllowsUnit(t, unit)) ?? null
+}
 
 /**
  * Row-header phrasing → the closed `rule_effect.measured_from` vocabulary.
@@ -31,14 +156,27 @@
  * generic property_boundary pattern at the bottom will happily swallow the
  * first form, turning a specific datum into a vague one. Hence BOUND.
  */
-const BOUND = String.raw`(?:property |site |allotment )?(?:boundary|boundaries|setback)`
+// "street" and "road" belong in the middle slot for the same reason
+// "property" does: Hornsby says "set back 6m behind the front street
+// boundary", which names the front boundary and not some other one. Without
+// them it fell through to the generic property_boundary, and once the road
+// patterns below learned "street boundary" it would have fallen to road —
+// still true, still less than the document says.
+const BOUND = String.raw`(?:property |site |allotment |street |road )?(?:boundary|boundaries|setback)`
 const DATUM_PATTERNS = [
   [new RegExp(String.raw`\bfront ${BOUND}|primary frontage|primary (?:road )?boundary|front building line`, 'i'), 'front_boundary'],
   [new RegExp(String.raw`\bsecondary ${BOUND}|\bsecondary (?:frontage|road|street)`, 'i'), 'secondary_boundary'],
   [new RegExp(String.raw`\bside ${BOUND}`, 'i'), 'side_boundary'],
   [new RegExp(String.raw`\brear ${BOUND}`, 'i'), 'rear_boundary'],
   [/\bwaterfront|foreshore|\bmean high water/i, 'waterfront_boundary'],
-  [/\b(?:public )?road (?:boundary|reserve|edge)|street frontage|all public road/i, 'road_boundary'],
+  // The same boundary said three ways. A DCP that keys a table on the road a
+  // lot faces writes "Frontage to a classified road" as its row header, and
+  // Randwick's town-centre parts measure from "the street edge" 44 times —
+  // both name the road boundary, and both were reaching the graph with no
+  // datum at all. "lane edge" is deliberately absent: a laneway is as often at
+  // the rear as at the front, and road_boundary would assert which.
+  [/\b(?:public )?(?:road|street) (?:boundary|reserve|edge)|street frontage|all public road/i, 'road_boundary'],
+  [/\bfrontage to (?:a|the)\s+(?:\w+\s+)?(?:road|street)\b/i, 'road_boundary'],
   [/\bwatercourse|\bcreek|\briver bank|\bdam\b|\briparian/i, 'watercourse'],
   [/\badjoining (?:building|dwelling|development)|neighbouring (?:house|building|dwelling)/i, 'adjoining_building'],
   [/\bbetween buildings?|building separation|separation between/i, 'other_building'],
@@ -63,12 +201,29 @@ const DATUM_PATTERNS = [
  */
 const AXIS_RE = /\b(?:existing\s+)?(?:(?:primary|secondary)\s+)?(?:street\s+)?(?:frontage|site|lot|allotment|building|wall|boundary)\s+(?:widths?|depths?|areas?|lengths?|heights?)\b/gi
 
-/** The axis a header names, and the band metric it implies. */
+/**
+ * The axis a header names, and the band metric it implies.
+ *
+ * The phrase has to BE the header, not merely appear in it. A control cell can
+ * mention an axis in passing — C2's Table 4 says "Setback to be a minimum of
+ * 15% of the site depth, or 5m, whichever is the greater" — and reading that
+ * as an axis header turned the row holding Randwick's medium-density rear
+ * setback into a label row, so the table yielded nothing at all. Same trap in
+ * Part 10's glossary, where "lot size (or site area)" heads a definition.
+ *
+ * The allowance is for a unit or a short qualifier after the phrase — "Site
+ * width (m)", "Existing primary frontage width" — and nothing longer.
+ */
 export function axisOf(text) {
   if (!text) return null
   AXIS_RE.lastIndex = 0
   const m = AXIS_RE.exec(text)
   if (!m) return null
+  // The phrase has to head the cell and finish it: at most a qualifier before
+  // ("Minimum site width") and a unit after ("Site width (m)"). Part 10's
+  // glossary entry "lot size (or site area)" names an axis in its parenthesis
+  // and is a definition, not a header.
+  if (m.index > 10 || text.trim().length > m.index + m[0].length + 12) return null
   const phrase = m[0].toLowerCase()
   if (/areas?$/.test(phrase)) return { metric: 'lot_size', unit: 'sqm' }
   if (/depths?$/.test(phrase)) return { metric: 'lot_depth', unit: 'metre' }
@@ -122,11 +277,85 @@ export function headingDatum(...texts) {
  * would let the first pattern in the list claim both.
  */
 export function datumAt(text, index, raw) {
+  return datumOf(datumWindow(text, index, raw))
+}
+
+/** The words a number's datum would be read from — see datumAt. */
+function datumWindow(text, index, raw) {
   const from = index + String(raw).length
   const rest = text.slice(from, from + 90)
   const next = /(?<![\w.,])\d/.exec(rest.slice(1))
-  return datumOf(next ? rest.slice(0, next.index + 1) : rest)
+  return next ? rest.slice(0, next.index + 1) : rest
 }
+
+/**
+ * A datum the document states and the vocabulary cannot hold.
+ *
+ * `measured_from` is a closed list of boundaries and site features. Randwick's
+ * upper-level setbacks are measured from neither: C2's Table 2 says "Provide
+ * 3m setback from predominant building alignment to the primary street
+ * frontage" and its Table 3 says "1m setback from level below" — a step-back
+ * from the storey underneath, not a distance from a boundary.
+ *
+ * Both were being stamped with the clause's boundary, because a number whose
+ * own words yielded nothing fell back to the row header or the heading. So C2
+ * gained a 3 m front setback and a 1 m side setback that no lot has. The
+ * second one is worse than the first: "from the primary street frontage" is
+ * even in the sentence, so datumAt read `road_boundary` off it.
+ *
+ * Recognised by the phrase the document uses, and only ahead of any boundary
+ * it names, so "6m setback from front property boundary" is untouched. The
+ * caller writes NULL and records the gap.
+ */
+const RELATIVE_DATUM_RE = /\bfrom (?:the )?(?:predominant\b[\w ]*?(?:alignment|building line)|(?:level|storey|floor|podium) below)/i
+
+/** The relative-datum phrase governing this number, or null. */
+export function relativeDatumAt(text, index, raw) {
+  const win = datumWindow(text, index, raw)
+  const rel = RELATIVE_DATUM_RE.exec(win)
+  if (!rel) return null
+  // A boundary named BEFORE the relative phrase is this number's datum; the
+  // relative phrase then belongs to something later in the sentence.
+  const head = win.slice(0, rel.index)
+  return datumOf(head) ? null : rel[0].trim()
+}
+
+/**
+ * A control that is the smaller — or the larger — of two expressions.
+ *
+ * Randwick C1's rear setback is "25% of the allotment depth or 8m, whichever
+ * is the lesser"; C2's Table 4 says "a minimum of 15% of the site depth, or
+ * 5m, whichever is the greater". `rule_effect` holds a value, not an
+ * expression, so neither is fully storable and both are worth a gap.
+ * ("lessor" is not a typo: Table 4 spells it that way.)
+ */
+export const statesTieBreak = (text) =>
+  /\bwhichever is the (?:lesser|lessor|greater|lower|higher)\b/i.test(text ?? '')
+
+/**
+ * …and of those, the half where the stated number is not even true.
+ *
+ * A MINIMUM that is "8m or 25% of the depth, whichever is the lesser" is 7.5 m
+ * on a 30 m lot, so storing 8 asserts a setback the DCP does not require. A
+ * minimum that is "10m or the neighbours' average, whichever is the greater"
+ * is at least 10 m on every lot, so storing 10 is true — understated, but
+ * true, and it is Hornsby's rural front setback. Skipping both threw that one
+ * away, which is why only the inverting half is skipped; the other is stored
+ * and carries a `computed_control` finding saying it is a floor, not the
+ * whole rule.
+ */
+export const tieBreakInvertsValue = (text) =>
+  /\bwhichever is the (?:lesser|lessor|lower)\b/i.test(text ?? '')
+
+/**
+ * A control stated as a proportion of a lot dimension, for the prose gap log.
+ *
+ * Not a reason to skip a cell: a bare percentage IS a control this schema can
+ * hold — Hornsby's "Maximum floor area of dwelling house | 90% of the lot
+ * area" is 90 percent, exactly and completely.
+ */
+export const statesPercentageOf = (text) =>
+  /\d+\s*(?:%|per\s*cent|percent)\s+of\s+the\s+\w+\s*(?:depth|width|area|frontage|length)/i.test(text ?? '')
 
 /** Vertical datum a height is measured above, as the document words it. */
 const GROUND_RE = /\b((?:existing|natural|finished|original)\s+ground\s+level)\b/i
@@ -244,9 +473,20 @@ export function parseHeightBand(text) {
 // heading that separates Hornsby's 6+ storey flat buildings from its 3- and
 // 5-storey ones, which is the whole distinction between those clauses.
 const OPEN = String.raw`or more|or greater|and above|or above|and over|and higher|\+`
+// A closed range written across the noun, which Randwick's column headers use
+// and Hornsby's cells never do: "Zero to 4 storeys", "5 to 7 storeys", "1-2
+// storey dwellings". Without it only the SECOND number matched, so C2's front
+// setback for zero-to-four storeys was recorded as applying at exactly four —
+// invisible to a query about a two-storey house, which is most of them.
+const RANGE = String.raw`(?:(zero|\d+)\s*(?:to|–|—|-)\s*)?`
 const STOREY_BAND_RE = new RegExp(
+  RANGE +
   String.raw`(up to|maximum of|max\.?|more than|greater than|above|at least)?\s*` +
-  String.raw`(\d+)\s*(?:st|nd|rd|th)?\s*(${OPEN})?\s*store(?:y|ys|ies)` +
+  // 'ys' before 'y': alternation is ordered, so `store(?:y|ys|ies)` matched
+  // "storey" out of "storeys" and left the trailing "s" between the noun and
+  // the qualifier. "4 storeys and above" then had no tail to read and was
+  // recorded as exactly four storeys — the open-ended band silently closed.
+  String.raw`(\d+)\s*(?:st|nd|rd|th)?\s*(${OPEN})?\s*store(?:ys|ies|y)` +
   String.raw`\s*(element|${OPEN})?`, 'gi')
 
 /**
@@ -263,7 +503,7 @@ export function splitStoreyBands(cell) {
   while ((m = STOREY_BAND_RE.exec(cell)) !== null) {
     hits.push({
       index: m.index, end: m.index + m[0].length,
-      lead: m[1], n: Number(m[2]), tail: m[3] || m[4],
+      from: m[1], lead: m[2], n: Number(m[3]), tail: m[4] || m[5],
     })
   }
   if (!hits.length) return [{ text: cell, condition: null, bandSpans: [] }]
@@ -274,7 +514,8 @@ export function splitStoreyBands(cell) {
     const lead = (h.lead || '').toLowerCase()
     const tail = (h.tail || '').toLowerCase()
     let lo = h.n, hi = h.n
-    if (/up to|maximum|max/.test(lead)) { lo = null; hi = h.n }
+    if (h.from) { lo = /zero/i.test(h.from) ? 0 : Number(h.from); hi = h.n }
+    else if (/up to|maximum|max/.test(lead)) { lo = null; hi = h.n }
     else if (/more than|greater than|above/.test(lead)) { lo = h.n + 1; hi = null }
     else if (new RegExp(OPEN).test(tail)) { lo = h.n; hi = null }
     out.push({
@@ -313,6 +554,145 @@ export function headingBand(headings) {
     if (hit) return hit.condition
   }
   return null
+}
+
+/** The storey band a HEADER states, for a column keyed on storeys. */
+export function storeyBandOf(text) {
+  if (!text) return null
+  return splitStoreyBands(text).find((s) => s.condition)?.condition ?? null
+}
+
+/**
+ * A band with at least one bound, whatever it is measured in.
+ *
+ * parseHeightBand answers "this column is keyed on height above ground" even
+ * when it cannot read the numbers, and that answer selects nothing: as a
+ * condition it fails rule_effect's own check constraint, and as a column key
+ * it would say a header like "Above ground level open car parking, car ports
+ * and garages" bands its column. Half-open is fine — "12m and above" has no
+ * upper bound and is still a band.
+ */
+const isUsableBand = (b) => !!b && (b.lo != null || b.hi != null)
+const bandOf = (text) => {
+  const b = parseSizeBand(text) ?? parseHeightBand(text) ?? storeyBandOf(text)
+  return isUsableBand(b) ? b : null
+}
+
+// ── which condition survives ───────────────────────────────────────────
+//
+// `rule_effect` holds ONE condition, and Randwick's tables state two: C1's
+// side setbacks are banded on frontage width down the side AND on height above
+// ground across the top; C2's are banded on site width AND on storeys. Only
+// one can be stored, so the choice has to be made on a stated principle rather
+// than on whichever the loop happened to read last, and the other has to be
+// recorded rather than dropped in silence.
+//
+//   1  a band stated INSIDE the cell is inseparable from its value. "Up to 1
+//      storey = 0.9m  2 storey element = 1.5m" is one cell holding two
+//      controls; take that band away and they are two setbacks with nothing to
+//      choose between them.
+//   2  then a band on a fact of the LOT — frontage width, lot size, lot depth.
+//      A resolver holding a parcel can evaluate it before any design exists,
+//      which is what makes the control selectable.
+//   3  then a band on a fact of the PROPOSAL — storeys, height above ground.
+//      True, but only checkable once there is a building to check.
+//
+// Keeping (2) above (3) is also what stops C1's side setbacks from flipping
+// off frontage width — the axis the envelope generator filters on — and onto
+// the height-above-ground columns, once those columns are read at all.
+const LOT_METRICS = new Set(['lot_size', 'frontage_width', 'lot_depth'])
+const condRank = (c) => (!c ? 9 : c.fromCell ? 0 : LOT_METRICS.has(c.metric) ? 1 : 2)
+
+/**
+ * The condition to store, and the ones that had to be dropped.
+ * Candidates are given nearest-first within each rank; ranking is stable.
+ */
+export function chooseCondition(candidates) {
+  const live = candidates.filter(isUsableBand)
+  if (!live.length) return { condition: null, dropped: [] }
+  const sorted = [...live].sort((a, b) => condRank(a) - condRank(b))
+  const [best, ...rest] = sorted
+  return {
+    condition: best,
+    // Only a DIFFERENT axis is a lost dimension; a second band on the same
+    // metric is the same question asked twice.
+    dropped: rest.filter((c) => c.metric !== best.metric),
+  }
+}
+
+// ── the shape of a control table ───────────────────────────────────────
+
+/**
+ * Which rows label, which rows state controls, and where the values start.
+ *
+ * `hasValue` is injected rather than imported because the number detector is
+ * the rule layer's, shared with the recall verifier, and lives in TypeScript;
+ * importing it here would break every plain-node script that uses this file.
+ * The caller passes the same predicate the extraction loop uses, so a row can
+ * never be called a label while the loop would have read a control out of it.
+ *
+ * Returns one entry per row: { role, labels, firstDataCol, title }.
+ */
+export function readTableShape(headers = [], rows = [], hasValue = () => false) {
+  // A row is a column-label row when it bands at least two of its columns and
+  // states no control of its own. One band is not enough: Hornsby's site
+  // coverage tables are rows of "1500m² to 3999m² | 30%", where the row key is
+  // a band and the cell beside it is the control — calling that a label row
+  // would delete the table.
+  const isLabelRow = (row = []) => {
+    const cells = row.filter((c) => (c ?? '').trim())
+    if (cells.length < 2) return false
+    if (cells.some((c) => hasValue(c))) return false
+    return cells.filter((c) => bandOf(c)).length >= 2
+  }
+  // A spanned title ("Minimum side setback in the LMR area" in all four
+  // columns) or a lone sub-heading ("Street frontages:", "Attached
+  // dwellings"). Guarded by hasValue for the same reason as above.
+  const isTitleRow = (row = []) => {
+    const cells = (row ?? []).map((c) => (c ?? '').trim())
+    if (!cells[0]) return false
+    const filled = cells.filter(Boolean)
+    if (filled.some((c) => hasValue(c))) return false
+    if (filled.length === 1) return true
+    return filled.length === cells.length && new Set(filled).size === 1
+  }
+
+  // Column 0 holds values when its own label is a band. Hornsby's Table
+  // 2.1.2-a is headed "Property Boundary | Lots < 4,000m² | Lots > 4,000m²":
+  // two of its three labels are bands, and column 0 is still the datum.
+  const dataColOf = (labels) => (bandOf(labels?.[0] ?? '') ? 0 : 1)
+
+  let labels = headers.length ? headers : (rows[0] ?? [])
+  let firstDataCol = dataColOf(labels)
+  let rowAxis = axisOf(headers[0] ?? '')
+  let title = null
+  const out = []
+
+  for (const [ri, row] of rows.entries()) {
+    const a = axisOf(row?.[0] ?? '')
+    // An axis in column 0 names what the row keys below it are measured on.
+    // Read from the top of the table as before; further down only where the
+    // table has already declared that axis, which is what a stacked sub-table
+    // does — C2's Table 3 repeats "Site width | Zero to 3 storeys | …" at row
+    // 5 to start its non-LMR block. Accepting a first axis from anywhere would
+    // turn Part 10's glossary ("lot size (or site area) | In relation to …")
+    // into a header row 3 rows into a table of definitions.
+    const axisHere = a && (ri < 3 || (rowAxis && a.metric === rowAxis.metric))
+    if (axisHere || isLabelRow(row)) {
+      labels = row
+      firstDataCol = axisHere ? 1 : dataColOf(row)
+      rowAxis ??= a
+      out[ri] = { role: 'header', labels, firstDataCol, title }
+      continue
+    }
+    if (isTitleRow(row)) {
+      title = row[0]
+      out[ri] = { role: 'title', labels, firstDataCol, title }
+      continue
+    }
+    out[ri] = { role: 'data', labels, firstDataCol, title }
+  }
+  return { rowAxis, rows: out }
 }
 
 /**
