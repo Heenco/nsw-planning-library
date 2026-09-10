@@ -38,3 +38,6 @@ public/EPI/DCPs/images/**/*.png
 build/
 
 .env*
+
+# Cached SIX Maps cadastre responses (scripts/frontage-check.mjs)
+.cache/

@@ -13,7 +13,8 @@
  * Usage:
  *   node scripts/shoot-prop-width.mjs [--base http://localhost:3000]
  *                                     [--out build/prop-width-tests]
- *                                     [--limit 30] [--route prop-width-gnaf]
+ *                                     [--limit 30] [--per-bucket 10]
+ *                                     [--route prop-width-gnaf]
  *                                     [--headful]
  */
 
@@ -43,6 +44,8 @@ const hasFlag = name => process.argv.includes(`--${name}`)
 const BASE = arg('base', 'http://localhost:3000').replace(/\/+$/, '')
 const OUT_DIR = path.resolve(arg('out', 'build/prop-width-tests'))
 const LIMIT = Number(arg('limit', '30'))
+/** Ten of every lot type rather than a weighted sheet; see pick-test-addresses. */
+const PER_BUCKET = Number(arg('per-bucket', '0'))
 /** Which page to shoot — /prop-width and /prop-width-gnaf render the same
  *  component over different lot-metrics layers, so both are shot the same way. */
 const ROUTE = arg('route', 'prop-width').replace(/^\/+/, '')
@@ -170,16 +173,87 @@ async function waitFor(cdp, expression, { timeout = 30000, interval = 400 } = {}
   return false
 }
 
+/**
+ * /frontage is not /prop-width with a different layer under it.
+ *
+ * It deep-links by lot rather than address, because it answers a question about
+ * one parcel's boundaries and an address does not name a parcel. It settles in
+ * two stages - the map style first, then the cadastre fetch and the topology
+ * pass over it - so a map-idle test alone would shoot an empty panel. And it
+ * names its panel `fr-*`, sharing no selector with the other page.
+ *
+ * What it must not differ in is the shape it reports. build-test-sheet.mjs
+ * scores every row from { lot, address, frontages, rows } and should not have
+ * to know which page produced it, so the reader below rebuilds exactly that.
+ */
+const IS_FRONTAGE = ROUTE === 'frontage'
+
 /** The map is up, styled, and has stopped fetching. */
-const MAP_READY = `(() => {
+const PROP_WIDTH_READY = `(() => {
   const m = window.__propWidthMap
   return !!m && m.isStyleLoaded() && m.loaded() && !m.isMoving();
 })()`
 
+/**
+ * Ready means the map has settled *and* the run has finished - landed on data,
+ * or on a stated reason there is none. Without the second half the shot races
+ * the fetch and catches a blank panel.
+ */
+const FRONTAGE_READY = `(() => {
+  const m = window.__frontageMap
+  if (!m || !m.isStyleLoaded() || !m.loaded() || m.isMoving()) return false;
+  const st = (window.__frontageState && window.__frontageState()) || null;
+  if (!st) return false;
+  return st.pending === false && (st.hasData || !!st.error || !!st.miss);
+})()`
+
+const MAP_READY = IS_FRONTAGE ? FRONTAGE_READY : PROP_WIDTH_READY
+
 /** The page has picked a lot and the panel is showing it. */
-const LOT_SELECTED = `(() => {
+const PROP_WIDTH_SELECTED = `(() => {
   const el = document.querySelector('.detail-title')
   return !!el && !!el.textContent.trim();
+})()`
+
+const FRONTAGE_SELECTED = `(() => {
+  const st = (window.__frontageState && window.__frontageState()) || null;
+  return !!st && st.hasData === true;
+})()`
+
+const LOT_SELECTED = IS_FRONTAGE ? FRONTAGE_SELECTED : PROP_WIDTH_SELECTED
+
+/**
+ * Read the frontage panel back into the shape the sheet builder expects.
+ *
+ * Every run this page lists is placed on the boundary by construction - it is
+ * derived from the boundary - so `matched` is always true; the interesting
+ * disagreement is with the recorded count, which the sheet already scores.
+ * Runs beyond the counted street frontage carry the page's own note instead.
+ */
+const FRONTAGE_SUMMARY = `(() => {
+  const txt = el => ((el && el.textContent) || '').trim();
+  const clean = s => s.split(' ').filter(Boolean).join(' ');
+  const st = (window.__frontageState && window.__frontageState()) || {};
+  const frontages = [...document.querySelectorAll('.fr-run')].map((el) => {
+    const roadEl = el.querySelector('.fr-run-road');
+    const dot = roadEl && roadEl.querySelector('.fr-primary-dot');
+    let road = txt(roadEl);
+    if (dot) road = road.split(txt(dot)).join('').trim();
+    return {
+      road: clean(road),
+      length: clean(txt(el.querySelector('.fr-run-len'))),
+      note: clean(txt(el.querySelector('.fr-tag'))),
+      matched: true,
+    };
+  });
+  const rows = {};
+  for (const d of document.querySelectorAll('.fr-dims > div')) {
+    const k = clean(txt(d.querySelector('dt')));
+    const v = clean(txt(d.querySelector('dd')));
+    if (k) rows[k] = rows[k] ? rows[k] + ' / ' + v : v;
+  }
+  const bad = clean(txt(document.querySelector('.fr-msg--bad')));
+  return { lot: st.lotId || '', address: '', frontages, rows, note: bad };
 })()`
 
 /**
@@ -199,8 +273,18 @@ const HIDE_DEV_CHROME = `(() => {
   return true
 })()`
 
-async function shoot(cdp, address, index) {
-  const url = `${BASE}/${ROUTE}?address=${encodeURIComponent(address)}`
+async function shoot(cdp, meta, index) {
+  const address = meta.address
+  // /frontage keys on the parcel, /prop-width on the address it was found by.
+  // Falling back to the address on a lot with no plan would silently shoot the
+  // page's default lot, so a missing plan is an error rather than a guess.
+  const link = IS_FRONTAGE
+    ? (meta.lot_section_plan
+        ? `?lot=${encodeURIComponent(meta.lot_section_plan)}`
+        : null)
+    : `?address=${encodeURIComponent(address)}`
+  if (link === null) return { ok: false, reason: 'no lot_section_plan to deep-link' }
+  const url = `${BASE}/${ROUTE}${link}`
   await cdp.send('Page.navigate', { url })
 
   const ready = await waitFor(cdp, MAP_READY, { timeout: 45000 })
@@ -215,7 +299,7 @@ async function shoot(cdp, address, index) {
   await sleep(1200)
   await waitFor(cdp, MAP_READY, { timeout: 15000 })
 
-  const summary = await cdp.eval(`(() => {
+  const summary = await cdp.eval(IS_FRONTAGE ? FRONTAGE_SUMMARY : `(() => {
     const t = s => (document.querySelector(s)?.textContent || '').trim()
     const frontages = [...document.querySelectorAll('.frontage')].map(el => ({
       road: (el.querySelector('.frontage-road')?.textContent || '').trim(),
@@ -263,7 +347,7 @@ export async function shootAll(cases) {
       process.stdout.write(`  [${i + 1}/${cases.length}] ${address} … `)
       let r
       try {
-        r = await shoot(cdp, address, i)
+        r = await shoot(cdp, meta, i)
       } catch (err) {
         r = { ok: false, reason: String(err.message || err) }
       }
@@ -280,7 +364,7 @@ export async function shootAll(cases) {
 // matches import.meta.url when the repo path contains spaces.
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { pickAddresses } = await import('./pick-test-addresses.mjs')
-  const cases = await pickAddresses(LIMIT, { withMeta: true })
+  const cases = await pickAddresses(LIMIT, { withMeta: true, perBucket: PER_BUCKET })
   console.log(`Shooting ${cases.length} addresses from ${BASE}/${ROUTE}`)
   const results = await shootAll(cases)
   await writeFile(path.join(OUT_DIR, 'results.json'), JSON.stringify(results, null, 2))

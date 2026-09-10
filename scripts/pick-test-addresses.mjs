@@ -62,6 +62,45 @@ const BUCKETS = [
           AND all_frontages IS NOT NULL`,
   },
   {
+    /**
+     * No road topology is reachable from this database — the centrelines live
+     * in the Martin tile instance — so a dead end cannot be found the honest
+     * way, by asking which road segments have an unshared endpoint.
+     *
+     * What a head-of-bulb lot leaves in the parcel table instead is its plan
+     * shape: it is pinched at the road and opens out behind, because the
+     * frontages around a turning circle share an arc much shorter than the
+     * land behind them. `area_sqm / lot_depth_m` is the lot's mean width, so
+     * frontage measured against it reads the wedge directly.
+     *
+     * 0.65 was chosen by sweep, not taste. Scored against street type — Close,
+     * Court and Place are 8.1% of all lots but 36.0% of what this returns, a
+     * 4.5x lift, the best of the fifteen (corners, ratio) pairs tried.
+     *
+     * The 25 m ceiling is part of that: without it the bucket also caught large
+     * rural wedges on through-roads at Dural, which share the plan shape and
+     * none of the situation. Requiring a *curved* frontage, on the other hand,
+     * made it worse (1.5x) — a bulb is often digitised as one chord, so corner
+     * count finds bends elsewhere on the boundary rather than the arc, and
+     * only adds noise.
+     *
+     * Street type is the yardstick here, never the rule — a Close is not
+     * always a cul-de-sac and a cul-de-sac is not always a Close, so using it
+     * to select would only find lots already named for the answer.
+     *
+     * Skewed to Hornsby, correctly: the turning circle is a post-war
+     * subdivision form, and Randwick is mostly older grid.
+     */
+    name: 'Cul-de-sac head',
+    why: 'Pinched at the road and opening out behind — the wedge of a turning circle.',
+    weight: 5,
+    sql: `${SANE} AND propertyfrontagecount = '1' AND primary_frontage_road IS NOT NULL
+          AND is_corner_lot = false AND is_battleaxe = false
+          AND corners_count >= 4 AND lot_depth_m > 0
+          AND primary_frontage_length_m BETWEEN 8 AND 25
+          AND primary_frontage_length_m < 0.65 * (area_sqm / lot_depth_m)`,
+  },
+  {
     name: 'Three to five frontages',
     why: 'Stresses the run matcher: several frontages competing for edges.',
     weight: 4,
@@ -132,7 +171,10 @@ const BUCKETS = [
  * Largest-remainder, so the quotas always sum to exactly `limit` rather than
  * landing a row or two short after rounding.
  */
-function quotas(limit) {
+function quotas(limit, perBucket) {
+  // An explicit "n of each type" ignores the weights entirely: the point of
+  // that mode is an even sheet, not a representative one.
+  if (perBucket) return BUCKETS.map(() => perBucket)
   const total = BUCKETS.reduce((s, b) => s + b.weight, 0)
   const exact = BUCKETS.map(b => (b.weight * limit) / total)
   const out = exact.map(Math.floor)
@@ -170,7 +212,10 @@ function connectionString() {
  * fill its quota gives its remainder back to the ones that follow, so the sheet
  * still comes out the requested length.
  */
-export async function pickAddresses(limit = 30, { withMeta = false } = {}) {
+export async function pickAddresses(limit = 30, { withMeta = false, perBucket = 0 } = {}) {
+  // `perBucket` sets the length rather than sharing one out, so the caller does
+  // not have to know how many buckets there are to ask for ten of each.
+  if (perBucket) limit = perBucket * BUCKETS.length
   const client = new pg.Client({ connectionString: connectionString() })
   await client.connect()
 
@@ -179,7 +224,7 @@ export async function pickAddresses(limit = 30, { withMeta = false } = {}) {
   // of addresses, and two rows drawing the identical boundary waste a row of
   // the sheet.
   const seen = new Set()
-  const want = quotas(limit)
+  const want = quotas(limit, perBucket)
 
   /** Take up to `n` more from this bucket's queue, alternating councils. */
   const drawFrom = (pools, bucket, n) => {
@@ -231,8 +276,11 @@ export async function pickAddresses(limit = 30, { withMeta = false } = {}) {
     // in one council — would otherwise shorten the sheet. Redistribute its
     // shortfall over the buckets that still have rows, a row at a time so the
     // spread stays even rather than the first bucket absorbing all of it.
+    // Not in per-bucket mode: there the quota *is* the answer, and a bucket
+    // the table cannot fill should come back short rather than be padded out
+    // by whichever other type happens to have rows to spare.
     let guard = 0
-    while (picked.length < limit && guard++ < limit * 2) {
+    while (!perBucket && picked.length < limit && guard++ < limit * 2) {
       const before = picked.length
       for (const { bucket, pools } of queues) {
         if (picked.length >= limit) break
@@ -251,7 +299,22 @@ export async function pickAddresses(limit = 30, { withMeta = false } = {}) {
 // import.meta.url percent-encodes and a hand-built file:// URL does not, so the
 // naive comparison is always false on Windows and the script silently no-ops.
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const rows = await pickAddresses(Number(process.argv[2] || 30), { withMeta: true })
+  // `--per-bucket 10` for ten of every type; a bare number still means a
+  // weighted sheet of that total length.
+  const argv = process.argv.slice(2)
+  const pbAt = argv.findIndex(a => a === '--per-bucket' || a === '-b')
+  const perBucket = pbAt === -1 ? 0 : Number(argv[pbAt + 1] || 10)
+  const limit = Number(argv.find(a => /^[0-9]+$/.test(a)) || 30)
+
+  const rows = await pickAddresses(limit, { withMeta: true, perBucket })
+
+  // A bucket that came back short is worth saying out loud: the sheet is not
+  // the length that was asked for, and that is the table's answer, not a bug.
+  for (const b of perBucket ? BUCKETS : []) {
+    const got = rows.filter(r => r.bucket === b.name).length
+    if (got < perBucket) console.log(`note: ${b.name} returned ${got} of ${perBucket} - no more match`)
+  }
+
   console.log(`${rows.length} addresses\n`)
   for (const r of rows) {
     console.log(`${r.bucket.padEnd(26)} ${r.lga_name.padEnd(9)} ${r.address}`)
