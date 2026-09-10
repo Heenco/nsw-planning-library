@@ -13,8 +13,11 @@
       <!-- Disclaimer -->
       <div class="landing-disclaimer">
         <strong>Testing Only</strong> — This tool is experimental and covers a limited set of NSW planning instruments
-        (selected LEPs, SEPPs, and some DCPs). Property data currently covers the
-        <strong>{{ PROPERTY_LGA_LABEL }}</strong> {{ PROPERTY_LGAS.length > 1 ? 'LGAs' : 'LGA' }} only.
+        (selected LEPs, SEPPs, and some DCPs). Property records cover NSW; the
+        clause-level analysis &mdash; minimum lot size tested against a clause,
+        additional permitted uses, the numeric control tables &mdash; covers the
+        <strong>{{ PROPERTY_LGA_LABEL }}</strong> {{ PROPERTY_LGAS.length > 1 ? 'LGAs' : 'LGA' }}.
+        A report outside those says so rather than leaving the section blank.
         AI-generated answers may be incomplete or inaccurate. Always verify with official sources.
       </div>
 
@@ -45,7 +48,13 @@
                 type="button"
               >
                 <span class="ac-item-main">{{ r.text }}</span>
-                <span class="ac-item-context">{{ r.context }}</span>
+                <span class="ac-item-context">
+                  {{ r.context }}
+                  <!-- Said on the suggestion rather than discovered in the
+                       report: the address is offered either way, but outside
+                       these councils the clause-level sections are absent. -->
+                  <span v-if="!r.hasRuleLayer" class="ac-item-depth">record only</span>
+                </span>
               </button>
             </div>
           </div>
@@ -246,7 +255,7 @@ const showDisclaimer = ref(false)
  * The Randwick entries sit in precincts the new DCP 2025 gives their own
  * part — Kensington/Kingsford (D1), Maroubra Junction (D3) — so a sample
  * click lands on controls that plan actually introduced. Coordinates and
- * zones are read from nsw.up_property_d_3, not typed by hand.
+ * zones are read from nsw.up_property_d_4, not typed by hand.
  *
  * Each council also carries four entries chosen for the provisions they trigger
  * rather than the zone, because those sections are otherwise unreachable by
@@ -306,7 +315,11 @@ function pickSampleAddress(s: { address: string; lat: number; lng: number; zone?
 }
 // ── Address autocomplete ─────────────────────────────────────────────────────
 
-interface AcResult { id: string; text: string; context: string; place_name: string; lat: number; lng: number }
+interface AcResult {
+  id: string; text: string; context: string; place_name: string; lat: number; lng: number
+  /** Whether this council's instruments are decomposed into a rule layer. */
+  hasRuleLayer: boolean
+}
 
 const acResults = ref<AcResult[]>([])
 const acIndex = ref(0)
@@ -326,8 +339,10 @@ function onAddressInput() {
 
 async function fetchAddressSuggestions(q: string) {
   try {
-    // /api/property/search reads nsw.up_property_d_3 and is Hornsby-only;
-    // the old /api/address-autocomplete queried a table that no longer exists.
+    // /api/property/search reads the same statewide table the report does, so
+    // every address it offers can be reported on. What it also returns is
+    // whether that council has a rule layer, because the depth of the report
+    // differs even though its availability no longer does.
     const resp = await fetch(`/api/property/search?q=${encodeURIComponent(q)}`)
     if (!resp.ok) return
     const data = await resp.json()
@@ -335,6 +350,7 @@ async function fetchAddressSuggestions(q: string) {
       id: `${r.address}-${i}`,
       text: r.address,
       context: [r.suburbname, r.lga_name, r.postcode].filter(Boolean).join(', '),
+      hasRuleLayer: Boolean(r.hasRuleLayer),
       place_name: r.address,
       lat: Number(r.centroid_lat),
       lng: Number(r.centroid_lon),
@@ -968,6 +984,10 @@ body {
   font-weight: 500;
 }
 
+.ac-item-depth {
+  margin-left: 6px; padding: 1px 6px; border-radius: 4px;
+  background: #fef3c7; color: #92400e; font-size: 10px; font-weight: 600;
+}
 .ac-item-context {
   font-size: 0.72rem;
   color: #94a3b8;

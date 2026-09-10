@@ -1,5 +1,7 @@
 import { withNswClient } from '../utils/nsw-kg/pool'
-import { PROPERTY_TABLE, PROPERTY_SELECT, parsePermissibleUses } from '../../shared/property-columns'
+import {
+  PROPERTY_TABLE, PROPERTY_SELECT, parsePermissibleUses, scrubSentinels,
+} from '../../shared/property-columns'
 import {
   resolveDcpScope, defaultProposedUse, candidateUsesForZone, conditionLabel, TOPIC_PROSE,
   unitLooksWrong, operativeStoreyBand, matchesStoreyBand, matchesLotSizeBand, normaliseUse,
@@ -116,26 +118,52 @@ export default defineEventHandler(async (event) => {
     // ── Phase 1: Property lookup via spatial intersection ──────────────
     sseWrite(res, 'agent_step', { agent: 'Property', status: 'running', message: 'Looking up property…' })
 
+    /*
+     * Nearest parcel to the point, or the exact address when one was given.
+     *
+     * Two queries rather than one CASE, because they want different plans and
+     * the table is now 5,485,081 rows. Sorting that by squared distance over
+     * `centroid_lat`/`centroid_lon` -- which is what this did, and what was fine
+     * over d_3's 149,532 -- takes four seconds: no index can serve an expression
+     * over two columns, so it reads and sorts the whole state for every report.
+     *
+     * The KNN operator against the GiST index on `geom` answers the same
+     * question in about 30ms. It also covers 277,000 lots that carry geometry
+     * but no centroid columns.
+     *
+     * `geom` is SRID 4283 (GDA94) while the coordinates arriving here are 4326
+     * (WGS84), and mixing them raises an error rather than quietly measuring
+     * from the wrong place. The probe point is therefore labelled 4283 to match
+     * the column. PostGIS treats the two as the same ellipsoid, so this is a
+     * relabel and not a transform; the real-world difference is around a metre,
+     * which does not change which parcel is nearest.
+     */
     const property = await withNswClient(async (client) => {
-      const r = await client.query(
-        `SELECT
-          -- Identity
-          ${PROPERTY_SELECT}
-        FROM ${PROPERTY_TABLE}
-        WHERE
-          CASE
-            WHEN $3::text IS NOT NULL AND $3 <> '' THEN address = $3
-            ELSE centroid_lat IS NOT NULL AND centroid_lon IS NOT NULL
-          END
-        ORDER BY
-          -- If address was provided, no ordering needed (exact match). Otherwise spatial KNN.
-          CASE WHEN $3::text IS NOT NULL AND $3 <> '' THEN 0
-               ELSE (centroid_lat::float8 - $1)^2 + (centroid_lon::float8 - $2)^2
-          END
-        LIMIT 1`,
-        [lat, lng, address || null]
-      )
-      return r.rows[0] || null
+      const byAddress = address && address.trim()
+      const r = byAddress
+        ? await client.query(
+          `SELECT ${PROPERTY_SELECT} FROM ${PROPERTY_TABLE} WHERE address = $1 LIMIT 1`,
+          [address],
+        )
+        : await client.query(
+          `SELECT ${PROPERTY_SELECT} FROM ${PROPERTY_TABLE}
+            ORDER BY geom <-> ST_SetSRID(ST_MakePoint($2, $1), 4283)::geography
+            LIMIT 1`,
+          [lat, lng],
+        )
+      // An address that is not in the table falls back to the point, so a
+      // stale or misspelled address degrades to the right suburb rather than
+      // to no report at all.
+      if (!r.rows[0] && byAddress) {
+        const f = await client.query(
+          `SELECT ${PROPERTY_SELECT} FROM ${PROPERTY_TABLE}
+            ORDER BY geom <-> ST_SetSRID(ST_MakePoint($2, $1), 4283)::geography
+            LIMIT 1`,
+          [lat, lng],
+        )
+        return scrubSentinels(f.rows[0] || null)
+      }
+      return scrubSentinels(r.rows[0] || null)
     })
 
     if (!property) {

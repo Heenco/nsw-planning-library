@@ -17,6 +17,7 @@ import { nswQuery } from '../../utils/nsw-kg/pool'
 import { buildEnvelopeModel, buildEnvelopeRationale } from '#shared/envelope-model.mjs'
 import { fetchLotRing } from '../../utils/cadastre'
 import { resolveDcpScope } from '../../../shared/dcp-scope'
+import { PROPERTY_TABLE } from '../../../shared/property-columns'
 
 export default defineEventHandler(async (event) => {
   const q = getQuery(event)
@@ -27,10 +28,14 @@ export default defineEventHandler(async (event) => {
     .split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
   const storeys = q.storeys ? Number(q.storeys) : 2
 
+  // Same table as the report itself, not a second opinion about the lot. The
+  // envelope is one of the report's own sections, and reading a different table
+  // would have meant a Blacktown lot getting a report and then a 404 where its
+  // 3D model should be.
   const lot = (await nswQuery(
     `SELECT address, lot_section_plan, area_sqm, perimeter_m, primary_frontage_length_m, lot_depth_m,
             is_corner_lot, is_battleaxe, all_frontages, lzn_sym_code_p, hob_max_b_h_m, lot_size, lot_size_units, epi_name, lga_name
-     FROM nsw.up_property_d_3 WHERE address = $1 LIMIT 1`,
+     FROM ${PROPERTY_TABLE} WHERE address = $1 LIMIT 1`,
     [address],
   )).rows[0]
 

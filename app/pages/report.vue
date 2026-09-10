@@ -173,9 +173,12 @@
     </details>
 
     <!-- ── Additional permitted uses (LEP Schedule 1) ──────────────────
-         The one provision the property record cannot carry: up_property_d_3 has
-         no column for it, so this comes from the knowledge graph, matched to
-         the lot by the clause's own land reference. -->
+         The one provision the property record cannot usefully carry. d_4 does
+         have `apu_clause` and `apu_code` columns, but they are empty on all 118
+         lots the graph resolves to a Schedule 1 item in these two councils, and
+         1,899 rows carry the literal string "<Null>" in them. So this stays on
+         the knowledge graph, matched to the lot by the clause's own land
+         reference. -->
     <details v-if="additionalUses.length" class="rpt-section rpt-section--flag" open>
       <summary class="rpt-section-title">
         Additional Permitted Uses ({{ additionalUses.length }})
@@ -874,8 +877,8 @@
         <span class="rpt-count">{{ allFieldCount }} fields</span>
       </summary>
       <p class="envelope-blurb">
-        Every non-empty column of <code>up_property_d_3</code> for this property,
-        as the table stores it. Empty columns are omitted — most of the 307 are
+        Every non-empty column of <code>up_property_d_4</code> for this property,
+        as the table stores it. Empty columns are omitted — most of the 327 are
         empty for any given lot, and an absent overlay is not a finding here the
         way it is under Site Constraints.
       </p>
@@ -2092,7 +2095,7 @@ function groupOpen(i: number) { return i < 2 }
 /**
  * Provisions that apply to this lot because of where it is, from the graph.
  *
- * Additional permitted uses have no column in up_property_d_3 at all, and the
+ * Additional permitted uses have no usable column in the property table, and the
  * Part 4 standards are a clause in the graph plus a number in the record, so
  * neither source can produce these sections on its own.
  */

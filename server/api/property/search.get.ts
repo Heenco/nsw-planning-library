@@ -1,18 +1,22 @@
 /**
- * Address autocomplete over nsw.up_property_d_3.
+ * Address autocomplete over the property table.
  *
- * Replaces the lookup against up_property_comprehensive, which no longer
- * exists in this database — every property route was querying a dropped table.
- * The LGA filter is explicit rather than implied, so the page never offers an
- * address the table cannot report on. The supported list lives in
- * shared/property-columns.ts, which the landing-page copy reads too: widening
- * coverage is one edit, and the promise and the filter cannot drift apart.
+ * This used to filter to the two councils the table held, so the page never
+ * offered an address it could not report on. The table is now the whole state,
+ * and the filter had become the thing standing between a user and a report:
+ * typing a Blacktown address returned nothing, while the report itself answers
+ * for it perfectly well.
+ *
+ * So the filter is gone, and what varies by council is depth rather than
+ * availability. `lgaHasRules` marks the councils whose instruments are
+ * decomposed, and the page can say which suggestions carry clause-level
+ * analysis without withholding the rest.
  */
 
 import { nswQuery } from '../../utils/nsw-kg/pool'
-import { PROPERTY_LGAS } from '../../../shared/property-columns'
+import { PROPERTY_LGAS, PROPERTY_TABLE } from '../../../shared/property-columns'
 
-const LGAS = [...PROPERTY_LGAS]
+const RULE_LGAS = new Set<string>(PROPERTY_LGAS)
 
 /** "1/500" → 500: the street number, not the unit. */
 function streetNumber(s: string): string | null {
@@ -21,14 +25,17 @@ function streetNumber(s: string): string | null {
 
 export default defineEventHandler(async (event) => {
   const raw = String(getQuery(event).q ?? '').trim()
-  if (raw.length < 3) return { results: [], lga: LGAS.join(', ') }
+  if (raw.length < 3) return { results: [] }
 
   const norm = raw.toUpperCase().replace(/,/g, ' ').replace(/\s+/g, ' ').trim()
   const words = norm.split(' ').filter(t => t.length >= 2 && !/^\d/.test(t))
   const num = streetNumber(norm)
 
-  const where: string[] = ['centroid_lat IS NOT NULL', 'lga_name = ANY($1)']
-  const params: unknown[] = [LGAS]
+  const where: string[] = ['centroid_lat IS NOT NULL']
+  // Placeholders are numbered from params.length, so the array must start
+  // empty now that the LGA filter is gone -- a dead first element would shift
+  // every $n by one.
+  const params: unknown[] = []
 
   for (const w of words) {
     params.push(`%${w}%`)
@@ -58,7 +65,7 @@ export default defineEventHandler(async (event) => {
        SELECT DISTINCT ON (address)
          address, lot_section_plan, suburbname, postcode, lga_name,
          lzn_sym_code_p AS zone, area_sqm, centroid_lat, centroid_lon, ${rank}
-       FROM nsw.up_property_d_3
+       FROM ${PROPERTY_TABLE}
        WHERE ${where.join(' AND ')}
        ORDER BY address
      )
@@ -66,5 +73,13 @@ export default defineEventHandler(async (event) => {
     params,
   )
 
-  return { lga: LGAS.join(', '), results: res.rows }
+  return {
+    results: res.rows.map(r => ({
+      ...r,
+      // Whether a report on this address gets the clause-level sections or
+      // only the record and its mapped standards. The page shows the
+      // difference; it no longer hides the address.
+      hasRuleLayer: RULE_LGAS.has(String(r.lga_name ?? '').toUpperCase()),
+    })),
+  }
 })

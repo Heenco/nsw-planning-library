@@ -1,5 +1,5 @@
 /**
- * One projection over nsw.up_property_d_3, shared by every property route.
+ * One projection over nsw.up_property_d_4, shared by every property route.
  *
  * The routes were written against `up_property_comprehensive`, which has since
  * been dropped — every one of them was querying a table that no longer exists.
@@ -9,16 +9,61 @@
  *
  * Two source typos are preserved deliberately, because that is what the column
  * is actually called: `landslidrisk` and `riparianlandwatercouse`.
+ *
+ * d_4 replaced d_3 as the source: 5,485,081 rows against 149,532, which is the
+ * whole state rather than Hornsby and Randwick. It is a near-superset --
+ * `rule_ids` is the only column that went away, and this projection never named
+ * it -- so the switch is the table name plus the consequences of the size.
+ *
+ * Two of those consequences are load-bearing and handled elsewhere. The lookup
+ * can no longer sort the table by distance (see property-report.post.ts), and
+ * `geom` is SRID 4283 where the rest of the graph is 4326.
  */
 
-export const PROPERTY_TABLE = 'nsw.up_property_d_3'
+export const PROPERTY_TABLE = 'nsw.up_property_d_4'
 
 /**
- * LGAs `up_property_d_3` actually holds, in the order the UI should name them.
+ * Values that mean "no value" but arrive as text.
  *
- * Stated rather than implied, so a route never promises coverage the table
- * cannot honour. Widen this when a council's property rows land — the search
- * filter and the landing-page copy both read it, so they cannot drift apart.
+ * d_4 carries the literal string `<Null>` in 1,899 rows of `apu_clause` and
+ * 2,040 of `apu_code`, with a handful of others across five more columns. They
+ * are not nulls: `coalesce` passes them through, `if (value)` is true for them,
+ * and the report's raw-column panel would print a field reading "<Null>" to a
+ * planner. Seven columns are affected, so this is a filter over the projection
+ * rather than a fix per field.
+ */
+const NULL_SENTINELS = new Set(['<null>', 'null', 'n/a', 'none', '-'])
+
+/** The value, or null when it is one of the strings that means absent. */
+export function realValue<T>(v: T): T | null {
+  if (typeof v !== 'string') return v
+  const t = v.trim()
+  return t === '' || NULL_SENTINELS.has(t.toLowerCase()) ? null : (v as T)
+}
+
+/** Every sentinel in a property row turned into a real null, in place. */
+export function scrubSentinels<T extends Record<string, unknown>>(row: T | null): T | null {
+  if (!row) return row
+  for (const k of Object.keys(row)) {
+    const v = row[k]
+    if (typeof v === 'string') (row as Record<string, unknown>)[k] = realValue(v)
+  }
+  return row
+}
+
+/**
+ * Councils whose planning instruments are decomposed into a rule layer.
+ *
+ * This used to name the councils the property table held, and those were the
+ * same two. They are not any more: d_4 covers 132 LGAs, while the LEP and DCP
+ * rule layers cover Hornsby and Randwick. So the name now means what the
+ * frontage routes already assumed it meant -- the depth of analysis available,
+ * not whether a property can be found.
+ *
+ * A lot outside these councils still gets its record, its mapped standards and
+ * its constraints. What it does not get is the clause-level work: the minimum
+ * lot size tested against a clause, additional permitted uses, the numeric
+ * control tables. The report says so rather than rendering an empty section.
  */
 export const PROPERTY_LGAS = ['HORNSBY', 'RANDWICK'] as const
 

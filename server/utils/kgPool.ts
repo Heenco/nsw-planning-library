@@ -115,11 +115,11 @@ export async function getKgPool(): Promise<pg.Pool> {
       // cleanly and resolves the schema, so the first symptom is a query
       // failing with `relation "nsw.up_property_d_3" does not exist` — which
       // reads like a migration problem rather than a wrong connection string.
-      const probe = await client.query(`SELECT to_regclass('nsw.up_property_d_3') AS reg`)
+      const probe = await client.query(`SELECT to_regclass('nsw.up_property_d_4') AS reg`)
       if (!probe.rows[0]?.reg) {
         destroyKgPool()
         throw new Error(
-          `DATABASE_URL points at the "${db}" database, which has no nsw.up_property_d_3. `
+          `DATABASE_URL points at the "${db}" database, which has no nsw.up_property_d_4. `
           + 'The property routes and the whole rule layer need the database holding the '
           + 'full nsw schema (planningai). Check the database name at the end of '
           + 'DATABASE_URL for this environment.',
