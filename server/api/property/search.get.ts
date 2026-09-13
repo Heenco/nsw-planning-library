@@ -14,7 +14,7 @@
  */
 
 import { nswQuery } from '../../utils/nsw-kg/pool'
-import { PROPERTY_LGAS, PROPERTY_TABLE } from '../../../shared/property-columns'
+import { MIN_TRIGRAM, PROPERTY_LGAS, PROPERTY_TABLE } from '../../../shared/property-columns'
 
 const RULE_LGAS = new Set<string>(PROPERTY_LGAS)
 
@@ -28,7 +28,8 @@ export default defineEventHandler(async (event) => {
   if (raw.length < 3) return { results: [] }
 
   const norm = raw.toUpperCase().replace(/,/g, ' ').replace(/\s+/g, ' ').trim()
-  const words = norm.split(' ').filter(t => t.length >= 2 && !/^\d/.test(t))
+  // Only tokens the trigram index can serve become filters; see MIN_TRIGRAM.
+  const words = norm.split(' ').filter(t => t.length >= MIN_TRIGRAM && !/^\d/.test(t))
   const num = streetNumber(norm)
 
   const where: string[] = ['centroid_lat IS NOT NULL']
@@ -41,7 +42,10 @@ export default defineEventHandler(async (event) => {
     params.push(`%${w}%`)
     where.push(`address ILIKE $${params.length}`)
   }
-  if (!words.length && num) {
+  if (!words.length) {
+    // Nothing indexable was typed -- "st", "7a", "15 ". Without this the query
+    // is `centroid_lat IS NOT NULL` over the whole table, sorted by address.
+    if (!num || num.length < MIN_TRIGRAM) return { results: [] }
     params.push(`%${num}%`)
     where.push(`address ILIKE $${params.length}`)
   }
@@ -60,16 +64,34 @@ export default defineEventHandler(async (event) => {
         NULLIF(substring(address from '^([0-9]+)'), '')::int, 999999) - $${i}::int) AS _dist`
   }
 
+  /**
+   * Byte-order collation on every sort of `address`, and only for speed.
+   *
+   * DISTINCT ON exists to collapse d_4's duplicate rows (Randwick is loaded
+   * twice), so the order it needs is any deterministic one. Under the
+   * database's en_US.utf8 collation, sorting the ~19,000 rows a common street
+   * name matches costs ~500 ms on top of the ~250 ms index scan; under "C" it
+   * is ~100 ms. Measured 13 Sep 2026 with the trigram index in place:
+   *
+   *   "15 smith"        879 ms  ->  345 ms
+   *   "george"        1,782 ms  ->  765 ms
+   *   "george street"   820 ms  ->  346 ms
+   *
+   * Addresses are upper-case ASCII, so the two orders differ only in where
+   * punctuation falls between ties, and the result is re-ranked by street
+   * number afterwards anyway. The same applies in address-autocomplete and
+   * frontage-lot-search.
+   */
   const res = await nswQuery(
     `WITH m AS (
-       SELECT DISTINCT ON (address)
+       SELECT DISTINCT ON (address COLLATE "C")
          address, lot_section_plan, suburbname, postcode, lga_name,
          lzn_sym_code_p AS zone, area_sqm, centroid_lat, centroid_lon, ${rank}
        FROM ${PROPERTY_TABLE}
        WHERE ${where.join(' AND ')}
-       ORDER BY address
+       ORDER BY address COLLATE "C"
      )
-     SELECT * FROM m ORDER BY _exact, _dist, address LIMIT 10`,
+     SELECT * FROM m ORDER BY _exact, _dist, address COLLATE "C" LIMIT 10`,
     params,
   )
 

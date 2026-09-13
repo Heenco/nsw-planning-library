@@ -228,9 +228,39 @@ const stemWord = (w) => {
 
 const stemPhrase = (s) => norm(s).split(' ').filter(Boolean).map(stemWord).join(' ')
 
+/**
+ * Abbreviations a DCP uses for a Standard Instrument term.
+ *
+ * Not a per-council list: these are the industry's own shorthand, and a plan
+ * that writes "RFBs and Multi-dwelling Housing" in a control table means the
+ * same thing as one that writes it out. Randwick's C2 rear setback — the
+ * 15%-of-depth rule for a residential flat building — is stated only in the
+ * abbreviated form, so without this the clause names no land use at all and
+ * cannot be scoped to the development it governs.
+ *
+ * Expanded before matching rather than added to SI_USES, so the vocabulary
+ * stays the controlled one and `rule_applicability` never records a value that
+ * is not a real SI term.
+ */
+const ABBREVIATIONS = [
+  [/\brfbs?\b/gi, 'residential flat building'],
+  [/\bmdh\b/gi, 'multi dwelling housing'],
+  [/\bdual occ\b/gi, 'dual occupancy'],
+  [/\bsth\b/gi, 'shop top housing'],
+  [/\bbtr\b/gi, 'build-to-rent'],
+  [/\bseniors living\b/gi, 'seniors housing'],
+]
+
+/** The text with any known shorthand written out, for matching only. */
+export function expandAbbreviations(text) {
+  let out = String(text ?? '')
+  for (const [re, full] of ABBREVIATIONS) out = out.replace(re, full)
+  return out
+}
+
 export function matchLandUses(text) {
   if (!text) return []
-  const hay = ' ' + stemPhrase(text) + ' '
+  const hay = ' ' + stemPhrase(expandAbbreviations(text)) + ' '
   const hits = []
   // Longest first, so a specific use wins and its shorter parent is then
   // skipped by the containment test.

@@ -18,6 +18,14 @@
         <em v-if="isectHits.length" class="rail-badge">{{ isectHits.length }}</em>
       </button>
       <button
+        type="button" class="rail-btn" :class="{ 'rail-btn--on': panel === 'search' }"
+        title="Find lots by zone, permitted use, lot size and more" @click="togglePanel('search')"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18"/><path d="M6 12h12"/><path d="M10 19h4"/></svg>
+        <span>Search</span>
+        <em v-if="psResults.length" class="rail-badge">{{ psResults.length }}</em>
+      </button>
+      <button
         type="button" class="rail-btn" :class="{ 'rail-btn--on': panel === 'layers' }"
         title="NSW planning, hazard and protection layers" @click="togglePanel('layers')"
       >
@@ -285,6 +293,130 @@
     </aside>
 
     <!-- ── Layers ─────────────────────────────────────────────────────────── -->
+    <!-- ── Property search ────────────────────────────────────────────────
+         The inverse of everything else here: state the conditions, get the
+         lots. Reads up_property_d_4 statewide through /api/property-search,
+         whose filter list is closed — a request picks a key, it cannot name a
+         column. -->
+    <aside v-if="panel === 'search'" class="fr-panel search-panel">
+      <header class="fr-head">
+        <h1>Find lots</h1>
+        <p>
+          Search <code>up_property_d_4</code> by what a lot <em>is</em> — zone,
+          permitted use, size, overlay — across all 132 NSW councils.
+        </p>
+      </header>
+
+      <form class="ps-form" @submit.prevent="runSearch">
+        <div class="ps-grid">
+          <label class="ps-field">
+            <span>Council</span>
+            <select v-model="ps.lga">
+              <option value="">Any</option>
+              <option v-for="o in psFacet('lga')" :key="o.value" :value="o.value">
+                {{ o.value }} · {{ o.count.toLocaleString() }}
+              </option>
+            </select>
+          </label>
+          <label class="ps-field">
+            <span>Zone</span>
+            <select v-model="ps.zone">
+              <option value="">Any</option>
+              <option v-for="o in psFacet('zone')" :key="o.value" :value="o.value">
+                {{ o.value }} · {{ o.count.toLocaleString() }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <label class="ps-field">
+          <span>Permits use</span>
+          <input v-model="ps.use" list="ps-uses" placeholder="dual occupancies" spellcheck="false">
+          <datalist id="ps-uses">
+            <option v-for="u in PS_USES" :key="u" :value="u" />
+          </datalist>
+        </label>
+
+        <div class="ps-grid">
+          <label class="ps-field">
+            <span>Suburb</span>
+            <input v-model="ps.suburb" placeholder="Randwick" spellcheck="false">
+          </label>
+          <label class="ps-field">
+            <span>Minimum lot size</span>
+            <select v-model="ps.lsz">
+              <option value="">Any</option>
+              <option v-for="o in psFacet('lsz')" :key="o.value" :value="o.value">
+                {{ o.value }} · {{ o.count.toLocaleString() }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <div v-for="r in PS_RANGES" :key="r.key" class="ps-range">
+          <span class="ps-range-label">{{ r.label }}</span>
+          <input v-model="ps[r.key + 'Min']" type="number" :placeholder="r.lo" :step="r.step">
+          <em>to</em>
+          <input v-model="ps[r.key + 'Max']" type="number" :placeholder="r.hi" :step="r.step">
+        </div>
+
+        <!-- Three states, not a checkbox: "any" has to be distinguishable from
+             "explicitly not", or you cannot ask for a non-corner lot. -->
+        <div class="ps-flags">
+          <label v-for="f in PS_FLAGS" :key="f.key" class="ps-flag">
+            <span>{{ f.label }}</span>
+            <select v-model="ps[f.key]">
+              <option value="">Any</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="ps-actions">
+          <button class="fr-go" type="submit" :disabled="psPending">
+            {{ psPending ? '…' : 'Search' }}
+          </button>
+          <button type="button" class="ps-reset" @click="resetSearch">Reset</button>
+          <label class="ps-count">
+            <input v-model="psWantCount" type="checkbox"> count matches
+          </label>
+        </div>
+      </form>
+
+      <p v-if="psError" class="fr-msg fr-msg--warn">{{ psError }}</p>
+
+      <div v-if="psRan && !psPending" class="ps-bar">
+        <span v-if="psResults.length">
+          {{ psResults.length }} shown<template v-if="psTotal !== null">
+            of {{ psTotal.toLocaleString() }}<template v-if="psTotalCapped">+</template></template>
+          · {{ psTookMs }} ms
+        </span>
+        <span v-else>No lot matches those filters.</span>
+      </div>
+
+      <ul v-if="psResults.length" class="ps-list">
+        <li v-for="r in psResults" :key="r.lotId || r.address">
+          <button type="button" class="ps-hit" @click="openHit(r)">
+            <span class="ps-hit-addr">{{ r.address || r.lotId }}</span>
+            <span class="ps-hit-meta">
+              <b>{{ r.zone }}</b>
+              <template v-if="r.areaSqm"> · {{ Math.round(r.areaSqm).toLocaleString() }} m²</template>
+              <template v-if="r.minLotSize"> · min {{ r.minLotSize }}</template>
+              <template v-if="r.frontageM"> · {{ r.frontageM.toFixed(1) }} m frontage</template>
+            </span>
+            <span class="ps-hit-sub">
+              {{ r.lotId }}<template v-if="r.lga"> · {{ r.lga }}</template>
+              <em v-if="r.isCorner" class="ps-tag">corner</em>
+              <em v-if="r.isBattleaxe" class="ps-tag">battle-axe</em>
+              <em v-if="r.inLmr" class="ps-tag ps-tag--lmr">LMR</em>
+              <em v-if="r.inTod" class="ps-tag ps-tag--lmr">TOD</em>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </aside>
+
     <aside v-if="panel === 'layers'" class="fr-panel layers-panel">
       <header class="layers-head">
         <h1>Map layers</h1>
@@ -299,13 +431,34 @@
         <button v-if="layerQuery" type="button" @click="layerQuery = ''">×</button>
       </label>
 
+      <!-- Pick the jurisdiction first: 667 layers across 67 councils is not a
+           list anyone scrolls. Defaults to the built-in NSW catalogue, which is
+           what this page had before and what most sessions want. -->
+      <label class="layers-council">
+        <span>Council or state</span>
+        <select v-model="councilSlug">
+          <option value="">NSW services — built-in catalogue</option>
+          <optgroup v-for="g in councilGroups" :key="g.label" :label="g.label">
+            <option v-for="c in g.councils" :key="c.slug" :value="c.slug">
+              {{ c.council }} · {{ c.layerCount }}
+            </option>
+          </optgroup>
+        </select>
+      </label>
+
       <div class="layers-bar">
-        <span>{{ activeLayers.length }} on · {{ MAP_SERVICES.length }} available</span>
+        <span>{{ activeLayers.length }} on · {{ availableCount }} available</span>
         <button v-if="activeLayers.length" type="button" @click="clearNswLayers">Turn all off</button>
       </div>
       <p v-if="zoom < LAYER_MIN_ZOOM" class="fr-msg fr-msg--warn">
         Zoom in to at least z{{ LAYER_MIN_ZOOM }} to load layers — these are statewide
         services and a wide box asks for far more than a map can draw.
+      </p>
+
+      <p v-if="councilSlug && councilPending" class="fr-msg">Loading layers…</p>
+      <p v-else-if="councilSlug && council && !council.ok" class="fr-msg fr-msg--warn">{{ council.message }}</p>
+      <p v-else-if="councilSlug && council?.ok" class="layers-source">
+        {{ council.council }} · {{ council.state }} — from the safebuy.app report configs
       </p>
 
       <section v-for="sec in visibleSections" :key="sec.name" class="layers-sec">
@@ -321,7 +474,9 @@
           </span>
         </label>
       </section>
-      <p v-if="!visibleSections.length" class="fr-msg">No layer matches “{{ layerQuery }}”.</p>
+      <p v-if="!visibleSections.length && !councilPending" class="fr-msg">
+        No layer matches “{{ layerQuery }}”.
+      </p>
     </aside>
 
     <!-- ── Intersect ──────────────────────────────────────────────────────── -->
@@ -531,7 +686,7 @@
         </div>
       </div>
 
-      <div class="map-controls" :class="{ 'map-controls--shifted': showAttrs }">
+      <div class="map-controls" :class="{ 'map-controls--shifted': showAttrs || showDcp }">
         <div v-if="measureMode || measurePoints.length" class="measure-readout">
           <div v-if="measureTotal" class="measure-value">{{ measureTotal }}</div>
           <div v-if="measureSecondary" class="measure-secondary">{{ measureSecondary }}</div>
@@ -562,11 +717,28 @@
 
         <button
           type="button" class="attr-btn" :class="{ 'attr-btn--on': showAttrs }"
-          title="Everything up_property_d_3 holds for this lot"
+          title="Everything up_property_d_4 holds for this lot"
           @click="toggleAttrs"
         >
           Attributes
           <span v-if="attrs?.ok" class="attr-btn-count">{{ attrs.populated_count }}/{{ attrs.column_count }}</span>
+        </button>
+
+        <button
+          type="button" class="attr-btn" :class="{ 'attr-btn--on': showDcp }"
+          title="The DCP controls that apply to this lot, from the rule layer"
+          @click="toggleDcp"
+        >
+          DCP
+          <span v-if="dcp?.ok && dcp.covered" class="attr-btn-count">{{ dcp.ruleCount }}</span>
+        </button>
+
+        <button
+          type="button" class="attr-btn" :class="{ 'attr-btn--on': showDims }"
+          title="The frontage and dimension columns up_property_d_4 already stores for this lot"
+          @click="toggleDims"
+        >
+          Dimensions
         </button>
 
         <label class="layer-toggle" title="The cadastre from the Martin tile server. Click any parcel to run it.">
@@ -589,9 +761,11 @@
             <h2>Property attributes</h2>
             <p v-if="attrs?.ok">
               {{ attrs.address || lotId }}
-              <span class="attr-dim">· {{ attrs.populated_count }} of {{ attrs.column_count }} columns hold a value</span>
+              <span class="attr-dim">
+                · {{ attrs.column_count }} columns, {{ attrs.populated_count }} with a value here
+              </span>
             </p>
-            <p v-else class="attr-dim">up_property_d_3</p>
+            <p v-else class="attr-dim">up_property_d_4</p>
           </div>
           <button type="button" class="attr-close" title="Close" @click="showAttrs = false">×</button>
         </header>
@@ -605,7 +779,7 @@
             <button v-if="attrQuery" type="button" @click="attrQuery = ''">×</button>
           </label>
           <label class="attr-empty">
-            <input v-model="attrShowEmpty" type="checkbox"> show empty columns
+            <input v-model="attrShowEmpty" type="checkbox"> show columns with no value
           </label>
 
           <section v-for="cat in visibleCategories" :key="cat.key" class="attr-cat">
@@ -623,6 +797,126 @@
           </section>
           <p v-if="!visibleCategories.length" class="attr-msg">No field matches “{{ attrQuery }}”.</p>
         </template>
+      </aside>
+
+      <!-- ── DCP controls ───────────────────────────────────────────────
+           The same rules the property report lists under "Key numerical
+           rules", grouped by topic rather than by what each applies to: this
+           panel is read by looking for one control, where the report is read
+           top to bottom. -->
+      <aside v-if="showDcp" class="attr-panel dcp-panel">
+        <header class="attr-head">
+          <div>
+            <h2>DCP controls</h2>
+            <p v-if="dcp?.ok && dcp.covered">
+              {{ dcp.lga }} · zone {{ dcp.zone }}
+              <span class="attr-dim">· {{ dcp.ruleCount }} controls</span>
+            </p>
+            <p v-else class="attr-dim">Clause-level controls for {{ dcpCoverage }}</p>
+          </div>
+          <button type="button" class="attr-close" title="Close" @click="showDcp = false">×</button>
+        </header>
+
+        <p v-if="dcpPending" class="attr-msg">Loading…</p>
+        <p v-else-if="dcp && !dcp.ok" class="attr-msg attr-msg--warn">{{ dcp.message }}</p>
+        <p v-else-if="dcp && !dcp.covered" class="attr-msg attr-msg--warn">{{ dcp.message }}</p>
+
+        <template v-else-if="dcp?.ok">
+          <label class="attr-filter dcp-use">
+            <span>Proposed use</span>
+            <select v-model="dcpUse">
+              <option v-for="u in dcp.uses" :key="u" :value="u">{{ u }}</option>
+            </select>
+          </label>
+
+          <!-- Which plan, current to when, and whether it is the operative one
+               for an application lodged today. -->
+          <section v-if="dcp.document" class="dcp-doc">
+            <a :href="dcp.document.viewerHref" class="dcp-doc-title">{{ dcp.document.title }}</a>
+            <p class="attr-dim">
+              Current to {{ dcp.document.asAt || '—' }}<template
+                v-if="dcp.document.commenced && dcp.document.commenced !== dcp.document.asAt"
+              >, commenced {{ dcp.document.commenced }}</template>
+            </p>
+            <p v-if="dcp.document.currencyBasis" class="dcp-basis">{{ dcp.document.currencyBasis }}</p>
+            <p v-if="dcp.document.savingsProvision" class="dcp-warn">
+              <strong>Savings provision.</strong> {{ dcp.document.savingsProvision }}
+            </p>
+            <p v-if="dcp.document.pendingParts?.length" class="dcp-warn">
+              <strong>Not yet in the plan:</strong> {{ dcp.document.pendingParts.join(', ') }} —
+              silence on these is "not published", not "unregulated".
+            </p>
+          </section>
+
+          <section v-for="g in dcp.groups" :key="g.topic" class="attr-cat">
+            <h3>{{ g.label }} <span class="attr-dim">{{ g.rules.length }}</span></h3>
+            <table class="dcp-table">
+              <tbody>
+                <tr v-for="(r, i) in g.rules" :key="g.topic + i">
+                  <td class="dcp-val">{{ dcpValue(r) }}</td>
+                  <td class="dcp-where">
+                    {{ dcpDatum(r) }}
+                    <span v-if="dcpBand(r)" class="dcp-band">{{ dcpBand(r) }}</span>
+                    <span v-if="r.section_heading" class="attr-dim">{{ r.section_heading }}</span>
+                  </td>
+                  <td class="dcp-cl">
+                    <a v-if="r.document_slug" :href="dcpClauseHref(r)">cl {{ r.clause }}</a>
+                    <span v-else>cl {{ r.clause }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+          <p v-if="!dcp.groups.length" class="attr-msg">No numeric controls for this use.</p>
+        </template>
+      </aside>
+
+      <!-- ── Stored dimensions ──────────────────────────────────────────
+           The twelve frontage and dimension columns up_property_d_4 holds,
+           which is what the frontage pipeline writes back after a run like the
+           one on the left. Bottom right, and not exclusive with the other two
+           panels, because the point of it is the comparison — the stored
+           figure beside the freshly measured one, both in the same frame. -->
+      <aside
+        v-if="showDims" class="dims-panel"
+        :class="{ 'dims-panel--shifted': showAttrs || showDcp }"
+      >
+        <header class="dims-head">
+          <div>
+            <h2>Stored dimensions</h2>
+            <p class="attr-dim">
+              <code>up_property_d_4</code>
+              <template v-if="dims?.ok"> · {{ dims.address || dims.lotId }}</template>
+            </p>
+          </div>
+          <div class="dims-actions">
+            <button
+              type="button" class="dims-src" :class="{ 'dims-src--on': dimsShowSource }"
+              title="Where each column comes from, and how it is derived"
+              @click="dimsShowSource = !dimsShowSource"
+            >source</button>
+            <button type="button" class="attr-close" title="Close" @click="showDims = false">×</button>
+          </div>
+        </header>
+
+        <p v-if="dimsPending" class="attr-msg">Loading…</p>
+        <p v-else-if="dims && !dims.ok" class="attr-msg attr-msg--warn">{{ dims.message }}</p>
+
+        <dl v-else-if="dims?.ok" class="dims-list">
+          <div v-for="f in dims.fields" :key="f.column" :class="{ 'attr-row--empty': isEmpty(f.value) }">
+            <dt>
+              <span class="dims-label">{{ f.label }}</span>
+              <code>{{ f.column }}</code>
+              <span v-if="dimsShowSource" class="dims-deriv">{{ f.source }} — {{ f.transform }}</span>
+            </dt>
+            <dd>
+              <template v-if="f.kind === 'text' && dimsRuns(f.value).length">
+                <span v-for="(r, i) in dimsRuns(f.value)" :key="i" class="dims-run">{{ r }}</span>
+              </template>
+              <template v-else>{{ dimsValue(f) }}</template>
+            </dd>
+          </div>
+        </dl>
       </aside>
     </div>
 
@@ -653,6 +947,7 @@ import { useMeasure } from '~/composables/useMeasure'
 import { MAP_SERVICES, MAP_SECTIONS, type MapService } from '#shared/nsw-map-services'
 import { LOCAL_GROUPS, LOCAL_LAYERS, type LocalLayer } from '#shared/local-tile-layers'
 import { martinTileBase } from '#shared/martin'
+import { PROPERTY_LGA_LABEL } from '#shared/property-columns'
 
 const EXAMPLES = ['A//DP408911', '1//DP214129', '1//DP240566']
 
@@ -794,7 +1089,19 @@ const showAttrs = ref(String(useRoute().query.attrs ?? '') === '1')
 const attrs = ref<any>(null)
 const attrsPending = ref(false)
 const attrQuery = ref('')
-const attrShowEmpty = ref(false)
+/**
+ * Empty columns are shown by default.
+ *
+ * The panel asks "what do we hold for this lot", and a column that is blank
+ * here is an answer to that: no koala corridor, no airport development area.
+ * Hiding them made the count in the header — "173 of 327 columns hold a value"
+ * — read as a truncation warning, with no clue that the missing 154 were one
+ * checkbox away.
+ *
+ * The property REPORT does the opposite, and should: it asks what applies, and
+ * an absent overlay is noise there.
+ */
+const attrShowEmpty = ref(true)
 let attrsFor = ''
 
 const isEmpty = (v: any) => v === null || v === undefined || v === '' || v === 'null'
@@ -843,7 +1150,174 @@ async function loadAttrs() {
 
 function toggleAttrs() {
   showAttrs.value = !showAttrs.value
-  if (showAttrs.value) loadAttrs()
+  if (showAttrs.value) { showDcp.value = false; loadAttrs() }
+}
+
+// ── DCP controls ───────────────────────────────────────────────────────────
+/**
+ * The rule layer's answer for this lot, from /api/frontage-dcp.
+ *
+ * Keyed on lot AND use, unlike the attributes panel: changing the proposed use
+ * re-scopes which clauses apply, so the cache key has to carry both or the
+ * picker would appear to do nothing. On Randwick it very nearly does anyway —
+ * that DCP tags almost no clause with a land use, so its controls arrive
+ * through the development-type branch and the same set answers every use. On
+ * Hornsby the picker changes the list substantially.
+ */
+const showDcp = ref(false)
+const dcp = ref<any>(null)
+const dcpPending = ref(false)
+const dcpUse = ref('dwelling house')
+const dcpCoverage = PROPERTY_LGA_LABEL
+let dcpFor = ''
+
+async function loadDcp() {
+  const id = lotId.value.trim().toUpperCase()
+  const key = `${id}|${dcpUse.value}`
+  if (!id || dcpFor === key) return
+  dcpPending.value = true
+  try {
+    dcp.value = await $fetch('/api/frontage-dcp', { query: { lot: id, use: dcpUse.value } })
+    dcpFor = key
+  } catch (e: any) {
+    dcp.value = { ok: false, message: String(e?.data?.message || e?.message || e) }
+  } finally {
+    dcpPending.value = false
+  }
+}
+
+function toggleDcp() {
+  showDcp.value = !showDcp.value
+  if (showDcp.value) { showAttrs.value = false; loadDcp() }
+}
+
+watch(dcpUse, () => { if (showDcp.value) loadDcp() })
+
+/** "6 m minimum", "25% maximum" — the comparator read as a word. */
+function dcpValue(r: any): string {
+  const unit = r.unit === 'metre' ? ' m'
+    : r.unit === 'percent' ? '%'
+      : r.unit === 'sqm' ? ' m²'
+        : r.unit === 'ratio' ? ':1'
+          : r.unit ? ` ${r.unit}` : ''
+  const word = /gte|gt/.test(r.comparator ?? '') ? 'min'
+    : /lte|lt/.test(r.comparator ?? '') ? 'max' : ''
+  return `${r.value}${unit}${word ? ` ${word}` : ''}`
+}
+
+/** The boundary a distance is measured from, as a reader says it. */
+function dcpDatum(r: any): string {
+  const d = String(r.measured_from ?? '').replace(/_/g, ' ')
+  return d ? d.replace(/boundary/, 'boundary') : (r.applies_to ?? '')
+}
+
+/**
+ * A link into the clause the control came from.
+ *
+ * The viewer takes its target as a QUERY parameter, `?doc=…&anchor=…`, not as
+ * a URL fragment — it reads `route.query.anchor` and scrolls to it on mount, so
+ * a `#anchor` hash is silently ignored and the document opens at the top. The
+ * report has always built it this way; this panel did not, which is why every
+ * clause link here landed on page one.
+ *
+ * The anchor is the section's local id ("dcp.C1.3.3.2"), which contains dots
+ * and so has to be encoded.
+ */
+function dcpClauseHref(r: any): string {
+  return `/doc-viewer?doc=${r.document_slug}&anchor=${encodeURIComponent(r.anchor)}`
+}
+
+/** "lots 6–9 m wide", "2 storeys" — the condition the value hangs on. */
+function dcpBand(r: any): string {
+  if (!r.condition_metric) return ''
+  const lo = r.condition_lo
+  const hi = r.condition_hi
+  const metric = String(r.condition_metric).replace(/_/g, ' ')
+  if (lo != null && hi != null) return `${metric} ${lo}–${hi}`
+  if (lo != null) return `${metric} ≥ ${lo}`
+  if (hi != null) return `${metric} ≤ ${hi}`
+  return metric
+}
+
+// ── Stored dimensions ────────────────────────────────────────────
+/**
+ * The twelve frontage columns up_property_d_4 already holds for this lot.
+ *
+ * The other two panels answer a question about the LAND. This one answers a
+ * question about the DATA: these are the columns the frontage pipeline writes
+ * back, so what the page just measured can be read against what every other
+ * consumer of the table is being served. When the two disagree the stored row
+ * is stale, or the method moved, and either way the difference is the finding.
+ *
+ * Deliberately NOT exclusive with the attributes and DCP panels, which take
+ * turns with each other. Those two answer the same kind of question and would
+ * only cover one another up; this one is meant to be read alongside them, so
+ * it takes the bottom corner and steps left when either of them opens.
+ */
+const showDims = ref(String(useRoute().query.dims ?? '') === '1')
+const dims = ref<any>(null)
+const dimsPending = ref(false)
+/** Off by default: the derivations are for reading, not for the screenshot. */
+const dimsShowSource = ref(false)
+let dimsFor = ''
+
+async function loadDims() {
+  const id = lotId.value.trim().toUpperCase()
+  if (!id || dimsFor === id) return
+  dimsPending.value = true
+  try {
+    dims.value = await $fetch('/api/frontage-metrics', { query: { lot: id } })
+    dimsFor = id
+  } catch (e: any) {
+    dims.value = { ok: false, message: String(e?.data?.message || e?.message || e) }
+  } finally {
+    dimsPending.value = false
+  }
+}
+
+function toggleDims() {
+  showDims.value = !showDims.value
+  if (showDims.value) loadDims()
+}
+
+/**
+ * Booleans that arrive as text.
+ *
+ * is_corner_lot and is_battleaxe are real booleans on some copies of the table
+ * and 't'/'f' text on others, depending on which load wrote the column. Both
+ * read the same way here rather than one of them printing "f" as a value.
+ */
+const TRUTHY = new Set(['true', 't', 'yes', 'y', '1'])
+
+function dimsValue(f: any): string {
+  const v = f.value
+  if (isEmpty(v)) return '—'
+  if (f.kind === 'bool') {
+    return (typeof v === 'boolean' ? v : TRUTHY.has(String(v).toLowerCase())) ? 'Yes' : 'No'
+  }
+  const num = Number(v)
+  // Two decimals on a length: the cadastre is surveyed to the centimetre, and
+  // the digits past that are arithmetic rather than measurement.
+  if (f.kind === 'metres') return Number.isFinite(num) ? `${num.toFixed(2)} m` : String(v)
+  if (f.kind === 'ratio') return Number.isFinite(num) ? num.toFixed(4) : String(v)
+  return String(v)
+}
+
+/**
+ * `all_frontages` as one line per run.
+ *
+ * Stored as "BROMLEY:3.09m,FENTON:32.59m" — primary first, then the rest by
+ * length. Split rather than printed raw because that order is the meaning, and
+ * a wrapped single line hides where one run ends and the next begins, which is
+ * exactly what the cul-de-sac cases turn on.
+ */
+function dimsRuns(v: any): string[] {
+  if (isEmpty(v)) return []
+  return String(v).split(',').map(x => x.trim()).filter(Boolean).map((x) => {
+    const i = x.lastIndexOf(':')
+    if (i < 0) return x
+    return `${x.slice(0, i)} · ${x.slice(i + 1).replace(/m$/, ' m')}`
+  })
 }
 
 // Following the lot rather than the panel: open it once and every subsequent
@@ -851,19 +1325,164 @@ function toggleAttrs() {
 watch(() => data.value?.lotId, () => {
   attrsFor = ''
   attrs.value = null
+  dimsFor = ''
+  dims.value = null
   if (showAttrs.value) loadAttrs()
+  if (showDcp.value) loadDcp()
+  if (showDims.value) loadDims()
 })
+
+// ── Property search ────────────────────────────────────────────────────────
+/**
+ * Find lots by attribute, statewide.
+ *
+ * The rest of this page answers "what is true of this lot". This asks the
+ * inverse — "which lots are like this" — which is the question that actually
+ * starts a feasibility study, and nothing in the app could answer it.
+ *
+ * Filters are held as strings because they come from form controls and go
+ * straight into a query string; empty string means "not set" for every kind,
+ * including the tri-state flags, so one `clean()` drops them all.
+ */
+const PS_RANGES = [
+  { key: 'area', label: 'Lot area (m²)', lo: '600', hi: '900', step: '10' },
+  { key: 'frontage', label: 'Primary frontage (m)', lo: '12', hi: '30', step: '0.5' },
+  { key: 'width', label: 'Width at setback (m)', lo: '10', hi: '25', step: '0.5' },
+  { key: 'depth', label: 'Lot depth (m)', lo: '25', hi: '60', step: '0.5' },
+  { key: 'hob', label: 'Height limit (m)', lo: '8.5', hi: '21', step: '0.5' },
+  { key: 'fsr', label: 'Floor space ratio', lo: '0.5', hi: '2', step: '0.05' },
+] as const
+
+const PS_FLAGS = [
+  { key: 'lmr', label: 'Low and Mid-Rise' },
+  { key: 'tod', label: 'TOD area' },
+  { key: 'corner', label: 'Corner lot' },
+  { key: 'battleaxe', label: 'Battle-axe' },
+  { key: 'heritage', label: 'Heritage' },
+  { key: 'bushfire', label: 'Bushfire prone' },
+  { key: 'flood', label: 'Flood mapped' },
+] as const
+
+/**
+ * Suggestions only, for the datalist.
+ *
+ * `permissible_uses` holds 47,369 distinct comma-separated lists, so there is
+ * no dropdown to build from it — the field stays free text and these are the
+ * terms most searches want, spelled as the Standard Instrument spells them
+ * (plural, because that is how the column stores them).
+ */
+const PS_USES = [
+  'dwelling houses', 'dual occupancies', 'dual occupancies (attached)',
+  'secondary dwellings', 'multi dwelling housing', 'residential flat buildings',
+  'shop top housing', 'attached dwellings', 'semi-detached dwellings',
+  'boarding houses', 'seniors housing', 'co-living housing', 'build-to-rent',
+  'centre-based child care facilities', 'neighbourhood shops',
+]
+
+const psBlank = () => {
+  const o: Record<string, string> = { lga: '', zone: '', use: '', suburb: '', lsz: '' }
+  for (const r of PS_RANGES) { o[r.key + 'Min'] = ''; o[r.key + 'Max'] = '' }
+  for (const f of PS_FLAGS) o[f.key] = ''
+  return o
+}
+
+const ps = ref<Record<string, string>>(psBlank())
+const psFacets = ref<any>(null)
+const psResults = ref<any[]>([])
+const psPending = ref(false)
+const psError = ref('')
+const psRan = ref(false)
+const psTookMs = ref(0)
+const psTotal = ref<number | null>(null)
+const psTotalCapped = ref(false)
+const psWantCount = ref(false)
+
+const psFacet = (key: string) => psFacets.value?.[key] ?? []
+
+async function loadPsFacets() {
+  if (psFacets.value) return
+  try {
+    const res: any = await $fetch('/api/property-search', { query: { facets: 1 } })
+    if (res?.ok) psFacets.value = res.facets
+  } catch { /* the free-text fields still work without the dropdowns */ }
+}
+
+function resetSearch() {
+  ps.value = psBlank()
+  psResults.value = []
+  psRan.value = false
+  psError.value = ''
+  psTotal.value = null
+}
+
+/** Only the filters actually set — an empty one must not reach the server. */
+function psQuery() {
+  const out: Record<string, string> = {}
+  for (const [k, v] of Object.entries(ps.value)) {
+    if (String(v ?? '').trim() !== '') out[k] = String(v).trim()
+  }
+  return out
+}
+
+let psSeq = 0
+async function runSearch() {
+  const query = psQuery()
+  if (!Object.keys(query).length) {
+    psError.value = 'Set at least one filter — an unfiltered search would scan 5.48M rows.'
+    psResults.value = []
+    psRan.value = false
+    return
+  }
+  const seq = ++psSeq
+  psPending.value = true
+  psError.value = ''
+  try {
+    const res: any = await $fetch('/api/property-search', {
+      query: { ...query, limit: 50, ...(psWantCount.value ? { count: 1 } : {}) },
+    })
+    if (seq !== psSeq) return
+    if (res?.ok) {
+      psResults.value = res.results
+      psTookMs.value = res.tookMs
+      psTotal.value = res.total
+      psTotalCapped.value = res.totalCapped
+    } else {
+      psResults.value = []
+      psError.value = res?.message ?? 'Search failed.'
+    }
+    psRan.value = true
+  } catch (e: any) {
+    if (seq !== psSeq) return
+    psResults.value = []
+    psError.value = String(e?.data?.message || e?.message || e)
+    psRan.value = true
+  } finally {
+    if (seq === psSeq) psPending.value = false
+  }
+}
+
+/** Hand a hit to the frontage tool, which is what the rest of the page reads. */
+function openHit(hit: any) {
+  if (!hit?.lotId) return
+  pick(hit.lotId)
+}
 
 // ── Panels ─────────────────────────────────────────────────────────────────
 /** One panel at a time; the rail switches between them. */
 // Which panel is open comes from the URL, so a view can be linked: the panel is
 // part of what you are looking at, not just a click you made.
 const _p0 = String(useRoute().query.panel ?? '')
-const panel = ref<'frontage' | 'layers' | 'intersect' | 'local' | null>(
-  ['frontage', 'layers', 'intersect', 'local'].includes(_p0) ? _p0 as any : 'frontage')
-function togglePanel(which: 'frontage' | 'layers' | 'intersect' | 'local') {
+type PanelName = 'frontage' | 'layers' | 'intersect' | 'local' | 'search'
+const PANELS: PanelName[] = ['frontage', 'layers', 'intersect', 'local', 'search']
+const panel = ref<PanelName | null>(
+  PANELS.includes(_p0 as PanelName) ? _p0 as PanelName : 'frontage')
+function togglePanel(which: PanelName) {
   panel.value = panel.value === which ? null : which
 }
+
+// Declared here, not beside the search state: `panel` is a const below that
+// block, and referencing it earlier is a temporal-dead-zone error at setup.
+watch(panel, p => { if (p === 'search') loadPsFacets() }, { immediate: true })
 
 // ── NSW layers ─────────────────────────────────────────────────────────────
 /**
@@ -886,13 +1505,87 @@ function layerColour(id: string) {
   return LAYER_COLOURS[h % LAYER_COLOURS.length]
 }
 
+// ── Council catalogue ──────────────────────────────────────────────────────
+/**
+ * 667 ArcGIS layers across 67 councils in seven Australian states and four
+ * Canadian provinces, generated from the safebuy.app report configs into
+ * shared/council-map-catalogue.ts.
+ *
+ * Fetched rather than imported: the catalogue is ~230 KB and most sessions
+ * never open this panel. The index (names only) loads when the panel opens; a
+ * council's layers load when it is picked.
+ *
+ * The empty slug means the built-in NSW list, which is what this panel showed
+ * before and is still the default — switching jurisdiction should be a
+ * deliberate act, not something you land in.
+ */
+const councilIndex = ref<any>(null)
+const councilSlug = ref('')
+const council = ref<any>(null)
+const councilPending = ref(false)
+
+async function loadCouncilIndex() {
+  if (councilIndex.value) return
+  try {
+    councilIndex.value = await $fetch('/api/map-catalogue')
+  } catch { /* the built-in NSW list still works without it */ }
+}
+
+async function loadCouncil(slug: string) {
+  if (!slug) { council.value = null; return }
+  councilPending.value = true
+  try {
+    council.value = await $fetch('/api/map-catalogue', { query: { council: slug } })
+  } catch (e: any) {
+    council.value = { ok: false, message: String(e?.data?.message || e?.message || e) }
+  } finally {
+    councilPending.value = false
+  }
+}
+
+watch(councilSlug, slug => loadCouncil(slug))
+watch(panel, p => { if (p === 'layers') loadCouncilIndex() }, { immediate: true })
+
+/** One optgroup per state, prefixed by region so BC and NSW cannot be confused. */
+const councilGroups = computed(() => {
+  const out: Array<{ label: string, councils: any[] }> = []
+  for (const region of councilIndex.value?.regions ?? []) {
+    for (const st of region.states) {
+      out.push({ label: `${region.region} · ${st.state}`, councils: st.councils })
+    }
+  }
+  return out
+})
+
+const availableCount = computed(() =>
+  councilSlug.value && council.value?.ok ? council.value.layerCount : MAP_SERVICES.length)
+
+/**
+ * The section list for whichever catalogue is selected.
+ *
+ * Both shapes reduce to { name, items:[{id,name}] }, which is all the checkbox
+ * rows and fetchLayer need — a council layer never carries its URL to the
+ * browser, the same rule the NSW list follows.
+ */
 const visibleSections = computed(() => {
   const q = layerQuery.value.trim().toLowerCase()
+  const match = (name: string, section: string) =>
+    !q || name.toLowerCase().includes(q) || section.toLowerCase().includes(q)
+
+  if (councilSlug.value) {
+    if (!council.value?.ok) return []
+    return council.value.sections
+      .map((sec: any) => ({
+        name: sec.section,
+        items: sec.layers.filter((l: any) => match(l.name, sec.section)),
+      }))
+      .filter((sec: any) => sec.items.length)
+  }
+
   return MAP_SECTIONS
     .map(name => ({
       name,
-      items: MAP_SERVICES.filter(s => s.section === name
-        && (!q || s.name.toLowerCase().includes(q) || name.toLowerCase().includes(q))),
+      items: MAP_SERVICES.filter(s => s.section === name && match(s.name, name)),
     }))
     .filter(sec => sec.items.length)
 })
@@ -908,7 +1601,7 @@ function removeNswLayer(id: string) {
   if (map.getSource(srcId(id))) map.removeSource(srcId(id))
 }
 
-function drawLayer(svc: MapService, geojson: any) {
+function drawLayer(svc: LayerRef, geojson: any) {
   if (!map || !map.isStyleLoaded()) return
   removeNswLayer(svc.id)
   const colour = layerColour(svc.id)
@@ -933,12 +1626,30 @@ function drawLayer(svc: MapService, geojson: any) {
   restackMeasure()
 }
 
-async function fetchLayer(svc: MapService) {
+/**
+ * Everything below works off an id and a label.
+ *
+ * MapService satisfies this, and so does a council-catalogue row, so the two
+ * catalogues share one drawing path. The URL stays on the server either way.
+ */
+type LayerRef = { id: string, name: string }
+
+/**
+ * Every layer ever switched on, by id.
+ *
+ * onMapSettled used to refetch by searching MAP_SERVICES, so a council layer
+ * would draw once and then never update as the map moved — it would sit there
+ * showing the features of wherever you first switched it on.
+ */
+const layerRegistry = new Map<string, LayerRef>()
+
+async function fetchLayer(svc: LayerRef) {
   if (!map) return
   if (map.getZoom() < LAYER_MIN_ZOOM) return
   const b = map.getBounds()
   const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
     .map(n => n.toFixed(5)).join(',')
+  layerRegistry.set(svc.id, { id: svc.id, name: svc.name })
   layerState.value[svc.id] = { ...(layerState.value[svc.id] ?? {}), loading: true, error: null }
   try {
     const res: any = await $fetch('/api/map-layer', { query: { id: svc.id, bbox } })
@@ -955,7 +1666,7 @@ async function fetchLayer(svc: MapService) {
   }
 }
 
-function toggleLayer(svc: MapService) {
+function toggleLayer(svc: LayerRef) {
   if (layerState.value[svc.id]) {
     delete layerState.value[svc.id]
     layerState.value = { ...layerState.value }
@@ -977,7 +1688,7 @@ function onMapSettled() {
   clearTimeout(moveTimer)
   moveTimer = setTimeout(() => {
     for (const id of Object.keys(layerState.value)) {
-      const svc = MAP_SERVICES.find(s => s.id === id)
+      const svc = layerRegistry.get(id) ?? MAP_SERVICES.find(s => s.id === id)
       if (svc) fetchLayer(svc)
     }
   }, 400)
@@ -1263,12 +1974,12 @@ const {
 /**
  * Two sources, because neither alone covers the tool.
  *
- * up_property_d_3 maps an address straight to `lot_section_plan` — exact, no
- * second hop — but holds Randwick and Hornsby only. The frontage calculation
- * works on any lot in NSW, so restricting the search to those councils would
- * have made the page look far narrower than it is. Mapbox geocodes the rest of
- * the state, and /api/frontage-lot-at turns the coordinate into a lot id against
- * the statewide SIX cadastre.
+ * up_property_d_4 maps an address straight to `lot_section_plan` — exact, no
+ * second hop — and is statewide, so the local half now covers the whole of NSW
+ * rather than the two councils up_property_d_3 held. Mapbox still geocodes what
+ * the table misses (a parcel created since the snapshot, or a place name rather
+ * than an address), and /api/frontage-lot-at turns that coordinate into a lot id
+ * against the live SIX cadastre.
  *
  * Local hits rank first: they name the lot without a round trip and cannot land
  * on the wrong parcel, which a geocoded point occasionally can.
@@ -1390,23 +2101,44 @@ function dismissAddr() { setTimeout(() => { addrResults.value = []; addrNote.val
 // ── Lookup ─────────────────────────────────────────────────────────────────
 function pick(id: string) { lotId.value = id; run() }
 
+/**
+ * Which lookup is the current one.
+ *
+ * /api/frontage takes between 0.4 and 2.4 seconds — it reads the cadastre and
+ * every parcel within the pad — which is easily long enough to search an
+ * address and then click a different lot before the first answer lands. Both
+ * were rendered, last-to-RESOLVE winning rather than last-requested, so the map
+ * flew to the lot just clicked and then jumped back to the searched one. It
+ * also rewrote the URL to the stale lot and reloaded the attribute and DCP
+ * panels against it.
+ *
+ * The address autocomplete above already guards this way (`addrSeq`); the
+ * lookup itself never did.
+ */
+let runSeq = 0
+
 async function run() {
   const id = lotId.value.trim().toUpperCase()
   if (!id) return
+  const seq = ++runSeq
   pending.value = true
   error.value = ''
   miss.value = null
   try {
     const res: any = await $fetch('/api/frontage', { query: { lot: id, pad: pad.value } })
+    if (seq !== runSeq) return   // a later lookup already won
     router.replace({ query: { lot: id, pad: String(pad.value) } })
     if (res?.ok === false) { data.value = null; miss.value = res; clearLayers() }
     else { data.value = res; draw() }
   } catch (e: any) {
+    if (seq !== runSeq) return
     data.value = null
     error.value = e?.data?.message || e?.statusMessage || String(e?.message ?? e)
     clearLayers()
   } finally {
-    pending.value = false
+    // Only the current lookup owns the spinner: a stale one clearing it would
+    // say "done" while the real request is still in flight.
+    if (seq === runSeq) pending.value = false
   }
 }
 
@@ -1624,6 +2356,36 @@ onMounted(async () => {
     if (import.meta.dev) (window as any).__frontageMap = map
     map.on('load', () => { addLotLayer(); addRoadLayer(); ensureMeasureLayers(); if (data.value) draw() })
 
+    /**
+     * Martin's own tile failures, reported once instead of continuously.
+     *
+     * `road_segments` returns HTTP 500 for a handful of extents — 15/30149/19669
+     * over Kingsford is the known one, see server/utils/road-tiles.ts — and
+     * mapbox re-requests a failed tile on every pan, zoom and repaint. The
+     * result is hundreds of identical stack traces, which does not just look
+     * untidy: it buries whatever real error a reader is actually looking for.
+     * Diagnosing a click that "does nothing" is exactly when that matters.
+     *
+     * Counted and summarised rather than dropped, because a tile server that
+     * has started failing everywhere should still be visible. Anything that is
+     * not a known tile failure is re-thrown to the console untouched.
+     */
+    const tileFailures = new Map<string, number>()
+    map.on('error', (ev: any) => {
+      const url = String(ev?.error?.url ?? '')
+      const status = Number(ev?.error?.status ?? 0)
+      if (!url || status < 500) { console.error(ev?.error ?? ev); return }
+      const layer = url.split('/').slice(-4)[0] ?? url
+      const n = (tileFailures.get(layer) ?? 0) + 1
+      tileFailures.set(layer, n)
+      // First, tenth, hundredth: enough to notice a new fault and to see one
+      // getting worse, without a line per repaint.
+      if (n === 1 || n === 10 || n === 100) {
+        console.warn(`[tiles] ${layer} returned ${status} (${n} failure${n > 1 ? 's' : ''}) — `
+          + `the layer will be missing in that extent. ${url}`)
+      }
+    })
+
     // The ruler owns the click when it is armed, so measuring across a parcel
     // does not also load it.
     map.on('click', (e: any) => {
@@ -1712,6 +2474,58 @@ onMounted(async () => {
 .isect-fail-h { margin: 0.6rem 0 0.2rem; font-size: 0.68rem; font-weight: 650; color: #475569; text-transform: uppercase; letter-spacing: 0.03em; }
 .isect-retry { margin-top: 0.5rem; padding: 0.3rem 0.7rem; font-size: 0.75rem; }
 
+/* ── Property search ────────────────────────────────────────────────────── */
+.search-panel { overflow-y: auto; }
+.ps-form { margin-top: 0.9rem; }
+.ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.ps-field { display: block; margin-bottom: 0.55rem; font-size: 0.72rem; color: #64748b; }
+.ps-field span { display: block; margin-bottom: 0.2rem; }
+.ps-field select, .ps-field input {
+  width: 100%; font: inherit; font-size: 0.78rem; padding: 0.35rem 0.4rem;
+  border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #0f172a;
+}
+.ps-range { display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.4rem; }
+.ps-range-label { flex: 1; min-width: 0; font-size: 0.72rem; color: #64748b; }
+.ps-range input {
+  width: 4.6rem; font: inherit; font-size: 0.76rem; padding: 0.3rem 0.35rem;
+  border: 1px solid #cbd5e1; border-radius: 6px;
+}
+.ps-range em { color: #94a3b8; font-size: 0.7rem; font-style: normal; }
+.ps-flags { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem 0.5rem; margin: 0.6rem 0 0.2rem; }
+.ps-flag { display: flex; align-items: center; justify-content: space-between; gap: 0.3rem; font-size: 0.72rem; color: #64748b; }
+.ps-flag select {
+  width: 4.6rem; font: inherit; font-size: 0.72rem; padding: 0.2rem 0.25rem;
+  border: 1px solid #cbd5e1; border-radius: 5px; background: #fff;
+}
+.ps-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.8rem; }
+.ps-reset { border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; color: #475569; font: inherit; font-size: 0.76rem; padding: 0.35rem 0.6rem; cursor: pointer; }
+.ps-reset:hover { background: #e2e8f0; }
+.ps-count { margin-left: auto; font-size: 0.7rem; color: #64748b; cursor: pointer; }
+.ps-bar { margin-top: 0.8rem; padding: 0.4rem 0.5rem; border-radius: 6px; background: #f1f5f9; color: #475569; font-size: 0.73rem; }
+.ps-list { list-style: none; margin: 0.5rem 0 0; padding: 0; }
+.ps-list li { border-bottom: 1px solid #f1f5f9; }
+.ps-hit { display: block; width: 100%; padding: 0.45rem 0.3rem; border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.ps-hit:hover { background: #f8fafc; }
+.ps-hit-addr { display: block; font-size: 0.8rem; color: #0f172a; }
+.ps-hit-meta { display: block; margin-top: 0.1rem; font-size: 0.73rem; color: #334155; font-variant-numeric: tabular-nums; }
+.ps-hit-sub { display: block; margin-top: 0.1rem; font-size: 0.68rem; color: #94a3b8; font-family: ui-monospace, monospace; }
+.ps-tag { display: inline-block; margin-left: 0.25rem; padding: 0 0.25rem; border-radius: 3px; background: #e2e8f0; color: #475569; font-size: 0.62rem; font-style: normal; font-family: system-ui, sans-serif; }
+.ps-tag--lmr { background: #dbeafe; color: #1d4ed8; }
+
+.layers-council {
+  display: block; margin-top: 0.9rem;
+  font-size: 0.74rem; color: #64748b;
+}
+.layers-council span { display: block; margin-bottom: 0.25rem; }
+.layers-council select {
+  width: 100%; font: inherit; font-size: 0.8rem; padding: 0.4rem 0.45rem;
+  border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #0f172a;
+}
+.layers-source {
+  margin: 0.6rem 0 0; padding: 0.4rem 0.5rem; border-radius: 6px;
+  background: #f1f5f9; color: #475569; font-size: 0.73rem;
+}
+
 .layers-sec { margin-top: 1rem; }
 .layers-sec h2 { margin: 0 0 0.25rem; font-size: 0.7rem; font-weight: 650; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; }
 .layer-item { display: flex; align-items: center; gap: 0.45rem; padding: 0.22rem 0.15rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }
@@ -1721,7 +2535,7 @@ onMounted(async () => {
 .layer-note { flex: none; color: #94a3b8; font-size: 0.7rem; font-variant-numeric: tabular-nums; }
 .layer-note--bad { color: #b45309; cursor: help; }
 
-.fr-panel { width: 30rem; min-width: 0; flex: none; overflow-y: auto; padding: 1.25rem; border-right: 1px solid #e2e8f0; background: #fff; }
+.fr-panel { width: 26rem; min-width: 0; flex: none; overflow-y: auto; padding: 1.25rem; border-right: 1px solid #e2e8f0; background: #fff; }
 .fr-head h1 { margin: 0; font-size: 1.1rem; font-weight: 650; }
 .fr-head p { margin: 0.3rem 0 1rem; color: #64748b; font-size: 0.85rem; }
 .fr-label { display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -1808,7 +2622,11 @@ onMounted(async () => {
    map refuses to shrink below the canvas's intrinsic width; adding the
    attributes panel then pushed it off-screen to the right behind a horizontal
    scrollbar rather than making room for it. */
-.map-wrap { flex: 1; min-width: 0; position: relative; --attr-w: min(26rem, 92%); }
+.map-wrap {
+  flex: 1; min-width: 0; position: relative;
+  --attr-w: min(26rem, 92%);
+  --dims-w: min(22rem, 92%);
+}
 .map { position: absolute; inset: 0; }
 .fr-notoken { position: absolute; inset: 0; display: grid; place-content: center; padding: 2rem; color: #64748b; text-align: center; }
 
@@ -1864,6 +2682,38 @@ onMounted(async () => {
   margin: -1rem -1.1rem 0; padding: 0.8rem 1.1rem;
   background: #fff; border-bottom: 1px solid #e2e8f0;
 }
+/* DCP panel — shares the attributes panel's frame and scroll. */
+.dcp-use {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin: 0.7rem 0 0.4rem; font-size: 0.78rem; color: #475569;
+}
+.dcp-use select {
+  flex: 1; font: inherit; font-size: 0.78rem; padding: 0.3rem 0.4rem;
+  border: 1px solid #d5dae2; border-radius: 6px; background: #fff;
+}
+.dcp-doc { margin: 0.5rem 0 0.9rem; padding-bottom: 0.7rem; border-bottom: 1px solid #eef1f5; }
+.dcp-doc-title { font-size: 0.82rem; font-weight: 600; color: #1e3a8a; text-decoration: none; }
+.dcp-doc-title:hover { text-decoration: underline; }
+.dcp-doc p { margin: 0.25rem 0 0; font-size: 0.75rem; }
+.dcp-basis { color: #94a3b8; line-height: 1.4; }
+.dcp-warn {
+  margin-top: 0.45rem !important; padding: 0.4rem 0.5rem;
+  background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px;
+  color: #92400e; line-height: 1.45;
+}
+.dcp-table { width: 100%; border-collapse: collapse; font-size: 0.74rem; }
+.dcp-table td { padding: 0.28rem 0.3rem 0.28rem 0; border-top: 1px solid #f1f5f9; vertical-align: top; }
+.dcp-val { font-weight: 650; white-space: nowrap; font-variant-numeric: tabular-nums; width: 5.2rem; }
+.dcp-where { color: #475569; line-height: 1.35; }
+.dcp-where .attr-dim { display: block; font-size: 0.68rem; }
+.dcp-band {
+  display: inline-block; margin-left: 0.3rem; padding: 0 0.3rem;
+  background: #eef2ff; color: #4338ca; border-radius: 4px; font-size: 0.66rem;
+}
+.dcp-cl { width: 4.6rem; text-align: right; white-space: nowrap; }
+.dcp-cl a { color: #1e3a8a; text-decoration: none; }
+.dcp-cl a:hover { text-decoration: underline; }
+
 .attr-head h2 { margin: 0; font-size: 0.95rem; font-weight: 650; }
 .attr-head p { margin: 0.2rem 0 0; font-size: 0.78rem; color: #475569; }
 .attr-dim { color: #94a3b8; font-weight: 400; }
@@ -1895,6 +2745,54 @@ onMounted(async () => {
 .layer-toggle { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.6rem; border-radius: 8px; background: #fff; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18); font-size: 0.76rem; color: #475569; cursor: pointer; }
 .layer-swatch { width: 1rem; height: 0.18rem; border-radius: 2px; }
 .layer-swatch--fill { height: 0.7rem; opacity: 0.4; }
+
+/**
+ * Top right, and it shares the map with the side panels rather than replacing
+ * them.
+ *
+ * Anchored to two edges so it is the same size in every screenshot, and capped
+ * in height so a long all_frontages scrolls inside the panel instead of
+ * running down over the map. When a side panel opens this steps left by that
+ * panel's width, which is why both widths are variables on .map-wrap.
+ *
+ * The measure and layer controls are bottom right, so nothing up here has to
+ * move out of their way — only the full-height side panels do.
+ */
+.dims-panel {
+  position: absolute; right: 0; top: 0; z-index: 8;
+  width: var(--dims-w); max-height: min(70%, 34rem); overflow-y: auto;
+  padding: 0 1rem 0.9rem;
+  border-left: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
+  border-bottom-left-radius: 10px;
+  background: #fff; box-shadow: -8px 6px 24px rgba(15, 23, 42, 0.14);
+  transition: right 0.15s ease;
+}
+.dims-panel--shifted { right: var(--attr-w); }
+.dims-head {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;
+  margin: 0 -1rem; padding: 0.7rem 1rem;
+  background: #fff; border-bottom: 1px solid #e2e8f0;
+}
+.dims-head h2 { margin: 0; font-size: 0.9rem; font-weight: 650; }
+.dims-head p { margin: 0.15rem 0 0; font-size: 0.73rem; }
+.dims-head code { font-family: ui-monospace, monospace; font-size: 0.7rem; }
+.dims-actions { display: flex; align-items: center; gap: 0.35rem; flex: none; }
+.dims-src {
+  padding: 0.3rem 0.45rem; border: 1px solid #e2e8f0; border-radius: 6px;
+  background: #f8fafc; color: #475569; font: inherit; font-size: 0.7rem; cursor: pointer;
+}
+.dims-src:hover { background: #e2e8f0; }
+.dims-src--on { background: #1e293b; border-color: #1e293b; color: #fff; }
+
+.dims-list { margin: 0.4rem 0 0; }
+.dims-list > div { display: flex; align-items: baseline; justify-content: space-between; gap: 0.7rem; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; }
+.dims-list dt { min-width: 0; flex: 1; }
+.dims-label { font-size: 0.78rem; color: #1e293b; }
+.dims-list dt code { display: block; font-family: ui-monospace, monospace; font-size: 0.66rem; color: #94a3b8; }
+.dims-deriv { display: block; margin-top: 0.15rem; color: #94a3b8; font-size: 0.66rem; line-height: 1.4; }
+.dims-list dd { margin: 0; flex: none; max-width: 12rem; text-align: right; font-size: 0.82rem; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.dims-run { display: block; font-size: 0.74rem; font-weight: 600; }
 
 /* Panel open: shift the controls clear of it rather than letting it cover them. */
 .map-controls--shifted { right: calc(0.75rem + var(--attr-w)); }

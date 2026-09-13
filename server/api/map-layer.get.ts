@@ -21,6 +21,7 @@
  */
 
 import { findService } from '#shared/nsw-map-services'
+import { findCouncilLayer } from '#shared/council-map-catalogue'
 
 const TIMEOUT_MS = 20000
 
@@ -42,10 +43,26 @@ export default defineEventHandler(async (event) => {
   const id = String(q.id ?? '').trim()
   const bbox = String(q.bbox ?? '').trim()
 
-  const svc = findService(id)
+  /**
+   * Two registries, one id space.
+   *
+   * nsw-map-services.ts is the hand-curated NSW list; council-map-catalogue.ts
+   * is generated from the safebuy.app report configs and covers seven
+   * Australian states and four Canadian provinces. Catalogue ids are prefixed
+   * `cc-` so the two can never collide, and both are closed lists — which is
+   * the point. The client sends an id and gets whatever URL the server has on
+   * file for it; it cannot name a host.
+   */
+  const svc = findService(id) ?? findCouncilLayer(id)
   if (!svc) {
     return { ok: false as const, reason: 'unknown_layer', message: `No layer with id "${id}".` }
   }
+  // Read once, so everything below is blind to which registry answered.
+  const label = svc.name
+  const section = svc.section
+  // Some layers are only correct with their filter: the NSW school services
+  // return closed campuses without `operationalstatus = 1`.
+  const where = 'where' in svc && svc.where ? svc.where : '1=1'
 
   const parts = bbox.split(',').map(Number)
   if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) {
@@ -62,6 +79,7 @@ export default defineEventHandler(async (event) => {
   url.searchParams.set('outSR', '4326')
   url.searchParams.set('spatialRel', 'esriSpatialRelIntersects')
   url.searchParams.set('outFields', '*')
+  url.searchParams.set('where', where)
   url.searchParams.set('returnGeometry', 'true')
   url.searchParams.set('resultRecordCount', String(MAX_RECORDS))
   url.searchParams.set('f', 'geojson')
@@ -70,31 +88,31 @@ export default defineEventHandler(async (event) => {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) })
     if (!res.ok) {
-      return { ok: false as const, reason: 'upstream', id, name: svc.name,
-        message: `${svc.name} returned HTTP ${res.status}.` }
+      return { ok: false as const, reason: 'upstream', id, name: label,
+        message: `${label} returned HTTP ${res.status}.` }
     }
     json = await res.json()
   } catch (err: any) {
     // A slow or unreachable NSW service is routine and must not look like a bug
     // in the page. Reported per layer so the others keep working.
-    return { ok: false as const, reason: 'unreachable', id, name: svc.name,
+    return { ok: false as const, reason: 'unreachable', id, name: label,
       message: err?.name === 'TimeoutError'
-        ? `${svc.name} timed out after ${TIMEOUT_MS / 1000}s.`
-        : `${svc.name} is unreachable (${String(err?.message ?? err).slice(0, 80)}).` }
+        ? `${label} timed out after ${TIMEOUT_MS / 1000}s.`
+        : `${label} is unreachable (${String(err?.message ?? err).slice(0, 80)}).` }
   }
 
   // ArcGIS reports failures inside a 200.
   if (json?.error) {
-    return { ok: false as const, reason: 'upstream', id, name: svc.name,
-      message: `${svc.name}: ${json.error.message ?? 'query failed'}` }
+    return { ok: false as const, reason: 'upstream', id, name: label,
+      message: `${label}: ${json.error.message ?? 'query failed'}` }
   }
 
   const features = Array.isArray(json?.features) ? json.features : []
   const out = {
     ok: true as const,
     id,
-    name: svc.name,
-    section: svc.section,
+    name: label,
+    section: section,
     count: features.length,
     truncated: features.length >= MAX_RECORDS,
     geojson: { type: 'FeatureCollection', features },

@@ -1,23 +1,34 @@
 <template>
   <div class="report-page">
 
+    <!-- ── Index of sections ───────────────────────────────────────────
+         Built from what actually rendered (see rescanIndex), since nearly
+         every section below is conditional on what the lot has. -->
+    <details class="report-index" :open="indexOpen" @toggle="indexOpen = ($event.target as HTMLDetailsElement).open">
+      <summary class="report-index-title">
+        On this page
+        <span class="report-index-n">{{ indexItems.length }}</span>
+      </summary>
+      <ol class="report-index-list">
+        <li v-for="it in indexItems" :key="it.id">
+          <a
+            :href="'#' + it.id"
+            class="report-index-link"
+            :class="{ 'report-index-link--on': it.id === activeIndexId }"
+            @click.prevent="jumpTo(it)"
+          >{{ it.title }}</a>
+        </li>
+      </ol>
+    </details>
+
+    <div ref="mainEl" class="report-main">
+
     <!-- Header -->
     <div class="report-header">
       <NuxtLink to="/" class="back-link">&larr; Home</NuxtLink>
       <h1 class="report-title">Property Report</h1>
       <p class="report-subtitle">{{ personaLabel }} · {{ address || 'Loading…' }}</p>
 
-      <!-- What the report is about. Without this every figure below is a ratio
-           the reader has to apply themselves, and the DCP tables lead with
-           whichever use happens to carry the most rules rather than the one
-           being asked about. -->
-      <div v-if="property" class="scope-bar">
-        <label class="scope-label" for="proposed-use">Report is written about a proposed</label>
-        <select id="proposed-use" class="scope-select" :value="proposedUse" @change="onUseChange">
-          <option v-for="u in useOptions" :key="u" :value="u">{{ u }}</option>
-        </select>
-        <span class="scope-note">on this lot. Complying development is not assessed here.</span>
-      </div>
     </div>
 
     <!-- Pipeline steps (at the top, open by default) -->
@@ -69,12 +80,57 @@
       </div>
     </div>
 
+    <!-- ── Zoning history ──────────────────────────────────────────────
+         What this land was zoned before, and the amendment that changed it.
+         Held on effectively every row and never shown: a consent, a valuation
+         or a neighbour's approval that predates the change was granted under
+         the earlier zone, and nothing on the page said what that was. -->
+    <details v-if="zoningHistory.length" class="rpt-section" open>
+      <summary class="rpt-section-title">
+        Zoning history
+        <span class="rpt-count">{{ zoningHistory.length }} recorded</span>
+      </summary>
+      <p class="envelope-blurb">
+        Each row is an amendment that set this land's zone, newest first — so the
+        current zone usually appears here too, with the instrument and date that
+        put it in place. A consent or valuation predating the top row was made
+        under a different zone.
+      </p>
+      <div class="constraint-list">
+        <div v-for="(h, i) in zoningHistory" :key="i" class="constraint-row">
+          <span :class="['cdc-dot', h.current ? 'cdc-dot--yes' : 'cdc-dot--no']"></span>
+          <span class="constraint-name">
+            {{ h.zone }}<template v-if="h.zoneClass"> — {{ h.zoneClass }}</template>
+            <template v-if="h.current"> (current)</template>
+          </span>
+          <span class="constraint-detail">
+            <template v-if="h.amendment">{{ h.amendment }}</template>
+            <template v-if="h.commenced"> · commenced {{ h.commenced }}</template>
+            <template v-if="h.published"> · published {{ h.published }}</template>
+          </span>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Section 8: Proximity & Amenity ──────────────────────────────── -->
+    <details v-if="property && (p.closest_school || p.closest_hospital || p.closest_railway_station)" class="rpt-section" open>
+      <summary class="rpt-section-title">Proximity & Amenity</summary>
+      <div class="facts-grid">
+        <div class="fact" v-if="p.walkable_score"><span class="fact-label">Walk Score</span><span class="fact-value fact-value--num">{{ p.walkable_score }}</span></div>
+        <div class="fact" v-if="p.closest_school"><span class="fact-label">Nearest School</span><span class="fact-value">{{ p.closest_school }} <span class="fact-sub">{{ p.closest_school_distance_m ? Number(p.closest_school_distance_m).toFixed(0) + 'm' : '' }}</span></span></div>
+        <div class="fact" v-if="p.closest_hospital"><span class="fact-label">Nearest Hospital</span><span class="fact-value">{{ p.closest_hospital }} <span class="fact-sub">{{ p.closest_hospital_distance_m ? Number(p.closest_hospital_distance_m).toFixed(0) + 'm' : '' }}</span></span></div>
+        <div class="fact" v-if="p.closest_railway_station"><span class="fact-label">Nearest Station</span><span class="fact-value">{{ p.closest_railway_station }} <span class="fact-sub">{{ p.closest_railway_station_distance_m ? Number(p.closest_railway_station_distance_m).toFixed(0) + 'm' : '' }}</span></span></div>
+        <div class="fact" v-if="p.estimated_price"><span class="fact-label">Est. Price</span><span class="fact-value fact-value--num">${{ Number(p.estimated_price).toLocaleString() }}</span></div>
+        <div class="fact" v-if="p.no_of_beds"><span class="fact-label">Beds / Baths / Cars</span><span class="fact-value">{{ p.no_of_beds || '–' }} / {{ p.no_of_baths || '–' }} / {{ p.no_of_cars || '–' }}</span></div>
+      </div>
+    </details>
+
     <!-- ── Section 2: Development Standards ────────────────────────────── -->
     <details v-if="property && (p.fsr_value || p.max_height_m || p.min_lot_size)" class="rpt-section" open>
       <summary class="rpt-section-title">Development Standards</summary>
       <!-- The arithmetic, done. A floor space ratio is not what anyone builds
            to; the gross floor area it permits on this lot is. -->
-      <div v-if="derived.maxGrossFloorArea || derived.heightM || derived.dcpFloorAreaCaps?.length" class="derived-row">
+      <div v-if="derived.maxGrossFloorArea || derived.heightM || derived.maxChildLots" class="derived-row">
         <div v-if="derived.maxGrossFloorArea" class="derived">
           <span class="derived-num">{{ derived.maxGrossFloorArea.toLocaleString() }} m²</span>
           <span class="derived-label">
@@ -82,50 +138,10 @@
           </span>
         </div>
 
-        <!-- No FSR mapped does not mean floor area is uncontrolled: the DCP caps
-             it by lot size band. A single figure is a cap; more than one is a
-             clause to read, because the ingest splits "25% of the lot area +
-             300m²" into two rows and the smaller of them is not the answer. -->
-        <div v-else-if="derived.dcpFloorAreaCap" class="derived">
-          <span class="derived-num">{{ derived.dcpFloorAreaCap.toLocaleString() }} m²</span>
-          <span class="derived-label">
-            maximum floor area for a {{ derived.proposedUse }} &mdash;
-            {{ derived.dcpFloorAreaCaps[0].stated }},
-            <a :href="dcpClauseHref(derived.dcpFloorAreaCaps[0].clause)" class="rules-cite">cl {{ derived.dcpFloorAreaCaps[0].clause }}</a>.
-            No FSR is mapped.
-          </span>
-        </div>
-        <!-- Several figures and no recorded relation between them. Joining
-             them into one headline number would invent a maximum: Hornsby's
-             table reads "25% of the lot area + 300m²" for a dual occupancy and
-             "430m²" for a dwelling house, and the ingest flattened both into
-             the same list. So the clause leads, and the figures are named
-             underneath as what the clause says rather than as an answer. -->
-        <div v-else-if="derived.dcpFloorAreaCaps?.length" class="derived">
-          <span class="derived-num derived-num--sm">
-            <a :href="dcpClauseHref(derived.dcpFloorAreaCaps[0].clause)" class="rules-cite">cl {{ derived.dcpFloorAreaCaps[0].clause }}</a>
-          </span>
-          <span class="derived-label">
-            caps floor area for a {{ derived.proposedUse }} &mdash; no FSR is mapped.
-            It states
-            <template v-for="(c, i) in derived.dcpFloorAreaCaps" :key="c.clause + i"
-              ><template v-if="i">{{ i === derived.dcpFloorAreaCaps.length - 1 ? ' and ' : ', ' }}</template
-              ><strong>{{ c.stated }}</strong><template v-if="c.stated.indexOf('%') !== -1"> ({{ c.sqm.toLocaleString() }} m² here)</template></template>.
-            How those combine is not recorded here, so read the clause rather than
-            taking any one of them as the maximum.
-          </span>
-        </div>
 
         <div v-if="derived.heightM" class="derived">
           <span class="derived-num">{{ derived.heightM }} m</span>
-          <span class="derived-label">
-            maximum height<template v-if="derived.storeyBand">
-              &mdash; the DCP's {{ derived.storeyBand }} band</template
-            ><template v-else-if="derived.approxStoreys">
-              &mdash; roughly {{ derived.approxStoreys }} storeys at the 3 m floor-to-floor the
-              DCP's height controls assume; the plan's own height-to-storey table is not
-              held here, so treat this as an estimate</template>
-          </span>
+          <span class="derived-label">maximum height, from the Height of Buildings Map</span>
         </div>
 
         <!-- Not "meets minimum lot size" any more. That figure is the
@@ -302,65 +318,54 @@
             </div>
           </div>
         </div>
-        <!-- Dimensions -->
-        <div class="lot-dims">
-          <div class="lot-dims-grid">
-            <div class="dim" v-if="p.area_h"><span class="dim-label">Area</span><span class="dim-value">{{ Number(p.area_h).toFixed(3) }} ha</span></div>
-            <div class="dim" v-if="p.longest_axis_m"><span class="dim-label">Longest axis</span><span class="dim-value">{{ Number(p.longest_axis_m).toFixed(1) }}m</span></div>
-            <div class="dim" v-if="p.min_width_m"><span class="dim-label">Min width</span><span class="dim-value">{{ Number(p.min_width_m).toFixed(1) }}m</span></div>
-            <div class="dim" v-if="p.average_slope"><span class="dim-label">Avg slope</span><span class="dim-value">{{ Number(p.average_slope).toFixed(1) }}°</span></div>
-            <!-- Both are measured in the same notebook as the frontage above
-                 and both feed the 3D envelope; neither had ever appeared on
-                 the page the envelope is linked from. -->
-            <div class="dim" v-if="p.lot_depth_m"><span class="dim-label">Depth</span><span class="dim-value">{{ Number(p.lot_depth_m).toFixed(1) }}m</span></div>
-            <div class="dim" v-if="p.orientation_degrees"><span class="dim-label">Orientation</span><span class="dim-value">{{ Number(p.orientation_degrees).toFixed(0) }}°</span></div>
-          </div>
-
-          <!-- Boundary side lengths.
-               Drawn on the boundary itself wherever the map geometry can be
-               trusted; the list is the fallback for when it cannot, so the
-               numbers are never simply lost. -->
-          <div class="edge-list">
-            <div class="edge-heading">
-              Side lengths
-              <span v-if="edgeMeasurements.length" class="edge-count">{{ edgeMeasurements.length }} sides</span>
-            </div>
-
-            <template v-if="edgeMeasurements.length">
-              <p class="edge-onmap">Each boundary is labelled with its own recorded length on the map.</p>
-              <div class="edge-items">
-                <span v-for="(e, i) in edgeMeasurements" :key="i" class="edge-chip">
-                  <span class="edge-n">{{ i + 1 }}</span>
-                  <span class="edge-num">{{ e.value }}</span><span class="edge-unit">{{ e.unit }}</span>
-                </span>
-              </div>
-            </template>
-
-            <!-- Absence is stated rather than rendered as a blank gap: the
-                 panel used to disappear silently whenever the column was
-                 missing, which read as a bug rather than as missing data. -->
-            <p v-else class="edge-empty">Not recorded for this lot.</p>
-          </div>
-
-          <!-- Frontages -->
-          <div v-if="frontageItems.length" class="edge-list">
-            <div class="edge-heading">Frontages</div>
-            <div class="edge-items">
-              <span v-for="(f, i) in frontageItems" :key="i" class="edge-chip edge-chip--frontage">
-                <span class="edge-road">{{ f.road }}</span>
-                <span class="edge-num">{{ f.value }}</span><span class="edge-unit">{{ f.unit }}</span>
-              </span>
-            </div>
-          </div>
-
-          <!-- Flags -->
-          <div class="lot-flags">
-            <span v-if="isYes(p.is_corner_lot)" class="lot-flag lot-flag--green">Corner lot</span>
-            <span v-if="isYes(p.is_battleaxe)" class="lot-flag lot-flag--amber">Battle-axe</span>
-            <span v-if="p.num_frontages" class="lot-flag">{{ p.num_frontages }} frontage(s)</span>
-          </div>
+        <!-- The lot as a shape with its numbers on it. The map shows the lot
+             in its street; this shows what a setback or a minimum-width test
+             is about: the boundary, the street it faces, and the figures drawn
+             where they are measured. -->
+        <div class="lot-sketch-container">
+          <LotSketch
+            v-if="frontageData"
+            :data="frontageData"
+            :depth-m="factNumber('lot_depth_m')"
+            :width-at-setback-m="factNumber('width')"
+            :core-width-min-m="factNumber('do_width')"
+            :area-sqm="p.area_sqm != null ? Number(p.area_sqm) : null"
+          />
+          <p v-else-if="frontageError" class="lot-sketch-note">{{ frontageError }}</p>
+          <p v-else class="lot-sketch-note">Drawing the boundary…</p>
         </div>
       </div>
+
+      <!-- The figures a control is tested against, from the property record,
+           in one line. Each carries its definition as a tooltip; the full
+           list, with every stored column, is folded beneath. -->
+      <div class="lot-facts">
+        <div
+          v-for="f in lotFacts" :key="f.key"
+          class="lot-fact" :class="{ 'lot-fact--empty': f.value == null }"
+          :title="f.definition"
+        >
+          <span class="lot-fact-value">{{ f.value ?? '—' }}<span v-if="f.unit && f.value != null" class="lot-fact-unit">{{ f.unit }}</span></span>
+          <span class="lot-fact-label">{{ f.label }}</span>
+          <span v-if="f.detail" class="lot-fact-detail">{{ f.detail }}</span>
+        </div>
+      </div>
+
+      <p class="lot-tags">
+        <span v-for="t in lotTags" :key="t.text" class="lot-tag" :class="t.tone ? 'lot-tag--' + t.tone : ''">{{ t.text }}</span>
+        <span v-if="dimsPending" class="lot-tag lot-tag--muted">reading the record…</span>
+        <span v-else-if="dimsError" class="lot-tag lot-tag--muted">{{ dimsError }}</span>
+      </p>
+
+      <details v-if="dimFields.length" class="lot-defs">
+        <summary>How these figures are measured</summary>
+        <dl>
+          <template v-for="f in dimFields" :key="f.column">
+            <dt :title="f.source + ' — ' + f.transform">{{ f.label }}</dt>
+            <dd><strong>{{ f.kind === 'text' ? dimRuns(f.value).join('; ') || '—' : dimValue(f) }}</strong>{{ f.definition }}</dd>
+          </template>
+        </dl>
+      </details>
     </details>
 
     <!-- ── Lot shape ───────────────────────────────────────────────────
@@ -392,6 +397,93 @@
       </div>
     </details>
 
+    <!-- ── Permitted uses ──────────────────────────────────────────────── -->
+    <details v-if="permittedUses.length > 0" class="rpt-section" open>
+      <summary class="rpt-section-title">Permitted Uses in Zone {{ p?.zone }} ({{ permittedUses.length }})</summary>
+      <div class="uses-hint">Click a use to pull its LEP / SEPP / DCP controls for this lot.</div>
+      <div class="uses-list">
+        <button
+          v-for="u in permittedUses"
+          :key="u"
+          type="button"
+          :class="['use-chip', 'use-chip--clickable', selectedUse === u && 'use-chip--active']"
+          :disabled="useAnalysisLoading"
+          @click="selectUse(u)"
+        >{{ u }}</button>
+      </div>
+
+      <!-- Use-specific controls panel (planner persona only) -->
+      <div v-if="selectedUse" class="use-analysis">
+        <div class="use-analysis-header">
+          <span class="use-analysis-label">Controls for</span>
+          <span class="use-analysis-use">{{ selectedUse }}</span>
+          <span v-if="useAnalysisLoading" class="use-analysis-loading">analysing…</span>
+          <button v-if="!useAnalysisLoading" class="use-analysis-close" type="button" @click="clearSelectedUse">Close</button>
+        </div>
+
+        <div v-for="inst in ['lep', 'sepp', 'dcp'] as const" :key="inst"
+             v-show="useStreams[inst].text || useAnalysisLoading"
+             :class="['instrument-section', 'instrument-section--' + inst]">
+          <div class="instrument-header">
+            <span :class="['instrument-badge', 'instrument-badge--' + inst]">{{ inst.toUpperCase() }}</span>
+            {{ inst.toUpperCase() }} Findings
+          </div>
+          <div v-if="useStreamsProxy[inst].text" class="answer-body" v-html="useStreamsProxy[inst].html"></div>
+          <div v-else class="answer-loading">Searching {{ inst.toUpperCase() }}…</div>
+        </div>
+
+        <div v-if="useStreamsCitations.length > 0" class="sources-section">
+          <h3 class="sources-heading">Sources ({{ useStreamsCitations.length }})</h3>
+          <div class="sources-list">
+            <div v-for="c in useStreamsCitations" :key="c.number" class="source-item">
+              <span class="source-num">{{ c.number }}</span>
+              <span :class="['source-badge', 'source-badge--' + c.doc_type]">{{ c.doc_type.toUpperCase() }}</span>
+              <span class="source-label"><strong>{{ c.document_short }}</strong> {{ c.citation_label }}</span>
+              <a v-if="c.clause_url" :href="c.clause_url" target="_blank" rel="noopener" class="source-link">View source</a>
+              <p v-if="c.source_quote" class="source-quote">{{ c.source_quote }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+
+    <!-- ── Land Use Table for the lot's zone ────────────────────────────
+         The chips above are this lot's own permissible list from the property
+         record. This is the zone's whole table from the LEP: the objectives,
+         what is permitted and prohibited as written, and every Standard
+         Instrument term resolved against it. A split lot gets one per zone. -->
+    <details v-if="landUseTables.length" class="rpt-section" open>
+      <summary class="rpt-section-title">
+        Land Use Table — Zone {{ landUseTables.map(t => t.code).join(' and ') }}
+      </summary>
+      <p class="envelope-blurb lut-blurb">
+        Under {{ p?.lzn_epi_name_p || p?.lep_name }}: everything the plan permits and
+        prohibits in this zone, as written and as resolved. The chips above are this
+        lot's own list.
+      </p>
+      <div v-for="t in landUseTables" :key="t.code" class="lut-block">
+        <h3 v-if="landUseTables.length > 1" class="lut-zone-head">Zone {{ t.code }}</h3>
+        <ZonePermissibility v-if="t.detail" :detail="t.detail" />
+        <p v-else-if="t.error" class="lut-note">{{ t.error }}</p>
+        <p v-else class="lut-note">Loading the Land Use Table…</p>
+      </div>
+    </details>
+
+    <!-- ── Uses permitted via SEPP ──────────────────────────────────────
+         sepp_landuses is the lot's SEPP-permissible list, distinct from the
+         zone's LEP permitted uses — a use can be available under a SEPP that
+         the LEP does not list. -->
+    <details v-if="seppUses.length" class="rpt-section" open>
+      <summary class="rpt-section-title">Uses Permitted via SEPP ({{ seppUses.length }})</summary>
+      <p v-if="seppInstruments.length" class="envelope-blurb">
+        Under {{ seppInstruments.join(' and ') }}.
+      </p>
+      <div class="uses-list">
+        <span v-for="u in seppUses" :key="u" class="use-chip">{{ u }}</span>
+      </div>
+    </details>
+
     <!-- ── Lot requirements and subdivision ────────────────────────────
          The mapped minimum lot size answers neither question on its own. It is
          the subdivision standard, and the LEP sets a separate, larger figure
@@ -400,7 +492,7 @@
          their area against the mapped figure concludes the site qualifies for
          something it does not, so both tests are shown, each against the
          clause that actually imposes it. -->
-    <details v-if="lotReq.areaSqm" class="rpt-section" open>
+    <details v-if="lotReq.areaSqm" class="rpt-section">
       <summary class="rpt-section-title">
         Lot Requirements &amp; Subdivision
         <span v-if="lotReq.meetsAny === false" class="rpt-count">below minimum</span>
@@ -558,7 +650,7 @@
     </details>
 
     <!-- ── Section 6: CDC Eligibility ──────────────────────────────────── -->
-    <details v-if="property" class="rpt-section" open>
+    <details v-if="property" class="rpt-section">
       <summary class="rpt-section-title">Complying Development (CDC) Eligibility</summary>
       <div class="cdc-summary">
         <span :class="['cdc-badge', isYes(p.cdc_eligible) ? 'cdc-badge--yes' : 'cdc-badge--no']">
@@ -584,37 +676,32 @@
       </div>
     </details>
 
-    <!-- ── Zoning history ──────────────────────────────────────────────
-         What this land was zoned before, and the amendment that changed it.
-         Held on effectively every row and never shown: a consent, a valuation
-         or a neighbour's approval that predates the change was granted under
-         the earlier zone, and nothing on the page said what that was. -->
-    <details v-if="zoningHistory.length" class="rpt-section" open>
+    <!-- ── NSW Housing Pattern Book ─────────────────────────────────────
+         Its own section, below CDC, because it is the same kind of question:
+         which standardised pathway will this lot take, and where it will not,
+         why. It sat inside the LMR section, where the LMR standards and the
+         pattern eligibility read as one table although they answer different
+         things — LMR is what the policy permits here, the pattern book is
+         which pre-approved design fits. -->
+    <details v-if="patternBookItems.length" class="rpt-section">
       <summary class="rpt-section-title">
-        Zoning history
-        <span class="rpt-count">{{ zoningHistory.length }} recorded</span>
+        NSW Housing Pattern Book
+        <span class="rpt-count">{{ patternBookEligible }} of {{ patternBookItems.length }} patterns</span>
       </summary>
       <p class="envelope-blurb">
-        Each row is an amendment that set this land's zone, newest first — so the
-        current zone usually appears here too, with the instrument and date that
-        put it in place. A consent or valuation predating the top row was made
-        under a different zone.
+        GANSW states these development standards override the equivalent LEP or
+        DCP requirement, and all of them must be met to use the streamlined
+        pathway — so a pattern this lot fails is not a merit question.
       </p>
-      <div class="constraint-list">
-        <div v-for="(h, i) in zoningHistory" :key="i" class="constraint-row">
-          <span :class="['cdc-dot', h.current ? 'cdc-dot--yes' : 'cdc-dot--no']"></span>
-          <span class="constraint-name">
-            {{ h.zone }}<template v-if="h.zoneClass"> — {{ h.zoneClass }}</template>
-            <template v-if="h.current"> (current)</template>
-          </span>
-          <span class="constraint-detail">
-            <template v-if="h.amendment">{{ h.amendment }}</template>
-            <template v-if="h.commenced"> · commenced {{ h.commenced }}</template>
-            <template v-if="h.published"> · published {{ h.published }}</template>
-          </span>
+      <div class="cdc-grid">
+        <div v-for="pb in patternBookItems" :key="pb.key" class="cdc-item">
+          <span :class="['cdc-dot', pb.eligible ? 'cdc-dot--yes' : 'cdc-dot--no']"></span>
+          <span class="cdc-name">{{ pb.label }}</span>
+          <span v-if="!pb.eligible && pb.reasons" class="cdc-excl">{{ pb.reasons }}</span>
         </div>
       </div>
     </details>
+
 
     <!-- ── Which map each standard came from ───────────────────────────
          The standards above are values read off mapped layers. This says which
@@ -649,55 +736,129 @@
       </div>
     </details>
 
-    <!-- ── Section 7: LMR Housing & Pattern Book ───────────────────────── -->
-    <details v-if="property && (isYes(p.in_lmr_housing_area) || patternBookItems.length > 0)" class="rpt-section" open>
+    <!-- ── Section 7: Low and Mid-Rise Housing ─────────────────────────
+         Always rendered, because "this lot is outside the LMR area" is an
+         answer a reader needs and an absent section does not give. The
+         standards are resolved by shared/lmr-standards.ts rather than read off
+         the stored columns; see that file for why they cannot be read. -->
+    <details v-if="property" class="rpt-section">
       <summary class="rpt-section-title">
-        Low-Mid Rise Housing &amp; Pattern Book
-        <span v-if="patternBookItems.length" class="rpt-count">
-          {{ patternBookEligible }} of {{ patternBookItems.length }} patterns
-        </span>
+        Low and Mid-Rise Housing
+        <span v-if="lmr.inLmrArea" class="rpt-count">{{ lmr.standards.length }} standards</span>
+        <span v-else class="rpt-count">not in area</span>
       </summary>
-      <div v-if="isYes(p.in_lmr_housing_area)" class="lmr-badge">In LMR Housing Area</div>
-      <div v-if="isYes(p.in_tod_area)" class="lmr-badge">In TOD Accelerated Precinct</div>
-      <div class="facts-grid" v-if="p.lmr_permissible || p.lmr_height_rfb || p.lmr_height_sth || lmrDetail.length">
-        <div class="fact" v-if="p.lmr_permissible"><span class="fact-label">LMR Permissible</span><span class="fact-value">{{ p.lmr_permissible }}</span></div>
-        <div class="fact" v-if="p.lmr_height_rfb"><span class="fact-label">RFB Height</span><span class="fact-value">{{ p.lmr_height_rfb }}</span></div>
-        <div class="fact" v-if="p.lmr_height_sth"><span class="fact-label">STH Height</span><span class="fact-value">{{ p.lmr_height_sth }}</span></div>
-        <!-- The LMR standards behind the flag: the policy sets its own FSR,
-             minimum lot size and minimum width, and names the station the
-             distance band is measured from. -->
-        <div class="fact" v-for="d in lmrDetail" :key="d.label">
-          <span class="fact-label">{{ d.label }}</span><span class="fact-value">{{ d.value }}</span>
-        </div>
-      </div>
-      <div v-if="patternBookItems.length" class="cdc-grid" style="margin-top:0.5rem">
-        <div v-for="pb in patternBookItems" :key="pb.key" class="cdc-item">
-          <span :class="['cdc-dot', pb.eligible ? 'cdc-dot--yes' : 'cdc-dot--no']"></span>
-          <span class="cdc-name">{{ pb.label }}</span>
-          <span v-if="!pb.eligible && pb.reasons" class="cdc-excl">{{ pb.reasons }}</span>
-        </div>
-      </div>
+
+      <template v-if="!lmr.inLmrArea">
+        <p class="envelope-blurb">
+          This lot is <strong>not in a mapped Low and Mid-Rise Housing area</strong>, so
+          the policy sets no standards for it and permits nothing here.
+        </p>
+        <p class="envelope-blurb">
+          Zoning alone does not bring a lot in. 2,849,934 lots across NSW are zoned
+          R1&ndash;R4 and still outside the mapped area, and a station being close by
+          does not change that &mdash; the area is drawn, not derived.
+        </p>
+      </template>
+
+      <template v-else>
+        <div class="lmr-badge">In LMR Housing Area</div>
+        <p class="envelope-blurb">
+          Within <strong>{{ lmr.buffers.join(' m and ') }} m</strong> of
+          <template v-if="p.lmr_train_stations">{{ p.lmr_train_stations }}</template>
+          <template v-else>a station or centre</template>,
+          zone {{ lmr.matchedZones.join(' and ') || p.zone }}. The policy names a set of
+          land uses and gives each its own standards &mdash; these are not one set of
+          numbers for the lot.
+        </p>
+        <p v-if="lmr.buffers.length > 1" class="rules-mismatch">
+          This lot sits across <strong>both distance bands</strong>. Which part of it is
+          in which is not recorded, and the bands differ &mdash; an apartment in R3/R4
+          gets FSR 2.2 and 22 m at 400 m against 1.5 and 17.5 m at 800 m. Both are shown
+          rather than one being chosen for you.
+        </p>
+
+        <table class="rules-table">
+          <thead>
+            <tr>
+              <th>Land use</th><th>Band</th><th>Min lot</th><th>Min width</th>
+              <th>FSR</th><th>Height</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(st, i) in lmr.standards" :key="i">
+              <td>{{ st.landUse }}</td>
+              <td class="rules-cond">{{ st.buffer }} m</td>
+              <td>
+                <template v-if="st.minLotSizeSqm == null">&mdash;</template>
+                <template v-else>
+                  <span :class="st.meetsLotSize === false ? 'rules-superseded' : ''">
+                    {{ st.minLotSizeSqm }} m&sup2;
+                  </span>
+                  <span v-if="st.meetsLotSize === false" class="rules-cond"> &mdash; lot is smaller</span>
+                </template>
+              </td>
+              <td>
+                <template v-if="st.minLotWidthM == null">&mdash;</template>
+                <template v-else>
+                  <span :class="st.meetsLotWidth === false ? 'rules-superseded' : ''">
+                    {{ st.minLotWidthM }} m
+                  </span>
+                  <span v-if="st.meetsLotWidth === false" class="rules-cond"> &mdash; lot is narrower</span>
+                </template>
+              </td>
+              <td>{{ st.fsr == null ? '—' : st.fsr + ':1' }}</td>
+              <td>{{ st.hobM == null ? '—' : st.hobM + ' m' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="envelope-blurb">
+          A dash is a standard the policy does not state for that use and band, not a
+          standard of zero. Shop top housing is stated for the 400 m band only.
+        </p>
+      </template>
     </details>
 
-    <!-- ── Uses permitted via SEPP ──────────────────────────────────────
-         sepp_landuses is the lot's SEPP-permissible list, distinct from the
-         zone's LEP permitted uses — a use can be available under a SEPP that
-         the LEP does not list. -->
-    <details v-if="seppUses.length" class="rpt-section" open>
-      <summary class="rpt-section-title">Uses Permitted via SEPP ({{ seppUses.length }})</summary>
-      <p v-if="seppInstruments.length" class="envelope-blurb">
-        Under {{ seppInstruments.join(' and ') }}.
+    <!-- ── Transport Oriented Development ──────────────────────────────
+         Its own section, and not a badge inside LMR: TOD is a separate mapped
+         area with its own consequences. Of the 22 pattern-book designs, 9 need
+         LMR or TOD, 2 need both, and 2 are ruled out by either — so being in a
+         TOD precinct opens some pathways and closes others. -->
+    <details v-if="property" class="rpt-section">
+      <summary class="rpt-section-title">
+        Transport Oriented Development
+        <span class="rpt-count">{{ isYes(p.in_tod_area) ? 'in precinct' : 'not in precinct' }}</span>
+      </summary>
+
+      <template v-if="isYes(p.in_tod_area)">
+        <div class="lmr-badge">In TOD Accelerated Precinct</div>
+        <div class="facts-grid">
+          <div class="fact" v-if="p.tod_map_name">
+            <span class="fact-label">Mapped as</span><span class="fact-value">{{ p.tod_map_name }}</span>
+          </div>
+          <div class="fact" v-if="p.tod_lay_class">
+            <span class="fact-label">Class</span><span class="fact-value">{{ p.tod_lay_class }}</span>
+          </div>
+        </div>
+        <p class="envelope-blurb">
+          A TOD precinct changes which NSW Housing Pattern Book designs this lot can
+          use: nine of the twenty-two require LMR <em>or</em> TOD, two require both, and
+          two are excluded by either. See the Pattern Book section for which.
+        </p>
+      </template>
+
+      <p v-else class="envelope-blurb">
+        This lot is <strong>not in a Transport Oriented Development Accelerated
+        Precinct</strong>. Two pattern-book designs require a lot to be outside both TOD
+        and LMR, so being outside is not only a restriction.
       </p>
-      <div class="uses-list">
-        <span v-for="u in seppUses" :key="u" class="use-chip">{{ u }}</span>
-      </div>
     </details>
+
 
     <!-- ── Key numerical rules ─────────────────────────────────────────
          One row per control with its clause, after PropCode's Rapid Planning
          Report. Where a control is banded and the selector was not captured,
          the range is shown rather than a single figure. -->
-    <details v-if="numericRuleGroups.length" class="rpt-section" open>
+    <details v-if="topicRuleGroups.length" class="rpt-section">
       <summary class="rpt-section-title">Key Numerical Rules ({{ numericRuleCount }})</summary>
       <p class="envelope-blurb">
         From the {{ ruleSourceLabel }} control tables for zone {{ p?.zone }},
@@ -739,20 +900,53 @@
         </template>
       </p>
 
+      <!-- The picker sits directly above the controls it changes, and carries
+           only what the rule layer actually tags: six residential uses, and the
+           development types present in `rule_applicability`. A longer list
+           would be entries that can only ever return nothing. -->
+      <div class="dcp-picker">
+        <label>
+          <span>Proposed use</span>
+          <select v-model="dcpUse">
+            <option v-for="u in dcpUseOptions" :key="u" :value="u">{{ u }}</option>
+          </select>
+        </label>
+        <label>
+          <span>Development type</span>
+          <select v-model="dcpDevType">
+            <option value="">From the zone</option>
+            <option v-for="t in dcpDevTypeOptions" :key="t" :value="t">
+              {{ t.replace(/_/g, ' ') }}
+            </option>
+          </select>
+        </label>
+        <span v-if="dcpScopePending" class="dcp-picker-busy">…</span>
+        <button
+          v-else-if="dcpScopedRules"
+          type="button" class="dcp-picker-reset"
+          title="Back to every use the zone permits"
+          @click="resetDcpScope"
+        >reset</button>
+      </div>
+      <p v-if="dcpScopeError" class="rules-mismatch">{{ dcpScopeError }}</p>
+      <p v-else-if="dcpScopedRules" class="rules-group-note">
+        Scoped to <strong>{{ dcpUse }}</strong><template v-if="dcpDevType">, development
+        type <strong>{{ dcpDevType.replace(/_/g, ' ') }}</strong></template>. A clause
+        naming this use outranks one that names none for the same control, so this
+        list can be shorter than the zone-wide set — that is the intended
+        difference, not a gap.
+      </p>
+
       <details
-        v-for="(g, i) in numericRuleGroups"
+        v-for="(g, i) in topicRuleGroups"
         :key="g.key"
         class="rules-group"
         :open="groupOpen(i)"
       >
         <summary class="rules-group-title">
           {{ g.label }}
-          <span class="rules-axis" :class="`rules-axis-${g.axis}`">
-            {{ g.axis === 'land_use' ? 'use-specific' : 'general' }}
-          </span>
           <span class="rules-count">{{ g.rules.length }}</span>
         </summary>
-        <p class="rules-group-note">{{ g.note }}</p>
         <table class="rules-table">
           <thead><tr><th>Control</th><th>Requirement</th><th>Applies when</th><th>Clause</th></tr></thead>
           <tbody>
@@ -789,46 +983,6 @@
       </details>
     </details>
 
-    <!-- ── Governing planning documents ────────────────────────────────
-         Which instruments this report draws on, and as at when. A planning
-         report that cites clauses without naming the consolidation they came
-         from cannot be checked, and the version actually held is not always
-         the one the property record names. -->
-    <details v-if="governingDocs.length" class="rpt-section" open>
-      <summary class="rpt-section-title">Governing Planning Documents ({{ governingDocs.length }})</summary>
-      <p v-if="dcpNameMismatch" class="rules-mismatch">
-        The property record names <strong>{{ p?.dcp_plan_name }}</strong> as the DCP for
-        this lot, but the version held here is {{ ruleSourceLabel }}. Clause numbers
-        below follow the version held.
-      </p>
-      <table class="rules-table">
-        <thead><tr><th>Instrument</th><th>Type</th><th>Current to</th></tr></thead>
-        <tbody>
-          <template v-for="d in governingDocRows" :key="d.slug">
-            <tr :class="{ 'docnote-parent': d.notes.length }">
-              <td>
-                <a v-if="d.viewerHref" :href="d.viewerHref" class="rules-cite">{{ d.title }}</a>
-                <span v-else>{{ d.title }}</span>
-              </td>
-              <td class="rules-cond">{{ d.docType.toUpperCase() }}</td>
-              <td class="rules-cond">{{ d.asAt ? fmtDate(d.asAt) : 'not recorded' }}</td>
-            </tr>
-            <!-- Everything the instrument says about its own dates that a
-                 single "current to" cell cannot carry: when it commenced if
-                 that is a different day, what it saves, and what is not in it
-                 yet. Randwick DCP 2025 has all three, and the report used to
-                 state none of them. -->
-            <tr v-if="d.notes.length" class="docnote-row">
-              <td colspan="3">
-                <p v-for="(n, i) in d.notes" :key="i" :class="['docnote', n.emphasis ? 'docnote--warn' : '']">
-                  <span class="docnote-label">{{ n.label }}</span>{{ n.text }}
-                </p>
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
-    </details>
 
     <!-- ── Site constraints ────────────────────────────────────────────
          One section, one row per overlay. Stating "no overlay applies" is a
@@ -894,93 +1048,48 @@
       </div>
     </details>
 
-    <!-- ── Section 8: Proximity & Amenity ──────────────────────────────── -->
-    <details v-if="property && (p.closest_school || p.closest_hospital || p.closest_railway_station)" class="rpt-section" open>
-      <summary class="rpt-section-title">Proximity & Amenity</summary>
-      <div class="facts-grid">
-        <div class="fact" v-if="p.walkable_score"><span class="fact-label">Walk Score</span><span class="fact-value fact-value--num">{{ p.walkable_score }}</span></div>
-        <div class="fact" v-if="p.closest_school"><span class="fact-label">Nearest School</span><span class="fact-value">{{ p.closest_school }} <span class="fact-sub">{{ p.closest_school_distance_m ? Number(p.closest_school_distance_m).toFixed(0) + 'm' : '' }}</span></span></div>
-        <div class="fact" v-if="p.closest_hospital"><span class="fact-label">Nearest Hospital</span><span class="fact-value">{{ p.closest_hospital }} <span class="fact-sub">{{ p.closest_hospital_distance_m ? Number(p.closest_hospital_distance_m).toFixed(0) + 'm' : '' }}</span></span></div>
-        <div class="fact" v-if="p.closest_railway_station"><span class="fact-label">Nearest Station</span><span class="fact-value">{{ p.closest_railway_station }} <span class="fact-sub">{{ p.closest_railway_station_distance_m ? Number(p.closest_railway_station_distance_m).toFixed(0) + 'm' : '' }}</span></span></div>
-        <div class="fact" v-if="p.estimated_price"><span class="fact-label">Est. Price</span><span class="fact-value fact-value--num">${{ Number(p.estimated_price).toLocaleString() }}</span></div>
-        <div class="fact" v-if="p.no_of_beds"><span class="fact-label">Beds / Baths / Cars</span><span class="fact-value">{{ p.no_of_beds || '–' }} / {{ p.no_of_baths || '–' }} / {{ p.no_of_cars || '–' }}</span></div>
-      </div>
+
+
+    <!-- ── Governing planning documents ────────────────────────────────
+         Which instruments this report draws on, and as at when. A planning
+         report that cites clauses without naming the consolidation they came
+         from cannot be checked, and the version actually held is not always
+         the one the property record names. -->
+    <details v-if="governingDocs.length" class="rpt-section" open>
+      <summary class="rpt-section-title">Governing Planning Documents ({{ governingDocs.length }})</summary>
+      <p v-if="dcpNameMismatch" class="rules-mismatch">
+        The property record names <strong>{{ p?.dcp_plan_name }}</strong> as the DCP for
+        this lot, but the version held here is {{ ruleSourceLabel }}. Clause numbers
+        below follow the version held.
+      </p>
+      <table class="rules-table">
+        <thead><tr><th>Instrument</th><th>Type</th><th>Current to</th></tr></thead>
+        <tbody>
+          <template v-for="d in governingDocRows" :key="d.slug">
+            <tr :class="{ 'docnote-parent': d.notes.length }">
+              <td>
+                <a v-if="d.viewerHref" :href="d.viewerHref" class="rules-cite">{{ d.title }}</a>
+                <span v-else>{{ d.title }}</span>
+              </td>
+              <td class="rules-cond">{{ d.docType.toUpperCase() }}</td>
+              <td class="rules-cond">{{ d.asAt ? fmtDate(d.asAt) : 'not recorded' }}</td>
+            </tr>
+            <!-- Everything the instrument says about its own dates that a
+                 single "current to" cell cannot carry: when it commenced if
+                 that is a different day, what it saves, and what is not in it
+                 yet. Randwick DCP 2025 has all three, and the report used to
+                 state none of them. -->
+            <tr v-if="d.notes.length" class="docnote-row">
+              <td colspan="3">
+                <p v-for="(n, i) in d.notes" :key="i" :class="['docnote', n.emphasis ? 'docnote--warn' : '']">
+                  <span class="docnote-label">{{ n.label }}</span>{{ n.text }}
+                </p>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
     </details>
-
-    <!-- ── Permitted uses ──────────────────────────────────────────────── -->
-    <details v-if="permittedUses.length > 0" class="rpt-section" open>
-      <summary class="rpt-section-title">Permitted Uses in Zone {{ p?.zone }} ({{ permittedUses.length }})</summary>
-      <div class="uses-hint">Click a use to pull its LEP / SEPP / DCP controls for this lot.</div>
-      <div class="uses-list">
-        <button
-          v-for="u in permittedUses"
-          :key="u"
-          type="button"
-          :class="['use-chip', 'use-chip--clickable', selectedUse === u && 'use-chip--active']"
-          :disabled="useAnalysisLoading"
-          @click="selectUse(u)"
-        >{{ u }}</button>
-      </div>
-
-      <!-- Use-specific controls panel (planner persona only) -->
-      <div v-if="selectedUse" class="use-analysis">
-        <div class="use-analysis-header">
-          <span class="use-analysis-label">Controls for</span>
-          <span class="use-analysis-use">{{ selectedUse }}</span>
-          <span v-if="useAnalysisLoading" class="use-analysis-loading">analysing…</span>
-          <button v-if="!useAnalysisLoading" class="use-analysis-close" type="button" @click="clearSelectedUse">Close</button>
-        </div>
-
-        <div v-for="inst in ['lep', 'sepp', 'dcp'] as const" :key="inst"
-             v-show="useStreams[inst].text || useAnalysisLoading"
-             :class="['instrument-section', 'instrument-section--' + inst]">
-          <div class="instrument-header">
-            <span :class="['instrument-badge', 'instrument-badge--' + inst]">{{ inst.toUpperCase() }}</span>
-            {{ inst.toUpperCase() }} Findings
-          </div>
-          <div v-if="useStreamsProxy[inst].text" class="answer-body" v-html="useStreamsProxy[inst].html"></div>
-          <div v-else class="answer-loading">Searching {{ inst.toUpperCase() }}…</div>
-        </div>
-
-        <div v-if="useStreamsCitations.length > 0" class="sources-section">
-          <h3 class="sources-heading">Sources ({{ useStreamsCitations.length }})</h3>
-          <div class="sources-list">
-            <div v-for="c in useStreamsCitations" :key="c.number" class="source-item">
-              <span class="source-num">{{ c.number }}</span>
-              <span :class="['source-badge', 'source-badge--' + c.doc_type]">{{ c.doc_type.toUpperCase() }}</span>
-              <span class="source-label"><strong>{{ c.document_short }}</strong> {{ c.citation_label }}</span>
-              <a v-if="c.clause_url" :href="c.clause_url" target="_blank" rel="noopener" class="source-link">View source</a>
-              <p v-if="c.source_quote" class="source-quote">{{ c.source_quote }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </details>
-
-    <!-- Planning Summary — split into LEP / SEPP / DCP sections.
-         Shown for every report. -->
-    <div v-if="answerHtml || loading" class="answer-section">
-      <h2 class="answer-heading">Planning Summary</h2>
-      <div v-if="loading && !answerText" class="answer-loading">Analysing planning instruments…</div>
-
-      <div v-if="splitSections.lep" class="instrument-section instrument-section--lep">
-        <div class="instrument-header"><span class="instrument-badge instrument-badge--lep">LEP</span> LEP Findings</div>
-        <div class="answer-body" v-html="splitSections.lep"></div>
-      </div>
-
-      <div v-if="splitSections.sepp" class="instrument-section instrument-section--sepp">
-        <div class="instrument-header"><span class="instrument-badge instrument-badge--sepp">SEPP</span> SEPP Findings</div>
-        <div class="answer-body" v-html="splitSections.sepp"></div>
-      </div>
-
-      <div v-if="splitSections.dcp" class="instrument-section instrument-section--dcp">
-        <div class="instrument-header"><span class="instrument-badge instrument-badge--dcp">DCP</span> DCP Findings</div>
-        <div class="answer-body" v-html="splitSections.dcp"></div>
-      </div>
-
-      <!-- Fallback if LLM didn't follow the 3-section format -->
-      <div v-if="!splitSections.lep && !splitSections.sepp && !splitSections.dcp && answerHtml" class="answer-body" v-html="answerHtml"></div>
-    </div>
 
     <!-- Citations -->
     <div v-if="citations.length > 0" class="sources-section">
@@ -1116,6 +1225,8 @@
       This report is for testing purposes only. It covers a limited set of NSW planning instruments.
       Always verify with official sources and consult a qualified planner before making decisions.
     </div>
+
+    </div><!-- /report-main -->
   </div>
 </template>
 
@@ -1123,13 +1234,15 @@
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { haversine, pathLength, ringArea, fmtDistance, fmtArea } from '#shared/geo-measure.mjs'
 import { renderMarkdownWithCitations, type Citation } from '~/utils/citation-render'
+import { resolveLmr } from '#shared/lmr-standards'
 import {
-  conditionLabel, DEV_TYPE_LABEL, unitLooksWrong, matchesLotSizeBand,
+  conditionLabel, unitLooksWrong, matchesLotSizeBand,
   bandSupersededIdentities, isBandSuperseded,
 } from '#shared/dcp-scope'
 import { martinTileBase } from '#shared/martin'
 import { formatDay } from '#shared/dates'
 import { DCP_SLUG_BY_LGA } from '#shared/property-columns'
+import type { ZoneDetail } from '#shared/lep-permissibility'
 // Categorising and labelling the whole row, so the sections below can name the
 // fields they curate and a catch-all can still show everything else.
 import { categorise, patternEligibility, humanise } from '#shared/property-fields'
@@ -1259,15 +1372,6 @@ let mapInitStarted = false
  * tabular figures and the unit demoted — a row of nine chips reading
  * "14.10m 1.19m 12.14m" is a wall of same-weight text where nothing lines up.
  */
-const edgeMeasurements = computed(() => {
-  const raw = p.value?.all_edges_measurements
-  if (!raw) return []
-  return String(raw).split(',').map((s: string) => s.trim()).filter(Boolean)
-    .map((s: string) => {
-      const m = s.match(/^([\d.]+)\s*(.*)$/)
-      return m ? { value: m[1]!, unit: m[2] || 'm' } : { value: s, unit: '' }
-    })
-})
 
 /** "THORNLEIGH:39.67m,WOOD:36.52m" -> [{ road, value, unit }, …] */
 const frontageItems = computed(() => {
@@ -1513,11 +1617,11 @@ async function initMap() {
  * rather than one filtered parcel: the surrounding cadastre is what makes a
  * boundary legible, and the map is already centred on the searched address.
  *
- * Not `up_property_d_3`, despite that being the table the report reads its
- * facts from. The tile server publishes that table on its centroid column, so
- * every feature in it is a Point, and fill and line layers over point geometry
- * draw nothing at all and raise no error - the map came back as a bare aerial
- * with no way to tell why.
+ * Not the property table the report reads its facts from (`up_property_d_4`,
+ * and `up_property_d_3` before it). The tile server publishes that table on its
+ * centroid column, so every feature in it is a Point, and fill and line layers
+ * over point geometry draw nothing at all and raise no error - the map came
+ * back as a bare aerial with no way to tell why.
  */
 /**
  * The lot layers, drawn the way /prop-width draws them.
@@ -1534,8 +1638,63 @@ async function initMap() {
  */
 const LOT_SRC = 'martin:lot'
 const LOT_LAYER = 'lot_metrics_3'
-const EDGE_SRC = 'martin:lot-edges'
-const EDGE_LAYER = 'lot_metrics_3_edges'
+/**
+ * The frontage runs, drawn from the same route /frontage draws them from.
+ *
+ * The map used to state the frontage as a text caption over the parcel. Drawn
+ * as geometry it says which boundary is the frontage, which a caption cannot,
+ * and a corner lot's two runs read as two lines rather than one number.
+ *
+ * Colours are /frontage's, in run order, so a lot looked at on both pages is
+ * coloured the same on each.
+ */
+const RUN_COLOURS = ['#e11d48', '#2563eb', '#f59e0b', '#10b981', '#a855f7']
+const FRONTAGE_SRC = 'report:frontage-runs'
+
+async function drawFrontageRuns() {
+  const map = mapInstance
+  const lot = String(property.value?.lot_section_plan ?? '').trim().toUpperCase()
+  if (!map || !lot) return
+
+  let runs: any[] = []
+  try {
+    const res: any = await $fetch('/api/frontage', { query: { lot } })
+    runs = Array.isArray(res?.runs) ? res.runs : []
+  } catch {
+    // A lot the cadastre cannot resolve still gets a map; it just has no
+    // frontage drawn on it, which is the honest result rather than an error.
+    return
+  }
+  if (!runs.length || !map.isStyleLoaded()) return
+
+  const data = {
+    type: 'FeatureCollection' as const,
+    features: runs
+      .filter((r: any) => Array.isArray(r?.coords) && r.coords.length > 1)
+      .map((r: any, i: number) => ({
+        type: 'Feature' as const,
+        properties: { colour: RUN_COLOURS[i % RUN_COLOURS.length] },
+        geometry: { type: 'LineString' as const, coordinates: r.coords },
+      })),
+  }
+  if (!data.features.length) return
+
+  const existing = map.getSource(FRONTAGE_SRC) as any
+  if (existing) { existing.setData(data); return }
+
+  map.addSource(FRONTAGE_SRC, { type: 'geojson', data })
+  map.addLayer({
+    id: 'report-frontage-runs',
+    type: 'line',
+    source: FRONTAGE_SRC,
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
+      'line-color': ['get', 'colour'],
+      'line-width': ['interpolate', ['linear'], ['zoom'], 15, 3, 19, 7],
+      'line-opacity': 0.95,
+    },
+  })
+}
 
 /**
  * Tile server base, resolved during setup.
@@ -1610,103 +1769,13 @@ function addLotLayer(lat: number, lng: number) {
       },
       layout: { 'line-cap': 'round', 'line-join': 'round' },
     })
-    map.addLayer({
-      id: 'lot-label',
-      type: 'symbol',
-      source: LOT_SRC,
-      'source-layer': LOT_LAYER,
-      minzoom: 17,
-      layout: {
-        // Strata parcels carry no lotnumber, and concatenating regardless
-        // labelled them "/SP99840". Drop the separator when there is no lot.
-        'text-field': [
-          'case',
-          ['all', ['has', 'lotnumber'], ['!=', ['to-string', ['get', 'lotnumber']], '']],
-          ['concat', ['to-string', ['get', 'lotnumber']], '/', ['to-string', ['get', 'planlabel']]],
-          ['to-string', ['get', 'planlabel']],
-        ],
-        'text-size': 10,
-        'text-allow-overlap': false,
-      },
-      paint: {
-        'text-color': '#fff',
-        'text-halo-color': 'rgba(0,0,0,0.7)',
-        'text-halo-width': 1.2,
-      },
-    })
-
-    // ── Boundary edges, straight from the tile ─────────────────────────────
-    map.addSource(EDGE_SRC, {
-      type: 'vector',
-      tiles: [`${martinBase}/${EDGE_LAYER}/{z}/{x}/{y}`],
-      minzoom: 0,
-      maxzoom: 22,
-    })
-    map.addLayer({
-      id: 'lot-edge-line',
-      type: 'line',
-      source: EDGE_SRC,
-      'source-layer': EDGE_LAYER,
-      minzoom: 16,
-      paint: {
-        'line-color': '#fbbf24',
-        'line-width': ['interpolate', ['linear'], ['zoom'], 16, 1.4, 19, 3],
-        'line-opacity': 0.85,
-      },
-      layout: { 'line-cap': 'round' },
-    })
-    // The edge's own recorded length, along the edge it belongs to.
-    // `number-format` only sets the decimal places; the value is verbatim.
-    map.addLayer({
-      id: 'lot-edge-label',
-      type: 'symbol',
-      source: EDGE_SRC,
-      'source-layer': EDGE_LAYER,
-      minzoom: 17,
-      layout: {
-        'text-field': [
-          'concat',
-          ['number-format', ['get', 'edge_length_m'], { 'max-fraction-digits': 2 }],
-          ' m',
-        ],
-        'symbol-placement': 'line-center',
-        'text-size': ['interpolate', ['linear'], ['zoom'], 17, 10.5, 19, 13],
-        'text-max-angle': 25,
-        'text-padding': 3,
-        'text-offset': [0, -0.8],
-      },
-      paint: {
-        'text-color': '#7c2d12',
-        'text-halo-color': '#ffffff',
-        'text-halo-width': 2,
-      },
-    })
-    // The lot's recorded frontage road and length, both off lot_metrics_3.
-    map.addLayer({
-      id: 'lot-frontage-label',
-      type: 'symbol',
-      source: LOT_SRC,
-      'source-layer': LOT_LAYER,
-      minzoom: 17,
-      filter: ['has', 'primary_frontage_road'],
-      layout: {
-        'text-field': [
-          'concat',
-          ['get', 'primary_frontage_road'],
-          ' · ',
-          ['number-format', ['get', 'primary_frontage_length_m'], { 'max-fraction-digits': 2 }],
-          ' m',
-        ],
-        'text-size': ['interpolate', ['linear'], ['zoom'], 17, 10.5, 19, 13],
-        'text-padding': 4,
-      },
-      paint: {
-        'text-color': '#7f1d1d',
-        'text-halo-color': '#ffffff',
-        'text-halo-width': 2.2,
-      },
-    })
   }
+
+  // No text on the map, the way /frontage draws it. The lot and edge labels
+  // and the frontage caption were three symbol layers competing for the same
+  // few hundred pixels over the subject lot; the numbers they carried are all
+  // in the panel beside the map, where they can be read rather than dodged.
+  // The frontage is drawn instead — see drawFrontageRuns.
 
   new mapboxgl.Marker({ color: '#15803d', scale: 0.7 })
     .setLngLat([lng, lat])
@@ -1718,6 +1787,9 @@ function addLotLayer(lat: number, lng: number) {
       </div>`
     ))
     .addTo(map)
+
+  // After the lot layers, so the runs sit on top of the parcel fill.
+  drawFrontageRuns()
 }
 
 function onMapToggle(e: Event) {
@@ -1745,6 +1817,15 @@ const answerHtml = computed(() => {
 })
 
 // Split the rendered HTML into LEP / SEPP / DCP sections by looking for the h2 headings
+/**
+ * Kept while the Planning Summary section is out of the page.
+ *
+ * Nothing renders these today — the section that did was removed on request,
+ * "for now". A Vue computed nobody reads never evaluates, so they cost nothing
+ * standing here, and keeping them means restoring the section is pasting the
+ * template block back rather than rebuilding the split. Delete both if the
+ * decision becomes permanent.
+ */
 const splitSections = computed(() => {
   const html = answerHtml.value
   if (!html) return { lep: '', sepp: '', dcp: '' }
@@ -1775,6 +1856,128 @@ const splitSections = computed(() => {
 
 // Shorthand for template
 const p = computed(() => property.value || {} as any)
+
+// ── Index of sections ──────────────────────────────────────────────────────
+// Read off the DOM after each render rather than declared, because nearly
+// every section is conditional on what the lot has and several carry counts
+// in their titles. Each section gets a stable id from its title the first time
+// it is seen, so a link to it survives re-renders. A folded <details> section
+// is opened before it is scrolled to, or the jump would land on a bare title.
+interface IndexItem { id: string, title: string, el: HTMLElement }
+const mainEl = ref<HTMLElement | null>(null)
+const indexItems = shallowRef<IndexItem[]>([])
+const activeIndexId = ref('')
+const indexOpen = ref(true)
+
+const INDEX_SELECTOR = '.facts-card, details.rpt-section, .sources-section, .followup-section'
+
+/** The heading text without its count badge: "Zoning history", not "Zoning history 3 recorded". */
+function sectionTitle(el: HTMLElement): string {
+  const head = el.querySelector(':scope > summary, :scope > h2')
+  if (!head) return ''
+  // Text and elements only: a false v-if leaves a comment node whose text is "v-if".
+  return Array.from(head.childNodes)
+    .filter(n => n.nodeType === Node.TEXT_NODE || (n instanceof Element && !n.classList.contains('rpt-count')))
+    .map(n => n.textContent ?? '')
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+let indexRaf = 0
+function rescanIndex() {
+  if (typeof window === 'undefined') return
+  cancelAnimationFrame(indexRaf)
+  indexRaf = requestAnimationFrame(() => {
+    const root = mainEl.value
+    if (!root) return
+    const items: IndexItem[] = []
+    for (const el of Array.from(root.querySelectorAll<HTMLElement>(INDEX_SELECTOR))) {
+      const title = sectionTitle(el)
+      if (!title) continue
+      if (!el.id) {
+        el.id = 'sec-' + title.toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      }
+      items.push({ id: el.id, title, el })
+    }
+    // The page re-renders on every streamed chunk; only swap the list when it changed.
+    const prev = indexItems.value
+    const same = items.length === prev.length && items.every((it, i) => it.id === prev[i]!.id && it.title === prev[i]!.title)
+    if (!same) indexItems.value = items
+    updateActiveIndex()
+  })
+}
+
+/** The last section whose top has passed the top of the viewport. */
+let pinnedUntil = 0
+function updateActiveIndex() {
+  // A click has just named the section; do not let the scroll-spy contradict
+  // it while the smooth scroll is still travelling, or when the page ends
+  // before the section can reach the top.
+  if (Date.now() < pinnedUntil) return
+  let current = ''
+  for (const it of indexItems.value) {
+    if (it.el.getBoundingClientRect().top <= 120) current = it.id
+    else break
+  }
+  activeIndexId.value = current || indexItems.value[0]?.id || ''
+}
+
+function jumpTo(it: IndexItem) {
+  activeIndexId.value = it.id
+  pinnedUntil = Date.now() + 1500
+  if (it.el instanceof HTMLDetailsElement) it.el.open = true
+  it.el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  history.replaceState(null, '', '#' + it.id)
+}
+
+onMounted(() => {
+  rescanIndex()
+  window.addEventListener('scroll', updateActiveIndex, { passive: true })
+  // Folded on a phone, where it would otherwise sit between the title and the report.
+  const narrow = window.matchMedia('(max-width: 900px)')
+  indexOpen.value = !narrow.matches
+  narrow.addEventListener('change', e => { indexOpen.value = !e.matches })
+})
+onUpdated(rescanIndex)
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', updateActiveIndex)
+  cancelAnimationFrame(indexRaf)
+})
+
+// ── Land Use Table for the lot's zone ──────────────────────────────────────
+// The property record names the plan and the zone code; /api/lep-permissibility
+// resolves both. A split lot ("RU1, C3") gets one table per zone, and a lot on
+// a council boundary can name two plans, so each name is tried in turn.
+interface LandUseTable { code: string, detail: ZoneDetail | null, error: string | null }
+const landUseTables = ref<LandUseTable[]>([])
+
+function splitList(v: unknown): string[] {
+  return String(v ?? '').split(',').map(s => s.trim()).filter(Boolean)
+}
+
+watch(() => [p.value?.zone, p.value?.lzn_epi_name_p, p.value?.lep_name], loadLandUseTables, { immediate: true })
+
+async function loadLandUseTables() {
+  const codes = splitList(p.value?.zone)
+  // The zoning map's own instrument first: it is the plan the zone was read from.
+  const names = [...new Set([...splitList(p.value?.lzn_epi_name_p), ...splitList(p.value?.lep_name)])]
+  if (!codes.length || !names.length) { landUseTables.value = []; return }
+  landUseTables.value = codes.map(code => ({ code, detail: null, error: null }))
+  await Promise.all(landUseTables.value.map(async (t) => {
+    let lastMessage = 'No Land Use Table for this zone.'
+    for (const name of names) {
+      try {
+        const res: any = await $fetch('/api/lep-permissibility', { query: { name, code: t.code } })
+        if (res.ok) { t.detail = res; return }
+        lastMessage = res.message || lastMessage
+      } catch (err) {
+        lastMessage = (err as Error).message
+      }
+    }
+    t.error = lastMessage
+  }))
+}
 
 // Init map when property data arrives
 watch(() => property.value?.centroid_lat, () => {
@@ -1861,11 +2064,6 @@ const TOPIC_LABEL: Record<string, string> = {
   open_space: 'Private open space', site_coverage: 'Site coverage', height: 'Height',
   floor_area: 'Floor area', lot_size: 'Lot size', density: 'Density', fsr: 'Floor space ratio',
   width: 'Width', privacy: 'Privacy', solar_access: 'Solar access', deep_soil: 'Deep soil',
-}
-
-/** Title case for a land use as the DCP writes it ("dual occupancy"). */
-function useLabel(v: string) {
-  return String(v || '').replace(/^./, c => c.toUpperCase())
 }
 
 /**
@@ -2028,38 +2226,300 @@ const subdivisionGroups = computed(() => {
     .sort((a, b) => a.heading.localeCompare(b.heading))
 })
 
-const numericRuleGroups = computed(() => {
-  const byScope = new Map<string, any[]>()
-  // Subdivision controls are answered in their own section, beside the LEP
-  // minimums they qualify, rather than repeated here.
-  for (const r of siteRules.value.filter(r => !isSubdivisionRule(r))) {
-    const key = `${r.axis}|${r.applies_to}`
-    if (!byScope.has(key)) byScope.set(key, [])
-    byScope.get(key)!.push(r)
+/**
+ * Grouped by topic, the way /frontage groups it.
+ *
+ * The report used to group by what each control applies to — one block per
+ * land use, one per development type. That answers "what does this plan say
+ * about dual occupancies", which is the question you have when reading the
+ * plan. Beside a specific lot the question is "what is the side setback", and
+ * for that the controls have to be under Setbacks whichever scope stated them.
+ *
+ * `buildRules` is unchanged and still does the work that matters: collapsing
+ * the several values one clause can state for a control into a single row
+ * rather than printing four front setbacks as four findings.
+ */
+const TOPIC_ORDER = [
+  'setback', 'height', 'fsr', 'floor_area', 'site_coverage', 'lot_size', 'width',
+  'landscaping', 'deep_soil', 'open_space', 'parking', 'density', 'privacy',
+  'solar_access',
+]
+
+const topicRuleGroups = computed(() => {
+  const rows = (dcpScopedRules.value ?? siteRules.value).filter(r => !isSubdivisionRule(r))
+  const byTopic = new Map<string, any[]>()
+  for (const r of rows) {
+    const key = String(r.topic ?? 'unspecified')
+    if (!byTopic.has(key)) byTopic.set(key, [])
+    byTopic.get(key)!.push(r)
   }
-
-  const groups = [...byScope.entries()].map(([key, rows]) => {
-    const axis = rows[0].axis as string
-    const appliesTo = String(rows[0].applies_to ?? '')
-    return {
-      key,
-      axis,
-      appliesTo,
-      label: axis === 'land_use' ? useLabel(appliesTo) : ((DEV_TYPE_LABEL as Record<string, string>)[appliesTo] || appliesTo),
-      note: axis === 'land_use'
-        ? 'Controls the DCP states for this use.'
-        : 'Controls in this part of the DCP that name no specific land use, so they apply to development of this type generally.',
-      rules: buildRules(rows),
-    }
-  })
-
-  // Specific before general, then the better-evidenced group first.
-  return groups.sort((a, b) =>
-    (a.axis === b.axis ? b.rules.length - a.rules.length : a.axis === 'land_use' ? -1 : 1))
+  return [...byTopic.entries()]
+    .map(([topic, list]) => ({
+      key: topic,
+      topic,
+      label: (TOPIC_LABEL as Record<string, string>)[topic] || topic.replace(/_/g, ' '),
+      rules: buildRules(list),
+    }))
+    .sort((a, b) => {
+      const ia = TOPIC_ORDER.indexOf(a.topic)
+      const ib = TOPIC_ORDER.indexOf(b.topic)
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib)
+    })
 })
 
 const numericRuleCount = computed(() =>
-  numericRuleGroups.value.reduce((n, g) => n + g.rules.length, 0))
+  topicRuleGroups.value.reduce((n, g) => n + g.rules.length, 0))
+
+/**
+ * The LMR policy resolved for this lot.
+ *
+ * Not read from `lmr_permissible` / `lmr_height_rfb`: those are the stored
+ * columns aggregated with STRING_AGG(DISTINCT ...) across every LMR land use
+ * the lot permits, so "RFB Height" on an R3 lot reads "24.0, 22.0, 9.5" where
+ * 24 m is shop top housing's and 9.5 m the low-rise ones. resolveLmr derives
+ * the per-use standards from the zone and band instead, which is what the
+ * notebook keyed its join on.
+ */
+const lmr = computed(() => resolveLmr(property.value))
+
+// ── Stored dimensions ──────────────────────────────────────────────────────
+/**
+ * The frontage and dimension columns d_4 holds, read from the route that
+ * serves /frontage's Dimensions panel.
+ *
+ * This grid used to pick its own six columns off the property record, and two
+ * of them disagreed with the frontage page for the same lot: it printed
+ * `min_width_m` as "Min width" where the panel printed `width` as "Width at
+ * setback", which is the width measured at the 4.5 m setback line — a
+ * different measurement, not a rounding difference. Reading one endpoint means
+ * the figure, its label and its derivation come from a single place.
+ */
+const dimFields = ref<any[]>([])
+const dimsPending = ref(false)
+const dimsError = ref('')
+let dimsFor = ''
+
+const dimEmpty = (v: any) => v === null || v === undefined || v === '' || v === 'null'
+
+/** 't'/'f' on some copies of the table, real booleans on others. */
+const DIM_TRUTHY = new Set(['true', 't', 'yes', 'y', '1'])
+
+function dimValue(f: any): string {
+  const v = f.value
+  if (dimEmpty(v)) return '—'
+  if (f.kind === 'bool') {
+    return (typeof v === 'boolean' ? v : DIM_TRUTHY.has(String(v).toLowerCase())) ? 'Yes' : 'No'
+  }
+  const num = Number(v)
+  if (f.kind === 'metres') return Number.isFinite(num) ? `${num.toFixed(2)} m` : String(v)
+  if (f.kind === 'ratio') return Number.isFinite(num) ? num.toFixed(4) : String(v)
+  return String(v)
+}
+
+/** "BROMLEY STREET:3.09m,…" as one line per run, primary first. */
+function dimRuns(v: any): string[] {
+  if (dimEmpty(v)) return []
+  return String(v).split(',').map(x => x.trim()).filter(Boolean).map((x) => {
+    const i = x.lastIndexOf(':')
+    if (i < 0) return x
+    return `${x.slice(0, i)} · ${x.slice(i + 1).replace(/m$/, ' m')}`
+  })
+}
+
+async function loadDims() {
+  const lot = String(property.value?.lot_section_plan ?? '').trim().toUpperCase()
+  if (!lot || dimsFor === lot) return
+  dimsPending.value = true
+  dimsError.value = ''
+  try {
+    const res: any = await $fetch('/api/frontage-metrics', { query: { lot } })
+    if (res?.ok) {
+      dimFields.value = res.fields
+      dimsFor = lot
+    } else {
+      dimFields.value = []
+      dimsError.value = res?.message ?? 'No stored dimensions for this lot.'
+    }
+  } catch (e: any) {
+    dimFields.value = []
+    dimsError.value = String(e?.data?.message || e?.message || e)
+  } finally {
+    dimsPending.value = false
+  }
+}
+
+watch(() => property.value?.lot_section_plan, (lot) => { if (lot) loadDims() }, { immediate: true })
+
+// ── The boundary, for the sketch ─────────────────────────────────────────────
+// /api/frontage computes the lot's shape from the live cadastre: its ring, one
+// record per boundary edge, the frontage runs with their road names, and a
+// depth-by-width sweep. drawFrontageRuns asks the same route once the map is
+// up; the route caches per process, so the second call costs nothing.
+const frontageData = ref<any | null>(null)
+const frontageError = ref('')
+let frontageFor = ''
+
+async function loadFrontage() {
+  const lot = String(property.value?.lot_section_plan ?? '').trim().toUpperCase()
+  if (!lot || frontageFor === lot) return
+  frontageFor = lot
+  frontageData.value = null
+  frontageError.value = ''
+  try {
+    const res: any = await $fetch('/api/frontage', { query: { lot } })
+    if (res?.ok && Array.isArray(res.ring) && res.ring.length > 3) frontageData.value = res
+    else frontageError.value = res?.message ?? 'The cadastre holds no boundary for this lot.'
+  } catch (e: any) {
+    frontageError.value = String(e?.data?.message || e?.message || e)
+  }
+}
+watch(() => property.value?.lot_section_plan, (lot) => { if (lot) loadFrontage() }, { immediate: true })
+
+/** A stored dimension column as a number, or null when the record has none. */
+function factNumber(column: string): number | null {
+  const f = dimFields.value.find((x: any) => x.column === column)
+  if (!f || dimEmpty(f.value)) return null
+  const n = Number(f.value)
+  return Number.isFinite(n) ? n : null
+}
+function factText(column: string): string | null {
+  const f = dimFields.value.find((x: any) => x.column === column)
+  return f && !dimEmpty(f.value) ? String(f.value) : null
+}
+function factDefinition(column: string): string {
+  return dimFields.value.find((x: any) => x.column === column)?.definition ?? ''
+}
+/** "GREENVALE GROVE" → "Greenvale Grove". */
+function titleCase(s: string): string {
+  return s.toLowerCase().replace(/\b[a-z]/g, ch => ch.toUpperCase())
+}
+
+/**
+ * The figures a control is tested against, in the order a planner reads them:
+ * how big, how wide at the street, how deep, how wide where the house goes,
+ * how narrow it ever gets. From the property record, so a screenshot of the
+ * strip shows what the table stores; the sketch's dimension lines carry the
+ * same numbers. A battle-axe adds its handle and the area left once the
+ * handle is taken off, which is the figure an LEP lot-size clause wants.
+ */
+const lotFacts = computed(() => {
+  const fmt = (n: number | null, d = 1) => (n == null ? null : n.toFixed(d))
+  const area = p.value?.area_sqm != null && p.value.area_sqm !== '' ? Number(p.value.area_sqm) : null
+  const road = factText('primary_frontage_road')
+  const depth = factNumber('lot_depth_m')
+  const core = factNumber('do_depth')
+  const fd = frontageData.value
+  const out: Array<{ key: string, label: string, value: string | null, unit: string, detail: string | null, definition: string }> = [
+    { key: 'area', label: 'Area', value: area != null && Number.isFinite(area) ? Math.round(area).toLocaleString() : null, unit: 'm²', detail: null, definition: 'Site area from the cadastre.' },
+    { key: 'frontage', label: 'Frontage', value: fmt(factNumber('primary_frontage_length_m'), 2), unit: 'm', detail: road ? titleCase(road) : null, definition: factDefinition('primary_frontage_length_m') },
+    { key: 'depth', label: 'Depth', value: fmt(depth), unit: 'm', detail: core != null && depth != null && Math.abs(core - depth) > 0.05 ? `${fmt(core)} m past the handle` : null, definition: factDefinition('lot_depth_m') },
+    { key: 'width', label: 'Width at setback', value: fmt(factNumber('width')), unit: 'm', detail: '4.5 m in from the street', definition: factDefinition('width') },
+    { key: 'narrowest', label: 'Narrowest width', value: fmt(factNumber('do_width')), unit: 'm', detail: 'handle excluded', definition: factDefinition('do_width') },
+  ]
+  if (fd?.is_battleaxe && fd.handle_length_m) {
+    const w = fd.stem_width_m ?? fd.handle_neck_min_m
+    out.push({
+      key: 'handle', label: 'Access handle',
+      value: w ? `${fmt(w)} × ${fmt(fd.handle_length_m)}` : fmt(fd.handle_length_m), unit: 'm',
+      detail: fd.effective_area_sqm ? `${Math.round(fd.effective_area_sqm).toLocaleString()} m² without it` : null,
+      definition: 'The strip that reaches the street. LEP lot-size clauses exclude it from the area.',
+    })
+  }
+  return out
+})
+
+/** What kind of lot this is, in a line of tags under the figures. */
+const lotTags = computed(() => {
+  const v = p.value
+  const fd = frontageData.value
+  const tags: Array<{ text: string, tone?: 'green' | 'amber' | 'muted' }> = []
+  if (isYes(v?.is_corner_lot)) tags.push({ text: 'Corner lot', tone: 'green' })
+  if (isYes(v?.is_battleaxe)) tags.push({ text: 'Battle-axe', tone: 'amber' })
+  if (fd?.is_through_lot) tags.push({ text: 'Through lot', tone: 'green' })
+  const roads = frontageItems.value.map((f: any) => titleCase(String(f.road)))
+  if (roads.length) {
+    tags.push({ text: `${roads.length} ${roads.length === 1 ? 'frontage' : 'frontages'} · ${roads.join(', ')}` })
+  } else if (v?.num_frontages) {
+    tags.push({ text: `${v.num_frontages} frontage(s)` })
+  }
+  if (fd?.edges?.length) {
+    tags.push({ text: `${fd.edges.length} boundaries · ${Number(fd.perimeter_m).toFixed(1)} m around`, tone: 'muted' })
+  }
+  return tags
+})
+
+// ── DCP scope picker ───────────────────────────────────────────────────────
+/**
+ * Re-scope the control table to one use, through the same endpoint /frontage
+ * uses.
+ *
+ * The report's own rules arrive on the SSE stream scoped to every use the zone
+ * permits, which is right for "what governs this land" and useless for "what
+ * governs this proposal" — on a Hornsby R2 lot it returned the same 160
+ * controls for a dwelling house as for a dual occupancy. /api/frontage-dcp
+ * narrows to the chosen use and applies specific-beats-general per control, so
+ * asking it here means the two pages cannot drift: one query shape, one answer.
+ */
+const dcpUseOptions = [
+  'dwelling house', 'dual occupancy', 'secondary dwelling',
+  'multi dwelling housing', 'residential flat building', 'shop top housing',
+]
+const dcpDevTypeOptions = [
+  'residential', 'business', 'industrial', 'rural',
+  'community', 'heritage', 'river_settlement', 'subdivision',
+]
+
+const dcpUse = ref('dwelling house')
+const dcpDevType = ref('')
+/** null means "the zone-wide set the stream delivered" — the default. */
+const dcpScopedRules = ref<any[] | null>(null)
+const dcpScopePending = ref(false)
+const dcpScopeError = ref('')
+
+function resetDcpScope() {
+  dcpScopedRules.value = null
+  dcpScopeError.value = ''
+  dcpUse.value = 'dwelling house'
+  dcpDevType.value = ''
+}
+
+let dcpScopeSeq = 0
+async function loadDcpScope() {
+  const lot = String(property.value?.lot_section_plan ?? '').trim().toUpperCase()
+  if (!lot) return
+  const seq = ++dcpScopeSeq
+  dcpScopePending.value = true
+  dcpScopeError.value = ''
+  try {
+    const res: any = await $fetch('/api/frontage-dcp', {
+      query: {
+        lot,
+        use: dcpUse.value,
+        ...(dcpDevType.value ? { devType: dcpDevType.value } : {}),
+      },
+    })
+    if (seq !== dcpScopeSeq) return
+    if (!res?.ok) {
+      dcpScopeError.value = res?.message ?? 'Could not scope the DCP controls.'
+      dcpScopedRules.value = null
+    } else if (!res.covered) {
+      dcpScopeError.value = res.message
+      dcpScopedRules.value = null
+    } else {
+      dcpScopedRules.value = res.groups.flatMap((g: any) => g.rules)
+    }
+  } catch (e: any) {
+    if (seq !== dcpScopeSeq) return
+    dcpScopeError.value = String(e?.data?.message || e?.message || e)
+    dcpScopedRules.value = null
+  } finally {
+    if (seq === dcpScopeSeq) dcpScopePending.value = false
+  }
+}
+
+// Only on a deliberate change: the stream's zone-wide set is the default view,
+// and fetching on load would narrow the report before anyone asked.
+watch([dcpUse, dcpDevType], () => loadDcpScope())
 
 /**
  * The document these clauses are actually in.
@@ -2139,22 +2599,6 @@ const derived = ref<any>({})
  * permitted uses follow, so a reader can still scope the report to something
  * the DCP is silent on and see that silence.
  */
-const useOptions = computed(() => {
-  const withControls = ruleLandUses.value || []
-  const rest = (permittedUses.value || [])
-    .map(u => String(u).toLowerCase())
-    .filter(u => !withControls.includes(u))
-  return [...new Set([...withControls, ...rest])]
-})
-
-function onUseChange(e: Event) {
-  const next = (e.target as HTMLSelectElement).value
-  if (!next || next === proposedUse.value) return
-  // A full navigation, not a client-side filter: the server recomputes the
-  // scope, the prompt and every derived figure for the chosen use.
-  window.location.href = `/report?lat=${lat}&lng=${lng}`
-    + `&address=${encodeURIComponent(address)}&use=${encodeURIComponent(next)}`
-}
 
 /**
  * Every overlay a planning report is expected to answer, in one place.
@@ -2431,21 +2875,6 @@ const mapProvenance = computed(() => {
 })
 
 /** LMR and TOD detail that sat behind the flag the page already showed. */
-const lmrDetail = computed(() => {
-  const v = property.value
-  if (!v) return []
-  return ([
-    ['LMR code', 'lmr_sym_code'],
-    ['LMR floor space ratio', 'lmr_fsr'],
-    ['LMR minimum lot size', 'lmr_lotsize'],
-    ['LMR minimum lot width', 'lmr_lot_width'],
-    ['Station / centre', 'lmr_train_stations'],
-    ['Distance band', 'buffer'],
-  ] as Array<[string, string]>)
-    .filter(([, k]) => v[k] != null && String(v[k]).trim() !== '')
-    .map(([label, k]) => ({ label, value: String(v[k]) }))
-})
-
 /**
  * Everything held for this lot, grouped, with nothing curated away.
  *
@@ -2493,19 +2922,6 @@ const define = (k: string) => FACT_DEFINITIONS[k] ?? ''
  * needs the clause's figure for the proposed use and not the mapped one.
  */
 const lotReq = ref<any>({})
-
-/**
- * Deep link to a DCP clause in the viewer.
- *
- * The rules table builds this inline from each row's own `document_slug`, which
- * a derived figure does not carry -- the server hands it a clause number and
- * nothing else -- so this falls back to the lot's DCP.
- */
-function dcpClauseHref(clause: string | null | undefined): string | undefined {
-  const slug = dcpDocSlug.value
-  if (!slug || !clause) return undefined
-  return `/doc-viewer?doc=${slug}&anchor=${encodeURIComponent(`dcp.${clause}`)}`
-}
 
 const dcpDocSlug = computed(() => {
   const lga = String(property.value?.lga_name || '').trim().toUpperCase()
@@ -2994,10 +3410,69 @@ function handleSSE(type: string, data: any) {
 
 <style>
 .report-page {
-  max-width: 800px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+
+@media (max-width: 900px) {
+  .report-page { grid-template-columns: 1fr; gap: 1rem; padding: 1rem; }
+}
+.report-main { min-width: 0; }
+.report-main [id^="sec-"] { scroll-margin-top: 1rem; }
+
+/* ── Index of sections ──────────────────────────────────────────────────── */
+.report-index {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.35rem 0.25rem;
+}
+@media (max-width: 900px) {
+  .report-index { position: static; max-height: none; }
+}
+.report-index-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+.report-index-title::-webkit-details-marker { display: none; }
+.report-index-n { font-weight: 600; color: #94a3b8; }
+.report-index-list { list-style: none; margin: 0.15rem 0 0; padding: 0; }
+.report-index-link {
+  display: block;
+  padding: 0.38rem 0.75rem 0.38rem 0.65rem;
+  border-left: 2px solid transparent;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  color: #334155;
+  text-decoration: none;
+}
+.report-index-link:hover { background: #f8fafc; color: #0f172a; }
+.report-index-link--on {
+  border-left-color: #15803d;
+  background: #f0fdf4;
+  color: #15803d;
+  font-weight: 600;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
@@ -3076,6 +3551,19 @@ function handleSSE(type: string, data: any) {
 .use-chip--clickable:hover:not(:disabled) { background: #dcfce7; border-color: #86efac; }
 .use-chip--clickable:disabled { opacity: 0.6; cursor: default; }
 .use-chip--active { background: #15803d; color: #fff; border-color: #15803d; }
+
+/* ── Land Use Table for the lot's zone ─────────────────────────────────── */
+.lut-blurb { padding: 0 1rem; }
+.lut-block {
+  margin: 0 1rem;
+  padding: 0.9rem;
+  background: #f8fafb;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+}
+.lut-block + .lut-block { margin-top: 0.75rem; }
+.lut-zone-head { margin: 0 0 0.6rem; font-size: 0.9rem; font-weight: 800; color: #0f172a; }
+.lut-note { margin: 0; font-size: 0.78rem; color: #64748b; font-style: italic; }
 
 /* ── Use-specific controls panel ───────────────────────────────────────── */
 .use-analysis {
@@ -3243,7 +3731,7 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 /* ── Lot map & dimensions ─────────────────────────────────────────────── */
 .lot-map-layout {
   display: grid;
-  grid-template-columns: 1fr 260px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 1fr);
   gap: 1rem;
   padding: 0 1rem 0.5rem;
   /* Both cells sit at the top rather than stretching to the taller of them.
@@ -3251,9 +3739,94 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
      is a fixed 520px — is left inside a bordered box taller than the canvas. */
   align-items: start;
 }
-@media (max-width: 640px) {
+@media (max-width: 760px) {
   .lot-map-layout { grid-template-columns: 1fr; }
 }
+
+/* The sketch, the same height as the map beside it. */
+.lot-sketch-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 520px;
+  padding: 0.25rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+.lot-sketch-note { font-size: 0.78rem; color: #94a3b8; font-style: italic; margin: 0; }
+
+/* One line of figures, hairlines between, no boxes. */
+.lot-facts {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.9rem 1rem 0;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+.lot-fact {
+  flex: 1 1 140px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  padding: 0.7rem 0.9rem 0.6rem;
+  border-right: 1px solid #f1f5f9;
+  cursor: help;
+}
+.lot-fact:last-child { border-right: none; }
+.lot-fact-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+.lot-fact-unit { font-size: 0.78rem; font-weight: 600; color: #64748b; margin-left: 0.2rem; }
+.lot-fact-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+.lot-fact-detail { font-size: 0.7rem; color: #94a3b8; }
+.lot-fact--empty .lot-fact-value { color: #cbd5e1; }
+
+.lot-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.6rem 1rem 0;
+}
+.lot-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+}
+.lot-tag--green { background: #f0fdf4; color: #15803d; }
+.lot-tag--amber { background: #fffbeb; color: #b45309; }
+.lot-tag--muted { background: none; color: #94a3b8; font-weight: 500; padding-left: 0; }
+
+.lot-defs {
+  margin: 0.6rem 1rem 0;
+  font-size: 0.74rem;
+  color: #64748b;
+}
+.lot-defs summary { cursor: pointer; font-weight: 600; color: #64748b; }
+.lot-defs summary:hover { color: #0f172a; }
+.lot-defs dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.3rem 1rem;
+  margin: 0.6rem 0 0;
+}
+.lot-defs dt { font-weight: 600; color: #475569; cursor: help; }
+.lot-defs dd { margin: 0; line-height: 1.4; }
+.lot-defs dd strong { color: #0f172a; font-variant-numeric: tabular-nums; margin-right: 0.4rem; }
 
 .lot-map-container {
   position: relative;
@@ -3789,6 +4362,49 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
   margin: 10px 0;
   background: #fff;
 }
+/* Twelve cells, two across — six rows beside the map rather than twelve. */
+.lot-dims-grid--metrics {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+.lot-dims-grid--metrics .dim {
+  display: block; padding: 0.35rem 0.4rem;
+  border: 1px solid #eef1f5; border-radius: 6px; background: #fafbfc;
+}
+.lot-dims-grid--metrics .dim-label {
+  display: block; font-size: 0.63rem; color: #64748b; cursor: help;
+  text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.2;
+}
+.lot-dims-grid--metrics .dim-value {
+  display: block; margin-top: 0.1rem;
+  font-size: 0.82rem; font-weight: 650; color: #0f172a;
+  font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+}
+.dim-def {
+  display: block; margin-top: 0.15rem;
+  font-size: 0.6rem; line-height: 1.3; color: #94a3b8;
+}
+.lot-dims-grid--metrics .dim--empty { opacity: 0.5; }
+.dim-run { display: block; font-size: 0.7rem; font-weight: 600; }
+
+.dcp-picker {
+  display: flex; align-items: flex-end; gap: 0.7rem; flex-wrap: wrap;
+  margin: 0.9rem 0 0.6rem; padding: 0.6rem 0.7rem;
+  border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;
+}
+.dcp-picker label { display: block; font-size: 0.72rem; color: #64748b; }
+.dcp-picker label span { display: block; margin-bottom: 0.2rem; }
+.dcp-picker select {
+  font: inherit; font-size: 0.8rem; padding: 0.3rem 0.4rem; min-width: 11rem;
+  border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #0f172a;
+}
+.dcp-picker-busy { color: #94a3b8; font-size: 0.9rem; padding-bottom: 0.35rem; }
+.dcp-picker-reset {
+  padding: 0.3rem 0.55rem; border: 1px solid #e2e8f0; border-radius: 6px;
+  background: #fff; color: #475569; font: inherit; font-size: 0.74rem; cursor: pointer;
+}
+.dcp-picker-reset:hover { background: #e2e8f0; }
+
 .rules-group-title {
   display: flex;
   align-items: center;
@@ -3874,16 +4490,6 @@ a.kg2-cite-num:hover { filter: brightness(0.9); }
 }
 
 /* ── What the report is about ─────────────────────────────────────────────── */
-.scope-bar {
-  display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px;
-  margin-top: 10px; font-size: 13px; color: #475569;
-}
-.scope-label { color: #64748b; }
-.scope-select {
-  font: inherit; font-weight: 600; color: #0f172a;
-  padding: 2px 6px; border: 1px solid #cbd5e1; border-radius: 5px; background: #fff;
-}
-.scope-note { color: #94a3b8; }
 
 /* ── Derived figures ──────────────────────────────────────────────────────── */
 .derived-row {

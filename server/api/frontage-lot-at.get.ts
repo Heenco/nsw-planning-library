@@ -3,7 +3,7 @@
  *
  *   /api/frontage-lot-at?lon=150.9418&lat=-34.2447  ->  { lotId: "A//DP408911" }
  *
- * The other half of statewide address search. up_property_d_3 maps an address
+ * The other half of statewide address search. up_property_d_4 maps an address
  * straight to `lot_section_plan`, but it holds Randwick and Hornsby only, while
  * the frontage calculation works anywhere in NSW. For everywhere else the page
  * geocodes with Mapbox — which it already does on /prop-width — and this turns

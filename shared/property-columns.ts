@@ -23,6 +23,20 @@
 export const PROPERTY_TABLE = 'nsw.up_property_d_4'
 
 /**
+ * Shortest search token the address trigram index can serve.
+ *
+ * Every address search on d_4 is `address ILIKE '%token%'`, one clause per
+ * word typed, and the only thing that makes that answer inside the server's
+ * 60 s statement timeout is the GIN trigram index (db migration 12). A pattern
+ * shorter than three characters has no trigram to look up, so pg_trgm falls
+ * back to a full scan of the index -- and ANDed with a real token it drags that
+ * token down with it. Measured on this table: '%GEORGE%' 1.6 s; '%GEORGE%' AND
+ * '%ST%' 8.1 s; '%ST%' alone 88 s. So a token shorter than this must never
+ * become a WHERE clause. It can still rank.
+ */
+export const MIN_TRIGRAM = 3
+
+/**
  * Values that mean "no value" but arrive as text.
  *
  * d_4 carries the literal string `<Null>` in 1,899 rows of `apu_clause` and
@@ -261,8 +275,23 @@ export const PROPERTY_SELECT = `
   cdc_farmstay, cdc_farmstay_exclusions,
 
   -- LMR and Pattern Book
-  in_lmr_housing_area, lmr_landuse AS lmr_permissible,
+  --
+  -- lmr_landuse is carried under its own name as well as the legacy
+  -- lmr_permissible alias, because shared/lmr-standards.ts resolves the
+  -- policy from the zone and the band and uses the stored list only to check
+  -- its own derivation.
+  --
+  -- lmr_height_rfb is NOT a residential-flat-building height. It is
+  -- lmr_hob aggregated with STRING_AGG(DISTINCT ...) across every LMR land
+  -- use the lot permits, so on an R3 lot it reads "24.0, 22.0, 9.5" — 24 m is
+  -- shop top housing's, 22 m the apartment's, 9.5 m the low-rise ones. The
+  -- alias is kept only so nothing that reads it breaks; new work should take
+  -- the per-use figures from resolveLmr instead. lmr_height_sth has never
+  -- been anything but NULL.
+  in_lmr_housing_area, lmr_landuse, lmr_landuse AS lmr_permissible,
   lmr_hob AS lmr_height_rfb, NULL::text AS lmr_height_sth,
+  -- Transport Oriented Development: the flag alone cannot say which precinct.
+  tod_lay_class, tod_map_name,
   -- Pattern Book: the flag and the reason it was decided. Without the reasons
   -- an ineligible pattern is just a grey dot, and the reason is the useful part.
   semis_01_anthony_gill_eligible, semis_01_anthony_gill_reasons,

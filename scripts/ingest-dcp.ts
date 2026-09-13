@@ -630,7 +630,41 @@ try {
         // Lazily created: a row that produces nothing should not leave an
         // empty rule behind.
         let rowRuleId: string | null = null
-        const ruleFor = async () => {
+        /** Cell-scoped rules, keyed by the uses they name. */
+        const cellRuleIds = new Map<string, string>()
+
+        /**
+         * The rule an effect belongs to.
+         *
+         * Three levels, narrowest first: a cell that names its own land uses,
+         * then the row where the row header carries scope, then the clause.
+         * A cell-scoped rule is a real rule with its own key so a rebuild stays
+         * idempotent, and so the uses it names hang off the control they
+         * actually govern rather than off every control in the row.
+         */
+        const ruleFor = async (uses: string[] = []) => {
+          if (uses.length) {
+            const key = uses.join('|')
+            const seen = cellRuleIds.get(key)
+            if (seen) return seen
+            const { rows: [cr] } = await client.query(`
+              INSERT INTO nsw.rule
+                (document_id, section_id, rule_key, clause, role, kind, src,
+                 instrument_rank, precedence, provision_ref, part, table_id, table_row)
+              VALUES ($1,$2,$3,$4,$5,'standard','table',10,2,$6,$7,$8,$9)
+              ON CONFLICT (document_id, rule_key) DO UPDATE SET clause = EXCLUDED.clause
+              RETURNING id`,
+            [doc.id, sid ?? null,
+              `${s.id ?? `${s.kind}.${s.order}`}:t${ti}.r${ri}.u${key.replace(/[^a-z]/gi, '').slice(0, 24)}`,
+              clause, isControls(s) ? 'controls' : 'base_standard',
+              clause ? `s ${clause}` : null, s.part, t._id ?? null, ri])
+            cellRuleIds.set(key, cr.id)
+            stats.rowRules++
+            stats.rules++
+            await writeScope(cr.id, [...rowScope, ...uses.map((u) => ['land_use', u] as [string, string])],
+              `${t.caption ?? ''} | ${rowHeader}`)
+            return cr.id
+          }
           if (!rowIsScoped) return rule.id
           if (rowRuleId) return rowRuleId
           const { rows: [rr] } = await client.query(`
@@ -650,9 +684,38 @@ try {
           return rr.id
         }
 
+        /** Land uses the CLAUSE or ROW already named, if any. */
+        const scopedUses = rowScope.filter(([d]) => d === 'land_use').map(([, v]) => v)
+
         for (let col = firstDataCol; col < row.length; col++) {
           const cell = row[col]
           if (!cell) continue
+
+          /**
+           * A cell can name the land use its own control governs.
+           *
+           * Scope is read from the clause heading and the row header, which is
+           * where most plans put it — "3.1 Dwelling Houses and Dual
+           * Occupancies" over the whole clause, "Side boundary" down the side.
+           * Randwick's C2 setback tables are keyed on STOREY band instead, and
+           * put the use inside the cell: row "Zero to 3 storeys", cell "RFBs
+           * and Multi-dwelling Housing - Setback to be a minimum of 15% of the
+           * site depth, or 5m, whichever is the greater."
+           *
+           * Read only from the document's own words, through the same
+           * controlled vocabulary as everywhere else, so this generalises: a
+           * council that writes the use in the cell gets it scoped, and one
+           * that does not is unaffected. It is what makes cl 4.3.3's rear
+           * setback reachable for a residential flat building at all — before
+           * it, C2 carried four land-use tags across 110 rules and an RFB was
+           * served C1's low-density setbacks instead.
+           *
+           * Only where nothing above the cell already named a use: a heading
+           * that says "Dwelling Houses" is more authoritative than a passing
+           * mention, and letting the cell override it would let the phrase
+           * "dwelling" in a note re-scope the control.
+           */
+          const cellUses = scopedUses.length ? [] : matchLandUses(cell)
           // A formula cell states how to compute the control, not what it is.
           // Recorded as a gap so the clause is visibly unresolved rather than
           // yielding an operand — Randwick's height-dependent side setbacks
@@ -762,7 +825,7 @@ try {
                    measured_from, relative_to, cell_id,
                    condition_metric, condition_lo, condition_hi, condition_unit)
                 VALUES ($1,'numeric',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
-              [await ruleFor(), topic ?? 'unspecified', cmp,
+              [await ruleFor(cellUses), topic ?? 'unspecified', cmp,
                 cValue, cUnit, span,
                 isLength ? cellDatum : null,
                 topic === 'height' ? ground : null,

@@ -51,6 +51,7 @@ import { sweepLot } from '#shared/lot-shape.mjs'
 import { lotAddresses } from '../utils/lot-address'
 import { fetchRoadLines } from '../utils/road-tiles'
 import { paddedEnvelope } from '#shared/cadastre-query.mjs'
+import { fetchLotParcels, wholeRingFor, neighbourRingsFrom } from '../utils/lot-tiles'
 import { parseFrontages } from '#shared/frontage.mjs'
 
 const TIMEOUT_MS = 15000
@@ -92,19 +93,105 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  /**
+   * The cadastre, from our own tile server where it can answer.
+   *
+   * Both SIX calls below are blocking, and the neighbour one is expensive: 300 m
+   * around an urban lot is a few hundred parcels over an ArcGIS envelope query.
+   * When SIX is slow the page returns "The SIX Maps cadastre did not respond"
+   * and nothing else. Martin publishes the same cadastre as tiles, from
+   * infrastructure this repo runs, accurate to 0.074 m at z16 against the 0.15 m
+   * classification tolerance — see server/utils/lot-tiles.ts for the
+   * measurements, and for why the subject lot is treated more strictly than its
+   * neighbours.
+   *
+   * A fast path, never a replacement. The tile layer is a snapshot, so a parcel
+   * created or resubdivided since it was cut is absent and SIX still answers.
+   *
+   * up_property_d_4 is what breaks the circularity: tiles are addressed by
+   * coordinate, so finding a lot in them needs to know roughly where it is
+   * first. d_4's `geom` is a POINT, not the polygon its name suggests — useless
+   * for the boundary work, exactly right for this — and it is indexed on
+   * upper(lot_section_plan) as of migration 11.
+   */
+  /**
+   * The cadastre from our own tile server, when SIX cannot answer.
+   *
+   * A FALLBACK, deliberately, after trying it as the fast path and backing it
+   * out. Martin's `lot` layer is quantised to 0.074 m at z16 — comfortably
+   * inside the 0.15 m classification tolerance — but it and up_property_d_4
+   * share a cadastre snapshot, and SIX is live. On A//DP408911 the tile ring
+   * sits 24.9 m from SIX's, with an area AND perimeter both inside 5% of the
+   * recorded figures: not a clipped fragment, a different vintage of the
+   * parcel. There is no way from here to tell which is current, and quietly
+   * serving the older one as though it were the surveyed boundary is worse
+   * than being slow.
+   *
+   * So SIX decides while SIX is up, and this answers only when it is not —
+   * which is the case the page has actually been failing on. `cadastre_source`
+   * on the response says which one spoke.
+   */
+  const tileCadastre = async (): Promise<
+    { ring: number[][], neighbours: { id: string, ring: number[][] }[] } | null
+  > => {
+    const martinBase = String((useRuntimeConfig().public as any).martinUrl || '')
+    if (!martinBase) return null
+    try {
+      const qLat = Number(q.lat)
+      const qLon = Number(q.lon)
+      const { rows } = await nswQuery(
+        `SELECT centroid_lon::float8 lon, centroid_lat::float8 lat,
+                area_sqm::float8 area, perimeter_m::float8 perimeter
+           FROM nsw.up_property_d_4
+          WHERE upper(lot_section_plan) = $1 LIMIT 1`,
+        [lotId],
+      )
+      const rec = rows[0]
+      const lat = Number.isFinite(qLat) ? qLat : rec?.lat
+      const lon = Number.isFinite(qLon) ? qLon : rec?.lon
+      if (!Number.isFinite(lat) || !Number.isFinite(lon) || !rec) return null
+
+      const dLat = (pad + 100) / 111132
+      const dLon = dLat / Math.max(0.2, Math.cos((lat * Math.PI) / 180))
+      const { parcels, tiles, failed } = await fetchLotParcels(
+        martinBase, [lon - dLon, lat - dLat, lon + dLon, lat + dLat])
+      const whole = wholeRingFor(parcels, lotId, rec)
+      // Every tile must have answered: a hole in the neighbour set reads as
+      // open boundary, which is the one way this method is confidently wrong.
+      if (!whole || failed !== 0 || tiles === 0) return null
+      return { ring: whole as any, neighbours: neighbourRingsFrom(parcels, lotId) as any }
+    } catch {
+      return null
+    }
+  }
+
+  let tileRing: number[][] | null = null
+  let tileNeighbours: { id: string, ring: number[][] }[] = []
+  let cadastreSource: 'six' | 'martin_lot_tiles' = 'six'
+
   let lotJson: any
   try {
     lotJson = await fetchJson(lotQueryUrl(lotId), `lot:${lotId}`)
   } catch (err: any) {
-    // The one genuine fault: the service is down or slow. Distinguished from a
-    // miss so the page can say "try again" rather than "no such lot".
-    return {
-      ok: false as const, reason: 'cadastre_unavailable', lotId,
-      message: `The SIX Maps cadastre did not respond (${String(err?.message ?? err)}).`,
+    const fromTiles = await tileCadastre()
+    if (fromTiles) {
+      tileRing = fromTiles.ring
+      tileNeighbours = fromTiles.neighbours
+      cadastreSource = 'martin_lot_tiles'
+    } else {
+      // The one genuine fault: the service is down or slow, and our own tile
+      // copy could not stand in. Distinguished from a miss so the page can say
+      // "try again" rather than "no such lot".
+      return {
+        ok: false as const, reason: 'cadastre_unavailable', lotId,
+        message: `The SIX Maps cadastre did not respond (${String(err?.message ?? err)}).`,
+      }
     }
   }
 
-  const rings: number[][][] = (lotJson.features ?? []).flatMap(ringsOf)
+  const rings: number[][][] = tileRing
+    ? [tileRing as unknown as number[][]]
+    : (lotJson.features ?? []).flatMap(ringsOf)
   if (!rings.length) {
     return {
       ok: false as const, reason: 'not_found', lotId,
@@ -119,18 +206,23 @@ export default defineEventHandler(async (event) => {
   // request down with an unhandled TimeoutError and a bare 500 — and the
   // neighbour set is not optional: computing frontage without it would report
   // every boundary as open.
-  let nbrJson: any
-  try {
-    nbrJson = await fetchJson(neighbourQueryUrl(ring, pad), `nbrs:${lotId}:${pad}`)
-  } catch (err: any) {
-    return {
-      ok: false as const, reason: 'cadastre_unavailable', lotId,
-      message: err?.name === 'TimeoutError'
-        ? `The SIX Maps cadastre timed out fetching neighbouring parcels for ${lotId}.`
-        : `The SIX Maps cadastre did not respond (${String(err?.message ?? err).slice(0, 80)}).`,
+  let neighbours: { id: string, ring: number[][] }[]
+  if (tileRing) {
+    neighbours = tileNeighbours as any
+  } else {
+    let nbrJson: any
+    try {
+      nbrJson = await fetchJson(neighbourQueryUrl(ring, pad), `nbrs:${lotId}:${pad}`)
+    } catch (err: any) {
+      return {
+        ok: false as const, reason: 'cadastre_unavailable', lotId,
+        message: err?.name === 'TimeoutError'
+          ? `The SIX Maps cadastre timed out fetching neighbouring parcels for ${lotId}.`
+          : `The SIX Maps cadastre did not respond (${String(err?.message ?? err).slice(0, 80)}).`,
+      }
     }
+    neighbours = neighboursFrom(nbrJson, lotId)
   }
-  const neighbours = neighboursFrom(nbrJson, lotId)
   const result = classifyBoundary(ring, neighbours.map((n: any) => n.ring), { tolerance })
 
   // Naming is best-effort by construction: if the tile server is unreachable the
@@ -323,6 +415,7 @@ export default defineEventHandler(async (event) => {
     tolerance_m: tolerance,
     area_sqm: Math.round(ringArea(ring as any)),
     perimeter_m: Math.round(pathLength(ring as any) * 100) / 100,
+    cadastre_source: cadastreSource,
     neighbourCount: neighbours.length,
     neighbours: neighbours.map((n: any) => n.id),
     edges: result.edges,

@@ -1,4 +1,33 @@
+/**
+ * Address type-ahead for the home page, the map and /prop-width.
+ *
+ * Reads the same table the property report reads its facts from, so what you
+ * can search for and what you can get a report on are the same set. That used
+ * to be `up_property_d_3` — Hornsby and Randwick, 149,532 properties — while
+ * the report had already moved to `up_property_d_4`. An address anywhere else
+ * in NSW returned nothing here and a full report one click later.
+ *
+ * WHY TOKENS SHORTER THAN THREE CHARACTERS ARE NOT FILTERS
+ *
+ * d_4 is 5.48M rows against d_3's 149,532, and the only thing making
+ * `address ILIKE '%x%'` survive that is the GIN trigram index (migration 12).
+ * A trigram index cannot serve a pattern with fewer than three characters, so
+ * a two-letter token silently falls back to a sequential scan. Measured on
+ * this table:
+ *
+ *   '%GEORGE%' AND '%STREET%'    881 ms   bitmap index scan
+ *   '%GEORGE%'                  1,583 ms  bitmap index scan
+ *   '%GEORGE%' AND '%ST%'       8,098 ms  index scan, 25,951 rows rechecked
+ *   '%ST%'                     88,718 ms  parallel seq scan, 1,040,103 rows
+ *
+ * On d_3 every one of those was ~120 ms, so nothing here needed a floor
+ * before. Now "st", "rd" and "dr" are dropped from the WHERE — they are
+ * street-type noise that narrows almost nothing and costs everything. They
+ * still reach the ranking, which is where they were doing any good.
+ */
+
 import { nswQuery } from '../utils/nsw-kg/pool'
+import { MIN_TRIGRAM, PROPERTY_TABLE } from '../../shared/property-columns'
 
 // Extract all number-like tokens (e.g. "505-535" → ["505", "535"]).
 // For "unit/streetnum" patterns like "1/500", both numbers are captured but the
@@ -29,7 +58,8 @@ export default defineEventHandler(async (event) => {
   //   - word tokens (street/suburb name): "FIFTEENTH", "AVENUE", "AUSTRAL"
   const allTokens = norm.split(' ').filter(t => t.length >= 2)
   const numberTokens = extractNumbers(norm)
-  const wordTokens = allTokens.filter(t => !/^\d/.test(t))
+  // Only tokens the trigram index can serve become filters; see the note above.
+  const wordTokens = allTokens.filter(t => !/^\d/.test(t) && t.length >= MIN_TRIGRAM)
 
   if (allTokens.length === 0) return { results: [] }
 
@@ -44,10 +74,15 @@ export default defineEventHandler(async (event) => {
       params.push('%' + t + '%')
       whereParts.push(`address ILIKE $${params.length}`)
     })
-  } else if (numberTokens.length > 0) {
-    // No word tokens — require at least one number to match
-    params.push('%' + numberTokens[0] + '%')
+  } else if (numberTokens.some(n => n.length >= MIN_TRIGRAM)) {
+    // No word tokens — require a number to match. Only one the trigram index
+    // can serve: "15" alone is two characters, and a full scan.
+    params.push('%' + numberTokens.find(n => n.length >= MIN_TRIGRAM) + '%')
     whereParts.push(`address ILIKE $${params.length}`)
+  } else {
+    // Everything the user typed was too short to index — "st", "ku", "7a".
+    // Without this the query is `centroid_lat IS NOT NULL` over 5.48M rows.
+    return { results: [] }
   }
 
   // DB-side ranking. Use the street number from the user input for distance
@@ -84,16 +119,18 @@ export default defineEventHandler(async (event) => {
 
   const sql = `
     WITH matches AS (
-      SELECT DISTINCT ON (address)
+      -- COLLATE "C": halves the sort on a common street name. The reasoning
+      -- and the measurements are in property/search.get.ts.
+      SELECT DISTINCT ON (address COLLATE "C")
         address, lga_name, suburbname, postcode,
         centroid_lat, centroid_lon, lzn_sym_code_p AS zone,
         ${rankCols}
-      FROM nsw.up_property_d_3
+      FROM ${PROPERTY_TABLE}
       WHERE ${whereParts.join(' AND ')}
-      ORDER BY address
+      ORDER BY address COLLATE "C"
     )
     SELECT * FROM matches
-    ORDER BY _exact, _dist, address
+    ORDER BY _exact, _dist, address COLLATE "C"
     LIMIT 10
   `
 

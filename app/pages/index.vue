@@ -326,9 +326,14 @@ const acIndex = ref(0)
 const selectedLat = ref<number | null>(null)
 const selectedLng = ref<number | null>(null)
 let acDebounce: ReturnType<typeof setTimeout> | null = null
+// Each fetch takes a ticket; a response whose ticket is stale is dropped. A
+// common street name takes ~350-800 ms server-side, longer than the debounce,
+// so without this "geor" could land after "george street" and replace it.
+let acSeq = 0
 
 function onAddressInput() {
   acIndex.value = 0
+  acSeq++
   selectedLat.value = null
   selectedLng.value = null
   if (acDebounce) clearTimeout(acDebounce)
@@ -338,6 +343,7 @@ function onAddressInput() {
 }
 
 async function fetchAddressSuggestions(q: string) {
+  const seq = ++acSeq
   try {
     // /api/property/search reads the same statewide table the report does, so
     // every address it offers can be reported on. What it also returns is
@@ -346,6 +352,7 @@ async function fetchAddressSuggestions(q: string) {
     const resp = await fetch(`/api/property/search?q=${encodeURIComponent(q)}`)
     if (!resp.ok) return
     const data = await resp.json()
+    if (seq !== acSeq) return
     acResults.value = (data.results || []).map((r: any, i: number) => ({
       id: `${r.address}-${i}`,
       text: r.address,
