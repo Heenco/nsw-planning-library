@@ -180,7 +180,7 @@ export async function fetchLotParcels(
  * same reason.
  *
  * Without both figures there is nothing to check against, so the ring is
- * refused and SIX answers. A wrong boundary is worse than a slow one.
+ * refused and the route says why. A wrong boundary is worse than none.
  */
 export function wholeRingFor(
   parcels: Map<string, TileParcel[]>,

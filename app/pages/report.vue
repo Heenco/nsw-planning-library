@@ -58,7 +58,7 @@
         <div class="fact" v-if="p.council_name"><span class="fact-label">Council</span><span class="fact-value">{{ p.council_name }}</span></div>
         <div class="fact" v-if="lots.length <= 1 && p.plan_label"><span class="fact-label">Lot / Plan</span><span class="fact-value">{{ p.plan_label }}</span></div>
         <!-- The title reference as the cadastre spells it, which is what the
-             SIX Maps lookup behind the 3D envelope queries on. -->
+             cadastre lookup behind the 3D envelope queries on. -->
         <div class="fact" v-if="p.lot_section_plan"><span class="fact-label">Title reference</span><span class="fact-value">{{ p.lot_section_plan }}</span></div>
         <!-- On a strata plan lot_section_plan is only "//SP79598"; this is the
              one column that says which lots that plan actually contains. -->

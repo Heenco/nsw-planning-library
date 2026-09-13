@@ -21,33 +21,20 @@
  */
 
 import { findService } from '#shared/nsw-map-services'
-import { lotQueryUrl, assertOk, ringsOf } from '#shared/cadastre-query.mjs'
-import { ringArea } from '#shared/geo-measure.mjs'
+import { fetchLotRing } from '../utils/cadastre'
 import { arcgisQuery } from '../utils/arcgis-retry'
 
 const TIMEOUT_MS = 18000
 const MAX_RECORDS = 50
 
-/** Lot rings, so 137 layer calls for one lot cost one cadastre fetch. */
-const ringCache = new Map<string, number[][] | null>()
-const RING_MAX = 200
-
+/**
+ * The lot ring from our own cadastre, validated against the property record.
+ * fetchLotRing caches per process, so 137 layer calls for one lot cost one
+ * tile read. This asked SIX Maps until the app stopped relying on SIX; see
+ * server/utils/cadastre-tiles.ts.
+ */
 async function lotRing(lotId: string): Promise<number[][] | null> {
-  if (ringCache.has(lotId)) return ringCache.get(lotId)!
-  let ring: number[][] | null = null
-  try {
-    const res = await fetch(lotQueryUrl(lotId), { signal: AbortSignal.timeout(TIMEOUT_MS) })
-    if (res.ok) {
-      const json = assertOk(await res.json())
-      const rings: number[][][] = (json.features ?? []).flatMap(ringsOf)
-      if (rings.length) ring = rings.sort((a, b) => ringArea(b as any) - ringArea(a as any))[0]
-    }
-  } catch {
-    ring = null
-  }
-  if (ringCache.size >= RING_MAX) ringCache.clear()
-  ringCache.set(lotId, ring)
-  return ring
+  return (await fetchLotRing(lotId)).ring
 }
 
 export default defineEventHandler(async (event) => {
@@ -62,7 +49,7 @@ export default defineEventHandler(async (event) => {
   const ring = await lotRing(lotId)
   if (!ring) {
     return { ok: false as const, id, name: svc.name, reason: 'no_lot_geometry',
-      message: `No boundary published for ${lotId}.` }
+      message: `Our cadastre holds no boundary for ${lotId}.` }
   }
 
   // POSTed, not in the query string: a cadastral ring can carry hundreds of

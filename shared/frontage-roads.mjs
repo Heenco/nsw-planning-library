@@ -381,10 +381,19 @@ export function matchAddressRoad(runs, address) {
   }
 
   let winner = -1
+  let tied = false
   for (let i = 0; i < votes.length; i++) {
-    if (votes[i] > 0 && (winner < 0 || votes[i] > votes[winner])) winner = i
+    if (votes[i] <= 0) continue
+    if (winner < 0 || votes[i] > votes[winner]) { winner = i; tied = false }
+    else if (votes[i] === votes[winner]) tied = true
   }
-  return winner
+  // A tie is no answer. G-NAF lists a principal address on BOTH streets of
+  // 260//DP979237 - 100 Avoca Street and 25 Frances Street - so each run gets
+  // one vote, and returning the first run would let run order, not the
+  // address, choose the primary. Undecided here falls through to the
+  // shortest-frontage rule in pickPrimary, which picks Avoca, as the address
+  // the lot is known by does.
+  return tied ? -1 : winner
 }
 
 /**

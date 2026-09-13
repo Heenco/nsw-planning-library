@@ -1979,7 +1979,7 @@ const {
  * rather than the two councils up_property_d_3 held. Mapbox still geocodes what
  * the table misses (a parcel created since the snapshot, or a place name rather
  * than an address), and /api/frontage-lot-at turns that coordinate into a lot id
- * against the live SIX cadastre.
+ * against our own cadastre tiles.
  *
  * Local hits rank first: they name the lot without a round trip and cannot land
  * on the wrong parcel, which a geocoded point occasionally can.
