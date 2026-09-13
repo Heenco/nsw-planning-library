@@ -9,6 +9,12 @@ export default defineNuxtConfig({
     // Only /api/design/* reads this. Absent, the design lab says so and every
     // other route is unaffected.
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+    // The one shared password server/middleware/password.ts asks every visitor
+    // for. Declared empty here and supplied as NUXT_APP_PASSWORD in the
+    // deployment's environment: the repository is public, so it cannot live in
+    // this file. A production build with it unset refuses everyone; a dev
+    // server with it unset asks nobody.
+    appPassword: '',
     public: {
       mapboxToken: process.env.NUXT_PUBLIC_MAPBOX_TOKEN,
       martinUrl: process.env.NUXT_PUBLIC_MARTIN_URL || 'http://172.105.184.178:3000',

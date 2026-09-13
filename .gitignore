@@ -41,3 +41,6 @@ build/
 
 # Cached SIX Maps cadastre responses (scripts/frontage-check.mjs)
 .cache/
+
+# Agent worktrees checked out under the repo; never part of it.
+.claude/worktrees/
