@@ -65,7 +65,7 @@ function loginPage(next: string, wrong: boolean): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Planning Library</title>
+<title>UrbanProspects Planning Library</title>
 <style>
   body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8fafb; color: #1e293b;
          font-family: -apple-system, BlinkMacSystemFont, "Figtree", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -82,7 +82,7 @@ function loginPage(next: string, wrong: boolean): string {
 </head>
 <body>
 <form method="post" action="${LOGIN_PATH}">
-  <h1>Planning Library</h1>
+  <h1>UrbanProspects Planning Library</h1>
   <p>This site needs a password.</p>
   <label for="password">Password</label>
   <input id="password" name="password" type="password" autocomplete="current-password" autofocus required>
@@ -148,6 +148,6 @@ export default defineEventHandler(async (event) => {
     setResponseHeader(event, 'Content-Type', 'text/html; charset=utf-8')
     return loginPage(url.pathname + url.search, false)
   }
-  setResponseHeader(event, 'WWW-Authenticate', 'Basic realm="NSW Planning Library"')
+  setResponseHeader(event, 'WWW-Authenticate', 'Basic realm="UrbanProspects Planning Library"')
   return 'This site needs a password.'
 })
