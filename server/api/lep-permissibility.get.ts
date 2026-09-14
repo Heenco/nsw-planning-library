@@ -223,9 +223,11 @@ async function listZones(epicode: string) {
  * this database lags the pipeline, so the page has to work either way:
  * without them every group term is reported by its roll-up alone.
  */
-let namedColumnsPresent: boolean | null = null
+let namedColumnsPresent = false
 async function hasNamedColumns(client: { query: (q: string) => Promise<{ rowCount: number | null }> }): Promise<boolean> {
-  if (namedColumnsPresent === null) {
+  // Only a "yes" is remembered: the columns arrive when the table is copied in
+  // under a running server, and a remembered "no" would hide them until restart.
+  if (!namedColumnsPresent) {
     const res = await client.query(
       `SELECT 1 FROM information_schema.columns
        WHERE table_schema = 'nsw' AND table_name = 'lep_permissibility' AND column_name = 'named_status'`,
