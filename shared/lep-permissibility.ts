@@ -41,9 +41,23 @@ export interface ResolvedLeaf {
   resolvedAgainst: { chain: string, status: Status } | null
 }
 
+/**
+ * A group term carries two answers, because two questions are being asked.
+ * `status` is rolled up from its members: permitted when every one is, mixed
+ * when they disagree. `namedStatus` is what the plan says about the term
+ * itself, the item it is listed in, and null when the plan never names it.
+ * They disagree in both directions: Randwick R3 permits business premises and
+ * prohibits funeral homes, a member (named permitted, members mixed); many
+ * plans prohibit warehouse or distribution centres and permit local
+ * distribution premises, its only member (named prohibited, members
+ * permitted). Read `namedStatus` first.
+ */
 export interface ResolvedParent {
   use: string
   status: Status
+  namedStatus: Status | null
+  /** The line the plan names it on, as written. */
+  namedSourceText: string | null
 }
 
 export interface ZoneDetail {

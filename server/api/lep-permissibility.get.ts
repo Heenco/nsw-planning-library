@@ -217,8 +217,29 @@ async function listZones(epicode: string) {
 
 // ── One zone in full ───────────────────────────────────────────────────────
 
+/**
+ * Whether the resolved table carries the parent-row columns the resolver
+ * writes since 2026-09-14 (named_status, named_source_text). The copy in
+ * this database lags the pipeline, so the page has to work either way:
+ * without them every group term is reported by its roll-up alone.
+ */
+let namedColumnsPresent: boolean | null = null
+async function hasNamedColumns(client: { query: (q: string) => Promise<{ rowCount: number | null }> }): Promise<boolean> {
+  if (namedColumnsPresent === null) {
+    const res = await client.query(
+      `SELECT 1 FROM information_schema.columns
+       WHERE table_schema = 'nsw' AND table_name = 'lep_permissibility' AND column_name = 'named_status'`,
+    )
+    namedColumnsPresent = (res.rowCount ?? 0) > 0
+  }
+  return namedColumnsPresent
+}
+
 async function zoneDetail(epicode: string, zoneId: string) {
   const { raw, resolved } = await withNswClient(async (client) => {
+    const namedCols = (await hasNamedColumns(client))
+      ? 'named_status, named_source_text'
+      : 'NULL::text AS named_status, NULL::text AS named_source_text'
     const raw = await client.query<{
       zone_code: string, zone_name: string,
       land_use_type: string, land_use_category: string, land_use_description: string,
@@ -233,9 +254,10 @@ async function zoneDetail(epicode: string, zoneId: string) {
       epi_name: string, land_use: string, level: string, status: Status, basis: Basis,
       inherit_depth: number | null, derived_from: string | null, resolved_against: string | null,
       source_text: string | null, run_id: string | null,
+      named_status: Status | null, named_source_text: string | null,
     }>(
       `SELECT epi_name, land_use, level, status, basis, inherit_depth, derived_from,
-              resolved_against, source_text, run_id
+              resolved_against, source_text, run_id, ${namedCols}
        FROM nsw.lep_permissibility
        WHERE epicode = $1 AND zone_id = $2
        ORDER BY land_use`,
@@ -264,7 +286,12 @@ async function zoneDetail(epicode: string, zoneId: string) {
   const parents: ResolvedParent[] = []
   for (const r of resolved) {
     if (r.level === 'parent') {
-      parents.push({ use: r.land_use, status: r.status })
+      parents.push({
+        use: r.land_use,
+        status: r.status,
+        namedStatus: r.named_status ?? null,
+        namedSourceText: r.named_source_text ?? null,
+      })
       continue
     }
     leaves.push({

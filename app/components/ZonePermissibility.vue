@@ -216,11 +216,14 @@
         </div>
       </div>
 
-      <!-- Group terms -->
+      <!-- Group terms. Each carries two answers: what the plan says about the
+           term itself, when it names it, and what its members add up to. The
+           chip shows the plan's own answer first; the roll-up only when the
+           plan never names the term, or as a hint when the two disagree. -->
       <div v-if="parents.length" class="zp-parents">
         <h4 class="zp-parents-head">
           Group terms
-          <span class="zp-src">status rolled up from their children · {{ parents.length }}</span>
+          <span class="zp-src">as the plan names them, or rolled up from their members · {{ parents.length }}</span>
         </h4>
         <div class="zp-parent-chips">
           <button
@@ -228,12 +231,13 @@
             type="button"
             class="zp-parent"
             :class="{ 'zp-parent--on': search.trim().toLowerCase() === p.use }"
-            :style="{ '--accent': COLOR[p.status].base, '--tint': COLOR[p.status].tint }"
-            :title="`${STATUS_LABEL[p.status]} — click to find leaves under it`"
+            :style="{ '--accent': COLOR[parentStatus(p)].base, '--tint': COLOR[parentStatus(p)].tint }"
+            :title="parentTitle(p)"
             @click="findUnder(p.use)"
           >
-            <span class="zp-dot zp-dot--sm" :style="{ background: COLOR[p.status].base }" />
+            <span class="zp-dot zp-dot--sm" :style="{ background: COLOR[parentStatus(p)].base }" />
             {{ p.use }}
+            <span v-if="p.namedStatus && p.namedStatus !== p.status" class="zp-parent-hint">members {{ MEMBERS_SHORT[p.status] }}</span>
           </button>
         </div>
       </div>
@@ -480,6 +484,29 @@ function clearFilters() {
   statusFilter.value = 'all'
   basisFilter.value = 'all'
   search.value = ''
+}
+
+/** How a group term's members add up, for the hint on its chip. */
+const MEMBERS_SHORT: Record<Status, string> = {
+  permitted_without_consent: 'all permitted',
+  permitted_with_consent: 'all permitted',
+  prohibited: 'all prohibited',
+  mixed: 'mixed',
+}
+
+/** The plan's own word on a group term when it has one, else its members' roll-up. */
+function parentStatus(p: ResolvedParent): Status {
+  return p.namedStatus ?? p.status
+}
+
+function parentTitle(p: ResolvedParent): string {
+  const tail = ' — click to find the terms under it'
+  if (p.namedStatus) {
+    const line = p.namedSourceText ? ` as “${p.namedSourceText}”` : ''
+    const members = p.namedStatus === p.status ? '' : `; its members are ${MEMBERS_SHORT[p.status]}`
+    return `${STATUS_LABEL[p.namedStatus]}: the plan names it${line}${members}${tail}`
+  }
+  return `${STATUS_LABEL[p.status]}: the plan never names it; rolled up from its members${tail}`
 }
 
 /** Clicking a group term shows the leaves that inherited through it. */
@@ -899,4 +926,10 @@ function findUnder(term: string) {
 }
 .zp-parent:hover { border-color: var(--accent); }
 .zp-parent--on { border-color: #0f172a; }
+.zp-parent-hint {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-left: 0.15rem;
+}
 </style>
