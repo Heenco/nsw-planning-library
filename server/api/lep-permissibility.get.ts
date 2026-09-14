@@ -32,7 +32,7 @@
 
 import { withNswClient } from '../utils/nsw-kg/pool'
 import type {
-  Basis, PlanSummary, ResolvedLeaf, ResolvedParent, Status, ZoneDetail, ZoneSummary,
+  Basis, PermissibleList, PlanSummary, ResolvedLeaf, ResolvedParent, Status, ZoneDetail, ZoneSummary,
 } from '#shared/lep-permissibility'
 
 /**
@@ -319,6 +319,28 @@ async function zoneDetail(epicode: string, zoneId: string) {
       leaves,
       parents,
     },
+    permissibleList: permissibleList(leaves, parents),
   }
   return out
+}
+
+/**
+ * The zone's permitted list as notebook 09G composes it for the property
+ * table, under its old rule and its corrected one, so the page can show what
+ * the correction does to a lot before 09G is run. Verbatim rows are left out,
+ * as 09G leaves them out.
+ */
+function permissibleList(leaves: ResolvedLeaf[], parents: ResolvedParent[]): PermissibleList {
+  const permitted = (s: Status | null | undefined) => s === 'permitted_with_consent' || s === 'permitted_without_consent'
+  const leafUses = leaves.filter(l => l.basis !== 'verbatim' && permitted(l.status)).map(l => l.use)
+  const oldParents = parents.filter(p => permitted(p.status)).map(p => p.use)
+  const newParents = parents.filter(p => (p.namedStatus ? permitted(p.namedStatus) : permitted(p.status))).map(p => p.use)
+  const current = [...new Set([...leafUses, ...oldParents])].sort()
+  const proposed = [...new Set([...leafUses, ...newParents])].sort()
+  return {
+    current,
+    proposed,
+    added: proposed.filter(u => !current.includes(u)),
+    removed: current.filter(u => !proposed.includes(u)),
+  }
 }

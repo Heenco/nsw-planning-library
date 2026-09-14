@@ -238,8 +238,15 @@
             <span class="zp-dot zp-dot--sm" :style="{ background: COLOR[parentStatus(p)].base }" />
             {{ p.use }}
             <span v-if="p.namedStatus && p.namedStatus !== p.status" class="zp-parent-hint">members {{ MEMBERS_SHORT[p.status] }}</span>
+            <span v-if="listingChange(p) === 'added'" class="zp-parent-change zp-parent-change--added">now listed</span>
+            <span v-else-if="listingChange(p) === 'removed'" class="zp-parent-change zp-parent-change--removed">no longer listed</span>
           </button>
         </div>
+        <p v-if="listingChanges.length" class="zp-parents-note">
+          A lot's permitted list used to include a group term only when every member was permitted.
+          It now follows what the plan says about the term itself, so
+          <template v-for="(c, i) in listingChanges" :key="c.use">{{ i ? (i === listingChanges.length - 1 ? ' and ' : ', ') : '' }}<strong>{{ c.use }}</strong> is {{ c.change === 'added' ? 'added to' : 'removed from' }} it</template>.
+        </p>
       </div>
     </template>
   </div>
@@ -508,6 +515,26 @@ function parentTitle(p: ResolvedParent): string {
   }
   return `${STATUS_LABEL[p.status]}: the plan never names it; rolled up from its members${tail}`
 }
+
+/**
+ * Whether the corrected list rule changes this term's place in a lot's
+ * permitted list: added when the plan names it permitted but its members
+ * are not all permitted, removed when the plan names it prohibited but its
+ * members happen to be. The API's permissibleList carries the same answer.
+ */
+function listingChange(p: ResolvedParent): 'added' | 'removed' | null {
+  const permitted = (s: Status | null) => s === 'permitted_with_consent' || s === 'permitted_without_consent'
+  if (!p.namedStatus) return null
+  if (permitted(p.namedStatus) && !permitted(p.status)) return 'added'
+  if (p.namedStatus === 'prohibited' && permitted(p.status)) return 'removed'
+  return null
+}
+
+const listingChanges = computed(() =>
+  parents.value
+    .map(p => ({ use: p.use, change: listingChange(p) }))
+    .filter((c): c is { use: string, change: 'added' | 'removed' } => c.change !== null),
+)
 
 /** Clicking a group term shows the leaves that inherited through it. */
 function findUnder(term: string) {
@@ -932,4 +959,22 @@ function findUnder(term: string) {
   color: #94a3b8;
   margin-left: 0.15rem;
 }
+.zp-parent-change {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.2rem;
+}
+.zp-parent-change--added { background: #dcfce7; color: #15803d; }
+.zp-parent-change--removed { background: #fee2e2; color: #b91c1c; }
+.zp-parents-note {
+  margin: 0.7rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #475569;
+}
+.zp-parents-note strong { color: #0f172a; }
 </style>

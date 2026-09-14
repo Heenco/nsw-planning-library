@@ -60,6 +60,22 @@ export interface ResolvedParent {
   namedSourceText: string | null
 }
 
+/**
+ * The zone's permitted list the way notebook 09G writes it into the property
+ * table's `permissible_uses`: every permitted leaf, plus each group term the
+ * rule admits. `current` follows the rule 09G used until 2026-09-14, a group
+ * term only when every member is permitted; `proposed` follows the corrected
+ * rule, the plan's own word on the term when it has one, else the roll-up.
+ * `added` and `removed` are the difference, which is exactly what the change
+ * does to a lot in this zone.
+ */
+export interface PermissibleList {
+  current: string[]
+  proposed: string[]
+  added: string[]
+  removed: string[]
+}
+
 export interface ZoneDetail {
   ok: true
   epicode: string
@@ -68,6 +84,7 @@ export interface ZoneDetail {
   objectives: string[]
   raw: { withoutConsent: string[], withConsent: string[], prohibited: string[] }
   resolved: { runId: string | null, leaves: ResolvedLeaf[], parents: ResolvedParent[] }
+  permissibleList: PermissibleList
 }
 
 export const STATUS_LABEL: Record<Status, string> = {
