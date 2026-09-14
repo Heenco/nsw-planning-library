@@ -98,6 +98,29 @@ try {
 
   const after = (await dst.query(`SELECT run_id, count(*)::int AS n FROM ${TARGET} GROUP BY 1`)).rows
   console.log('target after:', JSON.stringify(after), `| previous kept as ${TARGET}_prev`)
+
+  // The two small companions 01E writes per run: the closed vocabulary with
+  // its leaf/group flag, and the group-term hierarchy. Replaced whole; they
+  // are a few hundred rows and carry the run_id of the rows above.
+  for (const [name, cols] of [
+    ['lep_permissibility_universe', 'run_id text, land_use text, is_parent boolean'],
+    ['lep_permissibility_hierarchy', 'run_id text, parent text, child text, depth integer, chain text'],
+  ]) {
+    const there = (await src.query(`SELECT to_regclass('urbanportaldbp.${name}') IS NOT NULL AS ok`)).rows[0].ok
+    if (!there) { console.log(`source has no ${name}; skipped`); continue }
+    await dst.query(`DROP TABLE IF EXISTS nsw.${name}_new`)
+    await dst.query(`CREATE TABLE nsw.${name}_new (${cols})`)
+    await pipeline(
+      src.query(copyTo(`COPY urbanportaldbp.${name} TO STDOUT`)),
+      dst.query(copyFrom(`COPY nsw.${name}_new FROM STDIN`)),
+    )
+    await dst.query('BEGIN')
+    await dst.query(`DROP TABLE IF EXISTS nsw.${name}`)
+    await dst.query(`ALTER TABLE nsw.${name}_new RENAME TO ${name}`)
+    await dst.query('COMMIT')
+    const n = (await dst.query(`SELECT count(*)::int AS n FROM nsw.${name}`)).rows[0].n
+    console.log(`${name}: ${n} rows`)
+  }
 } finally {
   await src.end().catch(() => {})
   await dst.end().catch(() => {})

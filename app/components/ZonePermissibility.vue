@@ -237,7 +237,8 @@
           >
             <span class="zp-dot zp-dot--sm" :style="{ background: COLOR[parentStatus(p)].base }" />
             {{ p.use }}
-            <span v-if="p.namedStatus && p.namedStatus !== p.status" class="zp-parent-hint">members {{ MEMBERS_SHORT[p.status] }}</span>
+            <span v-if="p.members.length" class="zp-parent-hint">{{ memberSummary(p) }}</span>
+            <span v-else-if="p.namedStatus && p.namedStatus !== p.status" class="zp-parent-hint">members {{ MEMBERS_SHORT[p.status] }}</span>
             <span v-if="listingChange(p) === 'added'" class="zp-parent-change zp-parent-change--added">now listed</span>
             <span v-else-if="listingChange(p) === 'removed'" class="zp-parent-change zp-parent-change--removed">no longer listed</span>
           </button>
@@ -506,15 +507,41 @@ function parentStatus(p: ResolvedParent): Status {
   return p.namedStatus ?? p.status
 }
 
+/** "1 of 2 members permitted", from the hierarchy the resolver used. */
+function memberSummary(p: ResolvedParent): string {
+  const permitted = p.members.filter(m => m.status === 'permitted_with_consent' || m.status === 'permitted_without_consent').length
+  const n = p.members.length
+  if (permitted === n) return `all ${n} members permitted`
+  if (permitted === 0) return `all ${n} members prohibited`
+  return `${permitted} of ${n} members permitted`
+}
+
 function parentTitle(p: ResolvedParent): string {
   const tail = ' — click to find the terms under it'
+  const list = p.members.length
+    ? `\nStands for: ${p.members.map(m => `${m.use} (${m.status ? STATUS_LABEL[m.status].toLowerCase() : 'not resolved'})`).join('; ')}`
+    : ''
   if (p.namedStatus) {
     const line = p.namedSourceText ? ` as “${p.namedSourceText}”` : ''
     const members = p.namedStatus === p.status ? '' : `; its members are ${MEMBERS_SHORT[p.status]}`
-    return `${STATUS_LABEL[p.namedStatus]}: the plan names it${line}${members}${tail}`
+    return `${STATUS_LABEL[p.namedStatus]}: the plan names it${line}${members}${tail}${list}`
   }
-  return `${STATUS_LABEL[p.status]}: the plan never names it; rolled up from its members${tail}`
+  return `${STATUS_LABEL[p.status]}: the plan never names it; rolled up from its members${tail}${list}`
 }
+
+/**
+ * Called by the report when a chip in its Permitted Uses is clicked: show
+ * this term in the columns. A group term filters to its members; a leaf
+ * searches for itself. Either way the filters are reset first.
+ */
+function focus(term: string) {
+  const t = term.toLowerCase()
+  statusFilter.value = 'all'
+  basisFilter.value = 'all'
+  search.value = t
+  catchallOpen.value = true
+}
+defineExpose({ focus, hasTerm: (term: string) => leaves.value.some(l => l.use === term.toLowerCase()) || parents.value.some(p => p.use === term.toLowerCase()) })
 
 /**
  * Whether the corrected list rule changes this term's place in a lot's

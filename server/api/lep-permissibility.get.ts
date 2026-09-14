@@ -237,8 +237,36 @@ async function hasNamedColumns(client: { query: (q: string) => Promise<{ rowCoun
   return namedColumnsPresent
 }
 
+/**
+ * The resolver's hierarchy: which leaf terms each group term stands for. One
+ * small table per run, ~200 rows, so it is read once and kept. Absent until
+ * it has been copied across, in which case group terms have no members here.
+ */
+let hierarchy: Map<string, string[]> | null = null
+async function groupMembers(client: { query: (q: string) => Promise<{ rows: any[] }> }): Promise<Map<string, string[]>> {
+  if (hierarchy && hierarchy.size) return hierarchy
+  const exists = await client.query(
+    `SELECT 1 FROM information_schema.tables WHERE table_schema = 'nsw' AND table_name = 'lep_permissibility_hierarchy'`,
+  )
+  const map = new Map<string, string[]>()
+  if (exists.rows.length) {
+    const res = await client.query(
+      `SELECT parent, child FROM nsw.lep_permissibility_hierarchy
+       WHERE run_id = (SELECT max(run_id) FROM nsw.lep_permissibility_hierarchy)
+       ORDER BY parent, depth, child`,
+    )
+    for (const r of res.rows) {
+      if (!map.has(r.parent)) map.set(r.parent, [])
+      map.get(r.parent)!.push(r.child)
+    }
+  }
+  hierarchy = map
+  return map
+}
+
 async function zoneDetail(epicode: string, zoneId: string) {
-  const { raw, resolved } = await withNswClient(async (client) => {
+  const { raw, resolved, members } = await withNswClient(async (client) => {
+    const members = await groupMembers(client)
     const namedCols = (await hasNamedColumns(client))
       ? 'named_status, named_source_text'
       : 'NULL::text AS named_status, NULL::text AS named_source_text'
@@ -265,12 +293,16 @@ async function zoneDetail(epicode: string, zoneId: string) {
        ORDER BY land_use`,
       [epicode, zoneId],
     )
-    return { raw: raw.rows, resolved: resolved.rows }
+    return { raw: raw.rows, resolved: resolved.rows, members }
   })
 
   if (!raw.length) {
     return { ok: false as const, reason: 'unknown_zone', message: `No zone "${zoneId}" in "${epicode}".` }
   }
+
+  // A member's status in this zone, for the group terms' member lists.
+  const statusOf = new Map<string, Status>()
+  for (const r of resolved) if (r.level !== 'parent') statusOf.set(r.land_use, r.status)
 
   const objectives: string[] = []
   const withoutConsent: string[] = []
@@ -293,6 +325,7 @@ async function zoneDetail(epicode: string, zoneId: string) {
         status: r.status,
         namedStatus: r.named_status ?? null,
         namedSourceText: r.named_source_text ?? null,
+        members: (members.get(r.land_use) ?? []).map(use => ({ use, status: statusOf.get(use) ?? null })),
       })
       continue
     }

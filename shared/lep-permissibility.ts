@@ -58,6 +58,12 @@ export interface ResolvedParent {
   namedStatus: Status | null
   /** The line the plan names it on, as written. */
   namedSourceText: string | null
+  /**
+   * The leaf terms this group term stands for, from the resolver's hierarchy
+   * table, each with its status in this zone. Empty when the hierarchy has
+   * not been copied across yet.
+   */
+  members: Array<{ use: string, status: Status | null }>
 }
 
 /**

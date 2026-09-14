@@ -399,17 +399,25 @@
 
     <!-- ── Permitted uses ──────────────────────────────────────────────── -->
     <details v-if="permittedUses.length > 0" class="rpt-section" open>
-      <summary class="rpt-section-title">Permitted Uses in Zone {{ p?.zone }} ({{ permittedUses.length }})</summary>
-      <div class="uses-hint">Click a use to pull its LEP / SEPP / DCP controls for this lot.</div>
+      <summary class="rpt-section-title">
+        Permitted Uses in Zone {{ p?.zone }} ({{ permittedUses.length }})
+        <span v-if="useKinds" class="rpt-count">{{ useKinds.leaves }} specific · {{ useKinds.groups }} group {{ useKinds.groups === 1 ? 'term' : 'terms' }}</span>
+      </summary>
+      <div class="uses-hint">
+        Click a use to pull its LEP / SEPP / DCP controls for this lot.
+        <template v-if="useKinds"> Outlined chips are group terms: the plan lists the group, and the resolved table below says which members that covers. The ↓ on a chip finds it there.</template>
+      </div>
       <div class="uses-list">
-        <button
-          v-for="u in permittedUses"
-          :key="u"
-          type="button"
-          :class="['use-chip', 'use-chip--clickable', selectedUse === u && 'use-chip--active']"
-          :disabled="useAnalysisLoading"
-          @click="selectUse(u)"
-        >{{ u }}</button>
+        <span v-for="u in permittedUses" :key="u" class="use-chip-wrap">
+          <button
+            type="button"
+            :class="['use-chip', 'use-chip--clickable', selectedUse === u && 'use-chip--active', groupTermOf(u) && 'use-chip--group']"
+            :disabled="useAnalysisLoading"
+            :title="chipTitle(u)"
+            @click="selectUse(u)"
+          >{{ u }}<span v-if="groupTermOf(u)" class="use-chip-kind">group</span></button>
+          <button v-if="useKinds" type="button" class="use-chip-find" :title="groupTermOf(u) ? 'Show its members in the Land Use Table' : 'Find it in the Land Use Table'" @click="findInTable(u)">↓</button>
+        </span>
       </div>
 
       <!-- ── TEMPORARY: what 09G would now write ─────────────────────────
@@ -433,8 +441,9 @@
         <div class="uses-list uses-list--preview">
           <span
             v-for="u in permittedPreview.uses" :key="u"
-            class="use-chip" :class="{ 'use-chip--added': permittedPreview.addedSet.has(u) }"
-          >{{ permittedPreview.addedSet.has(u) ? '+ ' : '' }}{{ u }}</span>
+            class="use-chip" :class="{ 'use-chip--added': permittedPreview.addedSet.has(u), 'use-chip--group': groupTermOf(u) }"
+            :title="chipTitle(u)"
+          >{{ permittedPreview.addedSet.has(u) ? '+ ' : '' }}{{ u }}<span v-if="groupTermOf(u)" class="use-chip-kind">group</span></span>
           <span v-for="u in permittedPreview.removed" :key="'r' + u" class="use-chip use-chip--removed">− {{ u }}</span>
         </div>
         <p class="uses-preview-note">
@@ -495,7 +504,7 @@
       </p>
       <div v-for="t in landUseTables" :key="t.code" class="lut-block">
         <h3 v-if="landUseTables.length > 1" class="lut-zone-head">Zone {{ t.code }}</h3>
-        <ZonePermissibility v-if="t.detail" :detail="t.detail" />
+        <ZonePermissibility v-if="t.detail" ref="zoneViews" :detail="t.detail" />
         <p v-else-if="t.error" class="lut-note">{{ t.error }}</p>
         <p v-else class="lut-note">Loading the Land Use Table…</p>
       </div>
@@ -1273,7 +1282,7 @@ import {
 import { martinTileBase } from '#shared/martin'
 import { formatDay } from '#shared/dates'
 import { DCP_SLUG_BY_LGA } from '#shared/property-columns'
-import type { ZoneDetail } from '#shared/lep-permissibility'
+import type { ResolvedParent, ZoneDetail } from '#shared/lep-permissibility'
 // Categorising and labelling the whole row, so the sections below can name the
 // fields they curate and a catch-all can still show everything else.
 import { categorise, patternEligibility, humanise } from '#shared/property-fields'
@@ -1982,6 +1991,51 @@ onBeforeUnmount(() => {
 // a council boundary can name two plans, so each name is tried in turn.
 interface LandUseTable { code: string, detail: ZoneDetail | null, error: string | null }
 const landUseTables = ref<LandUseTable[]>([])
+
+/**
+ * Which of the lot's permitted uses are group terms, from the resolved rows
+ * already loaded for its zone(s). The stored list is flat text and says
+ * nothing about kind; the resolver's rows do, by level, and the list was
+ * composed from them, so every chip is in there under its own name.
+ */
+const groupTerms = computed(() => {
+  const map = new Map<string, ResolvedParent>()
+  for (const t of landUseTables.value) {
+    for (const g of t.detail?.resolved.parents ?? []) if (!map.has(g.use)) map.set(g.use, g)
+  }
+  return map
+})
+function groupTermOf(use: string): ResolvedParent | undefined {
+  return groupTerms.value.get(use.toLowerCase())
+}
+const useKinds = computed(() => {
+  if (!landUseTables.value.some(t => t.detail)) return null
+  const groups = permittedUses.value.filter(u => groupTermOf(u)).length
+  return { groups, leaves: permittedUses.value.length - groups }
+})
+function chipTitle(use: string): string {
+  const g = groupTermOf(use)
+  if (!g) return 'A specific land use'
+  if (!g.members.length) return 'A group term'
+  const permitted = g.members.filter(m => m.status === 'permitted_with_consent' || m.status === 'permitted_without_consent')
+  return `Group term standing for ${g.members.length} uses, ${permitted.length} permitted here: `
+    + g.members.map(m => `${m.use}${m.status && m.status.startsWith('permitted') ? '' : ' (prohibited)'}`).join(', ')
+}
+
+/** Jump to the Land Use Table with this use shown: a group term filtered to its members, a leaf found by name. */
+const zoneViews = ref<any[]>([])
+function findInTable(use: string) {
+  const views = Array.isArray(zoneViews.value) ? zoneViews.value : [zoneViews.value]
+  const view = views.find((v: any) => v?.hasTerm?.(use)) ?? views[0]
+  if (!view) return
+  const section = document.querySelector('.rpt-section:has(.lut-block)') as HTMLDetailsElement | null
+  if (section) section.open = true
+  view.focus(use)
+  nextTick(() => {
+    const el = document.querySelector('.lut-block .zp-columns') ?? document.querySelector('.lut-block')
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
+}
 
 /**
  * TEMPORARY. The lot's permitted list as 09G would now write it, read live
@@ -3598,6 +3652,22 @@ function handleSSE(type: string, data: any) {
 .use-chip--clickable:hover:not(:disabled) { background: #dcfce7; border-color: #86efac; }
 .use-chip--clickable:disabled { opacity: 0.6; cursor: default; }
 .use-chip--active { background: #15803d; color: #fff; border-color: #15803d; }
+
+/* A group term: the plan lists the group, and the resolved table says which members that covers. */
+.use-chip-wrap { display: inline-flex; align-items: stretch; }
+.use-chip--group { background: #fff; border-style: dashed; border-color: #15803d; }
+.use-chip--group.use-chip--active { background: #15803d; }
+.use-chip-kind {
+  margin-left: 0.35rem; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #15803d; opacity: 0.85;
+}
+.use-chip--active .use-chip-kind { color: #fff; }
+.use-chip-find {
+  margin-left: -1px; padding: 0 0.4rem; border: 1px solid #e2e8f0; border-radius: 0 10px 10px 0; background: #f8fafc;
+  font: inherit; font-size: 0.7rem; color: #64748b; cursor: pointer;
+}
+.use-chip-wrap .use-chip { border-radius: 10px 0 0 10px; }
+.use-chip-find:hover { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
 
 /* ── TEMPORARY: preview of 09G's list ──────────────────────────────────── */
 .uses-preview {
