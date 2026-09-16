@@ -76,8 +76,14 @@ export const DEFAULT_COLLINEAR_DEG = 8
  * them and the lot came back with no frontage at all — the same class of failure
  * as the pipeline this replaces, arrived at from the other direction. Runs are
  * joined first and filtered afterwards.
+ *
+ * Lowered from 3 m to 2 m: a battle-axe's entrance IS its frontage, and handles
+ * narrower than 3 m are common enough that the floor was discarding the one run
+ * that mattered. Those lots still reported a frontage, taken off some other
+ * boundary, which is worse than reporting none. Nothing in the cadastre makes
+ * 3 m a real threshold, and a 2 m handle is a real handle.
  */
-export const MIN_RUN_M = 3
+export const MIN_RUN_M = 2
 
 /**
  * Slivers below this are digitising noise, not boundary.

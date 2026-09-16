@@ -134,6 +134,9 @@
       <NuxtLink to="/library" class="library-link">
         Browse the full library &rarr;
       </NuxtLink>
+      <NuxtLink to="/datasources" class="library-link library-link--next">
+        About the data &rarr;
+      </NuxtLink>
     </div>
 
     <!-- Disclaimer modal (first visit only) -->
@@ -745,6 +748,10 @@ body {
 .library-link:hover {
   border-color: #15803d;
   color: #15803d;
+}
+
+.library-link--next {
+  margin-left: 0.5rem;
 }
 
 .map-legend-dot--active {
