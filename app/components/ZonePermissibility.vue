@@ -63,6 +63,116 @@
       </section>
     </div>
 
+    <!-- ── How the table is read ───────────────────────────────────────────
+         The written table is not the answer: a group term stands for every
+         use under it, and one line disposes of everything the table never
+         names. This folds the method away under the table, with the zone's
+         own lines as the worked example, so a reader who wants to know why a
+         use landed where it did can find out without leaving the page. -->
+    <details class="zp-how" @toggle="howOpen = ($event.target as HTMLDetailsElement).open">
+      <summary class="zp-how-summary">
+        How this table becomes the resolved list below
+        <span class="zp-how-hint">{{ howOpen ? 'hide' : 'show' }}</span>
+      </summary>
+
+      <div class="zp-how-body">
+        <p class="zp-how-lead">
+          The four items are read together, and two things make the written lists incomplete:
+          a group term stands for every use under it, and one line in item {{ clause?.item ?? '3 or 4' }}
+          disposes of every use the table never names. The resolver reads the table in three steps.
+        </p>
+
+        <!-- The diagram: what happens between the written table and the resolved list. -->
+        <ol class="zp-flow" aria-label="From the written table to the resolved list">
+          <li class="zp-flow-node zp-flow-node--end">
+            <span class="zp-flow-kicker">Written</span>
+            <span class="zp-flow-title">Items 2, 3 and 4</span>
+            <span class="zp-flow-text">{{ rawCount }} lines, as the plan prints them.</span>
+          </li>
+          <li class="zp-flow-node">
+            <span class="zp-flow-kicker">Step 1</span>
+            <span class="zp-flow-title">Expand group terms</span>
+            <span class="zp-flow-text">Each listed term is replaced by the leaf uses it stands for in the Standard Instrument dictionary. A leaf reached this way is <em>inherited</em>.</span>
+          </li>
+          <li class="zp-flow-node">
+            <span class="zp-flow-kicker">Step 2</span>
+            <span class="zp-flow-title">Apply the catch-all</span>
+            <span class="zp-flow-text">Every leaf still unnamed takes the status of the item the line sits in. Only now: applied first, it would subtract unexpanded group terms and leak their members.</span>
+          </li>
+          <li class="zp-flow-node">
+            <span class="zp-flow-kicker">Step 3</span>
+            <span class="zp-flow-title">Settle conflicts</span>
+            <span class="zp-flow-text"><em>Listed</em> beats <em>inherited</em> beats <em>catch-all</em>. Between two group terms the nearer one wins; on a tie, prohibited wins.</span>
+          </li>
+          <li class="zp-flow-node zp-flow-node--end">
+            <span class="zp-flow-kicker">Resolved</span>
+            <span class="zp-flow-title">{{ leaves.length }} leaf terms</span>
+            <span class="zp-flow-text">Each with a status and the basis that decided it, and {{ parents.length }} group terms rolled up on top.</span>
+          </li>
+        </ol>
+
+        <!-- Which way the catch-all cuts: the one line that makes a zone open or closed. -->
+        <div class="zp-cut">
+          <div
+            class="zp-cut-card"
+            :class="{ 'zp-cut-card--this': clause?.open, 'zp-cut-card--dim': clause && !clause.open }"
+            :style="{ '--accent': COLOR.permitted_with_consent.base, '--tint': COLOR.permitted_with_consent.tint }"
+          >
+            <span class="zp-cut-head">
+              <span class="zp-dot zp-dot--sm" :style="{ background: COLOR.permitted_with_consent.base }" />
+              Open zone
+              <span v-if="clause?.open" class="zp-cut-this">this zone</span>
+            </span>
+            <span class="zp-cut-clause">“Any other development not specified in item 2 or 4” sits in item 3</span>
+            <span class="zp-cut-text">Everything the table does not prohibit is <strong>permitted with consent</strong>. Item 4 is the whole answer.</span>
+          </div>
+          <div
+            class="zp-cut-card"
+            :class="{ 'zp-cut-card--this': clause && !clause.open, 'zp-cut-card--dim': clause?.open }"
+            :style="{ '--accent': COLOR.prohibited.base, '--tint': COLOR.prohibited.tint }"
+          >
+            <span class="zp-cut-head">
+              <span class="zp-dot zp-dot--sm" :style="{ background: COLOR.prohibited.base }" />
+              Closed zone
+              <span v-if="clause && !clause.open" class="zp-cut-this">this zone</span>
+            </span>
+            <span class="zp-cut-clause">“Any development not specified in item 2 or 3” sits in item 4</span>
+            <span class="zp-cut-text">Everything the table does not permit is <strong>prohibited</strong>. Items 2 and 3 are the whole answer.</span>
+          </div>
+        </div>
+        <p v-if="clause" class="zp-how-zone">
+          Here the line reads <em>“{{ clause.text }}”</em> and sits in item {{ clause.item }}, so the
+          {{ clause.n }} uses this table never names are {{ STATUS_LABEL[clause.status].toLowerCase() }}.
+        </p>
+        <p v-else class="zp-how-zone">
+          This table has no such line, so a use it never names is left unresolved rather than guessed at.
+        </p>
+
+        <!-- Worked from this zone's own lines. -->
+        <ul v-if="examples.length" class="zp-how-examples">
+          <li
+            v-for="ex in examples" :key="ex.use"
+            class="zp-how-example"
+            :style="{ '--accent': COLOR[ex.status].base }"
+          >
+            <span class="zp-how-example-use">
+              <span class="zp-dot zp-dot--sm" :style="{ background: COLOR[ex.status].base }" />
+              {{ ex.use }}
+            </span>
+            <span class="zp-how-example-text">{{ ex.text }}</span>
+          </li>
+        </ul>
+
+        <p class="zp-how-foot">
+          A group term carries two answers. What the plan says about the term itself is read first; only when
+          the plan never names it do its members decide, and a group term whose members disagree is
+          <em>mixed</em> and is never listed as a whole: its permitted members are listed on their own.
+          Clause 2.3(3) of the plan is the rule behind all of this: a listed term means development for that
+          purpose, and it does not include a type the same table lists separately.
+        </p>
+      </div>
+    </details>
+
     <!-- ── Resolved ────────────────────────────────────────────────────── -->
     <h3 class="zp-section-head">
       Resolved against the Standard Instrument
@@ -571,6 +681,111 @@ function findUnder(term: string) {
   basisFilter.value = 'all'
   search.value = q
 }
+
+// ── How the table is read ───────────────────────────────────────────────
+
+/** Folded by default; the hint on the summary follows the element's own state. */
+const howOpen = ref(false)
+
+/** Lines in items 2 to 4 as written, for the diagram's first node. */
+const rawCount = computed(() =>
+  props.detail.raw.withoutConsent.length + props.detail.raw.withConsent.length + props.detail.raw.prohibited.length,
+)
+
+/**
+ * This zone's residual clause, read off the leaves it caught: what it says,
+ * which item it sits in, and so which way it cuts. Null when the table has
+ * no such line, in which case unnamed uses are simply not resolved.
+ */
+const clause = computed(() => {
+  const caught = leaves.value.filter(l => l.basis === 'catchall')
+  const first = caught[0]
+  if (!first) return null
+  const status = first.status as LeafStatus
+  const item = status === 'prohibited' ? '4' : status === 'permitted_with_consent' ? '3' : '2'
+  return {
+    text: first.derivedFrom ?? 'any other development not specified',
+    status,
+    item,
+    n: caught.length,
+    open: status !== 'prohibited',
+  }
+})
+
+interface HowExample { use: string, status: Status, text: string }
+
+/**
+ * One line of this zone's own table for each step of the method, so the
+ * explanation is about the zone on screen and not a zone in general. Each is
+ * skipped when the zone has nothing of that kind. The waste terms are
+ * preferred where they exist because that group is the clearest case of
+ * "some members prohibited, one not" in most plans.
+ */
+const examples = computed<HowExample[]>(() => {
+  const out: HowExample[] = []
+  const lower = (s: Status) => STATUS_LABEL[s].toLowerCase()
+  const ls = leaves.value
+  const ps = parents.value
+
+  // A listing that beat what it inherited: the specific term over the general one.
+  const over = ls.find(l => l.basis === 'explicit' && l.resolvedAgainst)
+  if (over && over.resolvedAgainst) {
+    out.push({
+      use: over.use, status: over.status,
+      text: `listed as “${over.sourceText ?? over.use}”, so it is ${lower(over.status)} even though it inherits `
+        + `${lower(over.resolvedAgainst.status)} through ${over.resolvedAgainst.chain}. The specific listing wins.`,
+    })
+  }
+
+  // A leaf the plan never names, reached through a group term it does.
+  const inh = ls.find(l => l.basis === 'inherited' && l.use === 'dwelling houses') ?? ls.find(l => l.basis === 'inherited')
+  if (inh) {
+    const via = inh.derivedFrom && inh.derivedFrom.includes('>') ? ` via ${inh.derivedFrom}` : ''
+    out.push({
+      use: inh.use, status: inh.status,
+      text: `never named, but “${inh.sourceText ?? inh.derivedFrom ?? 'a group term'}” is listed and stands for it${via}, `
+        + `so it is ${lower(inh.status)}.`,
+    })
+  }
+
+  // A leaf nobody names at all, above or below: the catch-all decides.
+  const caught = ls.find(l => l.basis === 'catchall' && l.use === 'waste or resource transfer stations')
+    ?? ls.find(l => l.basis === 'catchall')
+  if (caught) {
+    out.push({
+      use: caught.use, status: caught.status,
+      text: `named nowhere, and no group term above it is either, so the catch-all line decides: ${lower(caught.status)}.`,
+    })
+  }
+
+  // A group term the plan never names whose members disagree.
+  const mixed = ps.find(p => p.use === 'waste or resource management facilities' && p.status === 'mixed' && !p.namedStatus)
+    ?? ps.find(p => p.status === 'mixed' && !p.namedStatus)
+  if (mixed) {
+    const members = mixed.members.length ? memberSummary(mixed) : 'its members disagree'
+    out.push({
+      use: mixed.use, status: 'mixed',
+      text: `a group term the plan never names: ${members}, so it is mixed and is not listed as a whole. `
+        + `The members that are permitted are listed on their own.`,
+    })
+  }
+
+  // A group term where the plan's own word and its members disagree. The
+  // sharpest case first: prohibited by name while every member is permitted.
+  const permitted = (s: Status | null) => s === 'permitted_with_consent' || s === 'permitted_without_consent'
+  const named = ps.find(p => p.namedStatus === 'prohibited' && permitted(p.status))
+    ?? ps.find(p => permitted(p.namedStatus) && !permitted(p.status))
+    ?? ps.find(p => p.namedStatus && p.namedStatus !== p.status)
+  if (named && named.namedStatus) {
+    out.push({
+      use: named.use, status: named.namedStatus,
+      text: `listed as “${named.namedSourceText ?? named.use}”, so it is ${lower(named.namedStatus)} even though its `
+        + `members are ${MEMBERS_SHORT[named.status]}. The plan's own word on a group term is read first.`,
+    })
+  }
+
+  return out
+})
 </script>
 
 <style scoped>
@@ -671,6 +886,190 @@ function findUnder(term: string) {
   color: #94a3b8;
   font-style: italic;
 }
+
+/* ── How the table is read ──────────────────────────────────────────────── */
+.zp-how {
+  margin-top: 0.6rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+.zp-how-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.zp-how-summary::-webkit-details-marker { display: none; }
+.zp-how-summary::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 5px solid #94a3b8;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 0.12s;
+}
+.zp-how[open] > .zp-how-summary::before { transform: rotate(90deg); }
+.zp-how-summary:hover { background: #f8fafb; border-radius: 12px; }
+.zp-how-hint {
+  margin-left: auto;
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.zp-how-body { padding: 0 1rem 1rem; border-top: 1px solid #f1f5f9; }
+.zp-how-lead,
+.zp-how-zone,
+.zp-how-foot {
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #334155;
+}
+.zp-how-zone em { font-style: italic; color: #0f172a; }
+.zp-how-foot { font-size: 0.74rem; color: #64748b; }
+.zp-how-foot em { font-style: normal; font-weight: 600; color: #b45309; }
+
+/* The diagram: five nodes left to right with an arrow between each, one
+   under another when the container is too narrow for five across. */
+.zp-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.4rem;
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+}
+.zp-flow-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.65rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  min-width: 0;
+}
+.zp-flow-node--end { background: #fff; border-style: dashed; }
+.zp-flow-node:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  top: 50%;
+  right: -1.25rem;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #94a3b8;
+  pointer-events: none;
+}
+@container (max-width: 760px) {
+  .zp-flow { grid-template-columns: 1fr; gap: 1.3rem; }
+  .zp-flow-node:not(:last-child)::after {
+    content: '↓';
+    top: auto;
+    right: auto;
+    bottom: -1.3rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+.zp-flow-kicker {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+.zp-flow-title { font-size: 0.78rem; font-weight: 700; color: #0f172a; }
+.zp-flow-text { font-size: 0.7rem; line-height: 1.4; color: #475569; }
+.zp-flow-text em { font-style: normal; font-weight: 700; color: #0f172a; }
+
+/* Open or closed: the two readings of the residual clause, this zone's lit. */
+.zp-cut {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+@container (max-width: 560px) {
+  .zp-cut { grid-template-columns: 1fr; }
+}
+.zp-cut-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--tint);
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  min-width: 0;
+}
+.zp-cut-card--this { border-color: var(--accent); }
+.zp-cut-card--dim { opacity: 0.55; }
+.zp-cut-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.zp-cut-this {
+  margin-left: auto;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: #0f172a;
+  color: #fff;
+}
+.zp-cut-clause { font-size: 0.72rem; font-style: italic; color: #475569; }
+.zp-cut-text { font-size: 0.72rem; line-height: 1.4; color: #334155; }
+
+/* Worked examples, one line of this zone's table per step. */
+.zp-how-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+}
+.zp-how-example {
+  display: grid;
+  grid-template-columns: minmax(150px, 230px) minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #f1f5f9;
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+@container (max-width: 560px) {
+  .zp-how-example { grid-template-columns: 1fr; gap: 0.15rem; }
+}
+.zp-how-example-use {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.zp-how-example-text { color: #334155; }
 
 /* ── Resolved: chart band ───────────────────────────────────────────────── */
 .zp-chart-card {

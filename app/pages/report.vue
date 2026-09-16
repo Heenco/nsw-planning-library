@@ -420,38 +420,6 @@
         </span>
       </div>
 
-      <!-- ── TEMPORARY: what 09G would now write ─────────────────────────
-           The chips above are the lot's stored list. This is the same list
-           composed live from the resolved table under the corrected group-term
-           rule, with the difference marked, so the change can be seen on real
-           lots before 09G rewrites the property table. Remove once 09G has run
-           and its result has been copied across. -->
-      <div v-if="permittedPreview" class="uses-preview">
-        <div class="uses-preview-head">
-          <span class="uses-preview-tag">Preview · temporary</span>
-          <span class="uses-preview-title">Permitted uses from the resolved table, as 09G will now write them</span>
-        </div>
-        <p class="uses-preview-tally">
-          <strong>{{ permittedPreview.uses.length }}</strong> under the corrected rule ·
-          {{ permittedUses.length }} stored on this lot today ·
-          <span class="uses-preview-added">+{{ permittedPreview.added.length }}</span> ·
-          <span class="uses-preview-removed">−{{ permittedPreview.removed.length }}</span>
-          <template v-if="!permittedPreview.added.length && !permittedPreview.removed.length"> · no change for this lot</template>
-        </p>
-        <div class="uses-list uses-list--preview">
-          <span
-            v-for="u in permittedPreview.uses" :key="u"
-            class="use-chip" :class="{ 'use-chip--added': permittedPreview.addedSet.has(u), 'use-chip--group': groupTermOf(u) }"
-            :title="chipTitle(u)"
-          >{{ permittedPreview.addedSet.has(u) ? '+ ' : '' }}{{ u }}<span v-if="groupTermOf(u)" class="use-chip-kind">group</span></span>
-          <span v-for="u in permittedPreview.removed" :key="'r' + u" class="use-chip use-chip--removed">− {{ u }}</span>
-        </div>
-        <p class="uses-preview-note">
-          Green: in the resolved table, not on the lot today. Struck out: on the lot today, would go.
-          The reason is in the Land Use Table section below, on the group-term chips marked “now listed” or “no longer listed”.
-        </p>
-      </div>
-
       <!-- Use-specific controls panel (planner persona only) -->
       <div v-if="selectedUse" class="use-analysis">
         <div class="use-analysis-header">
@@ -2036,22 +2004,6 @@ function findInTable(use: string) {
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   })
 }
-
-/**
- * TEMPORARY. The lot's permitted list as 09G would now write it, read live
- * from the resolved table for each of the lot's zones and unioned the way
- * 09G unions a split lot, set against the list stored on the lot today.
- */
-const permittedPreview = computed(() => {
-  const tables = landUseTables.value.filter(t => t.detail)
-  if (!tables.length) return null
-  const uses = [...new Set(tables.flatMap(t => t.detail!.permissibleList.proposed))].sort()
-  const today = new Set(permittedUses.value.map(u => u.toLowerCase()))
-  const added = uses.filter(u => !today.has(u))
-  const usesSet = new Set(uses)
-  const removed = permittedUses.value.filter(u => !usesSet.has(u.toLowerCase()))
-  return { uses, added, addedSet: new Set(added), removed }
-})
 
 function splitList(v: unknown): string[] {
   return String(v ?? '').split(',').map(s => s.trim()).filter(Boolean)
@@ -3668,29 +3620,6 @@ function handleSSE(type: string, data: any) {
 }
 .use-chip-wrap .use-chip { border-radius: 10px 0 0 10px; }
 .use-chip-find:hover { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
-
-/* ── TEMPORARY: preview of 09G's list ──────────────────────────────────── */
-.uses-preview {
-  margin: 0.6rem 1rem 0.9rem;
-  padding: 0.75rem 0.9rem;
-  border: 1px dashed #f59e0b;
-  border-radius: 10px;
-  background: #fffbeb;
-}
-.uses-preview-head { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.3rem; }
-.uses-preview-tag {
-  font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 0.15rem 0.45rem; border-radius: 4px; background: #f59e0b; color: #fff;
-}
-.uses-preview-title { font-size: 0.8rem; font-weight: 700; color: #0f172a; }
-.uses-preview-tally { margin: 0 0 0.5rem; font-size: 0.74rem; color: #475569; }
-.uses-preview-tally strong { color: #0f172a; }
-.uses-preview-added { color: #15803d; font-weight: 700; }
-.uses-preview-removed { color: #b91c1c; font-weight: 700; }
-.uses-list--preview { padding: 0; }
-.use-chip--added { background: #dcfce7; border-color: #4ade80; color: #14532d; font-weight: 700; }
-.use-chip--removed { background: #fee2e2; border-color: #fca5a5; color: #991b1b; text-decoration: line-through; }
-.uses-preview-note { margin: 0.5rem 0 0; font-size: 0.7rem; color: #92400e; line-height: 1.4; }
 
 /* ── Land Use Table for the lot's zone ─────────────────────────────────── */
 .lut-blurb { padding: 0 1rem; }
