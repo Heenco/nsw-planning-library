@@ -26,6 +26,15 @@ export default defineNuxtConfig({
     rollupConfig: {
       external: ['pg-native', 'ssh2'],
     },
+    // Run the server functions in Sydney, next to the planningai database.
+    // Every API route here is a few sequential Postgres round trips, and from
+    // the default Washington region each one crossed the Pacific: a search
+    // measured 2.3 s in production against 0.9 s from Sydney.
+    vercel: {
+      functions: {
+        regions: ['syd1'],
+      },
+    },
   },
   app: {
     head: {

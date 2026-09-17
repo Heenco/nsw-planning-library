@@ -214,7 +214,6 @@ export interface LotProfileBuild {
 }
 
 export interface LotProfileResult {
-  build: LotProfileBuild
   lot: Record<string, unknown> | null
   runs: Record<string, unknown>[]
   addresses: Record<string, unknown>[]
@@ -301,57 +300,85 @@ const ROAD_TYPES: Record<string, string> = {
 }
 
 /**
- * Every word typed has to appear in the address, so "26 foveaux surry" narrows
- * the way someone expects. A word that is an abbreviated street type matches
- * either spelling. A lot reference is recognised by its plan label and matched
- * on lot_id instead.
+ * Words too short or too common to narrow anything on their own. pg_trgm needs
+ * three characters, so "26", "St" and "Rd" cannot use the index at all, and a
+ * road type spelled out - STREET, ROAD - matches most of the table. A query
+ * made only of these was a 2.6 s parallel scan of 5.2M rows on every pause in
+ * typing. They are still applied, as filters over what the index returns; they
+ * just cannot be the only thing asked for.
  */
-async function search(client: pg.PoolClient, raw: string, tables: Record<string, boolean>): Promise<LotProfileMatch[]> {
-  if (!tables.lot_address) return []
+const ROAD_WORDS = new Set(Object.values(ROAD_TYPES))
+function selective(word: string): boolean {
+  const u = word.toUpperCase()
+  return u.length >= 3 && !ROAD_WORDS.has(u) && !ROAD_TYPES[u] && !/^\d+[A-Z]?$/.test(u)
+}
+
+export interface SearchReply { results: LotProfileMatch[]; hint?: string }
+
+/**
+ * Every word typed has to appear in the address, so "26 foveaux surry" narrows
+ * the way someone expects. An abbreviated street type is replaced by the word
+ * GURAS actually stores - "St" becomes "STREET" - rather than OR-ed with it: an
+ * OR with a two-character side disqualifies the whole clause from the trigram
+ * index. A lot reference is recognised by its plan label and matched on lot_id.
+ */
+async function search(client: pg.PoolClient, raw: string, tables: Record<string, boolean>): Promise<SearchReply> {
+  if (!tables.lot_address) return { results: [] }
   const q = raw.trim()
-  if (q.length < 2) return []
+  if (q.length < 2) return { results: [] }
 
   const looksLikeLot = /\b(?:D|S|C)P\s*\d+/i.test(q) || q.includes('//')
-  const rows = looksLikeLot
-    ? (await client.query(
+  let rows: any[]
+  if (looksLikeLot) {
+    // Exact first, through the btree on lot_id: a reference pasted from the
+    // page is in the stored form. The contains-scan is the fallback for a
+    // partial reference and reads the whole table until the next build adds
+    // the trigram index on lot_id.
+    const exact = q.toUpperCase().replace(/\s+/g, '')
+    rows = (await client.query(
+      `SELECT DISTINCT ON (cadid) cadid, lot_id, msoid, address, suburb, lga_name, is_primary_address
+       FROM derived.lot_address WHERE lot_id = $1
+       ORDER BY cadid, is_primary_address DESC NULLS LAST, address LIMIT $2`,
+      [exact, SEARCH_LIMIT],
+    )).rows
+    if (!rows.length && exact.length >= 5) {
+      rows = (await client.query(
         `SELECT DISTINCT ON (cadid) cadid, lot_id, msoid, address, suburb, lga_name, is_primary_address
          FROM derived.lot_address
-         WHERE replace(upper(lot_id), ' ', '') LIKE '%' || replace(upper($1), ' ', '') || '%'
+         WHERE replace(upper(lot_id), ' ', '') LIKE '%' || $1 || '%'
          ORDER BY cadid, is_primary_address DESC NULLS LAST, address
          LIMIT $2`,
-        [q, SEARCH_LIMIT],
+        [exact, SEARCH_LIMIT],
       )).rows
-    : await (async () => {
-        // One clause per word; a street type matches abbreviated or spelled out.
-        const words = q.split(/\s+/).filter(Boolean)
-        const params: string[] = []
-        const clauses = words.map((w) => {
-          const full = ROAD_TYPES[w.toUpperCase()]
-          params.push(`%${w}%`)
-          if (!full) return `address ILIKE $${params.length}`
-          params.push(`%${full}%`)
-          return `(address ILIKE $${params.length - 1} OR address ILIKE $${params.length})`
-        })
-        params.push(String(SEARCH_LIMIT))
-        return (await client.query(
-          `SELECT cadid, lot_id, msoid, address, suburb, lga_name, is_primary_address
-           FROM derived.lot_address
-           WHERE ${clauses.join(' AND ')}
-           ORDER BY is_primary_address DESC NULLS LAST, address
-           LIMIT $${params.length}`,
-          params,
-        )).rows
-      })()
+    }
+  } else {
+    const words = q.split(/\s+/).filter(Boolean).map(w => ROAD_TYPES[w.toUpperCase()] ?? w)
+    if (!words.some(selective)) {
+      return { results: [], hint: 'Type part of the street or suburb name as well - a number or a road type alone matches too much to search.' }
+    }
+    const params = words.map(w => `%${w}%`)
+    params.push(String(SEARCH_LIMIT))
+    rows = (await client.query(
+      `SELECT cadid, lot_id, msoid, address, suburb, lga_name, is_primary_address
+       FROM derived.lot_address
+       WHERE ${words.map((_, i) => `address ILIKE $${i + 1}`).join(' AND ')}
+       ORDER BY is_primary_address DESC NULLS LAST, address
+       LIMIT $${params.length}`,
+      params,
+    )).rows
+  }
 
-  return rows.map(r => ({
-    cadid: r.cadid,
-    lotId: r.lot_id,
-    msoid: r.msoid,
-    address: r.address,
-    suburb: r.suburb,
-    lgaName: r.lga_name,
-    isPrimary: r.is_primary_address,
-  }))
+  return {
+    results: rows.map(r => ({
+      cadid: r.cadid,
+      lotId: r.lot_id,
+      msoid: r.msoid,
+      address: r.address,
+      suburb: r.suburb,
+      lgaName: r.lga_name,
+      isPrimary: r.is_primary_address,
+    })),
+  }
 }
 
 /**
@@ -367,7 +394,6 @@ function withoutGeometry(row: Record<string, unknown>): Record<string, unknown> 
 
 async function detail(client: pg.PoolClient, cadid: string): Promise<LotProfileResult> {
   const tables = await presentTables(client)
-  const build = await buildState(client, tables)
 
   const addresses = tables.lot_address
     ? (await client.query(
@@ -481,7 +507,6 @@ async function detail(client: pg.PoolClient, cadid: string): Promise<LotProfileR
     : []
 
   return {
-    build,
     lot: lot ? withoutGeometry({ ...lot, geom_json: undefined }) : null,
     runs: runs.map(r => withoutGeometry({ ...r, geom_json: undefined })),
     addresses: addresses.map(a => withoutGeometry(a)),
@@ -509,20 +534,22 @@ export default defineEventHandler(async (event) => {
   if (msoid) {
     return withNswClient(async (client) => {
       const tables = await presentTables(client)
-      if (!tables.lot_address) return { build: await buildState(client, tables), lot: null, runs: [], addresses: [], shape: null, points: [], access: [], lotGeom: null, neighbours: [] }
+      if (!tables.lot_address) return { lot: null, runs: [], addresses: [], shape: null, points: [], access: [], lotGeom: null, neighbours: [] }
       const r = await client.query<{ cadid: string }>(
         `SELECT cadid FROM derived.lot_address WHERE msoid = $1 LIMIT 1`, [Number(msoid)],
       )
       const hit = r.rows[0]
-      if (!hit) return { build: await buildState(client, tables), lot: null, runs: [], addresses: [], shape: null, points: [], access: [], lotGeom: null, neighbours: [] }
+      if (!hit) return { lot: null, runs: [], addresses: [], shape: null, points: [], access: [], lotGeom: null, neighbours: [] }
       return detail(client, hit.cadid)
     })
   }
 
   return withNswClient(async (client) => {
     const tables = await presentTables(client)
-    const build = await buildState(client, tables)
-    if (!q) return { build, results: [] as LotProfileMatch[] }
-    return { build, results: await search(client, String(q), tables) }
+    // A search returns results only. The build state - two count(*) over
+    // millions of rows, ~900 ms - is computed for the bare call the page makes
+    // once on load, never for a keystroke, and never for opening a lot.
+    if (q) return search(client, String(q), tables)
+    return { build: await buildState(client, tables), results: [] as LotProfileMatch[] }
   })
 })

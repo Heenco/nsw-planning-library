@@ -132,6 +132,7 @@
             </ul>
           </div>
           <p v-if="searchError" class="lp-error">{{ searchError }}</p>
+          <p v-else-if="searchHint" class="lp-dim lp-hint">{{ searchHint }}</p>
           <p v-else-if="searched && !results.length && !searching" class="lp-empty">
             Nothing matched <b>{{ lastSearched }}</b>.
             The build holds {{ fmt(build?.lotAddressRows ?? null) }} addresses<span
@@ -409,7 +410,7 @@ interface Sample {
   totalFrontageM: number | null
 }
 interface Detail {
-  build: Build
+  build?: Build
   lot: Record<string, any> | null
   runs: Record<string, any>[]
   addresses: Record<string, any>[]
@@ -533,20 +534,46 @@ const sampleGroups = computed(() => {
 
 const listOpen = ref(false)
 const highlight = ref(0)
+const searchHint = ref('')
 let debounce: ReturnType<typeof setTimeout> | null = null
-let searchSeq = 0
+let inflight: AbortController | null = null
+
+// Mirrors the server's rule, so a query it would refuse never leaves the browser.
+const ROAD_TYPES: Record<string, string> = {
+  ST: 'STREET', RD: 'ROAD', AVE: 'AVENUE', AV: 'AVENUE', DR: 'DRIVE', DRV: 'DRIVE', PDE: 'PARADE',
+  CRES: 'CRESCENT', CR: 'CRESCENT', PL: 'PLACE', HWY: 'HIGHWAY', CCT: 'CIRCUIT', CL: 'CLOSE',
+  CT: 'COURT', TCE: 'TERRACE', LN: 'LANE', BVD: 'BOULEVARD', BLVD: 'BOULEVARD', GR: 'GROVE',
+  ESP: 'ESPLANADE', WY: 'WAY', SQ: 'SQUARE', PKWY: 'PARKWAY', MWY: 'MOTORWAY', FWY: 'FREEWAY',
+  CIR: 'CIRCLE', GDNS: 'GARDENS', RES: 'RESERVE', TRL: 'TRAIL',
+}
+const ROAD_WORDS = new Set(Object.values(ROAD_TYPES))
+function searchable(term: string): boolean {
+  if (/\b(?:D|S|C)P\s*\d+/i.test(term) || term.includes('//')) return true
+  return term.split(/\s+/).map(w => ROAD_TYPES[w.toUpperCase()] ?? w)
+    .some(w => w.length >= 3 && !ROAD_WORDS.has(w.toUpperCase()) && !/^\d+[a-z]?$/i.test(w))
+}
 
 async function runSearch() {
   const term = q.value.trim()
-  if (term.length < 2) { results.value = []; listOpen.value = false; return }
-  const seq = ++searchSeq
+  if (term.length < 2) { results.value = []; listOpen.value = false; searchHint.value = ''; return }
+  if (!searchable(term)) {
+    results.value = []; listOpen.value = false; searched.value = false
+    searchHint.value = 'Keep typing — part of the street or suburb name is what narrows it.'
+    return
+  }
+  searchHint.value = ''
+  // A newer keystroke makes the previous request worthless: abort it, so it
+  // stops costing the server anything and can never land after this one.
+  inflight?.abort()
+  const ctrl = new AbortController()
+  inflight = ctrl
   searching.value = true
   searchError.value = ''
   try {
-    const r = await $fetch<{ build: Build; results: Match[] }>('/api/lotprofile', { query: { q: term } })
-    if (seq !== searchSeq) return                 // a later keystroke superseded this one
-    build.value = r.build
+    const r = await $fetch<{ results: Match[]; hint?: string }>('/api/lotprofile', { query: { q: term }, signal: ctrl.signal })
+    if (ctrl.signal.aborted) return
     results.value = r.results
+    searchHint.value = r.hint ?? ''
     lastSearched.value = term
     searched.value = true
     highlight.value = 0
@@ -558,18 +585,18 @@ async function runSearch() {
       if (!(openedCadid.value === only.cadid && focusMsoid.value === only.msoid)) pick(only)
     }
   } catch (e: any) {
-    if (seq !== searchSeq) return
+    if (ctrl.signal.aborted) return
     searchError.value = e?.data?.message || e?.message || 'The search failed.'
     results.value = []
   } finally {
-    if (seq === searchSeq) searching.value = false
+    if (inflight === ctrl) { searching.value = false; inflight = null }
   }
 }
 
 /** Search a moment after the last keystroke rather than on every one. */
 function onType() {
   if (debounce) clearTimeout(debounce)
-  debounce = setTimeout(runSearch, 220)
+  debounce = setTimeout(runSearch, 150)
 }
 
 function move(step: number) {
@@ -597,7 +624,6 @@ async function open(cadid: string, msoid: number | null = null) {
   focusMsoid.value = msoid
   try {
     detail.value = await $fetch<Detail>('/api/lotprofile', { query: { cadid } })
-    if (detail.value?.build) build.value = detail.value.build
     // The lot section is rendered only once `loading` is off, so that has to
     // happen BEFORE the tick: with it still on, the DOM holds the placeholder,
     // #lot does not exist, and neither the scroll nor the rail's observer can
@@ -941,6 +967,7 @@ body { margin: 0; background: #f8fafb; }
 .lp-input { flex: 1 1 22rem; min-width: 0; padding: 0.7rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; font: inherit; font-size: 0.95rem; }
 .lp-input:focus { outline: 2px solid #4a3aa7; outline-offset: 1px; border-color: #4a3aa7; }
 .lp-error { color: #b91c1c; margin: 0.5rem 0 0; }
+.lp-hint { margin: 0.5rem 0 0; font-size: 0.8rem; }
 .lp-empty { margin: 0.6rem 0 0; font-size: 0.82rem; color: #475569; max-width: 70ch; }
 .lp-empty .lp-dim { display: block; margin-top: 0.15rem; }
 .lp-samples-none { margin-top: 1rem; }
