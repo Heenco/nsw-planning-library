@@ -195,7 +195,10 @@ async function samples(client: pg.PoolClient, tables: Record<string, boolean>): 
 
 export interface LotProfileMatch {
   cadid: string
+  /** The site lot the frontage is computed for - for strata, the whole plan. */
   lotId: string | null
+  /** The lot on the title this address record belongs to - for strata, the unit's own lot. */
+  titleLot: string | null
   msoid: number | null
   address: string | null
   suburb: string | null
@@ -331,21 +334,26 @@ async function search(client: pg.PoolClient, raw: string, tables: Record<string,
   let rows: any[]
   if (looksLikeLot) {
     // Exact first, through the btree on lot_id: a reference pasted from the
-    // page is in the stored form. The contains-scan is the fallback for a
-    // partial reference and reads the whole table until the next build adds
-    // the trigram index on lot_id.
+    // page is in the stored form. A title lot is found the same way - for a
+    // strata lot (43//SP67869) the site lot is its plan (//SP67869), so the
+    // probe is still on lot_id, and title_lot only filters. The contains-scan
+    // is the fallback for a partial reference and reads the whole table until
+    // the next build adds the trigram index on lot_id.
     const exact = q.toUpperCase().replace(/\s+/g, '')
+    const site = exact.replace(/^[^/]*(?=\/\/)/, '')
     rows = (await client.query(
-      `SELECT DISTINCT ON (cadid) cadid, lot_id, msoid, address, suburb, lga_name, is_primary_address
-       FROM derived.lot_address WHERE lot_id = $1
-       ORDER BY cadid, is_primary_address DESC NULLS LAST, address LIMIT $2`,
-      [exact, SEARCH_LIMIT],
+      `SELECT DISTINCT ON (cadid) cadid, lot_id, title_lot, msoid, address, suburb, lga_name, is_primary_address
+       FROM derived.lot_address
+       WHERE lot_id = $1 OR (lot_id = $2 AND title_lot = $1)
+       ORDER BY cadid, is_primary_address DESC NULLS LAST, address LIMIT $3`,
+      [exact, site, SEARCH_LIMIT],
     )).rows
     if (!rows.length && exact.length >= 5) {
       rows = (await client.query(
-        `SELECT DISTINCT ON (cadid) cadid, lot_id, msoid, address, suburb, lga_name, is_primary_address
+        `SELECT DISTINCT ON (cadid) cadid, lot_id, title_lot, msoid, address, suburb, lga_name, is_primary_address
          FROM derived.lot_address
          WHERE replace(upper(lot_id), ' ', '') LIKE '%' || $1 || '%'
+            OR replace(upper(title_lot), ' ', '') LIKE '%' || $1 || '%'
          ORDER BY cadid, is_primary_address DESC NULLS LAST, address
          LIMIT $2`,
         [exact, SEARCH_LIMIT],
@@ -359,7 +367,7 @@ async function search(client: pg.PoolClient, raw: string, tables: Record<string,
     const params = words.map(w => `%${w}%`)
     params.push(String(SEARCH_LIMIT))
     rows = (await client.query(
-      `SELECT cadid, lot_id, msoid, address, suburb, lga_name, is_primary_address
+      `SELECT cadid, lot_id, title_lot, msoid, address, suburb, lga_name, is_primary_address
        FROM derived.lot_address
        WHERE ${words.map((_, i) => `address ILIKE $${i + 1}`).join(' AND ')}
        ORDER BY is_primary_address DESC NULLS LAST, address
@@ -372,6 +380,7 @@ async function search(client: pg.PoolClient, raw: string, tables: Record<string,
     results: rows.map(r => ({
       cadid: r.cadid,
       lotId: r.lot_id,
+      titleLot: r.title_lot,
       msoid: r.msoid,
       address: r.address,
       suburb: r.suburb,

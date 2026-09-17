@@ -127,7 +127,7 @@
                 @mousedown.prevent="pick(r)" @mousemove="highlight = i"
               >
                 <span class="lp-option-addr">{{ r.address || '(no address)' }}</span>
-                <span class="lp-option-meta"><code>{{ r.lotId || '—' }}</code><span class="lp-dim">{{ r.lgaName || '' }}</span></span>
+                <span class="lp-option-meta"><code>{{ r.titleLot || r.lotId || '—' }}</code><span class="lp-dim">{{ r.lgaName || '' }}</span></span>
               </li>
             </ul>
           </div>
@@ -368,6 +368,7 @@ useHead({ title: 'Testing spatial services · Planning Library' })
 interface Match {
   cadid: string
   lotId: string | null
+  titleLot: string | null
   msoid: number | null
   address: string | null
   suburb: string | null
@@ -607,7 +608,7 @@ function move(step: number) {
 
 function pick(r: Match) {
   listOpen.value = false
-  q.value = r.address || r.lotId || q.value
+  q.value = r.address || r.titleLot || r.lotId || q.value
   open(r.cadid, r.msoid)
 }
 
