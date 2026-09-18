@@ -41,6 +41,8 @@ HEAVY_MIN_ZOOM = 9
 
 # table -> SQL for category, name, detail (over the table's own columns) and an optional WHERE
 LAYERS = {
+    "epi_land_zoning": dict(category="sym_code", name="concat_ws(' ', sym_code, lay_class)",
+                            detail="concat_ws(' · ', epi_name, lga_name)"),
     "lmr_train_stations": dict(category="CASE WHEN light_rail THEN 'Light rail' ELSE 'Train' END",
                                name="station", detail="'LMR station' || CASE WHEN light_rail THEN ' (light rail)' ELSE '' END"),
     "station_walking_catchments": dict(category="distance_m || ' m'", name="station",

@@ -414,8 +414,8 @@ function addConstraintLayers() {
   const before = map.getLayer('lmr-fill') ? 'lmr-fill' : undefined
   const filters = Object.fromEntries(C_DRAWN.map(([id, test]) => [id, constraintFilter(test)]))
   map.addLayer({ ...common, id: 'c-fill', type: 'fill', filter: filters['c-fill'],
-    // a 400 m catchment draws over the 800 m one it sits inside
-    layout: { 'fill-sort-key': ['case', ['==', ['get', 'category'], '400 m'], 2, 1] },
+    // land zoning is the base of the constraints, and a 400 m catchment draws over the 800 m one it sits inside
+    layout: { 'fill-sort-key': ['case', ['==', ['get', 'layer_key'], 'epi_land_zoning'], 0, ['==', ['get', 'category'], '400 m'], 2, 1] },
     paint: { 'fill-color': fillColor, 'fill-opacity': byConstraint(s => s.fillOpacity ?? 0.3, 0.3) } }, before)
   map.addLayer({ ...common, id: 'c-line', type: 'line', filter: filters['c-line'], layout: { 'line-join': 'round', 'line-cap': 'round' },
     paint: { 'line-color': byConstraint(s => s.line ?? s.color, '#475569'), 'line-width': byConstraint(s => s.lineWidth ?? 1, 1) } }, before)

@@ -127,9 +127,10 @@ export interface LmrCatalogue {
  * Where each constraint table sits in the panel. `housing` puts it beside the Housing SEPP's LMR layers - the
  * stations are the Planning Portal's "LMR Station", the points low and mid rise housing areas are measured from.
  */
-export type ConstraintGroup = 'housing' | 'heritage' | 'hazards' | 'coastal' | 'noise'
+export type ConstraintGroup = 'housing' | 'zoning' | 'heritage' | 'hazards' | 'coastal' | 'noise'
 
 export const CONSTRAINT_GROUPS: Record<Exclude<ConstraintGroup, 'housing'>, { title: string; lead: string }> = {
+  zoning: { title: 'Land zoning', lead: 'The LEP and SEPP land zoning maps, in the zone colours of the NSW Planning Portal. The low and mid-rise provisions apply in R1, R2, R3 and R4.' },
   heritage: { title: 'Heritage', lead: 'State Heritage Register land and the LEP heritage maps.' },
   hazards: { title: 'Bushfire and flood', lead: 'RFS bush fire prone land and the flood maps.' },
   coastal: { title: 'Coastal', lead: 'The Resilience and Hazards SEPP coastal wetland, littoral rainforest and vulnerability maps.' },
@@ -153,6 +154,110 @@ export interface ConstraintStyle {
 }
 
 /**
+ * Zone colours, taken from the NSW Planning Portal's own Land Zoning Map renderer
+ * (Planning_Portal_Principal_Planning/MapServer/19), matched to each code by the zone name our data uses -
+ * E2 and E are in the renderer twice, once for the old environmental zones and once for the employment ones.
+ * CA is the one code in the data the renderer does not colour; it falls back to the layer's grey.
+ */
+export const ZONE_COLOURS: Record<string, string> = {
+  '2(a)': '#ffa6a3',
+  '2(c)': '#ffbee8',
+  '7(a)': '#ffd37f',
+  '7(l)': '#ffaa00',
+  'A': '#fc776e',
+  'AGB': '#fae8c5',
+  'B': '#63f0f5',
+  'B1': '#c9fff9',
+  'B2': '#62f0f5',
+  'B3': '#00c2ed',
+  'B4': '#959dc2',
+  'B5': '#7da0ab',
+  'B6': '#95bfcc',
+  'B7': '#bad6de',
+  'C': '#bad6de',
+  'C1': '#e69900',
+  'C2': '#f0ae3c',
+  'C3': '#f7c568',
+  'C4': '#ffda96',
+  'D': '#959dc2',
+  'DM': '#ffffff',
+  'DR': '#ffff70',
+  'E': '#f0ae3c',
+  'E1': '#99ccff',
+  'E2': '#b4c6e7',
+  'E3': '#8ea9db',
+  'E4': '#9999ff',
+  'E5': '#9966ff',
+  'ECO': '#ecffbe',
+  'EM': '#95bfcc',
+  'ENP': '#ffd640',
+  'ENT': '#76c0d6',
+  'ENZ': '#73b273',
+  'EP': '#fcf9b6',
+  'F': '#ffffa1',
+  'G': '#ffff70',
+  'H': '#55ff00',
+  'I': '#d3ffbf',
+  'IN1': '#deb8f5',
+  'IN2': '#f3dbff',
+  'IN3': '#c595e8',
+  'MAP': '#e6ffff',
+  'MU': '#959dc2',
+  'MU1': '#959dc2',
+  'OSP': '#55ff00',
+  'P': '#b3ccfc',
+  'PAE': '#f4ec49',
+  'PEP': '#74b374',
+  'PRC': '#549980',
+  'PRR': '#70a600',
+  'R': '#b3fcb3',
+  'R1': '#ffcfff',
+  'R2': '#ffa6a3',
+  'R3': '#ff776e',
+  'R4': '#ff483b',
+  'R5': '#ffd9d9',
+  'RAC': '#e6cb97',
+  'RAZ': '#e6cb97',
+  'RE1': '#55ff00',
+  'RE2': '#d3ffbe',
+  'REC': '#aef2b3',
+  'REPL': '#f0f0f0',
+  'RESB': '#f3fd36',
+  'RESI': '#d3163e',
+  'REZ': '#deb8f5',
+  'RLWY': '#0000ac',
+  'RO': '#55ff00',
+  'RP': '#d3ffbe',
+  'RU1': '#edd8ad',
+  'RU2': '#e6cb97',
+  'RU3': '#dec083',
+  'RU4': '#d6b46f',
+  'RU5': '#d7a39e',
+  'RU6': '#c79e4c',
+  'RUR': '#efe4be',
+  'RW': '#d3b8f5',
+  'SET': '#ffd2dc',
+  'SP1': '#ffffa0',
+  'SP2': '#ffff70',
+  'SP3': '#ffff00',
+  'SP4': '#ffff00',
+  'SP5': '#e6e600',
+  'SPU': '#ffff00',
+  'SUS': '#ffffa1',
+  'T': '#fcd2ef',
+  'U': '#cafced',
+  'UD': '#ff7f63',
+  'UL': '#ffffff',
+  'UR': '#ff776e',
+  'W': '#fcc4b8',
+  'W1': '#d9fff2',
+  'W2': '#99ffdd',
+  'W3': '#33ffbb',
+  'W4': '#00e6a9',
+  'WFU': '#1182c2',
+}
+
+/**
  * Constraint styling. Bush fire prone land uses the RFS's own category colours; the Planning Portal's LMR
  * Station is a grey dot. The rest take one hue family per group - heritage browns, flood blues, coastal greens,
  * noise purple, pipeline orange - with proximity areas, pipeline buffers and the second flood load drawn dashed, so two layers of
@@ -169,6 +274,10 @@ export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
   town_centre_walking_catchments: {
     group: 'housing', title: 'Town centre walking catchments (400 m, 800 m)', kind: 'fill', color: '#fde3ae', fillOpacity: 0.55,
     line: '#c9912f', lineWidth: 1, dashed: true, classes: { '800 m': '#fde3ae', '400 m': '#f5b95a' }, defaultOn: true,
+  },
+  epi_land_zoning: {
+    group: 'zoning', title: 'Land zoning (LEP and SEPP maps)', portalName: 'Land Zoning Map', kind: 'fill',
+    color: '#cbd5e1', fillOpacity: 0.55, lineWidth: 0, classes: ZONE_COLOURS,
   },
   shr_curtilage: { group: 'heritage', title: 'State Heritage Register curtilage', kind: 'fill', color: '#8c2d19', fillOpacity: 0.35, line: '#8c2d19', lineWidth: 1.5 },
   epi_heritage_items: { group: 'heritage', title: 'Heritage items (LEP maps)', kind: 'fill', color: '#c98b4a', fillOpacity: 0.4, line: '#8a5a2b', lineWidth: 1 },
@@ -192,6 +301,7 @@ export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
   oil_pipelines: { group: 'noise', title: 'Oil pipelines (none in NSW)', kind: 'line', color: '#3d3d3d', lineWidth: 2.2 },
   oil_pipelines_buffer_200m: { group: 'noise', title: 'Oil pipelines, 200 m buffer (none in NSW)', kind: 'fill', color: '#3d3d3d', fillOpacity: 0.12, line: '#3d3d3d', lineWidth: 1.2, dashed: true },
 }
+
 
 const FALLBACK_CONSTRAINT: ConstraintStyle = { group: 'noise', title: '', kind: 'fill', color: '#94a3b8', fillOpacity: 0.3, line: '#475569', lineWidth: 1 }
 
