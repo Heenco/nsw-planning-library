@@ -111,9 +111,9 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '01A - Read and write - Geojson',
   },
   {
-    route: '/esa', name: 'Environmentally sensitive areas', status: 'live', kind: 'browse', added: '2026-09-18',
+    route: '/esa', name: 'Environmentally sensitive areas', status: 'live', kind: 'map', added: '2026-09-18',
     summary: 'The clause 3.3 environmentally sensitive areas that 30 local plans add to the standard definition: every exception item, the layers it was drawn from, and a guide to how the layer is built.',
-    detail: 'Two tiers, kept apart on purpose: 29 items with real geometry, and 23 that cover a whole council area because the exception is a register or a derivation with nothing to draw.',
+    detail: 'A map of the 52 items, with the plans, the services behind them and what still needs checking in the panel beside it. Two tiers, kept apart on purpose: 29 items with real geometry, and 23 that cover a whole council area because the exception is a register or a derivation with nothing to draw.',
     reads: ['/api/esa', 'esa.additional_exceptions', 'esa.source_layers'],
     notebook: '07 - ESA - exceptions',
   },

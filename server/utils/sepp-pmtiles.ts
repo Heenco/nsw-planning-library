@@ -6,6 +6,8 @@
  *          every SEPP land application layer of epi.epi_land_application (scripts/build-sepp-pmtiles.py)
  *   lmr    lmr-constraints.json       -> lmr-constraints-<stamp>.pmtiles         MVT layer "lmr"
  *          the lmr schema: stations, heritage, bushfire, flood, coastal, noise, pipelines (scripts/build-lmr-pmtiles.py)
+ *   esa    esa-exceptions.json        -> esa-exceptions-<stamp>.pmtiles          MVT layer "esa"
+ *          the additional clause 3.3 environmentally sensitive areas (scripts/build-esa-pmtiles.py)
  *
  * Each manifest is re-read every MANIFEST_TTL_MS, so a rebuild is picked up without a redeploy. Archive names
  * are unique, so an archive is opened once and its tiles never change; the reader fetches only the byte ranges
@@ -16,15 +18,16 @@ import type { LmrLayer } from '#shared/lmr-layers'
 
 const MANIFEST_TTL_MS = 5 * 60 * 1000
 
-export type ArchiveSet = 'sepp' | 'lmr'
+export type ArchiveSet = 'sepp' | 'lmr' | 'esa'
 
 const MANIFEST_FILE: Record<ArchiveSet, string> = {
   sepp: 'sepp-land-application.json',
   lmr: 'lmr-constraints.json',
+  esa: 'esa-exceptions.json',
 }
 
 /** The MVT layer name inside each archive. */
-export const MVT_LAYER: Record<ArchiveSet, string> = { sepp: 'sepp', lmr: 'lmr' }
+export const MVT_LAYER: Record<ArchiveSet, string> = { sepp: 'sepp', lmr: 'lmr', esa: 'esa' }
 
 export interface SeppManifest {
   archive: string
@@ -55,7 +58,17 @@ export interface ConstraintManifest {
   }[]
 }
 
-type ManifestOf<S extends ArchiveSet> = S extends 'sepp' ? SeppManifest : ConstraintManifest
+export interface EsaManifest {
+  archive: string
+  builtAt: string
+  minZoom: number
+  maxZoom: number
+  features: number
+  /** One entry per exception item, with the extent the page zooms to. */
+  items: { id: number; lep: string; ref: string; tier: string; bbox: [number, number, number, number]; km2: number | null }[]
+}
+
+type ManifestOf<S extends ArchiveSet> = S extends 'sepp' ? SeppManifest : S extends 'esa' ? EsaManifest : ConstraintManifest
 
 const manifestCache = new Map<ArchiveSet, { at: number; value: any }>()
 const archiveCache = new Map<ArchiveSet, { name: string; pmtiles: PMTiles }>()
