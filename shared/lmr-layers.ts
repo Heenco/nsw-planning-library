@@ -1,0 +1,247 @@
+/**
+ * The layers on /lmr: SEPP land application layers from the All-EPI geodatabase (epi.epi_land_application),
+ * baked into a PMTiles archive by scripts/build-sepp-pmtiles.py. Shared by the page and /api/lmr/*.
+ *
+ * A layer is one (SEPP, lay_name) pair - "SEPP Land Application" alone is a lay_name in eleven SEPPs - and its
+ * key is the layer_key property on every tile feature.
+ *
+ * COLOUR
+ *
+ * The four Low and Mid Rise layers follow the NSW Planning Portal's own LMR legend, so the page reads the same
+ * as the map people already know:
+ *   LMR Centre (our Town Centre)                    very light blue fill, dark purple outline
+ *   TOD Accelerated Rezoning Area (Accelerated TOD) mauve fill, dark grey outline
+ *   TOD Area                                        light pink-mauve fill, no outline
+ *   Low and Mid Rise Housing Exclusion              grey diagonal hatch, dark outline
+ * The portal's other two entries, LMR Station and Indicative LMR Housing Area, are not in the SEPP land
+ * application data, so they are not on this page.
+ *
+ * Every other SEPP layer takes the colour of its family and draws with a dashed outline, so it is never told
+ * apart from an LMR layer by colour alone; every layer is also named in the panel and in the click popup.
+ */
+
+export type LmrFamily = 'lmr' | 'housing' | 'precincts' | 'environment' | 'systems'
+
+export const LMR_LAYER_NAMES = [
+  'Transport Oriented Development Area',
+  'Town Centre',
+  'Low and Mid Rise Housing Exclusion Area',
+  'Accelerated TOD Precinct',
+] as const
+
+export interface LmrStyle {
+  /** The name the NSW Planning Portal's legend uses. */
+  portalName: string
+  fill: string
+  fillOpacity: number
+  line: string
+  lineWidth: number
+  /** Drawn as a diagonal hatch rather than a flat fill. */
+  hatch?: boolean
+}
+
+/** LMR layers by lay_name: the Planning Portal's legend, sampled from its symbols. */
+export const LMR_STYLE: Record<string, LmrStyle> = {
+  'Transport Oriented Development Area': { portalName: 'TOD Area', fill: '#d4acd0', fillOpacity: 0.85, line: '#d4acd0', lineWidth: 0.5 },
+  'Town Centre': { portalName: 'LMR Centre', fill: '#e6eaf8', fillOpacity: 0.85, line: '#2f1c86', lineWidth: 2 },
+  'Low and Mid Rise Housing Exclusion Area': { portalName: 'Low and Mid Rise Housing Exclusion', fill: '#6b6b6b', fillOpacity: 1, line: '#3a3a3a', lineWidth: 1.2, hatch: true },
+  'Accelerated TOD Precinct': { portalName: 'TOD Accelerated Rezoning Area', fill: '#c296b9', fillOpacity: 0.85, line: '#4d4d4d', lineWidth: 2 },
+}
+
+const FALLBACK_STYLE: LmrStyle = { portalName: '', fill: '#cbd5e1', fillOpacity: 0.6, line: '#475569', lineWidth: 1 }
+
+export function lmrStyle(layName: string): LmrStyle {
+  return LMR_STYLE[layName] ?? FALLBACK_STYLE
+}
+
+export const FAMILY: Record<Exclude<LmrFamily, 'lmr'>, { title: string; color: string; blurb: string }> = {
+  housing: { title: 'Housing SEPP, other layers', color: '#e87ba4', blurb: 'Where the Housing SEPP applies, and short-term rental accommodation areas.' },
+  precincts: { title: 'Precincts SEPPs', color: '#eda100', blurb: 'The Central River City, Eastern Harbour City, Western Parkland City and Regional precincts.' },
+  environment: { title: 'Environment and hazards', color: '#008300', blurb: 'Biodiversity and Conservation, Resilience and Hazards, Primary Production.' },
+  systems: { title: 'Systems, infrastructure and codes', color: '#e34948', blurb: 'Planning Systems, Transport and Infrastructure, Industry and Employment, Resources and Energy, Sustainable Buildings, and the Codes SEPP.' },
+}
+
+/** Which family a SEPP belongs to, by its short name (e.g. "Housing 2021", "Precincts – Regional 2021"). */
+export function familyOf(sepp: string, layerGroup: string): LmrFamily {
+  if (layerGroup === 'lmr') return 'lmr'
+  if (/^Housing\b/.test(sepp)) return 'housing'
+  if (/^Precincts\b/.test(sepp)) return 'precincts'
+  if (/^(Biodiversity|Resilience|Primary Production)\b/.test(sepp)) return 'environment'
+  return 'systems'
+}
+
+/** The layer's outline colour: an LMR layer's portal outline, else its family colour. */
+export function colorOf(layer: { family: LmrFamily; layName: string }): string {
+  return layer.family === 'lmr' ? lmrStyle(layer.layName).line : FAMILY[layer.family].color
+}
+
+/** CSS for a legend swatch, matching the map: LMR fill + outline (or hatch), other layers a dashed family outline. */
+export function swatchCss(layer: { family: LmrFamily; layName: string }): Record<string, string> {
+  if (layer.family !== 'lmr') return { background: 'transparent', borderColor: FAMILY[layer.family].color, borderStyle: 'dashed' }
+  const s = lmrStyle(layer.layName)
+  return {
+    borderColor: s.line,
+    borderStyle: 'solid',
+    background: s.hatch
+      ? `repeating-linear-gradient(135deg, ${s.fill} 0 1.5px, #ffffff 1.5px 4px)`
+      : s.fill,
+  }
+}
+
+/** What each LMR layer means, in one line, for the panel. */
+export const LMR_BLURB: Record<string, string> = {
+  'Transport Oriented Development Area': 'Land around the TOD stations, mapped for the Housing SEPP\'s transport oriented development provisions.',
+  'Town Centre': 'Town centres mapped under the Housing SEPP for the low and mid rise housing provisions.',
+  'Low and Mid Rise Housing Exclusion Area': 'Land the Housing SEPP maps as excluded from the low and mid rise housing provisions.',
+  'Accelerated TOD Precinct': 'The accelerated TOD precincts mapped in the Housing SEPP.',
+}
+
+export interface LmrLayer {
+  key: string
+  group: 'lmr' | 'sepp'
+  family: LmrFamily
+  sepp: string
+  epiName: string
+  layName: string
+  features: number
+  classes: { name: string; features: number }[]
+  lgas: number
+  areaKm2: number | null
+  commenced: string | null
+  bbox: [number, number, number, number] | null
+  /** Heavy layers are off by default and drawn only from this zoom. */
+  minZoom: number
+}
+
+export interface LmrCatalogue {
+  layers: LmrLayer[]
+  /** When the tile tables were last built, and the EPI load they were built from. */
+  builtAt: string | null
+  sourceLoadedAt: string | null
+  sourceDate: string | null
+}
+
+// ── LMR constraints: the lmr schema (scripts/build-lmr-pmtiles.py) ──────────────────────────────────────────
+
+/**
+ * Where each constraint table sits in the panel. `housing` puts it beside the Housing SEPP's LMR layers - the
+ * stations are the Planning Portal's "LMR Station", the points low and mid rise housing areas are measured from.
+ */
+export type ConstraintGroup = 'housing' | 'heritage' | 'hazards' | 'coastal' | 'noise'
+
+export const CONSTRAINT_GROUPS: Record<Exclude<ConstraintGroup, 'housing'>, { title: string; lead: string }> = {
+  heritage: { title: 'Heritage', lead: 'State Heritage Register land and the LEP heritage maps.' },
+  hazards: { title: 'Bushfire and flood', lead: 'RFS bush fire prone land and the flood maps.' },
+  coastal: { title: 'Coastal', lead: 'The Resilience and Hazards SEPP coastal wetland, littoral rainforest and vulnerability maps.' },
+  noise: { title: 'Noise and pipelines', lead: 'Aircraft noise contours, the national gas and oil pipeline maps, and the 200 m around each pipeline.' },
+}
+
+export interface ConstraintStyle {
+  group: ConstraintGroup
+  title: string
+  kind: 'fill' | 'line' | 'point'
+  /** Fill colour, line colour for a line layer, dot colour for points. */
+  color: string
+  fillOpacity?: number
+  line?: string
+  lineWidth?: number
+  dashed?: boolean
+  /** Colours by the feature's category (bushfire vegetation categories) instead of one colour. */
+  classes?: Record<string, string>
+  defaultOn?: boolean
+  portalName?: string
+}
+
+/**
+ * Constraint styling. Bush fire prone land uses the RFS's own category colours; the Planning Portal's LMR
+ * Station is a grey dot. The rest take one hue family per group - heritage browns, flood blues, coastal greens,
+ * noise purple, pipeline orange - with proximity areas, pipeline buffers and the second flood load drawn dashed, so two layers of
+ * a group are never told apart by colour alone. Every layer is named in the panel and the click popup.
+ */
+export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
+  lmr_train_stations: { group: 'housing', title: 'LMR Station', portalName: 'LMR Station', kind: 'point', color: '#7a7a7a', defaultOn: true },
+  // walking catchments: the portal's "Indicative LMR Housing Area" pale yellow for 800 m, a stronger amber for
+  // 400 m drawn over it; town centres with a dashed outline so the two catchment layers stay apart
+  station_walking_catchments: {
+    group: 'housing', title: 'Station walking catchments (400 m, 800 m)', kind: 'fill', color: '#fde3ae', fillOpacity: 0.55,
+    line: '#c9912f', lineWidth: 1, classes: { '800 m': '#fde3ae', '400 m': '#f5b95a' }, defaultOn: true,
+  },
+  town_centre_walking_catchments: {
+    group: 'housing', title: 'Town centre walking catchments (400 m, 800 m)', kind: 'fill', color: '#fde3ae', fillOpacity: 0.55,
+    line: '#c9912f', lineWidth: 1, dashed: true, classes: { '800 m': '#fde3ae', '400 m': '#f5b95a' }, defaultOn: true,
+  },
+  shr_curtilage: { group: 'heritage', title: 'State Heritage Register curtilage', kind: 'fill', color: '#8c2d19', fillOpacity: 0.35, line: '#8c2d19', lineWidth: 1.5 },
+  epi_heritage_items: { group: 'heritage', title: 'Heritage items (LEP maps)', kind: 'fill', color: '#c98b4a', fillOpacity: 0.4, line: '#8a5a2b', lineWidth: 1 },
+  epi_heritage_conservation_areas: { group: 'heritage', title: 'Heritage conservation areas', kind: 'fill', color: '#e3c9a0', fillOpacity: 0.3, line: '#8a6a3a', lineWidth: 1.5, dashed: true },
+  bushfire_prone_land: {
+    group: 'hazards', title: 'Bush fire prone land', kind: 'fill', color: '#f46d43', fillOpacity: 0.45, lineWidth: 0,
+    classes: { 'Vegetation Category 1': '#e31a1c', 'Vegetation Category 2': '#fdae61', 'Vegetation Category 3': '#f46d43', 'Vegetation Buffer': '#ffe34d' },
+  },
+  flood_planning: { group: 'hazards', title: 'Flood planning (LEP maps)', kind: 'fill', color: '#2171b5', fillOpacity: 0.3, line: '#08519c', lineWidth: 1 },
+  flood_sfd_1aep: { group: 'hazards', title: '1% AEP flood extent, first load', kind: 'fill', color: '#6baed6', fillOpacity: 0.35, line: '#3182bd', lineWidth: 0.8 },
+  flood_sfd_1aep_1: { group: 'hazards', title: '1% AEP flood extent, second load', kind: 'fill', color: '#9ecae1', fillOpacity: 0.3, line: '#3182bd', lineWidth: 1.2, dashed: true },
+  sepp_coastal_vulnerability_areas: { group: 'coastal', title: 'Coastal vulnerability areas', kind: 'fill', color: '#41b6c4', fillOpacity: 0.35, line: '#1d91c0', lineWidth: 1.5 },
+  sepp_coastal_wetlands: { group: 'coastal', title: 'Coastal wetlands', kind: 'fill', color: '#1b9e77', fillOpacity: 0.5, line: '#137259', lineWidth: 1 },
+  sepp_coastal_wetlands_proximity: { group: 'coastal', title: 'Coastal wetlands proximity area', kind: 'fill', color: '#1b9e77', fillOpacity: 0.1, line: '#1b9e77', lineWidth: 1.2, dashed: true },
+  sepp_littoral_rainforest: { group: 'coastal', title: 'Littoral rainforest', kind: 'fill', color: '#4d7d2a', fillOpacity: 0.55, line: '#3a5f1f', lineWidth: 1 },
+  sepp_littoral_rainforest_proximity: { group: 'coastal', title: 'Littoral rainforest proximity area', kind: 'fill', color: '#4d7d2a', fillOpacity: 0.1, line: '#4d7d2a', lineWidth: 1.2, dashed: true },
+  airport_noise: { group: 'noise', title: 'Aircraft noise contours (ANEF / ANEI)', kind: 'fill', color: '#8856a7', fillOpacity: 0.18, line: '#6e3f91', lineWidth: 1.2 },
+  gas_pipelines: { group: 'noise', title: 'Gas pipelines', kind: 'line', color: '#e6550d', lineWidth: 2.2 },
+  // the 200 m the Low and Mid-Rise Housing Policy excludes, drawn like a proximity area: the pipeline's colour, faint, dashed
+  gas_pipelines_buffer_200m: { group: 'noise', title: 'Gas pipelines, 200 m buffer', kind: 'fill', color: '#e6550d', fillOpacity: 0.15, line: '#e6550d', lineWidth: 1.2, dashed: true },
+  oil_pipelines: { group: 'noise', title: 'Oil pipelines (none in NSW)', kind: 'line', color: '#3d3d3d', lineWidth: 2.2 },
+  oil_pipelines_buffer_200m: { group: 'noise', title: 'Oil pipelines, 200 m buffer (none in NSW)', kind: 'fill', color: '#3d3d3d', fillOpacity: 0.12, line: '#3d3d3d', lineWidth: 1.2, dashed: true },
+}
+
+const FALLBACK_CONSTRAINT: ConstraintStyle = { group: 'noise', title: '', kind: 'fill', color: '#94a3b8', fillOpacity: 0.3, line: '#475569', lineWidth: 1 }
+
+export function constraintStyle(key: string): ConstraintStyle {
+  return CONSTRAINT_STYLE[key] ?? FALLBACK_CONSTRAINT
+}
+
+/** A legend swatch for a constraint layer, or one of its categories. */
+export function constraintSwatchCss(key: string, category?: string | null): Record<string, string> {
+  const s = constraintStyle(key)
+  const fill = (category && s.classes?.[category]) || s.color
+  if (s.kind === 'point') return { background: fill, borderColor: '#ffffff', borderStyle: 'solid', borderRadius: '50%' }
+  if (s.kind === 'line') return { background: 'transparent', borderColor: 'transparent', borderStyle: 'solid', boxShadow: `inset 0 -3px 0 ${fill}`, borderRadius: '0' }
+  return {
+    background: fill,
+    borderColor: s.lineWidth ? (s.line ?? fill) : fill,
+    borderStyle: s.dashed ? 'dashed' : 'solid',
+    opacity: String(Math.max(0.55, (s.fillOpacity ?? 0.4) + 0.35)),
+  }
+}
+
+export interface ConstraintLayer {
+  key: string
+  table: string
+  group: ConstraintGroup
+  title: string
+  geometry: 'point' | 'linestring' | 'polygon'
+  features: number
+  minZoom: number
+  bbox: [number, number, number, number] | null
+  categories: { name: string; features: number }[]
+  /** The table's own COMMENT: what it is, where it was copied from, and when. */
+  comment: string | null
+}
+
+export interface ConstraintCatalogue {
+  archive: string
+  builtAt: string | null
+  layers: ConstraintLayer[]
+}
+
+export interface LmrHit {
+  key: string
+  /** 'constraint' for a layer of the lmr schema; sepp is then the group title and layName the layer title. */
+  family: LmrFamily | 'constraint'
+  sepp: string
+  layName: string
+  layClass: string | null
+  label: string | null
+  clause: string | null
+  lga: string | null
+  commenced: string | null
+}

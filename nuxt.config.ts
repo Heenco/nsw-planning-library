@@ -15,6 +15,9 @@ export default defineNuxtConfig({
     // this file. A production build with it unset refuses everyone; a dev
     // server with it unset asks nobody.
     appPassword: '',
+    // Where the SEPP land application PMTiles archive and its manifest are served (/lmr). Built by
+    // scripts/build-sepp-pmtiles.py and served as static files by nginx on the planningai host.
+    seppPmtilesBase: process.env.NUXT_SEPP_PMTILES_BASE || 'http://172.105.184.178/pmtiles',
     public: {
       mapboxToken: process.env.NUXT_PUBLIC_MAPBOX_TOKEN,
       martinUrl: process.env.NUXT_PUBLIC_MARTIN_URL || 'http://172.105.184.178:3004',
