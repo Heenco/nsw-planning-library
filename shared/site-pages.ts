@@ -111,6 +111,13 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '01A - Read and write - Geojson',
   },
   {
+    route: '/esa', name: 'Environmentally sensitive areas', status: 'live', kind: 'browse', added: '2026-09-18',
+    summary: 'The clause 3.3 environmentally sensitive areas that 30 local plans add to the standard definition: every exception item, the layers it was drawn from, and a guide to how the layer is built.',
+    detail: 'Two tiers, kept apart on purpose: 29 items with real geometry, and 23 that cover a whole council area because the exception is a register or a derivation with nothing to draw.',
+    reads: ['/api/esa', 'esa.additional_exceptions', 'esa.source_layers'],
+    notebook: '07 - ESA - exceptions',
+  },
+  {
     route: '/sepp', name: 'SEPP permissible land uses', status: 'live', kind: 'browse', added: '2026-09-18',
     summary: 'What the Housing and Transport and Infrastructure SEPPs permit in each zone, whatever the local plan says: all 263 rows, where they came from, and what they leave out.',
     detail: 'The rows are a hand transcription of the land use matrix the Department publishes, so the page says so plainly - the conditions each policy attaches are not carried, and the 2025 low and mid-rise round is missing.',
@@ -191,11 +198,6 @@ export const SITE_PAGES: SitePage[] = [
     route: '/das', name: 'Development applications', status: 'planned', kind: 'answer',
     summary: 'The development applications lodged around a lot: what was applied for, what was decided, and when.',
     notebook: '10 - Download DAs',
-  },
-  {
-    route: '/esa', name: 'Environmentally sensitive areas', status: 'planned', kind: 'answer',
-    summary: 'The environmentally sensitive area layers on a lot and the exceptions that follow from them.',
-    notebook: '07 - ESA - exceptions',
   },
   {
     route: '/cdc', name: 'Complying development', status: 'planned', kind: 'answer',
