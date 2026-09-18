@@ -200,12 +200,50 @@
           </template>
         </section>
       </div>
+
+      <!-- How the layer gets built, beside the map it is built from -->
+      <aside class="lm-guide" :class="{ 'lm-guide--closed': !guideOpen }">
+        <button type="button" class="lm-guide-toggle" :aria-expanded="guideOpen" @click="toggleGuide">
+          {{ guideOpen ? 'Hide guide' : 'How the LMR layer is built' }}
+        </button>
+        <div v-show="guideOpen" class="lm-guide-inner">
+          <h2 class="lm-h2">How the LMR layer is built</h2>
+          <p class="lm-lead">{{ LMR_METHOD_LEAD }}</p>
+          <ol class="lm-steps">
+            <li v-for="step in LMR_METHOD" :key="step.n" class="lm-step">
+              <p class="lm-step-title"><span class="lm-step-n">{{ step.n }}</span>{{ step.title }}</p>
+              <p class="lm-step-body">{{ step.body }}</p>
+              <p v-if="step.layers" class="lm-step-layers">
+                <button
+                  v-for="name in step.layers" :key="name" type="button"
+                  class="lm-chip" :class="{ 'lm-chip--on': !!keyOf(name) && on.has(keyOf(name)!) }"
+                  :disabled="!keyOf(name)"
+                  :title="keyOf(name) ? 'Show or hide this layer' : 'Not on the map yet'"
+                  @click="toggleNamed(name)"
+                >{{ name }}</button>
+              </p>
+              <p v-if="step.note" class="lm-step-note">{{ step.note }}</p>
+            </li>
+          </ol>
+          <h3 class="lm-h3">Still to settle</h3>
+          <div v-for="gap in LMR_METHOD_GAPS" :key="gap.title" class="lm-gap">
+            <p class="lm-step-title">{{ gap.title }}</p>
+            <p class="lm-step-body">{{ gap.body }}</p>
+          </div>
+          <p class="lm-foot">
+            Chapter 6 of State Environmental Planning Policy (Housing) 2021. Stage 1 (dual occupancies in R2 across
+            NSW) commenced 1 July 2024, Stage 2 (the low and mid-rise housing areas) 28 February 2025; exclusions as
+            the Department listed them on 24 April 2026.
+          </p>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import 'mapbox-gl/dist/mapbox-gl.css'
+import { LMR_METHOD, LMR_METHOD_GAPS, LMR_METHOD_LEAD } from '#shared/lmr-method'
 import {
   CONSTRAINT_GROUPS, CONSTRAINT_STYLE, FAMILY, LMR_BLURB, LMR_LAYER_NAMES, colorOf as colorOfLayer,
   constraintStyle, constraintSwatchCss, lmrStyle, swatchCss,
@@ -371,6 +409,30 @@ function addLayers() {
 }
 
 // ── the constraints source: the lmr schema archive ───────────────────────────
+
+const guideOpen = ref(true)
+
+/** The map has to be told its box changed when the guide opens or closes. */
+async function toggleGuide() {
+  guideOpen.value = !guideOpen.value
+  await nextTick()
+  map?.resize()
+}
+
+/**
+ * A layer title in the guide back to its key, so a step's chips switch the very layers it
+ * describes. A title we hold no layer for resolves to nothing and its chip stays inert.
+ */
+function keyOf(title: string): string | undefined {
+  const c = constraintLayers.value.find(l => l.title === title)
+  if (c) return c.key
+  return (catalogue.value?.layers ?? []).find(l => l.layName === title)?.key
+}
+
+function toggleNamed(title: string) {
+  const key = keyOf(title)
+  if (key) toggle(key)
+}
 
 const CSOURCE = 'lmrc'
 
@@ -627,6 +689,25 @@ body { margin: 0; background: #f8fafb; }
 .lm-panel-toggle { display: none; }
 .lm-panel-inner { padding: 0.9rem 1rem 2rem; }
 .lm-mapwrap { position: relative; flex: 1; min-width: 0; }
+.lm-guide { position: relative; width: 380px; flex: none; overflow-y: auto; background: #fff; border-left: 1px solid #e2e8f0; }
+.lm-guide--closed { width: auto; }
+.lm-guide-toggle { width: 100%; padding: 0.6rem 0.9rem; border: 0; border-bottom: 1px solid #e2e8f0; background: #f8fafc; font: inherit; font-weight: 700; color: #0f172a; text-align: left; cursor: pointer; white-space: nowrap; }
+.lm-guide-toggle:hover { background: #f1f5f9; }
+.lm-guide-inner { padding: 0.9rem 1rem 2rem; }
+.lm-steps { list-style: none; margin: 0.8rem 0 0; padding: 0; display: grid; gap: 0.9rem; }
+.lm-step { padding-bottom: 0.9rem; border-bottom: 1px solid #f1f5f9; }
+.lm-step:last-child { border-bottom: 0; }
+.lm-step-title { display: flex; align-items: baseline; gap: 0.45rem; margin: 0 0 0.25rem; font-size: 0.92rem; font-weight: 700; color: #0f172a; }
+.lm-step-n { display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; flex: none; border-radius: 50%; background: #0f172a; color: #fff; font-size: 0.72rem; }
+.lm-step-body { margin: 0; font-size: 0.84rem; line-height: 1.55; color: #334155; }
+.lm-step-layers { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0.45rem 0 0; }
+.lm-chip { padding: 0.12rem 0.45rem; border: 1px solid #cbd5e1; border-radius: 999px; background: #fff; font: inherit; font-size: 0.72rem; color: #475569; cursor: pointer; }
+.lm-chip:hover:not(:disabled) { border-color: #94a3b8; color: #0f172a; }
+.lm-chip--on { border-color: #0f172a; background: #0f172a; color: #fff; }
+.lm-chip:disabled { border-style: dashed; color: #94a3b8; cursor: default; }
+.lm-step-note { margin: 0.45rem 0 0; padding-left: 0.5rem; border-left: 2px solid #cbd5e1; font-size: 0.78rem; line-height: 1.5; color: #57534e; }
+.lm-h3 { margin: 1.4rem 0 0.4rem; font-size: 0.95rem; font-weight: 800; color: #0f172a; }
+.lm-gap { margin-bottom: 0.7rem; }
 .lm-map { position: absolute; inset: 0; }
 
 .lm-search { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; }
@@ -698,5 +779,6 @@ body { margin: 0; background: #f8fafb; }
   .lm-panel { width: auto; max-height: none; border-right: 0; border-bottom: 1px solid #e2e8f0; }
   .lm-panel-toggle { display: block; width: 100%; padding: 0.6rem 1rem; border: 0; background: #f1f5f9; font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
   .lm-mapwrap { height: 70vh; flex: none; }
+  .lm-guide { width: auto; border-left: 0; border-top: 1px solid #e2e8f0; }
 }
 </style>
