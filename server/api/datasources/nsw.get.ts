@@ -57,6 +57,13 @@ interface MeasuredCheck {
   dataLoadedAt: string | null
 }
 
+/**
+ * The load log is shared with other states (01A dump-gdal-QLD loads schema qld),
+ * so only NSW schemas count here: a QLD load must not move the NSW freshness,
+ * the recent loads or the "measured before the latest load" flag.
+ */
+const NSW_SCHEMAS = ['cadastre', 'guras', 'integrated_address', 'epi']
+
 const num = (v: unknown): number | null => (v == null ? null : Number(v))
 const iso = (v: unknown): string | null => (v == null ? null : new Date(v as string).toISOString())
 
@@ -78,7 +85,8 @@ export default defineEventHandler(async (event) => {
       SELECT schema_name, table_name, row_count, geometry_type, srid, size_bytes, n_indexes,
              loaded_at, source_zip, source_date, run_id
       FROM public.geodaas_latest_load
-      ORDER BY schema_name, table_name`)
+      WHERE schema_name = ANY($1)
+      ORDER BY schema_name, table_name`, [NSW_SCHEMAS])
     for (const row of r.rows) {
       tables.push({
         schema: row.schema_name,
@@ -100,9 +108,11 @@ export default defineEventHandler(async (event) => {
   if (reg.runs) {
     const r = await nswQuery(`
       SELECT run_id, started_at, finished_at, status, load_minutes, total_minutes
-      FROM public.geodaas_load_run
+      FROM public.geodaas_load_run r
+      WHERE NOT EXISTS (SELECT 1 FROM public.geodaas_load_table t WHERE t.run_id = r.run_id)
+         OR EXISTS (SELECT 1 FROM public.geodaas_load_table t WHERE t.run_id = r.run_id AND t.schema_name = ANY($1))
       ORDER BY started_at DESC NULLS LAST
-      LIMIT 10`)
+      LIMIT 10`, [NSW_SCHEMAS])
     for (const row of r.rows) {
       runs.push({
         runId: row.run_id,
