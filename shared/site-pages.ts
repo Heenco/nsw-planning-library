@@ -111,6 +111,13 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '01A - Read and write - Geojson',
   },
   {
+    route: '/sepp', name: 'SEPP permissible land uses', status: 'live', kind: 'browse', added: '2026-09-18',
+    summary: 'What the Housing and Transport and Infrastructure SEPPs permit in each zone, whatever the local plan says: all 263 rows, where they came from, and what they leave out.',
+    detail: 'The rows are a hand transcription of the land use matrix the Department publishes, so the page says so plainly - the conditions each policy attaches are not carried, and the 2025 low and mid-rise round is missing.',
+    reads: ['/api/sepp', 'nsw.sepp_permissible_landuse'],
+    notebook: '05 - Import SEPP Permissible Landuse',
+  },
+  {
     route: '/pages', name: 'Pages', status: 'live', kind: 'browse', added: '2026-09-17',
     summary: 'This page: every page in the app, built and planned.',
     reads: ['shared/site-pages.ts'],
