@@ -137,6 +137,9 @@
       <NuxtLink to="/datasources" class="library-link library-link--next">
         About the data &rarr;
       </NuxtLink>
+      <NuxtLink to="/pages" class="library-link library-link--next">
+        All pages &rarr;
+      </NuxtLink>
     </div>
 
     <!-- Disclaimer modal (first visit only) -->
