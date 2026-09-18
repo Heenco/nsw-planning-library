@@ -43,6 +43,11 @@
           <p v-else-if="!catalogue" class="lm-dim">Loading layers…</p>
 
           <template v-else>
+            <p class="lm-allrow">
+              <span class="lm-dim">{{ on.size }} of {{ layerCount }} layers on</span>
+              <button type="button" class="lm-link" :disabled="!on.size" @click="allOff">Turn all off</button>
+            </p>
+
             <!-- The Housing SEPP layers: Low and Mid Rise housing, then Transport Oriented Development -->
             <section v-for="g in housingGroups" :key="g.title" class="lm-group">
               <h2 class="lm-h2">{{ g.title }}</h2>
@@ -445,6 +450,15 @@ function refreshTiles() {
   syncHash()
 }
 
+/** Every layer the panel offers, so the count beside "Turn all off" matches what can be switched on. */
+const layerCount = computed(() => (catalogue.value?.layers.length ?? 0) + constraintLayers.value.length)
+
+/** Clear the map: the same path as a toggle, so the filters and the URL follow. */
+function allOff() {
+  on.value = new Set()
+  refreshTiles()
+}
+
 function toggle(key: string) {
   const next = new Set(on.value)
   next.has(key) ? next.delete(key) : next.add(key)
@@ -622,6 +636,9 @@ body { margin: 0; background: #f8fafb; }
 .lm-btn:disabled { opacity: 0.5; cursor: default; }
 .lm-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
+.lm-allrow { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; margin: 0.6rem 0 0; padding-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0; font-size: 0.8rem; }
+.lm-link:disabled { color: #94a3b8; cursor: default; }
+.lm-link:disabled:hover { text-decoration: none; }
 .lm-group { margin-top: 1rem; }
 .lm-h2 { margin: 0 0 0.2rem; font-size: 0.95rem; font-weight: 800; color: #0f172a; }
 .lm-lead { margin: 0 0 0.5rem; font-size: 0.8rem; color: #475569; }
