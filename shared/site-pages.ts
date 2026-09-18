@@ -130,7 +130,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     route: '/lmr', name: 'Low and Mid Rise housing and SEPP layers', status: 'live', kind: 'map', added: '2026-09-18',
     summary: 'Every SEPP land application layer on one map - the four Housing SEPP low and mid-rise layers first - over the constraint layers the policy is checked against: stations and their walking catchments, heritage, bush fire, flood, coastal, aircraft noise and the pipelines with their 200 m buffers.',
-    detail: 'Served from two PMTiles archives on the planningai host rather than a tile server or the database; clicking the map says what applies at that point, and a guide beside it sets out how the LMR layer itself gets built. Rebuild after each EPI load.',
+    detail: 'Served from two PMTiles archives on the planningai host rather than a tile server or the database; search an address or lot reference to go to that lot, clicking the map says what applies at that point, and a guide beside it sets out how the LMR layer itself gets built. Rebuild after each EPI load.',
     reads: ['/api/lmr/layers', '/api/lmr/tiles', '/api/lmr/at', 'epi.epi_land_application', 'the lmr schema'],
     notebook: '01A dump-gdal',
   },

@@ -32,12 +32,43 @@
           {{ panelOpen ? 'Hide layers' : 'Layers' }}
         </button>
         <div v-show="panelOpen" class="lm-panel-inner">
-          <form class="lm-search" role="search" @submit.prevent="searchAddress">
-            <label class="lm-sr" for="lm-q">Go to an address</label>
-            <input id="lm-q" v-model="addr" type="search" class="lm-input" placeholder="Go to an address or suburb" autocomplete="off">
-            <button type="submit" class="lm-btn" :disabled="!addr.trim() || searching">Go</button>
-          </form>
+          <div class="lm-combo" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)" @keydown.esc="listOpen = false">
+            <label class="lm-sr" for="lm-q">Address, lot reference or place</label>
+            <input
+              id="lm-q" v-model="q" type="search" class="lm-input" role="combobox"
+              placeholder="An address, a lot &mdash; A//DP71490 &mdash; or a place"
+              autocomplete="off" spellcheck="false"
+              :aria-expanded="listOpen && results.length > 0" aria-controls="lm-listbox"
+              :aria-activedescendant="listOpen && results[highlight] ? `lm-opt-${highlight}` : undefined"
+              @input="onType" @focus="listOpen = results.length > 0"
+              @keydown.enter.prevent="pickHighlighted"
+            >
+            <span v-if="searching" class="lm-combo-busy">searching&hellip;</span>
+
+            <!-- Picking a suggestion goes to that lot: no separate confirm, and a
+                 query that narrows to one address goes there on its own. -->
+            <ul v-if="listOpen && results.length" id="lm-listbox" class="lm-listbox" role="listbox">
+              <li class="lm-listbox-head">
+                {{ results.length }}{{ results.length === 25 ? '+' : '' }}
+                {{ results.length === 1 ? 'match' : 'matches' }}
+                <span class="lm-dim">&middot; &uarr;&darr; then Enter, or click</span>
+              </li>
+              <li
+                v-for="(r, i) in results" :id="`lm-opt-${i}`" :key="`${r.cadid}-${r.msoid}`"
+                role="option" :aria-selected="i === highlight"
+                class="lm-option" :class="{ 'lm-option--on': i === highlight }"
+                @mousedown.prevent="pickLot(r)" @mousemove="highlight = i"
+              >
+                <span class="lm-option-addr">{{ r.address || '(no address)' }}</span>
+                <span class="lm-option-meta"><code>{{ r.titleLot || r.lotId || '&mdash;' }}</code><span class="lm-dim">{{ r.lgaName || '' }}</span></span>
+              </li>
+            </ul>
+          </div>
           <p v-if="searchMsg" class="lm-note">{{ searchMsg }}</p>
+          <p v-else-if="searchHint" class="lm-dim lm-hint">{{ searchHint }}</p>
+          <p v-else-if="searched && !results.length && !searching" class="lm-dim lm-hint">
+            No address or lot matched <b>{{ lastSearched }}</b>. Press Enter to look for a place of that name instead.
+          </p>
 
           <p v-if="loadError" class="lm-error">{{ loadError }}</p>
           <p v-else-if="!catalogue" class="lm-dim">Loading layers…</p>
@@ -560,36 +591,196 @@ function clearPick() {
   picked.value = null
   marker?.remove()
   marker = null
+  clearLot()
 }
 
 function swatchStyle(h: { family: LmrFamily; layName: string }) {
   return swatchCss(h)
 }
 
-// ── address search (Mapbox geocoding, NSW only) ─────────────────────────────
+// ── search: an address or lot from the build, or failing that a place ───────
+//
+// The same search as /testing-spatial-services, over derived.lot_address: every
+// word typed has to appear, an abbreviated street type matches the spelled-out
+// one, and a plan label is matched on the lot reference instead. Picking a
+// result draws that lot and reads the layers under it. A term that matches no
+// address falls back to Mapbox on Enter, which is how a suburb or a town still
+// moves the map.
 
-const addr = ref('')
+interface LotMatch {
+  cadid: string
+  lotId: string | null
+  titleLot: string | null
+  msoid: number | null
+  address: string | null
+  suburb: string | null
+  lgaName: string | null
+}
+
+const q = ref('')
+const results = ref<LotMatch[]>([])
 const searching = ref(false)
 const searchMsg = ref('')
+const searchHint = ref('')
+const searched = ref(false)
+const lastSearched = ref('')
+const listOpen = ref(false)
+const highlight = ref(0)
+let debounce: ReturnType<typeof setTimeout> | null = null
+let inflight: AbortController | null = null
 
-async function searchAddress() {
-  const q = addr.value.trim()
-  if (!q || !map) return
+// Mirrors the server's rule, so a query it would refuse never leaves the browser.
+const ROAD_TYPES: Record<string, string> = {
+  ST: 'STREET', RD: 'ROAD', AVE: 'AVENUE', AV: 'AVENUE', DR: 'DRIVE', DRV: 'DRIVE', PDE: 'PARADE',
+  CRES: 'CRESCENT', CR: 'CRESCENT', PL: 'PLACE', HWY: 'HIGHWAY', CCT: 'CIRCUIT', CL: 'CLOSE',
+  CT: 'COURT', TCE: 'TERRACE', LN: 'LANE', BVD: 'BOULEVARD', BLVD: 'BOULEVARD', GR: 'GROVE',
+  ESP: 'ESPLANADE', WY: 'WAY', SQ: 'SQUARE', PKWY: 'PARKWAY', MWY: 'MOTORWAY', FWY: 'FREEWAY',
+  CIR: 'CIRCLE', GDNS: 'GARDENS', RES: 'RESERVE', TRL: 'TRAIL',
+}
+const ROAD_WORDS = new Set(Object.values(ROAD_TYPES))
+function searchable(term: string): boolean {
+  if (/\b(?:D|S|C)P\s*\d+/i.test(term) || term.includes('//')) return true
+  return term.split(/\s+/).map(w => ROAD_TYPES[w.toUpperCase()] ?? w)
+    .some(w => w.length >= 3 && !ROAD_WORDS.has(w.toUpperCase()) && !/^\d+[a-z]?$/i.test(w))
+}
+
+async function runSearch() {
+  const term = q.value.trim()
+  searchMsg.value = ''
+  if (term.length < 2) { results.value = []; listOpen.value = false; searchHint.value = ''; searched.value = false; return }
+  if (!searchable(term)) {
+    results.value = []; listOpen.value = false; searched.value = false
+    searchHint.value = 'Keep typing — part of the street or suburb name is what narrows it.'
+    return
+  }
+  searchHint.value = ''
+  // A newer keystroke makes the previous request worthless: abort it, so it
+  // stops costing the server anything and can never land after this one.
+  inflight?.abort()
+  const ctrl = new AbortController()
+  inflight = ctrl
+  searching.value = true
+  try {
+    const r = await $fetch<{ results: LotMatch[]; hint?: string }>('/api/lotprofile', { query: { q: term }, signal: ctrl.signal })
+    if (ctrl.signal.aborted) return
+    results.value = r.results
+    searchHint.value = r.hint ?? ''
+    lastSearched.value = term
+    searched.value = true
+    highlight.value = 0
+    listOpen.value = r.results.length > 0
+    // Narrowed to one address, with at least a number and a street typed: go there.
+    if (r.results.length === 1 && term.split(/\s+/).length >= 2) pickLot(r.results[0]!)
+  } catch (e: any) {
+    if (ctrl.signal.aborted) return
+    searchMsg.value = e?.data?.message || e?.message || 'The search failed.'
+    results.value = []
+  } finally {
+    if (inflight === ctrl) { searching.value = false; inflight = null }
+  }
+}
+
+/** Search a moment after the last keystroke rather than on every one. */
+function onType() {
+  if (debounce) clearTimeout(debounce)
+  debounce = setTimeout(runSearch, 150)
+}
+
+function move(step: number) {
+  if (!results.value.length) return
+  listOpen.value = true
+  highlight.value = (highlight.value + step + results.value.length) % results.value.length
+}
+
+/** Enter takes the highlighted address, or looks for a place when nothing matched. */
+function pickHighlighted() {
+  if (results.value.length) {
+    pickLot(results.value[highlight.value] ?? results.value[0]!)
+    return
+  }
+  searchPlace()
+}
+
+/** Draw a lot, fit the map to it, and read every layer under it. */
+async function pickLot(r: LotMatch) {
+  listOpen.value = false
+  q.value = r.address || r.titleLot || r.lotId || q.value
+  if (!map) return
+  searching.value = true
+  searchMsg.value = ''
+  try {
+    const d = await $fetch<{
+      lotGeom: any
+      points: { msoid: number | null; lon: number; lat: number }[]
+    }>('/api/lotprofile', { query: { cadid: r.cadid } })
+    if (!d.lotGeom) { searchMsg.value = `No shape is held for ${r.titleLot || r.lotId || r.cadid}.`; return }
+    showLot(d.lotGeom)
+    const box = bboxOf(d.lotGeom)
+    map.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: 80, maxZoom: 17.5, duration: 800 })
+    const p = d.points.find(x => x.msoid === r.msoid) ?? d.points[0]
+    await pick(p ? p.lon : (box[0] + box[2]) / 2, p ? p.lat : (box[1] + box[3]) / 2)
+  } catch (e: any) {
+    searchMsg.value = e?.data?.message || e?.message || 'Could not open that lot.'
+  } finally {
+    searching.value = false
+  }
+}
+
+const LOT_SOURCE = 'lotpick'
+
+/** The picked lot, over everything else: the outline is what says "this one". */
+function showLot(geometry: any) {
+  if (!map) return
+  const data = { type: 'Feature' as const, properties: {}, geometry }
+  const src = map.getSource(LOT_SOURCE)
+  if (src) {
+    src.setData(data)
+    return
+  }
+  map.addSource(LOT_SOURCE, { type: 'geojson', data })
+  map.addLayer({ id: 'lotpick-fill', type: 'fill', source: LOT_SOURCE, paint: { 'fill-color': '#0f172a', 'fill-opacity': 0.1 } })
+  map.addLayer({ id: 'lotpick-line', type: 'line', source: LOT_SOURCE, paint: { 'line-color': '#0f172a', 'line-width': 2.5 } })
+}
+
+function clearLot() {
+  if (!map?.getSource(LOT_SOURCE)) return
+  for (const id of ['lotpick-fill', 'lotpick-line']) if (map.getLayer(id)) map.removeLayer(id)
+  map.removeSource(LOT_SOURCE)
+}
+
+function bboxOf(geometry: any): [number, number, number, number] {
+  const box: [number, number, number, number] = [180, 90, -180, -90]
+  const walk = (a: any) => {
+    if (typeof a[0] === 'number') {
+      box[0] = Math.min(box[0], a[0]); box[1] = Math.min(box[1], a[1])
+      box[2] = Math.max(box[2], a[0]); box[3] = Math.max(box[3], a[1])
+      return
+    }
+    for (const b of a) walk(b)
+  }
+  walk(geometry.coordinates)
+  return box
+}
+
+/** The old behaviour, kept for what is not an address: a suburb or a town. */
+async function searchPlace() {
+  const term = q.value.trim()
+  if (!term || !map) return
   searching.value = true
   searchMsg.value = ''
   try {
     const params = new URLSearchParams({
-      q, access_token: mapboxToken, country: 'au', limit: '1', language: 'en',
+      q: term, access_token: mapboxToken, country: 'au', limit: '1', language: 'en',
       bbox: '140.9,-37.6,153.7,-28.1', proximity: '151.2093,-33.8688',
     })
     const res = await fetch(`https://api.mapbox.com/search/geocode/v6/forward?${params}`)
     const f = (await res.json())?.features?.[0]
-    if (!f) { searchMsg.value = `Nothing found for "${q}".`; return }
+    if (!f) { searchMsg.value = `Nothing found for "${term}".`; return }
     const [lon, lat] = f.geometry.coordinates as [number, number]
-    map.flyTo({ center: [lon, lat], zoom: 16, duration: 1000 })
+    map.flyTo({ center: [lon, lat], zoom: 14, duration: 1000 })
     await pick(lon, lat)
   } catch {
-    searchMsg.value = 'The address search failed.'
+    searchMsg.value = 'The place search failed.'
   } finally {
     searching.value = false
   }
@@ -711,6 +902,17 @@ body { margin: 0; background: #f8fafb; }
 .lm-map { position: absolute; inset: 0; }
 
 .lm-search { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; }
+.lm-combo { position: relative; }
+.lm-combo .lm-input { width: 100%; }
+.lm-combo-busy { position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); font-size: 0.72rem; color: #94a3b8; }
+.lm-listbox { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 0.25rem); max-height: 17rem; overflow-y: auto; list-style: none; margin: 0; padding: 0; background: #fff; border: 1px solid #c7d2fe; border-radius: 10px; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12); }
+.lm-listbox-head { padding: 0.3rem 0.6rem; background: #f5f3ff; color: #4a3aa7; font-size: 0.72rem; font-weight: 700; }
+.lm-option { display: flex; justify-content: space-between; gap: 0.6rem; padding: 0.35rem 0.6rem; font-size: 0.8rem; cursor: pointer; }
+.lm-option + .lm-option { border-top: 1px solid #f1f5f9; }
+.lm-option--on, .lm-option:hover { background: #f5f3ff; }
+.lm-option-addr { font-weight: 600; color: #0f172a; }
+.lm-option-meta { display: flex; gap: 0.4rem; align-items: baseline; white-space: nowrap; font-size: 0.72rem; }
+.lm-hint { margin: 0.35rem 0 0; font-size: 0.78rem; }
 .lm-input { flex: 1; min-width: 0; padding: 0.45rem 0.6rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
 .lm-input:focus { outline: 2px solid #2a78d6; outline-offset: 1px; }
 .lm-btn { padding: 0.45rem 0.8rem; border: 0; border-radius: 8px; background: #0f172a; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
