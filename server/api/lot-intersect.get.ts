@@ -1,7 +1,12 @@
 /**
  * One lot intersected against one NSW layer, returning the attributes that hit.
  *
- *   /api/lot-intersect?lot=A//DP408911&id=principal-planning-epi-heritage
+ *   /api/lot-intersect?lot=A//DP408911&id=principal-planning-epi-heritage     (from /frontage)
+ *   /api/lot-intersect?cadid=102169538&id=principal-planning-epi-heritage     (from /epi)
+ *
+ * The two differ only in how the lot is found. `cadid` reads the parcel straight from our cadastre and
+ * shrinks it 10 cm first, matching what /api/epi/at tests locally so the live and local answers on that
+ * page cannot disagree over a shared boundary; `lot` keeps the older path exactly as /frontage had it.
  *
  * A true polygon intersect, not a bounding box: `esriSpatialRelIntersects`
  * against the lot's own ring, so a heritage item beside the lot does not come
@@ -23,6 +28,7 @@
 import { findService } from '#shared/nsw-map-services'
 import { fetchLotRing } from '../utils/cadastre'
 import { arcgisQuery } from '../utils/arcgis-retry'
+import { nswQuery } from '../utils/nsw-kg/pool'
 
 const TIMEOUT_MS = 18000
 const MAX_RECORDS = 50
@@ -37,26 +43,67 @@ async function lotRing(lotId: string): Promise<number[][] | null> {
   return (await fetchLotRing(lotId)).ring
 }
 
+const ringCache = new Map<string, { at: number; rings: number[][][] | null }>()
+const RING_TTL_MS = 10 * 60 * 1000
+
+/**
+ * The same lot /epi tests locally, shrunk the same way, as ArcGIS rings.
+ *
+ * Two differences from the lot-id path above, both deliberate:
+ *
+ *   - 10 cm is taken off the inside first. Cadastre and planning layers share their boundaries, so the
+ *     raw parcel makes every neighbour that merely touches an edge come back as a hit. /api/epi/at
+ *     already shrinks by the same amount, and without this the live panel and the local one would
+ *     disagree about the same lot while both were working correctly.
+ *   - every ring is sent, not just the outer one, so a lot with a hole or one in several parts is asked
+ *     about as it really is. ST_ForcePolygonCW gives the winding ArcGIS reads as exterior-then-hole.
+ */
+async function lotRingsByCadid(cadid: string): Promise<number[][][] | null> {
+  const hit = ringCache.get(cadid)
+  if (hit && Date.now() - hit.at < RING_TTL_MS) return hit.rings
+
+  const res = await nswQuery<{ gj: string | null }>(`
+    SELECT ST_AsGeoJSON(ST_ForcePolygonCW(ST_Transform(
+             CASE WHEN b IS NULL OR ST_IsEmpty(b) THEN g0 ELSE b END, 4326)), 7) AS gj
+    FROM (SELECT ST_MakeValid(geom) AS g0 FROM cadastre.lot WHERE cadid = $1 LIMIT 1) s,
+    LATERAL (SELECT ST_Transform(ST_Buffer(ST_Transform(g0, 3308), -0.1), 4283) AS b) x`, [cadid])
+
+  let rings: number[][][] | null = null
+  const gj = res.rows[0]?.gj
+  if (gj) {
+    const geom = JSON.parse(gj)
+    const polys: any[] = geom.type === 'MultiPolygon' ? geom.coordinates : [geom.coordinates]
+    const flat = polys.flat().filter((r: any) => Array.isArray(r) && r.length >= 4)
+    rings = flat.length ? flat : null
+  }
+  ringCache.set(cadid, { at: Date.now(), rings })
+  return rings
+}
+
 export default defineEventHandler(async (event) => {
   const q = getQuery(event)
   const lotId = String(q.lot ?? '').trim().toUpperCase()
+  const cadid = String(q.cadid ?? '').trim()
   const id = String(q.id ?? '').trim()
 
   const svc = findService(id)
   if (!svc) return { ok: false as const, id, reason: 'unknown_layer', message: `No layer "${id}".` }
-  if (!lotId) return { ok: false as const, id, reason: 'no_lot', message: 'Pass ?lot=' }
+  if (!lotId && !cadid) return { ok: false as const, id, reason: 'no_lot', message: 'Pass ?lot= or ?cadid=' }
 
-  const ring = await lotRing(lotId)
-  if (!ring) {
+  // cadid is /epi's way in: the shrunk lot, every ring. lot= is /frontage's, unchanged.
+  const rings = cadid
+    ? await lotRingsByCadid(cadid)
+    : await lotRing(lotId).then(r => (r ? [r] : null))
+  if (!rings) {
     return { ok: false as const, id, name: svc.name, reason: 'no_lot_geometry',
-      message: `Our cadastre holds no boundary for ${lotId}.` }
+      message: `Our cadastre holds no boundary for ${cadid ? `cadid ${cadid}` : lotId}.` }
   }
 
   // POSTed, not in the query string: a cadastral ring can carry hundreds of
   // vertices and would blow a URL length limit.
   const body = new URLSearchParams({
     f: 'geojson',
-    geometry: JSON.stringify({ rings: [ring], spatialReference: { wkid: 4326 } }),
+    geometry: JSON.stringify({ rings, spatialReference: { wkid: 4326 } }),
     geometryType: 'esriGeometryPolygon',
     inSR: '4326',
     outSR: '4326',

@@ -1629,3 +1629,45 @@ export interface LotTrace {
   otherLayers: { key: string; label: string; group: string; empty: boolean }[]
   neighbours: GeoJsonGeometry[]
 }
+
+// ── Every dataset ───────────────────────────────────────────────────────
+//
+// The shape /api/datasources/layers returns. These live here rather than in the route because the page
+// needs them too, and importing a type out of `server/api/...` into a page makes the client bundle
+// reference a module that pulls in the database pool. `import type` is normally erased before that
+// matters, but it is a boundary not worth standing on.
+
+/** Whether a dataset came from the EPI geodatabase, from another publisher, or was computed here. */
+export type Origin = 'epi' | 'external' | 'derived'
+
+export interface DatasetRow {
+  /** Schema-qualified relation - the data item itself. */
+  relation: string
+  schema: string
+  title: string
+  /** Where the data came from, in the publisher's own terms. */
+  source: string | null
+  origin: Origin
+  /** How it got here. For EPI copies, why it is a copy rather than a view. */
+  generated: string
+  /** Currency of the data, where the source publishes one. */
+  sourceDate: string | null
+  /** When we loaded it. */
+  loadedAt: string | null
+  features: number | null
+  /** Every page that draws it, directly or through a view. */
+  usedOn: string[]
+}
+
+export interface LayersResponse {
+  datasets: DatasetRow[]
+  summary: {
+    datasets: number
+    epi: number
+    external: number
+    derived: number
+    /** What the pages list, which is the bigger number and a different question. */
+    pageLayers: { epi: number; lmr: number; esa: number; cdc: number }
+  }
+  generatedAt: string
+}

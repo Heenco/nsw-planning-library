@@ -22,6 +22,12 @@ export interface EsaItem {
   attributeFilter: string | null
   verifyRequired: boolean | null
   sourceLayers: string | null
+  /** The REST endpoint behind each named layer, resolved from esa.source_layers. */
+  sourceEndpoints: string[] | null
+  /** The same, as short service paths, for reading rather than fetching. */
+  sourceServices: string[] | null
+  /** One line saying where this item's shape came from, including when it came from nowhere. */
+  sourceNote: string | null
   sourceFeatures: number | null
   areaKm2: number | null
   /** The item's extent, so the map can be sent to it. */
@@ -84,6 +90,8 @@ export default defineEventHandler(async (event): Promise<EsaBuild> => {
              exception_text AS "exceptionText", status, coverage_type AS "coverageType",
              attribute_filter AS "attributeFilter", verify_required AS "verifyRequired",
              source_layers AS "sourceLayers", n_source_features::int AS "sourceFeatures",
+             source_endpoints AS "sourceEndpoints", source_services AS "sourceServices",
+             source_note AS "sourceNote",
              area_km2 AS "areaKm2",
              ARRAY[ST_XMin(geometry), ST_YMin(geometry), ST_XMax(geometry), ST_YMax(geometry)] AS bbox
       FROM esa.additional_exceptions

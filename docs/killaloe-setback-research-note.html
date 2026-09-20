@@ -1,0 +1,311 @@
+<title>Six Metres at Killaloe Avenue</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F6F7F4; --surface:#FFFFFF; --ink:#1E2A2E; --muted:#5B6A70; --line:#D6DCD8;
+  --accent:#235E8C; --accent-ink:#FFFFFF; --hl:#F2E27A; --hl-ink:#1E2A2E;
+  --ok:#2F7D5B; --ask:#9C6A0C; --no:#A2483A; --ok-bg:#E4F1EA; --ask-bg:#F7EDD3; --no-bg:#F5E3DF;
+  --code-bg:#EEF1EE; --panel:#EDF2F6; --fire-bg:#E3ECF4;
+  --serif:"Spectral",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141A1C; --surface:#1C2427; --ink:#E6EAE7; --muted:#A5B0AD; --line:#2E3A3E;
+    --accent:#7FB3DA; --accent-ink:#0F1A22; --hl:#5A501C; --hl-ink:#F3EBB0;
+    --ok:#7CCBA3; --ask:#E0B85A; --no:#E39A8B; --ok-bg:#1E332A; --ask-bg:#3A2F14; --no-bg:#3B221D;
+    --code-bg:#232C2F; --panel:#1F2A31; --fire-bg:#243543;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141A1C; --surface:#1C2427; --ink:#E6EAE7; --muted:#A5B0AD; --line:#2E3A3E;
+  --accent:#7FB3DA; --accent-ink:#0F1A22; --hl:#5A501C; --hl-ink:#F3EBB0;
+  --ok:#7CCBA3; --ask:#E0B85A; --no:#E39A8B; --ok-bg:#1E332A; --ask-bg:#3A2F14; --no-bg:#3B221D;
+  --code-bg:#232C2F; --panel:#1F2A31; --fire-bg:#243543;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;padding-inline:clamp(16px,4vw,48px);padding-block:0 96px}
+.wrap{max-width:860px;margin:0 auto}
+p,li{max-width:68ch}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,5.4vw,52px);letter-spacing:-.01em}
+h2{font-size:28px;margin-top:64px;padding-top:20px;border-top:1px solid var(--line)}
+h3{font-size:21px;margin-top:36px}
+.eyebrow{font-family:var(--sans);font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.masthead{padding-top:56px;display:grid;gap:18px}
+.standfirst{font-family:var(--serif);font-size:22px;line-height:1.4;color:var(--ink);max-width:36em;font-weight:500;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 28px;color:var(--muted);font-size:15px}
+.meta span b{color:var(--ink);font-weight:600}
+mark{background:var(--hl);color:var(--hl-ink);padding:0 .15em;border-radius:2px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--code-bg);padding:.1em .35em;border-radius:3px}
+blockquote{margin:20px 0;padding:14px 18px;border-left:3px solid var(--accent);background:var(--surface);font-size:16px}
+blockquote p{margin:0}
+.cell-quote{font-family:var(--mono);font-size:14.5px;line-height:1.5;white-space:pre-wrap;max-width:none}
+.tbl{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:560px}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--panel)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-size:12.5px;font-weight:600;letter-spacing:.03em;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.ask{background:var(--ask-bg);color:var(--ask)}
+.pill.no{background:var(--no-bg);color:var(--no)}
+.pill.fire{background:var(--accent);color:var(--accent-ink)}
+.verdict{margin-top:28px;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden}
+.verdict header{padding:16px 20px;background:var(--panel);display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline}
+.verdict header .addr{font-family:var(--serif);font-size:20px;font-weight:600}
+.verdict .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-bottom:1px solid var(--line)}
+.verdict .facts div{padding:12px 20px;border-right:1px solid var(--line);font-size:14.5px}
+.verdict .facts div:last-child{border-right:0}
+.verdict .facts b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.verdict .facts .v{font-variant-numeric:tabular-nums}
+.verdict .tbl{margin:0;border:0;border-radius:0}
+.verdict table{min-width:640px}
+.verdict tr.fires td{background:var(--fire-bg)}
+.answer{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;padding:16px 20px;border-top:1px solid var(--line)}
+.answer div{padding:12px 14px;border-radius:4px;background:var(--panel)}
+.answer .big{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1.05;font-variant-numeric:tabular-nums}
+.answer small{display:block;color:var(--muted);font-size:14px;margin-top:4px;line-height:1.35}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:22px 0}
+.strip .step{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:12px 14px;font-size:14.5px}
+.strip .step b{display:block;font-family:var(--serif);font-size:17px;margin-bottom:4px}
+.strip .step .st{margin-top:8px}
+.strip .step.loss{border-color:var(--no);box-shadow:inset 0 0 0 1px var(--no)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:20px 0}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:14px 16px}
+.stats .n{font-family:var(--serif);font-size:30px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.stats small{display:block;color:var(--muted);margin-top:4px;font-size:14px;line-height:1.35}
+.verdict-line{margin:16px 0 6px;padding:12px 16px;background:var(--panel);border-radius:4px;font-size:16px;max-width:none}
+.verdict-line b{font-family:var(--serif);font-size:17px}
+ol.phases{padding-left:0;list-style:none;counter-reset:ph;display:grid;gap:14px;margin:18px 0}
+ol.phases li{counter-increment:ph;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:14px 18px 14px 64px;position:relative;max-width:none}
+ol.phases li::before{content:counter(ph);position:absolute;left:18px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--serif);font-weight:600;font-size:17px;display:grid;place-items:center}
+ol.phases li b.t{font-family:var(--serif);font-size:18px;display:block;margin-bottom:4px}
+ol.phases li p{margin:.35em 0;max-width:70ch}
+ol.phases li .when{color:var(--muted);font-size:14px}
+ul.sources{padding-left:1.4em;font-size:15px}
+ul.sources li{margin:6px 0;max-width:none}
+.reply{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 22px;font-size:16px}
+.reply p{max-width:72ch}
+.reply p:first-child{margin-top:0}
+.reply p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:15px}
+@media (max-width:600px){
+  body{font-size:16px}
+  h2{font-size:24px;margin-top:48px}
+  .verdict .facts div{border-right:0;border-bottom:1px solid var(--line)}
+  ol.phases li{padding-left:56px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header class="masthead">
+  <div class="eyebrow">Urban Portal · DCP knowledge extraction · review and research note · 14 September 2026</div>
+  <h1>Six Metres at Killaloe Avenue</h1>
+  <p class="standfirst">Why the library shows four front <mark>setbacks</mark> for one Hornsby lot, what the 2024–26 research says about pulling conditional, spatial rules out of DCP documents, and how to close the gap starting with this address.</p>
+  <div class="meta">
+    <span>Prompted by <b>the 6 Killalore Ave email</b> (cadastre spelling: <b>Killaloe Avenue</b>)</span>
+    <span>Source instrument <b>Hornsby DCP 2024, Table 3.1.2-a</b></span>
+    <span>Data checked <b>planningai: up_property_d_4, rule_effect, lot_frontage_run</b></span>
+  </div>
+</header>
+
+<h2 id="answer">The short answer</h2>
+<p>The email is right, and the failure is one we have already diagnosed in <code>docs/dcp-extraction-review.md</code>: the extractor reads every number in the cell and stores five front setbacks under a single rule with a single scope. Nothing in the schema can say which number belongs to which road. It is not a parsing failure. Docling captured the cell verbatim, bullets and all. It is not a data failure either. Annexure C of the same DCP lists the designated roads, and the cadastre already names the frontage road, its hierarchy and the suburb for every Hornsby lot. It is a <em>shape</em> failure: a control cell is a small decision table, and we store it as a bag of values.</p>
+<p>For the address in question, every input the rule needs is in the database today. The verdict panel below is what the panel should say, and each row can be evaluated from columns we already hold. The one clause we cannot evaluate is the streetscape condition (conform to an existing 7.6 m building line where one exists), which needs the neighbours' building footprints. The honest output for that row is “check on site”, not silence and not a fifth number.</p>
+
+<div class="verdict">
+  <header>
+    <span class="eyebrow">Worked answer</span>
+    <span class="addr">6 Killaloe Avenue, Pennant Hills</span>
+    <span class="note">Hornsby DCP 2024 · cl 3.1.2 · Table 3.1.2-a · minimum front setback</span>
+  </header>
+  <div class="facts">
+    <div><b>Lot</b><span class="v">22//DP35528</span></div>
+    <div><b>Zone</b><span class="v">R2</span></div>
+    <div><b>Area</b><span class="v">968.6 m²</span></div>
+    <div><b>Frontage</b><span class="v">Killaloe Avenue, 16.2 m, sole frontage</span></div>
+    <div><b>Road hierarchy</b><span class="v">6 (local)</span></div>
+    <div><b>Corner / battle-axe</b><span class="v">no / no</span></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Case in the cell</th><th>Guard</th><th>Value</th><th>What answers it</th><th>This lot</th></tr></thead>
+    <tbody>
+      <tr class="fires"><td>Local road</td><td><span class="mono">frontage_road_class = local</span></td><td class="num">6 m</td><td>Annexure C names × <span class="mono">primary_frontage_road</span>, extents by suburb (geometry later)</td><td><span class="pill fire">fires</span> Killaloe Ave is not in Annexure C</td></tr>
+      <tr><td>Designated road</td><td><span class="mono">frontage_road_class = designated</span></td><td class="num">9 m</td><td>same</td><td><span class="pill ok">resolved</span> no</td></tr>
+      <tr><td>Exception: Brooklyn Road, Brooklyn</td><td><span class="mono">site_ref = Brooklyn Rd ∧ suburb = Brooklyn</span></td><td class="num">3 m</td><td><span class="mono">primary_frontage_road</span> + <span class="mono">suburbname</span></td><td><span class="pill ok">resolved</span> no</td></tr>
+      <tr><td>Exception: roads in Cherrybrook</td><td><span class="mono">suburb = Cherrybrook</span></td><td class="num">9 m</td><td><span class="mono">suburbname</span></td><td><span class="pill ok">resolved</span> no, Pennant Hills</td></tr>
+      <tr><td>Streetscape: existing line ≥ 7.6 m on a local road</td><td><span class="mono">prevailing_building_line ≥ 7.6</span></td><td class="num">conform</td><td>neighbour building footprints, not held</td><td><span class="pill no">unresolvable</span> check on site</td></tr>
+      <tr><td>Attached dual occupancy (row 2)</td><td><span class="mono">designated ∨ Cherrybrook</span> → 9 m, else</td><td class="num">7.6 m</td><td>as above</td><td><span class="pill ok">resolved</span> 7.6 m</td></tr>
+    </tbody>
+  </table></div>
+  <div class="answer">
+    <div><span class="big">6 m</span><small>dwelling house or detached dual occupancy, front boundary. Streetscape clause flagged for site check.</small></div>
+    <div><span class="big">7.6 m</span><small>attached dual occupancy, front boundary.</small></div>
+    <div><span class="big">4 → 1</span><small>front-setback rows the panel shows today versus after the fix, with the reason beside the number.</small></div>
+  </div>
+</div>
+
+<p style="margin-top:22px">The research supports the direction the review already set, and sharpens three points. Parsing is solved well enough for our documents; the bottleneck is the grain at which rules are stored. The extraction step must be constrained to a closed vocabulary of predicates that something in our stack can resolve, must carry a verbatim sub-span per case, and must run through a judge-and-repair loop; even then, plan for 15–20% of cells needing human review. And the language model must never do the geography: it names the predicate at extraction time, and PostGIS evaluates it at query time against materialised columns. No vendor and no NSW standard exists to adopt. The closest published precedents are ACCORD's RASE tooling, the De Jure regulatory-rule pipeline, PlanX's outcome flags, and Zoneomics' December 2025 replacement of “see text” with conditional control values.</p>
+
+<h2 id="found">What the email found, checked against the database</h2>
+<p>The rule layer holds fourteen setback effects for clause 3.1.2, all hanging off <code>dcp.3.1.2.prescriptive_measures</code> with one applicability set: area Hornsby, residential, land use dwelling house or dual occupancy. Five of them come from the front-setback cell, and they share one <code>source_span</code>. The attached-dual-occupancy row became a row rule of its own with two values, 7.6 and 9, and no condition. The audit table already carries the diagnosis as two open <code>ambiguous_cell</code> findings (“5 values in one cell with no condition to separate them”) and one <code>numeric_lead</code>, none of them gating.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Table row</th><th>Values stored</th><th>Condition stored</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td>Front boundary, dwellings and detached dual occupancies</td><td class="num">3, 6, 7.6, 9, 9</td><td>none</td><td>panel lists all of them, indistinguishable</td></tr>
+    <tr><td>Attached dual occupancy</td><td class="num">7.6, 9</td><td>none</td><td>same</td></tr>
+    <tr><td>Side boundary</td><td class="num">0.9, 1.5</td><td>none in this run (storey band is a numeric band the schema can hold)</td><td>recoverable</td></tr>
+    <tr><td>Rear boundary</td><td class="num">3, 8</td><td>none in this run</td><td>recoverable</td></tr>
+    <tr><td>Waterfront</td><td>—</td><td>defers to HLEP cl 6.1 Foreshore Building Line Map</td><td>correct: <code>map_layer</code> recorded</td></tr>
+    <tr><td>Secondary boundary (corner lots)</td><td class="num">3</td><td>none</td><td>fine, but should be scoped to corner lots</td></tr>
+  </tbody>
+</table></div>
+<p>The cell itself survived conversion intact. This is the Docling output at line 5160 of <code>hornsby-dcp-2024.md</code>, page 116 of Part 3:</p>
+<blockquote><p class="cell-quote">Front boundary (Primary frontage) Dwellings and detached dual occupancies | 6m to local roads and 9m to designated roads, except for the following ▪ On local roads, where an existing setback of 7.6m or greater exists, it may be necessary to conform to this setback to maintain the streetscape character, ▪ 3m Brooklyn Road, Brooklyn and ▪ 9m to roads in Cherrybrook</p></blockquote>
+<p>So the loss happens in one place, and it is a known place.</p>
+<div class="strip">
+  <div class="step"><b>PDF</b>Hornsby DCP 2024, 489 pages, text layer healthy.<div class="st"><span class="pill ok">intact</span></div></div>
+  <div class="step"><b>Convert</b>Docling to markdown and clause HTML with page provenance; cell text verbatim, bullets kept.<div class="st"><span class="pill ok">intact</span></div></div>
+  <div class="step"><b>Structure</b><span class="mono">section_table_cell</span> keeps row and column headers; no span columns yet.<div class="st"><span class="pill ask">partial</span></div></div>
+  <div class="step loss"><b>Rule layer</b><span class="mono">rule_effect</span>: five values, one scope, no column for a categorical guard.<div class="st"><span class="pill no">condition lost</span></div></div>
+  <div class="step"><b>Panel</b><span class="mono">frontage-dcp</span> enumerates every effect it finds.<div class="st"><span class="pill no">four numbers</span></div></div>
+</div>
+
+<h2 id="ground">The inputs already exist, and a name-only join is not enough</h2>
+<p>The DCP answers its own condition. Appendix C on pages 480–482 lists 16 urban and 8 rural designated roads with From/To extents. Joining those names to the cadastre's <code>primary_frontage_road</code> already partitions the shire:</p>
+<div class="stats">
+  <div><span class="n">68,101</span><small>Hornsby lots with a computed primary frontage road</small></div>
+  <div><span class="n">12,358</span><small>front an Annexure C road name (18.1%), the 9 m branch</small></div>
+  <div><span class="n">6,645</span><small>lots in Cherrybrook, the 9 m branch regardless of road</small></div>
+  <div><span class="n">257</span><small>lots on Brooklyn Road, Brooklyn, the 3 m branch</small></div>
+</div>
+<p>Two checks show why the guard must be grounded in geometry and suburb rather than in the road name alone, and why road hierarchy cannot stand in for the DCP's list.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Annexure C road</th><th>Extent the DCP names</th><th>Same name, other roads in the LGA</th><th class="num">Lots a name-only join mis-tags</th></tr></thead>
+  <tbody>
+    <tr><td>George Street</td><td>Hornsby: Bridge Road to Galston Gorge</td><td>George Street, Pennant Hills; George Street, Brooklyn</td><td class="num">53 + 49</td></tr>
+    <tr><td>Boundary Road</td><td>Pennant Hills Road to New Line Road</td><td>Boundary Road, North Epping (a different road)</td><td class="num">158</td></tr>
+    <tr><td>Bay Road</td><td>Calabash Road to Berowra Creek</td><td>Bay Road, Berrilee; Bay Road, Arcadia</td><td class="num">43 + 39</td></tr>
+    <tr><td>Hastings Road</td><td>Old Northern Road to New Line Road</td><td>Hastings Road, Castle Hill (outside the extent)</td><td class="num">34</td></tr>
+  </tbody>
+</table></div>
+<div class="tbl"><table>
+  <thead><tr><th>Primary frontage road</th><th class="num">Hierarchy 2–3 (arterial, sub-arterial)</th><th class="num">Hierarchy 5</th><th class="num">Hierarchy 6 (local)</th><th class="num">Hierarchy 8–9</th></tr></thead>
+  <tbody>
+    <tr><td>Named in Annexure C</td><td class="num">11,302</td><td class="num">274</td><td class="num">782</td><td class="num">0</td></tr>
+    <tr><td>Not named in Annexure C</td><td class="num">414</td><td class="num">3,434</td><td class="num">50,772</td><td class="num">1,123</td></tr>
+  </tbody>
+</table></div>
+<p>The 782 lots on Annexure-named roads that sit on hierarchy-6 segments are mostly the name collisions above; the 3,848 lots on hierarchy-3 and 5 roads that are not designated show that “busy road” and “designated road” are different concepts. The resolver therefore needs the Annexure C extents as road-segment geometry (linear referencing on the NSW Road Segment layer), with suburb as the interim filter. This is open question 2 in the review, now quantified.</p>
+
+<h2 id="research">What the 2024–26 research says</h2>
+<p>Four sub-problems hide inside “extract the setback from the DCP”: read the table faithfully, turn the cell into rules rather than numbers, ground the rules' conditions in geography, and evaluate them per parcel with exceptions and unknowns. The literature is uneven across the four. The first is close to solved, the second is active and measurable, the third is where published work is weakest and our own assets are strongest, and the fourth is settled practice in a handful of products and standards worth copying.</p>
+
+<h3>1. Reading tables: solved well enough, and not our bottleneck</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Source</th><th>What it shows</th><th>Numbers</th></tr></thead>
+  <tbody>
+    <tr><td>Benchmarking PDF parsers on table extraction with LLM-based semantic evaluation (arXiv 2603.18652, 2026)</td><td>21 parsers on real tables. Vision-language models lead; rule-based tools fail; several parsers are bimodal, either perfect or omitting the table. Failure modes: flattened multi-level headers, resolved rowspans, lost decimals. An LLM judge tracks human judgment far better than TEDS.</td><td>Gemini 3 Pro 9.55, Gemini 3 Flash 9.50, LightOnOCR-2-1B 9.08, Mistral OCR 3 8.89, GPT-5 mini 7.14, Claude Sonnet 4.6 7.02, MinerU2.5 6.49 (0–10). Judge r = 0.93 vs TEDS 0.68.</td></tr>
+    <tr><td>PulseBench-Tab (arXiv 2606.07534, 2026)</td><td>Graph-based table evaluation that includes cells holding lists, bullets and multi-line content, which is exactly the shape of the Hornsby cell. Parsers differ most on intra-cell structure.</td><td>—</td></tr>
+    <tr><td>OmniDocBench (CVPR 2025)</td><td>Attribute-level table tags: merged cells, rotation, formulas in cells. Rotated tables are the worst failure mode measured.</td><td>—</td></tr>
+    <tr><td>Docling TableFormer; MinerU2.5 (2025)</td><td>Docling's structure model is strong on clean grids and gives page provenance; MinerU emits HTML that keeps rowspan and colspan where Docling's markdown flattens them.</td><td>Docling TEDS above 91% on FinTabNet (vendor and blog comparisons, not peer-reviewed).</td></tr>
+  </tbody>
+</table></div>
+<div class="verdict-line"><b>Verdict.</b> Keep Docling for structure and provenance. Add a second read of control tables only by a vision-language model in the Gemini 3 Flash class, diff the two, and store cells as structured cells with span columns, never as markdown. This is section 5.7 of the review; the benchmark evidence says it is cheap and the risk it removes is real.</div>
+
+<h3>2. Rules, not numbers: schema-constrained extraction with spans, judged and repaired</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Source</th><th>What it shows</th><th>Numbers</th></tr></thead>
+  <tbody>
+    <tr><td>RASE (Hjelseth &amp; Nisbet, CIB W78 2011) and ACCORD D2.4 Semantics Documentation (Horizon Europe, Aug 2025)</td><td>Requirement / Applicability / Selection / Exception marked on the text, each with (object, property, comparator, value, unit). ACCORD ships the AEC3PO ontology, a Rule Formalisation Tool, a Building Compliance Rule Language and a RASE-LLM annotator emitting YAML-LD. The table rule is explicit: applicability from the upmost and leftmost cells, each interior cell a distinct test.</td><td>No public accuracy figures for RASE-LLM.</td></tr>
+    <tr><td>CODE-ACCORD corpus (Scientific Data, 2024)</td><td>Annotated building regulations (England, Finland) with 4 entity and 10 relation types. Even expert annotators disagree a lot, which bounds what any extractor can be scored against.</td><td>862 sentences, 4,297 entities, 4,329 relations; entity inter-annotator agreement 0.37.</td></tr>
+    <tr><td>De Jure: iterative LLM self-refinement for structured extraction of regulatory rules (arXiv 2604.02276, 2026)</td><td>Docling, then LLM rule units (action, conditions, constraints, exceptions, penalties, verbatim span), then three LLM judges over 19 criteria, then selective regeneration of failing stages. Cross-domain without retuning. No human gold standard, which the authors admit.</td><td>4.71–4.85 / 5 across SEC, HIPAA, EU AI Act; non-hallucination 5.00; downstream QA win rate 74–84%.</td></tr>
+    <tr><td>From legal text to executable decision models (arXiv 2604.17153, 2026)</td><td>GPT-5.1 generating DMN decision models from Dutch environmental regulation. Telling the model the expected inputs and outputs was the largest lever by far; semantic enrichment of the text barely helped. Structural similarity did not guarantee the same outcomes.</td><td>95 gold models; +37–54% structural similarity with I/O spec; outcome equivalence 51–53%; best runs 33% perfectly equivalent.</td></tr>
+    <tr><td>Legal text to Defeasible Deontic Logic via LLMs (arXiv 2506.08899, 2025); Catala; s(CASP)</td><td>Exceptions modelled as defeasible defaults (“6 m unless designated road”) rather than nested IFs, with explanation of which rule won. Failure modes: nested conditions, implicit obligations, scope of pronouns.</td><td>—</td></tr>
+    <tr><td>P4IR: SFT + GRPO for automated code compliance (arXiv 2606.22402, 2026)</td><td>A fine-tuned small model beats frontier models used few-shot at producing rule code skeletons from building regulations; reinforcement learning cut false positives.</td><td>Up to −23.8% tree-edit distance and −38.6% Levenshtein vs SFT; beats Claude Opus/Sonnet 4.5, GPT-5.2 few-shot.</td></tr>
+    <tr><td>Systematic review of methods for interpreting building code regulations (Building Research &amp; Information, 2026)</td><td>Rule-based and ontology approaches are deterministic and traceable but do not scale; LLMs scale but hallucinate; the frontier is hybrids with deterministic verification.</td><td>—</td></tr>
+  </tbody>
+</table></div>
+<div class="verdict-line"><b>Verdict.</b> The DMN paper's “give the model the I/O spec” is our guard registry: constrain the extractor to a closed list of predicates it may use, and to the value/unit/comparator fields already in <code>rule_effect</code>. Require a verbatim sub-span per case, not per cell. Run De Jure-style judge and repair, then deterministic verification (value literal in span, span literal in cell, guard in registry, cases exhaustive and mutually exclusive), and route what fails to a review queue. The published numbers say 80–85% clean is realistic; 98% is not.</div>
+
+<h3>3. Grounding text to geography: the model names the predicate, the database evaluates it</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Source</th><th>What it shows</th><th>Numbers</th></tr></thead>
+  <tbody>
+    <tr><td>GS-QA geospatial question answering benchmark (arXiv 2605.22811, 2026)</td><td>Text-to-SQL over PostGIS is the best of three approaches and still fails most questions; dense retrieval is worst because embeddings ignore location; directional and multi-source predicates are near random.</td><td>Claude Sonnet 4.6 text-to-SQL: 44.2% correct, 89.7% valid SQL; GPT-4o 33.0%.</td></tr>
+    <tr><td>GeoSQL-Eval / GeoSQL-Bench (Expert Systems with Applications, 2026)</td><td>First systematic evaluation of LLMs writing PostGIS. Frontier models struggle with spatial functions and schema retrieval.</td><td>14,178 instances, 340 PostGIS functions, 82 databases.</td></tr>
+    <tr><td>Coordinates from Context (arXiv 2510.08741, 2025)</td><td>LLMs reason well over coordinates they are given and badly over coordinates they must recall. A recaller (gazetteer or geocoder) plus an LLM reasoner beats either alone.</td><td>36 km error reasoning over supplied coordinates vs 200+ km generating them.</td></tr>
+    <tr><td>Spatial-RAG (arXiv 2502.18470, 2025); toponym resolution with small LLMs and gazetteers (IJGIS 2024)</td><td>Hybrid retrieval: a spatial database does the sparse geometric filter, the model does semantic ranking. Gazetteer knowledge is what makes LLM geoparsing work at all.</td><td>—</td></tr>
+  </tbody>
+</table></div>
+<div class="verdict-line"><b>Verdict.</b> Never let the model compute geography at query time. At extraction time it emits <code>frontage_road_class = designated</code> from the registry; at query time PostGIS evaluates that against materialised columns. A document-internal gazetteer such as Annexure C is better grounded than any external geoparser, but only once its From/To extents are geometry. Cross-references to maps (“HLEP Foreshore Building Line Map”) are the same mechanism and <code>map_layer</code> already handles them.</div>
+
+<h3>4. Exceptions and unknowns: four outcomes, and an explanation with every number</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Source</th><th>What it shows</th></tr></thead>
+  <tbody>
+    <tr><td>Open Digital Planning / PlanX and the digital-planning-data-schemas (UK, 2025–26)</td><td>Rules authored by planning authorities as flowcharts, with four outcomes: <code>missingInfo</code>, <code>failsToMeetPolicy</code>, <code>edgeCase</code>, <code>meetsPolicy</code>. Non-applicable constraints stay in the payload with <code>intersects: false</code>, so absence is asserted rather than inferred.</td></tr>
+    <tr><td>MHCLG planning data standards, regulations laid April 2026</td><td>First mandatory data standards under the 2023 Act cover plan timetables and housing requirements only. Policies themselves are still not published as data, even in the most advanced jurisdiction.</td></tr>
+    <tr><td>New Zealand National Planning Standards (ePlans, 2019 onward)</td><td>A legislated requirement that a plan be queryable by property; provisions carry stable identifiers (for example <code>RLZ-R1</code>) that survive amendment. Rangitīkei's ePlan went operative January 2025.</td></tr>
+    <tr><td>Zoneomics, December 2025 release</td><td>The only national-scale zoning product to ship conditional controls: <code>conditional_control_values=true</code> replaces the “STF” (see text field) sentinel with the logic behind it. A scalar-only schema degenerated into an escape hatch, as ours has.</td></tr>
+    <tr><td>Symbium (computational law, California ADU rules)</td><td>Parcel-level evaluation with explanation: the model turns red and says why. The explanation, not the number, is the product.</td></tr>
+  </tbody>
+</table></div>
+<div class="verdict-line"><b>Verdict.</b> Store and return (value, guard that selected it, clause, objective). Unresolved evaluates to “unknown”, never to “non-compliant”, which is also what s4.15(3A) requires of a DCP control. The panel answers with one row and a reason, and collapses the other branches behind “why this number”.</div>
+
+<h3>5. NSW and the vendors: nobody to buy this from</h3>
+<p>Nothing found in 2026 changes the picture in the review. The NSW Planning Portal still requires councils to publish DCPs as documents, with technical requirements only for the spatial datasets inside them (in force since November 2015). The Pattern Book Development Code and the Housing Code sit inside the Codes SEPP, which is why every vendor's rules engine covers them and no vendor's covers DCP prose. PropCode returns DCPs as PDF blobs; Feasibly labels its NSW DCP tier “screening-grade”; Archistar claims rules “displayed conditionally”. The Geoscape Buildings footprint dataset, which the streetscape clause needs, is now distributed free to NSW government agencies through DCS Spatial Services and commercially to everyone else, so the last unresolvable guard has a known price.</p>
+
+<h2 id="plan">Recommended approach</h2>
+<p>The order matters: prove the answer with the data we hold before changing the schema, and change the schema before spending on model extraction. Each phase has an acceptance test on real lots, because coverage counts have already fooled us once (99.9% of sections had a rule; clause 3.1.2 had four wrong numbers).</p>
+<ol class="phases">
+  <li><b class="t">Prove the answer with existing data</b><span class="when">days</span>
+    <p>Hand-encode the two cells of Table 3.1.2-a as cases. Implement three guards: <code>frontage_road_class</code> (Annexure C names × <code>primary_frontage_road</code>, filtered by suburb as an interim proxy for extents), <code>suburb</code>, and <code>site_ref</code>. Wire them into the frontage-dcp panel with the reason line.</p>
+    <p>Acceptance: 6 Killaloe Ave gives 6 m and 7.6 m with the streetscape flag; 30 Casuarina Dr, Cherrybrook gives 9 m; a Pennant Hills Road lot gives 9 m; a George Street, Pennant Hills lot gives 6 m (the collision test).</p></li>
+  <li><b class="t">Put the case grain in the schema</b><span class="when">1–2 weeks</span>
+    <p>A <code>rule_case</code> row per branch (R / A / S / E in RASE terms) carrying guard triples (predicate, operator, value) that reference a <code>guard_registry</code> with its resolver and status (resolved, ask the proposal, unresolvable). Each case keeps its own verbatim sub-span. Add span columns to <code>section_table_cell</code>. Add the four-valued outcome to the resolver.</p></li>
+  <li><b class="t">LLM extraction of cells into cases</b><span class="when">2–4 weeks</span>
+    <p>Context packet per cell: cell text, row and column headers, caption, heading chain, and the DCP's own definition of any term it uses (the “Designated roads” paragraph). Schema-constrained JSON limited to registry predicates. Judge and repair, then deterministic verification, then <code>audit_finding</code> rows for whatever fails. Target the 178 open <code>ambiguous_cell</code> findings across Hornsby and Randwick (10 are road-class, 14 lot width, 12 corner or battle-axe, 46 parking rates that need their own model).</p></li>
+  <li><b class="t">Resolvers that need geometry</b><span class="when">in parallel</span>
+    <p>Annexure C extents to road-segment geometry via linear referencing on the NSW Road Segment layer. Foreshore Building Line map join for the waterfront row. Prevailing building line from Geoscape Buildings footprints; until then the guard stays declared unresolvable and the panel says “check on site”.</p></li>
+  <li><b class="t">Presentation and the accuracy gate</b><span class="when">with each phase</span>
+    <p>One answer per control with its guard and objective. Extend <code>planningai-datum-check.mjs</code> with the four acceptance addresses so the gate fails loudly on regression. Label the grade of every number: resolved from data, needs proposal input, or needs site check.</p></li>
+</ol>
+
+<h3>Guard vocabulary to start with</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Guard</th><th>Resolver</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td><span class="mono">frontage_road_class</span></td><td>Annexure C × <span class="mono">primary_frontage_road</span>; extents as geometry in phase 4</td><td><span class="pill ok">resolved</span> 12,358 lots today, collisions to fix</td></tr>
+    <tr><td><span class="mono">suburb</span>, <span class="mono">site_ref</span></td><td><span class="mono">suburbname</span>, address or lot/DP</td><td><span class="pill ok">resolved</span></td></tr>
+    <tr><td><span class="mono">is_corner</span>, <span class="mono">is_battleaxe</span>, <span class="mono">zone</span>, <span class="mono">lot_area</span>, <span class="mono">frontage_length</span>, <span class="mono">lot_width</span></td><td><span class="mono">up_property_d_4</span> columns</td><td><span class="pill ok">resolved</span></td></tr>
+    <tr><td><span class="mono">map_area</span>, foreshore line, HOB area codes</td><td><span class="mono">map_layer</span> deferral to ePlanning layers</td><td><span class="pill ok">resolved</span> for known maps</td></tr>
+    <tr><td><span class="mono">storeys</span>, <span class="mono">height</span>, <span class="mono">land_use</span>, <span class="mono">unit_mix</span></td><td>proposal input</td><td><span class="pill ask">ask</span></td></tr>
+    <tr><td><span class="mono">prevailing_building_line</span></td><td>neighbour footprints (Geoscape Buildings)</td><td><span class="pill no">unresolvable</span> declare it</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="reply">A reply to send back</h2>
+<div class="reply">
+<p>Thanks, this is the exact gap we measured in the extraction review. The extractor keeps every number in that cell (3, 6, 7.6, 9, 9) but has nowhere to store the condition that picks between them, so the panel shows all of them. The good news: every input for that address (Killaloe Avenue in the cadastre) is already in our data. The frontage road and its class, the suburb, and the DCP's own Annexure C list of designated roads. With those, the answer is 6 m for a dwelling and 7.6 m for an attached dual occupancy. The “existing 7.6 m streetscape” clause needs neighbours' building footprints we don't hold yet, so we'd show it as “check on site” rather than guess.</p>
+<p>I've written up what the current research says. Short version: parsing isn't the problem, the rule grain is. The fix is a decision-table shape per cell, a closed list of spatial predicates our database can actually resolve, LLM extraction constrained to that list with verbatim spans and a verification pass, and PostGIS doing the geography. I'd like to prove it on Hornsby clause 3.1.2 first, with your address as the acceptance test.</p>
+</div>
+
+<h2 id="sources">Sources</h2>
+<p class="note">Internal first, then external. Peer-reviewed or benchmark evidence is marked; the rest are vendor, government or blog sources.</p>
+<ul class="sources">
+  <li>Internal: <code>nsw-planning-library/docs/dcp-extraction-review.md</code>, <code>docs/rule-layer-pipeline.md</code>, <code>docs/dcp-journey-log.md</code>; live queries against planningai on 14 Sep 2026 (<code>nsw.up_property_d_4</code>, <code>nsw.rule_effect</code>, <code>nsw.rule_applicability</code>, <code>nsw.audit_finding</code>, <code>nsw.lot_frontage_run</code>); Hornsby DCP 2024 markdown, Part 3 p.116 and Part 10 pp.480–482.</li>
+  <li>Peer-reviewed / benchmark: <a href="https://arxiv.org/html/2603.18652v1">Benchmarking PDF parsers on table extraction with LLM-based semantic evaluation (2026)</a> · <a href="https://arxiv.org/pdf/2606.07534">PulseBench-Tab (2026)</a> · <a href="https://github.com/opendatalab/OmniDocBench">OmniDocBench (CVPR 2025)</a> · <a href="https://arxiv.org/pdf/2509.22186">MinerU2.5 (2025)</a></li>
+  <li>Peer-reviewed / benchmark: <a href="https://arxiv.org/html/2604.02276v1">De Jure (2026)</a> · <a href="https://arxiv.org/html/2604.17153v1">From legal text to executable decision models (2026)</a> · <a href="https://arxiv.org/pdf/2506.08899">Legal text formalization into Defeasible Deontic Logic using LLMs (2025)</a> · <a href="https://arxiv.org/abs/2606.22402">P4IR reinforcement learning for automated code compliance (2026)</a> · <a href="https://www.tandfonline.com/doi/full/10.1080/09613218.2026.2637965">Systematic review of methods for interpreting building code regulations (2026)</a> · <a href="https://arxiv.org/html/2403.02231">CODE-ACCORD corpus (2024)</a> · <a href="https://dl.acm.org/doi/10.1145/3473582">Catala (2021)</a> · <a href="https://arxiv.org/html/2507.05519v6">Deontic logic in s(CASP) (2025)</a></li>
+  <li>Peer-reviewed / benchmark: <a href="https://arxiv.org/html/2605.22811v1">GS-QA geospatial QA benchmark (2026)</a> · <a href="https://www.sciencedirect.com/science/article/abs/pii/S0957417426010353">GeoSQL-Eval (2026)</a> · <a href="https://arxiv.org/html/2510.08741">Coordinates from Context (2025)</a> · <a href="https://arxiv.org/abs/2502.18470">Spatial-RAG (2025)</a> · <a href="https://www.tandfonline.com/doi/full/10.1080/13658816.2024.2405182">Toponym resolution with lightweight LLMs and geo-knowledge (2024)</a></li>
+  <li>Project and government: <a href="http://accordproject.eu/wp-content/uploads/2025/08/ACCORD_D2.4_ACCORD_Semantics_Documentation.pdf">ACCORD D2.4 Semantics Documentation (Aug 2025)</a> · <a href="https://accordproject.eu/aec3po/">AEC3PO ontology</a> · <a href="https://opendigitalplanning.org/planx">Open Digital Planning: PlanX</a> · <a href="https://github.com/theopensystemslab/digital-planning-data-schemas">digital-planning-data-schemas</a> · <a href="https://mhclgdigital.blog.gov.uk/2026/04/22/data-standards-laying-the-groundwork-for-an-open-faster-data-driven-planning-system/">MHCLG data standards, April 2026</a> · <a href="https://www.environmentguide.org.nz/rma/planning-documents-and-processes/national-planning-standards/">NZ National Planning Standards</a> · <a href="https://www.planningportal.nsw.gov.au/insights-and-demography/online-submission-planning-data">NSW Planning Portal: online submission of planning data</a> · <a href="https://www.planning.nsw.gov.au/government-architect-nsw/housing-design/nsw-housing-pattern-book">NSW Housing Pattern Book</a> · <a href="https://www.spatial.nsw.gov.au/news/dcs_spatial_services_secures_new_geoscape_datasets_for_whole-of-government_access">DCS Spatial Services: Geoscape datasets</a></li>
+  <li>Vendor and community: <a href="https://www.zoneomics.com/blog/december-2025-release">Zoneomics December 2025 release</a> · <a href="https://symbium.com/index">Symbium</a> · <a href="https://github.com/National-Zoning-Atlas/zoning-gpt">National Zoning Atlas zoning-gpt</a> · <a href="https://www.zoningatlas.org/research">National Zoning Atlas research</a> · <a href="https://codecut.ai/docling-vs-marker-vs-llamaparse/">Docling vs Marker vs LlamaParse (blog)</a></li>
+</ul>
+</div>

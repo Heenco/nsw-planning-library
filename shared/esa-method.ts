@@ -70,7 +70,7 @@ export const ESA_CAVEATS: EsaCaveat[] = [
   {
     title: 'This is the addition, not the definition',
     body: 'The state-wide part of clause 3.3 - coastal wetlands, littoral rainforest, critical habitat, wilderness, '
-      + 'and the rest - is not in this layer. A lot outside every feature here can still be environmentally sensitive.',
+      + 'and the rest - is a separate layer set, built by 07C and shown under Clause 3.3 itself.',
   },
   {
     title: 'Some items are drawn from live services',
@@ -80,5 +80,73 @@ export const ESA_CAVEATS: EsaCaveat[] = [
   {
     title: 'One item is left out on purpose',
     body: 'A repealed exception is marked excluded in the manifest and never reaches the layer.',
+  },
+]
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * The state-wide half, built by "07C - ESA - clause 3.3 state-wide".
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export const ESA33_LEAD =
+  'Most of clause 3.3 is state-wide and applies to every lot in NSW, whichever plan covers it. No single '
+  + 'agency publishes it, so this is assembled: what the planning instrument library already holds is copied, '
+  + 'the rest is downloaded from the agency that owns it, and the one piece nobody publishes is derived.'
+
+export const ESA33_STEPS: EsaStep[] = [
+  {
+    n: 1,
+    title: 'Take what the EPI library already has',
+    body: 'Coastal wetlands, littoral rainforest and their proximity areas, the environmentally sensitive land '
+      + 'maps, and the EPI layers that mark Aboriginal and biodiversity significance are all in the planning '
+      + 'instrument load already. Copying them is exact and takes seconds.',
+    note: 'They are copies rather than views, because the EPI load replaces its whole schema each time. '
+      + 'Re-run 07C after every reload.',
+  },
+  {
+    n: 2,
+    title: 'Prove the copy against the live service',
+    body: 'The department publishes each coastal map as one layer, area and proximity together. The two copied '
+      + 'tables have to add up to exactly what that service reports, which tests the copy against a source that '
+      + 'took no part in making it.',
+  },
+  {
+    n: 3,
+    title: 'Download the rest by object id, not by page',
+    body: 'National parks, Crown reserves, marine protected areas, Ramsar, World Heritage and wilderness belong '
+      + 'to other agencies. The loader asks each service for its complete list of object ids, fetches those ids '
+      + 'in named batches, and refuses to write the table unless every id came back.',
+    note: 'Earlier downloads of these same layers stopped at round numbers - 5,000, 3,000, 300,000 - which is '
+      + 'what paging looks like when it quits early and nobody checks.',
+  },
+  {
+    n: 4,
+    title: 'Derive the 100 m rule where it is not published',
+    body: 'Clause 3.3 reaches 100 m past the wetlands, the aquatic reserves and the Ramsar sites. The department '
+      + 'maps that buffer for the coastal layers, so it is copied; for the other two it is measured here on the '
+      + 'geography type, which is a true 100 m everywhere rather than in one projected zone.',
+  },
+  {
+    n: 5,
+    title: 'Record what has no dataset at all',
+    body: 'Critical habitat, areas of outstanding biodiversity value, and coastal waters and lakes have no layer '
+      + 'to load. They are written into the registry as gaps so they stay on screen as open questions instead of '
+      + 'looking like land with no constraint on it.',
+  },
+]
+
+export const ESA33_CAVEATS: EsaCaveat[] = [
+  {
+    title: 'Present is not the same as caught',
+    body: 'Some layers are wider than the clause. Crown reserves are here in full, but clause 3.3 catches only '
+      + 'those dedicated for environmental protection, so the purpose has to be read before a lot is excluded.',
+  },
+  {
+    title: 'The paragraph letters are not verified',
+    body: 'The legislation site and AustLII both refuse automated requests, so the letters beside each item come '
+      + 'from secondary sources. The items are right; the lettering should be checked against the instrument.',
+  },
+  {
+    title: 'Three items have no data anywhere',
+    body: 'They are listed as gaps. A lot can sit outside every layer here and still be caught by one of them.',
   },
 ]

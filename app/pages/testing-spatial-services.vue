@@ -354,6 +354,219 @@
           </dl>
         </details>
       </div>
+
+      <!-- ── What each planning page returns for this lot ──────────────────
+           Each block is exactly what that page's own endpoint answers, called
+           the way the page calls it. Nothing is re-derived here, so a
+           disagreement between two blocks is a real disagreement between the
+           pages rather than one this page introduced - which is the only
+           reason to put them side by side. -->
+      <div v-for="p in PLANNING" :id="p.id" :key="p.id" class="lp-group">
+        <h3 class="lp-h3">
+          {{ p.title }}
+          <span class="lp-dim"><code>{{ p.endpoint }}</code></span>
+        </h3>
+        <p class="lp-basis" :class="`lp-basis--${p.basisKind}`">{{ p.basis }}</p>
+
+        <p v-if="planning[p.key]?.error" class="lp-error">{{ planning[p.key]!.error }}</p>
+        <p v-else-if="!planning[p.key]" class="lp-dim">Loading&hellip;</p>
+        <template v-else>
+          <p class="lp-chips">
+            <span v-for="s in p.summary(planning[p.key]!.data)" :key="s.label" class="lp-chip">
+              <strong>{{ s.value }}</strong> {{ s.label }}
+            </span>
+            <span class="lp-dim">{{ planning[p.key]!.ms }} ms</span>
+          </p>
+          <div v-if="p.rows(planning[p.key]!.data).length" class="lp-scroll">
+            <table class="lp-table">
+              <thead><tr><th v-for="c in p.columns" :key="c" scope="col">{{ c }}</th></tr></thead>
+              <tbody>
+                <tr v-for="(r, i) in p.rows(planning[p.key]!.data)" :key="i">
+                  <td v-for="(cell, j) in r" :key="j" :class="{ 'lp-null': cell === '—' }">{{ cell }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p v-else class="lp-dim">Nothing on this lot.</p>
+        </template>
+      </div>
+
+      <!-- ── Land Use Table for the lot's zone ─────────────────────────────
+           /report answers this from the property record in d_4. Here the zone
+           and the plan are DETECTED from the lot itself - the epi_land_zoning
+           hit that /api/epi/at already returned - and resolved against
+           nsw.lep_zones and nsw.lep_permissibility. Nothing is read from d_4,
+           so a zone the property table has wrong shows up as a disagreement
+           rather than being inherited.
+           ZonePermissibility renders the three parts: as written, how the
+           table is read, and resolved. -->
+      <div id="permissibility" class="lp-group">
+        <h3 class="lp-h3">
+          Permissibility
+          <span class="lp-dim"><code>epi.epi_land_zoning &rarr; nsw.lep_permissibility</code></span>
+        </h3>
+        <p class="lp-basis lp-basis--lot">
+          Zone and plan detected from the lot polygon, not read from the property record.
+        </p>
+
+        <p v-if="zoneError" class="lp-error">{{ zoneError }}</p>
+        <p v-else-if="!zones.length && planning.epi" class="lp-dim">
+          No land zoning layer covers this lot, so there is no Land Use Table to resolve.
+        </p>
+        <p v-else-if="!zones.length" class="lp-dim">Waiting for the zoning sweep&hellip;</p>
+
+        <div v-for="z in zones" :key="z.code + z.plan" class="lp-zone">
+          <p class="lp-chips">
+            <span class="lp-chip"><strong>{{ z.code }}</strong> {{ z.className }}</span>
+            <span class="lp-chip">{{ z.plan }}</span>
+            <span class="lp-chip">{{ z.coverPct.toFixed(1) }}% of the lot</span>
+          </p>
+          <ZonePermissibility v-if="z.detail" :detail="z.detail" />
+          <p v-else-if="z.error" class="lp-dim">{{ z.error }}</p>
+          <p v-else class="lp-dim">Resolving the Land Use Table&hellip;</p>
+        </div>
+      </div>
+
+      <!-- ── CDC eligibility, type by type ─────────────────────────────────
+           /api/cdc/at answers the GENERAL prerequisites, which rule out every
+           certificate at once. That is half the question: the Codes SEPP has a
+           code per development type with its own zone list, lot size, width and
+           land tests. /api/cdc/types answers all twelve from the workbook, with
+           the five columns those tests use recomputed from planningai rather
+           than read from d_4.
+
+           `untested` is on every row on purpose - a type reported eligible on
+           three checks out of eleven requirements is not the same claim as one
+           fully tested, and a reader has to be able to tell. -->
+      <div id="cdc-eligibility" class="lp-group">
+        <h3 class="lp-h3">
+          CDC eligibility &mdash; every type
+          <span class="lp-dim"><code>/api/cdc/types</code></span>
+        </h3>
+        <p class="lp-basis lp-basis--lot">Computed from the lot polygon, not read from the property record.</p>
+
+        <p v-if="cdcTypesError" class="lp-error">{{ cdcTypesError }}</p>
+        <p v-else-if="!cdcTypes" class="lp-dim">Loading&hellip;</p>
+        <template v-else>
+          <p class="lp-chips">
+            <span class="lp-chip"><strong>{{ cdcTypes.summary.eligible }}</strong> eligible</span>
+            <span class="lp-chip"><strong>{{ cdcTypes.summary.notEligible }}</strong> ruled out</span>
+            <span class="lp-chip"><strong>{{ cdcTypes.summary.unknown }}</strong> undecidable</span>
+            <span class="lp-chip">{{ cdcTypes.summary.untestedTotal }} requirements not tested here</span>
+            <span class="lp-dim">{{ cdcTypes.ms }} ms</span>
+          </p>
+          <p class="lp-note">
+            Zone {{ cdcTypes.lot.zones.join(', ') || 'unknown' }}
+            &middot; {{ cdcTypes.lot.areaM2 ? Math.round(cdcTypes.lot.areaM2).toLocaleString() + ' m²' : 'area unknown' }}
+            &middot; {{ cdcTypes.lot.widthM != null ? cdcTypes.lot.widthM.toFixed(1) + ' m wide' : 'width unknown' }}
+            &middot; {{ cdcTypes.lot.inGreenfield ? 'in the Greenfield Housing Code area' : 'outside the Greenfield area' }}
+            &middot; {{ cdcTypes.lot.landslideRisk ? 'landslide risk mapped' : 'no landslide risk mapped' }}
+          </p>
+
+          <p v-if="cdcTypes.generalBlockers.length" class="lp-verdict lp-verdict--no">
+            <strong>{{ cdcTypes.generalBlockers.length }} general
+            {{ cdcTypes.generalBlockers.length === 1 ? 'prerequisite rules' : 'prerequisites rule' }} out every
+            type that inherits them</strong> &mdash;
+            {{ cdcTypes.generalBlockers.map((b: any) => b.title).join(', ') }}.
+          </p>
+          <p v-else class="lp-verdict lp-verdict--yes">
+            <strong>No general prerequisite catches this lot</strong> &mdash; each type below stands on its own tests.
+          </p>
+          <p v-if="cdcTypes.generalGaps.length" class="lp-note lp-note--warn">
+            {{ cdcTypes.generalGaps.length }} general
+            {{ cdcTypes.generalGaps.length === 1 ? 'check has' : 'checks have' }} no dataset
+            ({{ cdcTypes.generalGaps.map((g: any) => g.title).join(', ') }}), so nothing below is fully cleared.
+          </p>
+
+          <div class="lp-scroll">
+            <table class="lp-table lp-cdc-table">
+              <thead><tr><th>Type</th><th>Code</th><th></th><th>Checks</th><th>Where it stands</th></tr></thead>
+              <tbody>
+                <tr v-for="t in cdcTypes.types" :key="t.key">
+                  <td>{{ t.name }}<span class="lp-dset-sub">{{ t.key }}</span></td>
+                  <td>{{ t.code }}<span v-if="!t.inheritsGeneral" class="lp-dset-sub">does not inherit the general prerequisites</span></td>
+                  <td>
+                    <span class="lp-gate" :class="t.eligible === true ? 'lp-gate--yes' : t.eligible === false ? 'lp-gate--no' : 'lp-gate--open'">
+                      {{ t.eligible === true ? 'eligible' : t.eligible === false ? 'ruled out' : 'undecidable' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span v-for="c in t.checks" :key="c.column + c.says" class="lp-pb-check"
+                          :class="c.pass === false ? 'lp-pb-check--no' : c.pass === null ? 'lp-pb-check--unk' : ''"
+                          :title="c.actual ? `lot has ${c.actual}` : 'not measured'">{{ c.says }}</span>
+                    <span v-if="!t.checks.length" class="lp-dim">none testable</span>
+                  </td>
+                  <td>{{ t.verdict }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+      </div>
+
+      <!-- ── Pattern Book ─────────────────────────────────────────────────
+           /report reads the stored pattern-book flags. This measures the lot
+           against the Pattern Book's own thresholds. It does not pick an LMR
+           branch, because planningai holds no low and mid-rise area - both are
+           evaluated and the design says which it turns on. -->
+      <div id="pattern-book" class="lp-group">
+        <h3 class="lp-h3">
+          Pattern Book
+          <span class="lp-dim"><code>/api/pattern-book/at</code></span>
+        </h3>
+        <p class="lp-basis lp-basis--lot">Measured from the lot, not read from the property record.</p>
+        <p v-if="patternError" class="lp-error">{{ patternError }}</p>
+        <p v-else-if="!pattern" class="lp-dim">Loading&hellip;</p>
+        <template v-else>
+          <p class="lp-chips">
+            <span class="lp-chip"><strong>{{ pattern.summary.qualifiesEitherWay }}</strong> qualify either way</span>
+            <span class="lp-chip"><strong>{{ pattern.summary.onlyInLmr }}</strong> only on one branch</span>
+            <span class="lp-chip"><strong>{{ pattern.summary.ruledOut }}</strong> ruled out</span>
+            <span class="lp-chip"><strong>{{ pattern.summary.unknown }}</strong> undecidable</span>
+            <span class="lp-dim">{{ pattern.ms }} ms</span>
+          </p>
+          <p class="lp-note">
+            Lot: {{ pattern.lot.areaM2 ? Math.round(pattern.lot.areaM2).toLocaleString() + ' m²' : 'area unknown' }}
+            &middot; {{ pattern.lot.widthM != null ? pattern.lot.widthM.toFixed(1) + ' m wide' : 'width unknown' }}
+            &middot; {{ pattern.lot.maxSlopePct != null ? 'slope ' + pattern.lot.maxSlopePct.toFixed(1) + '% max' : 'slope unknown' }}
+            &middot; {{ pattern.lot.isCorner ? 'corner lot' : 'not a corner lot' }}
+            &middot; {{ pattern.lot.inTod ? 'in a TOD precinct' : 'not in a TOD precinct' }}
+          </p>
+          <ul class="lp-caveats">
+            <li v-for="(c, i) in pattern.caveats" :key="i">{{ c }}</li>
+          </ul>
+          <div class="lp-scroll">
+            <table class="lp-table lp-pb-table">
+              <thead><tr><th>Design</th><th>Category</th><th>Needs</th><th>Area gate</th><th>Thresholds</th></tr></thead>
+              <tbody>
+                <tr v-for="d in pattern.designs" :key="d.key">
+                  <td>{{ d.designer }}<span class="lp-dset-sub">{{ d.key }}</span></td>
+                  <td>{{ d.category }}</td>
+                  <td>{{ d.requiredUse }}<span v-if="d.requiresCornerLot" class="lp-dset-sub">corner lot</span></td>
+                  <td>
+                    <span class="lp-gate" :class="d.areaGate === true ? 'lp-gate--yes' : d.areaGate === false ? 'lp-gate--no' : 'lp-gate--open'">
+                      {{ d.areaGate === true ? 'met' : d.areaGate === false ? 'not met' : 'turns on LMR' }}
+                    </span>
+                    <span class="lp-dset-sub">{{ d.areaGateWhy }}</span>
+                  </td>
+                  <td>
+                    <div v-for="b in d.blocks" :key="b.block" class="lp-pb-block">
+                      <span class="lp-gate" :class="b.qualifies === true ? 'lp-gate--yes' : b.qualifies === false ? 'lp-gate--no' : 'lp-gate--open'">
+                        {{ b.block }}
+                      </span>
+                      <span v-for="c in b.checks" :key="c.label" class="lp-pb-check" :class="c.pass === false ? 'lp-pb-check--no' : c.pass === null ? 'lp-pb-check--unk' : ''"
+                            :title="c.note || ''">
+                        {{ c.label }} {{ c.actual == null ? '?' : c.actual.toFixed(c.unit === 'm²' ? 0 : 1) }}{{ c.unit }}
+                        / {{ c.required }}{{ c.unit }}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+      </div>
         </section>
       </main>
     </div>
@@ -361,6 +574,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ZoneDetail } from '#shared/lep-permissibility'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 useHead({ title: 'Testing spatial services · Planning Library' })
@@ -632,6 +846,9 @@ async function open(cadid: string, msoid: number | null = null) {
     loading.value = false
     await nextTick()
     observeSections()
+    // deliberately not awaited: the lot dump is the point of the page and should not wait on four
+    // planning sweeps, the slowest of which is a few hundred ms
+    void Promise.all([loadPlanning(cadid), loadPattern(cadid), loadCdcTypes(cadid)]).then(() => nextTick()).then(observeSections)
     // The dump is long and sits below the samples; without this a click from
     // near the top of the page looks like nothing happened.
     document.getElementById('lot')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -664,6 +881,189 @@ const mapPoint = computed(() => {
 })
 
 // ── the side rail ────────────────────────────────────────────────────────────
+/*
+ * The four planning pages, each called exactly as its own page calls it.
+ *
+ * All four now test the same thing: the LOT POLYGON, shrunk 10 cm, against PostGIS. The `basis` line on
+ * each block still states it, because /api/lmr/at can answer either way - the /lmr map click passes a
+ * point and reads the PMTiles archives instead, which is the right test for "what is under my cursor"
+ * and the wrong one here. A lot half inside a flood layer is a hit on the polygon and a miss on a point
+ * sitting on the dry half, so a page comparing four answers has to say which test produced them.
+ */
+type PlanningKey = 'epi' | 'lmr' | 'cdc' | 'esa'
+interface PlanningBlock {
+  key: PlanningKey
+  id: string
+  title: string
+  endpoint: string
+  basis: string
+  basisKind: 'lot' | 'point'
+  columns: string[]
+  rows: (d: any) => string[][]
+  summary: (d: any) => { label: string; value: number | string }[]
+}
+
+const dash = (v: any) => (v == null || v === '' ? '—' : String(v))
+const pct = (v: any) => (v == null ? '—' : Number(v).toFixed(1) + '%')
+
+const PLANNING: PlanningBlock[] = [
+  {
+    key: 'epi', id: 'planning-epi', title: 'Planning layers (/epi)',
+    endpoint: '/api/epi/at?cadid=',
+    basis: 'Lot polygon, shrunk 10 cm, against the epi schema in PostGIS.', basisKind: 'lot',
+    columns: ['Layer', 'Instrument', 'Class', 'Label', 'Zone', 'Clause', 'Covers'],
+    // epi/at's `layers` is the number of DISTINCT epi tables that caught the lot, not the number
+    // tested - labelling it "tested" produced "21 caught of 6 tested", which cannot be true
+    summary: d => [{ label: 'features caught', value: d.hits.length }, { label: 'layers', value: d.layers }],
+    rows: d => d.hits.map((h: any) => [dash(h.layName || h.layer), dash(h.epiName), dash(h.layClass),
+      dash(h.label), dash(h.symCode), dash(h.clause), pct(h.coverPct)]),
+  },
+  {
+    key: 'lmr', id: 'planning-lmr', title: 'Low and Mid Rise (/lmr)',
+    endpoint: '/api/lmr/at?cadid=',
+    basis: 'Lot polygon, shrunk 10 cm, against the lmr schema and the SEPP land application layers in PostGIS.',
+    basisKind: 'lot',
+    columns: ['Layer', 'Instrument or group', 'Class', 'Label', 'Covers'],
+    summary: d => [
+      { label: 'layers caught', value: d.hits.length },
+      { label: 'LMR layers', value: d.hits.filter((h: any) => h.family === 'lmr').length },
+      { label: 'constraints', value: d.hits.filter((h: any) => h.family === 'constraint').length },
+    ],
+    rows: d => d.hits.map((h: any) => [dash(h.layName), dash(h.sepp), dash(h.layClass), dash(h.label), pct(h.coverPct)]),
+  },
+  {
+    key: 'cdc', id: 'planning-cdc', title: 'Complying development (/cdc-map)',
+    endpoint: '/api/cdc/at?cadid=',
+    basis: 'Lot polygon, shrunk 10 cm, against all 66 cdc layers in PostGIS.', basisKind: 'lot',
+    columns: ['Layer', 'Bears on', 'Effect', 'Clauses', 'Caught', 'Covers'],
+    summary: d => [
+      { label: 'excluded by', value: d.verdict.general + d.verdict.code + d.verdict.midrise + d.verdict.unmapped },
+      { label: 'general prerequisites', value: d.verdict.general },
+      { label: 'clear of', value: d.verdict.clear },
+      { label: 'unknowable (gaps)', value: d.verdict.unknown },
+    ],
+    rows: d => d.hits.map((h: any) => [dash(h.title), dash(h.scope), dash(h.kind),
+      (h.clauses || []).join(', ') || '—', (h.names || []).slice(0, 2).join('; ') || '—', pct(h.coverPct)]),
+  },
+  {
+    key: 'esa', id: 'planning-esa', title: 'Environmentally sensitive (/esa)',
+    endpoint: '/api/esa/at?cadid=',
+    basis: 'Lot polygon, shrunk 10 cm, against the esa schema in PostGIS.', basisKind: 'lot',
+    columns: ['Item', 'Half', 'Para', 'Effect', 'Tier', 'Caught', 'Covers'],
+    summary: d => [
+      { label: 'state-wide exclusions', value: d.summary.statewide },
+      { label: 'plan additions', value: d.summary.additions },
+      { label: 'advisory only', value: d.summary.advisory },
+      { label: 'unknowable (gaps)', value: d.summary.gaps },
+    ],
+    rows: d => d.hits.map((h: any) => [dash(h.item), dash(h.half), dash(h.paragraph), dash(h.kind),
+      h.verifyRequired ? (h.coverageType || 'advisory') + ' · verify' : dash(h.coverageType),
+      (h.names || []).slice(0, 2).join('; ') || '—', pct(h.coverPct)]),
+  },
+]
+
+const planning = ref<Partial<Record<PlanningKey, { data: any; ms: number; error?: string }>>>({})
+
+// ── CDC eligibility and the Pattern Book ────────────────────────────────
+//
+// Both are recomputed rather than read. /report answers them from d_4's stored flags; here the CDC
+// answer is the cdc sweep already on this page, regrouped the way /report groups it, and the Pattern
+// Book is measured from the lot by /api/pattern-book/at.
+
+const cdcTypes = ref<any>(null)
+const cdcTypesError = ref('')
+
+async function loadCdcTypes(cadid: string) {
+  cdcTypes.value = null
+  cdcTypesError.value = ''
+  try {
+    cdcTypes.value = await $fetch<any>('/api/cdc/types', { query: { cadid } })
+  } catch (e: any) {
+    cdcTypesError.value = e?.data?.statusMessage || e?.message || 'Could not evaluate the CDC types.'
+  }
+}
+
+const pattern = ref<any>(null)
+const patternError = ref('')
+
+async function loadPattern(cadid: string) {
+  pattern.value = null
+  patternError.value = ''
+  try {
+    pattern.value = await $fetch<any>('/api/pattern-book/at', { query: { cadid } })
+  } catch (e: any) {
+    patternError.value = e?.data?.statusMessage || e?.message || 'Could not measure the Pattern Book thresholds.'
+  }
+}
+
+
+// ── Permissibility ──────────────────────────────────────────────────────
+//
+// The zone comes from the lot, not from the property record: /api/epi/at already returns the
+// epi_land_zoning hit with its epi_name and sym_code, so the plan and the zone code are detected from
+// the same polygon sweep as everything else on this page. /api/lep-permissibility then resolves that
+// pair against nsw.lep_zones (the table as written) and nsw.lep_permissibility (every Standard
+// Instrument term resolved against it). d_4 is not consulted at all, which is the point - a zone the
+// property table has wrong shows up here as a disagreement instead of being inherited.
+//
+// A split lot gets one block per zone.
+
+interface ZoneBlock {
+  code: string
+  className: string
+  plan: string
+  coverPct: number
+  detail: ZoneDetail | null
+  error: string
+}
+const zones = ref<ZoneBlock[]>([])
+const zoneError = ref('')
+
+async function loadZones() {
+  zones.value = []
+  zoneError.value = ''
+  const epi = planning.value.epi?.data
+  if (!epi) return
+  const found = (epi.hits ?? [])
+    .filter((h: any) => h.layer === 'epi_land_zoning' && h.symCode && h.epiName)
+    .sort((a: any, b: any) => (b.coverPct ?? 0) - (a.coverPct ?? 0))
+  zones.value = found.map((h: any) => ({
+    code: String(h.symCode), className: String(h.layClass ?? ''), plan: String(h.epiName),
+    coverPct: Number(h.coverPct ?? 0), detail: null, error: '',
+  }))
+  await Promise.all(zones.value.map(async (z) => {
+    try {
+      // the route returns the ZoneDetail itself for a name+code lookup - {ok, zone, objectives, raw,
+      // resolved, permissibleList} - and a plan or zone listing for its other query shapes
+      const res: any = await $fetch('/api/lep-permissibility', { query: { name: z.plan, code: z.code } })
+      z.detail = res?.ok && res?.zone ? (res as ZoneDetail) : null
+      if (!z.detail) z.error = `No Land Use Table for zone ${z.code} in ${z.plan}.`
+    } catch (e: any) {
+      z.error = e?.data?.statusMessage || e?.message || 'Could not resolve that zone.'
+    }
+  }))
+}
+
+
+/**
+ * Ask all four at once, and let each fail on its own. One page being down is a fact worth seeing next to
+ * the three that answered, not a reason to blank the section.
+ */
+async function loadPlanning(cadid: string) {
+  planning.value = {}
+  await Promise.all(PLANNING.map(async (p) => {
+    const t0 = Date.now()
+    try {
+      const data = await $fetch<any>(p.endpoint.split('?')[0]!, { query: { cadid } })
+      planning.value = { ...planning.value, [p.key]: { data, ms: data?.ms ?? Date.now() - t0 } }
+    } catch (e: any) {
+      planning.value = { ...planning.value, [p.key]: { data: null, ms: Date.now() - t0, error: e?.data?.statusMessage || e?.message || 'Failed' } }
+    }
+  }))
+  // the zone comes out of the epi sweep, so this can only run once that has answered
+  await loadZones()
+}
+
 const PAGE_SECTIONS = [{ id: 'build', label: 'The build' }, { id: 'find', label: 'Find a lot' }]
 function sid(title: string) { return 'g-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') }
 const railTitle = computed(() => (primaryAddress.value || detail.value?.lot?.lot_id || openedCadid.value || 'Lot') as string)
@@ -676,6 +1076,10 @@ const lotSections = computed(() => {
   if (d.lot) for (const g of LOT_GROUPS) out.push({ id: sid(g.title), label: g.title })
   if (d.runs.length) out.push({ id: 'runs', label: 'Frontage runs' })
   out.push({ id: 'addresses', label: 'Addresses' })
+  for (const p of PLANNING) out.push({ id: p.id, label: p.title })
+  out.push({ id: 'permissibility', label: 'Permissibility' })
+  out.push({ id: 'cdc-eligibility', label: 'CDC eligibility' })
+  out.push({ id: 'pattern-book', label: 'Pattern Book' })
   return out
 })
 
@@ -945,7 +1349,13 @@ body { margin: 0; background: #f8fafb; }
 .lp-build { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; padding: 0.85rem 1rem; font-size: 0.82rem; }
 .lp-build-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; padding: 0.18rem 0; }
 .lp-build-label { min-width: 4.5rem; font-weight: 700; color: #334155; }
-.lp-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+/* The basis line on each planning block. Coloured because it is the one thing a reader has to take in
+   before comparing two blocks: three test the lot polygon, /lmr tests a single point. */
+.lp-basis { margin: 0.1rem 0 0.5rem; font-size: 0.76rem; padding: 0.2rem 0.5rem; border-radius: 6px;
+  border-left: 3px solid; display: inline-block; }
+.lp-basis--lot { background: #f0f9ff; border-color: #0284c7; color: #075985; }
+.lp-basis--point { background: #fff7ed; border-color: #ea580c; color: #9a3412; }
+.lp-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
 .lp-chip { border: 1px solid #ddd6fe; background: #f5f3ff; color: #4a3aa7; border-radius: 999px; padding: 0.05rem 0.5rem; font-size: 0.74rem; }
 .lp-chip--on { border-color: #bbf7d0; background: #f0fdf4; color: #15803d; }
 .lp-chip--off { border-color: #e2e8f0; background: #f8fafc; color: #94a3b8; text-decoration: line-through; }
@@ -1052,4 +1462,45 @@ body { margin: 0; background: #f8fafb; }
   .lp-fields { grid-template-columns: 1fr; gap: 0 0; }
   .lp-fields dt { margin-top: 0.4rem; font-weight: 700; }
 }
+
+/* CDC eligibility and Pattern Book */
+.lp-cdc-table { table-layout: fixed; }
+.lp-cdc-table td { overflow-wrap: anywhere; white-space: normal; }
+.lp-cdc-table th:nth-child(1), .lp-cdc-table td:nth-child(1) { width: 17%; }
+.lp-cdc-table th:nth-child(2), .lp-cdc-table td:nth-child(2) { width: 17%; }
+.lp-cdc-table th:nth-child(3), .lp-cdc-table td:nth-child(3) { width: 9%; }
+.lp-cdc-table th:nth-child(4), .lp-cdc-table td:nth-child(4) { width: 27%; }
+.lp-cdc-table th:nth-child(5), .lp-cdc-table td:nth-child(5) { width: 30%; }
+.lp-note--warn { color: #92400e; }
+/* fixed layout so the Thresholds column keeps its room - left to itself the browser gives the long
+   "area gate" prose most of the table and clips the numbers, which are the point of the row */
+.lp-pb-table { table-layout: fixed; }
+.lp-pb-table th:nth-child(1), .lp-pb-table td:nth-child(1) { width: 17%; }
+.lp-pb-table th:nth-child(2), .lp-pb-table td:nth-child(2) { width: 12%; }
+.lp-pb-table th:nth-child(3), .lp-pb-table td:nth-child(3) { width: 10%; }
+.lp-pb-table th:nth-child(4), .lp-pb-table td:nth-child(4) { width: 25%; }
+.lp-pb-table th:nth-child(5), .lp-pb-table td:nth-child(5) { width: 36%; }
+.lp-pb-table td { overflow-wrap: anywhere; white-space: normal; }
+/* .lp-table td is nowrap, which is right for the raw column dumps this page is mostly made of - one
+   row per record, scrolled sideways - and wrong for the two prose columns here */
+.lp-verdict { margin: 0.2rem 0 0.6rem; padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.82rem; border-left: 3px solid; }
+.lp-verdict--yes { background: #f0fdf4; border-color: #16a34a; color: #166534; }
+.lp-verdict--no { background: #fef2f2; border-color: #dc2626; color: #991b1b; }
+.lp-cdc-scope { margin-bottom: 0.5rem; }
+.lp-cdc-scope-head { margin: 0 0 0.2rem; font-size: 0.78rem; font-weight: 700; color: #334155; }
+.lp-cdc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.lp-cdc-list li { font-size: 0.76rem; padding: 0.2rem 0.5rem; background: #f8fafc; border-radius: 6px; }
+.lp-cdc-name { display: block; color: #0f172a; }
+.lp-cdc-gaps .lp-cdc-list li { background: #fffbeb; }
+.lp-caveats { margin: 0.3rem 0 0.6rem; padding-left: 1rem; font-size: 0.76rem; color: #92400e; }
+.lp-caveats li { margin-bottom: 0.15rem; }
+.lp-gate { display: inline-block; padding: 0.05rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
+.lp-gate--yes { background: #dcfce7; color: #166534; }
+.lp-gate--no { background: #fee2e2; color: #991b1b; }
+.lp-gate--open { background: #fef3c7; color: #92400e; }
+.lp-pb-block { margin-bottom: 0.25rem; display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; }
+.lp-pb-check { font-size: 0.7rem; padding: 0.05rem 0.35rem; border-radius: 4px; background: #f1f5f9; color: #475569; white-space: nowrap; }
+.lp-pb-check--no { background: #fee2e2; color: #991b1b; }
+.lp-pb-check--unk { background: #f5f3ff; color: #6d28d9; }
+.lp-dset-sub { display: block; font-size: 0.7rem; color: #94a3b8; }
 </style>

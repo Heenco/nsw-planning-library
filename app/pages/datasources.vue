@@ -227,6 +227,59 @@
           <p class="ds-text ds-muted">Common columns on every layer: <code>epi_name</code>, <code>epi_type</code>, <code>lga_name</code>, <code>sym_code</code>, <code>label</code>, <code>legis_ref_clause</code>, <code>published_date</code>, <code>commenced_date</code>, <code>amendment</code>.</p>
         </section>
 
+        <!-- Every dataset -->
+        <section id="datasets" class="ds-section">
+          <h2 class="ds-h2">Every dataset</h2>
+          <p class="ds-lead">
+            One row per dataset we hold, not per layer the pages draw. The planning pages list far more
+            layers than there are datasets behind them &mdash; /cdc-map's are mostly views over these, and
+            most of /lmr's are slices of a single EPI table cut by plan and layer name &mdash; so counting
+            layers would double-count the same polygons several times over.
+            <template v-if="datasets">
+              Those four pages list
+              {{ datasets.summary.pageLayers.epi + datasets.summary.pageLayers.lmr
+                + datasets.summary.pageLayers.esa + datasets.summary.pageLayers.cdc }}
+              layers between them, from {{ datasets.summary.datasets }} datasets.
+            </template>
+          </p>
+          <p v-if="datasetsError" class="ds-error">{{ datasetsError }}</p>
+          <p v-else-if="!datasets" class="ds-text ds-muted">Loading&hellip;</p>
+          <template v-else>
+            <p class="ds-text">
+              <strong>{{ datasets.summary.datasets }}</strong> datasets &middot;
+              <strong>{{ datasets.summary.epi }}</strong> from the EPI geodatabase &middot;
+              <strong>{{ datasets.summary.external }}</strong> from another publisher &middot;
+              <strong>{{ datasets.summary.derived }}</strong> computed here.
+            </p>
+            <div class="ds-table-wrap">
+              <table class="ds-table ds-dsets">
+                <thead>
+                  <tr>
+                    <th>Dataset</th><th>Source</th><th>EPI?</th><th>How it is generated</th><th>Used on</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="d in datasets.datasets" :key="d.relation">
+                    <td>
+                      <code class="ds-dset-rel">{{ d.relation }}</code>
+                      <span class="ds-dset-title">{{ d.title }}</span>
+                      <span v-if="d.features != null" class="ds-dset-sub">{{ fmtNum(d.features) }} features</span>
+                    </td>
+                    <td>
+                      {{ d.source || '—' }}
+                      <span v-if="d.sourceDate" class="ds-dset-sub">data of {{ fmtDate(d.sourceDate) }}</span>
+                      <span v-if="d.loadedAt" class="ds-dset-sub">loaded {{ fmtDate(d.loadedAt) }}</span>
+                    </td>
+                    <td><span class="ds-origin" :class="`ds-origin--${d.origin}`">{{ ORIGIN_LABEL[d.origin] }}</span></td>
+                    <td>{{ d.generated }}</td>
+                    <td><span v-for="p in d.usedOn" :key="p" class="ds-dset-page">{{ p }}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </section>
+
         <!-- Codes -->
         <section id="codes" class="ds-section">
           <h2 class="ds-h2">Codes and values</h2>
@@ -268,7 +321,7 @@
 import {
   ADDRESS_TO_LOT_SQL, CODE_LISTS, EPI_GROUPS, EPI_LAYER_NOTE, EPI_LAYERS, JOINS, SCHEMA_COLOR,
   SCHEMA_LABEL, SOURCES, TABLES,
-  type JoinDoc, type SchemaKey,
+  type JoinDoc, type LayersResponse, type Origin, type SchemaKey,
 } from '#shared/datasources-nsw'
 
 useHead({ title: 'Data sources · Planning Library' })
@@ -309,6 +362,7 @@ const STRUCTURE_SECTIONS = [
   { id: 'joins', label: 'Join reference' },
   { id: 'trace', label: 'Trace an address or lot' },
   { id: 'planning', label: 'Planning layers' },
+  { id: 'datasets', label: 'Every dataset' },
   { id: 'codes', label: 'Codes and values' },
 ]
 const ACCURACY_SECTIONS = [
@@ -414,6 +468,14 @@ onMounted(async () => {
   } catch (err: any) {
     liveError.value = err?.data?.statusMessage ?? err?.message ?? String(err)
   }
+  // separate try: the dataset table and the live figures fail independently, and one going down
+  // should not blank the other
+  try {
+    datasets.value = await $fetch<LayersResponse>('/api/datasources/layers')
+  } catch (err: any) {
+    datasetsError.value = 'The dataset table could not be loaded: '
+      + (err?.data?.statusMessage ?? err?.message ?? String(err))
+  }
   observeSections()
 })
 
@@ -480,6 +542,25 @@ function epiCount(table: string): string {
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
 }
+
+function fmtNum(n: number): string {
+  return n.toLocaleString('en-AU')
+}
+
+// ── Every dataset ───────────────────────────────────────────────────────
+//
+// Read live from /api/datasources/layers rather than written out here: the three layer catalogues
+// (lmr.layers, esa.layers, cdc.layers) and the 01A load registry already hold every column this table
+// shows, and a second copy in TypeScript would be a second thing to keep right.
+
+const ORIGIN_LABEL: Record<Origin, string> = {
+  epi: 'EPI',
+  external: 'Not EPI',
+  derived: 'Derived here',
+}
+
+const datasets = ref<LayersResponse | null>(null)
+const datasetsError = ref('')
 
 const copied = ref(false)
 async function copy(text: string) {
@@ -648,6 +729,39 @@ body {
 .ds-table th { text-align: left; padding: 0.6rem 0.8rem; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
 .ds-table td { padding: 0.55rem 0.8rem; vertical-align: top; border-bottom: 1px solid #f1f5f9; color: #334155; line-height: 1.45; }
 .ds-table tr:last-child td { border-bottom: none; }
+
+/* Every dataset. Wide table, so the columns are given explicit widths - left to itself the browser
+   gives the long "how it is generated" prose most of the room and squeezes the identifying columns. */
+/* table-layout: fixed is what makes the widths below bind. Without it the browser auto-sizes, gives the
+   long source strings almost the whole table and squeezes EPI?/generated/used-on to nothing. */
+.ds-dsets { font-size: 0.78rem; table-layout: fixed; }
+/* fixed layout does not wrap an unbreakable string - the ArcGIS service URLs in `source` are one long
+   token and spill across the next two columns without this */
+.ds-dsets td, .ds-dsets th { overflow-wrap: anywhere; word-break: break-word; }
+/* .ds-table code is nowrap, which is right for the short field names in the Join reference but pushes
+   relation names like esa.proximity_100m_marine_protected_areas out of their column here. Needs the
+   extra `td` to outweigh it: `.ds-dsets code` ties on specificity and `.ds-table code` is declared
+   later in this stylesheet, so the tie goes to nowrap. */
+.ds-dsets td code { white-space: normal; }
+.ds-dsets th:nth-child(1), .ds-dsets td:nth-child(1) { width: 22%; }
+.ds-dsets th:nth-child(2), .ds-dsets td:nth-child(2) { width: 24%; }
+.ds-dsets th:nth-child(3), .ds-dsets td:nth-child(3) { width: 10%; }  /* fits the nowrap 'Derived here' badge */
+.ds-dsets th:nth-child(4), .ds-dsets td:nth-child(4) { width: 31%; }
+.ds-dsets th:nth-child(5), .ds-dsets td:nth-child(5) { width: 13%; }
+.ds-dset-rel { display: block; font-size: 0.74rem; color: #0f172a; word-break: break-word; }
+.ds-dset-title { display: block; color: #475569; }
+.ds-dset-sub { display: block; font-size: 0.7rem; color: #94a3b8; }
+.ds-dset-page { display: inline-block; margin: 0 0.25rem 0.2rem 0; padding: 0.05rem 0.35rem; border-radius: 4px;
+  background: #f1f5f9; color: #475569; font-size: 0.7rem; white-space: nowrap; }
+.ds-origin { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.68rem;
+  font-weight: 700; white-space: nowrap; }
+.ds-origin--epi { background: #dbeafe; color: #1e40af; }
+.ds-origin--external { background: #fef3c7; color: #92400e; }
+.ds-origin--derived { background: #ede9fe; color: #5b21b6; }
+
+@media (max-width: 860px) {
+  .ds-dsets th:nth-child(n), .ds-dsets td:nth-child(n) { width: auto; }
+}
 .ds-table code { font-size: 0.76rem; color: #0f172a; white-space: nowrap; }
 
 .ds-tabs { display: inline-flex; gap: 0.25rem; padding: 0.25rem; margin-bottom: 1rem; background: #f1f5f9; border-radius: 999px; }
