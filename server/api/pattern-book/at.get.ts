@@ -27,6 +27,16 @@
  * derived.lot_slope carries mean/min/max gradient without direction. Each directional limit is
  * therefore tested against the lot's maximum gradient, which is the conservative reading - it can call
  * a lot short that a directional measure would pass, never the other way round - and the check says so.
+ *
+ * THIS STILL TESTS THE PERCENTAGES, AND /pattern-book NO LONGER DOES
+ *
+ * The review in docs/pattern-book-review.md found that the patterns state a fall in METRES, front to
+ * back and side to side, not a gradient; the percentages were a workbook conversion for one assumed
+ * site length. shared/pattern-book.ts now carries both - `falls` is the published standard, `slopes`
+ * the derived percentage - and the page tests `falls`. This endpoint deliberately still reads
+ * `slopes`, so /testing-spatial-services keeps behaving exactly as it did while it is being looked
+ * at. Moving it over needs nothing new from the lot: derived.lot_profile.lot_depth_m turns a gradient
+ * into a fall.
  */
 import { PATTERN_DESIGNS, type PatternDesign } from '#shared/pattern-book'
 import { nswQuery } from '../../utils/nsw-kg/pool'

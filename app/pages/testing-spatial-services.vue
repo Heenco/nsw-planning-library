@@ -472,6 +472,11 @@
           <p v-else class="lp-verdict lp-verdict--yes">
             <strong>No general prerequisite catches this lot</strong> &mdash; each type below stands on its own tests.
           </p>
+          <!-- the clause's own exception, where it has one. "Ruled out by: Heritage conservation areas"
+               reads as though nothing can be built; 1.19(1)(a) still allows a shed or a pool. -->
+          <p v-for="b in cdcTypes.generalBlockers.filter((x: any) => x.note)" :key="b.title" class="lp-note lp-note--warn">
+            <strong>{{ b.title }}:</strong> {{ b.note }}
+          </p>
           <p v-if="cdcTypes.generalGaps.length" class="lp-note lp-note--warn">
             {{ cdcTypes.generalGaps.length }} general
             {{ cdcTypes.generalGaps.length === 1 ? 'check has' : 'checks have' }} no dataset
@@ -566,6 +571,101 @@
             </table>
           </div>
         </template>
+      </div>
+
+      <!-- ── the report's own inputs ───────────────────────────────────────
+           /report reads nsw.up_property_d_4 and the nsw graph, then explains
+           them. These sections carry the same subjects with nothing explained:
+           the column each value sits in, what /report calls it, and whether the
+           PROPERTY_SELECT projection carries it. A number that is wrong on the
+           report is traceable from here to the column that carried it.
+
+           They read the TABLE, not the projection, which is why a field can
+           show a value and still be marked unseen. -->
+      <div v-if="inputs" id="report-inputs" class="lp-group">
+        <h3 class="lp-h3">
+          What /report is built from
+          <span class="lp-dim"><code>nsw.up_property_d_4</code> + <code>nsw</code> graph</span>
+        </h3>
+        <p class="lp-basis">
+          The same columns /report reads, with nothing explained: where each value sits, what the report
+          renames it to, and whether the projection carries it. The projection carries
+          {{ inputs.projectedTotal }} of the table's columns, so a field marked
+          <span class="lp-unseen">unseen</span> is real data the report cannot receive.
+          <span class="lp-dim">{{ inputs.ms }} ms</span>
+        </p>
+      </div>
+      <p v-else-if="inputsError" class="lp-error">{{ inputsError }}</p>
+
+      <div v-for="sec in (inputs?.sections ?? [])" :id="sec.id" :key="sec.id" class="lp-group">
+        <h3 class="lp-h3">
+          {{ sec.title }}
+          <span class="lp-dim"><code>{{ sec.source }}</code></span>
+          <span v-if="sec.unprojected" class="lp-unseen">{{ sec.unprojected }} unseen</span>
+        </h3>
+        <p v-if="sec.coverage" class="lp-basis lp-basis--warn">{{ sec.coverage }}</p>
+
+        <div v-if="sec.fields.length" class="lp-scroll"><table class="lp-table">
+          <thead>
+            <tr><th>Field</th><th>Column in d_4</th><th>/report calls it</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="f in sec.fields" :key="f.column" :class="{ 'lp-tr-unseen': !f.projected }">
+              <td>{{ f.label }}</td>
+              <td><code>{{ f.column }}</code></td>
+              <td>
+                <code v-if="f.reportName">{{ f.reportName }}</code>
+                <span v-else class="lp-dim">same</span>
+                <span v-if="!f.projected" class="lp-unseen" title="PROPERTY_SELECT does not carry it">unseen</span>
+              </td>
+              <td><span v-if="f.value !== null">{{ f.value }}</span><span v-else class="lp-dim">null</span></td>
+            </tr>
+          </tbody>
+        </table></div>
+
+        <div v-if="sec.rows && sec.rows.values.length" class="lp-scroll"><table class="lp-table">
+          <thead><tr><th v-for="c in sec.rows.columns" :key="c">{{ c }}</th></tr></thead>
+          <tbody>
+            <tr v-for="(r, i) in sec.rows.values" :key="i">
+              <td v-for="(v, j) in r" :key="j">
+                <span v-if="v !== null">{{ v }}</span><span v-else class="lp-dim">null</span>
+              </td>
+            </tr>
+          </tbody>
+        </table></div>
+        <p v-else-if="sec.rows" class="lp-dim">No rows.</p>
+
+        <p v-if="sec.note" class="lp-note">{{ sec.note }}</p>
+      </div>
+
+      <div v-if="inputs?.lot" id="ri-map" class="lp-group">
+        <h3 class="lp-h3">Lot Map &amp; Dimensions <span class="lp-dim"><code>cadastre.lot</code></span></h3>
+        <p class="lp-basis">The polygon every at-endpoint on this page was tested against.</p>
+        <div ref="riMapEl" class="lp-map" />
+        <p v-if="!mapboxToken" class="lp-dim">No map token is configured, so the lot is not drawn.</p>
+      </div>
+
+      <div v-if="inputs?.lot" id="ri-envelope" class="lp-group">
+        <h3 class="lp-h3">
+          Building envelope (3D)
+          <span class="lp-dim"><code>/api/property/envelope</code></span>
+        </h3>
+        <p class="lp-basis">
+          The same model /report hands the 3D viewer, shown as the numbers it is built from: a second
+          copy of the viewer would not say anything the numbers do not.
+        </p>
+        <p v-if="envelopeError" class="lp-error">{{ envelopeError }}</p>
+        <div v-else-if="envelopeRows.length" class="lp-scroll"><table class="lp-table">
+          <thead><tr><th>Field</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr v-for="r in envelopeRows" :key="r[0]"><td>{{ r[0] }}</td><td>{{ r[1] }}</td></tr>
+          </tbody>
+        </table></div>
+        <p v-else class="lp-dim">Loading the envelope&hellip;</p>
+        <p v-if="inputs.lot.address" class="lp-note">
+          <a :href="`/craftbot?model=${encodeURIComponent('/api/property/envelope?address=' + inputs.lot.address)}`"
+             target="_blank" rel="noopener">open it in the 3D viewer</a>
+        </p>
       </div>
         </section>
       </main>
@@ -848,7 +948,12 @@ async function open(cadid: string, msoid: number | null = null) {
     observeSections()
     // deliberately not awaited: the lot dump is the point of the page and should not wait on four
     // planning sweeps, the slowest of which is a few hundred ms
-    void Promise.all([loadPlanning(cadid), loadPattern(cadid), loadCdcTypes(cadid)]).then(() => nextTick()).then(observeSections)
+    void Promise.all([loadPlanning(cadid), loadPattern(cadid), loadCdcTypes(cadid),
+      // the report's own path, fetched beside the derived view rather than instead of it
+      loadReportInputs(cadid)]).then(() => nextTick()).then(() => {
+      observeSections()
+      void drawLot(detail.value?.lotGeom ?? null)
+    })
     // The dump is long and sits below the samples; without this a click from
     // near the top of the page looks like nothing happened.
     document.getElementById('lot')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -1064,6 +1169,104 @@ async function loadPlanning(cadid: string) {
   await loadZones()
 }
 
+import type { ReportInputsResponse } from '../../server/api/testing/report-inputs.get'
+
+/*
+ * The report's own inputs, fetched alongside the derived-schema view rather than instead of it.
+ *
+ * This reads nsw.up_property_d_4 and the nsw graph - the path /report takes - so the two pages can be
+ * read together. The rest of this page reads the `derived` schema, which is a different build of the
+ * same subjects; keeping them in separate sections is what stops one contradicting the other silently.
+ */
+const inputs = ref<ReportInputsResponse | null>(null)
+const inputsError = ref('')
+const envelope = ref<any>(null)
+const envelopeError = ref('')
+
+/** The numbers the envelope model is built from, which is what there is to check. */
+const envelopeRows = computed<[string, string][]>(() => {
+  const m = envelope.value
+  if (!m) return []
+  const out: [string, string][] = []
+  const walk = (o: any, prefix = '') => {
+    for (const [k, v] of Object.entries(o ?? {})) {
+      if (v == null) continue
+      const key = prefix ? `${prefix}.${k}` : k
+      if (Array.isArray(v)) out.push([key, `${v.length} item${v.length === 1 ? '' : 's'}`])
+      else if (typeof v === 'object') walk(v, key)
+      else out.push([key, String(v)])
+    }
+  }
+  walk(m)
+  return out.slice(0, 60)
+})
+
+async function loadReportInputs(cadid: string) {
+  inputs.value = null
+  envelope.value = null
+  inputsError.value = ''
+  envelopeError.value = ''
+  try {
+    inputs.value = await $fetch<ReportInputsResponse>('/api/testing/report-inputs', { query: { cadid } })
+  } catch (e: any) {
+    inputsError.value = e?.data?.message || e?.message || 'Could not read the report inputs.'
+    return
+  }
+  const addr = inputs.value?.lot?.address
+  if (!addr) { envelopeError.value = 'No address on this lot, and the envelope is keyed by address.'; return }
+  try {
+    envelope.value = await $fetch('/api/property/envelope', { query: { address: addr } })
+  } catch (e: any) {
+    envelopeError.value = e?.data?.message || e?.message || 'The envelope could not be built.'
+  }
+}
+
+// ── the lot on a map ────────────────────────────────────────────────────────
+const config = useRuntimeConfig()
+const mapboxToken = String((config.public as any).mapboxToken || '')
+const riMapEl = ref<HTMLElement | null>(null)
+let riMap: any = null
+
+async function drawLot(geometry: any) {
+  if (!mapboxToken || !riMapEl.value || !geometry) return
+  const mod = await import('mapbox-gl')
+  const mapboxgl: any = (mod as any).default || mod
+  mapboxgl.accessToken = mapboxToken
+  const data = { type: 'Feature', properties: {}, geometry }
+  if (!riMap) {
+    riMap = new mapboxgl.Map({
+      container: riMapEl.value, style: 'mapbox://styles/mapbox/light-v11',
+      center: [151.1, -33.8], zoom: 15,
+    })
+    riMap.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
+    riMap.on('load', () => {
+      riMap.addSource('ri-lot', { type: 'geojson', data })
+      riMap.addLayer({ id: 'ri-lot-fill', type: 'fill', source: 'ri-lot',
+        paint: { 'fill-color': '#0f172a', 'fill-opacity': 0.08 } })
+      riMap.addLayer({ id: 'ri-lot-line', type: 'line', source: 'ri-lot',
+        paint: { 'line-color': '#0f172a', 'line-width': 2.5 } })
+      fitLot(geometry)
+    })
+    return
+  }
+  ;(riMap.getSource('ri-lot') as any)?.setData(data)
+  fitLot(geometry)
+}
+
+function fitLot(geometry: any) {
+  const box: [number, number, number, number] = [180, 90, -180, -90]
+  const walk = (a: any) => {
+    if (typeof a[0] === 'number') {
+      box[0] = Math.min(box[0], a[0]); box[1] = Math.min(box[1], a[1])
+      box[2] = Math.max(box[2], a[0]); box[3] = Math.max(box[3], a[1])
+      return
+    }
+    for (const b of a) walk(b)
+  }
+  walk(geometry.coordinates)
+  riMap?.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: 50, maxZoom: 18, duration: 500 })
+}
+
 const PAGE_SECTIONS = [{ id: 'build', label: 'The build' }, { id: 'find', label: 'Find a lot' }]
 function sid(title: string) { return 'g-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') }
 const railTitle = computed(() => (primaryAddress.value || detail.value?.lot?.lot_id || openedCadid.value || 'Lot') as string)
@@ -1080,6 +1283,12 @@ const lotSections = computed(() => {
   out.push({ id: 'permissibility', label: 'Permissibility' })
   out.push({ id: 'cdc-eligibility', label: 'CDC eligibility' })
   out.push({ id: 'pattern-book', label: 'Pattern Book' })
+  if (inputs.value) {
+    out.push({ id: 'report-inputs', label: 'What /report is built from' })
+    for (const sec of inputs.value.sections) out.push({ id: sec.id, label: sec.title })
+    out.push({ id: 'ri-map', label: 'Lot Map & Dimensions' })
+    out.push({ id: 'ri-envelope', label: 'Building envelope (3D)' })
+  }
   return out
 })
 
@@ -1325,8 +1534,23 @@ body { margin: 0; background: #f8fafb; }
 
 /* ── Shell and sections ─────────────────────────────────────────────── */
 .lp-shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 2.25rem; max-width: 1360px; margin: 0 auto; padding: 1.5rem 2rem 5rem; align-items: start; }
-@media (max-width: 900px) { .lp-shell { grid-template-columns: 1fr; } .lp-rail { position: static; } }
-.lp-rail { position: sticky; top: 6rem; display: flex; flex-direction: column; gap: 0.1rem; }
+@media (max-width: 900px) {
+  .lp-shell { grid-template-columns: 1fr; }
+  .lp-rail { position: static; max-height: none; overflow: visible; }
+}
+/* The rail is sticky, so without a height it runs off the bottom of the viewport and the last links
+   cannot be reached at all - which is what happened once the report-input sections took it past thirty
+   entries. Capping it to the viewport and scrolling inside keeps every section reachable, and
+   overscroll-behavior stops the page lurching when the rail hits its end. */
+.lp-rail {
+  position: sticky; top: 6rem; display: flex; flex-direction: column; gap: 0.1rem;
+  max-height: calc(100vh - 7.5rem); overflow-y: auto; overscroll-behavior: contain;
+  padding-right: 0.3rem;
+}
+.lp-rail::-webkit-scrollbar { width: 6px; }
+.lp-rail::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+.lp-rail:hover::-webkit-scrollbar-thumb { background: #cbd5e1; }
+.lp-rail-state { position: sticky; top: 0; background: #f8fafb; padding-bottom: 0.2rem; z-index: 1; }
 .lp-rail-state { margin: 0 0 0.6rem; font-size: 0.95rem; font-weight: 800; color: #0f172a; }
 .lp-rail-group--link { display: block; text-decoration: none; }
 .lp-rail-group--link:hover { color: #0f172a; }
@@ -1442,7 +1666,20 @@ body { margin: 0; background: #f8fafb; }
 
 .lp-scroll { overflow-x: auto; }
 .lp-table { border-collapse: collapse; font-size: 0.76rem; width: 100%; }
-.lp-table th, .lp-table td { border: 1px solid #eef2f7; padding: 0.25rem 0.45rem; text-align: left; white-space: nowrap; }
+.lp-table th {
+  border: 1px solid #eef2f7; padding: 0.25rem 0.45rem; text-align: left; white-space: nowrap;
+}
+.lp-unseen {
+  margin-left: 0.35rem; padding: 0 0.3rem; border-radius: 4px;
+  background: #fef3c7; color: #92400e; font-size: 0.66rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.lp-tr-unseen { background: #fffbeb; }
+.lp-basis--warn { color: #92400e; }
+.lp-note { margin: 0.4rem 0 0; font-size: 0.75rem; color: #64748b; max-width: 88ch; }
+.lp-note a { color: #2a78d6; }
+.lp-map { height: 340px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+.lp-table td { border: 1px solid #eef2f7; padding: 0.25rem 0.45rem; text-align: left; white-space: nowrap; }
 .lp-table th { background: #f8fafc; font-weight: 700; }
 .lp-table th code { background: none; padding: 0; }
 .lp-tr--primary { background: #fff7ed; }

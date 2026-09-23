@@ -21,7 +21,8 @@
     "dcp:convert": "node scripts/dcp-convert.mjs",
     "dcp:score": "node scripts/score-dcp-md.mjs",
     "dcp:check-cells": "tsx scripts/dcp-cells-check.mjs",
-    "data:quality": "tsx scripts/measure-nsw-data-quality.ts"
+    "data:quality": "tsx scripts/measure-nsw-data-quality.ts",
+    "build:patternbook": "python scripts/gen-pattern-book.py"
   },
   "dependencies": {
     "@mapbox/vector-tile": "^2.0.4",

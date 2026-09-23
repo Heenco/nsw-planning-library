@@ -117,7 +117,7 @@
                   </p>
                   <p class="cm-about-row">
                     <span class="cm-about-k">Kind</span>
-                    <span>{{ l.kind === 'context' ? 'context, not an exclusion' : 'exclusion' }}</span>
+                    <span>{{ KIND_WORDS[l.kind] ?? 'exclusion' }}</span>
                   </p>
                   <p class="cm-about-row">
                     <span class="cm-about-k">Tested</span>
@@ -276,7 +276,15 @@ const SCOPE_COLOUR: Record<CdcScope, string> = {
   code: '#d97706',
   midrise: '#7c3aed',
   unmapped: '#64748b',
+  condition: '#0891b2',
   context: '#2563eb',
+}
+
+/** What each kind does to a result, said once. */
+const KIND_WORDS: Record<string, string> = {
+  exclusion: 'exclusion',
+  condition: 'condition — an approval to obtain, not a disqualification',
+  context: 'context, not an exclusion',
 }
 
 const SCOPE_TEXT: { key: CdcScope; title: string; lead: string }[] = [
@@ -302,6 +310,13 @@ const SCOPE_TEXT: { key: CdcScope; title: string; lead: string }[] = [
     title: 'We exclude on it, the workbook gives no clause',
     lead: 'Our notebook treats these as exclusions but nothing in the Department workbook says to. '
       + 'Until each is traced to a clause it is excluding land on our authority.',
+  },
+  {
+    key: 'condition',
+    title: 'An approval to obtain, not a disqualification',
+    lead: 'The clause asks for something to be done before the certificate issues rather than for the '
+      + 'land to be clear. Clause 1.18(1)(f) is the case in point: a mine subsidence district does not '
+      + 'stop complying development, it requires prior approval from Subsidence Advisory NSW.',
   },
   {
     key: 'context',
@@ -338,11 +353,12 @@ const drawable = computed(() => layers.value.filter(canDraw))
 const drawableKeys = computed(() => new Set(drawable.value.map(l => l.key)))
 
 /**
- * What "caught" the lot means the exclusions, not the context. Zoning and minimum lot size cover the
- * whole parcel by definition, so including them paints the map over and hides the one layer worth seeing.
+ * What "caught" the lot means the exclusions and the conditions, not the context. Zoning and minimum
+ * lot size cover the whole parcel by definition, so including them paints the map over and hides the
+ * one layer worth seeing. A mine subsidence district does not - it is worth drawing.
  */
 const caughtKeys = computed(() => hits.value
-  .filter(h => h.kind === 'exclusion' && drawableKeys.value.has(h.key))
+  .filter(h => h.kind !== 'context' && drawableKeys.value.has(h.key))
   .map(h => h.key))
 
 function toggle(key: string) {
@@ -523,8 +539,9 @@ const grouped = computed(() => {
 function statusOf(l: CdcLayer): string {
   if (!answer.value) return 'idle'
   const h = hitOf(l)
-  // a hit on a context layer is a fact about the lot, so it must not be tinted like a failure
-  if (h) return h.kind === 'context' ? 'context' : 'hit'
+  // a hit on a context layer is a fact about the lot, and a hit on a condition layer is work to do,
+  // so neither may be tinted like a failure
+  if (h) return h.kind === 'exclusion' ? 'hit' : h.kind
   return l.sourceKind === 'none' ? 'open' : 'clear'
 }
 
@@ -682,11 +699,12 @@ function draw(res: CdcAtResponse) {
   const lot = res.lotGeom
     ? { type: 'FeatureCollection', features: [{ type: 'Feature', properties: {}, geometry: res.lotGeom }] }
     : { type: 'FeatureCollection', features: [] }
-  // only the exclusions are drawn: outlining the zone and the minimum lot size would paint the whole
-  // parcel over in blue and hide the thing worth seeing
+  // the context layers are not drawn: outlining the zone and the minimum lot size would paint the whole
+  // parcel over in blue and hide the thing worth seeing. Conditions are drawn - in their own colour,
+  // because a district the lot sits in is exactly what the reader needs to see
   const caught = {
     type: 'FeatureCollection',
-    features: res.hits.filter(h => h.geom && h.kind === 'exclusion').map(h => ({
+    features: res.hits.filter(h => h.geom && h.kind !== 'context').map(h => ({
       type: 'Feature',
       properties: { colour: SCOPE_COLOUR[h.scope], title: h.title },
       geometry: h.geom as any,
@@ -880,6 +898,9 @@ onBeforeUnmount(() => {
 .cm-row--context { background: #eff6ff; }
 .cm-row--context .cm-name { color: #0f172a; }
 .cm-row--context .cm-meta { color: #2563eb; font-weight: 600; }
+.cm-row--condition { background: #ecfeff; }
+.cm-row--condition .cm-name { color: #0f172a; }
+.cm-row--condition .cm-meta { color: #0e7490; font-weight: 600; }
 .cm-row--clear .cm-name, .cm-row--open .cm-name { color: #94a3b8; }
 .cm-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 .cm-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

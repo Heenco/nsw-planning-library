@@ -53,7 +53,7 @@ export interface CdcTypeResult {
   /** true / false / null when something it depends on was not measured. */
   eligible: boolean | null
   /** General prerequisite layers that caught this lot, when the type inherits them. */
-  generalBlockers: { title: string; clauses: string[] }[]
+  generalBlockers: { title: string; clauses: string[]; note: string | null }[]
   checks: TypeCheck[]
   /** Requirements the workbook records for this type that nothing here tests. */
   untested: number
@@ -80,7 +80,7 @@ export interface CdcTypesResponse {
   types: CdcTypeResult[]
   summary: { eligible: number; notEligible: number; unknown: number; total: number; untestedTotal: number }
   /** General prerequisites that caught the lot, which knock out every inheriting type at once. */
-  generalBlockers: { title: string; clauses: string[] }[]
+  generalBlockers: { title: string; clauses: string[]; note: string | null }[]
   /** General checks with no dataset: nothing can be fully cleared while these exist. */
   generalGaps: { title: string; clauses: string[] }[]
   /** Set when the general sweep could not be read at all - every inheriting type is then undecided. */
@@ -312,7 +312,11 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
   }
   const generalBlockers = ((at?.hits ?? []) as any[])
     .filter(h => h.kind === 'exclusion' && h.scope === 'general')
-    .map(h => ({ title: h.title, clauses: h.clauses ?? [] }))
+    // the note travels with the blocker: clause 1.19(1)(a) bars development in a heritage conservation
+    // area "unless the development is a detached outbuilding, detached development (other than a
+    // detached studio) or swimming pool", and a bare "ruled out by: Heritage conservation areas" reads
+    // as though nothing at all can be built there
+    .map(h => ({ title: h.title, clauses: h.clauses ?? [], note: h.note ?? null }))
   const generalGaps = ((at?.gaps ?? []) as any[]).map(g => ({ title: g.title, clauses: g.clauses ?? [] }))
 
   const lot = {

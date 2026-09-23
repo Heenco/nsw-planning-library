@@ -12,7 +12,7 @@
  */
 import { nswQuery } from '../../utils/nsw-kg/pool'
 import { cdcIndex } from '../../utils/sepp-pmtiles'
-import { scopeOf, type CdcScope } from './at.get'
+import { kindOf, scopeOf, type CdcKind, type CdcScope } from './at.get'
 
 export interface CdcLayer {
   key: string
@@ -24,8 +24,11 @@ export interface CdcLayer {
   /** The column 07 - CDC rules tests, or null where the rule exists but we run no test. */
   columnTested: string | null
   note: string | null
-  /** 'exclusion' when land inside cannot be complying development, 'context' when it is just a fact. */
-  kind: 'exclusion' | 'context'
+  /**
+   * 'exclusion' when land inside cannot be complying development, 'condition' when the clause asks for
+   * an approval rather than clear land, 'context' when it is just a fact about the lot.
+   */
+  kind: CdcKind
   /** What the layer bears on, derived from its clause: general, code, midrise, unmapped or context. */
   scope: CdcScope
   /**
@@ -75,7 +78,7 @@ export default defineEventHandler(async (event): Promise<CdcLayersResponse> => {
     clauses: r.clauses ?? [],
     columnTested: r.column_tested,
     note: r.note,
-    kind: r.kind === 'context' ? 'context' : 'exclusion',
+    kind: kindOf(r.kind),
     scope: scopeOf(r.clauses ?? [], r.kind),
     sourceKind: r.source_kind,
     source: r.source,

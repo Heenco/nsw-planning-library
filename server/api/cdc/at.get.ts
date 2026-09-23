@@ -30,12 +30,33 @@ import { nswQuery } from '../../utils/nsw-kg/pool'
  *   code       a requirement of one code only, so it rules out that code and nothing else
  *   midrise    clause 182 of the Housing SEPP, which gates the Pattern Book and no Codes SEPP pathway
  *   unmapped   we exclude on it, but the workbook gives no clause that says to
+ *   condition  the clause asks for an approval before the certificate issues, not for the land to be
+ *              clear - a hit is work to do, not a disqualification
  *   context    being inside it is a fact about the lot, not a disqualification
  */
-export type CdcScope = 'general' | 'code' | 'midrise' | 'unmapped' | 'context'
+export type CdcScope = 'general' | 'code' | 'midrise' | 'unmapped' | 'condition' | 'context'
+
+/**
+ * The catalogue's `kind`, narrowed.
+ *
+ * It used to be two-valued, and every reader wrote `=== 'context' ? 'context' : 'exclusion'`, which
+ * silently turned anything new into an exclusion. `condition` is the third value: clause 1.18(1)(f)
+ * does not say a mine subsidence district cannot take complying development, it says the development
+ * needs prior approval from Subsidence Advisory NSW. Treating that as an exclusion refuses lots the
+ * clause allows.
+ */
+export type CdcKind = 'exclusion' | 'condition' | 'context'
+
+export function kindOf(raw: string | null | undefined): CdcKind {
+  return raw === 'context' || raw === 'condition' ? raw : 'exclusion'
+}
+
+/** Exclusions first, then the things to do, then the facts. */
+const KIND_ORDER: Record<CdcKind, number> = { exclusion: 0, condition: 1, context: 2 }
 
 export function scopeOf(clauses: string[], kind: string): CdcScope {
   if (kind === 'context') return 'context'
+  if (kind === 'condition') return 'condition'
   if (!clauses.length) return 'unmapped'
   if (clauses.some(c => /^(1\.1[789]|Schedule)/.test(c))) return 'general'
   if (clauses.some(c => /^18[0-9]/.test(c))) return 'midrise'
@@ -49,7 +70,7 @@ export interface CdcHit {
   groupTitle: string
   clauses: string[]
   scope: CdcScope
-  kind: 'exclusion' | 'context'
+  kind: CdcKind
   columnTested: string | null
   note: string | null
   /** What the layer calls the features that were hit, deduplicated. */
@@ -208,7 +229,7 @@ export default defineEventHandler(async (event): Promise<CdcAtResponse> => {
         groupTitle: m.grp_title ?? '',
         clauses: m.clauses ?? [],
         scope: scopeOf(m.clauses ?? [], m.kind),
-        kind: m.kind === 'context' ? 'context' as const : 'exclusion' as const,
+        kind: kindOf(m.kind),
         columnTested: m.column_tested ?? null,
         note: m.note ?? null,
         names: (r.names ?? []).filter(Boolean),
@@ -216,11 +237,13 @@ export default defineEventHandler(async (event): Promise<CdcAtResponse> => {
         geom: r.geojson ? JSON.parse(r.geojson) : null,
       }
     })
-    .sort((a, b) => (a.kind === b.kind ? b.coverPct - a.coverPct : a.kind === 'exclusion' ? -1 : 1))
+    .sort((a, b) => (a.kind === b.kind ? b.coverPct - a.coverPct : KIND_ORDER[a.kind] - KIND_ORDER[b.kind]))
 
   const testedLayers = cat.rows.filter(r => Number(r.features) > 0 && r.kind !== 'context').length
   const count = (s: CdcScope) => hits.filter(h => h.scope === s).length
+  // only an exclusion rules the lot out; a condition is work to do and clear must not count it as a pass
   const excluded = hits.filter(h => h.kind === 'exclusion').length
+  const conditions = hits.filter(h => h.kind === 'condition').length
 
   return {
     lon: havePoint ? lon : null,
@@ -234,7 +257,8 @@ export default defineEventHandler(async (event): Promise<CdcAtResponse> => {
       code: count('code'),
       midrise: count('midrise'),
       unmapped: count('unmapped'),
-      clear: testedLayers - excluded,
+      condition: conditions,
+      clear: testedLayers - excluded - conditions,
       unknown: gaps.length,
       tested: testedLayers,
     },
