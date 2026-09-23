@@ -22,8 +22,10 @@
  * point and are skipped.
  *
  * THE LOT PATH is driven by `lmr.layers`, the catalogue: its `constraint` half names a table of the lmr
- * schema, its `sepp` half names a slice of epi.epi_land_application by (epi_name, lay_name). So a layer
- * added to the catalogue reaches this answer without editing anything here.
+ * schema (or of `flood`, which holds the FRMSP catchments), its `sepp` half names a slice of
+ * epi.epi_land_application by (epi_name, lay_name). So a layer added to the catalogue reaches this answer
+ * without editing anything here - as long as its schema is one of SCHEMAS below, since a relation outside
+ * them resolves to no geometry column and is skipped in silence.
  */
 import { VectorTile } from '@mapbox/vector-tile'
 import Pbf from 'pbf'
@@ -90,8 +92,11 @@ async function featuresAt(set: ArchiveSet, lon: number, lat: number): Promise<Re
 // ── The lot path ────────────────────────────────────────────────────────────────────────────────
 
 /** The label column, first match wins. The lmr tables come from as many publishers as the esa ones. */
-const NAME_COLUMNS = ['label', 'station', 'itemname', 'h_name', 'name', 'lay_class', 'd_category',
+const NAME_COLUMNS = ['label', 'station', 'itemname', 'h_name', 'name', 'cat_name', 'lay_class', 'd_category',
   'anef_code', 'sym_code', 'precinct', 'amendment']
+
+/** The schemas a catalogue row may name. A relation outside these is never measured. */
+const SCHEMAS = ['lmr', 'epi', 'flood']
 
 const CACHE_MS = 5 * 60 * 1000
 let lotSql: { at: number; sql: string; meta: Map<string, any> } | null = null
@@ -119,8 +124,8 @@ async function buildLotSql() {
     FROM pg_class c
     JOIN pg_namespace n ON n.oid = c.relnamespace
     JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
-    WHERE n.nspname IN ('lmr', 'epi') AND c.relkind IN ('r', 'v', 'm')
-    GROUP BY 1, 2`)
+    WHERE n.nspname = ANY($1) AND c.relkind IN ('r', 'v', 'm')
+    GROUP BY 1, 2`, [SCHEMAS])
   const byRel = new Map(cols.rows.map(r => [`${r.schema}.${r.rel}`, r]))
 
   const parts: string[] = []
@@ -132,7 +137,7 @@ async function buildLotSql() {
     // plain `geometry`, and transforming the lot into SRID 0 would throw
     const srid = Number(t.srid) || 4283
     const name = NAME_COLUMNS.find(c => (t.columns ?? []).includes(c))
-    const cls = ['lay_class', 'd_category', 'sym_code', 'distance_m'].find(c => (t.columns ?? []).includes(c))
+    const cls = ['lay_class', 'd_category', 'sym_code', 'distance_m', 'rep_type'].find(c => (t.columns ?? []).includes(c))
     const inst = (t.columns ?? []).includes('epi_name') ? 'epi_name' : null
     const g = `ST_Transform(t.g, ${srid})`
     const caught = `ST_Union(ST_Intersection(ST_ClipByBox2D(c."${t.gcol}", ST_Envelope(${g})), ${g}))`

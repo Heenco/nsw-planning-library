@@ -508,6 +508,17 @@ function addConstraintLayers() {
         }),
         byConstraint(s => s.color, '#94a3b8')]
     : byConstraint(s => s.color, '#94a3b8')
+  // a `classLine` layer is drawn line-only, so its categories have to colour the OUTLINE instead. Opt-in,
+  // because the walking catchments are classed AND filled and their outline stays the one amber.
+  const classedLine = classed.filter(c => constraintStyle(c.key).classLine)
+  const lineColor = classedLine.length
+    ? ['case',
+        ...classedLine.flatMap(c => {
+          const s = constraintStyle(c.key)
+          return [['==', ['get', 'layer_key'], c.key], ['match', ['coalesce', ['get', 'category'], ''], ...Object.entries(s.classes!).flat(), s.line ?? s.color]]
+        }),
+        byConstraint(s => s.line ?? s.color, '#475569')]
+    : byConstraint(s => s.line ?? s.color, '#475569')
   // constraints draw between the other SEPP layers and the LMR layers, so the Housing SEPP layers stay on top
   const before = map.getLayer('lmr-fill') ? 'lmr-fill' : undefined
   const filters = Object.fromEntries(C_DRAWN.map(([id, test]) => [id, constraintFilter(test)]))
@@ -516,9 +527,9 @@ function addConstraintLayers() {
     layout: { 'fill-sort-key': ['case', ['==', ['get', 'layer_key'], 'epi_land_zoning'], 0, ['==', ['get', 'category'], '400 m'], 2, 1] },
     paint: { 'fill-color': fillColor, 'fill-opacity': byConstraint(s => s.fillOpacity ?? 0.3, 0.3) } }, before)
   map.addLayer({ ...common, id: 'c-line', type: 'line', filter: filters['c-line'], layout: { 'line-join': 'round', 'line-cap': 'round' },
-    paint: { 'line-color': byConstraint(s => s.line ?? s.color, '#475569'), 'line-width': byConstraint(s => s.lineWidth ?? 1, 1) } }, before)
+    paint: { 'line-color': lineColor, 'line-width': byConstraint(s => s.lineWidth ?? 1, 1) } }, before)
   map.addLayer({ ...common, id: 'c-line-dash', type: 'line', filter: filters['c-line-dash'],
-    paint: { 'line-color': byConstraint(s => s.line ?? s.color, '#475569'), 'line-width': byConstraint(s => s.lineWidth ?? 1, 1), 'line-dasharray': [3, 2] } }, before)
+    paint: { 'line-color': lineColor, 'line-width': byConstraint(s => s.lineWidth ?? 1, 1), 'line-dasharray': [3, 2] } }, before)
   // the stations sit on top of everything, like the portal's LMR Station dots
   map.addLayer({ ...common, id: 'c-circle', type: 'circle', filter: filters['c-circle'],
     paint: {

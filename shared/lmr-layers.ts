@@ -132,8 +132,8 @@ export type ConstraintGroup = 'housing' | 'zoning' | 'heritage' | 'hazards' | 'c
 export const CONSTRAINT_GROUPS: Record<Exclude<ConstraintGroup, 'housing'>, { title: string; lead: string }> = {
   zoning: { title: 'Land zoning', lead: 'The LEP and SEPP land zoning maps, in the zone colours of the NSW Planning Portal. The low and mid-rise provisions apply in R1, R2, R3 and R4.' },
   heritage: { title: 'Heritage', lead: 'State Heritage Register land and the LEP heritage maps.' },
-  hazards: { title: 'Bushfire and flood', lead: 'RFS bush fire prone land and the flood maps.' },
-  coastal: { title: 'Coastal', lead: 'The Resilience and Hazards SEPP coastal wetland, littoral rainforest and vulnerability maps.' },
+  hazards: { title: 'Bushfire and flood', lead: 'RFS bush fire prone land, the flood maps, and the catchments a floodplain risk management study or flood study speaks for.' },
+  coastal: { title: 'Coast and water', lead: 'The Resilience and Hazards SEPP coastal wetland, littoral rainforest and vulnerability maps, and the LEP drinking water catchment maps.' },
   noise: { title: 'Noise and pipelines', lead: 'Aircraft noise contours, the national gas and oil pipeline maps, and the 200 m around each pipeline.' },
 }
 
@@ -149,6 +149,11 @@ export interface ConstraintStyle {
   dashed?: boolean
   /** Colours by the feature's category (bushfire vegetation categories) instead of one colour. */
   classes?: Record<string, string>
+  /**
+   * Put `classes` on the OUTLINE rather than the fill, for a layer drawn line-only (`fillOpacity: 0`).
+   * Without it a nested layer's legend would promise colours the map never draws.
+   */
+  classLine?: boolean
   defaultOn?: boolean
   portalName?: string
 }
@@ -260,8 +265,12 @@ export const ZONE_COLOURS: Record<string, string> = {
 /**
  * Constraint styling. Bush fire prone land uses the RFS's own category colours; the Planning Portal's LMR
  * Station is a grey dot. The rest take one hue family per group - heritage browns, flood blues, coastal greens,
- * noise purple, pipeline orange - with proximity areas, pipeline buffers and the second flood load drawn dashed, so two layers of
+ * noise purple, pipeline orange - with proximity areas and pipeline buffers drawn dashed, so two layers of
  * a group are never told apart by colour alone. Every layer is named in the panel and the click popup.
+ *
+ * The FRMSP catchments are the one layer in `hazards` that is not a hazard extent: they say which study
+ * speaks for a catchment, not which land floods. They take an indigo the flood blues do not use, drawn
+ * dashed and barely filled, so they never read as an extent - and are coloured by the kind of report.
  */
 export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
   lmr_train_stations: { group: 'housing', title: 'LMR Station', portalName: 'LMR Station', kind: 'point', color: '#7a7a7a', defaultOn: true },
@@ -281,14 +290,32 @@ export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
   },
   shr_curtilage: { group: 'heritage', title: 'State Heritage Register curtilage', kind: 'fill', color: '#8c2d19', fillOpacity: 0.35, line: '#8c2d19', lineWidth: 1.5 },
   epi_heritage_items: { group: 'heritage', title: 'Heritage items (LEP maps)', kind: 'fill', color: '#c98b4a', fillOpacity: 0.4, line: '#8a5a2b', lineWidth: 1 },
-  epi_heritage_conservation_areas: { group: 'heritage', title: 'Heritage conservation areas', kind: 'fill', color: '#e3c9a0', fillOpacity: 0.3, line: '#8a6a3a', lineWidth: 1.5, dashed: true },
   bushfire_prone_land: {
     group: 'hazards', title: 'Bush fire prone land', kind: 'fill', color: '#f46d43', fillOpacity: 0.45, lineWidth: 0,
     classes: { 'Vegetation Category 1': '#e31a1c', 'Vegetation Category 2': '#fdae61', 'Vegetation Category 3': '#f46d43', 'Vegetation Buffer': '#ffe34d' },
   },
   flood_planning: { group: 'hazards', title: 'Flood planning (LEP maps)', kind: 'fill', color: '#2171b5', fillOpacity: 0.3, line: '#08519c', lineWidth: 1 },
-  flood_sfd_1aep: { group: 'hazards', title: '1% AEP flood extent, first load', kind: 'fill', color: '#6baed6', fillOpacity: 0.35, line: '#3182bd', lineWidth: 0.8 },
-  flood_sfd_1aep_1: { group: 'hazards', title: '1% AEP flood extent, second load', kind: 'fill', color: '#9ecae1', fillOpacity: 0.3, line: '#3182bd', lineWidth: 1.2, dashed: true },
+  // flood_sfd_1aep, the other load of this same extent, is no longer drawn (2026-09-23), so this one is
+  // titled plainly and solid rather than "second load" dashed against a first that is not on the page.
+  flood_sfd_1aep_1: { group: 'hazards', title: '1% AEP flood extent (SFD)', kind: 'fill', color: '#6baed6', fillOpacity: 0.35, line: '#3182bd', lineWidth: 1 },
+  // Drawn as an outline and not filled, because these catchments NEST: one row per report, and a
+  // whole-of-river flood study, a council-wide study and a single-creek plan all cover the same land.
+  // 60 of the 66 overlap another by more than 5% of their area and 24 stack at one point, so even a 0.12
+  // fill composes to about 95% opaque over the Georges River and buries the flood extents underneath it.
+  frmsp_georges_river: {
+    group: 'hazards', title: 'Floodplain risk management studies (Georges River)', kind: 'fill',
+    color: '#7b93c7', fillOpacity: 0, line: '#3d5591', lineWidth: 1.4, dashed: true, classLine: true,
+    classes: {
+      'Flood Study': '#aebfdf',
+      'Floodplain Risk Management Study': '#8ba1cf',
+      'Floodplain Risk Management Study and Plan': '#6079b5',
+      'Floodplain Risk Management Plan': '#41598f',
+    },
+  },
+  // Filled, unlike the FRMSP catchments: these do not nest - only 2 of the 117 overlap another by more
+  // than 5% of their area and nothing stacks deeper than 2. A dark cyan, well below the group's lighter
+  // #41b6c4 in lightness, so it is not read as a coastal vulnerability area.
+  epi_drinking_water_catchments: { group: 'coastal', title: 'Drinking water catchment (LEP maps)', kind: 'fill', color: '#00838f', fillOpacity: 0.3, line: '#005662', lineWidth: 1.2 },
   sepp_coastal_vulnerability_areas: { group: 'coastal', title: 'Coastal vulnerability areas', kind: 'fill', color: '#41b6c4', fillOpacity: 0.35, line: '#1d91c0', lineWidth: 1.5 },
   sepp_coastal_wetlands: { group: 'coastal', title: 'Coastal wetlands', kind: 'fill', color: '#1b9e77', fillOpacity: 0.5, line: '#137259', lineWidth: 1 },
   sepp_coastal_wetlands_proximity: { group: 'coastal', title: 'Coastal wetlands proximity area', kind: 'fill', color: '#1b9e77', fillOpacity: 0.1, line: '#1b9e77', lineWidth: 1.2, dashed: true },
@@ -315,6 +342,8 @@ export function constraintSwatchCss(key: string, category?: string | null): Reco
   const fill = (category && s.classes?.[category]) || s.color
   if (s.kind === 'point') return { background: fill, borderColor: '#ffffff', borderStyle: 'solid', borderRadius: '50%' }
   if (s.kind === 'line') return { background: 'transparent', borderColor: 'transparent', borderStyle: 'solid', boxShadow: `inset 0 -3px 0 ${fill}`, borderRadius: '0' }
+  // an unfilled layer is drawn as its outline, so its swatch is an outline too
+  if (s.fillOpacity === 0) return { background: 'transparent', borderColor: fill, borderStyle: s.dashed ? 'dashed' : 'solid' }
   return {
     background: fill,
     borderColor: s.lineWidth ? (s.line ?? fill) : fill,

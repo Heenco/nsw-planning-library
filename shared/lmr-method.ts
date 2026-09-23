@@ -56,7 +56,7 @@ export const LMR_METHOD: MethodStep[] = [
       + 'pipeline; and the whole of the Bathurst, Blue Mountains, Hawkesbury and Wollondilly council areas.',
     layers: ['Transport Oriented Development Area', 'Accelerated TOD Precinct', 'Low and Mid Rise Housing Exclusion Area',
       'Heritage items (LEP maps)', 'State Heritage Register curtilage', 'Bush fire prone land', 'Flood planning (LEP maps)',
-      '1% AEP flood extent, first load', '1% AEP flood extent, second load', 'Coastal wetlands', 'Littoral rainforest',
+      '1% AEP flood extent (SFD)', 'Coastal wetlands', 'Littoral rainforest',
       'Coastal vulnerability areas', 'Aircraft noise contours (ANEF / ANEI)', 'Gas pipelines, 200 m buffer',
       'Oil pipelines, 200 m buffer (none in NSW)'],
     note: 'Test whole lots, not clipped shapes: the policy excludes land that is or contains the constraint, so any '

@@ -30,7 +30,7 @@
 
 import 'dotenv/config'
 import pg from 'pg'
-import { firstSentence, manifest, tableFacts, writeCatalogue } from './lib/layer-catalogue.mjs'
+import { firstSentence, manifest, relationFacts, tableFacts, writeCatalogue } from './lib/layer-catalogue.mjs'
 
 const DRY = process.argv.includes('--dry-run')
 const TILE_BASE = process.env.NUXT_SEPP_PMTILES_BASE || 'http://172.105.184.178/pmtiles'
@@ -41,7 +41,7 @@ const GROUPS = {
   'zoning': { title: 'Land zoning', order: 3 },
   'heritage': { title: 'Heritage', order: 4 },
   'hazards': { title: 'Bushfire and flood', order: 5 },
-  'coastal': { title: 'Coastal', order: 6 },
+  'coastal': { title: 'Coast and water', order: 6 },
   'noise': { title: 'Noise and pipelines', order: 7 },
   'sepp-housing': { title: 'Housing SEPP, other layers', order: 8 },
   'sepp-precincts': { title: 'Precincts SEPPs', order: 9 },
@@ -57,6 +57,11 @@ const EPLANNING = 'https://mapprod3.environment.nsw.gov.au/arcgis/rest/services'
  * The curated half, one entry per table of the lmr schema. `key` is the table name, which is also the
  * tile layer_key. `sourceDateSql` and `loadedAtSql` are aggregates over that table, so a refresh moves
  * the date without anyone editing this file.
+ *
+ * `table` overrides the relation the entry is measured from, for a layer that lives outside the lmr
+ * schema - the FRMSP catchments sit in `flood`, because they describe flood studies rather than feed the
+ * low and mid-rise test. The tile build sends them into the same archive (its own `schema` key), so the
+ * key is still the tile layer_key.
  */
 const LMR_CONSTRAINTS = [
   {
@@ -125,7 +130,9 @@ const LMR_CONSTRAINTS = [
   {
     key: 'epi_heritage_conservation_areas', title: 'Heritage conservation areas', grp: 'heritage', kind: 'context',
     clause: 'Housing SEPP ch 6 - NOT an exclusion',
-    role: 'Held and drawn for contrast: chapter 6 still applies inside a heritage conservation area. Only items are excluded.',
+    role: 'Held but NO LONGER DRAWN (taken off the map 2026-09-23). Chapter 6 still applies inside a heritage '
+      + 'conservation area, so it was never an exclusion - only items are. The table is untouched and the lot '
+      + 'path still reports it; it is simply off the /lmr map and panel.',
     sourceKind: 'epi', source: `epi.epi_heritage - ${EPI_GDB}`,
     filter: "lay_class ILIKE '%Conservation Area%'",
     sourceDateSql: 'max(currency_date)::date', loadedAt: '2026-09-17',
@@ -156,19 +163,62 @@ const LMR_CONSTRAINTS = [
   {
     key: 'flood_sfd_1aep', title: '1% AEP flood extent, first load', grp: 'hazards', kind: 'exclusion',
     clause: 'Housing SEPP ch 6 - flood',
-    role: 'A state-wide 1% AEP flood extent, first of two loads.',
+    role: 'A state-wide 1% AEP flood extent, first of two loads. Held but NO LONGER DRAWN (taken off the map '
+      + '2026-09-23). The table is untouched and the lot path still reports it.',
     sourceKind: 'urbanportaldbp', source: 'UrbanPortalDBP public."flood_sfd_1aep"', loadedAt: '2026-09-17',
     caveat: 'Two loads of the same extent that agree only in part: 86% of seeded sample points inside this one fall '
       + 'inside flood_sfd_1aep_1. This load has more polygons and more of Sydney. Which is authoritative is unsettled, '
-      + 'and the provenance upstream of UrbanPortalDBP is not recorded anywhere - union both until it is.',
+      + 'and the provenance upstream of UrbanPortalDBP is not recorded anywhere - union both until it is. '
+      + 'SO: taking THIS load off the map leaves the SMALLER of the two drawn, over Sydney in particular, for a '
+      + 'layer chapter 6 does exclude. The map now understates the 1% AEP extent by whatever this load added.',
   },
   {
-    key: 'flood_sfd_1aep_1', title: '1% AEP flood extent, second load', grp: 'hazards', kind: 'exclusion',
+    key: 'flood_sfd_1aep_1', title: '1% AEP flood extent (SFD)', grp: 'hazards', kind: 'exclusion',
     clause: 'Housing SEPP ch 6 - flood',
-    role: 'The same 1% AEP flood extent, second load.',
+    role: 'The state-wide 1% AEP flood extent, and since 2026-09-23 the ONLY one of the two loads drawn on the '
+      + 'map - hence the plain title. It is not the fuller of the two.',
     sourceKind: 'urbanportaldbp', source: 'UrbanPortalDBP public."flood_sfd_1aep_1"', loadedAt: '2026-09-17',
     caveat: '75% of seeded sample points inside this load fall inside flood_sfd_1aep; it adds 27 polygons west of 144E '
-      + 'that the first load lacks. Stored in Web Mercator (3857) where the rest of the schema is GDA94.',
+      + 'that the first load lacks. Stored in Web Mercator (3857) where the rest of the schema is GDA94. '
+      + 'The other load, flood_sfd_1aep, is no longer drawn: it holds MORE polygons and more of Sydney, so the map '
+      + 'now shows less 1% AEP extent than the data holds. The two were never reconciled.',
+  },
+  {
+    key: 'frmsp_georges_river', table: 'flood.frmsp_georges_river',
+    title: 'Floodplain risk management studies (Georges River)', grp: 'hazards', kind: 'context',
+    role: 'The 66 catchments of the Georges River Floodplain Risk Management Study and Plan that a Flood Study, a '
+      + 'Floodplain Risk Management Study, or a Plan covers, with that report\'s authors, date and assessed damages. '
+      + 'Drawn on /lmr for context: it says which study speaks for a catchment, not which land floods, and it is '
+      + 'not an input to the low and mid-rise test.',
+    sourceKind: 'download',
+    source: 'D13_FRMSP_Geodatabase.gdb, layer D13_FRMSP_Database - deliverable D13 of the Georges River FRMSP study, '
+      + 'joined to the D11 FRMSP Database Review; loaded by Notebooks/python/load_flood_frmsp.py',
+    loadedAt: '2026-09-23',
+    caveat: 'The polygon is the STUDY\'S COVERAGE, not a flood extent, and the two must never be conflated - a '
+      + 'catchment is drawn whole however little of it floods. Georges River only (Bayside, Campbelltown, '
+      + 'Canterbury-Bankstown, Fairfield, Georges River, Liverpool, Sutherland), so absence means "outside this '
+      + 'study", never "no flood study". Only 25 of the 66 rows carry a damages assessment and only 14 carry the '
+      + 'census-scaled figures; the money columns are the source\'s own text ("$1,330,000", "Not specified"), '
+      + 'un-parsed. The geodatabase names 31 fields A..AE with the meaning only in the field alias - the columns '
+      + 'are renamed from those aliases and each COLUMN COMMENT keeps the letter it came from.',
+  },
+  {
+    key: 'epi_drinking_water_catchments', table: 'epi.epi_drinking_water_catchments',
+    title: 'Drinking water catchment (LEP maps)', grp: 'coastal', kind: 'context',
+    clause: 'Codes SEPP 1.19(1)(j)(i) - not a low and mid-rise test',
+    role: 'The Drinking Water Catchment layer of the LEP maps: 117 polygons across 22 LEPs and 22 LGAs. It is an '
+      + 'exclusion for COMPLYING DEVELOPMENT under the Codes SEPP, which is why /cdc tests it. Chapter 6 of the '
+      + 'Housing SEPP does not list it, so on this page it is context only and changes no low and mid-rise result.',
+    sourceKind: 'epi', source: `epi.epi_drinking_water_catchments - ${EPI_GDB}`,
+    sourceDateSql: 'max(currency_date)::date', loadedAt: '2026-09-15',
+    caveat: 'Read straight from epi rather than copied into the lmr schema, so it cannot go stale behind an epi '
+      + 'reload - but 01A drops epi with DROP SCHEMA epi CASCADE, so the layer is missing between a drop and the '
+      + 'reload that follows. 3 of the 117 polygons are invalid. Only 22 of the 128 LEPs map the layer at all, so '
+      + 'blank ground means "this LEP maps no drinking water catchment", never "this land is outside one". '
+      + 'lay_class is not used as the map category: 111 rows read "Drinking Water Catchment" and the remainder are '
+      + 'truncated by the source ("Special Area - Chicheste*"), and only 18 of the 117 carry a label at all. '
+      + 'Water NSW special and controlled areas (epi.epi_special_areas, Codes SEPP 1.19(1)(i)) are the neighbouring '
+      + 'layer and are NOT loaded here.',
   },
   {
     key: 'sepp_coastal_vulnerability_areas', title: 'Coastal vulnerability areas', grp: 'coastal', kind: 'exclusion',
@@ -376,10 +426,12 @@ async function main() {
 
     // ── the lmr schema ────────────────────────────────────────────────────────────────────────────
     for (const e of LMR_CONSTRAINTS) {
-      const f = facts.get(e.key)
-      if (!f) { process.stderr.write(`  lmr.${e.key} is in the registry but not in the database\n`); continue }
+      // an entry naming its own relation is measured on its own, because `facts` swept the lmr schema alone
+      const qualified = e.table ?? `lmr.${e.key}`
+      const f = e.table ? await relationFacts(client, e.table) : facts.get(e.key)
+      if (!f) { process.stderr.write(`  ${qualified} is in the registry but not in the database\n`); continue }
       const t = drawn.get(e.key)
-      const dates = await measureDates(client, 'lmr', e)
+      const dates = await measureDates(client, qualified.split('.')[0], e)
       rows.push({
         key: e.key,
         title: e.title,
@@ -390,7 +442,7 @@ async function main() {
         kind: e.kind,
         role: e.role,
         clause: e.clause ?? null,
-        table_name: `lmr.${e.key}`,
+        table_name: qualified,
         source_kind: e.sourceKind,
         source: e.source,
         source_url: e.sourceUrl ?? null,

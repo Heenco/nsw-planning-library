@@ -1,7 +1,8 @@
 """Build the LMR constraints PMTiles archive behind /lmr.
 
 Reads the `lmr` schema on planningai - the datasets the Low and Mid-Rise Housing Policy is checked against,
-each table documented by its own COMMENT - and writes, into OUT_DIR:
+each table documented by its own COMMENT - plus any layer a `schema` key sends elsewhere, and writes, into
+OUT_DIR:
 
   lmr-constraints-<stamp>.pmtiles   one MVT layer "lmr", zoom 4-14 (tippecanoe)
   lmr-constraints.json              the manifest: which archive is current, and the layer catalogue
@@ -12,11 +13,18 @@ last. Rebuild whenever the lmr schema is refreshed.
 
 WHICH TABLES
 
-Every table in LAYERS below. Four tables of the schema are deliberately left out because /lmr already draws
+Every table in LAYERS below. A layer reads from `lmr` unless its spec carries a `schema`, which is how the
+flood schema's FRMSP catchments join the same archive without a second build. Four tables of the schema are
+deliberately left out because /lmr already draws
 the same rows from the SEPP land application archive (scripts/build-sepp-pmtiles.py): sepp_lmr_exclusion_areas,
 sepp_tod_accelerated_precincts, sepp_tod_areas and sepp_town_centres are copies of Housing SEPP rows of
 epi.epi_land_application. Both pipeline tables and their 200 m buffers are kept whole - they cover all of Australia,
 and oil_pipelines has no NSW rows at all - so the four layers show the same national extent.
+
+Two more are left out by request (2026-09-23), and the tables stay in the schema either way:
+epi_heritage_conservation_areas, which chapter 6 does not exclude - it excludes heritage ITEMS, which are still
+drawn - and flood_sfd_1aep, the first of the two loads of the same 1% AEP extent. Only flood_sfd_1aep_1 is drawn
+now, so it is titled plainly rather than "second load"; the two still disagree and lmr.layers keeps that caveat.
 
 The walking catchments (station_walking_catchments, town_centre_walking_catchments) are built first by
 scripts/build-lmr-walking.py from the Mapbox Isochrone API; their category is the distance, "400 m" or "800 m".
@@ -52,12 +60,16 @@ LAYERS = {
     "shr_curtilage": dict(category="NULL", name="itemname", detail="'SHR ' || btrim(listingno) || coalesce(' · ' || lga, '')"),
     "epi_heritage_items": dict(category="lay_class", name="h_name",
                                detail="concat_ws(' · ', lay_class, nullif(sig, ''), epi_name)"),
-    "epi_heritage_conservation_areas": dict(category="lay_class", name="coalesce(h_name, label)",
-                                            detail="concat_ws(' · ', lay_class, epi_name)"),
     "bushfire_prone_land": dict(category="d_category", name="d_category", detail="'RFS bush fire prone land'"),
     "flood_planning": dict(category="lay_class", name="lay_class", detail="concat_ws(' · ', epi_name, lga_name)"),
-    "flood_sfd_1aep": dict(category="NULL", name="'1% AEP flood extent'", detail="'first load (GDA94)'"),
-    "flood_sfd_1aep_1": dict(category="NULL", name="'1% AEP flood extent'", detail="'second load (Web Mercator)'"),
+    "flood_sfd_1aep_1": dict(category="NULL", name="'1% AEP flood extent'", detail="'SFD 1% AEP (Web Mercator load)'"),
+    "frmsp_georges_river": dict(schema="flood", category="rep_type", name="cat_name",
+                                detail="concat_ws(' · ', report_title, owner, rep_date)"),
+    # read straight from epi rather than copied into lmr, so an epi reload can never leave a stale copy.
+    # category is NULL on purpose: lay_class is 'Drinking Water Catchment' for 111 of the 117 and the rest
+    # are ArcGIS-truncated ('Special Area - Chicheste*'), which would make a legend of nothing but noise.
+    "epi_drinking_water_catchments": dict(schema="epi", category="NULL", name="coalesce(label, lay_name)",
+                                          detail="concat_ws(' · ', lay_class, epi_name, lga_name)"),
     "sepp_coastal_vulnerability_areas": dict(category="NULL", name="label", detail="concat_ws(' · ', amendment, lga_name)"),
     "sepp_coastal_wetlands": dict(category="NULL", name="label", detail="lga_name"),
     "sepp_coastal_wetlands_proximity": dict(category="NULL", name="label", detail="lga_name"),
@@ -95,15 +107,18 @@ def main():
     layers, n = [], 0
     with open(geojson, "w", encoding="utf-8") as out:
         for table, spec in LAYERS.items():
-            cur.execute("""SELECT f_geometry_column, upper(type), srid, obj_description(format('lmr.%%I', %s)::regclass)
-                           FROM geometry_columns WHERE f_table_schema = 'lmr' AND f_table_name = %s""", (table, table))
+            schema = spec.get("schema", "lmr")
+            cur.execute("""SELECT f_geometry_column, upper(type), srid,
+                                  obj_description(format('%%I.%%I', %s, %s)::regclass)
+                           FROM geometry_columns WHERE f_table_schema = %s AND f_table_name = %s""",
+                        (schema, table, schema, table))
             row = cur.fetchone()
             if not row:
-                log(f"SKIP {table}: no geometry column")
+                log(f"SKIP {schema}.{table}: no geometry column")
                 continue
             gcol, gtype, srid, comment = row
             where = f"WHERE {spec['where']}" if spec.get("where") else ""
-            cur.execute(f'SELECT sum(ST_NPoints("{gcol}")), min(ST_GeometryType("{gcol}")) FROM lmr."{table}" {where}')
+            cur.execute(f'SELECT sum(ST_NPoints("{gcol}")), min(ST_GeometryType("{gcol}")) FROM "{schema}"."{table}" {where}')
             vertices, sample_type = cur.fetchone()
             kind = next((k for k in EXTRACT if k in (sample_type or "").upper()), "POLYGON")
             min_zoom = HEAVY_MIN_ZOOM if (vertices or 0) > HEAVY_VERTICES else 0
@@ -114,7 +129,7 @@ def main():
                 SELECT ({spec['category']})::text, ({spec['name']})::text, ({spec['detail']})::text,
                        ST_XMin(g), ST_YMin(g), ST_XMax(g), ST_YMax(g),
                        ST_AsGeoJSON(ST_Transform(ST_CollectionExtract(ST_MakeValid(g), {EXTRACT[kind]}), 4326), 7)
-                FROM (SELECT *, ST_SetSRID({geom}, CASE WHEN {srid} = 4326 THEN 4326 ELSE 4283 END) AS g FROM lmr."{table}" {where}) s
+                FROM (SELECT *, ST_SetSRID({geom}, CASE WHEN {srid} = 4326 THEN 4326 ELSE 4283 END) AS g FROM "{schema}"."{table}" {where}) s
                 WHERE g IS NOT NULL""")
             count, cats, bbox = 0, {}, [180.0, 90.0, -180.0, -90.0]
             t1 = time.time()
@@ -133,11 +148,11 @@ def main():
                 bbox = [min(bbox[0], w), min(bbox[1], s), max(bbox[2], e), max(bbox[3], nth)]
             stream.close()
             n += count
-            layers.append({"key": table, "table": f"lmr.{table}", "geometry": kind.lower(), "features": count,
+            layers.append({"key": table, "table": f"{schema}.{table}", "geometry": kind.lower(), "features": count,
                            "vertices": int(vertices or 0), "minZoom": min_zoom, "bbox": bbox if count else None,
                            "categories": [{"name": c, "features": f} for c, f in sorted(cats.items(), key=lambda x: -x[1])],
                            "comment": comment})
-            log(f"{table}: {count:,} {kind.lower()} features, {int(vertices or 0):,} vertices, minzoom {min_zoom}, {time.time() - t1:.0f} s")
+            log(f"{schema}.{table}: {count:,} {kind.lower()} features, {int(vertices or 0):,} vertices, minzoom {min_zoom}, {time.time() - t1:.0f} s")
     conn.close()
     log(f"{n:,} features exported in {(time.time() - t0) / 60:.1f} min ({os.path.getsize(geojson) / 1e9:.2f} GB)")
 
@@ -145,7 +160,7 @@ def main():
     cmd = ["tippecanoe", "-o", pmtiles, "--force", "-l", "lmr", "-Z", str(MIN_ZOOM), "-z", str(MAX_ZOOM),
            "--read-parallel", "--simplify-only-low-zooms", "--no-tiny-polygon-reduction-at-maximum-zoom",
            "--drop-smallest-as-needed", "--maximum-tile-bytes=1500000", "-r1",
-           "--attribution", "NSW DPHI, NSW RFS, Heritage NSW, Geoscience Australia", "--name", "LMR constraints", geojson]
+           "--attribution", "NSW DPHI, NSW RFS, Heritage NSW, Geoscience Australia, Georges River Combined Councils", "--name", "LMR constraints", geojson]
     log("tippecanoe: " + " ".join(cmd))
     proc = subprocess.run(cmd, capture_output=True, text=True)
     tail = "\n".join((proc.stderr or "").strip().splitlines()[-12:])
