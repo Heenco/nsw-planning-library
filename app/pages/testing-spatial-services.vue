@@ -826,7 +826,20 @@ if (initial.value?.build) build.value = initial.value.build
  */
 const samples = ref<Sample[]>([])
 const samplesLoaded = ref(false)
+const router = useRouter()
+const route = useRoute()
+
 onMounted(async () => {
+  /*
+   * A lot in the query opens straight away, before the samples are fetched - the home page sends a
+   * reader here with one already chosen, and waiting on a list they did not ask for would make the
+   * page look empty for as long as that takes.
+   */
+  const cadid = String(route.query.cadid ?? '').trim()
+  if (cadid) {
+    const msoid = Number(route.query.msoid)
+    void open(cadid, Number.isFinite(msoid) ? msoid : null)
+  }
   try {
     const r = await $fetch<{ samples: Sample[] }>('/api/lotprofile', { query: { samples: 1 } })
     samples.value = r.samples ?? []
@@ -937,6 +950,12 @@ async function open(cadid: string, msoid: number | null = null) {
   detailError.value = ''
   openedCadid.value = cadid
   focusMsoid.value = msoid
+  /*
+   * Put the lot in the URL, so the page can be linked to and reloaded on the same lot - the home page
+   * arrives here that way. `replace` rather than `push`: opening four lots in a row should not leave
+   * four entries for the back button to walk back through.
+   */
+  void router.replace({ query: { cadid, ...(msoid == null ? {} : { msoid: String(msoid) }) } })
   try {
     detail.value = await $fetch<Detail>('/api/lotprofile', { query: { cadid } })
     // The lot section is rendered only once `loading` is off, so that has to

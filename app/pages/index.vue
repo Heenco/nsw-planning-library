@@ -4,7 +4,7 @@
     <!-- ── Landing: Property search first, then state map ────────────────── -->
     <div v-if="view === 'landing'" class="landing">
       <h1 class="landing-title">Australian Planning Library</h1>
-      <p class="landing-desc">Get a planning report for a {{ PROPERTY_LGA_LABEL }} property, or browse NSW instruments by state</p>
+      <p class="landing-desc">Open a lot and see everything measured against it, or browse NSW instruments by state</p>
       <div v-if="viewCount !== null" class="view-counter">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         {{ viewCount.toLocaleString() }} views
@@ -23,15 +23,15 @@
 
       <!-- Property report (now at the top) -->
       <div class="property-section">
-        <form class="property-form" @submit.prevent="goToReport">
+        <form class="property-form" @submit.prevent="goToLot">
           <!-- Address with autocomplete -->
           <div class="address-autocomplete">
-            <label class="property-field-label">Property address</label>
+            <label class="property-field-label">Property address or lot</label>
             <input
               v-model="propertyAddress"
               type="text"
               class="property-input"
-              placeholder="Start typing an address — e.g. 15 Smith Street, Albury"
+              placeholder="Start typing an address — 26 Foveaux St Surry Hills — or a lot, A//DP71490"
               @input="onAddressInput"
               @keydown.down.prevent="acIndex = Math.min(acIndex + 1, acResults.length - 1)"
               @keydown.up.prevent="acIndex = Math.max(acIndex - 1, 0)"
@@ -50,10 +50,9 @@
                 <span class="ac-item-main">{{ r.text }}</span>
                 <span class="ac-item-context">
                   {{ r.context }}
-                  <!-- Said on the suggestion rather than discovered in the
-                       report: the address is offered either way, but outside
-                       these councils the clause-level sections are absent. -->
-                  <span v-if="!r.hasRuleLayer" class="ac-item-depth">record only</span>
+                  <!-- The lot reference, because the destination is the lot and two addresses on one
+                       lot are otherwise indistinguishable in this list. -->
+                  <span v-if="r.lotRef" class="ac-item-depth">{{ r.lotRef }}</span>
                 </span>
               </button>
             </div>
@@ -78,8 +77,8 @@
 
           <!-- Persona selector -->
 
-          <button class="property-btn" :disabled="!selectedLat" type="submit">
-            Generate Report
+          <button class="property-btn" :disabled="!selectedCadid" type="submit">
+            Open this lot
           </button>
         </form>
       </div>
@@ -251,8 +250,6 @@ const rawMarkdown = ref('')
 const docContentEl = ref<HTMLDivElement | null>(null)
 const hoveredState = ref<{ name: string; key: string; active: boolean } | null>(null)
 const propertyAddress = ref('')
-// One persona: the report always gives the full planner-level detail.
-const selectedPersona = ref('planner')
 const showDisclaimer = ref(false)
 
 /**
@@ -313,24 +310,49 @@ const sampleAddressGroups = computed(() => {
   return out
 })
 
-function pickSampleAddress(s: { address: string; lat: number; lng: number; zone?: string }) {
+/**
+ * A sample chip fills the box and then runs the search, rather than selecting outright.
+ *
+ * The chips carry a lat/lng from when this page opened /report. The destination now needs a cadid, and
+ * these addresses are written the way a person writes them rather than the way the build stores them,
+ * so the only honest way to turn one into a lot is to search for it. A chip that matches exactly one
+ * lot selects it; anything else leaves the suggestions open for the reader to choose, which is also
+ * what happens when a sample address is not in the build yet.
+ */
+async function pickSampleAddress(s: { address: string; lat: number; lng: number; zone?: string }) {
   propertyAddress.value = s.address
-  selectedLat.value = s.lat
-  selectedLng.value = s.lng
+  selectedCadid.value = null
+  selectedMsoid.value = null
   acResults.value = []
+  await fetchAddressSuggestions(s.address)
+  if (acResults.value.length === 1) selectAddress(acResults.value[0]!)
 }
 // ── Address autocomplete ─────────────────────────────────────────────────────
 
+/*
+ * The same search /testing-spatial-services runs, against the same endpoint.
+ *
+ * It used to be /api/property/search, which answers from the statewide property record and returns a
+ * POINT. That suited /report, which is keyed on lat/lng. The search now opens the lot instead, and a
+ * lot needs a cadid - so this asks /api/lotprofile, the endpoint the spatial services page uses. It
+ * matches on an address OR a lot reference (A//DP71490) and gives back the lot behind it.
+ *
+ * What that costs, stated rather than discovered: this only sees lots the "02C - Lot profile with
+ * frontage" build has reached, where the old search saw every address in the state. That is the
+ * honest scope of the page it now leads to.
+ */
 interface AcResult {
-  id: string; text: string; context: string; place_name: string; lat: number; lng: number
-  /** Whether this council's instruments are decomposed into a rule layer. */
-  hasRuleLayer: boolean
+  id: string; text: string; context: string; place_name: string
+  cadid: string
+  msoid: number | null
+  /** The lot reference, shown beside the address the way the spatial services page shows it. */
+  lotRef: string
 }
 
 const acResults = ref<AcResult[]>([])
 const acIndex = ref(0)
-const selectedLat = ref<number | null>(null)
-const selectedLng = ref<number | null>(null)
+const selectedCadid = ref<string | null>(null)
+const selectedMsoid = ref<number | null>(null)
 let acDebounce: ReturnType<typeof setTimeout> | null = null
 // Each fetch takes a ticket; a response whose ticket is stale is dropped. A
 // common street name takes ~350-800 ms server-side, longer than the debounce,
@@ -340,8 +362,8 @@ let acSeq = 0
 function onAddressInput() {
   acIndex.value = 0
   acSeq++
-  selectedLat.value = null
-  selectedLng.value = null
+  selectedCadid.value = null
+  selectedMsoid.value = null
   if (acDebounce) clearTimeout(acDebounce)
   const q = propertyAddress.value.trim()
   if (q.length < 3) { acResults.value = []; return }
@@ -351,22 +373,18 @@ function onAddressInput() {
 async function fetchAddressSuggestions(q: string) {
   const seq = ++acSeq
   try {
-    // /api/property/search reads the same statewide table the report does, so
-    // every address it offers can be reported on. What it also returns is
-    // whether that council has a rule layer, because the depth of the report
-    // differs even though its availability no longer does.
-    const resp = await fetch(`/api/property/search?q=${encodeURIComponent(q)}`)
+    const resp = await fetch(`/api/lotprofile?q=${encodeURIComponent(q)}`)
     if (!resp.ok) return
     const data = await resp.json()
     if (seq !== acSeq) return
     acResults.value = (data.results || []).map((r: any, i: number) => ({
-      id: `${r.address}-${i}`,
-      text: r.address,
-      context: [r.suburbname, r.lga_name, r.postcode].filter(Boolean).join(', '),
-      hasRuleLayer: Boolean(r.hasRuleLayer),
-      place_name: r.address,
-      lat: Number(r.centroid_lat),
-      lng: Number(r.centroid_lon),
+      id: `${r.cadid}-${r.msoid ?? i}`,
+      text: r.address || r.titleLot || r.lotId || '(no address)',
+      context: r.lgaName || '',
+      lotRef: r.titleLot || r.lotId || '',
+      cadid: String(r.cadid),
+      msoid: r.msoid ?? null,
+      place_name: r.address || r.titleLot || r.lotId || '',
     }))
   } catch {}
 }
@@ -377,8 +395,8 @@ function dismissAc() {
 
 function selectAddress(r: AcResult) {
   propertyAddress.value = r.place_name
-  selectedLat.value = r.lat
-  selectedLng.value = r.lng
+  selectedCadid.value = r.cadid
+  selectedMsoid.value = r.msoid
   acResults.value = []
 }
 
@@ -460,15 +478,20 @@ function dismissDisclaimer() {
 
 const router = useRouter()
 
-function goToReport() {
-  if (!selectedLat.value || !selectedLng.value || !selectedPersona.value) return
+/**
+ * Open the lot on /testing-spatial-services, which is where the measured answer lives.
+ *
+ * It used to push /report with a lat/lng. The spatial services page is keyed on the lot instead, and
+ * it reads that lot out of the query on mount, so the address search and a pasted link arrive the
+ * same way.
+ */
+function goToLot() {
+  if (!selectedCadid.value) return
   router.push({
-    path: '/report',
+    path: '/testing-spatial-services',
     query: {
-      lat: String(selectedLat.value),
-      lng: String(selectedLng.value),
-      address: propertyAddress.value,
-      persona: selectedPersona.value,
+      cadid: selectedCadid.value,
+      ...(selectedMsoid.value == null ? {} : { msoid: String(selectedMsoid.value) }),
     },
   })
 }
