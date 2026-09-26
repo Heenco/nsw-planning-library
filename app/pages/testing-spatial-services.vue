@@ -43,6 +43,9 @@
         </nav>
       </aside>
       <main class="lp-main">
+        <!-- The build and the search sit side by side; the samples span both below. -->
+        <div class="lp-top">
+        <div class="lp-top-cols">
         <!-- ── What the build has done so far ───────────────────────────── -->
         <section id="build" class="lp-section">
           <p class="lp-kicker">derived</p>
@@ -142,6 +145,8 @@
             </span>
             <span class="lp-dim">Any address in the data can be searched — try fewer words, or the lot reference.</span>
           </p>
+        </section>
+        </div>
 
         <p v-if="!sampleGroups.length && samplesLoaded" class="lp-note lp-samples-none">
           The per-case samples are found by querying <code>derived.lot_frontage</code>, which does not
@@ -179,7 +184,7 @@
             </div>
           </div>
           </details>
-        </section>
+        </div>
 
         <!-- ── One lot ─────────────────────────────────────────────────── -->
         <section v-if="loading" class="lp-section lp-panel lp-dim">Loading the lot…</section>
@@ -286,6 +291,7 @@
 
       <!-- The lot row, grouped -->
       <template v-if="detail.lot">
+        <div class="lp-group-grid">
         <div v-for="g in LOT_GROUPS" :id="sid(g.title)" :key="g.title" class="lp-group">
           <h3 class="lp-h3">{{ g.title }}</h3>
           <dl class="lp-fields">
@@ -294,6 +300,7 @@
               <dd :class="{ 'lp-null': f.isNull }">{{ f.v }}</dd>
             </template>
           </dl>
+        </div>
         </div>
         <details v-if="lotLeftovers.length" class="lp-more">
           <summary>{{ lotLeftovers.length }} more columns on <code>lot_frontage</code></summary>
@@ -425,6 +432,333 @@
           <p v-else-if="z.error" class="lp-dim">{{ z.error }}</p>
           <p v-else class="lp-dim">Resolving the Land Use Table&hellip;</p>
         </div>
+      </div>
+
+      <!-- ── The LEP rule layer, decided against this lot ──────────────────
+           Permissibility says what may be built here; this says under what
+           constraints. Every fact it decides on is one the sections above
+           already worked out - the zone from the polygon, the epi layers the
+           lot falls in, whether it is strata, its area and frontage - so this
+           is a join rather than another sweep.
+
+           The verdict is four-way. "Cannot tell" is a real answer and has to
+           stay distinguishable from "does not apply": an unresolved map
+           reference reading as a clean pass is wrong in the direction that
+           costs someone money. -->
+      <div id="lep-rules" class="lp-group">
+        <h3 class="lp-h3">
+          LEP rules for this lot
+          <span class="lp-dim"><code>nsw.rule &rarr; /api/testing/lep-rules</code></span>
+        </h3>
+        <p class="lp-basis lp-basis--lot">
+          Zone from the lot polygon; map areas from resolved <code>rule_spatial_ref</code>
+          geometry; land characteristics, tenure and adjacency through
+          <code>nsw.scope_layer</code>, which says what each scoping term means and whether anything
+          can answer it. Bands are resolved against this lot's own area.
+        </p>
+
+        <p v-if="lepRulesError" class="lp-error">{{ lepRulesError }}</p>
+        <p v-else-if="!lepRules" class="lp-dim">Deciding the rule layer&hellip;</p>
+
+        <template v-else-if="!lepRules.document">
+          <p class="lp-dim">
+            No LEP is ingested for {{ lepRules.lot?.lga || 'this council' }}, so there is no rule
+            layer to decide. The graph holds three LEPs; the rest are registered but not ingested.
+          </p>
+        </template>
+
+        <template v-else>
+          <p class="lp-chips lp-lep-head">
+            <span class="lp-chip">{{ lepRules.document.title }}</span>
+            <span class="lp-chip"><strong>{{ lepRules.counts.total }}</strong> rules</span>
+          <span v-if="lepRules.lot?.zone" class="lp-chip">{{ lepRules.lot.zone }}</span>
+            <span class="lp-chip lp-chip--ok"><strong>{{ lepRules.counts.applies }}</strong> apply</span>
+            <span class="lp-chip lp-chip--warn"><strong>{{ lepRules.counts.untestable }}</strong> cannot be decided</span>
+            <span class="lp-chip"><strong>{{ lepRules.counts.not_applicable }}</strong> do not apply</span>
+          </p>
+
+          <!-- The proposal. Land use and the operative act are properties of what you want to
+               build, not of the land, so without them a rule is conditional rather than
+               undecidable. Choosing one here settles those conditions. -->
+          <p class="lp-lep-use">
+            <label for="lep-use">I want to</label>
+            <select id="lep-act" v-model="lepAct" @change="openedCadid && loadLepRules(openedCadid)">
+              <option value="">(anything)</option>
+              <option v-for="a in (lepRules.actOptions ?? [])" :key="a" :value="a">{{ a }}</option>
+            </select>
+            <label for="lep-use" class="lp-lep-uselbl">a</label>
+            <select id="lep-use" v-model="lepUse" @change="openedCadid && loadLepRules(openedCadid)">
+              <option value="">(any use) &mdash; show what each rule waits on</option>
+              <option v-for="u in lepUseOptions" :key="u" :value="u">{{ u }}</option>
+            </select>
+            <label class="lp-lep-strict">
+              <input type="checkbox" v-model="lepStrict">
+              deterministic only
+            </label>
+          </p>
+          <p class="lp-dim lp-lep-note">
+            The act and the use are the only two things the <em>proposal</em> contributes &mdash;
+            everything else is a property of the land and already known from the lot. Uses are
+            limited to those this zone permits.
+            <template v-if="lepStrict">
+              Model-extracted rules (<code>src=ai</code>) are hidden: this is what survives on
+              deterministic extraction alone.
+            </template>
+          </p>
+
+          <!-- 0. what the maps themselves say ────────────────────────────────
+               The strongest evidence the graph holds, and it needs no model: an epi polygon
+               carries legis_ref_clause, the clause it exists to serve. 81% of them do. Where the
+               layer also carries a value - height, FSR, lot size - that value IS the control, and
+               for a "shown on the Map" clause there is no number in the text to find. -->
+          <template v-if="lepMapEvidence.length">
+            <h4 class="lp-lep-h4">From the maps</h4>
+            <p class="lp-dim lp-lep-note">
+              Polygons covering this lot whose own <code>legis_ref_clause</code> names the clause.
+              Read from the data, not from the clause text.
+            </p>
+            <div class="lp-scroll">
+            <table class="lp-table lp-lep-table lp-lep-mapt">
+              <thead><tr><th>Map</th><th>Marked</th><th>Clause</th><th>Value</th><th>Covers</th></tr></thead>
+              <tbody>
+                <tr v-for="(m, i) in lepMapEvidence" :key="i">
+                  <td>{{ m.map }}</td>
+                  <td><strong>{{ m.label ?? '—' }}</strong></td>
+                  <td>
+                    <!-- one polygon can serve several subclauses; they are listed, not repeated
+                         as separate rows of identical evidence -->
+                    <span v-for="(c, j) in m.clauses" :key="j" class="lp-mapcl">
+                      <NuxtLink :to="lepDocHref(c)">cl {{ c.clause }}</NuxtLink>
+                    </span>
+                    <span class="lp-lep-heading">{{ m.clauses[0]?.heading }}</span>
+                  </td>
+                  <td>
+                    <strong v-if="m.value != null">{{ m.value }}{{ m.unit === 'sqm' ? ' m²' : m.unit === 'metre' ? ' m' : m.unit === 'ratio' ? ':1' : '' }}</strong>
+                    <span v-else class="lp-dim">—</span>
+                  </td>
+                  <td class="lp-num">{{ m.coverPct }}%</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+          </template>
+
+          <!-- 1. THE ANSWER: one row per control, the number that binds ─────────────
+               95 rules under a heading saying "applies" is not an answer to "what can I build".
+               This collapses them to the numbers a design has to meet. Grouped by topic AND
+               direction: "at most 8.5 m" and "at least 3 m" are both true at once, so putting them
+               in one row would invent a conflict that the instrument does not contain. -->
+          <h4 class="lp-lep-h4">What binds this lot</h4>
+          <p v-if="!lepEnvelope.length" class="lp-dim">
+            No rule that reaches this lot states a measurable control.
+          </p>
+          <div v-else class="lp-scroll">
+          <table class="lp-table lp-env">
+            <thead>
+              <tr><th>Control</th><th>Value</th><th>Applies to</th><th>From</th></tr>
+            </thead>
+            <tbody>
+              <template v-for="(g, gi) in lepEnvelopeGroups" :key="gi">
+                <tr v-for="(row, i) in g.rows" :key="`${gi}-${i}`"
+                    :class="{ 'lp-env-gstart': i === 0 && gi > 0 }">
+                  <!-- the control is named once per group; repeating it down the column is noise -->
+                  <td class="lp-env-topic">{{ i === 0 ? g.label : '' }}</td>
+                  <td class="lp-env-val">
+                    {{ lepEffectText(row.binds) }}
+                    <span v-if="lepBandText(row.binds)" class="lp-env-band">{{ lepBandText(row.binds) }}</span>
+                  </td>
+                  <!-- named, never merged away: this cap belongs to this use and no other -->
+                  <td :class="row.forUse ? 'lp-env-for' : 'lp-dim'">
+                    {{ row.forUse ?? 'any proposal' }}
+                  </td>
+                  <td>
+                    <NuxtLink :to="lepDocHref(row.binds)">
+                      cl {{ row.binds.clause }}</NuxtLink>
+                    <span class="lp-lep-src">{{ row.binds.src }}</span>
+                    <!-- the clauses that lost: why the number is this number, kept auditable -->
+                    <span v-if="row.others.length" class="lp-env-others">
+                      also
+                      <NuxtLink v-for="(o, j) in row.others" :key="j"
+                                :to="lepDocHref(o)">cl {{ o.clause }}
+                        ({{ lepEffectText(o) }})</NuxtLink>
+                      &mdash; {{ row.dir === 'max' ? 'looser' : 'lower' }}
+                    </span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          </div>
+
+          <details v-if="lepGroups.binding.length" class="lp-lep-details">
+            <summary>Every rule behind those numbers ({{ lepGroups.binding.length }})</summary>
+          <div class="lp-scroll">
+          <table class="lp-table lp-lep-table">
+            <thead>
+              <tr><th>Clause</th><th>Control</th><th>Applies because</th><th>If you propose</th></tr>
+            </thead>
+            <tbody>
+              <tr v-for="r in lepGroups.binding" :key="r.ruleKey">
+                <td class="lp-lep-clause">
+                  <NuxtLink :to="lepDocHref(r)">cl {{ r.clause }}</NuxtLink>
+                  <span class="lp-lep-heading">{{ r.heading }}</span>
+                  <span class="lp-lep-src" :title="`extracted by ${r.src}`">{{ r.src }}</span>
+                </td>
+                <td>
+                  <span v-for="(e, i) in r.live" :key="i" class="lp-lep-eff">
+                    <strong>{{ e.topic }}</strong> {{ lepEffectText(e) }}
+                    <em v-if="lepBandText(e)">{{ lepBandText(e) }}</em>
+                  </span>
+                </td>
+                <td>
+                  <span v-if="!r.matched.length" class="lp-lep-why lp-dim">
+                    applies plan-wide &mdash; no land condition
+                  </span>
+                  <span v-for="(m, i) in r.matched" :key="i" class="lp-lep-why" :title="m.span || ''">
+                    {{ m.how }}
+                  </span>
+                </td>
+                <td>
+                  <span v-if="!r.conditionalOn.length" class="lp-dim">&mdash;</span>
+                  <span v-for="(c, i) in r.conditionalOn.slice(0, 4)" :key="i" class="lp-lep-cond"
+                        :title="c.span || ''">{{ c.value }}</span>
+                  <span v-if="r.conditionalOn.length > 4" class="lp-dim">+{{ r.conditionalOn.length - 4 }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          </details>
+
+          <!-- 2. prohibitions -->
+          <template v-if="lepGroups.excluded.length">
+            <h4 class="lp-lep-h4">Ruled out on this land</h4>
+            <ul class="lp-lep-list">
+              <li v-for="r in lepGroups.excluded" :key="r.ruleKey">
+                <NuxtLink :to="lepDocHref(r)">cl {{ r.clause }}</NuxtLink>
+                <span class="lp-lep-heading">{{ r.heading }}</span>
+                <span v-for="(m, i) in r.matched" :key="i" class="lp-lep-why" :title="m.span || ''">{{ m.how }}</span>
+              </li>
+            </ul>
+          </template>
+
+          <!-- 3. applies, no number -->
+          <details v-if="lepGroups.applies.length" class="lp-lep-details">
+            <summary>
+              Applies, but states no measurable control ({{ lepGroups.applies.length }})
+            </summary>
+            <ul class="lp-lep-list lp-lep-list--tight">
+              <li v-for="r in lepGroups.applies" :key="r.ruleKey">
+                <NuxtLink :to="lepDocHref(r)">cl {{ r.clause }}</NuxtLink>
+                <span class="lp-lep-heading">{{ r.heading }}</span>
+                <span v-if="r.conditionalOn.length" class="lp-dim">if:
+                  {{ r.conditionalOn.slice(0, 3).map((c: any) => c.value).join(', ') }}</span>
+              </li>
+            </ul>
+          </details>
+
+          <!-- 4. the honest group, as a work queue ───────────────────────────────────
+               "73 cannot be decided" is a confession. The same 73 grouped by WHAT IS MISSING is a
+               list of jobs, and the endpoint has been returning it as `blockers` all along. The
+               biggest bucket is nearly always unresolved map geometry, which is one script. -->
+          <template v-if="lepBlockers.length">
+            <h4 class="lp-lep-h4 lp-lep-h4--warn">
+              Resolve these and {{ lepBlockedTotal }} more clauses become decidable
+            </h4>
+            <p class="lp-dim lp-lep-note">
+              Grouped by the fact that is missing rather than by clause, so it reads as work rather
+              than as a list of failures.
+            </p>
+            <table class="lp-table lp-unlock">
+              <thead><tr><th>Clauses</th><th>Missing</th><th>For example</th></tr></thead>
+              <tbody>
+                <tr v-for="(b, i) in lepBlockers" :key="i">
+                  <td class="lp-num"><strong>{{ b.rules }}</strong></td>
+                  <td>
+                    {{ b.label }}
+                    <span class="lp-lep-heading"><code>{{ b.dimension }}</code>,
+                      {{ b.distinct }} distinct</span>
+                  </td>
+                  <td>
+                    <span v-for="(w, j) in b.whys.slice(0, 3)" :key="j" class="lp-lep-why">{{ w }}</span>
+                    <span v-if="b.whys.length > 3" class="lp-dim">
+                      +{{ b.whys.length - 3 }} more</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+
+          <details v-if="lepGroups.untestable.length" class="lp-lep-details">
+            <summary>
+              Cannot be decided for this lot ({{ lepGroups.untestable.length }})
+              &mdash; clause by clause
+            </summary>
+            <p class="lp-dim lp-lep-note">
+              The graph holds these clauses but cannot place them against this lot. Each says what is
+              missing &mdash; they are not "does not apply".
+            </p>
+            <ul class="lp-lep-list">
+              <li v-for="r in lepGroups.untestable" :key="r.ruleKey">
+                <NuxtLink :to="lepDocHref(r)">cl {{ r.clause }}</NuxtLink>
+                <span class="lp-lep-heading">{{ r.heading }}</span>
+                <span v-if="!r.missing.length && !r.matched.length" class="lp-lep-miss">
+                  no applicability was extracted at all
+                </span>
+                <span v-for="(m, i) in r.missing.slice(0, 2)" :key="i" class="lp-lep-miss">{{ m.why }}</span>
+              </li>
+            </ul>
+          </details>
+
+          <!-- 4b. not a lot problem at all ───────────────────────────────────────────
+               A rule with no applicability extracted is undecidable for EVERY lot in the state. It
+               was sharing a bucket with clauses that genuinely could not be placed against this
+               lot, which made the gap look lot-specific when it is a pipeline gap. -->
+          <details v-if="lepGroups.gap.length" class="lp-lep-details">
+            <summary>
+              No applicability was extracted ({{ lepGroups.gap.length }})
+              &mdash; a pipeline gap, not a fact about this lot
+            </summary>
+            <ul class="lp-lep-list lp-lep-list--tight">
+              <li v-for="r in lepGroups.gap" :key="r.ruleKey">
+                <NuxtLink :to="lepDocHref(r)">cl {{ r.clause }}</NuxtLink>
+                <span class="lp-lep-heading">{{ r.heading }}</span>
+                <span class="lp-lep-src">{{ r.src }}</span>
+              </li>
+            </ul>
+          </details>
+
+          <!-- 5. collapsed -->
+          <details v-if="lepGroups.notApplicable.length" class="lp-lep-details">
+            <summary>Does not apply to this lot ({{ lepGroups.notApplicable.length }})</summary>
+            <ul class="lp-lep-list lp-lep-list--tight">
+              <li v-for="r in lepGroups.notApplicable" :key="r.ruleKey">
+                <NuxtLink :to="lepDocHref(r)">cl {{ r.clause }}</NuxtLink>
+                <span class="lp-lep-heading">{{ r.heading }}</span>
+                <span v-for="(f, i) in r.failed.slice(0, 2)" :key="i" class="lp-lep-why">
+                  needs {{ f.dimension }} {{ f.value }}<template v-if="f.lotHas">, lot has {{ f.lotHas }}</template>
+                </span>
+              </li>
+            </ul>
+          </details>
+
+          <!-- what stopped the rest, counted -->
+          <p v-if="lepRules.spatial" class="lp-lep-footer">
+            <strong>Spatial references.</strong>
+            {{ lepRules.spatial.resolved }} of {{ lepRules.spatial.refs }} resolved to geometry;
+            <strong>{{ lepRules.spatial.covering }}</strong> reach this lot.
+            <span v-if="!lepRules.spatial.covering" class="lp-dim">
+              The named sites and precincts in this plan are elsewhere.
+            </span>
+          </p>
+
+          <p v-if="lepRules.blockers.length" class="lp-lep-footer">
+            <strong>What the undecided rules are waiting on.</strong>
+            <span v-for="b in lepRules.blockers.slice(0, 6)" :key="b.dimension + b.why" class="lp-lep-blocker">
+              {{ b.rules }} &times; {{ b.why }}
+            </span>
+          </p>
+        </template>
       </div>
 
       <!-- ── CDC eligibility, type by type ─────────────────────────────────
@@ -968,6 +1302,7 @@ async function open(cadid: string, msoid: number | null = null) {
     // deliberately not awaited: the lot dump is the point of the page and should not wait on four
     // planning sweeps, the slowest of which is a few hundred ms
     void Promise.all([loadPlanning(cadid), loadPattern(cadid), loadCdcTypes(cadid),
+      loadLepRules(cadid),
       // the report's own path, fetched beside the derived view rather than instead of it
       loadReportInputs(cadid)]).then(() => nextTick()).then(() => {
       observeSections()
@@ -1105,6 +1440,275 @@ async function loadCdcTypes(cadid: string) {
   } catch (e: any) {
     cdcTypesError.value = e?.data?.statusMessage || e?.message || 'Could not evaluate the CDC types.'
   }
+}
+
+// The LEP rule layer, decided against this lot. Everything the other sections work out - the zone
+// from the polygon, the epi layers it falls in, strata, area, frontage - is what makes a clause
+// decidable, so this is those facts joined to nsw.rule rather than a new sweep. The verdict is
+// computed server-side because /report needs the same decision and two of them would drift.
+const lepRules = ref<any>(null)
+const lepRulesError = ref('')
+const lepUse = ref<string>('')
+const lepAct = ref<string>('')
+/** Hide src='ai' rules. 179 of Hornsby's 222 are model-extracted; this says what survives without them. */
+const lepStrict = ref(false)
+
+async function loadLepRules(cadid: string) {
+  lepRules.value = null
+  lepRulesError.value = ''
+  try {
+    lepRules.value = await $fetch<any>('/api/testing/lep-rules', {
+      query: {
+        cadid,
+        ...(lepUse.value ? { use: lepUse.value } : {}),
+        ...(lepAct.value ? { act: lepAct.value } : {}),
+      },
+    })
+  } catch (e: any) {
+    lepRulesError.value = e?.data?.statusMessage || e?.message || 'Could not evaluate the LEP rules.'
+  }
+}
+
+/** The uses this lot's zone permits, so the picker cannot offer one that is prohibited here. */
+const lepUseOptions = computed<string[]>(() => {
+  const out = new Set<string>()
+  for (const z of zones.value) {
+    for (const g of (z.detail?.groups ?? [])) {
+      if (!/permitted/i.test(String(g.status ?? g.key ?? ''))) continue
+      for (const u of (g.uses ?? [])) out.add(String(u.name ?? u))
+    }
+  }
+  return [...out].sort()
+})
+
+/**
+ * Every polygon that names a clause and covers this lot — one row per POLYGON.
+ *
+ * A map polygon carries a single legis_ref_clause ("Clause 4.4"), but the rules are keyed on
+ * subclauses, so the same polygon arrives attached to 4.4, 4.4(2A), 4.4(2C) and 4.4(2D). Keying the
+ * de-duplication on the clause therefore never collapsed them: one Hornsby lot showed the same
+ * Floor Space Ratio Z / 5:1 polygon on four rows, reading as four pieces of evidence when the map
+ * says one thing once. The polygon is the fact; the clauses it answers to are an attribute of it.
+ */
+const lepMapEvidence = computed(() => {
+  const by = new Map<string, any>()
+  for (const r of lepVisibleRules.value) {
+    for (const m of (r.mapEvidence ?? [])) {
+      const k = [m.map, m.label, m.value, m.topic, m.unit, m.coverPct].join('|')
+      const row = by.get(k) ?? { ...m, clauses: [] as any[] }
+      if (!row.clauses.some((c: any) => c.clause === r.clause)) {
+        row.clauses.push({ clause: r.clause, heading: r.heading,
+                           documentSlug: r.documentSlug, anchor: r.anchor })
+      }
+      by.set(k, row)
+    }
+  }
+  for (const row of by.values()) {
+    row.clauses.sort((a: any, b: any) =>
+      String(a.clause).localeCompare(String(b.clause), undefined, { numeric: true }))
+  }
+  // the ones carrying a value first: they are the controls, the rest are scope
+  return [...by.values()].sort((a, b) => (a.value == null ? 1 : 0) - (b.value == null ? 1 : 0))
+})
+
+/**
+ * Every rule the reader is allowed to see, after the trust switch.
+ *
+ * Kept as one place so the envelope, the groups and the counts can never disagree about what is
+ * being shown - three filters over the same array is how a page starts contradicting itself.
+ */
+const lepVisibleRules = computed<any[]>(() => {
+  const all = lepRules.value?.rules ?? []
+  return lepStrict.value ? all.filter((r: any) => r.src !== 'ai') : all
+})
+
+/** Rules that state a number AND reach this lot — the controls that actually bind it. */
+const lepBinding = computed(() => {
+  const rows: any[] = []
+  for (const r of lepVisibleRules.value) {
+    if (r.verdict !== 'applies' && r.verdict !== 'excluded') continue
+    // A banded effect answers only in its own band; an unbanded one always answers.
+    const live = r.effects.filter((e: any) => e.value != null && e.inBand !== false)
+    if (live.length) rows.push({ ...r, live })
+  }
+  return rows
+})
+
+/**
+ * The envelope: one row per control, showing the number that actually binds this lot.
+ *
+ * Grouped by topic AND direction, not topic alone. Two clauses stating a height are only competing
+ * if they bound it the same way - "at most 8.5 m" and "at least 3 m" are both true at once, and
+ * collapsing them into one row would invent a conflict. Within a direction the strictest wins:
+ * smallest upper bound, largest lower bound.
+ *
+ * The clauses that lost stay on the row. They are the reason the number is what it is, and dropping
+ * them would leave a figure nobody can audit back to the instrument.
+ */
+const TOPIC_ORDER = ['height', 'fsr', 'lot_size', 'site_area', 'floor_area', 'gfa',
+                     'frontage_width', 'dwellings', 'bedrooms']
+
+/**
+ * A link into the instrument at the right clause.
+ *
+ * /doc-viewer reads `route.query.anchor` and nothing else - these links passed `clause=`, which it
+ * ignores, so every one of them opened at the top of the document. `anchor` is the section's own
+ * authored id, carried through from nsw.section.local_id rather than rebuilt here: clause "5.4(3)"
+ * anchors as "sec.5.4-ssec.3" and "Sch 1 item 7" as "sch.1-sec.7", so a "sec." + clause guess
+ * would still miss on exactly the clauses that have subclauses.
+ */
+function lepDocHref(x: any) {
+  const q = new URLSearchParams({ doc: String(x?.documentSlug ?? '') })
+  if (x?.anchor) q.set('anchor', String(x.anchor))
+  return `/doc-viewer?${q.toString()}`
+}
+
+/** The uses a rule waits on, as one label. Empty means the control binds the land itself. */
+function lepUseCondition(r: any) {
+  return (r.conditionalOn ?? [])
+    .filter((c: any) => c.dimension === 'land_use')
+    .map((c: any) => String(c.value)).sort().join(', ')
+}
+
+const lepEnvelope = computed(() => {
+  const isUpper = (c: string) => c === 'lte' || c === 'lt'
+  const buckets = new Map<string, any[]>()
+  for (const r of lepBinding.value) {
+    // Hornsby cl 5.4 states a floor-area cap PER USE: 20 m² for one, 1000 m² for another. Those
+    // never compete, so the use is part of the key - collapsing across it would announce the
+    // strictest cap in the instrument as though it bound every proposal.
+    const forUse = lepUseCondition(r)
+    for (const e of r.live) {
+      if (!e.topic || e.value == null) continue
+      // a banded effect only speaks inside its band; the band travels with it
+      const key = [e.topic, isUpper(e.comparator) ? 'max' : 'min',
+                   e.conditionLo ?? '', e.conditionHi ?? '', forUse].join('|')
+      if (!buckets.has(key)) buckets.set(key, [])
+      buckets.get(key)!.push({ ...e, clause: r.clause, heading: r.heading, src: r.src,
+                               documentSlug: r.documentSlug, anchor: r.anchor, forUse })
+    }
+  }
+  const rows: any[] = []
+  for (const [, list] of buckets) {
+    const dir = list[0].comparator === 'lte' || list[0].comparator === 'lt' ? 'max' : 'min'
+    const sorted = [...list].sort((a, b) => dir === 'max'
+      ? Number(a.value) - Number(b.value)
+      : Number(b.value) - Number(a.value))
+    rows.push({ topic: list[0].topic, dir, forUse: list[0].forUse || null,
+                binds: sorted[0], others: sorted.slice(1) })
+  }
+  return rows.sort((a, b) => {
+    // controls on the land itself first - they bind whatever you propose
+    if (!a.forUse !== !b.forUse) return a.forUse ? 1 : -1
+    const ia = TOPIC_ORDER.indexOf(a.topic), ib = TOPIC_ORDER.indexOf(b.topic)
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib)
+      || String(a.topic).localeCompare(b.topic)
+      || String(a.forUse ?? '').localeCompare(String(b.forUse ?? ''))
+  })
+})
+
+/** The envelope again, gathered under one heading per control, so the name is written once. */
+const lepEnvelopeGroups = computed(() => {
+  const out: any[] = []
+  for (const row of lepEnvelope.value) {
+    const label = lepTopicLabel(row)
+    const last = out[out.length - 1]
+    if (last && last.label === label) last.rows.push(row)
+    else out.push({ label, rows: [row] })
+  }
+  return out
+})
+
+/** "lot_size" -> "Minimum lot size". The direction is part of the name, not a symbol to decode. */
+function lepTopicLabel(row: any) {
+  const name = String(row.topic).replace(/_/g, ' ')
+    .replace(/\bfsr\b/i, 'floor space ratio').replace(/\bgfa\b/i, 'gross floor area')
+  return `${row.dir === 'max' ? 'Maximum' : 'Minimum'} ${name}`
+}
+
+const lepGroups = computed(() => {
+  const all = lepVisibleRules.value
+  const binding = new Set(lepBinding.value.map((r: any) => r.ruleKey))
+  const undecidable = all.filter((r: any) => r.verdict === 'untestable')
+  return {
+    binding: lepBinding.value,
+    excluded: all.filter((r: any) => r.verdict === 'excluded' && !binding.has(r.ruleKey)),
+    applies: all.filter((r: any) => r.verdict === 'applies' && !binding.has(r.ruleKey)),
+    // Two different problems, and they were sharing a bucket. A rule with no applicability at all is
+    // an extraction gap - true for every lot in the state - while the rest genuinely could not be
+    // placed against THIS lot. Counting them together overstates how lot-specific the gap is.
+    gap: undecidable.filter((r: any) => !r.matched.length && !r.missing.length && !r.failed.length),
+    untestable: undecidable.filter((r: any) => r.matched.length || r.missing.length || r.failed.length),
+    notApplicable: all.filter((r: any) => r.verdict === 'not_applicable'),
+  }
+})
+
+/**
+ * The blockers the endpoint already returns, rolled up to the dimension.
+ *
+ * Keyed on dimension|why they arrive as ~30 rows of "1 clause", which is a list, not a queue. One
+ * row per kind of missing fact, with a few examples under it, makes the biggest job obvious - and
+ * the biggest is almost always map areas with no geometry, which is one script.
+ */
+const DIMENSION_LABEL: Record<string, string> = {
+  area_label: 'Map areas with no geometry',
+  site_ref: 'Site-specific references',
+  land_characteristic: 'Land characteristics nothing maps',
+  adjacency: 'Facts about neighbouring parcels',
+  tenure: 'Tenure the cadastre cannot distinguish',
+  zone: 'Zoning',
+}
+
+const lepBlockers = computed(() => {
+  const by = new Map<string, { dimension: string; rules: number; whys: string[] }>()
+  for (const b of (lepRules.value?.blockers ?? [])) {
+    if (b.dimension === 'none') continue
+    const cur = by.get(b.dimension) ?? { dimension: b.dimension, rules: 0, whys: [] }
+    cur.rules += Number(b.rules || 0)
+    if (b.why && !cur.whys.includes(b.why)) cur.whys.push(String(b.why))
+    by.set(b.dimension, cur)
+  }
+  return [...by.values()]
+    .map(d => ({ ...d, label: DIMENSION_LABEL[d.dimension] ?? d.dimension.replace(/_/g, ' '),
+                 distinct: d.whys.length }))
+    .sort((a, b) => b.rules - a.rules)
+})
+
+const lepBlockedTotal = computed(() =>
+  lepBlockers.value.reduce((n: number, b: any) => n + Number(b.rules || 0), 0))
+
+function lepEffectText(e: any) {
+  if (e.value == null) {
+    return e.valueSource === 'map' ? `from the ${e.mapLayer} Map` : '—'
+  }
+  const cmp = { lte: '≤', gte: '≥', lt: '<', gt: '>', eq: '=' }[e.comparator as string] ?? e.comparator
+  const unit = e.unit === 'ratio' ? ':1' : e.unit === 'sqm' ? ' m²' : e.unit === 'metre' ? ' m'
+    : e.unit === 'percent' ? '%' : e.unit ? ' ' + e.unit : ''
+  return `${cmp} ${e.value}${unit}`
+}
+
+/**
+ * "site area over 300, up to 600 m²" — the band a banded effect answers inside.
+ *
+ * The unit follows the metric. This used to append m² to everything, which reads as "frontage over
+ * 15 m²" for a frontage band and "site area over 3 m²" for a storeys one. No LEP carries either
+ * today - the only LEP bands are Parramatta's 12 lot_size rows - but both exist on the DCPs, so the
+ * bug was waiting for the first frontage band or the first shared use of this function.
+ */
+const BAND_METRIC: Record<string, { name: string; unit: string }> = {
+  frontage_width: { name: 'frontage', unit: ' m' },
+  lot_size: { name: 'site area', unit: ' m²' },
+  site_area: { name: 'site area', unit: ' m²' },
+  storeys: { name: 'storeys', unit: '' },
+}
+
+function lepBandText(e: any) {
+  if (e.conditionLo == null && e.conditionHi == null) return ''
+  const m = BAND_METRIC[String(e.conditionMetric)]
+    ?? { name: String(e.conditionMetric ?? 'site area').replace(/_/g, ' '), unit: '' }
+  const lo = e.conditionLo == null ? '' : `over ${Number(e.conditionLo).toLocaleString()}`
+  const hi = e.conditionHi == null ? '' : `up to ${Number(e.conditionHi).toLocaleString()}`
+  return `${m.name} ${[lo, hi].filter(Boolean).join(', ')}${m.unit}`
 }
 
 const pattern = ref<any>(null)
@@ -1300,6 +1904,7 @@ const lotSections = computed(() => {
   out.push({ id: 'addresses', label: 'Addresses' })
   for (const p of PLANNING) out.push({ id: p.id, label: p.title })
   out.push({ id: 'permissibility', label: 'Permissibility' })
+  out.push({ id: 'lep-rules', label: 'LEP rules for this lot' })
   out.push({ id: 'cdc-eligibility', label: 'CDC eligibility' })
   out.push({ id: 'pattern-book', label: 'Pattern Book' })
   if (inputs.value) {
@@ -1526,6 +2131,79 @@ body { margin: 0; background: #f8fafb; }
 </style>
 
 <style scoped>
+/* ── LEP rules ──────────────────────────────────────────────────────────── */
+.lp-lep-head { margin-bottom: 10px; }
+.lp-lep-uselbl { color: #64748b; }
+.lp-lep-strict { display: inline-flex; align-items: center; gap: 5px; margin-left: auto;
+                 color: #475569; font-size: 12.5px; white-space: nowrap; }
+/* the envelope: the answer, so it gets the visual weight the buckets used to have */
+/* the envelope: the answer, so it is dense and scannable rather than decorative */
+.lp-env { width: 100%; table-layout: fixed; margin-bottom: 14px; }
+.lp-env td { vertical-align: top; white-space: normal; overflow-wrap: anywhere; }
+.lp-env td:nth-child(1) { width: 21%; }
+.lp-env td:nth-child(2) { width: 15%; }
+.lp-env td:nth-child(3) { width: 30%; }
+.lp-env td:nth-child(4) { width: 34%; }
+/* one hairline where a new control starts, instead of a box around every row */
+.lp-env-gstart > td { border-top: 1px solid #cbd5e1; }
+.lp-env-topic { font-weight: 600; color: #334155; }
+.lp-env-val { font-size: 15px; font-weight: 650; color: #0f172a; font-variant-numeric: tabular-nums;
+              white-space: nowrap; }
+.lp-env-band { display: block; font-size: 11px; font-weight: 400; color: #64748b; white-space: normal; }
+.lp-env-for { color: #0369a1; }
+.lp-env .lp-lep-src { margin-left: 6px; }
+.lp-env-others { display: block; margin-top: 2px; font-size: 11.5px; color: #64748b; }
+.lp-env-others a { margin-right: 5px; }
+.lp-mapcl { display: inline-block; margin-right: 7px; white-space: nowrap; }
+.lp-unlock { width: 100%; }
+.lp-unlock td:nth-child(1) { width: 8%; }
+.lp-unlock td:nth-child(2) { width: 22%; }
+.lp-unlock td { vertical-align: top; white-space: normal; }
+.lp-chip--ok { background: #ecfdf5; color: #065f46; }
+.lp-chip--warn { background: #fffbeb; color: #92400e; }
+.lp-lep-use { display: flex; align-items: center; gap: 8px; margin: 10px 0 18px; font-size: 13px; }
+.lp-lep-use select { padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; max-width: 320px; }
+.lp-lep-h4 { margin: 22px 0 8px; font-size: 14px; font-weight: 650; color: #0f172a; }
+.lp-lep-h4--warn { color: #92400e; }
+.lp-lep-h4 .lp-dim { font-weight: 400; }
+.lp-lep-note { margin: -4px 0 8px; font-size: 12.5px; }
+/* The page-wide `white-space: nowrap` on .lp-table td suits short field dumps. These cells hold
+   headings, reasons and land-use chips, so they wrap instead - otherwise the table pushes past the
+   column, the page gains a horizontal scrollbar, and jumping to this section re-fits the viewport. */
+.lp-lep-table { table-layout: fixed; width: 100%; }
+.lp-lep-table td { vertical-align: top; white-space: normal; overflow-wrap: anywhere; }
+.lp-lep-table th { white-space: normal; }
+.lp-lep-table td:nth-child(1) { width: 22%; }
+.lp-lep-table td:nth-child(2) { width: 24%; }
+.lp-lep-table td:nth-child(3) { width: 28%; }
+.lp-lep-table td:nth-child(4) { width: 26%; }
+/* the map table is five columns and mostly short values */
+.lp-lep-mapt td:nth-child(1) { width: 26%; }
+.lp-lep-mapt td:nth-child(2) { width: 12%; }
+.lp-lep-mapt td:nth-child(3) { width: 34%; }
+.lp-lep-mapt td:nth-child(4) { width: 16%; }
+.lp-lep-mapt td:nth-child(5) { width: 12%; }
+.lp-lep-list li { overflow-wrap: anywhere; }
+.lp-lep-clause a { font-weight: 600; white-space: nowrap; }
+.lp-lep-heading { display: block; font-size: 12px; color: #64748b; }
+.lp-lep-src { display: inline-block; margin-top: 2px; padding: 0 5px; border-radius: 4px;
+  background: #f1f5f9; color: #475569; font-size: 10.5px; text-transform: none; }
+.lp-lep-eff { display: block; font-variant-numeric: tabular-nums; }
+.lp-lep-eff em { color: #64748b; font-size: 11.5px; font-style: normal; }
+.lp-lep-why { display: block; font-size: 12px; color: #475569; }
+.lp-lep-cond { display: inline-block; margin: 0 4px 3px 0; padding: 1px 6px; border-radius: 4px;
+  background: #eef2ff; color: #3730a3; font-size: 11.5px; }
+.lp-lep-miss { display: block; font-size: 12px; color: #92400e; }
+.lp-lep-list { margin: 0 0 4px; padding-left: 0; list-style: none; }
+.lp-lep-list li { padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
+.lp-lep-list--tight li { padding: 3px 0; }
+.lp-lep-list a { font-weight: 600; margin-right: 8px; }
+.lp-lep-list .lp-lep-heading { display: inline; }
+.lp-lep-details { margin-top: 18px; }
+.lp-lep-details summary { cursor: pointer; font-size: 13px; color: #475569; }
+.lp-lep-footer { margin-top: 18px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 12.5px; color: #475569; }
+.lp-lep-blocker { display: block; margin-top: 3px; }
+
 .lp-page {
   min-height: 100vh;
   background: #f8fafb;
@@ -1626,6 +2304,13 @@ body { margin: 0; background: #f8fafb; }
 .lp-empty .lp-dim { display: block; margin-top: 0.15rem; }
 .lp-samples-none { margin-top: 1rem; }
 
+/* Build and search side by side; the wrapper carries the section rule the two sections drop. */
+.lp-top { padding-bottom: 2.5rem; margin-bottom: 2.5rem; border-bottom: 1px solid #e2e8f0; }
+.lp-top-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 2rem; align-items: start; }
+.lp-top-cols > .lp-section { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
+@media (max-width: 1100px) {
+  .lp-top-cols { grid-template-columns: 1fr; gap: 2rem; }
+}
 .lp-samples { margin-top: 1.1rem; }
 .lp-samples-summary { cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #4a3aa7; padding: 0.2rem 0; }
 .lp-samples-summary:hover { text-decoration: underline; text-underline-offset: 2px; }
@@ -1657,6 +2342,10 @@ body { margin: 0; background: #f8fafb; }
 .lp-h2-sub { font-size: 0.78rem; font-weight: 500; color: #64748b; }
 .lp-h3 { margin: 0 0 0.35rem; font-size: 0.85rem; font-weight: 800; color: #334155; display: flex; gap: 0.5rem; align-items: baseline; }
 .lp-group { margin-bottom: 1.1rem; }
+/* The lot's field groups: short lists, so they pack into columns rather than one long stack. */
+.lp-group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 0 1rem; align-items: start; }
+.lp-group-grid .lp-group { border: 1px solid #eef2f7; border-radius: 8px; padding: 0.55rem 0.75rem 0.65rem; background: #fcfdfe; min-width: 0; }
+.lp-group-grid .lp-fields { grid-template-columns: minmax(9rem, max-content) 1fr; }
 
 .lp-figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 1rem; margin-bottom: 1.3rem; align-items: start; }
 .lp-figure { margin: 0; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.6rem 0.7rem 0.7rem; background: #fff; min-width: 0; }
@@ -1699,6 +2388,11 @@ body { margin: 0; background: #f8fafb; }
 .lp-note a { color: #2a78d6; }
 .lp-map { height: 340px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
 .lp-table td { border: 1px solid #eef2f7; padding: 0.25rem 0.45rem; text-align: left; white-space: nowrap; }
+/* .lp-table is declared after the section styles above, so a plain `.lp-env td` / `.lp-lep-table td`
+   loses to the nowrap on the line above at equal specificity - the prose cells in those tables were
+   running over the next column. tbody raises specificity instead of reaching for !important. */
+.lp-env tbody td, .lp-lep-table tbody td, .lp-unlock tbody td { white-space: normal; overflow-wrap: anywhere; }
+.lp-env tbody td.lp-env-val { white-space: nowrap; }
 .lp-table th { background: #f8fafc; font-weight: 700; }
 .lp-table th code { background: none; padding: 0; }
 .lp-tr--primary { background: #fff7ed; }
