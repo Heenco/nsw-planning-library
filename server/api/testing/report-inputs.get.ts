@@ -20,7 +20,9 @@
  * a few hundred milliseconds and returns the same thing every time.
  */
 import { withNswClient } from '../../utils/nsw-kg/pool'
-import { PROPERTY_SELECT } from '../../../shared/property-columns'
+import { PROPERTY_SELECT, scrubSentinels } from '../../../shared/property-columns'
+import { conditionLabel } from '../../../shared/dcp-scope'
+import { resolveSiteRuleScope, fetchSiteRules, siteRuleFunnel } from '../../utils/nsw-kg/site-rules'
 
 /** A value, where it lives, and whether the report's projection carries it. */
 export interface InputField {
@@ -266,24 +268,53 @@ export default defineEventHandler(async (event): Promise<ReportInputsResponse> =
 
     // ── the graph-backed sections ───────────────────────────────────────────
     const lga = str(p.lga_name)
-    const rules = await client.query(
-      `SELECT d.doc_type, d.title, r.clause, r.kind, r.role, r.provision_ref,
-              (SELECT count(*) FROM nsw.rule_effect e WHERE e.rule_id = r.id) AS effects
-         FROM nsw.rule r JOIN nsw.document d ON d.id = r.document_id
-        WHERE upper(coalesce(d.lga_name, '')) = upper($1)
-        ORDER BY d.doc_type, r.clause LIMIT 500`, [lga ?? ''])
+    /*
+     * Key Numerical Rules: the report's own scope and query (site-rules.ts), run against the report's
+     * own row - PROPERTY_SELECT, not the raw columns above - so each row here is a row the report
+     * received. The count in the heading is the report's: rows collapse into one control per
+     * topic, datum, unit, clause, comparator and condition, and subdivision rows are left to
+     * Lot Requirements.
+     */
+    const rp = scrubSentinels((await client.query(
+      `SELECT ${PROPERTY_SELECT} FROM nsw.up_property_d_4 WHERE ${where} LIMIT 1`, [key])).rows[0] ?? null)
+    const scope = await resolveSiteRuleScope(client, rp)
+    const [siteRules, funnel] = await Promise.all([
+      fetchSiteRules(client, scope, rp.lga_name),
+      siteRuleFunnel(client, scope, rp.lga_name),
+    ])
+    const TOPIC_ORDER = ['setback', 'height', 'fsr', 'floor_area', 'site_coverage', 'lot_size', 'width',
+      'landscaping', 'deep_soil', 'open_space', 'parking', 'density', 'privacy', 'solar_access']
+    const topicRank = (t: string) => { const i = TOPIC_ORDER.indexOf(t); return i < 0 ? 99 : i }
+    const shown = siteRules.filter(r => r.applies_to !== 'subdivision')
+    const controls = new Set(shown.map(r => [r.topic, r.measured_from ?? r.relative_to ?? '',
+      r.unit ?? '', r.clause, r.comparator ?? '', conditionLabel(r)].join('|'))).size
+    const subdivision = siteRules.length - shown.length
+    const ruleRows = [...siteRules].sort((x, y) => topicRank(x.topic) - topicRank(y.topic)
+      || String(x.clause).localeCompare(String(y.clause), undefined, { numeric: true })
+      || Number(x.value) - Number(y.value))
     sections.push({
-      id: 'ri-rules', title: 'Key Numerical Rules', source: 'nsw.rule + nsw.rule_effect',
-      coverage: GRAPH_COVERAGE + ' Of the rules that are held, most carry no effect: a rule with 0 '
-        + 'effects says a provision applies without saying what it requires.',
+      id: 'ri-rules', title: `Key Numerical Rules (${controls})`, source: 'nsw.rule_effect via site-rules.ts',
+      coverage: GRAPH_COVERAGE,
       fields: [],
       rows: {
-        columns: ['Doc', 'Clause', 'Kind', 'Role', 'Ref', 'Effects'],
-        values: rules.rows.map((x: any) => [x.doc_type, x.clause, x.kind, x.role,
-          str(x.provision_ref), Number(x.effects)]),
+        columns: ['Topic', 'Clause', 'Axis', 'Applies to', 'Comparator', 'Value', 'Unit', 'Datum',
+          'Applies when', 'Section', 'Document'],
+        values: ruleRows.map((r: any) => [r.topic, r.clause, r.axis, r.applies_to, str(r.comparator),
+          r.value == null ? null : Number(r.value), str(r.unit), str(r.measured_from ?? r.relative_to),
+          str(conditionLabel(r)), str(r.section_heading), r.source_document]),
       },
-      note: 'Clause numbers collide across documents - an LEP and a DCP both have a 4.6 - so the '
-        + 'document column is part of the identifier, not decoration.',
+      note: `Proposed use ${scope.proposedUse} (picked the way the report picks it when none is chosen). `
+        + `Land uses in scope: ${scope.landUses.join(', ') || 'none'}. `
+        + `Development types: ${scope.devTypes.join(', ') || 'none'}. `
+        + `Of the council DCP's ${funnel.effects} effects, ${funnel.noValue} carry no value, `
+        + `${funnel.offTopic} have a topic the table does not render, ${funnel.outOfScope} name neither `
+        + `these uses nor these development types, and ${funnel.kept} reach the report. `
+        + `Those give ${siteRules.length} rows (an effect matched through two scopes is two rows, and DISTINCT merges effects `
+        + `that read identically); `
+        + `${subdivision} are subdivision controls shown under Lot Requirements, and the other `
+        + `${shown.length} collapse into the ${controls} controls in the heading. `
+        + 'The report\'s use and development-type pickers re-scope its table through /api/frontage-dcp, '
+        + 'which narrows to the one use chosen, so after a pick the report can show fewer.',
       unprojected: 0,
     })
 
