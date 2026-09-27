@@ -1,0 +1,88 @@
+{
+  "instrument": "wollondilly-development-control-plan-2016",
+  "title": "Wollondilly Development Control Plan 2016",
+  "kind": "dcp",
+  "index_last_amended": "2026-07-31",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.wollondilly.nsw.gov.au/planning-and-development/guidelines-and-controls/development-control-plan/",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Volume 1 - General",
+      "order": 0,
+      "file": "wollondilly-development-control-plan-2016/00-volume-1-general.pdf",
+      "url": "https://www.datocms-assets.com/94948/1788309365-wdcp-2016-volume-1-general-updated-31-july-2026.pdf",
+      "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/WDCP-2016-Volume-1-General-Updated-31-July-2026.pdf",
+      "bytes": 4284733,
+      "sha256": "8459c2f2acca50cdb14a6dc0e8ffab5319eeb3cde317175f3c4c167423d80ab7"
+    },
+    {
+      "part": "Volume 2 - Urban Release Areas",
+      "order": 1,
+      "file": "wollondilly-development-control-plan-2016/01-volume-2-urban-release-areas.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759292471-file-r0pgu_gqragi4zx0h3juna.pdf",
+      "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/Volume-2-Urban-Release-Areas-as-of-10-January.pdf",
+      "bytes": 1614221,
+      "sha256": "6e62960448f65c20c859629fd654c03c91215e9af4ac75b940feba8a67ef2040"
+    },
+    {
+      "part": "Volume 3 - Subdivision of Land",
+      "order": 2,
+      "file": "wollondilly-development-control-plan-2016/02-volume-3-subdivision-of-land.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759292475-file-mczifefhqfirhmyzmpt3gq.pdf",
+      "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/DCP-2016-Volume-3-Subdivision-of-Land2.pdf",
+      "bytes": 6441486,
+      "sha256": "a74c7d3fec6e76c18a9fdd239f488522182a3535b0782dc70544023328cf2bd5"
+    },
+    {
+      "part": "Volume 4 - Residential Development",
+      "order": 3,
+      "file": "wollondilly-development-control-plan-2016/03-volume-4-residential-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759292481-file-ertas42gt3y6bpl89xafuw.pdf",
+      "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/DCP-Volume-4.PDF",
+      "bytes": 2087426,
+      "sha256": "2d7546fb81e0830cfdff920fbf377ee5bc2cde2efad3bd87bb8c134c87829618"
+    },
+    {
+      "part": "Volume 5 - Commercial and Community Uses",
+      "order": 4,
+      "file": "wollondilly-development-control-plan-2016/04-volume-5-commercial-and-community-uses.pdf",
+      "url": "https://www.datocms-assets.com/94948/1788309402-wdcp-2016-volume-5-commercial-and-community-updated-15-july-2026.pdf",
+      "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/WDCP-2016-Volume-5-Commercial-and-Community-Updated-15-July-2026.pdf",
+      "bytes": 3444927,
+      "sha256": "0bb8a98cdf252120d00261ad042f466e05328012af1b2d76bcd26fa387841fa6"
+    },
+    {
+      "part": "Volume 6 - Tourism and Events",
+      "order": 5,
+      "file": "wollondilly-development-control-plan-2016/05-volume-6-tourism-and-events.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759292490-file-cjoepizxquwza5cv9gxghg.pdf",
+      "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/Volume-6-Tourist-Uses-as-of-10-January-2018.pdf",
+      "bytes": 467719,
+      "sha256": "40dcc4e147c1e6bd860171becacb618567a1f46c1a3c83ccf48d81e23415a195"
+    },
+    {
+      "part": "Volume 7 - Industry and Infrastructure",
+      "order": 6,
+      "file": "wollondilly-development-control-plan-2016/06-volume-7-industry-and-infrastructure.pdf",
+      "url": "https://www.datocms-assets.com/94948/1762302987-file-mway7on2qeumkpraqqvfcg.pdf",
+      "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/Volume-7-Industry-and-Infrastructure-Uses.pdf",
+      "bytes": 699868,
+      "sha256": "bdbd4b24b6ad8275fccdb185a7882d57326d6e8c12dc207e7b4da092b3d27b70"
+    },
+    {
+      "part": "Volume 8 - Primary Agricultural and Rural Uses",
+      "order": 7,
+      "file": "wollondilly-development-control-plan-2016/07-volume-8-primary-agricultural-and-rural-uses.pdf",
+      "url": "https://www.datocms-assets.com/94948/1762302992-file-skzwd5jms3ioc3eeyo2jvq.pdf",
+      "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/Volume-8-Primary-Agricultural-and-Rural-Uses.pdf",
+      "bytes": 344416,
+      "sha256": "523b99e9ef678453c3bc063fa77a6052712d8c72dff15972540892be0f63dc6f"
+    }
+  ],
+  "councils": [
+    "Wollondilly"
+  ],
+  "scope": "citywide"
+}

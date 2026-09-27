@@ -1,0 +1,25 @@
+{
+  "instrument": "ropes-creek-precinct-plan-and-development-control-strategy-prepared-under-rep-30-st-marys",
+  "title": "Ropes Creek Precinct Plan and Development Control Strategy (Prepared under REP 30 - St Marys)",
+  "kind": "dcp",
+  "index_last_amended": "2011-03-08",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.blacktown.nsw.gov.au/Plan-build/Stage-2-plans-and-guidelines/Blacktown-planning-controls/Blacktown-Development-Control-Plan-2015",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Ropes Creek Precinct Plan and Development Control Strategy - Prepared under REP 30 - St Marys",
+      "order": 0,
+      "file": "ropes-creek-precinct-plan-and-development-control-strategy-prepared-under-rep-30-st-marys/00-ropes-creek-precinct-plan-and-development-control-strategy-pre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1768809284-file-eviq5nkbrr-5xss5-zjfq.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/ropes-creek-precinct-plan-and-development-control-strategy-prepared-under-rep-30-st-marys.pdf",
+      "bytes": 13245736,
+      "sha256": "a73022d878d6ae5d175f3e1d20efb9f173d4d30985a6c468049cc7dd21ecf2aa"
+    }
+  ],
+  "councils": [
+    "Blacktown"
+  ],
+  "scope": "site_specific"
+}

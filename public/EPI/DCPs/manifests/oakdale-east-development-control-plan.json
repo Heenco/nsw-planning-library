@@ -1,0 +1,25 @@
+{
+  "instrument": "oakdale-east-development-control-plan",
+  "title": "Oakdale East Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2022-05-26",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.planningportal.nsw.gov.au/draftplans/made-and-finalised/oakdale-east-estate-development-control-plan-2022",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Oakdale East Estate Development Control Plan 2022",
+      "order": 0,
+      "file": "oakdale-east-development-control-plan/00-oakdale-east-estate-development-control-plan-2022.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759290436-file-wbtyqynsrwqxx80wha7nzw.pdf",
+      "council_url": "https://www.planningportal.nsw.gov.au/sites/default/files/documents/2022/Oakdale%20East%20final%20Development%20Control%20Plan.pdf",
+      "bytes": 5114466,
+      "sha256": "0b5ff6a7236acc05850159916dcb454210fe83b0a24c884dba5fbf622de2cc65"
+    }
+  ],
+  "councils": [
+    "Fairfield"
+  ],
+  "scope": "citywide"
+}

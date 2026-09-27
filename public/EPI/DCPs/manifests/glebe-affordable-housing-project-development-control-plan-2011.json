@@ -1,0 +1,25 @@
+{
+  "instrument": "glebe-affordable-housing-project-development-control-plan-2011",
+  "title": "Glebe Affordable Housing Project Development Control Plan 2011",
+  "kind": "dcp",
+  "index_last_amended": "2011-07-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofsydney.nsw.gov.au/development-control-plans/glebe-affordable-housing-project-dcp-2011",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Glebe Affordable Housing Project Development Control Plan 2011",
+      "order": 0,
+      "file": "glebe-affordable-housing-project-development-control-plan-2011/00-glebe-affordable-housing-project-development-control-plan-2011.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692808283-dcp-file-185713041.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/final-dcp2010-glebeahp-010711.pdf?download=true",
+      "bytes": 985864,
+      "sha256": "2b6544877063289a5c3631578e41d6e4169aaf0af294227867ed30fec8a33ea1"
+    }
+  ],
+  "councils": [
+    "Sydney"
+  ],
+  "scope": "citywide"
+}

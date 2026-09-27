@@ -1,0 +1,25 @@
+{
+  "instrument": "wetherill-park-market-town-dcp",
+  "title": "Wetherill Park Market Town DCP",
+  "kind": "dcp",
+  "index_last_amended": "2025-06-02",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.fairfieldcity.nsw.gov.au/Planning-and-Building/Developments-and-Buildings/Development-Control-and-Structure-Plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Wetherill Park Market Town DCP",
+      "order": 0,
+      "file": "wetherill-park-market-town-dcp/00-wetherill-park-market-town-dcp.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757909554-file-etpkrn_tr4ou7bty1kev4q.pdf",
+      "council_url": "https://www.fairfieldcity.nsw.gov.au/files/assets/public/v/1/documents/plan-build/development-control-and-structure-plans/wetherill-park-market-town-dcp.pdf",
+      "bytes": 1357739,
+      "sha256": "3e01bd0542ccbd268b13d429f12b12849e814d698b040a740638aa8b195cdb26"
+    }
+  ],
+  "councils": [
+    "Fairfield"
+  ],
+  "scope": "site_specific"
+}

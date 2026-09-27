@@ -1,0 +1,25 @@
+{
+  "instrument": "harold-park-development-control-plan-2011",
+  "title": "Harold Park Development Control Plan 2011",
+  "kind": "dcp",
+  "index_last_amended": "2023-02-07",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofsydney.nsw.gov.au/development-control-plans/harold-park-dcp-2011",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Harold Park Development Control Plan 2011",
+      "order": 0,
+      "file": "harold-park-development-control-plan-2011/00-harold-park-development-control-plan-2011.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692808238-dcp-file-185713045.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/haroldpark_dcp2011_091222.pdf",
+      "bytes": 19325468,
+      "sha256": "d2c671f1c0374fd4046d4596812b8e5705c78211be9da7035e75a4e3d26accf2"
+    }
+  ],
+  "councils": [
+    "Sydney"
+  ],
+  "scope": "site_specific"
+}

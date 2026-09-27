@@ -1,0 +1,25 @@
+{
+  "instrument": "mamre-west-precinct-development-control-plan-2016",
+  "title": "Mamre West Precinct Development Control Plan 2016",
+  "kind": "dcp",
+  "index_last_amended": "2016-08-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.penrithcity.nsw.gov.au/building-development/planning-zoning/planning-controls/development-control-plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Mamre West Land Investigation Area",
+      "order": 0,
+      "file": "mamre-west-precinct-development-control-plan-2016/00-mamre-west-land-investigation-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692787148-dcp-file-185712749.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Mamre_West_Land_Investigation_Area_DCP.pdf",
+      "bytes": 1314249,
+      "sha256": "71e26e18a9119da16c5d4172d0d2a4ce732f560365d5912cac919a95c28cbf9e"
+    }
+  ],
+  "councils": [
+    "Penrith"
+  ],
+  "scope": "site_specific"
+}

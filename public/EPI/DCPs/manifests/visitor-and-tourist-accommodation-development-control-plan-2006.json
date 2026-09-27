@@ -1,0 +1,25 @@
+{
+  "instrument": "visitor-and-tourist-accommodation-development-control-plan-2006",
+  "title": "Visitor and Tourist Accommodation Development Control Plan 2006",
+  "kind": "dcp",
+  "index_last_amended": "2006-03-24",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofsydney.nsw.gov.au/development-control-plans/visitor-and-tourist-accommodation-dcp-2006",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Visitor and Tourist Accommodation Development Control Plan 2006",
+      "order": 0,
+      "file": "visitor-and-tourist-accommodation-development-control-plan-2006/00-visitor-and-tourist-accommodation-development-control-plan-200.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796041-dcp-file-185713119.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_v/visitortouristaccomdcp-150306.pdf",
+      "bytes": 716926,
+      "sha256": "1d6ca65bebe212e8c1c0708455c0eba70703879bff40a7ac9fa652759ac41f02"
+    }
+  ],
+  "councils": [
+    "Sydney"
+  ],
+  "scope": "citywide"
+}

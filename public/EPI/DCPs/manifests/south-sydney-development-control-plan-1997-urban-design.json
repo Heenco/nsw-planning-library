@@ -1,0 +1,340 @@
+{
+  "instrument": "south-sydney-development-control-plan-1997-urban-design",
+  "title": "South Sydney Development Control Plan 1997: Urban Design",
+  "kind": "dcp",
+  "index_last_amended": "2020-09-10",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofsydney.nsw.gov.au/development-control-plans/south-sydney-dcp",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Part A: General information",
+      "order": 0,
+      "file": "south-sydney-development-control-plan-1997-urban-design/00-part-a-general-information.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796075-dcp-file-185713068.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-a.pdf",
+      "bytes": 381079,
+      "sha256": "99d704ed26628b2bf9af0f727b16b29f06748b33ac635642d71f407f9f219731"
+    },
+    {
+      "part": "Part B: Urban design principles",
+      "order": 1,
+      "file": "south-sydney-development-control-plan-1997-urban-design/01-part-b-urban-design-principles.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796091-dcp-file-185713069.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-b.pdf",
+      "bytes": 1077039,
+      "sha256": "914a417500f6c51cde6e35845f17c1763c642e4f4ffb0f8c0f1b3753eeb0a34b"
+    },
+    {
+      "part": "Part C: Public domain",
+      "order": 2,
+      "file": "south-sydney-development-control-plan-1997-urban-design/02-part-c-public-domain.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796094-dcp-file-185713070.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-c-v1.pdf",
+      "bytes": 5054642,
+      "sha256": "c1911afb07152066afc0f0cb845ad28a66acfd62431c21f4165f800d1eb9b848"
+    },
+    {
+      "part": "Part D: Social planning design criteria",
+      "order": 3,
+      "file": "south-sydney-development-control-plan-1997-urban-design/03-part-d-social-planning-design-criteria.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796070-dcp-file-185713071.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-d.pdf",
+      "bytes": 37740,
+      "sha256": "c4a6b53e1d16fe1561f363e7662b768c711799641839a5650b0e8f98fad9aa92"
+    },
+    {
+      "part": "Part E: Environmental design criteria",
+      "order": 4,
+      "file": "south-sydney-development-control-plan-1997-urban-design/04-part-e-environmental-design-criteria.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796097-dcp-file-185713072.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-e-v1.pdf",
+      "bytes": 3655978,
+      "sha256": "a7fb19492e2ad2291c57f1554aaaa538a498b5b9a3ec19b7bd9ff337036ce99b"
+    },
+    {
+      "part": "Part F: Design criteria for specific types (pages 105-119)",
+      "order": 5,
+      "file": "south-sydney-development-control-plan-1997-urban-design/05-part-f-design-criteria-for-specific-types-pages-105-119.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796082-dcp-file-185713073.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-fa.pdf",
+      "bytes": 581737,
+      "sha256": "ee70da599ed6533c03058420f34531c9239fb352cce54b78a14b226a08d907d6"
+    },
+    {
+      "part": "Part F: Design criteria for specific types (pages 120-136)",
+      "order": 6,
+      "file": "south-sydney-development-control-plan-1997-urban-design/06-part-f-design-criteria-for-specific-types-pages-120-136.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796081-dcp-file-185713074.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-fb-v1.pdf",
+      "bytes": 789713,
+      "sha256": "76059af0302f6594914832edc5dbb42afba046234372a918e65a609d288f424b"
+    },
+    {
+      "part": "Part F: Design criteria for specific types (pages 137-153)",
+      "order": 7,
+      "file": "south-sydney-development-control-plan-1997-urban-design/07-part-f-design-criteria-for-specific-types-pages-137-153.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796088-dcp-file-185713075.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-fc.pdf",
+      "bytes": 893437,
+      "sha256": "50cd5cb8b03d5a1dba72c402398ce4ca3fe397a9dd429e5dee2e0609763e2d3e"
+    },
+    {
+      "part": "Part G: Special precincts (pages 155-169)",
+      "order": 8,
+      "file": "south-sydney-development-control-plan-1997-urban-design/08-part-g-special-precincts-pages-155-169.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796071-dcp-file-185713076.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-ga.pdf",
+      "bytes": 1166167,
+      "sha256": "26e5fc50a766e5091b50f57f6d8fb74b4833ea787f03d4c4b1a947eaa8fbeec0"
+    },
+    {
+      "part": "Part G: Special precincts (pages 170-183)",
+      "order": 9,
+      "file": "south-sydney-development-control-plan-1997-urban-design/09-part-g-special-precincts-pages-170-183.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796082-dcp-file-185713077.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-gb.pdf",
+      "bytes": 1055417,
+      "sha256": "02e483032aea9b14181e9d94d7b5ec0e19f610ddf915e986371bf70d89d98772"
+    },
+    {
+      "part": "Part G: Special Precinct No. 7 Ashmore Precinct",
+      "order": 10,
+      "file": "south-sydney-development-control-plan-1997-urban-design/10-part-g-special-precinct-no-7-ashmore-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796091-dcp-file-185713078.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a-1/ashmoreprecinctdcp2006.pdf",
+      "bytes": 5122448,
+      "sha256": "ae1fa633ffba0e6c323ba57caf2616ecfbce7a1a621f8173495c394ca8504d74"
+    },
+    {
+      "part": "Part G: Special Precinct No. 8 UNSW Paddington campus",
+      "order": 11,
+      "file": "south-sydney-development-control-plan-1997-urban-design/11-part-g-special-precinct-no-8-unsw-paddington-campus.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796075-dcp-file-185713079.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/gsthsyddcp1997specialprecincts8.pdf",
+      "bytes": 730303,
+      "sha256": "4d44bccd30b1ba30bcefaac4ad67589a7057b26624b22ed4d8e5f10335fe20f2"
+    },
+    {
+      "part": "Part H: Green Square Town Centre",
+      "order": 12,
+      "file": "south-sydney-development-control-plan-1997-urban-design/12-part-h-green-square-town-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796117-dcp-file-185713080.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/greensqtowncentredcp-220808.pdf",
+      "bytes": 1973683,
+      "sha256": "fa0fad175b78f388ff0f21644c49393ea6c38258d7ab539baac97b7eeb1c24a6"
+    },
+    {
+      "part": "Additional information",
+      "order": 13,
+      "file": "south-sydney-development-control-plan-1997-urban-design/13-additional-information.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796068-dcp-file-185713081.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-h.pdf",
+      "bytes": 95774,
+      "sha256": "e1621d9c558831d9ae676d20e859847e760242d4b6b8ee429a20c917bdf6f531"
+    },
+    {
+      "part": "Maps: Floor space ratio north",
+      "order": 14,
+      "file": "south-sydney-development-control-plan-1997-urban-design/14-maps-floor-space-ratio-north.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796080-dcp-file-185713082.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a3-fsr-north-140610.pdf",
+      "bytes": 632971,
+      "sha256": "ac5b4a205524f11fc9c674cdd8934982f3c1fbb961d5f5fc41c9e3d50e8dbee1"
+    },
+    {
+      "part": "Maps: Floor space ratio south",
+      "order": 15,
+      "file": "south-sydney-development-control-plan-1997-urban-design/15-maps-floor-space-ratio-south.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796080-dcp-file-185713083.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a3-fsr-south-140610.pdf",
+      "bytes": 671130,
+      "sha256": "68ba8a1b309f6174c26bfc17be8817f78d453efbd314b3c673dcf251bf46db62"
+    },
+    {
+      "part": "Maps: Height north",
+      "order": 16,
+      "file": "south-sydney-development-control-plan-1997-urban-design/16-maps-height-north.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796094-dcp-file-185713084.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a3-height-north-140610.pdf",
+      "bytes": 626866,
+      "sha256": "50ce62fcf349e9a55be8b3f8ba7d430a583c16d6ed1b74666dcff39358a4e1d5"
+    },
+    {
+      "part": "Maps: Height south",
+      "order": 17,
+      "file": "south-sydney-development-control-plan-1997-urban-design/17-maps-height-south.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796077-dcp-file-185713085.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a3-height-south-140610.pdf",
+      "bytes": 670570,
+      "sha256": "01a6e225834bc7f3f5985f9f21a71b85bf4a6560905969c4633e3433f6903ee8"
+    },
+    {
+      "part": "Maps part A: Areas covered by this DCP",
+      "order": 18,
+      "file": "south-sydney-development-control-plan-1997-urban-design/18-maps-part-a-areas-covered-by-this-dcp.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796079-dcp-file-185713086.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a-map-1-areacoveredbydcp.pdf",
+      "bytes": 1542136,
+      "sha256": "80300a061373a90c8b9876db18a2b3876ee1a10342e4591907b5d683b55e950e"
+    },
+    {
+      "part": "Maps part B: Development context",
+      "order": 19,
+      "file": "south-sydney-development-control-plan-1997-urban-design/19-maps-part-b-development-context.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796086-dcp-file-185713087.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/b-map-2-developmentcontext.pdf",
+      "bytes": 2106942,
+      "sha256": "678edf903e33f0bdc7f5019cfa1eb92a36d459402b0fab59c766c5e0151a30ca"
+    },
+    {
+      "part": "Maps part B: Settings",
+      "order": 20,
+      "file": "south-sydney-development-control-plan-1997-urban-design/20-maps-part-b-settings.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796071-dcp-file-185713088.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/b-map-3-settings.pdf",
+      "bytes": 2590040,
+      "sha256": "0de1d94c04035284391240071d1e481823e23e9294dcb99ad21da89bcdac98ca"
+    },
+    {
+      "part": "Maps part B: Urban villages",
+      "order": 21,
+      "file": "south-sydney-development-control-plan-1997-urban-design/21-maps-part-b-urban-villages.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796086-dcp-file-185713089.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/b-map-5-urbanvillages.pdf",
+      "bytes": 1463657,
+      "sha256": "150b60402ae9c0ed163a6e1cb39c6fdbd60fdccff17f1250791c16a16bead4f7"
+    },
+    {
+      "part": "Maps part C: Eastern districts public domain plan",
+      "order": 22,
+      "file": "south-sydney-development-control-plan-1997-urban-design/22-maps-part-c-eastern-districts-public-domain-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796086-dcp-file-185713090.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-5-easterndistricts.pdf",
+      "bytes": 718305,
+      "sha256": "eea15dd39c2927f06ac47c226e4681b8f1d01aaeade568ef975f577e79d7e4de"
+    },
+    {
+      "part": "Maps part C: Alexandria public domain plan",
+      "order": 23,
+      "file": "south-sydney-development-control-plan-1997-urban-design/23-maps-part-c-alexandria-public-domain-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796097-dcp-file-185713091.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-6-erskinevillealexandria.pdf",
+      "bytes": 911520,
+      "sha256": "04e1f17e6604403c3152f35b1248df80fc89beea664dd957f8da974aa6fa666a"
+    },
+    {
+      "part": "Maps part C: Surry Hills and East Sydney public domain plan",
+      "order": 24,
+      "file": "south-sydney-development-control-plan-1997-urban-design/24-maps-part-c-surry-hills-and-east-sydney-public-domain-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796087-dcp-file-185713092.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-7-surryhills-eastsydney.pdf",
+      "bytes": 557805,
+      "sha256": "125d2770c0111425724a420788b8e9ae254821a71356443eb0b37527d6a9d1fb"
+    },
+    {
+      "part": "Maps part C: Southern industrial public domain plan",
+      "order": 25,
+      "file": "south-sydney-development-control-plan-1997-urban-design/25-maps-part-c-southern-industrial-public-domain-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796077-dcp-file-185713093.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-8-southernindustrial.pdf",
+      "bytes": 556027,
+      "sha256": "8b3ac72f1a52c08ee3a9d68febe578ea23ccb9e7c3ae0d64388a48095a727470"
+    },
+    {
+      "part": "Maps part C: Zetland and Rosebery public domain plan",
+      "order": 26,
+      "file": "south-sydney-development-control-plan-1997-urban-design/26-maps-part-c-zetland-and-rosebery-public-domain-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796083-dcp-file-185713094.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-9-zetland-rosebery.pdf",
+      "bytes": 613892,
+      "sha256": "4f92c92cf86dda476db11e1767e320df5e67545cf1d42629630c41535f245188"
+    },
+    {
+      "part": "Maps part C: Redfern and Waterloo public domain plan",
+      "order": 27,
+      "file": "south-sydney-development-control-plan-1997-urban-design/27-maps-part-c-redfern-and-waterloo-public-domain-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796081-dcp-file-185713095.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-10-redfern-waterloo.pdf",
+      "bytes": 675584,
+      "sha256": "5110e05f443a3f410af3680106aa78602de53ed0c0326efe5c0e6f2679b5b3f2"
+    },
+    {
+      "part": "Maps part C: Western districts public domain plan",
+      "order": 28,
+      "file": "south-sydney-development-control-plan-1997-urban-design/28-maps-part-c-western-districts-public-domain-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796083-dcp-file-185713096.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-11-westerndistricts.pdf",
+      "bytes": 569767,
+      "sha256": "ed5bf5f1873e5ec83ecd93d719d9421a4cc8bcb546f3e7fcb11fbe4433cd0c90"
+    },
+    {
+      "part": "Maps part C: Moore Park public domain plan",
+      "order": 29,
+      "file": "south-sydney-development-control-plan-1997-urban-design/29-maps-part-c-moore-park-public-domain-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796075-dcp-file-185713097.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-12-moorepark.pdf",
+      "bytes": 467399,
+      "sha256": "81dae778e4ce239fdfc7a377468826c28d864285ce4be395c32d428f2b10b882"
+    },
+    {
+      "part": "Maps part E: Open space dedication",
+      "order": 30,
+      "file": "south-sydney-development-control-plan-1997-urban-design/30-maps-part-e-open-space-dedication.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796089-dcp-file-185713098.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_e/e-map-6-openspacededication.pdf",
+      "bytes": 1600350,
+      "sha256": "c035d16b95f42b194a7971d3615aa570864db9ac0118ef69127624a31e7d9e1b"
+    },
+    {
+      "part": "Maps part E: Stormwater detention",
+      "order": 31,
+      "file": "south-sydney-development-control-plan-1997-urban-design/31-maps-part-e-stormwater-detention.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796088-dcp-file-185713099.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_e/e-map-7-stormwaterdetention.pdf",
+      "bytes": 1995590,
+      "sha256": "eee473a0ffd1d038d54267c37f9e04934d861df01c80a74e7da802f3381028bf"
+    },
+    {
+      "part": "Maps part F: Mixed use",
+      "order": 32,
+      "file": "south-sydney-development-control-plan-1997-urban-design/32-maps-part-f-mixed-use.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796077-dcp-file-185713100.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pages-from-9-sthsyd-dcp-1997-part-f.pdf",
+      "bytes": 590491,
+      "sha256": "b491b238f7c381d63fec58a302e9188d711364ad4c65be5ed04b7ee58dad3530"
+    },
+    {
+      "part": "Part G: Special precinct No. 9 Green Square",
+      "order": 33,
+      "file": "south-sydney-development-control-plan-1997-urban-design/33-part-g-special-precinct-no-9-green-square.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796098-dcp-file-185713101.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/greensquaredcp-final-adopted-061219.pdf",
+      "bytes": 5323114,
+      "sha256": "ffcc0d19ad446dde354e2d192b8ab2746d8fd1fd4ffa124c3eaa47848f2cf704"
+    },
+    {
+      "part": "Part G: Special precinct No. 9 Green Square (Lachlan Precinct)",
+      "order": 34,
+      "file": "south-sydney-development-control-plan-1997-urban-design/34-part-g-special-precinct-no-9-green-square-lachlan-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796102-dcp-file-185713102.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/adopted-dcp-amendment-april-2013.pdf",
+      "bytes": 12797346,
+      "sha256": "773322380146a3198814885e29f81860c36828b091f95825880bd192f2e7e7f7"
+    },
+    {
+      "part": "Part G: Special precinct No. 9 Green Square (specific sites: Wulaba Park site)",
+      "order": 35,
+      "file": "south-sydney-development-control-plan-1997-urban-design/35-part-g-special-precinct-no-9-green-square-specific-sites-wulab.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692796097-dcp-file-185713103.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_w/wulabaparkdcpamendmentjuly2012-adopted.pdf",
+      "bytes": 7595727,
+      "sha256": "d01fba142181df936e9e4046ba1c1cbe3e04b4e14f28edbf35329a58cc67c78a"
+    }
+  ],
+  "councils": [
+    "Sydney"
+  ],
+  "scope": "site_specific"
+}

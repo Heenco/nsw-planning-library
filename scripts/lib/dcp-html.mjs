@@ -39,17 +39,35 @@
  * only known once it closes.
  */
 
+// Councils name the same two things differently, and a heading this map does not recognise is a
+// block with NO rubric - which is how Burwood converted to 161 objectives and 9 controls while its
+// 142 control blocks, all headed "Provisions", fell through unclassified. Hornsby (297/300) and
+// Randwick (595/509) only looked healthy because their vocabulary happened to be covered.
+//
+// Counted over the first part of 25 harvested DCPs: Provisions 162, Performance criteria 67,
+// Development controls 63, Planning controls 9, Standards 5, General Controls 4.
+//
+// This matters beyond display: data-rubric is the signal that keeps objectives OUT of the rule
+// layer, so an unclassified control block is a control the rule layer cannot see.
 const RUBRIC_MAP = [
-  [/^desired outcomes?$/i,      'objectives'],
-  [/^objectives?$/i,            'objectives'],
-  [/^prescriptive measures?$/i, 'controls'],
-  [/^controls?$/i,              'controls'],
-  [/^requirements?$/i,          'controls'],
-  [/^explanation$/i,            'explanation'],
-  [/^background$/i,             'background'],
-  [/^notes?:?$/i,               'note'],
-  [/^figures?:?$/i,             'note'],
-  [/^legend$/i,                 'note'],
+  [/^desired outcomes?$/i,              'objectives'],
+  [/^objectives?$/i,                    'objectives'],
+  [/^aims?$/i,                          'objectives'],
+  [/^prescriptive measures?$/i,         'controls'],
+  [/^controls?$/i,                      'controls'],
+  [/^(development|planning|general) controls?$/i, 'controls'],
+  [/^provisions?$/i,                    'controls'],
+  [/^performance criteria$/i,           'controls'],
+  [/^standards?$/i,                     'controls'],
+  [/^requirements?$/i,                  'controls'],
+  [/^.{0,24} requirements?$/i,          'controls'],   // "Car parking requirement", "Submission…"
+  [/^.{0,24} principles?$/i,            'controls'],   // "Setback principles"
+  [/^explanation$/i,                    'explanation'],
+  [/^background$/i,                     'background'],
+  [/^notes?:?$/i,                       'note'],
+  [/^advisory notes?:?$/i,              'note'],
+  [/^figures?:?$/i,                     'note'],
+  [/^legend$/i,                         'note'],
 ]
 
 /** Map a heading to the DCP rubric vocabulary, or null if it is not one. */

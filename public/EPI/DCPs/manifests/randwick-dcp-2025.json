@@ -1,8 +1,6 @@
 {
   "instrument": "randwick-dcp-2025",
   "title": "Randwick Development Control Plan 2025",
-  "council": "Randwick",
-  "lga": "Randwick City Council",
   "jurisdiction": "nsw",
   "kind": "dcp",
   "supersedes": "randwick-comprehensive-dcp-2013",
@@ -722,5 +720,9 @@
     "B13"
   ],
   "page_count_source": "pdfjs numPages via unpdf",
-  "anchor_prefixes_unique": true
+  "anchor_prefixes_unique": true,
+  "councils": [
+    "Randwick"
+  ],
+  "scope": "citywide"
 }

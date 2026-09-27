@@ -1,0 +1,25 @@
+{
+  "instrument": "adult-entertainment-and-sex-industry-premises-development-control-plan-2006",
+  "title": "Adult Entertainment and Sex Industry Premises Development Control Plan 2006",
+  "kind": "dcp",
+  "index_last_amended": "2006-04-18",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofsydney.nsw.gov.au/development-control-plans/adult-entertainment-sex-industry-premises-dcp-2006",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Adult Entertainment and Sex Industry Premises DCP 2006",
+      "order": 0,
+      "file": "adult-entertainment-and-sex-industry-premises-development-control-plan-2006/00-adult-entertainment-and-sex-industry-premises-dcp-2006.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692792597-dcp-file-185713030.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/adultentertainmentandsexindustrypremisesdcp2006.pdf",
+      "bytes": 570897,
+      "sha256": "dd92b9fe53c2820d0b5ffc2620438aa9326080281c538da2ba607be86c8eaf18"
+    }
+  ],
+  "councils": [
+    "Sydney"
+  ],
+  "scope": "citywide"
+}

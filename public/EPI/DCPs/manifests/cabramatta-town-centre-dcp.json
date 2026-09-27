@@ -1,0 +1,25 @@
+{
+  "instrument": "cabramatta-town-centre-dcp",
+  "title": "Cabramatta Town Centre DCP",
+  "kind": "dcp",
+  "index_last_amended": "2024-03-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.fairfieldcity.nsw.gov.au/Planning-and-Building/Developments-and-Buildings/Development-Control-and-Structure-Plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Cabramatta Town Centre DCP",
+      "order": 0,
+      "file": "cabramatta-town-centre-dcp/00-cabramatta-town-centre-dcp.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757894687-file-c-9ka3daqhizvs98ngz_qq.pdf",
+      "council_url": "https://www.fairfieldcity.nsw.gov.au/files/assets/public/v/5/documents/plan_build/ssdcp-cabramatta-town-centre-dcp-5.2000-2013-whole-document-amendment-no.-4-amendment-42-ctce-pp-final-updated-01_03_2024.pdf",
+      "bytes": 9081007,
+      "sha256": "f0b3b8902b47065aa0d8e0be76812bbecdb61131fbb65c58ee4a32a9698baaa1"
+    }
+  ],
+  "councils": [
+    "Fairfield"
+  ],
+  "scope": "site_specific"
+}

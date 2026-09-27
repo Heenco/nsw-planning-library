@@ -1,0 +1,25 @@
+{
+  "instrument": "north-kellyville-precinct-development-control-plan-2018",
+  "title": "North Kellyville Precinct Development Control Plan 2018",
+  "kind": "dcp",
+  "index_last_amended": "2022-04-22",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.planning.nsw.gov.au/plans-for-your-area/priority-growth-areas-and-precincts/north-west-growth-area/north-kellyville",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "North Kellyville Precinct Development Control Plan 2018",
+      "order": 0,
+      "file": "north-kellyville-precinct-development-control-plan-2018/00-north-kellyville-precinct-development-control-plan-2018.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692795923-dcp-file-185713175.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/Final+North+Kellyville+Precinct+Development+Control+Plan+2018+(22+April+....pdf",
+      "bytes": 8413698,
+      "sha256": "75a05b690a24894deaf1ccced72eda27c86028dd60ea062ed44e76806e70bbbe"
+    }
+  ],
+  "councils": [
+    "The Hills"
+  ],
+  "scope": "site_specific"
+}

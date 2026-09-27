@@ -1,8 +1,6 @@
 {
   "instrument": "hornsby-dcp-2024",
   "title": "Hornsby Development Control Plan 2024",
-  "council": "Hornsby",
-  "lga": "Hornsby Shire Council",
   "jurisdiction": "nsw",
   "kind": "dcp",
   "shape": "consolidated",
@@ -14,9 +12,18 @@
     "note": "The source filename says '26-june-2026-current', which is when the book-version PDF was published/retrieved, not the document's legal currency date. as_at follows the document's own stated last amendment."
   },
   "amendments": [
-    { "date": "2024-08-26", "summary": "Part 1 'Air Quality' — prohibit indoor gas; require electric cooktops, ovens and heaters in new residential development" },
-    { "date": "2025-05-19", "summary": "Part 1 'Watercourses' — Riparian Land Map references, Hornsby Town Centre Masterplan and TOD parking requirements, bush fire assessment notes; Part 4 'Hornsby Town Centre' controls" },
-    { "date": "2025-06-23", "summary": "Part 1 Stormwater Management (dual occupancy OSD) and Transport and Parking (dual occupancy minimums); Part 3 Dwellings expanded to incorporate dual occupancy, Beecroft Heritage Precinct provisions moved to Residential Flat Buildings (5 Storeys)" }
+    {
+      "date": "2024-08-26",
+      "summary": "Part 1 'Air Quality' — prohibit indoor gas; require electric cooktops, ovens and heaters in new residential development"
+    },
+    {
+      "date": "2025-05-19",
+      "summary": "Part 1 'Watercourses' — Riparian Land Map references, Hornsby Town Centre Masterplan and TOD parking requirements, bush fire assessment notes; Part 4 'Hornsby Town Centre' controls"
+    },
+    {
+      "date": "2025-06-23",
+      "summary": "Part 1 Stormwater Management (dual occupancy OSD) and Transport and Parking (dual occupancy minimums); Part 3 Dwellings expanded to incorporate dual occupancy, Beecroft Heritage Precinct provisions moved to Residential Flat Buildings (5 Storeys)"
+    }
   ],
   "source_page": "https://www.hornsby.nsw.gov.au/property/build/policies/development-control-plan",
   "retrieved_at": "2026-09-02T00:00:00.000Z",
@@ -44,5 +51,9 @@
     "html": "public/EPI/DCPs/hornsby-dcp-2024.html",
     "images": "public/EPI/DCPs/images/hornsby",
     "anchor_scheme": "unprefixed (dcp.<clause>) — single consolidated source, clause numbers already carry their part"
-  }
+  },
+  "councils": [
+    "Hornsby"
+  ],
+  "scope": "citywide"
 }

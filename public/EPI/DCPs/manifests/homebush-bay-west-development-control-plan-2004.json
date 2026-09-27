@@ -1,0 +1,43 @@
+{
+  "instrument": "homebush-bay-west-development-control-plan-2004",
+  "title": "Homebush Bay West Development Control Plan 2004",
+  "kind": "dcp",
+  "index_last_amended": "2013-07-31",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofparramatta.nsw.gov.au/development/plans-and-strategies/development-control-plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Homebush Bay West Development Control Plan 2004 (Volume 1)",
+      "order": 0,
+      "file": "homebush-bay-west-development-control-plan-2004/00-homebush-bay-west-development-control-plan-2004-volume-1.pdf",
+      "url": "https://www.datocms-assets.com/94948/1758698838-file-oe7qdmzuqlqscixr6prtng.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/homebush-bay-west-dcp-2004-volume-1.pdf",
+      "bytes": 10517284,
+      "sha256": "bd990a72cdf541e4ad2705ffeaf886734861967893cb408149267a6f70606fcd"
+    },
+    {
+      "part": "Homebush Bay West Public Domain Manual 2005 (Volume 2)",
+      "order": 1,
+      "file": "homebush-bay-west-development-control-plan-2004/01-homebush-bay-west-public-domain-manual-2005-volume-2.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783543510-file-wnanjvslss2zxh2csp_a0a.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/homebush-bay-west-dcp-2004-volume-2-public-domain-manual.pdf",
+      "bytes": 5726386,
+      "sha256": "93bb50b77104b0a1aa0b8fa1914694a9888b6f0930ed8a1383edda1bc4dbb3a2"
+    },
+    {
+      "part": "Homebush Bay West Development Control Plan (Amendment No. 1) 2013",
+      "order": 2,
+      "file": "homebush-bay-west-development-control-plan-2004/02-homebush-bay-west-development-control-plan-amendment-no-1-2013.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783543516-file-av8s9npattob5r4bisi9lq.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/homebush-bay-west-dcp-amendment-no-1-2013.pdf",
+      "bytes": 497459,
+      "sha256": "00ddead759fe28f4d7b417125b7f857a1a71d69ac563cb640eeceb70295f71a3"
+    }
+  ],
+  "councils": [
+    "Parramatta"
+  ],
+  "scope": "citywide"
+}

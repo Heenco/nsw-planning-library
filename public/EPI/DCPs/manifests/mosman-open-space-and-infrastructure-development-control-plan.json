@@ -1,0 +1,25 @@
+{
+  "instrument": "mosman-open-space-and-infrastructure-development-control-plan",
+  "title": "Mosman Open Space and Infrastructure Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2024-12-06",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://mosman.nsw.gov.au/planning-and-development/planning-controls/DCP",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Open Space and Infrastructure Development Control Plan",
+      "order": 0,
+      "file": "mosman-open-space-and-infrastructure-development-control-plan/00-open-space-and-infrastructure-development-control-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757896896-file-f6xjycv0rwgnkumynzxy2q.pdf",
+      "council_url": "https://mosman.nsw.gov.au/sites/default/files/2023-12/Mosman_Open_Space_and_Infrastructure_Development_Control_Plan.pdf",
+      "bytes": 4166369,
+      "sha256": "2e42feff86a14fd45550b9621a94feb8e789c9eb86a470bc14755810af1aa902"
+    }
+  ],
+  "councils": [
+    "Mosman"
+  ],
+  "scope": "citywide"
+}

@@ -1,0 +1,25 @@
+{
+  "instrument": "327-335-burley-road-horsley-park-development-control-plan",
+  "title": "327-335 Burley Road Horsley Park Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2016-03-14",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.planning.nsw.gov.au/plans-for-your-area/priority-growth-areas-and-precincts/western-sydney-employment-area/development-controls-for-the-western-sydney-employment-area",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "327-335 Burley Road Horsley Park Development Control Plan",
+      "order": 0,
+      "file": "327-335-burley-road-horsley-park-development-control-plan/00-327-335-burley-road-horsley-park-development-control-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770191327-file-yxa6qeqrq36-rq6-4h4ba.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-03/western-sydney-employment-area-development-control-plan.pdf",
+      "bytes": 8061622,
+      "sha256": "c5dd4d48dba8883ad07fa048708b59946705eda0648936ef3119f697077784aa"
+    }
+  ],
+  "councils": [
+    "Fairfield"
+  ],
+  "scope": "site_specific"
+}

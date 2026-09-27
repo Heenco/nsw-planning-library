@@ -1,0 +1,25 @@
+{
+  "instrument": "central-sydney-development-control-plan-1996",
+  "title": "Central Sydney Development Control Plan 1996",
+  "kind": "dcp",
+  "index_last_amended": "2020-09-10",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofsydney.nsw.gov.au/development-control-plans/central-sydney-dcp-1996",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Central Sydney Development Control Plan 1996",
+      "order": 0,
+      "file": "central-sydney-development-control-plan-1996/00-central-sydney-development-control-plan-1996.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692808314-dcp-file-185713026.pdf",
+      "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/catz-ditc-city-plan-csdcp-consolidated-110531.pdf",
+      "bytes": 3699724,
+      "sha256": "387a5f002052b337370e2090bb2bc7fde61bf6fb9509fc4289b156803fe046b7"
+    }
+  ],
+  "councils": [
+    "Sydney"
+  ],
+  "scope": "citywide"
+}

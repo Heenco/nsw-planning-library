@@ -1,0 +1,25 @@
+{
+  "instrument": "eastern-creek-precinct-plan-stages-1-and-2",
+  "title": "Eastern Creek Precinct Plan Stages 1 and 2",
+  "kind": "dcp",
+  "index_last_amended": "2004-06-16",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.blacktown.nsw.gov.au/Plan-build/Stage-2-plans-and-guidelines/Blacktown-planning-controls/Blacktown-Development-Control-Plan-2015",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Eastern Creek Precinct Plan Stages 1 and 2 - Prepared under SEPP 59",
+      "order": 0,
+      "file": "eastern-creek-precinct-plan-stages-1-and-2/00-eastern-creek-precinct-plan-stages-1-and-2-prepared-under-sepp.pdf",
+      "url": "https://www.datocms-assets.com/94948/1725251468-file-eto-xxwgqqa7ol668e3e4q.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/2/building-and-planning/dcps-amp-lap/eastern_creek_precinct_plan_stages_1_and_2_-_prepared_under_sepp_59.pdf",
+      "bytes": 1481104,
+      "sha256": "c3b99e5f039fa47c9f1c750781f90a73846523bc445270ad9235025930da5944"
+    }
+  ],
+  "councils": [
+    "Blacktown"
+  ],
+  "scope": "site_specific"
+}

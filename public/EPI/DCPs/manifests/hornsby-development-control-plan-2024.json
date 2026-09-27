@@ -1,0 +1,106 @@
+{
+  "instrument": "hornsby-development-control-plan-2024",
+  "title": "Hornsby Development Control Plan 2024",
+  "kind": "dcp",
+  "index_last_amended": "2026-06-26",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.hornsby.nsw.gov.au/Property/Building-and-development/Policies-and-guidelines/Hornsby-Development-Control-Plan",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Part 1 – General",
+      "order": 0,
+      "file": "hornsby-development-control-plan-2024/00-part-1-general.pdf",
+      "url": "https://www.datocms-assets.com/94948/1754503359-hdcp-part-1-final-23-june-2025.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/2/documents/development/hdcp-part-1-final-23-june-2025.pdf",
+      "bytes": 1078350,
+      "sha256": "13175ae82ed18eeed73eacbd05dd47f92fdc4ff1899199d2aff2cf528b01d12d"
+    },
+    {
+      "part": "Part 2 – Rural",
+      "order": 1,
+      "file": "hornsby-development-control-plan-2024/01-part-2-rural.pdf",
+      "url": "https://www.datocms-assets.com/94948/1768821742-file-esu9ltknstynbdvhx9lrcg.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/3/property/building-and-development/policies-and-guidelines/hornsby-development-control-plan/documents/hdcp-2024-part-2-rural.pdf",
+      "bytes": 4998064,
+      "sha256": "ba17d365f9e470d0eb65fef0000935626798747eb12ec4678b029a384796b380"
+    },
+    {
+      "part": "Part 3 – Residential",
+      "order": 2,
+      "file": "hornsby-development-control-plan-2024/02-part-3-residential.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783375640-hdcp-2024-part-3-residential-26-june-2026-current.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/3/property/building-and-development/policies-and-guidelines/hornsby-development-control-plan/documents/hdcp-2024-part-3-residential-26-june-2026-current.pdf",
+      "bytes": 14117244,
+      "sha256": "193ac6a451b06b2adde87867088f23cf7b19969ee0df4b0a012d38068e751492"
+    },
+    {
+      "part": "Part 4 – Business",
+      "order": 3,
+      "file": "hornsby-development-control-plan-2024/03-part-4-business.pdf",
+      "url": "https://www.datocms-assets.com/94948/1754508209-hdcp-part-4-final-23-june-2025.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/2/documents/development/hdcp-part-4-final-23-june-2025.pdf",
+      "bytes": 10700677,
+      "sha256": "44c84bd8c486995e99dfe58ee15ff329957183e1820cc4537f94c11bcb6d4a0e"
+    },
+    {
+      "part": "Part 5 – Industrial",
+      "order": 4,
+      "file": "hornsby-development-control-plan-2024/04-part-5-industrial.pdf",
+      "url": "https://www.datocms-assets.com/94948/1725251375-file-zeks_njjqsewvsax7toziw.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/1/documents/development/hdcp-2024-part-5-industrial.pdf",
+      "bytes": 1487040,
+      "sha256": "3622ceeecb202237f23c578575ed985c096d57c2ebb070cff781d5d82da70eb8"
+    },
+    {
+      "part": "Part 6 – Subdivision",
+      "order": 5,
+      "file": "hornsby-development-control-plan-2024/05-part-6-subdivision.pdf",
+      "url": "https://www.datocms-assets.com/94948/1768821760-file-rdyrwuhxqac1j5gpgu6hha.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/2/property/building-and-development/policies-and-guidelines/hornsby-development-control-plan/documents/hdcp-part-6-final-23-june-2025.pdf",
+      "bytes": 462986,
+      "sha256": "dc41a70a7e15f855ba5b2a5bd96bb8e3e14dfc405248d2210ed6c2e3d9c90586"
+    },
+    {
+      "part": "Part 7 – Community",
+      "order": 6,
+      "file": "hornsby-development-control-plan-2024/06-part-7-community.pdf",
+      "url": "https://www.datocms-assets.com/94948/1725251386-file-houh-c88rhmr6rqsa-d1yq.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/1/documents/development/hdcp-2024-part-7-community.pdf",
+      "bytes": 293007,
+      "sha256": "e8a6f44fcb90d48cf5dcd85f44cfe368e050474b6a9c904f2fcb950efed6deea"
+    },
+    {
+      "part": "Part 8 – River Settlements",
+      "order": 7,
+      "file": "hornsby-development-control-plan-2024/07-part-8-river-settlements.pdf",
+      "url": "https://www.datocms-assets.com/94948/1754508371-hdcp-2024-part-8-river-settlements.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/1/documents/heritage/hdcp-2024-part-8-river-settlements.pdf",
+      "bytes": 2824373,
+      "sha256": "9044ad40db0c9d2e930bb9a120269fdd57629b66baee3128d53f8190afaefa55"
+    },
+    {
+      "part": "Part 9 – Heritage",
+      "order": 8,
+      "file": "hornsby-development-control-plan-2024/08-part-9-heritage.pdf",
+      "url": "https://www.datocms-assets.com/94948/1768821771-file-bdvhng_mrtoyqoexn6xwzg.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/2/property/building-and-development/town-planning-advice-duty-planner/duty-planner-form/dual-occupancies-and-semi-detached-dwellings/documents/hdcp-part-9-final-23-june-2025.pdf",
+      "bytes": 2208785,
+      "sha256": "73d645e35719ec3b4dc85882566c34ea5799b682f215fb418fb75acd30b993ef"
+    },
+    {
+      "part": "Part 10 – Annexures",
+      "order": 9,
+      "file": "hornsby-development-control-plan-2024/09-part-10-annexures.pdf",
+      "url": "https://www.datocms-assets.com/94948/1725251403-file-t_inz7wwqzsqhmssig2p0a.pdf",
+      "council_url": "https://www.hornsby.nsw.gov.au/files/assets/public/v/1/documents/development/hdcp-2024-part-10-annexures.pdf",
+      "bytes": 3575829,
+      "sha256": "22a872f2f9c12f4a7a130a2ac125f4ec2e1b4e2356063985e58883bb7d31c170"
+    }
+  ],
+  "councils": [
+    "Hornsby"
+  ],
+  "scope": "citywide"
+}

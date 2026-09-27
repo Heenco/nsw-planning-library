@@ -1,0 +1,223 @@
+{
+  "instrument": "lane-cove-development-control-plan-2009",
+  "title": "Lane Cove Development Control Plan 2009",
+  "kind": "dcp",
+  "index_last_amended": "2024-07-18",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.lanecove.nsw.gov.au/Development/Development-Controls/Planning-Controls",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Contents",
+      "order": 0,
+      "file": "lane-cove-development-control-plan-2009/00-contents.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668660-trim_cover-and-contents_1747123.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=56825/23",
+      "bytes": 364309,
+      "sha256": "77e2ba6a796727ec50f053359b3ff6f6c51378336207a570ad4b08b7ae89eca8"
+    },
+    {
+      "part": "PART A - Introduction",
+      "order": 1,
+      "file": "lane-cove-development-control-plan-2009/01-part-a-introduction.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668671-trim_part-a-introduction_1747124.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=56826/23",
+      "bytes": 818614,
+      "sha256": "06989113c9972964bdb3e3c67dbb6211de8fd8428c3d0efaff81c30894e68b60"
+    },
+    {
+      "part": "PART B - General Controls",
+      "order": 2,
+      "file": "lane-cove-development-control-plan-2009/02-part-b-general-controls.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668692-trim_part-b-general-controls_1747125.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=56827/23",
+      "bytes": 978245,
+      "sha256": "c94a5b8d2ae32076f746462e8c6515ec79ab838b4e9d4e045f16d345989fe5b9"
+    },
+    {
+      "part": "PART C - Residential Development",
+      "order": 3,
+      "file": "lane-cove-development-control-plan-2009/03-part-c-residential-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668714-trim_part-c-residential-development_1820313.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=45197/24",
+      "bytes": 1570313,
+      "sha256": "f99b6b1eab9500c9d621bb46fb48174892f7848e95e64b4958bbd9b9f2159f13"
+    },
+    {
+      "part": "PART C - Residential Localities",
+      "order": 4,
+      "file": "lane-cove-development-control-plan-2009/04-part-c-residential-localities.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780985387-trim_part-20c-20-20residential-20localities_1748246.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57821/23",
+      "bytes": 5672624,
+      "sha256": "4d776467b4010372ca34068d6887b03a633820a30621523a5ad66559fff2c905"
+    },
+    {
+      "part": "PART D - Commercial and Mixed Use Development",
+      "order": 5,
+      "file": "lane-cove-development-control-plan-2009/05-part-d-commercial-and-mixed-use-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668755-trim_part-d-commercial-and-mixed-use-development_1748248.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57823/23",
+      "bytes": 1265374,
+      "sha256": "49b009b98053f337aaae0b8d4054a625a391599f7877f07234309196a0d10329"
+    },
+    {
+      "part": "PART D - Commercial and Mixed Use Localities",
+      "order": 6,
+      "file": "lane-cove-development-control-plan-2009/06-part-d-commercial-and-mixed-use-localities.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668771-trim_part-d-commercial-and-mixed-use-localities_1748249.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57824/23",
+      "bytes": 2588998,
+      "sha256": "8ad36b5bc432d9880f9d0f49ca73713e55dd325c4c5dde1e37f4be96a9ae1a3f"
+    },
+    {
+      "part": "PART E - Industrial Development",
+      "order": 7,
+      "file": "lane-cove-development-control-plan-2009/07-part-e-industrial-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668794-trim_part-e-industrial-development_1748251.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57826/23",
+      "bytes": 912760,
+      "sha256": "12341c83399ca15e42f2994f6c59a602c0331f24d61d709b9bcde58bb9b11d46"
+    },
+    {
+      "part": "PART F - Access and Mobility",
+      "order": 8,
+      "file": "lane-cove-development-control-plan-2009/08-part-f-access-and-mobility.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668825-trim_part-f-access-and-mobility_1748252.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57827/23",
+      "bytes": 512456,
+      "sha256": "fd472665cbf941c24a38ca652c90ff6cedcbb8d17115c71490172114dbd3ca8c"
+    },
+    {
+      "part": "PART G - Acid Sulphate Soils",
+      "order": 9,
+      "file": "lane-cove-development-control-plan-2009/09-part-g-acid-sulphate-soils.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668842-trim_part-g-acid-sulfate-soils_1748264.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57837/23",
+      "bytes": 456682,
+      "sha256": "3554d965d2669b2b191fcf0d0fe9ffe019bb72feb330c73c36a1737b36fabd0d"
+    },
+    {
+      "part": "PART H - Bushland Protection",
+      "order": 10,
+      "file": "lane-cove-development-control-plan-2009/10-part-h-bushland-protection.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668854-trim_part-h-bushland-protection_1748267.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57839/23",
+      "bytes": 790562,
+      "sha256": "9141b1c03b9d3cdd457001e4c37f3ec70a391a38735d842655c02939357d2fd8"
+    },
+    {
+      "part": "PART J - Landscaping and Tree Preservation",
+      "order": 11,
+      "file": "lane-cove-development-control-plan-2009/11-part-j-landscaping-and-tree-preservation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780634277-trim_part-20j-20-20landscaping-20and-20tree-20preservation_1820316.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=45201/24",
+      "bytes": 909489,
+      "sha256": "cabaeb6e2fc63e1eeb6c7810551faccfeed70d377216be55c438431c6080ac9c"
+    },
+    {
+      "part": "PART K - Motels",
+      "order": 12,
+      "file": "lane-cove-development-control-plan-2009/12-part-k-motels.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668911-trim_part-k-motels_1748272.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57845/23",
+      "bytes": 353648,
+      "sha256": "c5d7db5299dbcdec6c2b331d7edff76d15054abff5cfe9cf5f478593d0d36c75"
+    },
+    {
+      "part": "PART L - Public Art",
+      "order": 13,
+      "file": "lane-cove-development-control-plan-2009/13-part-l-public-art.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668927-trim_part-l-public-art_1748275.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57848/23",
+      "bytes": 419644,
+      "sha256": "c637773192d2c32d3c86bb78383d4d3e05ef9c53acfb99c09e1569fe4505e912"
+    },
+    {
+      "part": "PART M - Sex Services Premises",
+      "order": 14,
+      "file": "lane-cove-development-control-plan-2009/14-part-m-sex-services-premises.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668939-trim_part-m-sex-services-premises_1748278.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57851/23",
+      "bytes": 432911,
+      "sha256": "1517b93ba8cc1efa824ab2b9c19843481cd36df7ec2c1ba606eefcb2a6b78903"
+    },
+    {
+      "part": "PART N - Signage and Advertising",
+      "order": 15,
+      "file": "lane-cove-development-control-plan-2009/15-part-n-signage-and-advertising.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668952-trim_part-n-signage-and-advertising_1748279.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57852/23",
+      "bytes": 2203752,
+      "sha256": "21bcc2f142af0465889b17e5bad42135de7e9e346ff5c37850a3b8241ed55f3d"
+    },
+    {
+      "part": "PART O - Stormwater Management",
+      "order": 16,
+      "file": "lane-cove-development-control-plan-2009/16-part-o-stormwater-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668964-trim_part-o-stormwater-management_1748321.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57893/23",
+      "bytes": 3552284,
+      "sha256": "2d69dddd797a814ebba54fd9255e7db2b48d9588e6a9ecab8df81042895fae63"
+    },
+    {
+      "part": "PART P - Telecommunications Facilities",
+      "order": 17,
+      "file": "lane-cove-development-control-plan-2009/17-part-p-telecommunications-facilities.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732668986-trim_part-p-telecommunication-facilities_1748322.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57894/23",
+      "bytes": 696399,
+      "sha256": "7e4bd8f14fb965b8134a63862bb7b3e8f4f9b3c6327135f6a6a75b6e02a12571"
+    },
+    {
+      "part": "PART Q - Waste Management and Minimisation",
+      "order": 18,
+      "file": "lane-cove-development-control-plan-2009/18-part-q-waste-management-and-minimisation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732669005-trim_part-q-waste-management-and-minimisation_1748324.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57896/23",
+      "bytes": 849248,
+      "sha256": "c5220e6cca309afb6f0c54979a308b1a640e4794e98efa3df44ca5399d01bfa8"
+    },
+    {
+      "part": "PART R - Traffic, Transport and Parking",
+      "order": 19,
+      "file": "lane-cove-development-control-plan-2009/19-part-r-traffic-transport-and-parking.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732669019-trim_part-r-traffic-transport-and-parking_1748325.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57897/23",
+      "bytes": 879502,
+      "sha256": "4e0644e68a8ff81b0bc7383b614870d852ce8fe1e6862453746ed9ae065ccedc"
+    },
+    {
+      "part": "PART S - Environmental Sustainability",
+      "order": 20,
+      "file": "lane-cove-development-control-plan-2009/20-part-s-environmental-sustainability.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732669031-trim_part-s-environmental-sustainability_1820318.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=45203/24",
+      "bytes": 539353,
+      "sha256": "78577389559a2f158eaa318e9618c336f77bd0747d7ad58e5d062fdfb43c5f63"
+    },
+    {
+      "part": "Attachment: Dictionary",
+      "order": 21,
+      "file": "lane-cove-development-control-plan-2009/21-attachment-dictionary.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732669044-trim_attachment-dictionary_1748327.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=57899/23",
+      "bytes": 119088,
+      "sha256": "add6ef89c493cda71a5322bacf09ccf66257e0832d363a92d91b2f83f7c71494"
+    },
+    {
+      "part": "Attachment: Amendments",
+      "order": 22,
+      "file": "lane-cove-development-control-plan-2009/22-attachment-amendments.pdf",
+      "url": "https://www.datocms-assets.com/94948/1732669058-trim_attachment-amendments_1820320.pdf",
+      "council_url": "https://ecouncil.lanecove.nsw.gov.au/trim/DocumentLink.asp?RecId=45205/24",
+      "bytes": 166199,
+      "sha256": "b502e7cc48d2bafff1b8ad95a5e378a134bc0105df38f2da4859ece77fa76621"
+    }
+  ],
+  "councils": [
+    "Lane Cove"
+  ],
+  "scope": "citywide"
+}

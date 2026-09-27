@@ -1,0 +1,394 @@
+{
+  "instrument": "randwick-development-control-plan-2025",
+  "title": "Randwick Development Control Plan 2025",
+  "kind": "dcp",
+  "index_last_amended": "2026-07-27",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.randwick.nsw.gov.au/planning-and-building/planning-strategies-and-control/development-control-plan-dcp",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "A1 Welcome",
+      "order": 0,
+      "file": "randwick-development-control-plan-2025/00-a1-welcome.pdf",
+      "url": "https://www.datocms-assets.com/94948/1787897406-a1-welcome-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0005/442238/A1-Welcome-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 2636371,
+      "sha256": "043aca84e76d10d2b43e15a56d12d08bee13a5e0840249b1d650816e3f68cf58"
+    },
+    {
+      "part": "B1 Local character areas",
+      "order": 1,
+      "file": "randwick-development-control-plan-2025/01-b1-local-character-areas.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785443598-b1-local-character-areas-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0006/442239/B1-Local-character-areas-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 1838212,
+      "sha256": "3b68debebc8ff7b0df439f51641388b7565390c9dc50f2e577ac84c56901d9ed"
+    },
+    {
+      "part": "B2 Heritage",
+      "order": 2,
+      "file": "randwick-development-control-plan-2025/02-b2-heritage.pdf",
+      "url": "https://www.datocms-assets.com/94948/1787897481-b2-heritage-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0016/442240/B2-Heritage-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 3464268,
+      "sha256": "40a8fb7a8a92d646f26f8a8a0ce187939586a7ed3051cab29f635e0af5f56df8"
+    },
+    {
+      "part": "B3 Sustainability and Resilience",
+      "order": 3,
+      "file": "randwick-development-control-plan-2025/03-b3-sustainability-and-resilience.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785443706-b3-sustainability-and-resilience-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0017/442241/B3-Sustainability-and-resilience-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 983780,
+      "sha256": "fa8d91c66ad71c4aacf8c4c976f3889fc7383161a8a0b244a1ed7cec2dd45f15"
+    },
+    {
+      "part": "B4 Landscaping and biodiversity",
+      "order": 4,
+      "file": "randwick-development-control-plan-2025/04-b4-landscaping-and-biodiversity.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785443761-b4-landscaping-and-biodiversity-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0018/442242/B4-Landscaping-and-Biodiversity-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 766836,
+      "sha256": "6b5f43ebcd965fedcc42e4efc4fd536bee19ccebef18884d909e6a173f584d53"
+    },
+    {
+      "part": "B5 Preservation of trees and vegetation",
+      "order": 5,
+      "file": "randwick-development-control-plan-2025/05-b5-preservation-of-trees-and-vegetation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785443809-b5-preservation-of-trees-and-vegetation-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0019/442243/B5-Preservation-of-trees-and-vegetation-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 429373,
+      "sha256": "37aaed71c236cbb475eb4ba629c40a528c6a066178fd371748f903b3a2016bb1"
+    },
+    {
+      "part": "B7 Traffic, transport and parking",
+      "order": 6,
+      "file": "randwick-development-control-plan-2025/06-b7-traffic-transport-and-parking.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785443857-b7-transport-traffic-and-parking-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0020/442244/B7-Transport,-traffic-and-parking-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 699380,
+      "sha256": "e1f27673e5cc825286a3b62c8e3f4f69d63d7feffbb6709b1abf1e414003fb20"
+    },
+    {
+      "part": "B8 Water Management",
+      "order": 7,
+      "file": "randwick-development-control-plan-2025/07-b8-water-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785443920-b8-water-management-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0003/442245/B8-Water-Management-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 422230,
+      "sha256": "d7b8435fcf45f34b99151bd05c2f0711ae733b991c491ef91543c208aa251db5"
+    },
+    {
+      "part": "B9 Management plan",
+      "order": 8,
+      "file": "randwick-development-control-plan-2025/08-b9-management-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785442667-b9-management-plan-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0004/442246/B9-Management-plan-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 180443,
+      "sha256": "edc665a94aee34d601bc81eee630bc90d02d83f7756e799fcb98476840e82af0"
+    },
+    {
+      "part": "B10 Foreshore Scenic Protection Area",
+      "order": 9,
+      "file": "randwick-development-control-plan-2025/09-b10-foreshore-scenic-protection-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785443997-b10-foreshore-scenic-protection-area-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0005/442247/B10-Foreshore-Scenic-Protection-Area-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 139753,
+      "sha256": "2edbef0dd6a7544a81537e2851bad7960b844c602a8bf86b657566427e6a7211"
+    },
+    {
+      "part": "B11 Laneway widening",
+      "order": 10,
+      "file": "randwick-development-control-plan-2025/10-b11-laneway-widening.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444042-b11-laneways-nominated-for-widening-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0006/442248/B11-Laneways-Nominated-for-Widening-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 517650,
+      "sha256": "1bbe9ba9f2657ce6b74332791491e51ca04a3f85d5ac73e16f482c277f747ea2"
+    },
+    {
+      "part": "B14 Communications and powerlines",
+      "order": 11,
+      "file": "randwick-development-control-plan-2025/11-b14-communications-and-powerlines.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444088-b14-communications-and-power-lines-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0007/442249/B14-Communications-and-power-lines-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 451510,
+      "sha256": "b331b2a7e36c2fa140e7e45c1aa28718bbe58bfcd9f9b3afe0d256fa194bbb8f"
+    },
+    {
+      "part": "B15 Public art and creative hoardings",
+      "order": 12,
+      "file": "randwick-development-control-plan-2025/12-b15-public-art-and-creative-hoardings.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444136-b15-public-art-and-creative-hoardings-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0017/442250/B15-Public-art-and-creative-hoardings-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 810531,
+      "sha256": "fb939e92b3d0c880dd06431dd8722ea4d123858279a4f9756272b6c840f60441"
+    },
+    {
+      "part": "C1 Low density residential",
+      "order": 13,
+      "file": "randwick-development-control-plan-2025/13-c1-low-density-residential.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444196-c1-low-density-residential-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0018/442251/C1-Low-Density-Residential-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 3442621,
+      "sha256": "ca20a0afa7b9f41bda4da6260fd311d356a36c0c388849812e930bd54f38c826"
+    },
+    {
+      "part": "C2 Medium Density",
+      "order": 14,
+      "file": "randwick-development-control-plan-2025/14-c2-medium-density.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444250-c2-medium-density-residential-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0019/442252/C2-Medium-density-residential-Randwick-DCP-Stage-2_Final.PDF",
+      "bytes": 6178018,
+      "sha256": "7c4e55556e502f4aadff201e1f68717efa6c2ee700d109cc89763d608447c575"
+    },
+    {
+      "part": "C3 Universal, adaptable and accessible housing",
+      "order": 15,
+      "file": "randwick-development-control-plan-2025/15-c3-universal-adaptable-and-accessible-housing.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444296-c3-universal-adaptable-and-accessible-housing-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0020/442253/C3-Universal,-adaptable-and-accessible-housing-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 205701,
+      "sha256": "a6942fa1071b63a3fb7a02aff81116ca1363ce2619c491ff07ec8a469defcdb4"
+    },
+    {
+      "part": "C4 Co-living and boarding houses",
+      "order": 16,
+      "file": "randwick-development-control-plan-2025/16-c4-co-living-and-boarding-houses.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444341-c4-co-living-and-boarding-houses-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0003/442254/C4-Co-Living-and-Boarding-Houses-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 298581,
+      "sha256": "daf956a9fc789883edc827501e37eff4bf585adf2ab4a6e85c00e32665d9a1ae"
+    },
+    {
+      "part": "C5 Amusement centres",
+      "order": 17,
+      "file": "randwick-development-control-plan-2025/17-c5-amusement-centres.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444401-c5-amusement-centres-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0004/442255/C5-Amusement-centres-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 167943,
+      "sha256": "e98cd261a5576e6b63abe4f3df31f4262b54d36893ebcb869fc802bb27c32ce2"
+    },
+    {
+      "part": "C6 Child care centres",
+      "order": 18,
+      "file": "randwick-development-control-plan-2025/18-c6-child-care-centres.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444444-c6-child-care-centres-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0005/442256/C6-Child-care-centres-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 213406,
+      "sha256": "2c921fbad748674a3fceb6fcebbd238d39a12de65363ecc030bd0127cff7894f"
+    },
+    {
+      "part": "C7 Footpath dining and trading",
+      "order": 19,
+      "file": "randwick-development-control-plan-2025/19-c7-footpath-dining-and-trading.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444488-c7-footpath-dining-and-trading-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0006/442257/C7-Footpath-dining-and-trading-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 356397,
+      "sha256": "eee03d42bc2e9b1cf4551f3797bb57f2122a6d9d24a34ea281315a213a496057"
+    },
+    {
+      "part": "C8 Night time economy",
+      "order": 20,
+      "file": "randwick-development-control-plan-2025/20-c8-night-time-economy.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444533-c8-night-time-economy-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0007/442258/C8-Night-time-economy-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 296374,
+      "sha256": "93b6b9e95619273e05879690be41738b38a472e47ef80181e21726237ab809bb"
+    },
+    {
+      "part": "C9 Sex services premises",
+      "order": 21,
+      "file": "randwick-development-control-plan-2025/21-c9-sex-services-premises.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444581-c9-sex-services-premises-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0008/442259/C9-Sex-services-premises-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 203489,
+      "sha256": "88dbe4b47133c076b893d8da236261fa4c8da20265e3787fa3363320db94eb0a"
+    },
+    {
+      "part": "C10 Industrial areas",
+      "order": 22,
+      "file": "randwick-development-control-plan-2025/22-c10-industrial-areas.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444641-c10-industrial-areas-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0018/442260/C10-Industrial-areas-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 608021,
+      "sha256": "a67813b819f7de3f1ce8fa785cd19510032fe6147b2b80a2ab365b2ddfe19f06"
+    },
+    {
+      "part": "C11 Sydney Airport",
+      "order": 23,
+      "file": "randwick-development-control-plan-2025/23-c11-sydney-airport.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444687-c11-sydney-airport-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0019/442261/C11-Sydney-Airport-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 517858,
+      "sha256": "90df1d89557a5abc10ff115ca1acc6e069b368857f802ca8c4b3cc46717a7726"
+    },
+    {
+      "part": "C12 Tourist and Visitor Accommodation",
+      "order": 24,
+      "file": "randwick-development-control-plan-2025/24-c12-tourist-and-visitor-accommodation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444734-c12-tourist-and-visitor-accommodation-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0020/442262/C12-Tourist-and-Visitor-Accommodation-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 334015,
+      "sha256": "6dc9e300a54c19cf56bb5821fe0713b4b2ae76d528325018b1408224e995e90e"
+    },
+    {
+      "part": "C13 Recreation zones",
+      "order": 25,
+      "file": "randwick-development-control-plan-2025/25-c13-recreation-zones.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444784-c13-recreation-zones-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0003/442263/C13-Recreation-zones-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 146641,
+      "sha256": "0f30d29837ee9b7fb3bc9b0052901da278fd64c32d615633f81d912b6ec9f67e"
+    },
+    {
+      "part": "D1 Kensington and Kingsford",
+      "order": 26,
+      "file": "randwick-development-control-plan-2025/26-d1-kensington-and-kingsford.pdf",
+      "url": "https://www.datocms-assets.com/94948/1787898248-d1-kensington-and-kingsford-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0004/442264/D1-Kensington-and-Kingsford-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 13958422,
+      "sha256": "bacb7810acf725a15853c2249fe9af37e1deeaf25704f1d9b5b538063237fc76"
+    },
+    {
+      "part": "D3 Randwick Junction Centre (Randwick DCP 2013)",
+      "order": 27,
+      "file": "randwick-development-control-plan-2025/27-d3-randwick-junction-centre-randwick-dcp-2013.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692878622-dcp-file-185712814.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0017/13742/Randwick-Junction-Centre.pdf",
+      "bytes": 597234,
+      "sha256": "65829c37f5e94a3d91421c9509396bee745dbfff7093fb5ae23d501eaf760444"
+    },
+    {
+      "part": "D3 Maroubra Junction",
+      "order": 28,
+      "file": "randwick-development-control-plan-2025/28-d3-maroubra-junction.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444910-d3-maroubra-junction-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0006/442266/D3-Maroubra-Junction-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 9099419,
+      "sha256": "ea1b13a18ca0add7a430b87fa694a48618f978c78ef173d86b62017d273975bf"
+    },
+    {
+      "part": "D4 Local Centres - general controls",
+      "order": 29,
+      "file": "randwick-development-control-plan-2025/29-d4-local-centres-general-controls.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785444980-d4-local-centres-general-controls-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0007/442267/D4-Local-Centres-general-controls-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 593720,
+      "sha256": "9a273c996f25d994a5d38725388bd696dd91f2c56e18a7dd6422ff145f5d1974"
+    },
+    {
+      "part": "D5 Matraville Centre (Randwick DCP 2013)",
+      "order": 30,
+      "file": "randwick-development-control-plan-2025/30-d5-matraville-centre-randwick-dcp-2013.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692878623-dcp-file-185712816.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0008/442268/D5-Matraville-Centre-Randwick-DCP-2013.pdf",
+      "bytes": 1672611,
+      "sha256": "1616e0c1d14c026b6e754462785d12102c9576992a9536d0059c969119932be7"
+    },
+    {
+      "part": "D6 Maroubra Beach",
+      "order": 31,
+      "file": "randwick-development-control-plan-2025/31-d6-maroubra-beach.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445074-d6-maroubra-beach-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0009/442269/D6-Maroubra-Beach-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 2650365,
+      "sha256": "d1386ec6d907bf92ec047e562a7cb323a4973e024073dd31167c6cf53fe6c74f"
+    },
+    {
+      "part": "D7 The Spot",
+      "order": 32,
+      "file": "randwick-development-control-plan-2025/32-d7-the-spot.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445119-d7-the-spot-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0019/442270/D7-The-Spot-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 1175696,
+      "sha256": "bc3b335ab21f59c7526e89c9b1d96993e07d17cdddc801c10cfaf496c1c5921b"
+    },
+    {
+      "part": "D8 Defence Site",
+      "order": 33,
+      "file": "randwick-development-control-plan-2025/33-d8-defence-site.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445166-d8-defence-site-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0020/442271/D8-Defence-Site-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 3895468,
+      "sha256": "88dd6092e14fa54e90129e8e35a319c1a36c4ca59f982946a298ee1b4a637300"
+    },
+    {
+      "part": "D9 Randwick Education and Health Specialised Centre",
+      "order": 34,
+      "file": "randwick-development-control-plan-2025/34-d9-randwick-education-and-health-specialised-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445213-d9-education-and-health-spec-centre-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0003/442272/D9-Education-and-Health-Spec-Centre-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 8228897,
+      "sha256": "99026e8c26ebd9ae29d7fb14b97cfa7a04e04cfe126bd46090128c43ef9c267f"
+    },
+    {
+      "part": "D10 Royal Randwick Racecourse",
+      "order": 35,
+      "file": "randwick-development-control-plan-2025/35-d10-royal-randwick-racecourse.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445261-d10-royal-randwick-racecourse-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0004/442273/D10-Royal-Randwick-Racecourse-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 1476951,
+      "sha256": "87e0a8d354ec2f2fc6ed9c835aa84673999838c88d45d1135a02044e18f5c444"
+    },
+    {
+      "part": "D11 Prince Henry Site Little Bay",
+      "order": 36,
+      "file": "randwick-development-control-plan-2025/36-d11-prince-henry-site-little-bay.pdf",
+      "url": "https://www.datocms-assets.com/94948/1789725239-d11-prince-henry-site-little-bay-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0005/442274/D11-Prince-Henry-Site,-Little-Bay-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 6645345,
+      "sha256": "01e9caa39b15eb6585ebfce7a57e81db627ab91be5919656275a62db8ee08c0f"
+    },
+    {
+      "part": "D12 Newmarket Green",
+      "order": 37,
+      "file": "randwick-development-control-plan-2025/37-d12-newmarket-green.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445360-d12-newmarket-green-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0006/442275/D12-Newmarket-Green-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 2128241,
+      "sha256": "fffdf5b5fc3cc6db9fa659c80f4b04658cdf40263a9f26614ae63d5be9c5645c"
+    },
+    {
+      "part": "D13 Little Bay Cove",
+      "order": 38,
+      "file": "randwick-development-control-plan-2025/38-d13-little-bay-cove.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445410-d13-little-bay-cove-randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0007/442276/D13-Little-Bay-Cove-Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 11566516,
+      "sha256": "f4f02bca86de0b820f4cef662d71cbc8893950f7018209188064dc05ffa57a56"
+    },
+    {
+      "part": "D14 Well Located Housing Areas (formerly HIAs)",
+      "order": 39,
+      "file": "randwick-development-control-plan-2025/39-d14-well-located-housing-areas-formerly-hias.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445466-d14-well-located-housing-areas-formerly-hias_randwick-dcp-stage-2_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0008/442277/D14-Well-Located-Housing-Areas-formerly-HIAs_Randwick-DCP-Stage-2_Final.pdf",
+      "bytes": 11209604,
+      "sha256": "2dc7fd36f6824af6a24831f4c32f5615ccefb47008f2cf62034a018929a4db74"
+    },
+    {
+      "part": "D15 Specific sites",
+      "order": 40,
+      "file": "randwick-development-control-plan-2025/40-d15-specific-sites.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445511-d15-specific-sites-randwick-dcp-2025_final.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0009/442278/D15-Specific-sites-Randwick-DCP-2025_Final.pdf",
+      "bytes": 1515126,
+      "sha256": "510a113a5d5f1f40c8087de13d3b31958a00c53f23810371455bc0c3c94de029"
+    },
+    {
+      "part": "F2 Outdoor advertising and signage (Randwick DCP 2013)",
+      "order": 41,
+      "file": "randwick-development-control-plan-2025/41-f2-outdoor-advertising-and-signage-randwick-dcp-2013.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785445563-f2-outdoor-advertising-and-signage-randwick-dcp-2013.pdf",
+      "council_url": "https://www.randwick.nsw.gov.au/__data/assets/pdf_file/0010/442279/F2-Outdoor-advertising-and-signage-Randwick-DCP-2013.pdf",
+      "bytes": 356719,
+      "sha256": "10e223b65d25674363eff805e6744069b79fac35a91b943f716c83a18d6c77dc"
+    }
+  ],
+  "councils": [
+    "Randwick"
+  ],
+  "scope": "citywide"
+}

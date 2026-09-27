@@ -1,0 +1,25 @@
+{
+  "instrument": "bungarribee-precinct-development-design-code",
+  "title": "Bungarribee Precinct Development Design Code",
+  "kind": "dcp",
+  "index_last_amended": "2009-08-03",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.blacktown.nsw.gov.au/Plan-build/Stage-2-plans-and-guidelines/Blacktown-planning-controls/Blacktown-Development-Control-Plan-2015",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Bungarribee Precinct Development Design Code",
+      "order": 0,
+      "file": "bungarribee-precinct-development-design-code/00-bungarribee-precinct-development-design-code.pdf",
+      "url": "https://www.datocms-assets.com/94948/1725251818-file-g4-dftvgtnm5dcdhm8p-vw.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/bungarribee-precinct-development-design-code_august-2011.pdf",
+      "bytes": 5057535,
+      "sha256": "c0f31e3c9b5afa2b0a646eed085e3251c6c9334b49268123c87f727166d4115e"
+    }
+  ],
+  "councils": [
+    "Blacktown"
+  ],
+  "scope": "site_specific"
+}

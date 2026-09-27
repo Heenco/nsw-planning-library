@@ -1,0 +1,114 @@
+{
+  "instrument": "cumberland-dcp-2021",
+  "title": "Cumberland Development Control Plan 2021",
+  "kind": "dcp",
+  "commenced": "2021-11-05",
+  "date_evidence": {
+    "commenced": "Council page: the DCP 2021 came into effect on 5 November 2021."
+  },
+  "source_page": "https://www.cumberland.nsw.gov.au/build/development-control-plans-dcp",
+  "fetched_via": "browser (playwright/msedge)",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Cover",
+      "title": "Cover and List of Amendments",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%202021%20Cover%20and%20List%20of%20Amendments%20-%20Updated.pdf",
+      "file": "cumberland-dcp-2021/cover-cover-and-list-of-amendments.pdf",
+      "bytes": 370801,
+      "sha256": "ad6ef15b37443042640c1f8b64d768b3a1b49ff585428fed154f0a9c3667ea5b"
+    },
+    {
+      "part": "A",
+      "title": "Introduction and General Controls",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-part-a-adopted-050423.pdf",
+      "file": "cumberland-dcp-2021/a-introduction-and-general-controls.pdf",
+      "bytes": 672370,
+      "sha256": "72918a6fc39a208d8d7dc54ccb35c1768fca1144d1384ae00af95af7d86552d1"
+    },
+    {
+      "part": "B",
+      "title": "Development in Residential Zones",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%20Part%20B%20.pdf",
+      "file": "cumberland-dcp-2021/b-development-in-residential-zones.pdf",
+      "bytes": 742528,
+      "sha256": "664c00b804570fbb2e9ce021a3d5ace31eb72d3ac04eefa80a8d1bfdca37f930"
+    },
+    {
+      "part": "C",
+      "title": "Development in Business Zones",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-part-c-development-business-zones-2021.pdf",
+      "file": "cumberland-dcp-2021/c-development-in-business-zones.pdf",
+      "bytes": 297832,
+      "sha256": "b8da6a4b58ab2e72c47e0e2efef2868b3f56019c2abad0a501ae8c873489dc79"
+    },
+    {
+      "part": "D",
+      "title": "Development in Industrial Zones",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-part-d-development-industrial-zones-2021.pdf",
+      "file": "cumberland-dcp-2021/d-development-in-industrial-zones.pdf",
+      "bytes": 272628,
+      "sha256": "5dfb595e8cd97c3942cb31e929220833190828712561257dd74b4f5a8f7f99f5"
+    },
+    {
+      "part": "E",
+      "title": "Other Land Use Based Development Controls",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%20Part%20E.pdf",
+      "file": "cumberland-dcp-2021/e-other-land-use-based-development-controls.pdf",
+      "bytes": 246455,
+      "sha256": "6dc7535f34df2340fb6047fddaecfdaf93ffd52df0fcabc3d2e6943324db8249"
+    },
+    {
+      "part": "F1",
+      "title": "Precinct and Site Specific",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%20Part%20F1.pdf",
+      "file": "cumberland-dcp-2021/f1-precinct-and-site-specific.pdf",
+      "bytes": 25346414,
+      "sha256": "20c53681b3c77bdffc7aa88ec29c454b67d4fe41662faf907c4f4cf18c2b3649"
+    },
+    {
+      "part": "F2",
+      "title": "Business Site Specific",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%202021%20Part%20F2%20-%20Updated.pdf",
+      "file": "cumberland-dcp-2021/f2-business-site-specific.pdf",
+      "bytes": 21632043,
+      "sha256": "b23710b6e0d41b8c7a823da4da49c2d045152e2c26a06ab7e118ae9e1a4fd29e"
+    },
+    {
+      "part": "F3",
+      "title": "Industrial Site Specific",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%20Part%20F3.pdf",
+      "file": "cumberland-dcp-2021/f3-industrial-site-specific.pdf",
+      "bytes": 4570754,
+      "sha256": "5c73ccb7af3e5504bdac00a2cfad7b800e1bf8c4c48da2b9da2c760228ba962c"
+    },
+    {
+      "part": "F4",
+      "title": "Special Precincts",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%202021%20Part%20F4%20-%20Updated.pdf",
+      "file": "cumberland-dcp-2021/f4-special-precincts.pdf",
+      "bytes": 20346699,
+      "sha256": "472ab4c2a283dac9556869028b74d7647326e0d36cabd9e9dbd12f57fbf135ff"
+    },
+    {
+      "part": "G",
+      "title": "Miscellaneous Development Controls",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-part-g-miscellaneous-development-controls-2021%29.pdf",
+      "file": "cumberland-dcp-2021/g-miscellaneous-development-controls.pdf",
+      "bytes": 1575397,
+      "sha256": "be86beda1debefdb3e1bd4e77e8a56f6d8c0e70a32acdfa304e6d9e40768264a"
+    },
+    {
+      "part": "Defs",
+      "title": "DCP Definitions",
+      "url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-definitions_0.pdf",
+      "file": "cumberland-dcp-2021/defs-dcp-definitions.pdf",
+      "bytes": 184144,
+      "sha256": "5d2aa0bf4affc90f7f1a1d9d472c66f177b8807e261a238786368cd8c59d9201"
+    }
+  ],
+  "councils": [
+    "Cumberland"
+  ],
+  "scope": "citywide"
+}

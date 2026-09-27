@@ -1,0 +1,25 @@
+{
+  "instrument": "box-hill-growth-centre-precincts-development-control-plan",
+  "title": "Box Hill Growth Centre Precincts Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2021-07-06",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.planning.nsw.gov.au/plans-for-your-area/priority-growth-areas-and-precincts/north-west-growth-area/box-hill-and-box-hill-industrial?acc_section=development_control_plan",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Box Hill Growth Centre Precincts Development Control Plan",
+      "order": 0,
+      "file": "box-hill-growth-centre-precincts-development-control-plan/00-box-hill-growth-centre-precincts-development-control-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692795944-dcp-file-185713173.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/Box+Hill+Growth+Centres+Precinct+Development+Control+Plan+-+In+Force+28+June+2021.pdf",
+      "bytes": 9888387,
+      "sha256": "8fa3714de77dbc8c604521126e45a3a318067aaaf99e75af8f9ef23986868eed"
+    }
+  ],
+  "councils": [
+    "The Hills"
+  ],
+  "scope": "site_specific"
+}

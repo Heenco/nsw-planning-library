@@ -1,0 +1,25 @@
+{
+  "instrument": "mosman-residential-development-control-plan-2012",
+  "title": "Mosman Residential Development Control Plan 2012",
+  "kind": "dcp",
+  "index_last_amended": "2026-08-07",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://mosman.nsw.gov.au/planning-and-development/planning-controls/DCP",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Residential Development Control Plan",
+      "order": 0,
+      "file": "mosman-residential-development-control-plan-2012/00-residential-development-control-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1788299688-mosman_residential_development_control_plan.pdf",
+      "council_url": "https://mosman.nsw.gov.au/sites/default/files/2023-12/Mosman_Residential_Development_Control_Plan.pdf",
+      "bytes": 16216071,
+      "sha256": "89e380ff6d3fe4b58012fa75d1bbf48cfe038090dfe4dfc7210d922cc7fd1e27"
+    }
+  ],
+  "councils": [
+    "Mosman"
+  ],
+  "scope": "citywide"
+}

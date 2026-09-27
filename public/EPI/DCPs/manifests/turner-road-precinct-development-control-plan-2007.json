@@ -1,0 +1,25 @@
+{
+  "instrument": "turner-road-precinct-development-control-plan-2007",
+  "title": "Turner Road Precinct Development Control Plan 2007",
+  "kind": "dcp",
+  "index_last_amended": "2018-01-16",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.planning.nsw.gov.au/plans-for-your-area/priority-growth-areas-and-precincts/south-west-growth-area/turner-road",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Turner Road Growth Centre Precincts Development Control Plan – January 2018",
+      "order": 0,
+      "file": "turner-road-precinct-development-control-plan-2007/00-turner-road-growth-centre-precincts-development-control-plan-j.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759292336-file-c-7fedl8qm-aes4odfljaa.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/turner-road-precinct-development-control-plan.pdf",
+      "bytes": 9008034,
+      "sha256": "9870cf71f6d55a3c1199ae44395c16dfbf6a5776d9e70be2f8bc9ed06f060a25"
+    }
+  ],
+  "councils": [
+    "Camden"
+  ],
+  "scope": "site_specific"
+}

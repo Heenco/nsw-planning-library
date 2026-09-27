@@ -1,0 +1,25 @@
+{
+  "instrument": "raceway-precinct-plan",
+  "title": "Raceway Precinct Plan",
+  "kind": "dcp",
+  "index_last_amended": "2006-11-15",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.blacktown.nsw.gov.au/Plan-build/Stage-2-plans-and-guidelines/Blacktown-planning-controls/Blacktown-Development-Control-Plan-2015",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Raceway Precinct Plan - Prepared under SEPP59",
+      "order": 0,
+      "file": "raceway-precinct-plan/00-raceway-precinct-plan-prepared-under-sepp59.pdf",
+      "url": "https://www.datocms-assets.com/94948/1725250656-file-fku5fpldrzwomuczgpoyyw.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/raceway-precinct-plan-prepared-under-sepp59.pdf",
+      "bytes": 2422273,
+      "sha256": "d50ea557e7b27c0829c0438fa99a930a0577d3a768f1812a1786266d94dc9ae1"
+    }
+  ],
+  "councils": [
+    "Blacktown"
+  ],
+  "scope": "site_specific"
+}

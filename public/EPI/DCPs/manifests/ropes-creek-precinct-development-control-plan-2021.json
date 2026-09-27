@@ -1,0 +1,25 @@
+{
+  "instrument": "ropes-creek-precinct-development-control-plan-2021",
+  "title": "Ropes Creek Precinct Development Control Plan 2021",
+  "kind": "dcp",
+  "index_last_amended": "2022-07-25",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.blacktown.nsw.gov.au/Plan-build/Stage-2-plans-and-guidelines/Blacktown-planning-controls/Blacktown-Development-Control-Plan-2015",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Western Sydney Employment Area - Ropes Creek Precinct Development Control Plan",
+      "order": 0,
+      "file": "ropes-creek-precinct-development-control-plan-2021/00-western-sydney-employment-area-ropes-creek-precinct-developmen.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879748-dcp-file-185711535.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/ropes-creek-precinct-dcp-final-20220725.pdf",
+      "bytes": 2480408,
+      "sha256": "2d511e725967c4da0b755a820071128f0aebd2c42a5b9b2f5303b1db4ebf61fa"
+    }
+  ],
+  "councils": [
+    "Blacktown"
+  ],
+  "scope": "site_specific"
+}

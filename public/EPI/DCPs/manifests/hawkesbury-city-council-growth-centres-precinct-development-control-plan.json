@@ -1,0 +1,25 @@
+{
+  "instrument": "hawkesbury-city-council-growth-centres-precinct-development-control-plan",
+  "title": "Hawkesbury City Council Growth Centres Precinct Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2018-01-18",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.hawkesbury.nsw.gov.au/plan-and-build/planning-provisions/development-control-plan",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Vineyard Precinct (Stage 1) Development Control Plan",
+      "order": 0,
+      "file": "hawkesbury-city-council-growth-centres-precinct-development-control-plan/00-vineyard-precinct-stage-1-development-control-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692880397-dcp-file-185712063.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/20171213-Hawkesbury-Vineyard-DCP.pdf",
+      "bytes": 7176925,
+      "sha256": "4c07ec1a7d137a4a1b6292489f46bd2715674950f3d86330da19f0372a97a8f1"
+    }
+  ],
+  "councils": [
+    "Hawkesbury"
+  ],
+  "scope": "site_specific"
+}

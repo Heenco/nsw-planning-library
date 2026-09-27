@@ -1,0 +1,71 @@
+{
+  "instrument": "bayside-development-control-plan-2022",
+  "title": "Bayside Development Control Plan 2022",
+  "kind": "dcp",
+  "index_last_amended": "2026-04-17",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.bayside.nsw.gov.au/planning-and-development/planning-our-city/controls",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Bayside Development Control Plan 2022",
+      "order": 0,
+      "file": "bayside-development-control-plan-2022/00-bayside-development-control-plan-2022.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780663547-file-gvdy8_fot7mvrleot5mhmq.pdf",
+      "council_url": "https://www.bayside.nsw.gov.au/sites/default/files/2026-05/26%20102612%20%20Bayside%20Development%20Control%20Plan%202022%20-%20Amendment%202.PDF",
+      "bytes": 34886314,
+      "sha256": "e31a700de4642664a913751fba0372ad5d74700f13db550f3592750da330c563"
+    },
+    {
+      "part": "Appendices",
+      "order": 1,
+      "file": "bayside-development-control-plan-2022/01-appendices.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759286949-file-onp4hrxhtv6m45l8g1lt6q.pdf",
+      "council_url": "https://www.bayside.nsw.gov.au/sites/default/files/2023-04/bayside_dcp_2022_appendices.PDF",
+      "bytes": 26181149,
+      "sha256": "382a41947fc9d0dcf4f4c89a1f6b5835976da13cb06a7fafcf7226dca02bdc15"
+    },
+    {
+      "part": "Traffic, Parking and Access",
+      "order": 2,
+      "file": "bayside-development-control-plan-2022/02-traffic-parking-and-access.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759286959-file-lgqpuf4gtt6gnrekg_053g.pdf",
+      "council_url": "https://www.bayside.nsw.gov.au/sites/default/files/2023-04/traffic_parking_and_access_technical_specification.PDF",
+      "bytes": 772775,
+      "sha256": "bc5f3d32ebb9e9038d1d7bd9ef25d109fee0641992a9904b324dcf04835b5bf5"
+    },
+    {
+      "part": "Waste management",
+      "order": 3,
+      "file": "bayside-development-control-plan-2022/03-waste-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759286963-file-iwlljorltmgcozkvthf68w.pdf",
+      "council_url": "https://www.bayside.nsw.gov.au/sites/default/files/2023-04/waste_management_technical_specification_2022.PDF",
+      "bytes": 1313880,
+      "sha256": "172765ac3116fe72fbdbd3f1b94d160948ca35f9fa22770a553001aa9001b8e2"
+    },
+    {
+      "part": "Stormwater management",
+      "order": 4,
+      "file": "bayside-development-control-plan-2022/04-stormwater-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759286969-file-ujesjjshre6lgp3fpmqqca.pdf",
+      "council_url": "https://www.bayside.nsw.gov.au/sites/default/files/2023-04/stormwater_management_technical_specification.PDF",
+      "bytes": 4479646,
+      "sha256": "05a8ed621f98a88f83af7307fbb4dbfdbeb20b113af115d22b87e58881745279"
+    },
+    {
+      "part": "Landscape",
+      "order": 5,
+      "file": "bayside-development-control-plan-2022/05-landscape.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759286975-file-awbefdbirm-2mz2k9cbkrq.pdf",
+      "council_url": "https://www.bayside.nsw.gov.au/sites/default/files/2023-04/landscape_technical_specification_0.PDF",
+      "bytes": 2702589,
+      "sha256": "7252a5f616f69da29264d104b630aee57fe0eb8bfb57abf16f654cf3d43597f8"
+    }
+  ],
+  "councils": [
+    "Bayside",
+    "Bayside"
+  ],
+  "scope": "citywide"
+}

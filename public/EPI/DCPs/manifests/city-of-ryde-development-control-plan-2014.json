@@ -1,0 +1,376 @@
+{
+  "instrument": "city-of-ryde-development-control-plan-2014",
+  "title": "City of Ryde Development Control Plan 2014",
+  "kind": "dcp",
+  "index_last_amended": "2024-03-13",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.ryde.nsw.gov.au/Planning-and-Development/Planning-Controls/Development-Control-Plan",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "0.0 Preliminary",
+      "order": 0,
+      "file": "city-of-ryde-development-control-plan-2014/00-0-0-preliminary.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692785974-dcp-file-185712864.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-0.0-preliminary.pdf",
+      "bytes": 782945,
+      "sha256": "9877a6b1e26a5e5d0490c67fc76f00991bd9f74e73f19f5239ca9669828f6df9"
+    },
+    {
+      "part": "1.0 Introduction",
+      "order": 1,
+      "file": "city-of-ryde-development-control-plan-2014/01-1-0-introduction.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692785978-dcp-file-185712865.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-1.0-introduction.pdf",
+      "bytes": 798369,
+      "sha256": "078a4ff291d2fdf5ccfb5fea7c2c5f61ac7b1358d3001ece66690115f003e544"
+    },
+    {
+      "part": "Community Participation Plan and Procedure",
+      "order": 2,
+      "file": "city-of-ryde-development-control-plan-2014/02-community-participation-plan-and-procedure.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692785981-dcp-file-185712866.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/community-participation-plan-and-procedure.pdf",
+      "bytes": 675762,
+      "sha256": "08ab75cd8b8c5f5bc3b0cf4dcd701883b16211d8f3f34b8f48a13191541da061"
+    },
+    {
+      "part": "3.1 Brothels",
+      "order": 3,
+      "file": "city-of-ryde-development-control-plan-2014/03-3-1-brothels.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692785985-dcp-file-185712867.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-3.1-brothels-sex-service-premises.pdf",
+      "bytes": 1256366,
+      "sha256": "c29fc2a1531f71870cac23655a60f422e135990fb0e433e8a5fd01df0c5083ae"
+    },
+    {
+      "part": "3.2 Child Care Centres",
+      "order": 4,
+      "file": "city-of-ryde-development-control-plan-2014/04-3-2-child-care-centres.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692785991-dcp-file-185712868.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-3.2-child-care-centres.pdf",
+      "bytes": 2716645,
+      "sha256": "3d788c911652bf5d6b3a582a5f569ff3bd51675a0d67d41beb0af4375acc8121"
+    },
+    {
+      "part": "3.3 Dwelling Houses and Dual Occupancy",
+      "order": 5,
+      "file": "city-of-ryde-development-control-plan-2014/05-3-3-dwelling-houses-and-dual-occupancy.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786001-dcp-file-185712869.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-3.3-dwelling-houses-and-dual-occupancy.pdf",
+      "bytes": 10506215,
+      "sha256": "f51101583e9870bc8e2673549a89775eb6b2c9a27400f9d1ec734a3ebc9604fd"
+    },
+    {
+      "part": "3.4 Multi Dwelling Housing",
+      "order": 6,
+      "file": "city-of-ryde-development-control-plan-2014/06-3-4-multi-dwelling-housing.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907699-file-ky2gxbqfrkq8hai97zpbdw.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/2/development/dcp/dcp-2014-3.4-multi-dwelling-housing-for-low-density-residential-zone.pdf",
+      "bytes": 15873503,
+      "sha256": "2dcabb0f4a8f9d3e7a28e2522e149c83cb1ab021e0afd3471bc3c5f3f8f41935"
+    },
+    {
+      "part": "3.5 Boarding Houses",
+      "order": 7,
+      "file": "city-of-ryde-development-control-plan-2014/07-3-5-boarding-houses.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786029-dcp-file-185712871.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-3.5-boarding-houses.pdf",
+      "bytes": 1776459,
+      "sha256": "f97c293165480d10eb13857336f5b5c1493f73a5e0dd41efb4d7e24a03c3e348"
+    },
+    {
+      "part": "4.1 Eastwood Town Centre",
+      "order": 8,
+      "file": "city-of-ryde-development-control-plan-2014/08-4-1-eastwood-town-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786035-dcp-file-185712872.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-4.1-eastwood-town-centre.pdf",
+      "bytes": 5658374,
+      "sha256": "49ae8ed2ae732234a5254ac883b351c66b213cbde6b37511e56890c0f4c533c4"
+    },
+    {
+      "part": "4.2 Shepherd's Bay, Meadowbank",
+      "order": 9,
+      "file": "city-of-ryde-development-control-plan-2014/09-4-2-shepherd-s-bay-meadowbank.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786058-dcp-file-185712873.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-4.2-shepherds-bay-meadowbank.pdf",
+      "bytes": 20869261,
+      "sha256": "924aa08b541c970b1899706b2592c4caf61c6c8380a7f34c53f4af27085ee775"
+    },
+    {
+      "part": "4.3 West Ryde Town Centre",
+      "order": 10,
+      "file": "city-of-ryde-development-control-plan-2014/10-4-3-west-ryde-town-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786074-dcp-file-185712874.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-4.3-west-ryde-town-centre.pdf",
+      "bytes": 2736860,
+      "sha256": "5ab687cca449f65c26affd002d3f32719c2a0f80262c2cbbee49bbf8db9e230c"
+    },
+    {
+      "part": "4.4 Ryde Town Centre",
+      "order": 11,
+      "file": "city-of-ryde-development-control-plan-2014/11-4-4-ryde-town-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786088-dcp-file-185712875.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-4.4-ryde-town-centre.pdf",
+      "bytes": 19512460,
+      "sha256": "4cb059dad767f818c7b0497d6586d55ff54fba1d6b64e873459d2ff30f64911f"
+    },
+    {
+      "part": "4.5 Macquarie Park Corridor",
+      "order": 12,
+      "file": "city-of-ryde-development-control-plan-2014/12-4-5-macquarie-park-corridor.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786104-dcp-file-185712876.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014_4.5-macquarie-park-corridor.pdf",
+      "bytes": 9243608,
+      "sha256": "32c916e2150a919c51ec02a3adb8d4579bd65703ae1d565f7f8ca2c709adb0c0"
+    },
+    {
+      "part": "4.6 Gladesville Town Centre and Victoria Road Corridor",
+      "order": 13,
+      "file": "city-of-ryde-development-control-plan-2014/13-4-6-gladesville-town-centre-and-victoria-road-corridor.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786119-dcp-file-185712877.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-4.6-gladesville-town-centre-and-victoria-road-corr.pdf",
+      "bytes": 13484284,
+      "sha256": "3e135543687717b2ad31e3dedc7637e79912ecaeb7ffafc9df4424da60dec96f"
+    },
+    {
+      "part": "5.1 Coronation Avenue and Trelawney Street, Eastwood Character Area",
+      "order": 14,
+      "file": "city-of-ryde-development-control-plan-2014/14-5-1-coronation-avenue-and-trelawney-street-eastwood-character-.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786133-dcp-file-185712878.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-5.1-coronation-avenue-and-trelawney.pdf",
+      "bytes": 11615784,
+      "sha256": "012a2f11eddd455b52599f26aeca07dae5649c9e79482eb3e75a4554e4983145"
+    },
+    {
+      "part": "5.2 Eastwood House Estate Heritage Conservation Area",
+      "order": 15,
+      "file": "city-of-ryde-development-control-plan-2014/15-5-2-eastwood-house-estate-heritage-conservation-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786143-dcp-file-185712879.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-5.2-eastwood-house-estate-heritage-conservation.pdf",
+      "bytes": 1396023,
+      "sha256": "028184e143e8adac42c5befe878946da4fd33f85865b1b750e69f2ebc941d5e7"
+    },
+    {
+      "part": "5.3 Tyrell Street, Gladesville, Character Area",
+      "order": 16,
+      "file": "city-of-ryde-development-control-plan-2014/16-5-3-tyrell-street-gladesville-character-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786149-dcp-file-185712880.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-5.3-tyrell-street-gladesville.pdf",
+      "bytes": 2547960,
+      "sha256": "37b4e44a94c84a0d1bfec4f8c432c871b569c4ca2116eec17012ff787dee2609"
+    },
+    {
+      "part": "5.4 Blenheim Road Small Centre",
+      "order": 17,
+      "file": "city-of-ryde-development-control-plan-2014/17-5-4-blenheim-road-small-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786155-dcp-file-185712881.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-5.4-blenheim-road-small-centre.pdf",
+      "bytes": 1900216,
+      "sha256": "561e8e1dc75ad0ca4a08e15bc8ab680d063dba3750099e430f8637292cbdfdb6"
+    },
+    {
+      "part": "6.1 Blaxland Road",
+      "order": 18,
+      "file": "city-of-ryde-development-control-plan-2014/18-6-1-blaxland-road.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786160-dcp-file-185712882.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-6.1-blaxland-road-601-607-eastwood.pdf",
+      "bytes": 953692,
+      "sha256": "04de000c4340988ebfe5c44afc72c05168cb1c7b5234b8203cfc07cde45f86e2"
+    },
+    {
+      "part": "6.2 Pennant Avenue",
+      "order": 19,
+      "file": "city-of-ryde-development-control-plan-2014/19-6-2-pennant-avenue.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786165-dcp-file-185712883.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-6.2-pennant-avenue-1-13-denistone.pdf",
+      "bytes": 1490214,
+      "sha256": "6bedd905902bb455f8bdfd13a377bc8094efe0a0bb08dc4206655aa0b081ce8e"
+    },
+    {
+      "part": "6.3 Second Avenue",
+      "order": 20,
+      "file": "city-of-ryde-development-control-plan-2014/20-6-3-second-avenue.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786170-dcp-file-185712884.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-6.3-second-avenue-9-19-eastwood.pdf",
+      "bytes": 1485960,
+      "sha256": "48e65c0343ed83572aa6ed43a3230cc8e537e8ac424c89bc16b636563e85a238"
+    },
+    {
+      "part": "6.4 Blaxland Road",
+      "order": 21,
+      "file": "city-of-ryde-development-control-plan-2014/21-6-4-blaxland-road.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786174-dcp-file-185712885.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-6.4-blaxland-road-283-289-ryde.pdf",
+      "bytes": 1603106,
+      "sha256": "3597c1dad113352ac0ed096fab1d3c72d98307e8e3e18daec313e1a6e622bf96"
+    },
+    {
+      "part": "6.5 Victoria Road, Gladesville",
+      "order": 22,
+      "file": "city-of-ryde-development-control-plan-2014/22-6-5-victoria-road-gladesville.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786192-dcp-file-185712886.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-6.5-victoria-road-461-495-gladesville.pdf",
+      "bytes": 22967244,
+      "sha256": "d482f06b11baacf85241c55252ba3a908b8cb5cd878788ba47edc8b283ef31dc"
+    },
+    {
+      "part": "6.6: 127-133 Ryedale Road & 4-14 Terry Road, Denistone",
+      "order": 23,
+      "file": "city-of-ryde-development-control-plan-2014/23-6-6-127-133-ryedale-road-4-14-terry-road-denistone.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786208-dcp-file-185712887.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/part-6.6-site-specific-dcp-for-127-133-ryedale-road-4-14-terry-road-denistone_final.pdf",
+      "bytes": 2439154,
+      "sha256": "c0e80cabfe630f64d2f23d8e05682e009cb7b9895d0d1faf736b92895e5b5340"
+    },
+    {
+      "part": "7.1: Energy Smart, Water Wise",
+      "order": 24,
+      "file": "city-of-ryde-development-control-plan-2014/24-7-1-energy-smart-water-wise.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786214-dcp-file-185712888.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-7.1-energy-smart-water-wise.pdf",
+      "bytes": 1575124,
+      "sha256": "a02d9952d3c7b3671de80929ac8a5c5b9ccb34f98d6a70abb39298831d3c2511"
+    },
+    {
+      "part": "7.2: Waste Minimisation and Management",
+      "order": 25,
+      "file": "city-of-ryde-development-control-plan-2014/25-7-2-waste-minimisation-and-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786219-dcp-file-185712889.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-7.2-waste-minimisation-and-management.pdf",
+      "bytes": 1540263,
+      "sha256": "c8fad0ae4dc6e7bcdf8eb234f1fcb0fb8fe8a50b40ebcc366705911578342d57"
+    },
+    {
+      "part": "8.1: Construction Activities",
+      "order": 26,
+      "file": "city-of-ryde-development-control-plan-2014/26-8-1-construction-activities.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786224-dcp-file-185712890.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-8.1-construction-activities.pdf",
+      "bytes": 2721055,
+      "sha256": "31bc5375d3f0703c943758868addf80f9f867c57ceaa7d8d3e946584a9c4473a"
+    },
+    {
+      "part": "8.2: Stormwater and Floodplain Management",
+      "order": 27,
+      "file": "city-of-ryde-development-control-plan-2014/27-8-2-stormwater-and-floodplain-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786231-dcp-file-185712891.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-8.2-stormwater-management.pdf",
+      "bytes": 1411935,
+      "sha256": "7f59576d44467694f69d8827f30460b8aacc8128f7f6a475671cd98e1cd586f1"
+    },
+    {
+      "part": "Stormwater Management Technical Manual",
+      "order": 28,
+      "file": "city-of-ryde-development-control-plan-2014/28-stormwater-management-technical-manual.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786236-dcp-file-185712892.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-8.2-stormwater-management-technical-manual.pdf",
+      "bytes": 3417250,
+      "sha256": "37d1ec1c5c2861e233238890d1afae09ace91ba8a4585e7d3f8c5b1c2ed8ce00"
+    },
+    {
+      "part": "Water Sensitive Urban Design Guidelines",
+      "order": 29,
+      "file": "city-of-ryde-development-control-plan-2014/29-water-sensitive-urban-design-guidelines.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786243-dcp-file-185712893.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-8.2-wsud-guidelines.pdf",
+      "bytes": 2987544,
+      "sha256": "07fdc03e79c00a4b293d03d5e7834c1289fbe9cefd1d0d84ed0dc959f311a998"
+    },
+    {
+      "part": "8.3: Driveways",
+      "order": 30,
+      "file": "city-of-ryde-development-control-plan-2014/30-8-3-driveways.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786251-dcp-file-185712894.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-8.3-driveways.pdf",
+      "bytes": 3236613,
+      "sha256": "b7a131bf25750474209391d4a8dcf806d6fb7fb323b8c0e4b09e4145952152c8"
+    },
+    {
+      "part": "8.4: Title Encumbrances",
+      "order": 31,
+      "file": "city-of-ryde-development-control-plan-2014/31-8-4-title-encumbrances.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786257-dcp-file-185712895.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/2/development/dcp/dcp-2014-8.4-title-encumbrances.pdf",
+      "bytes": 1947521,
+      "sha256": "6b9b3b9e5ae88ded9f2e61d41431d0c3e983cbe0faa0a92faa30168a1df2dfc8"
+    },
+    {
+      "part": "8.5: Public Civil Works",
+      "order": 32,
+      "file": "city-of-ryde-development-control-plan-2014/32-8-5-public-civil-works.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786262-dcp-file-185712896.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-8.5-public-civil-works.pdf",
+      "bytes": 1417106,
+      "sha256": "1057bf22c776c1130bb29ea86c212d9d07c72f0e828779d9978881fe4d588a09"
+    },
+    {
+      "part": "9.1: Signage",
+      "order": 33,
+      "file": "city-of-ryde-development-control-plan-2014/33-9-1-signage.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786268-dcp-file-185712897.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-9.1-signage.pdf",
+      "bytes": 3702280,
+      "sha256": "a8290393e3bc7fad1e97f4e71bc68c5db2e42f1e417e4ed2ae210c92e29eda1b"
+    },
+    {
+      "part": "9.2: Access for People with Disabilities",
+      "order": 34,
+      "file": "city-of-ryde-development-control-plan-2014/34-9-2-access-for-people-with-disabilities.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786275-dcp-file-185712898.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-9.2-access-for-people-with-disabilities.pdf",
+      "bytes": 6100809,
+      "sha256": "c4fb8b90ce37d46e18a434aa7956ba29aaeb6422f67664b828e6e8dc2fd90230"
+    },
+    {
+      "part": "9.3: Parking Controls",
+      "order": 35,
+      "file": "city-of-ryde-development-control-plan-2014/35-9-3-parking-controls.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786284-dcp-file-185712899.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-9.3-parking-controls.pdf",
+      "bytes": 3136496,
+      "sha256": "6d9318b6d086b7f7062d68387468448fa3c77aa6b7abf91735eb7ce9630d7d55"
+    },
+    {
+      "part": "9.4: Installation of Satellite Dishes and MDS-Microwave Antennae",
+      "order": 36,
+      "file": "city-of-ryde-development-control-plan-2014/36-9-4-installation-of-satellite-dishes-and-mds-microwave-antenna.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786290-dcp-file-185712900.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-9.4-installation-of-satellite-dishes-and-mds.pdf",
+      "bytes": 955153,
+      "sha256": "87d3ae44df65b58741ec8d2bced7c6b8cc58d10de494e4d86b9137bf89e7f5e8"
+    },
+    {
+      "part": "9.5: Tree Preservation",
+      "order": 37,
+      "file": "city-of-ryde-development-control-plan-2014/37-9-5-tree-preservation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907743-file-ce8i_bjhtb-q2tzk2v-g.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/4/development/dcp/dcp-2014-part-9.5-tree-preservation.pdf",
+      "bytes": 2250918,
+      "sha256": "c9bb74a84d34d6fbabbdca6d097ed5a1d4cd05617d0cefe6e5b24605392e1a02"
+    },
+    {
+      "part": "Tree Management Technical Manual",
+      "order": 38,
+      "file": "city-of-ryde-development-control-plan-2014/38-tree-management-technical-manual.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786297-dcp-file-185712902.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/publications/environment/tree-management-technical-manual.pdf",
+      "bytes": 444518,
+      "sha256": "c1a874b29d32967fd40e4e1c00997553d65ab79d60df8716aeed68cabfa98169"
+    },
+    {
+      "part": "10: Dictionary",
+      "order": 39,
+      "file": "city-of-ryde-development-control-plan-2014/39-10-dictionary.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692786301-dcp-file-185712903.pdf",
+      "council_url": "https://www.ryde.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-2014-10-dictionary.pdf",
+      "bytes": 909151,
+      "sha256": "6c61f2f12ff3316f4efe145709bbac2d59d2a6d396575b5c689e4d72205d381c"
+    }
+  ],
+  "councils": [
+    "Ryde"
+  ],
+  "scope": "citywide"
+}

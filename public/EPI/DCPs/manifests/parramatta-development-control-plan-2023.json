@@ -1,0 +1,133 @@
+{
+  "instrument": "parramatta-development-control-plan-2023",
+  "title": "Parramatta Development Control Plan 2023",
+  "kind": "dcp",
+  "index_last_amended": "2026-06-17",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofparramatta.nsw.gov.au/development/plans-and-strategies/development-control-plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Cover and Contents",
+      "order": 0,
+      "file": "parramatta-development-control-plan-2023/00-cover-and-contents.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783352384-dcp-cover-and-contents.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/7/development/dcp/dcp-cover-and-contents.pdf",
+      "bytes": 293801,
+      "sha256": "b461a4004294b8d8b1b2438217ef9125a1e167e26e04ff320a66350c57257922"
+    },
+    {
+      "part": "Part 1: Introduction",
+      "order": 1,
+      "file": "parramatta-development-control-plan-2023/01-part-1-introduction.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908708-file-dvtztel_snoxwkzvmztrma.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-1-introduction.pdf",
+      "bytes": 481616,
+      "sha256": "80a2e21561d9a9ef4760b6937d5d423471f66bb1fd350d3ab0298792664e4946"
+    },
+    {
+      "part": "Part 2: Design in Context",
+      "order": 2,
+      "file": "parramatta-development-control-plan-2023/02-part-2-design-in-context.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908714-file-c9xalwaftaoxzgiuifemda.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-2-design-in-context.pdf",
+      "bytes": 2679543,
+      "sha256": "f614bde9b356ec3d5846bb433847836c20f9bfc6a4c34a277b8d09e1917c4645"
+    },
+    {
+      "part": "Part 3: Residential Development",
+      "order": 3,
+      "file": "parramatta-development-control-plan-2023/03-part-3-residential-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908720-file-uwc-kd4srvisjvrullrjhq.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-3-residential-development.pdf",
+      "bytes": 4944826,
+      "sha256": "ee13e6dd6f65ff8cd43784b0e410d5e019a9813274bf7495ff5a27d59467ad60"
+    },
+    {
+      "part": "Part 4: Non-Residential Development",
+      "order": 4,
+      "file": "parramatta-development-control-plan-2023/04-part-4-non-residential-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908730-file-x8yl2xrksdskvg6sar7h5g.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-4-non-residential-development.pdf",
+      "bytes": 543851,
+      "sha256": "232b143a5a1ce97e565b896d5b9dc888162d41ad6c099936ce848de906bdc1b3"
+    },
+    {
+      "part": "Part 5: Environmental Management",
+      "order": 5,
+      "file": "parramatta-development-control-plan-2023/05-part-5-environmental-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908736-file-dtvsczphroagqwdwfzou-q.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-5-environmental-management.pdf",
+      "bytes": 2050243,
+      "sha256": "de454cb79fe833cdf8a4dc4841b57332d63c13413558ca90b3c1d765745c63d0"
+    },
+    {
+      "part": "Part 6: Traffic and Transport",
+      "order": 6,
+      "file": "parramatta-development-control-plan-2023/06-part-6-traffic-and-transport.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908742-file-yugnskfvtwc5oodxpmzsxq.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-6-traffic-and-transport.pdf",
+      "bytes": 424112,
+      "sha256": "b53b1fd2180a6e76a8430dd20ec27553edddb7cd35e359727b1da0700e22e240"
+    },
+    {
+      "part": "Part 7: Heritage and Archaeology",
+      "order": 7,
+      "file": "parramatta-development-control-plan-2023/07-part-7-heritage-and-archaeology.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908749-file-b_uzlhnxrri-xo5uypbjia.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-7-heritage-and-archaeology.pdf",
+      "bytes": 5212599,
+      "sha256": "20fc90afa5840bc59426a4ab34fd5e0f413a1637387870687a17ec3fbaee7daf"
+    },
+    {
+      "part": "Part 8: Centres, Precincts, Special Character Areas, and Specific Sites",
+      "order": 8,
+      "file": "parramatta-development-control-plan-2023/08-part-8-centres-precincts-special-character-areas-and-specific-.pdf",
+      "url": "https://www.datocms-assets.com/94948/1785420780-dcp-part-08-centres-precincts-special-character-areas-and-specific-sites.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/5/development/dcp/dcp-part-08-centres-precincts-special-character-areas-and-specific-sites.pdf",
+      "bytes": 55793105,
+      "sha256": "6f5608a24ff19fdefa561bfe6fd038d0c6370d878e8176745f79ec47ce28559e"
+    },
+    {
+      "part": "Part 9: Parramatta City Centre",
+      "order": 9,
+      "file": "parramatta-development-control-plan-2023/09-part-9-parramatta-city-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1777871996-file-uswtg0_isokgq5mkecmpqw.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/3/development/dcp/dcp-part-9-parramatta-city-centre.pdf",
+      "bytes": 33410494,
+      "sha256": "02a5e6c0586ae0bbefc5644a734e4f85820226dc3cfbf6c4284ef835ccabc18e"
+    },
+    {
+      "part": "Part 10: Late Night Trading",
+      "order": 10,
+      "file": "parramatta-development-control-plan-2023/10-part-10-late-night-trading.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908791-file-mfwn09r3t-agyozmh2qxeg.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-10-late-night-trading.pdf",
+      "bytes": 2356823,
+      "sha256": "2a0ba15338f210b8108077eb5da0e2832cb79831356647b2d564f463be2e98d2"
+    },
+    {
+      "part": "Part 11: Glossary",
+      "order": 11,
+      "file": "parramatta-development-control-plan-2023/11-part-11-glossary.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908798-file-eyt5a_h1srutuhb13rjbdw.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-11-glossary.pdf",
+      "bytes": 396272,
+      "sha256": "f9acc43ae556acdc3fc2d7d6b9364c1b8e23c86bf791c33e3ca424cde9f96f0a"
+    },
+    {
+      "part": "Part 12: Appendices",
+      "order": 12,
+      "file": "parramatta-development-control-plan-2023/12-part-12-appendices.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757908807-file-bmbvsybntdujbagttpfmna.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-12-appendices.pdf",
+      "bytes": 3110461,
+      "sha256": "9dbe81ef82f8b3460b2b27e427c9589e518d86540b755afc4d3f988ba4f3e97b"
+    }
+  ],
+  "councils": [
+    "Parramatta"
+  ],
+  "scope": "citywide"
+}

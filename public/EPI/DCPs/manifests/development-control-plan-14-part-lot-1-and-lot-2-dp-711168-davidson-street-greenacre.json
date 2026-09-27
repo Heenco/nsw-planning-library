@@ -1,0 +1,25 @@
+{
+  "instrument": "development-control-plan-14-part-lot-1-and-lot-2-dp-711168-davidson-street-greenacre",
+  "title": "Development Control Plan 14 – Part Lot 1 and Lot 2 DP 711168, Davidson Street, Greenacre",
+  "kind": "dcp",
+  "index_last_amended": "2020-10-13",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.strathfield.nsw.gov.au/Develop/Planning-Policies",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "DCP 14 - Davidson-Street, Greenacre",
+      "order": 0,
+      "file": "development-control-plan-14-part-lot-1-and-lot-2-dp-711168-davidson-street-greenacre/00-dcp-14-davidson-street-greenacre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692808940-dcp-file-185712952.pdf",
+      "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/dcp-14-davidson-street-greenacre-131020.pdf",
+      "bytes": 444044,
+      "sha256": "4aec862dd5170e035f84738fde0f470e96085b6dc2e40da988bbec37ef0cf5d5"
+    }
+  ],
+  "councils": [
+    "Strathfield"
+  ],
+  "scope": "site_specific"
+}

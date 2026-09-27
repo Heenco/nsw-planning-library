@@ -1,0 +1,25 @@
+{
+  "instrument": "burwood-development-control-plan",
+  "title": "Burwood Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2026-03-05",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.burwood.nsw.gov.au/Planning-Building/Burwood-Development-Control-Plan",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Burwood Development Control Plan",
+      "order": 0,
+      "file": "burwood-development-control-plan/00-burwood-development-control-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1776264024-file-sgyh5ukir7wmn3fmikpd1g.pdf",
+      "council_url": "https://www.burwood.nsw.gov.au/files/sharedassets/public/v/9/planning-and-building/burwood-development-control-plan-dcp.pdf",
+      "bytes": 7779441,
+      "sha256": "fc9fc05ecb3467452677cd9efc7449e7bf790e297c39623d82cd5810530cc3cb"
+    }
+  ],
+  "councils": [
+    "Burwood"
+  ],
+  "scope": "citywide"
+}

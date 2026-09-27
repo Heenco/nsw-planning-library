@@ -1,0 +1,26 @@
+{
+  "instrument": "edmondson-park-south-development-control-plan-2012",
+  "title": "Edmondson Park South Development Control Plan 2012",
+  "kind": "dcp",
+  "index_last_amended": "2012-11-30",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.campbelltown.nsw.gov.au/Build-and-Develop/Planning-Policies-and-Controls-1",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Edmondson Park South Development Control Plan 2012",
+      "order": 0,
+      "file": "edmondson-park-south-development-control-plan-2012/00-edmondson-park-south-development-control-plan-2012.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770259630-file-tyyagjoutlw-k1-f8or5vw.pdf",
+      "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/edmondsonparksouthdevelopmentcontrolplan2012.pdf",
+      "bytes": 1859780,
+      "sha256": "db7660af9aa8e3911150e243fb0db326f8e1a947db19ea717819a872719e8251"
+    }
+  ],
+  "councils": [
+    "Campbelltown",
+    "Liverpool"
+  ],
+  "scope": "site_specific"
+}

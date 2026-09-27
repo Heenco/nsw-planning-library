@@ -1,0 +1,169 @@
+{
+  "instrument": "blacktown-development-control-plan-2015",
+  "title": "Blacktown Development Control Plan 2015",
+  "kind": "dcp",
+  "index_last_amended": "2026-02-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.blacktown.nsw.gov.au/Plan-build/Stage-2-plans-and-guidelines/Blacktown-planning-controls/Blacktown-Development-Control-Plan-2015",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Part A - Introduction and General Guidelines",
+      "order": 0,
+      "file": "blacktown-development-control-plan-2015/00-part-a-introduction-and-general-guidelines.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772682304-file-pwsavkantxoz8gxnnxleww.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-a-introduction-and-general-guidelines-01-02-2026.pdf",
+      "bytes": 1073514,
+      "sha256": "bdb9068c3f26fd6e1b896305fc5944a0fc4e2ae1533b2ed5e40cdcfbbcc2b8a1"
+    },
+    {
+      "part": "Part B - Development in the Rural Zones",
+      "order": 1,
+      "file": "blacktown-development-control-plan-2015/01-part-b-development-in-the-rural-zones.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711520.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-b-development-in-the-rural-zones.pdf",
+      "bytes": 867091,
+      "sha256": "45fa128b011117d618e2436512779c9f0acd2fc0935fc790fb9783ada4dd18a5"
+    },
+    {
+      "part": "Part C - Development within the Residential Areas",
+      "order": 2,
+      "file": "blacktown-development-control-plan-2015/02-part-c-development-within-the-residential-areas.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772682311-file-a2vfznbxslyky-nphimaaw.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-c-development-in-the-residential-areas_01-02-2026.pdf",
+      "bytes": 2660526,
+      "sha256": "79e024216839c8a92af73fad99993714c56097059def406d5f242513005f79ae"
+    },
+    {
+      "part": "Part D - Development in the Business Zones",
+      "order": 3,
+      "file": "blacktown-development-control-plan-2015/03-part-d-development-in-the-business-zones.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711522.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-d-development-in-the-business-zones.pdf",
+      "bytes": 7536924,
+      "sha256": "8180852bb3f742b5d2a91a5e23ae070e9f816ed0ef0ae9121f706fedd88e3d9b"
+    },
+    {
+      "part": "Part E - Development in the Industrial Zones",
+      "order": 4,
+      "file": "blacktown-development-control-plan-2015/04-part-e-development-in-the-industrial-zones.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772682318-file-j5co-3qqthafnvq4avxggw.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-e-development-in-the-industrial-zones_01-02-2026.pdf",
+      "bytes": 2146115,
+      "sha256": "72c618cf21a02521270f07d339fca5f58a7f8fcd1d2ac10d200aa415f8a0e651"
+    },
+    {
+      "part": "Part F - Telecommunications Facilities",
+      "order": 5,
+      "file": "blacktown-development-control-plan-2015/05-part-f-telecommunications-facilities.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711524.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-f-telecommunications-facilities.pdf",
+      "bytes": 458845,
+      "sha256": "f39611d8d2f0369d844326568089848a42fdf30e722dabde4180f26b1cfd3ba2"
+    },
+    {
+      "part": "Part G - Site Waste Management and Minimisation",
+      "order": 6,
+      "file": "blacktown-development-control-plan-2015/06-part-g-site-waste-management-and-minimisation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879748-dcp-file-185711525.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/1part-g-site-waste-management-and-minimisation.pdf",
+      "bytes": 1568027,
+      "sha256": "8470b1f7f2d0cc7c460461a2d811320ed99cd307ef403db4c354df5919dd2069"
+    },
+    {
+      "part": "Part H - Landfill Guidelines",
+      "order": 7,
+      "file": "blacktown-development-control-plan-2015/07-part-h-landfill-guidelines.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772682327-file-cngwyo_qstkuqt6exczqgw.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-h-landfill-guidelines_01-02-2026.pdf",
+      "bytes": 460345,
+      "sha256": "0cf71e1792f9359cc962a335cd1aa915ccdb3b89b51fb4cadecf92392e49c254"
+    },
+    {
+      "part": "Part I - Contaminated Land Guidelines",
+      "order": 8,
+      "file": "blacktown-development-control-plan-2015/08-part-i-contaminated-land-guidelines.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711527.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-i-contaminated-land-guidelines.pdf",
+      "bytes": 524904,
+      "sha256": "a963d95c8d0d0fa3a57e83b44d5e43e75405ece2ec77d9ba037e10e38ab6c295"
+    },
+    {
+      "part": "Part J - Water Sensitive Urban Design and Integrated Water Cycle Management",
+      "order": 9,
+      "file": "blacktown-development-control-plan-2015/09-part-j-water-sensitive-urban-design-and-integrated-water-cycle.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879748-dcp-file-185711528.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/3/building-and-planning/dcps-amp-lap/part-j-water-sensitive-urban-design-and-integrated-water-cycle-management.pdf",
+      "bytes": 1060807,
+      "sha256": "dd2a7200e1f9de26031bf40e57523e5d2c7b1ffbfdfb0457c93781784006bc19"
+    },
+    {
+      "part": "Figure 1 Catchment areas subject to OSD",
+      "order": 10,
+      "file": "blacktown-development-control-plan-2015/10-figure-1-catchment-areas-subject-to-osd.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711529.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/content/public/v/35/plan-build/stage-2-plans-and-guidelines/blacktown-planning-controls/blacktown-development-control-plan-2015/osd-map.pdf",
+      "bytes": 4982394,
+      "sha256": "63043d99edd548b3c14043098c3d8bccb0eee212dca325c442da254e73611033"
+    },
+    {
+      "part": "Figure 2 Water Quality Offset Scheme Boundary",
+      "order": 11,
+      "file": "blacktown-development-control-plan-2015/11-figure-2-water-quality-offset-scheme-boundary.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711530.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/figure_2_water_quality_offset_scheme_boundary.pdf",
+      "bytes": 5858305,
+      "sha256": "7fa0d24c21daac52fa1842d06ae699c7b90468e172a795af9c88f5c892821608"
+    },
+    {
+      "part": "Part K - Supplementary Provisions for Specific Sites in Established Areas",
+      "order": 12,
+      "file": "blacktown-development-control-plan-2015/12-part-k-supplementary-provisions-for-specific-sites-in-establis.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711531.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-k-supplementary-provisions-for-specific-sites-in-established-areas.pdf",
+      "bytes": 1543093,
+      "sha256": "d7f89491f3b678a2806ec8e57ee248a00a8371defae226f50162c330a90d7e17"
+    },
+    {
+      "part": "Part L - Stonecutters Ridge",
+      "order": 13,
+      "file": "blacktown-development-control-plan-2015/13-part-l-stonecutters-ridge.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711532.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/2/building-and-planning/dcps-amp-lap/part-l-stonecutters-ridge_waste.pdf",
+      "bytes": 4348603,
+      "sha256": "69cd27a53a2108dd80ccb7b6a2bcab9c2295786d0d7eac36f6db7c1691ca2476"
+    },
+    {
+      "part": "Part M - The Ponds",
+      "order": 14,
+      "file": "blacktown-development-control-plan-2015/14-part-m-the-ponds.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711533.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/2/building-and-planning/dcps-amp-lap/part-m-the-ponds_waste.pdf",
+      "bytes": 3857872,
+      "sha256": "f60533eb70f79a89031a5eb72f371d6c351aa99bf20a61df9cc8391d163552fa"
+    },
+    {
+      "part": "Part N - Ashlar Precinct",
+      "order": 15,
+      "file": "blacktown-development-control-plan-2015/15-part-n-ashlar-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692879749-dcp-file-185711534.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-n-ashlar-precinct.pdf",
+      "bytes": 1645148,
+      "sha256": "2a824303a68a11802329ce06914b885fbca185f60240c4a0d6731c76e7d745dd"
+    },
+    {
+      "part": "Part O - Mount Druitt CBD",
+      "order": 16,
+      "file": "blacktown-development-control-plan-2015/16-part-o-mount-druitt-cbd.pdf",
+      "url": "https://www.datocms-assets.com/94948/1725251859-file-lzgw-zkbq0szhvkxf9ca7g.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-o-mount-druitt-cbd.pdf",
+      "bytes": 2604412,
+      "sha256": "ef0c80c85c134d6d987ff0ce8a29d52b7544148c8d6ffd9482ffd5f93c2f3a68"
+    }
+  ],
+  "councils": [
+    "Blacktown"
+  ],
+  "scope": "citywide"
+}

@@ -1,0 +1,241 @@
+{
+  "instrument": "north-sydney-development-control-plan-2025",
+  "title": "North Sydney Development Control Plan 2025",
+  "kind": "dcp",
+  "index_last_amended": "2026-07-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.northsydney.nsw.gov.au/downloads/download/602/north-sydney-development-control-plan-dcp-2025",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Part A - Introduction",
+      "order": 0,
+      "file": "north-sydney-development-control-plan-2025/00-part-a-introduction.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897120-file-zc4r9fourz-6sbuiefj8fg.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4332/nsdcp-2025-part-a-introduction",
+      "bytes": 399132,
+      "sha256": "3c221d01b1808f37db1131bd3feb64739203a5929f7216036e9055e3b9f9089e"
+    },
+    {
+      "part": "Part B - Environment Considerations",
+      "order": 1,
+      "file": "north-sydney-development-control-plan-2025/01-part-b-environment-considerations.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783411244-nsdcp_2025_part_b-environment_considerations.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4352/nsdcp-2025-part-b-environment-considerations",
+      "bytes": 2789864,
+      "sha256": "c3b2007c3e43370fe8157fb2b1271b03ec22281392bc581f633e197a869be5e8"
+    },
+    {
+      "part": "Part C - Heritage Conservation",
+      "order": 2,
+      "file": "north-sydney-development-control-plan-2025/02-part-c-heritage-conservation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783579113-file-hjrvi_kztjabpn-illf8jq.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4350/nsdcp-2025-part-c-heritage-conservation",
+      "bytes": 2775881,
+      "sha256": "0084222f951c8d86390546bbf3e2f3442cfaa1345c6b6c28a5f6dafc71d2a52c"
+    },
+    {
+      "part": "Part D - Development Elements",
+      "order": 3,
+      "file": "north-sydney-development-control-plan-2025/03-part-d-development-elements.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897138-file-irqka_icqewpzgzey1azbw.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4351/nsdcp-2025-part-d-development-elements",
+      "bytes": 2509959,
+      "sha256": "20f418760847c8934a129490ff134d8b5a80f367078fc935a3f7c733f4650f25"
+    },
+    {
+      "part": "Part E - Development Types",
+      "order": 4,
+      "file": "north-sydney-development-control-plan-2025/04-part-e-development-types.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897144-file-acli0m6cq-qdqpiovv7wa.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4342/nsdcp-2025-part-e-development-types",
+      "bytes": 1846298,
+      "sha256": "83e66e3a11166a3915926affcd4fef6dec1f38bec36514fc747f8dd942d83ddf"
+    },
+    {
+      "part": "Part E - Section 1 - Residential",
+      "order": 5,
+      "file": "north-sydney-development-control-plan-2025/05-part-e-section-1-residential.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897151-file-vk0avicbskklanpzrpx_yw.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4336/nsdcp-2025-part-e-section-1-residential",
+      "bytes": 571344,
+      "sha256": "834583707868043c2a4bfcb9d543818a363870b43102f069c37a893c0bef0410"
+    },
+    {
+      "part": "Part E - Section 2 - Development in Employment and Mixed Use Zones",
+      "order": 6,
+      "file": "north-sydney-development-control-plan-2025/06-part-e-section-2-development-in-employment-and-mixed-use-zones.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897156-file-d_ry9jfnqz-agp6tu5c8gg.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4337/nsdcp-2025-part-e-section-2-development-in-employment-and-mixed-use-zones",
+      "bytes": 393025,
+      "sha256": "a175122639e892d9851ea2bcf9674ce1f76f2164330383e95505e98167a29639"
+    },
+    {
+      "part": "Part E - Section 3 - Non-Residential Development in Residential Zones",
+      "order": 7,
+      "file": "north-sydney-development-control-plan-2025/07-part-e-section-3-non-residential-development-in-residential-zo.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897164-file-awl6caxbql6l7pymxnzuuq.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4333/nsdcp-2025-part-e-section-3-non-residential-development-in-residential-zones",
+      "bytes": 332369,
+      "sha256": "0d91df367dd86461a9e036512b0f0e2ad414be2e8dc8e548c86c62d2dc22f2ff"
+    },
+    {
+      "part": "Part E - Section 4 - Boarding Houses and Coliving Housing",
+      "order": 8,
+      "file": "north-sydney-development-control-plan-2025/08-part-e-section-4-boarding-houses-and-coliving-housing.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897170-file-rjg8fkjlrcueqfanfbp32a.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4328/nsdcp-202-part-e-section-4-boarding-houses-and-coliving-housing",
+      "bytes": 199618,
+      "sha256": "b5fcd9eb27174bc4d67b165945da7bec2a5a7dae0b2dd864aca28571fb7b6cee"
+    },
+    {
+      "part": "Part E - Section 5 - Sex Services and Restricted Premises",
+      "order": 9,
+      "file": "north-sydney-development-control-plan-2025/09-part-e-section-5-sex-services-and-restricted-premises.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897175-file-i2ccorv5tc-tkuube_d2aw.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4331/nsdcp-2025-part-e-section-5-sex-services-and-restricted-premises",
+      "bytes": 190801,
+      "sha256": "67674d7e21dba3b6acb1ab1e733aed8a3de976b035814ea3164c6886a7dae116"
+    },
+    {
+      "part": "Part E - Section 6 - Advertising and Signage",
+      "order": 10,
+      "file": "north-sydney-development-control-plan-2025/10-part-e-section-6-advertising-and-signage.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897180-file-udsy-3lwt-2thyb_ne1xew.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4335/nsdcp-2025-part-e-section-6-advertising-and-signage",
+      "bytes": 390206,
+      "sha256": "ddc1943090b459cab9e8b2745735af8796428d4408a99a4506992d0716ce1ba0"
+    },
+    {
+      "part": "Part E - Section 7 - Telecommunications",
+      "order": 11,
+      "file": "north-sydney-development-control-plan-2025/11-part-e-section-7-telecommunications.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897188-file-hyffbfeds4qw0tnwljsnrw.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4329/nsdcp-2025-part-e-section-7-telecommunications",
+      "bytes": 178982,
+      "sha256": "9fbc36d0aa56d32b0dc730ac0a85298aff93088f91c3a913452410a31265248e"
+    },
+    {
+      "part": "Part F - Area Character Outcomes",
+      "order": 12,
+      "file": "north-sydney-development-control-plan-2025/12-part-f-area-character-outcomes.pdf",
+      "url": "https://www.datocms-assets.com/94948/1789774881-file-w536zid-t4kwzauv8dbtrw.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4353/nsdcp-2025-part-f-area-character-outcomes",
+      "bytes": 17486447,
+      "sha256": "a07758fde263f3d2462ad28d05af18c417af0cf9ceaf04ea832eb496a9da4b8f"
+    },
+    {
+      "part": "Part F - Section 1 - Planning and Locality Areas",
+      "order": 13,
+      "file": "north-sydney-development-control-plan-2025/13-part-f-section-1-planning-and-locality-areas.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897204-file-xsw16cxqrdin2-tjx1ytqg.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4334/nsdcp-2025-part-f-section-1-planning-and-locality-areas",
+      "bytes": 436775,
+      "sha256": "c12ac857d06baa6cdb9ffa2bf2376b4fa8401e103727181bd8d975d0301717d8"
+    },
+    {
+      "part": "Part F - Section 2 - North Sydney Planning Area",
+      "order": 14,
+      "file": "north-sydney-development-control-plan-2025/14-part-f-section-2-north-sydney-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897210-file-etd_tlg2smiwpssop-ypag.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4345/nsdcp-2025-part-f-section-2-north-sydney-planning-area",
+      "bytes": 1784591,
+      "sha256": "acd05b41b1617a7d5ab1b8ed557471e81dc9babeb563dedc825ac52404e08d7e"
+    },
+    {
+      "part": "Part F - Section 3 - St Leonards Planning Area",
+      "order": 15,
+      "file": "north-sydney-development-control-plan-2025/15-part-f-section-3-st-leonards-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897216-file-jhbgafvttq21iazumiseba.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4348/nsdcp-2025-part-f-section-3-st-leonards-planning-area",
+      "bytes": 4089328,
+      "sha256": "283f9e74397dd52b5a8a3378c3f47ebae83e528f6443bb0eeb03b0ce6ea13be7"
+    },
+    {
+      "part": "Part F - Section 4 - Cammeray Planning Area",
+      "order": 16,
+      "file": "north-sydney-development-control-plan-2025/16-part-f-section-4-cammeray-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897220-file-nbf8xouztrmhn1quax5_3q.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4341/nsdcp-2025-part-f-section-4-cammeray-planning-area",
+      "bytes": 1358206,
+      "sha256": "58a637044a0b146f39514bba83dc35daac799df550c45eb55cec216023173408"
+    },
+    {
+      "part": "Part F - Section 5 - North Cremorne Planning Area",
+      "order": 17,
+      "file": "north-sydney-development-control-plan-2025/17-part-f-section-5-north-cremorne-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897227-file-nyf7bsbzraqijkjukxcxew.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4344/nsdcp-2025-part-f-section-5-north-cremorne-planning-area",
+      "bytes": 1768031,
+      "sha256": "28eedcaf88957c20d863c44f3d6cb73994a30f7c031d4541beb09c1d63ed7baa"
+    },
+    {
+      "part": "Part F - Section 6 - South Cremorne Planning Area",
+      "order": 18,
+      "file": "north-sydney-development-control-plan-2025/18-part-f-section-6-south-cremorne-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897233-file-xixtpfibr561drpu_g96hq.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4340/nsdcp-2025-part-f-section-6-south-cremorne-planning-area",
+      "bytes": 1411917,
+      "sha256": "3fd56e6a211f1f12c057b83f4927aa8d7b3f5941d7d2c3edc9cfee0167a7f06a"
+    },
+    {
+      "part": "Part F - Section 7 - Neutral Bay Planning Area",
+      "order": 19,
+      "file": "north-sydney-development-control-plan-2025/19-part-f-section-7-neutral-bay-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897239-file-heorb6jws42syghomm3tsq.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4339/nsdcp-2025-part-f-section-7-neutral-bay-planning-area",
+      "bytes": 1024249,
+      "sha256": "b37335976774a0e4a563cccccba47ab565ed0c6741d4ba86e017c68eca646e98"
+    },
+    {
+      "part": "Part F - Section 8 - Kirribilli Planning Area",
+      "order": 20,
+      "file": "north-sydney-development-control-plan-2025/20-part-f-section-8-kirribilli-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897245-file-dphapqbfqfqqq2b3borbta.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4343/nsdcp-2025-part-f-section-8-kirribilli-planning-area",
+      "bytes": 1689437,
+      "sha256": "97af77760eb9d6f147fd4d0281ea87938a75b2207d8540bd0602c9c82035fedc"
+    },
+    {
+      "part": "Part F - Section 9 - Lavender Bay Planning Area",
+      "order": 21,
+      "file": "north-sydney-development-control-plan-2025/21-part-f-section-9-lavender-bay-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897254-file-cj3qzkantpyzu712-env4q.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4346/nsdcp-2025-part-f-section-9-lavender-bay-planning-area",
+      "bytes": 2226243,
+      "sha256": "b3c940e6aeda0615af1aad89035fa56c03cd20aa90a90db0ce760703518f15b5"
+    },
+    {
+      "part": "Part F - Section 10 - Waverton Wollstonecraft Planning Area",
+      "order": 22,
+      "file": "north-sydney-development-control-plan-2025/22-part-f-section-10-waverton-wollstonecraft-planning-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897260-file-zyerdrdmrf67-ftutfmdea.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4349/nsdcp-2025-part-f-section-10-waverton-wollstonecraft-planning-area",
+      "bytes": 2694375,
+      "sha256": "ab62339ad3c0bfc3388397230307682dcdbb88d25560d88ad61f5c52fc65d7cf"
+    },
+    {
+      "part": "Appendix 1 - Glossary",
+      "order": 23,
+      "file": "north-sydney-development-control-plan-2025/23-appendix-1-glossary.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897267-file-of1d02sbqwclim8yr-yb5w.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4330/nsdcp-2025-appendix-1-glossary",
+      "bytes": 191621,
+      "sha256": "b4b4bc7441d0f86ebd8f1098d1cdc94029d30335ae7c162a2d0c8801f2a65bdb"
+    },
+    {
+      "part": "Appendix 2 - Heritage - Contributory Neutral and Uncharacteristic Items",
+      "order": 24,
+      "file": "north-sydney-development-control-plan-2025/24-appendix-2-heritage-contributory-neutral-and-uncharacteristic-.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897273-file-lrlytpm7tec1lx2quinlpw.pdf",
+      "council_url": "https://www.northsydney.nsw.gov.au/downloads/file/4347/nsdcp-2025-appendix-2-heritage-contributory-neutral-and-uncharacteristic-items",
+      "bytes": 1257819,
+      "sha256": "647b1e3dc5166bf289ccee2c159847ab270b3d5342ad309c5029bec0973d6c4d"
+    }
+  ],
+  "councils": [
+    "North Sydney"
+  ],
+  "scope": "citywide"
+}

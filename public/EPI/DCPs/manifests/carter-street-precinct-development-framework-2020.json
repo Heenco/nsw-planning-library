@@ -1,0 +1,25 @@
+{
+  "instrument": "carter-street-precinct-development-framework-2020",
+  "title": "Carter Street Precinct Development Framework 2020",
+  "kind": "dcp",
+  "index_last_amended": "2020-12-16",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.cityofparramatta.nsw.gov.au/development/plans-and-strategies/development-control-plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Carter Street Precinct Development Framework 2020",
+      "order": 0,
+      "file": "carter-street-precinct-development-framework-2020/00-carter-street-precinct-development-framework-2020.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757895166-file-u4-bjndcrgq76wpemgvega.pdf",
+      "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/carter-street-precinct-development-framework-2020.pdf",
+      "bytes": 4552333,
+      "sha256": "2e44500b1e6b99a911d1fb51418be13bd144d025aa8462653b3bd2f0e340264f"
+    }
+  ],
+  "councils": [
+    "Parramatta"
+  ],
+  "scope": "site_specific"
+}

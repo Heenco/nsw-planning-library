@@ -1,0 +1,25 @@
+{
+  "instrument": "development-control-plan-26-2-6-pilgrim-avenue-and-9-13-albert-road-strathfield",
+  "title": "Development Control Plan 26 – 2-6 Pilgrim Avenue and 9-13 Albert Road, Strathfield",
+  "kind": "dcp",
+  "index_last_amended": "2020-10-13",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.strathfield.nsw.gov.au/Develop/Planning-Policies",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "DCP 26 - 2-6 Pilgrim Ave and 9-13 Albert Rd, Strathfield (13 October 2020)",
+      "order": 0,
+      "file": "development-control-plan-26-2-6-pilgrim-avenue-and-9-13-albert-road-strathfield/00-dcp-26-2-6-pilgrim-ave-and-9-13-albert-rd-strathfield-13-octob.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692808908-dcp-file-185712958.pdf",
+      "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/dcp-26-2-6-pilgrim-ave-and-9-13-albert-rd-strathfield-131020.pdf",
+      "bytes": 1265617,
+      "sha256": "a82370db9424c6bca859859208319d1031fc36d145b7573491c29e8d2fb6eeac"
+    }
+  ],
+  "councils": [
+    "Strathfield"
+  ],
+  "scope": "site_specific"
+}

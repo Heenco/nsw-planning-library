@@ -1,0 +1,34 @@
+{
+  "instrument": "hunters-hill-consolidated-development-control-plan-2013",
+  "title": "Hunters Hill Consolidated Development Control Plan 2013",
+  "kind": "dcp",
+  "index_last_amended": "2015-11-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.huntershill.nsw.gov.au/Development/Planning-and-Zoning/Planning-Controls",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Consolidated Development Control Plan 2013",
+      "order": 0,
+      "file": "hunters-hill-consolidated-development-control-plan-2013/00-consolidated-development-control-plan-2013.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692880416-dcp-file-185712071.pdf",
+      "council_url": "https://www.huntershill.nsw.gov.au/files/assets/public/v/1/development/planning-controls/hunters-hill-consolidated-development-control-plan-2013.pdf",
+      "bytes": 6502018,
+      "sha256": "b3d834b7fedd10ab878d5c5af07bd1d2e795a749f3eb494b926cada2f070859c"
+    },
+    {
+      "part": "Chapter 4.4 – Gladesville Village Centre",
+      "order": 1,
+      "file": "hunters-hill-consolidated-development-control-plan-2013/01-chapter-4-4-gladesville-village-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692880416-dcp-file-185712072.pdf",
+      "council_url": "https://www.huntershill.nsw.gov.au/files/assets/public/v/1/development/planning-controls/chapter-4.4-gladesville-village-centre.pdf",
+      "bytes": 2837272,
+      "sha256": "460bcdd51d12b680d152171739bd5db58f6d3ccaf75d0a63f4be32f05cb0a48f"
+    }
+  ],
+  "councils": [
+    "Hunters Hill"
+  ],
+  "scope": "citywide"
+}

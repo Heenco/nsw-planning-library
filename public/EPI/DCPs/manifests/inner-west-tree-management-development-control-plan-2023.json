@@ -1,0 +1,79 @@
+{
+  "instrument": "inner-west-tree-management-development-control-plan-2023",
+  "title": "Inner West Tree Management Development Control Plan 2023",
+  "kind": "dcp",
+  "index_last_amended": "2023-12-11",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.innerwest.nsw.gov.au/private-trees/tree-policies-and-guidelines",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Tree Management Development Control Plan",
+      "order": 0,
+      "file": "inner-west-tree-management-development-control-plan-2023/00-tree-management-development-control-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1778486082-file-kcoex7xotqw5pj0trbrovq.pdf",
+      "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-02/Tree%20Management%20DCP%202023%20adopted%20-%20effective%201%20April%202023.pdf",
+      "bytes": 678299,
+      "sha256": "294998cd086cd0931d69cd7e5cc632ba4c969077242f4b856982ccfa99c76418"
+    },
+    {
+      "part": "1 Part A: Strategy",
+      "order": 1,
+      "file": "inner-west-tree-management-development-control-plan-2023/01-1-part-a-strategy.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783375962-street-20tree-20strategy-20-20ashfield-20-20part-20a-20-20strategy.pdf",
+      "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-02/Street%20Tree%20Strategy%20-%20Ashfield%20-%20Part%20A%20-%20Strategy.pdf",
+      "bytes": 9378966,
+      "sha256": "7e97ff65abbb70e7c5824f968bab5425e8a1787f981cf4e43412d548d9a48dd5"
+    },
+    {
+      "part": "2 Part B: Street tree management guidelines and policies",
+      "order": 2,
+      "file": "inner-west-tree-management-development-control-plan-2023/02-2-part-b-street-tree-management-guidelines-and-policies.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783375987-street-20tree-20strategy-20-20ashfield-20-20part-20b-20-20street-20tree-20management-20guidelines-20and-20policies.pdf",
+      "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-02/Street%20Tree%20Strategy%20-%20Ashfield%20-%20Part%20B%20-%20Street%20tree%20management%20guidelines%20and%20policies.pdf",
+      "bytes": 9290613,
+      "sha256": "1c767dbafe78bb5e594c60043bf04ea99da06aad78a62d2f6af1948c785e2c15"
+    },
+    {
+      "part": "3 Part C: Technical guidelines, details and specifications",
+      "order": 3,
+      "file": "inner-west-tree-management-development-control-plan-2023/03-3-part-c-technical-guidelines-details-and-specifications.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783376012-street-20tree-20strategy-20-20ashfield-20-20part-20c-20-20technical-20guidelines-20details-20and-20specifications.pdf",
+      "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-02/Street%20Tree%20Strategy%20-%20Ashfield%20-%20Part%20C%20-%20Technical%20guidelines%20details%20and%20specifications.pdf",
+      "bytes": 13368186,
+      "sha256": "97a66bb924ebbce168fcdab0ef0f58059610f7018581cd2fd3b1825ee68ad443"
+    },
+    {
+      "part": "Marrickville Street Tree Master Plan",
+      "order": 4,
+      "file": "inner-west-tree-management-development-control-plan-2023/04-marrickville-street-tree-master-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783376032-marrickvillestmp_adoptsep14.pdf",
+      "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-02/MarrickvilleSTMP_AdoptSep14.pdf",
+      "bytes": 5682479,
+      "sha256": "2882ba70394c3cc90b01e33e11730e4207c0636204d42b2bd0bfd1302461babf"
+    },
+    {
+      "part": "Marrickville Urban Forest Strategy",
+      "order": 5,
+      "file": "inner-west-tree-management-development-control-plan-2023/05-marrickville-urban-forest-strategy.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783376048-urban-20forest-20strategy-20-20marrickville.pdf",
+      "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-02/Urban%20forest%20strategy%20-%20Marrickville.pdf",
+      "bytes": 4271121,
+      "sha256": "f17eceb2a1b6e7077027b17fe119c3f13e2b23b4ac242f4c09bba23df4287afd"
+    },
+    {
+      "part": "Leichhardt Urban Forest Policy",
+      "order": 6,
+      "file": "inner-west-tree-management-development-control-plan-2023/06-leichhardt-urban-forest-policy.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783376061-urban-20forest-20policy-20-20leichhardt.pdf",
+      "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-02/Urban%20forest%20policy%20-%20Leichhardt.pdf",
+      "bytes": 41814,
+      "sha256": "c0405aef1a784e22f23d2209576b266d4f5174266b9b6560c0b11116d9dfa68e"
+    }
+  ],
+  "councils": [
+    "Inner West"
+  ],
+  "scope": "citywide"
+}

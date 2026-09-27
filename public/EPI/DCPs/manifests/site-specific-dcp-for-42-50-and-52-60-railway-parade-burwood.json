@@ -1,0 +1,25 @@
+{
+  "instrument": "site-specific-dcp-for-42-50-and-52-60-railway-parade-burwood",
+  "title": "Site Specific DCP for 42-50 and 52-60 Railway Parade Burwood",
+  "kind": "dcp",
+  "index_last_amended": "2020-07-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.burwood.nsw.gov.au/Planning-Building/Planning-Controls",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Site Specific DCP for 42-50 and 52-60 Railway Parade Burwood",
+      "order": 0,
+      "file": "site-specific-dcp-for-42-50-and-52-60-railway-parade-burwood/00-site-specific-dcp-for-42-50-and-52-60-railway-parade-burwood.pdf",
+      "url": "https://www.datocms-assets.com/94948/1764725363-file-gl0ggdszry-bauq_ve_1cg.pdf",
+      "council_url": "https://www.burwood.nsw.gov.au/files/sharedassets/public/v/2/planning-and-building/site-specific-dcp-for-42-50-and-52-60-railway-parade-burwood.pdf",
+      "bytes": 909930,
+      "sha256": "61f1dcaa0878eea9225a0be1c2301b73a75b240b55f1dac8117647039b35f13d"
+    }
+  ],
+  "councils": [
+    "Burwood"
+  ],
+  "scope": "site_specific"
+}

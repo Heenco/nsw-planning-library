@@ -1,0 +1,115 @@
+{
+  "instrument": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010",
+  "title": "Blacktown City Council Growth Centre Precincts Development Control Plan 2010",
+  "kind": "dcp",
+  "index_last_amended": "2025-10-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.planning.nsw.gov.au/plans-for-your-area/priority-growth-areas-and-precincts/north-west-growth-area/schofields?acc_section=development_control_plan",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Blacktown City Council Growth Centre Precincts Development Control Plan 2010",
+      "order": 0,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/00-blacktown-city-council-growth-centre-precincts-development-con.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772682910-file-d4vl7emvr1erbhd1k3bspg.pdf",
+      "council_url": "https://www.planningportal.nsw.gov.au/sites/default/files/documents/2025/Blacktown%20City%20Council%20Growth%20Centre%20Precincts%20Development%20Control%20Plan%202010.pdf",
+      "bytes": 4763814,
+      "sha256": "8441f5b3083f81cca5ce9cc4c03dae261fcafc2d887bd9c59c007a5510708352"
+    },
+    {
+      "part": "Appendices",
+      "order": 1,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/01-appendices.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772682917-file-fzvkj2cirruhnhbhi5ifuw.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/blacktown-city-council-gcp-dcp-2010-appendices.pdf",
+      "bytes": 1598632,
+      "sha256": "6160c101c9841e95a57d4f4afd8647ab33e69bdefe6572c116b86384b0514d4d"
+    },
+    {
+      "part": "Schedule 1 Alex Avenue Precinct",
+      "order": 2,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/02-schedule-1-alex-avenue-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907508-file-cf0h030yrvytosh7war7mq.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/schedule-1-alex-avenue-precinct.pdf",
+      "bytes": 6800105,
+      "sha256": "b9ca61870f7595b40180d582e4c6082099287677e032a12eec52a298947dbedd"
+    },
+    {
+      "part": "Schedule 2 Riverstone Precinct",
+      "order": 3,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/03-schedule-2-riverstone-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907516-file-w0ib43ivsi-8nkazgfyn-q.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/schedule-2-riverstone-precinct.pdf",
+      "bytes": 2096370,
+      "sha256": "605b53ab8acbb424b4aa14087584631ef8180a3a528849315082db829df42e15"
+    },
+    {
+      "part": "Schedule 3 Marsden Park Industrial Precinct",
+      "order": 4,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/04-schedule-3-marsden-park-industrial-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907522-file-peifq9tismcbpcrjoeediq.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/marsden-park-industrial-precinct-schedule-3.pdf",
+      "bytes": 4507331,
+      "sha256": "333afdbbbbed08383efd349fdd2170e41cf1f15a44c43fc74d6461355065261c"
+    },
+    {
+      "part": "Schedule 4 Area 20 Precinct",
+      "order": 5,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/05-schedule-4-area-20-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1764725182-file-dyjyrfasrhgoolfmwmybiq.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/schedule-4-cudgegong-road-area-20-precinct.pdf",
+      "bytes": 2593371,
+      "sha256": "0fc332a7dbf3e172f4250fa09006cee7dd74609e28a0af9a7ad6727694c113d1"
+    },
+    {
+      "part": "Schedule 5 Schofields Precinct",
+      "order": 6,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/06-schedule-5-schofields-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907537-file-tzjascqztkwv5naobqgdka.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/schedule-5-schofields-precinct.pdf",
+      "bytes": 30675302,
+      "sha256": "52dbc6e4638b38fb6ebfeef876229af3c5e404c4b53dfd5e25ee3a1c0cdf133c"
+    },
+    {
+      "part": "Schedule 6 Marsden Park Precinct",
+      "order": 7,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/07-schedule-6-marsden-park-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907548-file-ef9cuxper5ibhm_h0vkjsg.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/schedule-6-marsden-park.pdf",
+      "bytes": 3962900,
+      "sha256": "dfdfbe17c4399b2a59e73b3ab1cad90cdf71ab7a5facdcbfefd86fbbe163f6c7"
+    },
+    {
+      "part": "Schedule 7 Townson Road Precinct",
+      "order": 8,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/08-schedule-7-townson-road-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907555-file-d_f7tx-ns2sfr29qxyx1eg.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/schedule-7-west-schofields-townson-road-precinct.pdf",
+      "bytes": 2210460,
+      "sha256": "28ff9ad712681cb843a23c936f99216ae0be8c8cfefdbe0aa797e406ee3cc90b"
+    },
+    {
+      "part": "Schedule 8 Riverstone East Precinct",
+      "order": 9,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/09-schedule-8-riverstone-east-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907562-file-iywgzk5lt9wqgi5g2kboxq.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/schedule-8-riverstone-east-precinct.pdf",
+      "bytes": 7092093,
+      "sha256": "419a803b55ca4dfda6578c2edfc3c4f2da549cde2ce67ba622eb71a8433ffc0f"
+    },
+    {
+      "part": "Schedule 9 Riverstone East Precinct – Stage 3",
+      "order": 10,
+      "file": "blacktown-city-council-growth-centre-precincts-development-control-plan-2010/10-schedule-9-riverstone-east-precinct-stage-3.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757907570-file-g2ee1zwyqwcmshu8sirfqq.pdf",
+      "council_url": "https://www.planningportal.nsw.gov.au/sites/default/files/documents/2025/Riverstone%20East%20-%20Stage%203%20DCP_0.pdf",
+      "bytes": 12448035,
+      "sha256": "6f5d4f68c5e7a216a3a74b9a59b6c3f76ba6b83900bdf53f0ea4ff72d32a636d"
+    }
+  ],
+  "councils": [
+    "Blacktown"
+  ],
+  "scope": "site_specific"
+}

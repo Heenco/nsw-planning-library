@@ -1,0 +1,25 @@
+{
+  "instrument": "liverpool-plains-development-control-plan",
+  "title": "Liverpool Plains Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2021-05-18",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.liverpoolplains.nsw.gov.au/Development/Planning",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Development Control Plan - Amendment 5 - Adopted 18 May 2021",
+      "order": 0,
+      "file": "liverpool-plains-development-control-plan/00-development-control-plan-amendment-5-adopted-18-may-2021.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692894868-dcp-file-185712456.pdf",
+      "council_url": "https://www.liverpoolplains.nsw.gov.au/files/assets/public/v/1/liverpool-plains-development-control-plan-amendment-5-adopted-18-may-2021.pdf",
+      "bytes": 9465369,
+      "sha256": "309165d4d4f67b5a902a56131dbc49d2aae4da08dab40d859c2d335ea9702ddd"
+    }
+  ],
+  "councils": [
+    "Liverpool Plains"
+  ],
+  "scope": "citywide"
+}

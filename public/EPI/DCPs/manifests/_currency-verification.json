@@ -1,0 +1,79 @@
+{
+  "_comment": [
+    "Per-council verification of WHICH DCP is currently in force, done from each council's own",
+    "page rather than from the Planning Portal register. The runbook is emphatic that the register",
+    "is good for discovery and useless for currency, and every council checked so far confirms it.",
+    "",
+    "This file is the record of step 0 of docs/dcp-onboarding-runbook.md. It is committed because",
+    "the verification is manual and expensive, and redoing it for 30 councils because nobody wrote",
+    "it down is the failure this exists to prevent.",
+    "",
+    "status: verified | pending | blocked",
+    "register_says is quoted from public/EPI/nsw-dcp/dcp-register.json so the drift is visible."
+  ],
+  "verified_at": "2026-09-27",
+  "councils": {
+    "Hornsby": {
+      "status": "verified",
+      "in_force": "Hornsby Development Control Plan 2024",
+      "register_says": "Hornsby DCP 2013 - 2019",
+      "commenced": "2024-07-18",
+      "as_at": "2025-06-23",
+      "date_evidence": {
+        "commenced": "Approved by Council 10 July 2024, implemented 18 July 2024",
+        "as_at": "Part footers read 'THIS PART WAS LAST AMENDED ON 23 JUNE 2025'"
+      },
+      "structure": "multi-part, 10 parts, also published as a single book version",
+      "source_page": "https://www.hornsby.nsw.gov.au/Property/Building-and-development/Policies-and-guidelines/Hornsby-Development-Control-Plan",
+      "already_ingested": true
+    },
+    "Randwick": {
+      "status": "verified",
+      "in_force": "Randwick Development Control Plan 2025",
+      "register_says": "Randwick DCP 2013 - as amended Apr 2016",
+      "commenced": "2026-07-27",
+      "structure": "multi-part, 43 parts; retains three DCP 2013 parts (D3, D5, F2)",
+      "note": "Savings: DAs lodged before 27 July 2026 assessed under the old DCP, except those relying on SEPP (Housing) 2021 affordable-housing / co-living / low-and-mid-rise provisions. Stage 3 parts pending end 2026.",
+      "already_ingested": true
+    },
+    "Canterbury-Bankstown": {
+      "status": "verified",
+      "in_force": "Canterbury-Bankstown Development Control Plan 2023",
+      "register_says": "Bankstown DCP 2015 - as amended 13 Jul 2016",
+      "commenced": "2023-06",
+      "as_at": "2026-07-17",
+      "date_evidence": {
+        "as_at": "Amendment 15, adopted at Council's Ordinary Meeting of 24 March 2026, relating to Chapter 11.16 (1 Leicester Street, Chester Hill), effective 17 July 2026"
+      },
+      "structure": "multi-part, 51 chapters plus 14 supporting guides",
+      "source_page": "https://www.cbcity.nsw.gov.au/planning-and-building/planning-city/planning-controls-and-policies/canterbury-bankstown-development-control-plan",
+      "url_note": "Chapters are behind cb.city/DCPn-n shortlinks that must be resolved; guides are base64-encoded webdocs.bankstown.nsw.gov.au publish URLs",
+      "already_ingested": false
+    },
+    "Ku-ring-gai": {
+      "status": "verified",
+      "in_force": "Ku-ring-gai Development Control Plan",
+      "register_says": "Ku-ring-gai DCP - in effect as of 27 August 2021",
+      "adopted": "2026-02-17",
+      "commenced": "2026-03-05",
+      "date_evidence": {
+        "commenced": "Cover page: 'Ku-ring-gai Development Control Plan ADOPTED - 17 February 2026' and 'EFFECTIVE - 5 March 2026'"
+      },
+      "structure": "multi-part, ~45 parts across Sections A, B and C",
+      "source_page": "https://www.krg.nsw.gov.au/Planning-and-development/Planning-policies-and-guidelines/Ku-ring-gai-Development-Control-Plan",
+      "note": "Register is 4.5 years stale for this council. There is also a separate Ku-ring-gai Local Centres DCP.",
+      "already_ingested": false
+    },
+    "Sutherland Shire": {
+      "status": "blocked",
+      "in_force": "Sutherland Shire Development Control Plan 2015",
+      "register_says": "Sutherland DCP - Landscape - Edition 3",
+      "blocked_by": "council DCP page returns HTTP 403 to WebFetch; needs the browser header set from runbook step 2",
+      "note": "Amendments adopted to April 2026 (vehicular access/traffic/parking/bicycles, and general/stormwater/flooding). DCP still applies former zones pending an employment-zones update.",
+      "source_page": "https://www.sutherlandshire.nsw.gov.au/plan-and-build/Planning-considerations/development-control-plan-dcp",
+      "already_ingested": false
+    }
+  },
+  "not_in_register": ["Bayside", "Cumberland", "Georges River"],
+  "not_in_register_note": "All three are post-2016 amalgamations; the register predates or missed them. Their DCPs must be found from the council site directly."
+}

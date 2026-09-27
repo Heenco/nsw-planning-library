@@ -1,0 +1,151 @@
+{
+  "instrument": "the-city-of-canada-bay-development-control-plan",
+  "title": "The City of Canada Bay Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2025-09-16",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.canadabay.nsw.gov.au/development/plans-policies-and-controls/planning-controls-LEP-DCP",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Part A Introduction",
+      "order": 0,
+      "file": "the-city-of-canada-bay-development-control-plan/00-part-a-introduction.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757898987-file-dnnc7cvktvsxx_cumty4vq.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719475&streamId=streampdf-7719475",
+      "bytes": 266261,
+      "sha256": "3e9b0c8cff5e028a41dd7dc8547f36c87069794129d57cc848dabeb82f6ac573"
+    },
+    {
+      "part": "Part B General Control",
+      "order": 1,
+      "file": "the-city-of-canada-bay-development-control-plan/01-part-b-general-control.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759304610-ecm_7719476_v9_ccb-dcp-03_part-b-general-controls_v2022-08-26.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719476&streamId=streampdf-7719476",
+      "bytes": 24364353,
+      "sha256": "ddb8e257644d2451b108662ba52c9853a2d88aded765f9a1b840175a24761f35"
+    },
+    {
+      "part": "Part C Heritage",
+      "order": 2,
+      "file": "the-city-of-canada-bay-development-control-plan/02-part-c-heritage.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899011-file-ewzlpme7rawvvsfblqub7g.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719477&streamId=streampdf-7719477",
+      "bytes": 445726,
+      "sha256": "d747d5b10a6e88f1b595146aa42a9949d770677f2e2e15302c1215d2e81ab5df"
+    },
+    {
+      "part": "Part D Boarding Houses",
+      "order": 3,
+      "file": "the-city-of-canada-bay-development-control-plan/03-part-d-boarding-houses.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899018-file-seaowly5roaenewu4mac6g.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719478&streamId=streampdf-7719478",
+      "bytes": 299471,
+      "sha256": "e921a54dc5eac773a62eed18005e0f7a0baa0d987b369acdcc9072c430075011"
+    },
+    {
+      "part": "Part E Single Dwellings, Semi-Detached Dwellings, Dual Occupancies and Secondary Dwellings",
+      "order": 4,
+      "file": "the-city-of-canada-bay-development-control-plan/04-part-e-single-dwellings-semi-detached-dwellings-dual-occupanci.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899024-file-czdrppqnrac_gvubdo52jq.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719479&streamId=streampdf-7719479",
+      "bytes": 3054363,
+      "sha256": "d8e758df6a423d1a5b436cf13edb06ad7c810a3e20673963ffcf76a7e9773f52"
+    },
+    {
+      "part": "Part F Multi-Dwelling Housing, Multi Dwelling Housing (Terraces), Manor Houses and Residential Flat Buildings",
+      "order": 5,
+      "file": "the-city-of-canada-bay-development-control-plan/05-part-f-multi-dwelling-housing-multi-dwelling-housing-terraces-.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899033-file-cbfuvpvjszc2waqrtg8jza.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719480&streamId=streampdf-7719480",
+      "bytes": 3210193,
+      "sha256": "8d9960852b967f1e5629a2cba79c120d770e0a6b4604b1172a5d0c1662ed1a0f"
+    },
+    {
+      "part": "Part G Local Centres",
+      "order": 6,
+      "file": "the-city-of-canada-bay-development-control-plan/06-part-g-local-centres.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759304633-ecm_7719481_v4_ccb-dcp-08_part-g-local-centres_v2022-05-16.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719481&streamId=streampdf-7719481",
+      "bytes": 10129345,
+      "sha256": "e9e403d72b57523fb772ffee410b5ef62eac452404842b09facc4a9f5a4cb5a7"
+    },
+    {
+      "part": "Part H Industrial",
+      "order": 7,
+      "file": "the-city-of-canada-bay-development-control-plan/07-part-h-industrial.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899051-file-rm6q1bmeqkyllf2b9qmyfw.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719482&streamId=streampdf-7719482",
+      "bytes": 216431,
+      "sha256": "430d61bb0d3b44597ee9128ebfe601ba61bb90026dc0f7ccd8975be821c36b07"
+    },
+    {
+      "part": "Part I Signage and Advertising",
+      "order": 8,
+      "file": "the-city-of-canada-bay-development-control-plan/08-part-i-signage-and-advertising.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899058-file-lkg-tnppqvc0bxxkl7ecpa.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719483&streamId=streampdf-7719483",
+      "bytes": 487002,
+      "sha256": "2f19142b2712f070ec7487aa063196a972ad928e98791f1cd52221090920c969"
+    },
+    {
+      "part": "Part J Child care Centres",
+      "order": 9,
+      "file": "the-city-of-canada-bay-development-control-plan/09-part-j-child-care-centres.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899064-file-dosyqjbxtemc9-cwqvqx6g.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719484&streamId=streampdf-7719484",
+      "bytes": 180538,
+      "sha256": "54d859dca17c340ea664a947b171d6801b675e2e07098ba3cdaf52029b4e679b"
+    },
+    {
+      "part": "Part K Special Precincts",
+      "order": 10,
+      "file": "the-city-of-canada-bay-development-control-plan/10-part-k-special-precincts.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759304659-ecm_7719485_v9_ccb-dcp-12_part-k-special-precincts_v2022-05-16.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719485&streamId=streampdf-7719485",
+      "bytes": 60608692,
+      "sha256": "93a5683885fd4f10bf12e19f6eda81435b7ef8f1b36cbb004381d780d0548864"
+    },
+    {
+      "part": "Part L Definitions",
+      "order": 11,
+      "file": "the-city-of-canada-bay-development-control-plan/11-part-l-definitions.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899090-file-pfslth26s02290su6_eq7g.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719486&streamId=streampdf-7719486",
+      "bytes": 289500,
+      "sha256": "d15c17fff3119931e1fd0d7796d4378b83dc55aff4e3cda34ab6f5aaed2bd3b2"
+    },
+    {
+      "part": "Appendix 1 Conservation Areas",
+      "order": 12,
+      "file": "the-city-of-canada-bay-development-control-plan/12-appendix-1-conservation-areas.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759304691-ecm_7719487_v5_ccb-dcp-14_appendix-1-conservation-areas_v2022-05-16.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719487&streamId=streampdf-7719487",
+      "bytes": 11466166,
+      "sha256": "222583111bf73cd5be3dce39007d46a91f7132cfe22ae3891e5d4863fb95f92d"
+    },
+    {
+      "part": "Appendix 2 Engineering Specifications",
+      "order": 13,
+      "file": "the-city-of-canada-bay-development-control-plan/13-appendix-2-engineering-specifications.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899107-file-jmzsmtp7qqsssoobv2mdhg.pdf",
+      "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719488&streamId=streampdf-7719488",
+      "bytes": 4494498,
+      "sha256": "ab4578fa1f8059da67c87ef6268765bf34c8f6d1c10c81fc625cb133e54d8f07"
+    },
+    {
+      "part": "Appendix 3 Tree Species",
+      "order": 14,
+      "file": "the-city-of-canada-bay-development-control-plan/14-appendix-3-tree-species.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757899114-file-efw1atubqb6cl2mbdfhyvq.pdf",
+      "council_url": "https://www.canadabay.nsw.gov.au/sites/default/files/CCB-DCP-16_Appendix-3-Tree-Species.pdf",
+      "bytes": 392246,
+      "sha256": "eec63fdfc0e99868e82e85407facc1535b0339a8912d468d6893768bb2f6eab7"
+    }
+  ],
+  "councils": [
+    "Canada Bay"
+  ],
+  "scope": "citywide"
+}

@@ -1,0 +1,25 @@
+{
+  "instrument": "mamre-road-precinct-development-control-plan-2021",
+  "title": "Mamre Road Precinct Development Control Plan 2021",
+  "kind": "dcp",
+  "index_last_amended": "2021-11-19",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.penrithcity.nsw.gov.au/building-development/planning-zoning/planning-controls/development-control-plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Mamre Road Precinct Development Control Plan 2021",
+      "order": 0,
+      "file": "mamre-road-precinct-development-control-plan-2021/00-mamre-road-precinct-development-control-plan-2021.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692787117-dcp-file-185712751.pdf",
+      "council_url": "https://www.planningportal.nsw.gov.au/sites/default/files/documents/2021/Mamre%20Road%20Precinct%20DCP%202021_0.pdf",
+      "bytes": 6160879,
+      "sha256": "d12352c3c06a9302a8cbdd177b936ff21d97f315666a5f124a947debf90d7823"
+    }
+  ],
+  "councils": [
+    "Penrith"
+  ],
+  "scope": "site_specific"
+}

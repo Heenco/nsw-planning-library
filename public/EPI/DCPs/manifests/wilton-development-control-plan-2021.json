@@ -1,0 +1,88 @@
+{
+  "instrument": "wilton-development-control-plan-2021",
+  "title": "Wilton Development Control Plan 2021",
+  "kind": "dcp",
+  "index_last_amended": "2023-11-29",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.planningportal.nsw.gov.au/wilton-growth-area-DCP-2021",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Wilton Growth Area Development Control Plan: Parts 1 – 8",
+      "order": 0,
+      "file": "wilton-development-control-plan-2021/00-wilton-growth-area-development-control-plan-parts-1-8.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770197686-file-a4zq5wdfr0ewsyrhp_xzra.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/NSW+Planning+Portal+Documents/Parts+1-8+of+the+Wilton+Growth+Area+DCP.pdf",
+      "bytes": 16459385,
+      "sha256": "e91b0dc363181da1667f29d0b3fe3972113cbc15914bf93a28c77cd47c207f1d"
+    },
+    {
+      "part": "Wilton Growth Area Development Control Plan: Part 9",
+      "order": 1,
+      "file": "wilton-development-control-plan-2021/01-wilton-growth-area-development-control-plan-part-9.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770197694-file-ug0lpbxcshqjyaocdblz9a.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/NSW+Planning+Portal+Documents/Wilton+Growth+Area+DCP+-+Part+9+Employment.pdf",
+      "bytes": 1165732,
+      "sha256": "f4f0e76789f02afd391cbfa239b2c39b8bb5aee76b1c51cd865026889a2fdfd8"
+    },
+    {
+      "part": "Wilton Growth Area Development Control Plan 2021 - Appendices",
+      "order": 2,
+      "file": "wilton-development-control-plan-2021/02-wilton-growth-area-development-control-plan-2021-appendices.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770197700-file-f3zxvpr-rkkuaepcnprd7q.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/Wilton+Growth+Area+Development+Control+Plan+(DCP)+-+Appendices.pdf",
+      "bytes": 2146802,
+      "sha256": "76863a62a3cb7d3e1f6c6ad66124cf3815b2ef10692d9afcd4569476b2b42595"
+    },
+    {
+      "part": "South East Wilton Precinct Schedule 1",
+      "order": 3,
+      "file": "wilton-development-control-plan-2021/03-south-east-wilton-precinct-schedule-1.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770197708-file-p9x8v_6hskywdeq3gugvza.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/South+East+Wilton+Precinct+-+Schedule+1.pdf",
+      "bytes": 6228639,
+      "sha256": "ef3808f8524d10848e0d5cda1707b4e389fc5d61fe673c2fc0ef0b87fb006ede"
+    },
+    {
+      "part": "North Wilton Precinct Schedule 2",
+      "order": 4,
+      "file": "wilton-development-control-plan-2021/04-north-wilton-precinct-schedule-2.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770197718-file-bvv75_korrov2mnxqe9eyq.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/North+Wilton+Precinct+-+Schedule+2.pdf",
+      "bytes": 5486300,
+      "sha256": "534c15514d7c5ed7defd2e39b2e27c711f3de3efa7c84b9aad90666044df79af"
+    },
+    {
+      "part": "Wilton DCP - What we heard report",
+      "order": 5,
+      "file": "wilton-development-control-plan-2021/05-wilton-dcp-what-we-heard-report.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770197725-file-gwx7ynecq8kyiio9yuu60q.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/Wilton+DCP+-+What+we+heard+report+(1).pdf",
+      "bytes": 1157896,
+      "sha256": "0b3a7562f277cf88ed036612d93c54c6ad2dc8f7a6f169ce1c6b997332af850c"
+    },
+    {
+      "part": "North Wilton Neighbourhood Plan No 1",
+      "order": 6,
+      "file": "wilton-development-control-plan-2021/06-north-wilton-neighbourhood-plan-no-1.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770197732-file-bcevoykwromvlf0mm3mewg.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/NSW+Planning+Portal+Exhibitions/North+Wilton+Neighbourhood+Plan+No+1+-+1+Sept+2023.pdf",
+      "bytes": 2379634,
+      "sha256": "3f3c1067611c0238150b9d4c78e88d3e3524ddaa5b0ff8ed5efe71f264844d3c"
+    },
+    {
+      "part": "South East Wilton Neighbourhood Plan No 1",
+      "order": 7,
+      "file": "wilton-development-control-plan-2021/07-south-east-wilton-neighbourhood-plan-no-1.pdf",
+      "url": "https://www.datocms-assets.com/94948/1770197739-file-qznpli-0qvgyie3grji9fw.pdf",
+      "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/NSW+Planning+Portal+Exhibitions/South+East+Wilton+Neighbourhood+Plan+No+1+(1+Sept+2023).pdf",
+      "bytes": 2740047,
+      "sha256": "7f04efdae15bb927702a5d0aae60efdcf005de32442b2396794cec13473c4ff8"
+    }
+  ],
+  "councils": [
+    "Wollondilly"
+  ],
+  "scope": "citywide"
+}

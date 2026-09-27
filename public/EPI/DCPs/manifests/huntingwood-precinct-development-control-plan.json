@@ -1,0 +1,25 @@
+{
+  "instrument": "huntingwood-precinct-development-control-plan",
+  "title": "Huntingwood Precinct Development Control Plan",
+  "kind": "dcp",
+  "index_last_amended": "2020-05-01",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.blacktown.nsw.gov.au/Plan-build/Stage-2-plans-and-guidelines/Blacktown-planning-controls/Blacktown-Development-Control-Plan-2015",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Huntingwood Precinct Development Control Plan - Prepared under Western Sydney Employment Area SEPP 2009",
+      "order": 0,
+      "file": "huntingwood-precinct-development-control-plan/00-huntingwood-precinct-development-control-plan-prepared-under-w.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692787137-dcp-file-185711541.pdf",
+      "council_url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/2/building-and-planning/dcps-amp-lap/huntingwood-precinct-development-control-plan-prepared-under-western-sydney-employment-area-sepp-2009-may2020.pdf",
+      "bytes": 9217561,
+      "sha256": "1818346bd6485e12369ea173cf9a738dca238fb5a0203630b39f0fe3a5219c47"
+    }
+  ],
+  "councils": [
+    "Blacktown"
+  ],
+  "scope": "site_specific"
+}

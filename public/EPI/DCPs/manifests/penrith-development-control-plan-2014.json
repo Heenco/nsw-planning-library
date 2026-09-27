@@ -1,0 +1,565 @@
+{
+  "instrument": "penrith-development-control-plan-2014",
+  "title": "Penrith Development Control Plan 2014",
+  "kind": "dcp",
+  "index_last_amended": "2026-02-11",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.penrithcity.nsw.gov.au/building-development/planning-zoning/planning-controls/development-control-plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Table of contents",
+      "order": 0,
+      "file": "penrith-development-control-plan-2014/00-table-of-contents.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772683202-file-vttjgp-7sxyw564kflyt_g.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/building-development/development/a_table_of_contents_amended_february_2026.pdf",
+      "bytes": 395510,
+      "sha256": "3f78792af989d07187f223f1813b5863e7a3b8112dfb18bcc85746cdb3f360ee"
+    },
+    {
+      "part": "A. Introduction",
+      "order": 1,
+      "file": "penrith-development-control-plan-2014/01-a-introduction.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772683208-file-zngnlu8xrqiixcadnijojq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/building-development/development/part_a_introduction_amended_february_2026.pdf",
+      "bytes": 365097,
+      "sha256": "6067404ac7f4f9d7c5ee939fba97918c53cecbf3f6bb347d55f7ae56c8085e76"
+    },
+    {
+      "part": "B. DCP Principles",
+      "order": 2,
+      "file": "penrith-development-control-plan-2014/02-b-dcp-principles.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056911-file-a_wduvoptlyoaawjjhbpqw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_B_Principles.pdf",
+      "bytes": 208785,
+      "sha256": "22f6e1e057de1b12689c38d8940a552801bd4cbe1a79bb1cdedd2fd286032036"
+    },
+    {
+      "part": "C1 Site Planning and Design Principles",
+      "order": 3,
+      "file": "penrith-development-control-plan-2014/03-c1-site-planning-and-design-principles.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056918-file-jbh1vytdr82cq2waq7mviq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c1_site_planning_and_design_principles.pdf",
+      "bytes": 2987669,
+      "sha256": "6dda7a07913e25782ac4a3b0f48e0b500f1062d1c6c658a0d5a5eb6289c2372e"
+    },
+    {
+      "part": "C2 Vegetation Management",
+      "order": 4,
+      "file": "penrith-development-control-plan-2014/04-c2-vegetation-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056925-file-ufwru7-qqc6-6ddk_gzj2w.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/c2_vegetation_management.pdf",
+      "bytes": 342188,
+      "sha256": "457670e44297dcdae1181c854d4174e843c379d240edd0c9a1a566f56314b98b"
+    },
+    {
+      "part": "C3 Water Management",
+      "order": 5,
+      "file": "penrith-development-control-plan-2014/05-c3-water-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056930-file-lh3j2wk2q6saak_sylcoyq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c3_water_management.pdf",
+      "bytes": 795668,
+      "sha256": "dfa72f352dc331f9ee71915786650a7ee2e5688e6540e7d958af3e624b34d917"
+    },
+    {
+      "part": "C4 Land Management",
+      "order": 6,
+      "file": "penrith-development-control-plan-2014/06-c4-land-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056939-file-dvahimmwtb6nnv6rjjqauq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c4_land_management.pdf",
+      "bytes": 442295,
+      "sha256": "d12317337048654d935b88dea26fe9064980e3f9cfc8b78922dd33b40cde6654"
+    },
+    {
+      "part": "C5 Waste Management",
+      "order": 7,
+      "file": "penrith-development-control-plan-2014/07-c5-waste-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056943-file-qnigwmeernkwfrm3liqvha.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c5_waste_management.pdf",
+      "bytes": 962308,
+      "sha256": "54ea440a2ce875e73349aa0580d417f71eecf205dfbce114e98997b52d0c0f76"
+    },
+    {
+      "part": "Waste Management Guidelines for Developers of Multi-Unit Dwellings",
+      "order": 8,
+      "file": "penrith-development-control-plan-2014/08-waste-management-guidelines-for-developers-of-multi-unit-dwell.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056947-file-hkhqz3ubq_am8zx_zc8fbq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/guideline_document_multi_unit_dwellings.pdf",
+      "bytes": 451341,
+      "sha256": "49bed988aa721e6126f081cf6ea2e589373fa23bcddd1560db97f3fd665a3e6a"
+    },
+    {
+      "part": "Waste Management Guidelines for Residential Subdivisions",
+      "order": 9,
+      "file": "penrith-development-control-plan-2014/09-waste-management-guidelines-for-residential-subdivisions.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056952-file-nxnqcl8bqfa5yi5auhmi7g.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Waste_Management_Guidelines_Residential_Subdivisions.pdf",
+      "bytes": 723956,
+      "sha256": "225f61ccb62251331467309a2b15d1b71cd23bc0a5b95f7641f70c95ad854b6b"
+    },
+    {
+      "part": "Waste Management Guidelines for Residential Flat Buildings",
+      "order": 10,
+      "file": "penrith-development-control-plan-2014/10-waste-management-guidelines-for-residential-flat-buildings.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056957-file-zltdmo-nqko7vxbzmtl-mg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Waste_Management_Guidelines_Residential_Flat_Buildings.pdf",
+      "bytes": 2684217,
+      "sha256": "e3d40d03c7056532a1b6bd72a291b0e23dfa9242d1f02c5d48b875426be54764"
+    },
+    {
+      "part": "Waste Management Guidelines for Industrial, Commercial and Mixed Use",
+      "order": 11,
+      "file": "penrith-development-control-plan-2014/11-waste-management-guidelines-for-industrial-commercial-and-mixe.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056961-file-rn2ancxdqka0mtbppuuqnw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/waste_management_guidelines_industrial_commercial_mixed_usepdf.pdf",
+      "bytes": 549577,
+      "sha256": "dc6e99dbf19a7e3f3a547a36c5eefb359ee4fd4a92bd1fd467f0fa158478a981"
+    },
+    {
+      "part": "Guidelines for Automated Waste Collection Systems",
+      "order": 12,
+      "file": "penrith-development-control-plan-2014/12-guidelines-for-automated-waste-collection-systems.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056965-file-vune0jztr7yyiidcifmn0g.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Waste_Management_Guidelines_Waste_Collection_Systems.pdf",
+      "bytes": 288391,
+      "sha256": "ff629d60ac1df07ad05b9d57ea2f361774b98698a97ae924881b703b9483019e"
+    },
+    {
+      "part": "Agreement for on-site Waste Collection Form",
+      "order": 13,
+      "file": "penrith-development-control-plan-2014/13-agreement-for-on-site-waste-collection-form.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056969-file-ox6awfutqbmm2k3dnge91q.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/forms/Agreement_Onsite_Waste_Collection_Form.pdf",
+      "bytes": 102119,
+      "sha256": "4c85db0d8a1210c1f828a6ae58c09c32ed4310a1a3c6c9af74cdcd139d551dca"
+    },
+    {
+      "part": "C6 Landscape Design",
+      "order": 14,
+      "file": "penrith-development-control-plan-2014/14-c6-landscape-design.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056974-file-ddmumhzdrc29e_kef2oslw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c6_landscapedesign.pdf",
+      "bytes": 321907,
+      "sha256": "ae505b154b87da67669834d70eac91327de3a681b1fdc7228a7cfbc0044f60ab"
+    },
+    {
+      "part": "C7 Culture and Heritage",
+      "order": 15,
+      "file": "penrith-development-control-plan-2014/15-c7-culture-and-heritage.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056979-file-ghssojdzq4-l1unonnwjkw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c7_culture_and_heritage.pdf",
+      "bytes": 414159,
+      "sha256": "acd17649e93149a182052ccf704b09a03a73d9efb636e0c248bfb6e653a2ded2"
+    },
+    {
+      "part": "C8 Public Domain",
+      "order": 16,
+      "file": "penrith-development-control-plan-2014/16-c8-public-domain.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056983-file-yepvcvkfsswi7ypid7wzbg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c8_public_domain.pdf",
+      "bytes": 357668,
+      "sha256": "850b68c7f4e670e6c213e29cb6171ac41346089faf1ae923b818f787e44065b9"
+    },
+    {
+      "part": "C9 Advertising and Signage",
+      "order": 17,
+      "file": "penrith-development-control-plan-2014/17-c9-advertising-and-signage.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729056987-file-mdpyu8ppqpsbvsmtrr0ifw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c9_advertising_and_signage.pdf",
+      "bytes": 696725,
+      "sha256": "04952578f5c98c7d8800e35206334e1605555225dd1f872e067db1d40a19df72"
+    },
+    {
+      "part": "C10 Transport, Access and Parking",
+      "order": 18,
+      "file": "penrith-development-control-plan-2014/18-c10-transport-access-and-parking.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057062-file-vxr8aqyor4-ajkclrvrnyq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c10_transport_acces_and_parking.pdf",
+      "bytes": 2794015,
+      "sha256": "0dd8021adba1b5d4d3333f805acd6ee4945a73bb0b358b6e4d618a5284e151c2"
+    },
+    {
+      "part": "C11 Subdivision",
+      "order": 19,
+      "file": "penrith-development-control-plan-2014/19-c11-subdivision.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057072-file-j3f3sqlvqj-kqqnaikbvpa.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c11_subdivision.pdf",
+      "bytes": 1448121,
+      "sha256": "80f7b6b919d43c4123f80b08a8c2b14b963b796b5282727ed6c1e10f3e601d8e"
+    },
+    {
+      "part": "C12 Noise and Vibration",
+      "order": 20,
+      "file": "penrith-development-control-plan-2014/20-c12-noise-and-vibration.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057081-file-ijyxjlamqt-uoh7z1sngeg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c12_noise_and_vibration.pdf",
+      "bytes": 1107366,
+      "sha256": "4652b7f985a9894e4c67f70eb713ebe9df35d70ebfe78948a42321929df760a3"
+    },
+    {
+      "part": "C13 Infrastructure and Services",
+      "order": 21,
+      "file": "penrith-development-control-plan-2014/21-c13-infrastructure-and-services.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057180-file-nqa91omhs36hsybshrqgew.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/c13_infrastructure_and_services.pdf",
+      "bytes": 272446,
+      "sha256": "e47119f60f66a340a99a3d112d6e7004f865e6cddda1a50b37ed8756f6f10c45"
+    },
+    {
+      "part": "C14 Urban Heat Management",
+      "order": 22,
+      "file": "penrith-development-control-plan-2014/22-c14-urban-heat-management.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057188-file-kclv3qm2q-gnn7p4fj4nq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/building-development/development/c14_urban_heat_management.pdf",
+      "bytes": 378503,
+      "sha256": "14102194220ef032f2add15609ab6d94ce3721a471cc0a5546827b094d584482"
+    },
+    {
+      "part": "D1 Rural Land Uses",
+      "order": 23,
+      "file": "penrith-development-control-plan-2014/23-d1-rural-land-uses.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057192-file-fe-ykwjlrjqdz94ev5cxdg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/d1_rural_land_uses.pdf",
+      "bytes": 1866282,
+      "sha256": "eaf5577e60d6a69d8022b205eee0fca8a4e563be89749b1d413113e551f05a5a"
+    },
+    {
+      "part": "D2 Residential Development",
+      "order": 24,
+      "file": "penrith-development-control-plan-2014/24-d2-residential-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057196-file-unzfenmhrnu6o3kh1a5t0q.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/d2_residential_development.pdf",
+      "bytes": 3461364,
+      "sha256": "d4018e026037eba3950d38373a6648eca8c64922cc83bc11c3fa961e97495474"
+    },
+    {
+      "part": "D3 Commercial and Retail Development",
+      "order": 25,
+      "file": "penrith-development-control-plan-2014/25-d3-commercial-and-retail-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057201-file-ubty650pquosrqhwyxyw6a.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/d3_commercial_and_retail_development.pdf",
+      "bytes": 453033,
+      "sha256": "6bceebf311d419f0a670ad12f855374b589418bd3bba4e05f1babb02894a08eb"
+    },
+    {
+      "part": "D4 Industrial Development",
+      "order": 26,
+      "file": "penrith-development-control-plan-2014/26-d4-industrial-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057208-file-xss30myssrsgirey4pdwxa.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/d4_industrial_development.pdf",
+      "bytes": 6081085,
+      "sha256": "6381bbe15a016c9d1aace99bc6dc899b9b2f761ff4330d189d4ae7039b593e33"
+    },
+    {
+      "part": "D5 Other Land Uses",
+      "order": 27,
+      "file": "penrith-development-control-plan-2014/27-d5-other-land-uses.pdf",
+      "url": "https://www.datocms-assets.com/94948/1757897358-file-atsq1ttlshsglq1hwp06za.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/d5_other_land_uses_version_commenced_29_july_2025.pdf",
+      "bytes": 545672,
+      "sha256": "8282ad83e98bd7edbb1660f1355260488273812e373e12346ab706ec42f90238"
+    },
+    {
+      "part": "E Key Precincts",
+      "order": 28,
+      "file": "penrith-development-control-plan-2014/28-e-key-precincts.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772683234-file-ec8tvrknrtun71eoh3ipba.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e._key_precincts_-_amended_february_2026.pdf",
+      "bytes": 224413,
+      "sha256": "a46200811424ba1d6b3f197f7cf4ca76379619d5ff07da33cb7ac7205bf8145f"
+    },
+    {
+      "part": "E1 Caddens",
+      "order": 29,
+      "file": "penrith-development-control-plan-2014/29-e1-caddens.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057229-file-a0clib0qr-gdaeviss9caw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_E1_Caddens.pdf",
+      "bytes": 13184397,
+      "sha256": "c63c7a93bb9484776123d04e2b97e50f3363dcf8b16e20c15451665bc135fe91"
+    },
+    {
+      "part": "E2 Claremont Meadows Stage 2",
+      "order": 30,
+      "file": "penrith-development-control-plan-2014/30-e2-claremont-meadows-stage-2.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057239-file-xu3_cqatseizyq9flibgeg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e2_claremont_meadows_stage_2.pdf",
+      "bytes": 2203279,
+      "sha256": "a3859f8de0d442a33d3a571f0c496c0fe5abdfe1f33c14f672419768c0ecaa01"
+    },
+    {
+      "part": "E3 Cranebrook Part A - Waterside",
+      "order": 31,
+      "file": "penrith-development-control-plan-2014/31-e3-cranebrook-part-a-waterside.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057246-file-yzcx2jnqr-ekia3p9cwb_a.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e3_part_a_-_waterside.pdf",
+      "bytes": 6233886,
+      "sha256": "d4744d1299ba51eac0152b1bb0c727c3d32f1ce876da0511cfa23f71c9bcc5c7"
+    },
+    {
+      "part": "E3 Cranebrook Part B - Cranebrook Neighbourhood Centre",
+      "order": 32,
+      "file": "penrith-development-control-plan-2014/32-e3-cranebrook-part-b-cranebrook-neighbourhood-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057258-file-po-5jka0sfks3xvfi23cza.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e3_part_b_-_cranebrook_neighbourhood_centre.pdf",
+      "bytes": 331504,
+      "sha256": "b76017c6f0ded3809f596941b4d936af9b9c42e6d133f8454667258e7de98101"
+    },
+    {
+      "part": "E3 Cranebrook Part C - Cranebrook Rural Residential Development",
+      "order": 33,
+      "file": "penrith-development-control-plan-2014/33-e3-cranebrook-part-c-cranebrook-rural-residential-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057266-file-avck0-54tjul9tpncp-eaa.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_E3C_Cranebrook_Rural_Residential.pdf",
+      "bytes": 9429585,
+      "sha256": "e90188bcde559e35229d0ad92ae5ef0067cd40dfa61b8806eb3053877defca81"
+    },
+    {
+      "part": "E4 Emu Heights - Blue Mountains Escarpment Siting, Design and Management",
+      "order": 34,
+      "file": "penrith-development-control-plan-2014/34-e4-emu-heights-blue-mountains-escarpment-siting-design-and-man.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057280-file-zlektezhrpcn8xhtr1fc9w.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e4_emu_heights_blue_mtns_estn_escpt.pdf",
+      "bytes": 852401,
+      "sha256": "84fbfe0df6b46ed7eb18fb67c5c6e691967f895843590a24592da31bd5bfb1ea"
+    },
+    {
+      "part": "E5 Emu Plains Part A - Commercial Area",
+      "order": 35,
+      "file": "penrith-development-control-plan-2014/35-e5-emu-plains-part-a-commercial-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057284-file-rsujvxeorlu6x7lsmgnmmg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e5_part_a_-emu_plains_commercial_area.pdf",
+      "bytes": 327856,
+      "sha256": "fce4e3911bb13a6ccc8e290972388bbe6b4edf898627ed8ad4f2773de56f7195"
+    },
+    {
+      "part": "E6 Erskine Business Park",
+      "order": 36,
+      "file": "penrith-development-control-plan-2014/36-e6-erskine-business-park.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057289-file-cp4qtmv1raqvdp-g1ryt6a.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e6_erskine_park_business_park.pdf",
+      "bytes": 3080545,
+      "sha256": "9422ddd332d8b7aa67d83441987826f0ca46aabcbf5a92ccfe3dccaddc2d3a37"
+    },
+    {
+      "part": "E7 Glenmore Park Part A - Glenmore Park Stage 1",
+      "order": 37,
+      "file": "penrith-development-control-plan-2014/37-e7-glenmore-park-part-a-glenmore-park-stage-1.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057297-file-vj9pyzhlsgmvilyyig6ahq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e7_part_a_glenmore_park_stage_1.pdf",
+      "bytes": 7240758,
+      "sha256": "7343cc17af7e280c4b45a6df91dd2385dae8139ee11aea614f8a399c32d053ca"
+    },
+    {
+      "part": "E7 Glenmore Park Part B - Glenmore Park Stage 2",
+      "order": 38,
+      "file": "penrith-development-control-plan-2014/38-e7-glenmore-park-part-b-glenmore-park-stage-2.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057311-file-dn8ya1dvs5a6kvn6qptobg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/part_b_-_glenmore_park_stage_2.pdf",
+      "bytes": 4295809,
+      "sha256": "fff533034f8d7988e4a9f88c47cd1a1a6b2ff6050daa59fdbbb0a3f8fad4d4ba"
+    },
+    {
+      "part": "E7 Glenmore Park Part C - Glenmore Park Stage 3",
+      "order": 39,
+      "file": "penrith-development-control-plan-2014/39-e7-glenmore-park-part-c-glenmore-park-stage-3.pdf",
+      "url": "https://www.datocms-assets.com/94948/1758518434-penrith-dcp-2014-e7-glenmore-park-stage-3-commenced-29-july-2025.pdf",
+      "council_url": "https://www.datocms-assets.com/94948/1758518434-penrith-dcp-2014-e7-glenmore-park-stage-3-commenced-29-july-2025.pdf",
+      "bytes": 5503603,
+      "sha256": "b2834f895d12cabca64587f1d26ec9bf586cdee6e32184eec4b4b1bc867199ce"
+    },
+    {
+      "part": "E8 Kingswood",
+      "order": 40,
+      "file": "penrith-development-control-plan-2014/40-e8-kingswood.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057333-file-apcnnfawt32nhbbkpzhrdq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e8_kingswood.pdf",
+      "bytes": 1693658,
+      "sha256": "48f5f60b040baa9b4dd947dedf319dd4f43106ae480715fc3180306070159a06"
+    },
+    {
+      "part": "E9 Mulgoa Valley",
+      "order": 41,
+      "file": "penrith-development-control-plan-2014/41-e9-mulgoa-valley.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057339-file-onz7en23to2gapxozbmsqg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e9_mulgoa_valley.pdf",
+      "bytes": 391784,
+      "sha256": "4aba452d90969d591ad5429218aa2ab0c1a7607a7d42444b2495910fb65c89f4"
+    },
+    {
+      "part": "E10 Orchard Hills",
+      "order": 42,
+      "file": "penrith-development-control-plan-2014/42-e10-orchard-hills.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057343-file-cdmkv55vqzwqvd89eop_za.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e10_orchards_hills.pdf",
+      "bytes": 161401,
+      "sha256": "4506ebeec4212219c6f920ec680e940a595625f8aaeb8334e4e156b796e47e6d"
+    },
+    {
+      "part": "E11 Penrith Part A - Penrith City Centre",
+      "order": 43,
+      "file": "penrith-development-control-plan-2014/43-e11-penrith-part-a-penrith-city-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057349-file-ugsymmxeq0qioge5mddvqg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_E11A_Penrith_City_Centre.pdf",
+      "bytes": 9466995,
+      "sha256": "bb5da068366b166920df92ba376bfdfdf79a6badb21cd9a3ee1ac8b0cb27374c"
+    },
+    {
+      "part": "E11 Penrith Part B - North Penrith",
+      "order": 44,
+      "file": "penrith-development-control-plan-2014/44-e11-penrith-part-b-north-penrith.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057365-file-bt5kndgvsnitqnzhezlana.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e11_penrith_part_b_-_north_penrith.pdf",
+      "bytes": 4764234,
+      "sha256": "332f33871a6d1d7a74caa3312f462ab04fde07dba890964a99d0d4dc56a22127"
+    },
+    {
+      "part": "E11 Penrith Part C - 164 Station Street",
+      "order": 45,
+      "file": "penrith-development-control-plan-2014/45-e11-penrith-part-c-164-station-street.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057375-file-vrvgulcqqyabvbkbj7qoua.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e11_penrith_part_c_-_164_station_street_penrith.pdf",
+      "bytes": 3528563,
+      "sha256": "ee3a93f2a4f9611ca95661fd6b8708827970ffe601f37aa8cd8bc4b2d98358b4"
+    },
+    {
+      "part": "E12 Penrith Health and Education Precinct Part A - Hospital Precinct",
+      "order": 46,
+      "file": "penrith-development-control-plan-2014/46-e12-penrith-health-and-education-precinct-part-a-hospital-prec.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057385-file-fccgr11esxkt5gkrlieizw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e12_part_a_hospital_precinct.pdf",
+      "bytes": 2444259,
+      "sha256": "3b0bcf781fc55c0ce514733d4b53f81fe01917ea19bfa27c6bfa8c9b26d41b01"
+    },
+    {
+      "part": "E12 Penrith Health and Education Precinct Part B - Business Park Precinct",
+      "order": 47,
+      "file": "penrith-development-control-plan-2014/47-e12-penrith-health-and-education-precinct-part-b-business-park.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057394-file-sjrrmuhdq_ito2cvjpc_hg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e12_part_b_business_park_precinct.pdf",
+      "bytes": 487716,
+      "sha256": "9eeadc43495d35993855a9b9c253ecae760f859a8ed65dd9541c22c9f476ff8a"
+    },
+    {
+      "part": "E12 Penrith Health and Education Precinct Part C - South Werrington Urban Village Precinct",
+      "order": 48,
+      "file": "penrith-development-control-plan-2014/48-e12-penrith-health-and-education-precinct-part-c-south-werring.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057399-file-ofs_wcyqrua-ghlwgk9spw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e12_part_c_south_werrington_urban_village.pdf",
+      "bytes": 3107539,
+      "sha256": "aa334c3fe60cbdfbbc5a98cb9940c15d9d80204b30818b4b84ea2168ed7d1fc0"
+    },
+    {
+      "part": "E12 Penrith Health and Education Precinct Part D - Werrington Mixed Use Area",
+      "order": 49,
+      "file": "penrith-development-control-plan-2014/49-e12-penrith-health-and-education-precinct-part-d-werrington-mi.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057405-file-csl6hvohtui6vscgyy-2oa.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e12_part_d_werrington_mixed-use_area.pdf",
+      "bytes": 1203789,
+      "sha256": "34c67c7a6c58a7aa926baad8a2752b155f5107be5121b0778735efdf258bbac2"
+    },
+    {
+      "part": "E13 Riverlink Precinct Part A - Riverlink (excluding Panthers Penrith site)",
+      "order": 50,
+      "file": "penrith-development-control-plan-2014/50-e13-riverlink-precinct-part-a-riverlink-excluding-panthers-pen.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057411-file-pvir86jmqt2j71b59do1zw.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/e13_part_a_-_riverlink_precinct.pdf",
+      "bytes": 4422473,
+      "sha256": "39af57f40b2aace5e45c03cd93d66984c04bc0e0a565f5957f271e0a2120ccc9"
+    },
+    {
+      "part": "E13 Riverlink Precinct Part B - Panthers Penrith Precinct",
+      "order": 51,
+      "file": "penrith-development-control-plan-2014/51-e13-riverlink-precinct-part-b-panthers-penrith-precinct.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057421-file-uyko41jmqwwjw9yl39ef9a.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/pcc_final_panthers_dcp_amendment_2020.pdf",
+      "bytes": 4259736,
+      "sha256": "156def96b7cdae7aab88520a7dc19af5299c46b38491a22c25cc26fae508855b"
+    },
+    {
+      "part": "E14 St Clair",
+      "order": 52,
+      "file": "penrith-development-control-plan-2014/52-e14-st-clair.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057430-file-hsuorwh6tmmhdqnx0wy0jg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_E14_St_Clair.pdf",
+      "bytes": 679345,
+      "sha256": "4b8963b5bead1526f3db0bfa281e29aa93b6c8770871f5de7f0bf55ec757671c"
+    },
+    {
+      "part": "E15 St Marys Town Centre",
+      "order": 53,
+      "file": "penrith-development-control-plan-2014/53-e15-st-marys-town-centre.pdf",
+      "url": "https://www.datocms-assets.com/94948/1772683262-file-vrnrz-otsw-4ehnqtet5pa.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/chapter_e15_-_st_marys_town_centre_of_penrith_development_control_plan_2014.pdf",
+      "bytes": 11882085,
+      "sha256": "a456826261ada3b89764ab6154171f87d0b239eed8b6f17737ec7e941630e9b1"
+    },
+    {
+      "part": "E16 Sydney Science Park",
+      "order": 54,
+      "file": "penrith-development-control-plan-2014/54-e16-sydney-science-park.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057460-file-degy9u9orrio-krqvftnpa.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_E16_Sydney_Science_Park.pdf",
+      "bytes": 2117916,
+      "sha256": "a5a740fc6eff52d69d10eb20105aa49fcf0ae76a07747150068cc219b007d4ab"
+    },
+    {
+      "part": "E17 Orchard Hills North",
+      "order": 55,
+      "file": "penrith-development-control-plan-2014/55-e17-orchard-hills-north.pdf",
+      "url": "https://www.datocms-assets.com/94948/1758518496-penrith-dcp-2014-e17-orchard-hills-north-commenced-29-july-2025.pdf",
+      "council_url": "https://www.datocms-assets.com/94948/1758518496-penrith-dcp-2014-e17-orchard-hills-north-commenced-29-july-2025.pdf",
+      "bytes": 4955659,
+      "sha256": "d9e0afbc628975a521781fffd4f32a74e2cdd18d5f049d74f7fa7e188596d556"
+    },
+    {
+      "part": "E18 Luddenham Road Industrial Business Park",
+      "order": 56,
+      "file": "penrith-development-control-plan-2014/56-e18-luddenham-road-industrial-business-park.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057473-file-depafahornsuxc4wzoavuq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/building-development/dcp_e18_luddenham_road_industrial_business_park.pdf",
+      "bytes": 1075081,
+      "sha256": "5249f90d65cf3ef452fb4f2b04867372df39e35d48a2e6dd47f97f5d6af98839"
+    },
+    {
+      "part": "Appendix F1: Definitions",
+      "order": 57,
+      "file": "penrith-development-control-plan-2014/57-appendix-f1-definitions.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057478-file-w-6mvihhqyshyv0l233mrg.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_F1_Definitions.pdf",
+      "bytes": 388058,
+      "sha256": "596be79cc38906e521d7db740346b59647c13ddcadd7f2a0ce0d212d8cdeb667"
+    },
+    {
+      "part": "Appendix F2: Development Process",
+      "order": 58,
+      "file": "penrith-development-control-plan-2014/58-appendix-f2-development-process.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057483-file-iskq3uaytqypym5lb2uuha.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_F2_Development_Process.pdf",
+      "bytes": 1243435,
+      "sha256": "1d288a45a1f2b513b13344e83db59497b8bc7a952f14e676bc97c8fe2d1ef588"
+    },
+    {
+      "part": "Appendix F3: DA Submission Requirements",
+      "order": 59,
+      "file": "penrith-development-control-plan-2014/59-appendix-f3-da-submission-requirements.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057486-file-yrmke1lsrx-3xxfmozsfga.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/documents/building-development/planning-zoning/planning-controls/Penrith_DCP_2014_Part_F3_DA_Submission_Requirements.pdf",
+      "bytes": 1411839,
+      "sha256": "ccef552d8713305edf60c4f292dfb371610ab796f5a4251b78e9371d1c5efb53"
+    },
+    {
+      "part": "Appendix F4: Technical Information",
+      "order": 60,
+      "file": "penrith-development-control-plan-2014/60-appendix-f4-technical-information.pdf",
+      "url": "https://www.datocms-assets.com/94948/1729057490-file-h8g68opytaafzu6mzznceq.pdf",
+      "council_url": "https://www.penrithcity.nsw.gov.au/images/f4_technical_information.pdf",
+      "bytes": 645469,
+      "sha256": "bf45283d142a1ac82514b91de2f6bc64afba59949157ffdc7edfa17b52a1f070"
+    }
+  ],
+  "councils": [
+    "Penrith"
+  ],
+  "scope": "citywide"
+}

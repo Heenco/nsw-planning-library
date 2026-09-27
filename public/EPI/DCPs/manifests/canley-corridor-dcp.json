@@ -1,0 +1,25 @@
+{
+  "instrument": "canley-corridor-dcp",
+  "title": "Canley Corridor DCP",
+  "kind": "dcp",
+  "index_last_amended": "2025-11-28",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.fairfieldcity.nsw.gov.au/Planning-and-Building/Developments-and-Buildings/Development-Control-and-Structure-Plans",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Canley Corridor DCP",
+      "order": 0,
+      "file": "canley-corridor-dcp/00-canley-corridor-dcp.pdf",
+      "url": "https://www.datocms-assets.com/94948/1764725189-file-qoeiwopkqjwfiw2k-40sla.pdf",
+      "council_url": "https://www.fairfieldcity.nsw.gov.au/files/assets/public/v/3/documents/plan_build/canley-corridor-dcp-amendment-no-10.pdf",
+      "bytes": 11761658,
+      "sha256": "0e9e90d190524084c62a69c86e3106dc72f6bc5cd5e10fc01d0a85595447b43c"
+    }
+  ],
+  "councils": [
+    "Fairfield"
+  ],
+  "scope": "site_specific"
+}

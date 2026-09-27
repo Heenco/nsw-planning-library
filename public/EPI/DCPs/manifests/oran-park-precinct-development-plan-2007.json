@@ -1,0 +1,34 @@
+{
+  "instrument": "oran-park-precinct-development-plan-2007",
+  "title": "Oran Park Precinct Development Plan 2007",
+  "kind": "dcp",
+  "index_last_amended": "2017-04-11",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.planning.nsw.gov.au/plans-for-your-area/priority-growth-areas-and-precincts/south-west-growth-area/oran-park",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Oran Park Development Control Plan",
+      "order": 0,
+      "file": "oran-park-precinct-development-plan-2007/00-oran-park-development-control-plan.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759290596-file-snq-esmerlednmbq1f6wfa.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/oran-park-precinct-development-control-plan.pdf",
+      "bytes": 8625447,
+      "sha256": "17a1c2a84a0240ecdbb46d470cfb49c56b052f2a1c271f2556520ea741418d27"
+    },
+    {
+      "part": "Oran Park Development Control Plan attachments and appendices",
+      "order": 1,
+      "file": "oran-park-precinct-development-plan-2007/01-oran-park-development-control-plan-attachments-and-appendices.pdf",
+      "url": "https://www.datocms-assets.com/94948/1759290601-file-a4ass1letyibeqlgxwfvrg.pdf",
+      "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/oran-park-precinct-development-control-plan-appendices-and-attachments.pdf",
+      "bytes": 9915968,
+      "sha256": "ef2e30ab8cc784677fbe00bd9003b13b8f7745319b4a891cc8d7e247709706de"
+    }
+  ],
+  "councils": [
+    "Camden"
+  ],
+  "scope": "site_specific"
+}

@@ -1,0 +1,178 @@
+{
+  "instrument": "hawkesbury-development-control-plan-2002",
+  "title": "Hawkesbury Development Control Plan 2002",
+  "kind": "dcp",
+  "index_last_amended": "2023-12-22",
+  "index_source": "PropCode free library (app.propcode.com.au/library/nsw)",
+  "source_page": "https://www.hawkesbury.nsw.gov.au/plan-and-build/planning-provisions/development-control-plan",
+  "bytes_from": "datocms-assets.com (PropCode CDN); council_url on each part is the publisher",
+  "retrieved_at": "2026-09-27",
+  "parts": [
+    {
+      "part": "Part A: Introduction",
+      "order": 0,
+      "file": "hawkesbury-development-control-plan-2002/00-part-a-introduction.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780628714-3dcp_parta-july-2015.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/3DCP_PARTA-July-2015.pdf",
+      "bytes": 576721,
+      "sha256": "e532ec33a9cb75a5bb7edb3422f3d6c85ef13196b353a2faa7962b3f5d6a0600"
+    },
+    {
+      "part": "Part B: Exempt and Complying Development",
+      "order": 1,
+      "file": "hawkesbury-development-control-plan-2002/01-part-b-exempt-and-complying-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780628752-part-b-post-expo-hlep2012-update.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/Part-B-Post-Expo-HLEP2012-update.pdf",
+      "bytes": 72486,
+      "sha256": "0f7b7708104fa74b200c2bd18af7ffeb592eb7bf028d9718643bce42c1afe300"
+    },
+    {
+      "part": "Part C: General Guidelines",
+      "order": 2,
+      "file": "hawkesbury-development-control-plan-2002/02-part-c-general-guidelines.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780628843-dcp_partc.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/DCP_PARTC.pdf",
+      "bytes": 1966127,
+      "sha256": "c961af8df38787fb8bdbd02ad4ce5ba756b6c7542800599d85873fec2e0df259"
+    },
+    {
+      "part": "Part C Chapter 9: Preservation of Trees and Vegetation",
+      "order": 3,
+      "file": "hawkesbury-development-control-plan-2002/03-part-c-chapter-9-preservation-of-trees-and-vegetation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780628877-chapter-9-post-expo-hlep2012-update.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/Chapter-9-Post-Expo-HLEP2012-update.pdf",
+      "bytes": 76538,
+      "sha256": "e1c5114fb4724fbe1154cc9cb38c9e8dc17e5ab02e247bc976b2bf9bf946a802"
+    },
+    {
+      "part": "Part C Chapter 10: Heritage Conservation",
+      "order": 4,
+      "file": "hawkesbury-development-control-plan-2002/04-part-c-chapter-10-heritage-conservation.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780628971-heritage-conservation-chapter-december-2013.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/Heritage-Conservation-Chapter-December-2013.pdf",
+      "bytes": 520242,
+      "sha256": "1930b68bbc78514fe1ef357241ab801b4a7ecaa44ba381169f6ecf9d2315e2ef"
+    },
+    {
+      "part": "Part D: Specific Development",
+      "order": 5,
+      "file": "hawkesbury-development-control-plan-2002/05-part-d-specific-development.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629027-6dcp_partd-chapters-1-to-7.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/6DCP_PARTD-Chapters-1-to-7.pdf",
+      "bytes": 1836418,
+      "sha256": "b43d1bac7a3619138686aa54acdfc590108d975b0a7641c4252819d3ee9e557e"
+    },
+    {
+      "part": "Part D Chapter 8: Farm Buildings and Outbuildings",
+      "order": 6,
+      "file": "hawkesbury-development-control-plan-2002/06-part-d-chapter-8-farm-buildings-and-outbuildings.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629061-part-d-chapter-8-farm-buildings-and-outbuildings-july-2015.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/PART-D-Chapter-8-Farm-Buildings-and-Outbuildings-July-2015.pdf",
+      "bytes": 283520,
+      "sha256": "9b128248d8c3041fe61e78f21fb2643a618d77c97c94619dbb55f646344d18d1"
+    },
+    {
+      "part": "Part E: Specific Area",
+      "order": 7,
+      "file": "hawkesbury-development-control-plan-2002/07-part-e-specific-area.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629106-dcp_parte.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/DCP_PARTE.pdf",
+      "bytes": 837989,
+      "sha256": "dd738707668b77ba56363dfde3b59e1de7e8d76fa6e79f8513f6cc88af47b364"
+    },
+    {
+      "part": "Part E Chapter 4: Pitt Town",
+      "order": 8,
+      "file": "hawkesbury-development-control-plan-2002/08-part-e-chapter-4-pitt-town.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629143-parte-chapter4-pitttownfebruary2009.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/PARTE-Chapter4-PittTownFebruary2009.pdf",
+      "bytes": 2069320,
+      "sha256": "83b93a5446435fabf7456b970607096ca30d5efbbae8386cb218247804e0b29c"
+    },
+    {
+      "part": "Part E Chapter 5: Macquarie & Bridge Streets",
+      "order": 9,
+      "file": "hawkesbury-development-control-plan-2002/09-part-e-chapter-5-macquarie-bridge-streets.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629185-dcpparte_chapter5_macquarie_bridgestreetsmar06.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/DCPPartE_Chapter5_Macquarie_BridgeStreetsMar06.pdf",
+      "bytes": 4756418,
+      "sha256": "0b2c8cde5f5bfbc4b476f6f398a1908b35e7038bcb357fa3baf0360c8cd33369"
+    },
+    {
+      "part": "Part E Chapter 7: Windsor District Baptist Church Site, 739-741 George Street, South Windsor",
+      "order": 10,
+      "file": "hawkesbury-development-control-plan-2002/10-part-e-chapter-7-windsor-district-baptist-church-site-739-741-.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629260-chapter-7-post-expo-hlep2012-update-with-plan.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/Chapter-7-Post-Expo-HLEP2012-update-with-plan.pdf",
+      "bytes": 413964,
+      "sha256": "f85f2740b5fd776c26b63928a5297cee338f40fb14b544ed40d0a4c8be8f2bda"
+    },
+    {
+      "part": "Part E Chapter 8: Redbank at North Richmond",
+      "order": 11,
+      "file": "hawkesbury-development-control-plan-2002/11-part-e-chapter-8-redbank-at-north-richmond.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692880389-dcp-file-185712055.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/PART-E-Chapter-8-Redbank-at-North-Richmond.pdf",
+      "bytes": 13414234,
+      "sha256": "37b332dbff202d4dc02c61669ce842b4bb9adc3b63dfd6d95feff60c68a3a731"
+    },
+    {
+      "part": "Part E Chapter 9: Jacaranda at Glossodia",
+      "order": 12,
+      "file": "hawkesbury-development-control-plan-2002/12-part-e-chapter-9-jacaranda-at-glossodia.pdf",
+      "url": "https://www.datocms-assets.com/94948/1692880389-dcp-file-185712056.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/Jacaranda-DCP-2021.pdf",
+      "bytes": 11497222,
+      "sha256": "0f044bd85bc62ea7283dc034860d063ecfcebc4e7e2574ec835972f12c65bcdc"
+    },
+    {
+      "part": "Appendices",
+      "order": 13,
+      "file": "hawkesbury-development-control-plan-2002/13-appendices.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629336-appendixabcd.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/AppendixABCD.pdf",
+      "bytes": 1338657,
+      "sha256": "59d627485aacb19db443bef1ffc571472ae756aa55b49342766d971cd20b34c2"
+    },
+    {
+      "part": "Appendix E: Civil Works Specification",
+      "order": 14,
+      "file": "hawkesbury-development-control-plan-2002/14-appendix-e-civil-works-specification.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629268-appendixe_frontpage.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/AppendixE_FrontPage.pdf",
+      "bytes": 4212459,
+      "sha256": "0156b2a82cc0ed63a98469f4ca6398b7d477e36a70445913be94720b7543bd69"
+    },
+    {
+      "part": "Appendix E Part 3: Drawings",
+      "order": 15,
+      "file": "hawkesbury-development-control-plan-2002/15-appendix-e-part-3-drawings.pdf",
+      "url": "https://www.datocms-assets.com/94948/1780629313-dcpappendix_epart3.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/DCPAppendix_EPart3.pdf",
+      "bytes": 4724690,
+      "sha256": "b94c3c5c8b200dc46674b4157561f1b9623df1073e5e03375ae6de2a6ae34289"
+    },
+    {
+      "part": "Pitt Town Development Area - Draft Indicative Road Layout for Precinct D",
+      "order": 16,
+      "file": "hawkesbury-development-control-plan-2002/16-pitt-town-development-area-draft-indicative-road-layout-for-pr.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783375279-004a4bb2-001.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/004A4BB2.001.pdf",
+      "bytes": 141795,
+      "sha256": "e19d429f3569ce62c66f81b6c778d0f33026697d0c8a2273d0ed0addb20ddc85"
+    },
+    {
+      "part": "Pitt Town Development Area - Stormwater Management Strategy",
+      "order": 17,
+      "file": "hawkesbury-development-control-plan-2002/17-pitt-town-development-area-stormwater-management-strategy.pdf",
+      "url": "https://www.datocms-assets.com/94948/1783375315-20151109-pitt-town-development-water-management-strategy.pdf",
+      "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/20151109-Pitt-Town-Development-Water-Management-Strategy.pdf",
+      "bytes": 4071709,
+      "sha256": "81078635bf2375c95ca97397875a9768c40c4269012b368b1ff6b56e87f18190"
+    }
+  ],
+  "councils": [
+    "Hawkesbury"
+  ],
+  "scope": "citywide"
+}
