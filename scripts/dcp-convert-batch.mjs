@@ -47,16 +47,16 @@ const doclingCache = pdf =>
   path.join(TEMP, `docling-${path.basename(pdf).replace(/\W+/g, '_')}.json`)
 
 /**
- * A prefix that keeps one part's clause 2.1 distinct from another's. Derived from the manifest
- * part label ("Part C" -> C, "3.2" -> 3-2); falls back to the file's leading index.
+ * The per-part code, read from the manifest rather than derived here.
+ *
+ * dcp-merge resolves each part as `<anchor_prefix ?? part>.html`, so the converted file has to be
+ * named for the same value the merge looks up and the same value the clause anchors use. Deriving
+ * it independently in this script is what produced "01-part-a-…" against a merge looking for "A",
+ * and every multi-part instrument merged to nothing.
  */
-function anchorPrefix(partLabel, file) {
-  const t = String(partLabel ?? '').trim()
-  const letter = t.match(/\bpart\s+([A-Z]\d?)\b/i)?.[1]
-  if (letter) return letter.toUpperCase()
-  const num = t.match(/^(\d+(?:\.\d+)*)/)?.[1]
-  if (num) return num.replace(/\./g, '-')
-  return path.basename(file).match(/^(\d+)/)?.[1] ?? ''
+function prefixOf(man, file) {
+  const p = (man.parts ?? []).find(x => x.file && path.basename(x.file) === file)
+  return p?.anchor_prefix ?? p?.part ?? path.basename(file).replace(/\.pdf$/i, '')
 }
 
 async function convert(pdf, out, images, prefix, label) {
@@ -120,9 +120,10 @@ async function main() {
     let ok = 0, bad = 0
     for (const f of files) {
       const pdf = path.join(dir, f)
-      const base = path.join(partDir, f.replace(/\.pdf$/i, ''))
       const label = partOf(f)
-      const prefix = files.length > 1 ? anchorPrefix(label, f) : ''
+      const prefix = files.length > 1 ? prefixOf(man, f) : ''
+      // named for the prefix, because that is what dcp-merge looks for
+      const base = path.join(partDir, prefix || f.replace(/\.pdf$/i, ''))
       try {
         if (!(await exists(`${base}.md`))) {
           await convert(pdf, `${base}.md`, outSlug, prefix, label)
@@ -145,6 +146,7 @@ async function main() {
     try {
       if (files.length === 1) {
         const base = path.join(partDir, files[0].replace(/\.pdf$/i, ''))
+        // single-part instruments keep the pdf-derived stem: nothing merges them
         for (const fmt of ['md', 'html']) {
           const src = `${base}.${fmt}`
           if (await exists(src)) await copyFile(src, path.join(DCP, `${outSlug}.${fmt}`))

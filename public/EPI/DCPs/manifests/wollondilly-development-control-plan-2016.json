@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1788309365-wdcp-2016-volume-1-general-updated-31-july-2026.pdf",
       "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/WDCP-2016-Volume-1-General-Updated-31-July-2026.pdf",
       "bytes": 4284733,
-      "sha256": "8459c2f2acca50cdb14a6dc0e8ffab5319eeb3cde317175f3c4c167423d80ab7"
+      "sha256": "8459c2f2acca50cdb14a6dc0e8ffab5319eeb3cde317175f3c4c167423d80ab7",
+      "anchor_prefix": "Volume-1-General"
     },
     {
       "part": "Volume 2 - Urban Release Areas",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292471-file-r0pgu_gqragi4zx0h3juna.pdf",
       "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/Volume-2-Urban-Release-Areas-as-of-10-January.pdf",
       "bytes": 1614221,
-      "sha256": "6e62960448f65c20c859629fd654c03c91215e9af4ac75b940feba8a67ef2040"
+      "sha256": "6e62960448f65c20c859629fd654c03c91215e9af4ac75b940feba8a67ef2040",
+      "anchor_prefix": "Volume-2-Urban-Release-A"
     },
     {
       "part": "Volume 3 - Subdivision of Land",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292475-file-mczifefhqfirhmyzmpt3gq.pdf",
       "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/DCP-2016-Volume-3-Subdivision-of-Land2.pdf",
       "bytes": 6441486,
-      "sha256": "a74c7d3fec6e76c18a9fdd239f488522182a3535b0782dc70544023328cf2bd5"
+      "sha256": "a74c7d3fec6e76c18a9fdd239f488522182a3535b0782dc70544023328cf2bd5",
+      "anchor_prefix": "Volume-3-Subdivision-of-"
     },
     {
       "part": "Volume 4 - Residential Development",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292481-file-ertas42gt3y6bpl89xafuw.pdf",
       "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/DCP-Volume-4.PDF",
       "bytes": 2087426,
-      "sha256": "2d7546fb81e0830cfdff920fbf377ee5bc2cde2efad3bd87bb8c134c87829618"
+      "sha256": "2d7546fb81e0830cfdff920fbf377ee5bc2cde2efad3bd87bb8c134c87829618",
+      "anchor_prefix": "Volume-4-Residential-Dev"
     },
     {
       "part": "Volume 5 - Commercial and Community Uses",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1788309402-wdcp-2016-volume-5-commercial-and-community-updated-15-july-2026.pdf",
       "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/WDCP-2016-Volume-5-Commercial-and-Community-Updated-15-July-2026.pdf",
       "bytes": 3444927,
-      "sha256": "0bb8a98cdf252120d00261ad042f466e05328012af1b2d76bcd26fa387841fa6"
+      "sha256": "0bb8a98cdf252120d00261ad042f466e05328012af1b2d76bcd26fa387841fa6",
+      "anchor_prefix": "Volume-5-Commercial-and-"
     },
     {
       "part": "Volume 6 - Tourism and Events",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292490-file-cjoepizxquwza5cv9gxghg.pdf",
       "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/Volume-6-Tourist-Uses-as-of-10-January-2018.pdf",
       "bytes": 467719,
-      "sha256": "40dcc4e147c1e6bd860171becacb618567a1f46c1a3c83ccf48d81e23415a195"
+      "sha256": "40dcc4e147c1e6bd860171becacb618567a1f46c1a3c83ccf48d81e23415a195",
+      "anchor_prefix": "Volume-6-Tourism-and-Eve"
     },
     {
       "part": "Volume 7 - Industry and Infrastructure",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1762302987-file-mway7on2qeumkpraqqvfcg.pdf",
       "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/Volume-7-Industry-and-Infrastructure-Uses.pdf",
       "bytes": 699868,
-      "sha256": "bdbd4b24b6ad8275fccdb185a7882d57326d6e8c12dc207e7b4da092b3d27b70"
+      "sha256": "bdbd4b24b6ad8275fccdb185a7882d57326d6e8c12dc207e7b4da092b3d27b70",
+      "anchor_prefix": "Volume-7-Industry-and-In"
     },
     {
       "part": "Volume 8 - Primary Agricultural and Rural Uses",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1762302992-file-skzwd5jms3ioc3eeyo2jvq.pdf",
       "council_url": "https://wollondilly.cdn.greenhousecreative.au/assets/Documents-NEW/Planning-and-Development/Guidelines-and-Controls/DCP-/Volume-8-Primary-Agricultural-and-Rural-Uses.pdf",
       "bytes": 344416,
-      "sha256": "523b99e9ef678453c3bc063fa77a6052712d8c72dff15972540892be0f63dc6f"
+      "sha256": "523b99e9ef678453c3bc063fa77a6052712d8c72dff15972540892be0f63dc6f",
+      "anchor_prefix": "Volume-8-Primary-Agricul"
     }
   ],
   "councils": [

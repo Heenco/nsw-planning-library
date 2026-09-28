@@ -9,13 +9,14 @@
   "retrieved_at": "2026-09-27",
   "parts": [
     {
-      "part": "Section 1 – Preliminary and table of contents",
+      "part": "Section 1 \u2013 Preliminary and table of contents",
       "order": 0,
       "file": "comprehensive-inner-west-development-control-plan-2016-for-ashbury-ashfield-croydon-croydon-park-haberfield-hurlstone-park-and-summer-hill/00-section-1-preliminary-and-table-of-contents.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880422-dcp-file-185712074.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Preliminary_Notification_and_Advertising_-_with_IWLEP_2022_amendments.pdf",
       "bytes": 555098,
-      "sha256": "219a75aabc715e3b122d9e9485b9ff77c6199d45ea5d0ddbccaf4799b7338e6f"
+      "sha256": "219a75aabc715e3b122d9e9485b9ff77c6199d45ea5d0ddbccaf4799b7338e6f",
+      "anchor_prefix": "Section-1-Preliminary-an"
     },
     {
       "part": "Chapter A: Miscellaneous",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880423-dcp-file-185712075.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Chapter_A_-_Miscellaneous_-_with_IWLEP_2022_amendments.pdf",
       "bytes": 4304318,
-      "sha256": "a6ab17baa2ac6107736c7b6563dc266484a154a1c550f4fcbff30772b39e6684"
+      "sha256": "a6ab17baa2ac6107736c7b6563dc266484a154a1c550f4fcbff30772b39e6684",
+      "anchor_prefix": "Chapter-A-Miscellaneous"
     },
     {
       "part": "Chapter B: Public Domain",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880422-dcp-file-185712076.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Chapter_B_-_Public_Domain_-_with_IWLEP_2022_amendments.pdf",
       "bytes": 496355,
-      "sha256": "db84a2c521ce6b5b8a04db7d3a7c67f1eb68708aa2a1105db3c7cbbc25d2f168"
+      "sha256": "db84a2c521ce6b5b8a04db7d3a7c67f1eb68708aa2a1105db3c7cbbc25d2f168",
+      "anchor_prefix": "Chapter-B-Public-Domain"
     },
     {
       "part": "Chapter C: Sustainability",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880424-dcp-file-185712077.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Chapter_C_-_Sustainability_IWLEP_2022_amends_-_28_Mar_23.pdf",
       "bytes": 11716902,
-      "sha256": "8e1198907d7a37d6d560eed7f8476f68fb1a4ee87c6fe2daed9dc98d3738fc3c"
+      "sha256": "8e1198907d7a37d6d560eed7f8476f68fb1a4ee87c6fe2daed9dc98d3738fc3c",
+      "anchor_prefix": "Chapter-C-Sustainability"
     },
     {
       "part": "Chapter D: Precinct Guidelines",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880425-dcp-file-185712078.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Chapter_D_-_Precinct_Guidelines_with_IWLEP_2022_amendments_Nov_22.pdf",
       "bytes": 22609687,
-      "sha256": "832171fa2b4e8e2c382a5de19e12f4052945707e2033bedde0eab4f83fd8a76c"
+      "sha256": "832171fa2b4e8e2c382a5de19e12f4052945707e2033bedde0eab4f83fd8a76c",
+      "anchor_prefix": "Chapter-D-Precinct-Guide"
     },
     {
       "part": "Chapter E1: All Heritage Items and Conservation Areas (except Haberfield)",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1781774170-inner_west_ashfield_dcp_2016-chapter_e1-heritage_with_iwlep_2022_amendments.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Chapter_E1-_Heritage_with_IWLEP_2022_amendments.pdf",
       "bytes": 3879460,
-      "sha256": "21cc4bf5a69f2645aa6aad52ebdda7af2cd368ee35473b954f5ae1532e0977f6"
+      "sha256": "21cc4bf5a69f2645aa6aad52ebdda7af2cd368ee35473b954f5ae1532e0977f6",
+      "anchor_prefix": "Chapter-E1-All-Heritage-"
     },
     {
       "part": "Chapter E2: Haberfield Neighbourhood",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251334-file-yrlvdarhrqa0gl4h2m0aug.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Chapter_E2_Haberfield_Neighbourhood.pdf",
       "bytes": 1466564,
-      "sha256": "cd2b36a39948b4bf31e6d30261763fc2a85825c70367b0296786979627d0ec16"
+      "sha256": "cd2b36a39948b4bf31e6d30261763fc2a85825c70367b0296786979627d0ec16",
+      "anchor_prefix": "Chapter-E2-Haberfield-Ne"
     },
     {
       "part": "Chapter F: Development Category Guidelines",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880422-dcp-file-185712081.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Chapter_F_-_Development_Category_with_IWLEP_2022_amendment.pdf",
       "bytes": 1835453,
-      "sha256": "fefb101cbf1ad99fe6a8f36df2d16247e8dda79ce52629b2114d0c25f77a44f9"
+      "sha256": "fefb101cbf1ad99fe6a8f36df2d16247e8dda79ce52629b2114d0c25f77a44f9",
+      "anchor_prefix": "Chapter-F-Development-Ca"
     },
     {
       "part": "Chapter G: Definitions",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880422-dcp-file-185712082.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Chapter_G_-_Definitions_-_with_IWLEP_2022_amendments.pdf",
       "bytes": 261411,
-      "sha256": "695326751f006f32fe04756dcefc5d7a3eb87e9807a437a8856f1a6d786be108"
+      "sha256": "695326751f006f32fe04756dcefc5d7a3eb87e9807a437a8856f1a6d786be108",
+      "anchor_prefix": "Chapter-G-Definitions"
     },
     {
       "part": "Chapter H: Amendments",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1759289638-file-alfkxffsrzqyybdmg7dqfg.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/page-documents/Inner_West_Ashfield_DCP_2016_-_Chapter_H_-_with_IWLEP_2022_amendments_Apr_24.pdf",
       "bytes": 222831,
-      "sha256": "e6738cd7e974aecb682ef0ae926f4224954160a08848c4522e92cda3a6b3215f"
+      "sha256": "e6738cd7e974aecb682ef0ae926f4224954160a08848c4522e92cda3a6b3215f",
+      "anchor_prefix": "Chapter-H-Amendments"
     }
   ],
   "councils": [

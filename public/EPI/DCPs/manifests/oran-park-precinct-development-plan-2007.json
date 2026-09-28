@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290596-file-snq-esmerlednmbq1f6wfa.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/oran-park-precinct-development-control-plan.pdf",
       "bytes": 8625447,
-      "sha256": "17a1c2a84a0240ecdbb46d470cfb49c56b052f2a1c271f2556520ea741418d27"
+      "sha256": "17a1c2a84a0240ecdbb46d470cfb49c56b052f2a1c271f2556520ea741418d27",
+      "anchor_prefix": "Oran-Park-Development-Co"
     },
     {
       "part": "Oran Park Development Control Plan attachments and appendices",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290601-file-a4ass1letyibeqlgxwfvrg.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-04/oran-park-precinct-development-control-plan-appendices-and-attachments.pdf",
       "bytes": 9915968,
-      "sha256": "ef2e30ab8cc784677fbe00bd9003b13b8f7745319b4a891cc8d7e247709706de"
+      "sha256": "ef2e30ab8cc784677fbe00bd9003b13b8f7745319b4a891cc8d7e247709706de",
+      "anchor_prefix": "Oran-Park-Development-Co-2"
     }
   ],
   "councils": [

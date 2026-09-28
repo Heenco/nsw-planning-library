@@ -1,0 +1,32 @@
+Bayside
+Blacktown
+Blue Mountains
+Burwood
+Camden
+Campbelltown
+Canada Bay
+Canterbury-Bankstown
+Cumberland
+Fairfield
+Georges River
+Hawkesbury
+Hornsby
+Hunters Hill
+Inner West
+Ku-ring-gai
+Lane Cove
+Liverpool
+Mosman
+North Sydney
+Parramatta
+Penrith
+Randwick
+Ryde
+Strathfield
+Sutherland Shire
+Sydney
+The Hills
+Waverley
+Willoughby
+Wollondilly
+Woollahra

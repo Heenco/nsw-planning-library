@@ -81,7 +81,7 @@
                     type="checkbox" :checked="on.has(l.key)" :disabled="!canDraw(l)"
                     @change="toggle(l.key)"
                   >
-                  <span class="cm-dot" :style="{ background: dotOf(l) }" />
+                  <span class="cm-dot" :style="dotStyle(l)" />
                   <span class="cm-name">{{ l.title }}</span>
                   <span v-if="tooFarOut(l)" class="cm-meta cm-meta--zoom" title="this layer is only drawn closer in">
                     zoom to {{ l.minZoom }}
@@ -132,8 +132,16 @@
                     <span class="cm-about-k">Copied</span>
                     <span>{{ l.pulledAt.slice(0, 10) }} from UrbanPortalDBP</span>
                   </p>
+                  <p class="cm-about-row">
+                    <span class="cm-about-k">Symbol</span>
+                    <span class="cm-sym">
+                      <span class="cm-swatch cm-swatch--sym" :style="swatchOf(l.key, null)" />
+                      {{ cdcSymbology(l.key).from }}
+                    </span>
+                  </p>
                   <ul v-if="l.categories.length > 1" class="cm-cats">
                     <li v-for="c in l.categories.slice(0, 8)" :key="c.name">
+                      <span class="cm-swatch cm-swatch--sym" :style="swatchOf(l.key, c.name)" />
                       {{ c.name }} <span class="cm-dim">{{ c.features.toLocaleString() }}</span>
                     </li>
                   </ul>
@@ -259,6 +267,10 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { CdcLayer, CdcLayersResponse } from '../../server/api/cdc/layers.get'
 import type { CdcAtResponse, CdcHit, CdcScope } from '../../server/api/cdc/at.get'
+import {
+  byLayerExpr, cdcSymbology, cdcSymFor, fillColour, hatchImage, hatchesNeeded, HATCH_NONE, lineColour,
+  lineWidth, patternId, swatchCss,
+} from '#shared/cdc-symbology'
 
 useHead({ title: 'CDC layers on a lot · Planning Library' })
 
@@ -327,12 +339,13 @@ const SCOPE_TEXT: { key: CdcScope; title: string; lead: string }[] = [
 ]
 
 /**
- * There is one colour system on this page and it is scope: what a layer bears on. The verdict list, the
- * panel swatches and the polygons on the map all use it, so a red shape on the map and a red heading in
- * the panel mean the same thing - a prerequisite that rules out every certificate type.
+ * Two colour systems, each answering its own question. The layers switched on in the panel are drawn in
+ * the NSW Planning Portal Spatial Viewer's symbology (shared/cdc-symbology.ts), so bush fire prone land,
+ * zoning or a heritage item looks here the way it looks on the map people already check a property on.
  *
- * Colouring by theme instead would have been prettier and would have meant nothing: "this polygon is a
- * water layer" is not a fact anyone needs, while "this polygon closes every pathway" is.
+ * The verdict is coloured by scope - what a layer bears on - and so are the part headings, the caught
+ * overlay drawn on the lot and a caught layer's dot, so a red heading and a red shape on the lot mean the
+ * same thing: a prerequisite that rules out every certificate type.
  */
 const PART_SCOPE: Record<string, CdcScope> = {
   '1.17A': 'general', '1.18': 'general', '1.19A': 'general', '1.19': 'general', sch5: 'general',
@@ -412,7 +425,7 @@ function applyVisibility() {
   if (!map?.getStyle?.()) return
   const v = visible.value ? 'visible' : 'none'
   for (const g of data.value?.groups ?? []) {
-    for (const suffix of ['fill', 'line']) {
+    for (const suffix of DRAWN) {
       const id = `cdc-${g.key}-${suffix}`
       if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', v)
     }
@@ -547,15 +560,22 @@ function statusOf(l: CdcLayer): string {
 
 /**
  * The dot answers "what am I looking at". A caught layer takes its scope colour, matching the verdict
- * beside it; a layer merely switched on takes its group colour, matching how it is drawn on the map.
- * Those are the only two things the dot can usefully mean, and it never means both at once.
+ * beside it; a layer merely switched on becomes its map symbol, so the panel is the legend. Those are the
+ * only two things the dot can usefully mean, and it never means both at once.
  */
-function dotOf(l: CdcLayer): string {
+function dotStyle(l: CdcLayer): Record<string, string> {
   const h = hitOf(l)
-  if (h) return SCOPE_COLOUR[h.scope]
-  if (on.value.has(l.key)) return SCOPE_COLOUR[l.scope] ?? '#64748b'
-  if (l.sourceKind === 'none') return '#cbd5e1'
-  return answer.value ? '#bbf7d0' : '#e2e8f0'
+  if (h) return { background: SCOPE_COLOUR[h.scope] }
+  if (on.value.has(l.key)) return { ...swatchOf(l.key, null), borderRadius: '3px' }
+  if (l.sourceKind === 'none') return { background: '#cbd5e1' }
+  return { background: answer.value ? '#bbf7d0' : '#e2e8f0' }
+}
+
+const DEFAULT_OPACITY = 0.5
+
+/** A legend swatch for a layer, or for one of its categories, drawn the way the map draws it. */
+function swatchOf(key: string, category: string | null): Record<string, string> {
+  return swatchCss(cdcSymFor(key, category), cdcSymbology(key).opacity ?? DEFAULT_OPACITY)
 }
 
 /** Below a tenth of a percent a share reads as zero, which is not what a sliver of overlap means. */
@@ -642,6 +662,20 @@ let map: any = null
 const LOT_SRC = 'cm-lot'
 const HIT_SRC = 'cm-hits'
 
+/** The four map layers each tiled group draws with. */
+const DRAWN = ['fill', 'hatch', 'line', 'point'] as const
+const POINTS = ['==', ['geometry-type'], 'Point']
+const AREAS = ['!=', ['geometry-type'], 'Point']
+
+/** Register every hatch tile the layers use, plus the empty one a solid feature resolves to. */
+function addHatches() {
+  const keys = (data.value?.layers ?? []).map(l => l.key)
+  if (!map.hasImage(HATCH_NONE)) map.addImage(HATCH_NONE, hatchImage('none', '#000000'), { pixelRatio: 2 })
+  for (const h of hatchesNeeded(keys)) {
+    if (!map.hasImage(h.id)) map.addImage(h.id, hatchImage(h.hatch, h.colour), { pixelRatio: 2 })
+  }
+}
+
 /**
  * One vector source per tiled group, as on /lmr: the switches are a map filter on layer_key, so turning a
  * layer on never changes a tile URL and never refetches anything. A group with no archive yet is simply
@@ -660,20 +694,39 @@ function addTileLayers() {
       maxzoom: g.maxZoom,
     })
     const none = ['in', ['get', 'layer_key'], ['literal', []]]
-    // colour per feature rather than per source: an archive is a bundle of layers that happen to be
-    // tiled together, and the scope is a property of the layer, not of the bundle
-    const colour: any[] = ['match', ['get', 'layer_key']]
-    for (const l of (data.value?.layers ?? []).filter(x => x.group === g.key)) {
-      colour.push(l.key, SCOPE_COLOUR[l.scope] ?? '#64748b')
-    }
-    colour.push('#64748b')
+    // styled per feature rather than per source: an archive is a bundle of layers that happen to be
+    // tiled together, and a layer's symbol - and its categories' - belongs to the layer
+    const keys = (data.value?.layers ?? []).filter(x => x.group === g.key).map(x => x.key)
+    const common = { source: src, 'source-layer': 'cdc', filter: none }
     map.addLayer({
-      id: `${src}-fill`, type: 'fill', source: src, 'source-layer': 'cdc', filter: none,
-      paint: { 'fill-color': colour, 'fill-opacity': 0.14 },
+      ...common, id: `${src}-fill`, type: 'fill',
+      paint: {
+        'fill-color': byLayerExpr(keys, fillColour, '#94a3b8'),
+        'fill-opacity': byLayerExpr(keys, (_s, l) => l.opacity ?? DEFAULT_OPACITY, DEFAULT_OPACITY),
+      },
+    })
+    // the portal's hatched symbols - conservation areas, buffers, proximity areas, crown reserves - as a
+    // pattern over the same features; a solid feature gets the empty tile and draws nothing here
+    map.addLayer({
+      ...common, id: `${src}-hatch`, type: 'fill',
+      paint: { 'fill-pattern': byLayerExpr(keys, patternId, HATCH_NONE), 'fill-opacity': 0.9 },
     })
     map.addLayer({
-      id: `${src}-line`, type: 'line', source: src, 'source-layer': 'cdc', filter: none,
-      paint: { 'line-color': colour, 'line-width': 1, 'line-opacity': 0.85 },
+      ...common, id: `${src}-line`, type: 'line',
+      paint: {
+        'line-color': byLayerExpr(keys, lineColour, '#475569'),
+        'line-width': byLayerExpr(keys, lineWidth, 0.8),
+        'line-opacity': 0.9,
+      },
+    })
+    map.addLayer({
+      ...common, id: `${src}-point`, type: 'circle',
+      paint: {
+        'circle-color': byLayerExpr(keys, s => s.fill ?? s.line ?? '#475569', '#475569'),
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 2.5, 16, 6],
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1,
+      },
     })
   }
   refresh()
@@ -687,9 +740,11 @@ function refresh() {
       .filter(l => l.group === g.key && on.value.has(l.key))
       .map(l => l.key)
     const filter = ['in', ['get', 'layer_key'], ['literal', keys]]
-    for (const suffix of ['fill', 'line']) {
+    for (const suffix of DRAWN) {
       const id = `cdc-${g.key}-${suffix}`
-      if (map.getLayer(id)) map.setFilter(id, filter)
+      // points are drawn as dots and never as a fill, so each geometry reaches only its own layers
+      const geom = suffix === 'point' ? POINTS : AREAS
+      if (map.getLayer(id)) map.setFilter(id, ['all', geom, filter])
     }
   }
 }
@@ -769,6 +824,7 @@ onMounted(async () => {
   map.on('zoomend', () => { zoom.value = map.getZoom() })
   map.on('load', () => {
     zoom.value = map.getZoom()
+    addHatches()
     addTileLayers()
     const empty = { type: 'FeatureCollection', features: [] }
     map.addSource(HIT_SRC, { type: 'geojson', data: empty })
@@ -886,6 +942,11 @@ onBeforeUnmount(() => {
 }
 .cm-chip:hover { text-decoration: underline; }
 .cm-cats { margin: 0.2rem 0 0 3.9rem; padding: 0; list-style: none; font-size: 0.68rem; color: #475569; }
+.cm-cats li { display: flex; align-items: center; gap: 0.35rem; }
+/* shrinks rather than wraps under the label: the provenance is usually longer than the row */
+.cm-sym { flex: 1 1 0; min-width: 0; display: flex; align-items: baseline; gap: 0.35rem; }
+.cm-sym .cm-swatch--sym { position: relative; top: 1px; }
+.cm-swatch.cm-swatch--sym { width: 12px; height: 10px; border-radius: 2px; flex: none; box-sizing: border-box; }
 .cm-about-note { margin: 0.25rem 0 0; font-size: 0.68rem; color: #92400e; }
 .cm-g-n { margin-left: auto; font-size: 0.68rem; font-weight: 700; color: #94a3b8; }
 .cm-g-n--hit { color: #b91c1c; }
@@ -902,7 +963,7 @@ onBeforeUnmount(() => {
 .cm-row--condition .cm-name { color: #0f172a; }
 .cm-row--condition .cm-meta { color: #0e7490; font-weight: 600; }
 .cm-row--clear .cm-name, .cm-row--open .cm-name { color: #94a3b8; }
-.cm-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.cm-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; box-sizing: border-box; }
 .cm-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-row--hit .cm-name { color: #0f172a; font-weight: 600; }
 .cm-meta { font-size: 0.68rem; color: #94a3b8; font-variant-numeric: tabular-nums; flex: none; }

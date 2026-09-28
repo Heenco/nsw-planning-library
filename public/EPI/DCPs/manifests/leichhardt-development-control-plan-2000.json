@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808204-dcp-file-185713051.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_l/leichhardtdcp2000-introductory-information.pdf?download=true",
       "bytes": 1859288,
-      "sha256": "d2c7fc12744138af376cad1df4874d7c28753817bcc1c9ab85dd6ed7f7b66334"
+      "sha256": "d2c7fc12744138af376cad1df4874d7c28753817bcc1c9ab85dd6ed7f7b66334",
+      "anchor_prefix": "Introductory-information"
     },
     {
       "part": "Part A: Lilyfield",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808191-dcp-file-185713052.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/partasuburbprofiles.pdf?download=true",
       "bytes": 2352924,
-      "sha256": "835159da12c761f5785dbeec88873cd3c4d520645a47b1b4cfe527f51d4a6ac9"
+      "sha256": "835159da12c761f5785dbeec88873cd3c4d520645a47b1b4cfe527f51d4a6ac9",
+      "anchor_prefix": "A"
     },
     {
       "part": "Part A: Annandale",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808191-dcp-file-185713053.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/partaannandale.pdf?download=true",
       "bytes": 1319252,
-      "sha256": "e1879d1962a63decfa1b6f4d3f0ddd80e1afc2d0815ae884377aafd88ebe4d6f"
+      "sha256": "e1879d1962a63decfa1b6f4d3f0ddd80e1afc2d0815ae884377aafd88ebe4d6f",
+      "anchor_prefix": "A-2"
     },
     {
       "part": "Part A: Glebe",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808189-dcp-file-185713054.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/partaglebe.pdf?download=true",
       "bytes": 1684609,
-      "sha256": "cebde27cf24812f6856f9966fa1ea757194c42549c2d79c486699ad91f8d12a2"
+      "sha256": "cebde27cf24812f6856f9966fa1ea757194c42549c2d79c486699ad91f8d12a2",
+      "anchor_prefix": "A-3"
     },
     {
       "part": "Part A: Rozelle",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808191-dcp-file-185713055.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/partarozelle.pdf?download=true",
       "bytes": 888517,
-      "sha256": "f5531a38c826a3e99e9fbef496afef4d960075a8df937f6beb71f1e0d43a4372"
+      "sha256": "f5531a38c826a3e99e9fbef496afef4d960075a8df937f6beb71f1e0d43a4372",
+      "anchor_prefix": "A-4"
     },
     {
       "part": "Part A: Balmain",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808186-dcp-file-185713056.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/partabalmain.pdf?download=true",
       "bytes": 915851,
-      "sha256": "0ed5be178585480b12c97cf0003894e21575d9f7c01859d68e8bf0c6665cb642"
+      "sha256": "0ed5be178585480b12c97cf0003894e21575d9f7c01859d68e8bf0c6665cb642",
+      "anchor_prefix": "A-5"
     },
     {
       "part": "Part B: Residential",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808196-dcp-file-185713057.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/partb.pdf?download=true",
       "bytes": 5385554,
-      "sha256": "5606bb1a4d50e3b3340e361171470740f0e1a5606ec2fc2ac5e7eac6c5b10768"
+      "sha256": "5606bb1a4d50e3b3340e361171470740f0e1a5606ec2fc2ac5e7eac6c5b10768",
+      "anchor_prefix": "B"
     },
     {
       "part": "Part C: Non-residential",
@@ -78,16 +85,18 @@
       "url": "https://www.datocms-assets.com/94948/1692808192-dcp-file-185713058.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/partc.pdf?download=true",
       "bytes": 2051518,
-      "sha256": "2397757bbcb2a27595a3954d756f71bb79061124eb9a9e4c3905ccc94c774abb"
+      "sha256": "2397757bbcb2a27595a3954d756f71bb79061124eb9a9e4c3905ccc94c774abb",
+      "anchor_prefix": "C"
     },
     {
-      "part": "Leichhardt DCP No. 38: Waste — Avoid, Reuse and Recycle",
+      "part": "Leichhardt DCP No. 38: Waste \u2014 Avoid, Reuse and Recycle",
       "order": 8,
       "file": "leichhardt-development-control-plan-2000/08-leichhardt-dcp-no-38-waste-avoid-reuse-and-recycle.pdf",
       "url": "https://www.datocms-assets.com/94948/1692808180-dcp-file-185713062.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-382001.pdf?download=true",
       "bytes": 2148595,
-      "sha256": "38d90c3bbd55803c4346cef9fc7b57139c2cd55b42427a511ef6a1083411095e"
+      "sha256": "38d90c3bbd55803c4346cef9fc7b57139c2cd55b42427a511ef6a1083411095e",
+      "anchor_prefix": "Leichhardt-DCP-No-38-Was"
     },
     {
       "part": "Leichhardt DCP No 48: Managing Activities on Footpaths and Street Verges",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808174-dcp-file-185713064.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-48-7aug02.pdf?download=true",
       "bytes": 971572,
-      "sha256": "2f30f653f9235c55210f25458d0d0079e2d0d2857131a4b594231661aed30769"
+      "sha256": "2f30f653f9235c55210f25458d0d0079e2d0d2857131a4b594231661aed30769",
+      "anchor_prefix": "Leichhardt-DCP-No-48-Man"
     }
   ],
   "councils": [

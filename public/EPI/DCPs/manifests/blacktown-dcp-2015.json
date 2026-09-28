@@ -16,7 +16,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-a-introduction-and-general-guidelines-01-02-2026.pdf",
       "file": "blacktown-dcp-2015/a-introduction-and-general-guidelines.pdf",
       "bytes": 1073514,
-      "sha256": "bdb9068c3f26fd6e1b896305fc5944a0fc4e2ae1533b2ed5e40cdcfbbcc2b8a1"
+      "sha256": "bdb9068c3f26fd6e1b896305fc5944a0fc4e2ae1533b2ed5e40cdcfbbcc2b8a1",
+      "anchor_prefix": "A"
     },
     {
       "part": "B",
@@ -24,7 +25,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-b-development-in-the-rural-zones.pdf",
       "file": "blacktown-dcp-2015/b-development-in-the-rural-zones.pdf",
       "bytes": 867091,
-      "sha256": "45fa128b011117d618e2436512779c9f0acd2fc0935fc790fb9783ada4dd18a5"
+      "sha256": "45fa128b011117d618e2436512779c9f0acd2fc0935fc790fb9783ada4dd18a5",
+      "anchor_prefix": "B"
     },
     {
       "part": "C",
@@ -32,7 +34,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-c-development-in-the-residential-areas_01-02-2026.pdf",
       "file": "blacktown-dcp-2015/c-development-within-the-residential-areas.pdf",
       "bytes": 2660526,
-      "sha256": "79e024216839c8a92af73fad99993714c56097059def406d5f242513005f79ae"
+      "sha256": "79e024216839c8a92af73fad99993714c56097059def406d5f242513005f79ae",
+      "anchor_prefix": "C"
     },
     {
       "part": "D",
@@ -40,7 +43,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-d-development-in-the-business-zones.pdf",
       "file": "blacktown-dcp-2015/d-development-in-the-business-zones.pdf",
       "bytes": 7536924,
-      "sha256": "8180852bb3f742b5d2a91a5e23ae070e9f816ed0ef0ae9121f706fedd88e3d9b"
+      "sha256": "8180852bb3f742b5d2a91a5e23ae070e9f816ed0ef0ae9121f706fedd88e3d9b",
+      "anchor_prefix": "D"
     },
     {
       "part": "E",
@@ -48,7 +52,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-e-development-in-the-industrial-zones_01-02-2026.pdf",
       "file": "blacktown-dcp-2015/e-development-in-the-industrial-zones.pdf",
       "bytes": 2146115,
-      "sha256": "72c618cf21a02521270f07d339fca5f58a7f8fcd1d2ac10d200aa415f8a0e651"
+      "sha256": "72c618cf21a02521270f07d339fca5f58a7f8fcd1d2ac10d200aa415f8a0e651",
+      "anchor_prefix": "E"
     },
     {
       "part": "F",
@@ -56,7 +61,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-f-telecommunications-facilities.pdf",
       "file": "blacktown-dcp-2015/f-telecommunications-facilities.pdf",
       "bytes": 458845,
-      "sha256": "f39611d8d2f0369d844326568089848a42fdf30e722dabde4180f26b1cfd3ba2"
+      "sha256": "f39611d8d2f0369d844326568089848a42fdf30e722dabde4180f26b1cfd3ba2",
+      "anchor_prefix": "F"
     },
     {
       "part": "G",
@@ -64,7 +70,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/1part-g-site-waste-management-and-minimisation.pdf",
       "file": "blacktown-dcp-2015/g-site-waste-management-and-minimisation.pdf",
       "bytes": 1568027,
-      "sha256": "8470b1f7f2d0cc7c460461a2d811320ed99cd307ef403db4c354df5919dd2069"
+      "sha256": "8470b1f7f2d0cc7c460461a2d811320ed99cd307ef403db4c354df5919dd2069",
+      "anchor_prefix": "G"
     },
     {
       "part": "H",
@@ -72,7 +79,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-h-landfill-guidelines_01-02-2026.pdf",
       "file": "blacktown-dcp-2015/h-landfill-guidelines.pdf",
       "bytes": 460345,
-      "sha256": "0cf71e1792f9359cc962a335cd1aa915ccdb3b89b51fb4cadecf92392e49c254"
+      "sha256": "0cf71e1792f9359cc962a335cd1aa915ccdb3b89b51fb4cadecf92392e49c254",
+      "anchor_prefix": "H"
     },
     {
       "part": "I",
@@ -80,7 +88,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-i-contaminated-land-guidelines.pdf",
       "file": "blacktown-dcp-2015/i-contaminated-land-guidelines.pdf",
       "bytes": 524904,
-      "sha256": "a963d95c8d0d0fa3a57e83b44d5e43e75405ece2ec77d9ba037e10e38ab6c295"
+      "sha256": "a963d95c8d0d0fa3a57e83b44d5e43e75405ece2ec77d9ba037e10e38ab6c295",
+      "anchor_prefix": "I"
     },
     {
       "part": "J",
@@ -88,7 +97,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/3/building-and-planning/dcps-amp-lap/part-j-water-sensitive-urban-design-and-integrated-water-cycle-management.pdf",
       "file": "blacktown-dcp-2015/j-water-sensitive-urban-design-and-iwcm.pdf",
       "bytes": 1060807,
-      "sha256": "dd2a7200e1f9de26031bf40e57523e5d2c7b1ffbfdfb0457c93781784006bc19"
+      "sha256": "dd2a7200e1f9de26031bf40e57523e5d2c7b1ffbfdfb0457c93781784006bc19",
+      "anchor_prefix": "J"
     },
     {
       "part": "K",
@@ -96,7 +106,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-k-supplementary-provisions-for-specific-sites-in-established-areas.pdf",
       "file": "blacktown-dcp-2015/k-supplementary-provisions-for-specific-sites.pdf",
       "bytes": 1543093,
-      "sha256": "d7f89491f3b678a2806ec8e57ee248a00a8371defae226f50162c330a90d7e17"
+      "sha256": "d7f89491f3b678a2806ec8e57ee248a00a8371defae226f50162c330a90d7e17",
+      "anchor_prefix": "K"
     },
     {
       "part": "L",
@@ -104,7 +115,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/2/building-and-planning/dcps-amp-lap/part-l-stonecutters-ridge_waste.pdf",
       "file": "blacktown-dcp-2015/l-stonecutters-ridge.pdf",
       "bytes": 4348603,
-      "sha256": "69cd27a53a2108dd80ccb7b6a2bcab9c2295786d0d7eac36f6db7c1691ca2476"
+      "sha256": "69cd27a53a2108dd80ccb7b6a2bcab9c2295786d0d7eac36f6db7c1691ca2476",
+      "anchor_prefix": "L"
     },
     {
       "part": "M",
@@ -112,7 +124,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/2/building-and-planning/dcps-amp-lap/part-m-the-ponds_waste.pdf",
       "file": "blacktown-dcp-2015/m-the-ponds.pdf",
       "bytes": 3857872,
-      "sha256": "f60533eb70f79a89031a5eb72f371d6c351aa99bf20a61df9cc8391d163552fa"
+      "sha256": "f60533eb70f79a89031a5eb72f371d6c351aa99bf20a61df9cc8391d163552fa",
+      "anchor_prefix": "M"
     },
     {
       "part": "N",
@@ -120,7 +133,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/building-and-planning/dcps-amp-lap/part-n-ashlar-precinct.pdf",
       "file": "blacktown-dcp-2015/n-ashlar-precinct.pdf",
       "bytes": 1645148,
-      "sha256": "2a824303a68a11802329ce06914b885fbca185f60240c4a0d6731c76e7d745dd"
+      "sha256": "2a824303a68a11802329ce06914b885fbca185f60240c4a0d6731c76e7d745dd",
+      "anchor_prefix": "N"
     },
     {
       "part": "O",
@@ -128,7 +142,8 @@
       "url": "https://www.blacktown.nsw.gov.au/files/assets/public/v/1/part-o-mount-druitt-cbd.pdf",
       "file": "blacktown-dcp-2015/o-mount-druitt-cbd.pdf",
       "bytes": 2604412,
-      "sha256": "ef0c80c85c134d6d987ff0ce8a29d52b7544148c8d6ffd9482ffd5f93c2f3a68"
+      "sha256": "ef0c80c85c134d6d987ff0ce8a29d52b7544148c8d6ffd9482ffd5f93c2f3a68",
+      "anchor_prefix": "O"
     }
   ],
   "councils": [

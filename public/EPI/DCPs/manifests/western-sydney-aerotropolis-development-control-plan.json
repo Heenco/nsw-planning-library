@@ -9,22 +9,24 @@
   "retrieved_at": "2026-09-27",
   "parts": [
     {
-      "part": "Western Sydney Aerotropolis Development Control Plan – Phase 2 – Amendment 1.",
+      "part": "Western Sydney Aerotropolis Development Control Plan \u2013 Phase 2 \u2013 Amendment 1.",
       "order": 0,
       "file": "western-sydney-aerotropolis-development-control-plan/00-western-sydney-aerotropolis-development-control-plan-phase-2-a.pdf",
       "url": "https://www.datocms-assets.com/94948/1759292431-file-dqrx7aimts6ointtpbssfw.pdf",
       "council_url": "https://www.planningportal.nsw.gov.au/sites/default/files/documents/2024/Aerotropolis%20Phase%202%20DCP_Amendment%201_September%202024.pdf",
       "bytes": 5144078,
-      "sha256": "2deb66d273bb32b0033acc4a24cfb439073b32af93ffc21622379b9a50c0dafa"
+      "sha256": "2deb66d273bb32b0033acc4a24cfb439073b32af93ffc21622379b9a50c0dafa",
+      "anchor_prefix": "Western-Sydney-Aerotropo"
     },
     {
-      "part": "Western Sydney Aerotropolis Development Control Plan – Phase 2 – Appendices",
+      "part": "Western Sydney Aerotropolis Development Control Plan \u2013 Phase 2 \u2013 Appendices",
       "order": 1,
       "file": "western-sydney-aerotropolis-development-control-plan/01-western-sydney-aerotropolis-development-control-plan-phase-2-a.pdf",
       "url": "https://www.datocms-assets.com/94948/1759292435-file-inbkpbrkrkqo8_xnfu3z0a.pdf",
       "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/Keelie+Drupal+Documents/Western+Sydney+Aerotropolis+Development+Control+Plan+%E2%80%93+Phase+2+%E2%80%93+Appendices.pdf",
       "bytes": 744450,
-      "sha256": "f3dcf540c50e6daa64aaa28d9d564e74b28cdd5b7e871561f0c1001c1aaec4b3"
+      "sha256": "f3dcf540c50e6daa64aaa28d9d564e74b28cdd5b7e871561f0c1001c1aaec4b3",
+      "anchor_prefix": "Western-Sydney-Aerotropo-2"
     },
     {
       "part": "Recognise Country: Guidelines for Development in the Aerotropolis",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292439-file-w18tcjdiryobtulibg7npa.pdf",
       "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/Keelie+Drupal+Documents/Recognise+Country+Guidelines+for+Development+in+the+Aerotropolis.pdf",
       "bytes": 10029319,
-      "sha256": "19c0348f72ecc64e69c9f1661e398e77d114e9d023dcb68c3948c930b43ef76e"
+      "sha256": "19c0348f72ecc64e69c9f1661e398e77d114e9d023dcb68c3948c930b43ef76e",
+      "anchor_prefix": "Recognise-Country-Guidel"
     },
     {
       "part": "Aviation Safeguarding Guidelines - Western Sydney Aerotropolis and surrounding areas",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292445-file-w0kmihy9r3sqcr86tvn9na.pdf",
       "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/Keelie+Drupal+Documents/Aviation+Safeguarding+Guidelines+-+Western+Sydney+Aerotropolis+and+surrounding+areas.pdf",
       "bytes": 2361181,
-      "sha256": "e2dfa0d69e082ff6eb6e9c726014ea20df4fe3be05dfa4232730f01a338fdf9c"
+      "sha256": "e2dfa0d69e082ff6eb6e9c726014ea20df4fe3be05dfa4232730f01a338fdf9c",
+      "anchor_prefix": "Aviation-Safeguarding-Gu"
     }
   ],
   "councils": [

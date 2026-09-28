@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1783352384-dcp-cover-and-contents.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/7/development/dcp/dcp-cover-and-contents.pdf",
       "bytes": 293801,
-      "sha256": "b461a4004294b8d8b1b2438217ef9125a1e167e26e04ff320a66350c57257922"
+      "sha256": "b461a4004294b8d8b1b2438217ef9125a1e167e26e04ff320a66350c57257922",
+      "anchor_prefix": "Cover-and-Contents"
     },
     {
       "part": "Part 1: Introduction",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908708-file-dvtztel_snoxwkzvmztrma.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-1-introduction.pdf",
       "bytes": 481616,
-      "sha256": "80a2e21561d9a9ef4760b6937d5d423471f66bb1fd350d3ab0298792664e4946"
+      "sha256": "80a2e21561d9a9ef4760b6937d5d423471f66bb1fd350d3ab0298792664e4946",
+      "anchor_prefix": "Part-1-Introduction"
     },
     {
       "part": "Part 2: Design in Context",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908714-file-c9xalwaftaoxzgiuifemda.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-2-design-in-context.pdf",
       "bytes": 2679543,
-      "sha256": "f614bde9b356ec3d5846bb433847836c20f9bfc6a4c34a277b8d09e1917c4645"
+      "sha256": "f614bde9b356ec3d5846bb433847836c20f9bfc6a4c34a277b8d09e1917c4645",
+      "anchor_prefix": "Part-2-Design-in-Context"
     },
     {
       "part": "Part 3: Residential Development",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908720-file-uwc-kd4srvisjvrullrjhq.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-3-residential-development.pdf",
       "bytes": 4944826,
-      "sha256": "ee13e6dd6f65ff8cd43784b0e410d5e019a9813274bf7495ff5a27d59467ad60"
+      "sha256": "ee13e6dd6f65ff8cd43784b0e410d5e019a9813274bf7495ff5a27d59467ad60",
+      "anchor_prefix": "Part-3-Residential-Devel"
     },
     {
       "part": "Part 4: Non-Residential Development",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908730-file-x8yl2xrksdskvg6sar7h5g.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-4-non-residential-development.pdf",
       "bytes": 543851,
-      "sha256": "232b143a5a1ce97e565b896d5b9dc888162d41ad6c099936ce848de906bdc1b3"
+      "sha256": "232b143a5a1ce97e565b896d5b9dc888162d41ad6c099936ce848de906bdc1b3",
+      "anchor_prefix": "Part-4-Non-Residential-D"
     },
     {
       "part": "Part 5: Environmental Management",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908736-file-dtvsczphroagqwdwfzou-q.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-5-environmental-management.pdf",
       "bytes": 2050243,
-      "sha256": "de454cb79fe833cdf8a4dc4841b57332d63c13413558ca90b3c1d765745c63d0"
+      "sha256": "de454cb79fe833cdf8a4dc4841b57332d63c13413558ca90b3c1d765745c63d0",
+      "anchor_prefix": "Part-5-Environmental-Man"
     },
     {
       "part": "Part 6: Traffic and Transport",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908742-file-yugnskfvtwc5oodxpmzsxq.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-6-traffic-and-transport.pdf",
       "bytes": 424112,
-      "sha256": "b53b1fd2180a6e76a8430dd20ec27553edddb7cd35e359727b1da0700e22e240"
+      "sha256": "b53b1fd2180a6e76a8430dd20ec27553edddb7cd35e359727b1da0700e22e240",
+      "anchor_prefix": "Part-6-Traffic-and-Trans"
     },
     {
       "part": "Part 7: Heritage and Archaeology",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908749-file-b_uzlhnxrri-xo5uypbjia.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-7-heritage-and-archaeology.pdf",
       "bytes": 5212599,
-      "sha256": "20fc90afa5840bc59426a4ab34fd5e0f413a1637387870687a17ec3fbaee7daf"
+      "sha256": "20fc90afa5840bc59426a4ab34fd5e0f413a1637387870687a17ec3fbaee7daf",
+      "anchor_prefix": "Part-7-Heritage-and-Arch"
     },
     {
       "part": "Part 8: Centres, Precincts, Special Character Areas, and Specific Sites",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1785420780-dcp-part-08-centres-precincts-special-character-areas-and-specific-sites.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/5/development/dcp/dcp-part-08-centres-precincts-special-character-areas-and-specific-sites.pdf",
       "bytes": 55793105,
-      "sha256": "6f5608a24ff19fdefa561bfe6fd038d0c6370d878e8176745f79ec47ce28559e"
+      "sha256": "6f5608a24ff19fdefa561bfe6fd038d0c6370d878e8176745f79ec47ce28559e",
+      "anchor_prefix": "Part-8-Centres-Precincts"
     },
     {
       "part": "Part 9: Parramatta City Centre",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1777871996-file-uswtg0_isokgq5mkecmpqw.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/3/development/dcp/dcp-part-9-parramatta-city-centre.pdf",
       "bytes": 33410494,
-      "sha256": "02a5e6c0586ae0bbefc5644a734e4f85820226dc3cfbf6c4284ef835ccabc18e"
+      "sha256": "02a5e6c0586ae0bbefc5644a734e4f85820226dc3cfbf6c4284ef835ccabc18e",
+      "anchor_prefix": "Part-9-Parramatta-City-C"
     },
     {
       "part": "Part 10: Late Night Trading",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908791-file-mfwn09r3t-agyozmh2qxeg.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-10-late-night-trading.pdf",
       "bytes": 2356823,
-      "sha256": "2a0ba15338f210b8108077eb5da0e2832cb79831356647b2d564f463be2e98d2"
+      "sha256": "2a0ba15338f210b8108077eb5da0e2832cb79831356647b2d564f463be2e98d2",
+      "anchor_prefix": "Part-10-Late-Night-Tradi"
     },
     {
       "part": "Part 11: Glossary",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908798-file-eyt5a_h1srutuhb13rjbdw.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-11-glossary.pdf",
       "bytes": 396272,
-      "sha256": "f9acc43ae556acdc3fc2d7d6b9364c1b8e23c86bf791c33e3ca424cde9f96f0a"
+      "sha256": "f9acc43ae556acdc3fc2d7d6b9364c1b8e23c86bf791c33e3ca424cde9f96f0a",
+      "anchor_prefix": "Part-11-Glossary"
     },
     {
       "part": "Part 12: Appendices",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1757908807-file-bmbvsybntdujbagttpfmna.pdf",
       "council_url": "https://www.cityofparramatta.nsw.gov.au/files/assets/public/v/1/development/dcp/dcp-part-12-appendices.pdf",
       "bytes": 3110461,
-      "sha256": "9dbe81ef82f8b3460b2b27e427c9589e518d86540b755afc4d3f988ba4f3e97b"
+      "sha256": "9dbe81ef82f8b3460b2b27e427c9589e518d86540b755afc4d3f988ba4f3e97b",
+      "anchor_prefix": "Part-12-Appendices"
     }
   ],
   "councils": [

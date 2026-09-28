@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796075-dcp-file-185713068.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-a.pdf",
       "bytes": 381079,
-      "sha256": "99d704ed26628b2bf9af0f727b16b29f06748b33ac635642d71f407f9f219731"
+      "sha256": "99d704ed26628b2bf9af0f727b16b29f06748b33ac635642d71f407f9f219731",
+      "anchor_prefix": "A"
     },
     {
       "part": "Part B: Urban design principles",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796091-dcp-file-185713069.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-b.pdf",
       "bytes": 1077039,
-      "sha256": "914a417500f6c51cde6e35845f17c1763c642e4f4ffb0f8c0f1b3753eeb0a34b"
+      "sha256": "914a417500f6c51cde6e35845f17c1763c642e4f4ffb0f8c0f1b3753eeb0a34b",
+      "anchor_prefix": "B"
     },
     {
       "part": "Part C: Public domain",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796094-dcp-file-185713070.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-c-v1.pdf",
       "bytes": 5054642,
-      "sha256": "c1911afb07152066afc0f0cb845ad28a66acfd62431c21f4165f800d1eb9b848"
+      "sha256": "c1911afb07152066afc0f0cb845ad28a66acfd62431c21f4165f800d1eb9b848",
+      "anchor_prefix": "C"
     },
     {
       "part": "Part D: Social planning design criteria",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796070-dcp-file-185713071.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-d.pdf",
       "bytes": 37740,
-      "sha256": "c4a6b53e1d16fe1561f363e7662b768c711799641839a5650b0e8f98fad9aa92"
+      "sha256": "c4a6b53e1d16fe1561f363e7662b768c711799641839a5650b0e8f98fad9aa92",
+      "anchor_prefix": "D"
     },
     {
       "part": "Part E: Environmental design criteria",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796097-dcp-file-185713072.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-e-v1.pdf",
       "bytes": 3655978,
-      "sha256": "a7fb19492e2ad2291c57f1554aaaa538a498b5b9a3ec19b7bd9ff337036ce99b"
+      "sha256": "a7fb19492e2ad2291c57f1554aaaa538a498b5b9a3ec19b7bd9ff337036ce99b",
+      "anchor_prefix": "E"
     },
     {
       "part": "Part F: Design criteria for specific types (pages 105-119)",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796082-dcp-file-185713073.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-fa.pdf",
       "bytes": 581737,
-      "sha256": "ee70da599ed6533c03058420f34531c9239fb352cce54b78a14b226a08d907d6"
+      "sha256": "ee70da599ed6533c03058420f34531c9239fb352cce54b78a14b226a08d907d6",
+      "anchor_prefix": "F"
     },
     {
       "part": "Part F: Design criteria for specific types (pages 120-136)",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796081-dcp-file-185713074.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-fb-v1.pdf",
       "bytes": 789713,
-      "sha256": "76059af0302f6594914832edc5dbb42afba046234372a918e65a609d288f424b"
+      "sha256": "76059af0302f6594914832edc5dbb42afba046234372a918e65a609d288f424b",
+      "anchor_prefix": "F-2"
     },
     {
       "part": "Part F: Design criteria for specific types (pages 137-153)",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796088-dcp-file-185713075.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-fc.pdf",
       "bytes": 893437,
-      "sha256": "50cd5cb8b03d5a1dba72c402398ce4ca3fe397a9dd429e5dee2e0609763e2d3e"
+      "sha256": "50cd5cb8b03d5a1dba72c402398ce4ca3fe397a9dd429e5dee2e0609763e2d3e",
+      "anchor_prefix": "F-3"
     },
     {
       "part": "Part G: Special precincts (pages 155-169)",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796071-dcp-file-185713076.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-ga.pdf",
       "bytes": 1166167,
-      "sha256": "26e5fc50a766e5091b50f57f6d8fb74b4833ea787f03d4c4b1a947eaa8fbeec0"
+      "sha256": "26e5fc50a766e5091b50f57f6d8fb74b4833ea787f03d4c4b1a947eaa8fbeec0",
+      "anchor_prefix": "G"
     },
     {
       "part": "Part G: Special precincts (pages 170-183)",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796082-dcp-file-185713077.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-gb.pdf",
       "bytes": 1055417,
-      "sha256": "02e483032aea9b14181e9d94d7b5ec0e19f610ddf915e986371bf70d89d98772"
+      "sha256": "02e483032aea9b14181e9d94d7b5ec0e19f610ddf915e986371bf70d89d98772",
+      "anchor_prefix": "G-2"
     },
     {
       "part": "Part G: Special Precinct No. 7 Ashmore Precinct",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796091-dcp-file-185713078.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a-1/ashmoreprecinctdcp2006.pdf",
       "bytes": 5122448,
-      "sha256": "ae1fa633ffba0e6c323ba57caf2616ecfbce7a1a621f8173495c394ca8504d74"
+      "sha256": "ae1fa633ffba0e6c323ba57caf2616ecfbce7a1a621f8173495c394ca8504d74",
+      "anchor_prefix": "G-3"
     },
     {
       "part": "Part G: Special Precinct No. 8 UNSW Paddington campus",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796075-dcp-file-185713079.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/gsthsyddcp1997specialprecincts8.pdf",
       "bytes": 730303,
-      "sha256": "4d44bccd30b1ba30bcefaac4ad67589a7057b26624b22ed4d8e5f10335fe20f2"
+      "sha256": "4d44bccd30b1ba30bcefaac4ad67589a7057b26624b22ed4d8e5f10335fe20f2",
+      "anchor_prefix": "G-4"
     },
     {
       "part": "Part H: Green Square Town Centre",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796117-dcp-file-185713080.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/greensqtowncentredcp-220808.pdf",
       "bytes": 1973683,
-      "sha256": "fa0fad175b78f388ff0f21644c49393ea6c38258d7ab539baac97b7eeb1c24a6"
+      "sha256": "fa0fad175b78f388ff0f21644c49393ea6c38258d7ab539baac97b7eeb1c24a6",
+      "anchor_prefix": "H"
     },
     {
       "part": "Additional information",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796068-dcp-file-185713081.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_d/dcp-h.pdf",
       "bytes": 95774,
-      "sha256": "e1621d9c558831d9ae676d20e859847e760242d4b6b8ee429a20c917bdf6f531"
+      "sha256": "e1621d9c558831d9ae676d20e859847e760242d4b6b8ee429a20c917bdf6f531",
+      "anchor_prefix": "Additional-information"
     },
     {
       "part": "Maps: Floor space ratio north",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796080-dcp-file-185713082.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a3-fsr-north-140610.pdf",
       "bytes": 632971,
-      "sha256": "ac5b4a205524f11fc9c674cdd8934982f3c1fbb961d5f5fc41c9e3d50e8dbee1"
+      "sha256": "ac5b4a205524f11fc9c674cdd8934982f3c1fbb961d5f5fc41c9e3d50e8dbee1",
+      "anchor_prefix": "Maps-Floor-space-ratio-n"
     },
     {
       "part": "Maps: Floor space ratio south",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796080-dcp-file-185713083.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a3-fsr-south-140610.pdf",
       "bytes": 671130,
-      "sha256": "68ba8a1b309f6174c26bfc17be8817f78d453efbd314b3c673dcf251bf46db62"
+      "sha256": "68ba8a1b309f6174c26bfc17be8817f78d453efbd314b3c673dcf251bf46db62",
+      "anchor_prefix": "Maps-Floor-space-ratio-s"
     },
     {
       "part": "Maps: Height north",
@@ -159,7 +175,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796094-dcp-file-185713084.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a3-height-north-140610.pdf",
       "bytes": 626866,
-      "sha256": "50ce62fcf349e9a55be8b3f8ba7d430a583c16d6ed1b74666dcff39358a4e1d5"
+      "sha256": "50ce62fcf349e9a55be8b3f8ba7d430a583c16d6ed1b74666dcff39358a4e1d5",
+      "anchor_prefix": "Maps-Height-north"
     },
     {
       "part": "Maps: Height south",
@@ -168,7 +185,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796077-dcp-file-185713085.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a3-height-south-140610.pdf",
       "bytes": 670570,
-      "sha256": "01a6e225834bc7f3f5985f9f21a71b85bf4a6560905969c4633e3433f6903ee8"
+      "sha256": "01a6e225834bc7f3f5985f9f21a71b85bf4a6560905969c4633e3433f6903ee8",
+      "anchor_prefix": "Maps-Height-south"
     },
     {
       "part": "Maps part A: Areas covered by this DCP",
@@ -177,7 +195,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796079-dcp-file-185713086.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/a-map-1-areacoveredbydcp.pdf",
       "bytes": 1542136,
-      "sha256": "80300a061373a90c8b9876db18a2b3876ee1a10342e4591907b5d683b55e950e"
+      "sha256": "80300a061373a90c8b9876db18a2b3876ee1a10342e4591907b5d683b55e950e",
+      "anchor_prefix": "Maps-part-A-Areas-covere"
     },
     {
       "part": "Maps part B: Development context",
@@ -186,7 +205,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796086-dcp-file-185713087.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/b-map-2-developmentcontext.pdf",
       "bytes": 2106942,
-      "sha256": "678edf903e33f0bdc7f5019cfa1eb92a36d459402b0fab59c766c5e0151a30ca"
+      "sha256": "678edf903e33f0bdc7f5019cfa1eb92a36d459402b0fab59c766c5e0151a30ca",
+      "anchor_prefix": "Maps-part-B-Development-"
     },
     {
       "part": "Maps part B: Settings",
@@ -195,7 +215,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796071-dcp-file-185713088.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/b-map-3-settings.pdf",
       "bytes": 2590040,
-      "sha256": "0de1d94c04035284391240071d1e481823e23e9294dcb99ad21da89bcdac98ca"
+      "sha256": "0de1d94c04035284391240071d1e481823e23e9294dcb99ad21da89bcdac98ca",
+      "anchor_prefix": "Maps-part-B-Settings"
     },
     {
       "part": "Maps part B: Urban villages",
@@ -204,7 +225,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796086-dcp-file-185713089.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/b-map-5-urbanvillages.pdf",
       "bytes": 1463657,
-      "sha256": "150b60402ae9c0ed163a6e1cb39c6fdbd60fdccff17f1250791c16a16bead4f7"
+      "sha256": "150b60402ae9c0ed163a6e1cb39c6fdbd60fdccff17f1250791c16a16bead4f7",
+      "anchor_prefix": "Maps-part-B-Urban-villag"
     },
     {
       "part": "Maps part C: Eastern districts public domain plan",
@@ -213,7 +235,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796086-dcp-file-185713090.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-5-easterndistricts.pdf",
       "bytes": 718305,
-      "sha256": "eea15dd39c2927f06ac47c226e4681b8f1d01aaeade568ef975f577e79d7e4de"
+      "sha256": "eea15dd39c2927f06ac47c226e4681b8f1d01aaeade568ef975f577e79d7e4de",
+      "anchor_prefix": "Maps-part-C-Eastern-dist"
     },
     {
       "part": "Maps part C: Alexandria public domain plan",
@@ -222,7 +245,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796097-dcp-file-185713091.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-6-erskinevillealexandria.pdf",
       "bytes": 911520,
-      "sha256": "04e1f17e6604403c3152f35b1248df80fc89beea664dd957f8da974aa6fa666a"
+      "sha256": "04e1f17e6604403c3152f35b1248df80fc89beea664dd957f8da974aa6fa666a",
+      "anchor_prefix": "Maps-part-C-Alexandria-p"
     },
     {
       "part": "Maps part C: Surry Hills and East Sydney public domain plan",
@@ -231,7 +255,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796087-dcp-file-185713092.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-7-surryhills-eastsydney.pdf",
       "bytes": 557805,
-      "sha256": "125d2770c0111425724a420788b8e9ae254821a71356443eb0b37527d6a9d1fb"
+      "sha256": "125d2770c0111425724a420788b8e9ae254821a71356443eb0b37527d6a9d1fb",
+      "anchor_prefix": "Maps-part-C-Surry-Hills-"
     },
     {
       "part": "Maps part C: Southern industrial public domain plan",
@@ -240,7 +265,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796077-dcp-file-185713093.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-8-southernindustrial.pdf",
       "bytes": 556027,
-      "sha256": "8b3ac72f1a52c08ee3a9d68febe578ea23ccb9e7c3ae0d64388a48095a727470"
+      "sha256": "8b3ac72f1a52c08ee3a9d68febe578ea23ccb9e7c3ae0d64388a48095a727470",
+      "anchor_prefix": "Maps-part-C-Southern-ind"
     },
     {
       "part": "Maps part C: Zetland and Rosebery public domain plan",
@@ -249,7 +275,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796083-dcp-file-185713094.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-9-zetland-rosebery.pdf",
       "bytes": 613892,
-      "sha256": "4f92c92cf86dda476db11e1767e320df5e67545cf1d42629630c41535f245188"
+      "sha256": "4f92c92cf86dda476db11e1767e320df5e67545cf1d42629630c41535f245188",
+      "anchor_prefix": "Maps-part-C-Zetland-and-"
     },
     {
       "part": "Maps part C: Redfern and Waterloo public domain plan",
@@ -258,7 +285,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796081-dcp-file-185713095.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-10-redfern-waterloo.pdf",
       "bytes": 675584,
-      "sha256": "5110e05f443a3f410af3680106aa78602de53ed0c0326efe5c0e6f2679b5b3f2"
+      "sha256": "5110e05f443a3f410af3680106aa78602de53ed0c0326efe5c0e6f2679b5b3f2",
+      "anchor_prefix": "Maps-part-C-Redfern-and-"
     },
     {
       "part": "Maps part C: Western districts public domain plan",
@@ -267,7 +295,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796083-dcp-file-185713096.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-11-westerndistricts.pdf",
       "bytes": 569767,
-      "sha256": "ed5bf5f1873e5ec83ecd93d719d9421a4cc8bcb546f3e7fcb11fbe4433cd0c90"
+      "sha256": "ed5bf5f1873e5ec83ecd93d719d9421a4cc8bcb546f3e7fcb11fbe4433cd0c90",
+      "anchor_prefix": "Maps-part-C-Western-dist"
     },
     {
       "part": "Maps part C: Moore Park public domain plan",
@@ -276,7 +305,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796075-dcp-file-185713097.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_c/c-map-12-moorepark.pdf",
       "bytes": 467399,
-      "sha256": "81dae778e4ce239fdfc7a377468826c28d864285ce4be395c32d428f2b10b882"
+      "sha256": "81dae778e4ce239fdfc7a377468826c28d864285ce4be395c32d428f2b10b882",
+      "anchor_prefix": "Maps-part-C-Moore-Park-p"
     },
     {
       "part": "Maps part E: Open space dedication",
@@ -285,7 +315,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796089-dcp-file-185713098.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_e/e-map-6-openspacededication.pdf",
       "bytes": 1600350,
-      "sha256": "c035d16b95f42b194a7971d3615aa570864db9ac0118ef69127624a31e7d9e1b"
+      "sha256": "c035d16b95f42b194a7971d3615aa570864db9ac0118ef69127624a31e7d9e1b",
+      "anchor_prefix": "Maps-part-E-Open-space-d"
     },
     {
       "part": "Maps part E: Stormwater detention",
@@ -294,7 +325,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796088-dcp-file-185713099.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_e/e-map-7-stormwaterdetention.pdf",
       "bytes": 1995590,
-      "sha256": "eee473a0ffd1d038d54267c37f9e04934d861df01c80a74e7da802f3381028bf"
+      "sha256": "eee473a0ffd1d038d54267c37f9e04934d861df01c80a74e7da802f3381028bf",
+      "anchor_prefix": "Maps-part-E-Stormwater-d"
     },
     {
       "part": "Maps part F: Mixed use",
@@ -303,7 +335,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796077-dcp-file-185713100.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pages-from-9-sthsyd-dcp-1997-part-f.pdf",
       "bytes": 590491,
-      "sha256": "b491b238f7c381d63fec58a302e9188d711364ad4c65be5ed04b7ee58dad3530"
+      "sha256": "b491b238f7c381d63fec58a302e9188d711364ad4c65be5ed04b7ee58dad3530",
+      "anchor_prefix": "Maps-part-F-Mixed-use"
     },
     {
       "part": "Part G: Special precinct No. 9 Green Square",
@@ -312,7 +345,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796098-dcp-file-185713101.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/greensquaredcp-final-adopted-061219.pdf",
       "bytes": 5323114,
-      "sha256": "ffcc0d19ad446dde354e2d192b8ab2746d8fd1fd4ffa124c3eaa47848f2cf704"
+      "sha256": "ffcc0d19ad446dde354e2d192b8ab2746d8fd1fd4ffa124c3eaa47848f2cf704",
+      "anchor_prefix": "G-5"
     },
     {
       "part": "Part G: Special precinct No. 9 Green Square (Lachlan Precinct)",
@@ -321,7 +355,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796102-dcp-file-185713102.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_a/adopted-dcp-amendment-april-2013.pdf",
       "bytes": 12797346,
-      "sha256": "773322380146a3198814885e29f81860c36828b091f95825880bd192f2e7e7f7"
+      "sha256": "773322380146a3198814885e29f81860c36828b091f95825880bd192f2e7e7f7",
+      "anchor_prefix": "G-6"
     },
     {
       "part": "Part G: Special precinct No. 9 Green Square (specific sites: Wulaba Park site)",
@@ -330,7 +365,8 @@
       "url": "https://www.datocms-assets.com/94948/1692796097-dcp-file-185713103.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_w/wulabaparkdcpamendmentjuly2012-adopted.pdf",
       "bytes": 7595727,
-      "sha256": "d01fba142181df936e9e4046ba1c1cbe3e04b4e14f28edbf35329a58cc67c78a"
+      "sha256": "d01fba142181df936e9e4046ba1c1cbe3e04b4e14f28edbf35329a58cc67c78a",
+      "anchor_prefix": "G-7"
     }
   ],
   "councils": [

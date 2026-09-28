@@ -1,0 +1,29 @@
+{
+  "instrument": "inner-west-tree-management-development-control-plan-2023",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\inner-west-tree-management-development-control-plan-2023.html",
+  "generated": "2026-09-28T07:33:46.715Z",
+  "parts": 7,
+  "parts_with_sidecar": 7,
+  "source_pages": 0,
+  "bytes": 1631935,
+  "unique_anchor_ids": 1102,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 7
+  },
+  "totals": {
+    "headings": 1095,
+    "tables": 157,
+    "list_items": 984,
+    "images_placed": 698,
+    "prose_demoted": 12,
+    "page_markers": 512
+  },
+  "weak_parts": [
+    {
+      "prefix": "Leichhardt-Urban-Forest-",
+      "page_coverage": 0.833,
+      "distinct_levels": 1
+    }
+  ]
+}

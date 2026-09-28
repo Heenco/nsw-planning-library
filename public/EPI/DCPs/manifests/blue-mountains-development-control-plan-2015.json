@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1776259971-file-ml4md1u1s2yc4ybiwxr5hw.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20A.pdf",
       "bytes": 339208,
-      "sha256": "1c5e7259d8a8e3826f7e3ff4741c54363635609f9d12361838356f209b0ca869"
+      "sha256": "1c5e7259d8a8e3826f7e3ff4741c54363635609f9d12361838356f209b0ca869",
+      "anchor_prefix": "A"
     },
     {
       "part": "Part B Context, Site Analysis and Design",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1776259976-file-tyo8p0e1t1kenaoacakikq.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20B.pdf",
       "bytes": 4250166,
-      "sha256": "302ec487d0227caed9d36af13ec8b577884d338536ac1e6670b20429170c423d"
+      "sha256": "302ec487d0227caed9d36af13ec8b577884d338536ac1e6670b20429170c423d",
+      "anchor_prefix": "B"
     },
     {
       "part": "Part C Environmental Management",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1776259983-file-uusfolnaqkyijrjawqgzvw.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20C.pdf",
       "bytes": 2734900,
-      "sha256": "f1add0ad2e64b0bbce425da8ba5da5aeb2c0cbffc453dc87c82c081545a025f8"
+      "sha256": "f1add0ad2e64b0bbce425da8ba5da5aeb2c0cbffc453dc87c82c081545a025f8",
+      "anchor_prefix": "C"
     },
     {
       "part": "Part D Heritage Management",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1776259989-file-a1f844rtsvebe0n_vus3sq.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20D.pdf",
       "bytes": 8014264,
-      "sha256": "b5c4e3d27474ba60c63dcf89d3ea330bcdd8642cedffd8f00af496f4eb906e7a"
+      "sha256": "b5c4e3d27474ba60c63dcf89d3ea330bcdd8642cedffd8f00af496f4eb906e7a",
+      "anchor_prefix": "D"
     },
     {
       "part": "Part E Site Development and Management",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1776259996-file-sggjg9gpskoerb5kgq_hyw.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20E.pdf",
       "bytes": 4890219,
-      "sha256": "df0330010f2dd08f6b72e623a46eddba53b0614fb099bce616d14670ba8ee0b1"
+      "sha256": "df0330010f2dd08f6b72e623a46eddba53b0614fb099bce616d14670ba8ee0b1",
+      "anchor_prefix": "E"
     },
     {
       "part": "Part F Development Types",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1776260002-file-e2fictwrtmqzwqq6qaoxvg.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20F.pdf",
       "bytes": 4643899,
-      "sha256": "53f8fdb3a1040886c9aec5d33994b10f35b5ba0e5085db02fe03f1b3386bbf0f"
+      "sha256": "53f8fdb3a1040886c9aec5d33994b10f35b5ba0e5085db02fe03f1b3386bbf0f",
+      "anchor_prefix": "F"
     },
     {
       "part": "Part G Locality Management",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1776260008-file-lfmcl8-kq2scjpqbb_65da.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20G.pdf",
       "bytes": 5282058,
-      "sha256": "843d03f98766f62de31b9c3e5d3e76cfe9a587e118b50276afba0ee0fe8a3e5d"
+      "sha256": "843d03f98766f62de31b9c3e5d3e76cfe9a587e118b50276afba0ee0fe8a3e5d",
+      "anchor_prefix": "G"
     },
     {
       "part": "Part I Submission Requirements",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1776260014-file-ueplxce8taooprj3x8vvxa.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20I.pdf",
       "bytes": 543214,
-      "sha256": "aa90db112fb826f1e27851a9cfaf4902d87c9d2504f01e10bb7f366c31e6b475"
+      "sha256": "aa90db112fb826f1e27851a9cfaf4902d87c9d2504f01e10bb7f366c31e6b475",
+      "anchor_prefix": "I"
     },
     {
       "part": "Part J Guidelines",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1776260020-file-hyuiryvlrtktn1wwecvrca.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20J.pdf",
       "bytes": 478776,
-      "sha256": "3cb8898273e7c72f40a6df6398c92c5d2c393e5b7bcbd4c0e19c1060dd51d252"
+      "sha256": "3cb8898273e7c72f40a6df6398c92c5d2c393e5b7bcbd4c0e19c1060dd51d252",
+      "anchor_prefix": "J"
     },
     {
       "part": "Part K Definitions",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1776260024-file-tmitgbv7qo6ta_jkwkzedg.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20K.pdf",
       "bytes": 377149,
-      "sha256": "9121bf30c7278d14f9143593706a4c843ff8ae0b3dea88e3e8df681f22374946"
+      "sha256": "9121bf30c7278d14f9143593706a4c843ff8ae0b3dea88e3e8df681f22374946",
+      "anchor_prefix": "K"
     },
     {
       "part": "Part L Maps",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1776260028-file-mdmh4nfgssu4sss-ll42xa.pdf",
       "council_url": "https://www.bmcc.nsw.gov.au/sites/default/files/docs/DCP%202015_Amendment%208_Part%20L.pdf",
       "bytes": 13376656,
-      "sha256": "40c10ce79fcc3874cf49a34f7227ffbb9b6fcedc549aefd297cabfbe645dd49b"
+      "sha256": "40c10ce79fcc3874cf49a34f7227ffbb9b6fcedc549aefd297cabfbe645dd49b",
+      "anchor_prefix": "L"
     }
   ],
   "councils": [

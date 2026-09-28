@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1789730352-the-hills-dcp-part-a-introduction-september-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/17/cms-docs/building/dcp/the-hills-dcp-part-a-introduction-september-2026.pdf",
       "bytes": 1017289,
-      "sha256": "6d8b7840d83fcafafed441189a6daf941b8c21bad35985784d8c01accfb64868"
+      "sha256": "6d8b7840d83fcafafed441189a6daf941b8c21bad35985784d8c01accfb64868",
+      "anchor_prefix": "A"
     },
     {
       "part": "Part B Section 1 - Rural",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1725250194-file-f91e-dljrh-8fzj0fc_mwa.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-b-section-1-rural.pdf",
       "bytes": 4597025,
-      "sha256": "44dcb447376472d5fb4121b9d2cd1fb3d83173b475af170d08f3bf5b39cd96a0"
+      "sha256": "44dcb447376472d5fb4121b9d2cd1fb3d83173b475af170d08f3bf5b39cd96a0",
+      "anchor_prefix": "B"
     },
     {
       "part": "Part B Section 2 - Residential",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787260-dcp-file-185713129.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-part-b-section-2-residential.pdf",
       "bytes": 7746472,
-      "sha256": "6a8ac579d0d41ab793c64dfdcb31c86e98035eac0299338e82d025101c2c724d"
+      "sha256": "6a8ac579d0d41ab793c64dfdcb31c86e98035eac0299338e82d025101c2c724d",
+      "anchor_prefix": "B-2"
     },
     {
       "part": "Part B Section 3 - Dual Occupancy",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787277-dcp-file-185713130.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/3/ecm-website-documents/page-documents/building/dcp/part_b_section_3_-_dual_occupancy.pdf",
       "bytes": 1723563,
-      "sha256": "e4375599415226d485c8df27bb1d16b02b3a00c45e50a7e721da6a34328029d8"
+      "sha256": "e4375599415226d485c8df27bb1d16b02b3a00c45e50a7e721da6a34328029d8",
+      "anchor_prefix": "B-3"
     },
     {
       "part": "Part B Section 4 - Multi Dwelling Housing",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787286-dcp-file-185713131.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/3/ecm-website-documents/page-documents/building/dcp/part_b_section_4_-_multi_dwelling_housing.pdf",
       "bytes": 1683076,
-      "sha256": "7c70ad9f844a7b330d43056b0dd84135cc0dfe24d3985d02caec48be038ec59a"
+      "sha256": "7c70ad9f844a7b330d43056b0dd84135cc0dfe24d3985d02caec48be038ec59a",
+      "anchor_prefix": "B-4"
     },
     {
       "part": "Part B Section 5 - Residential Flat Building",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1780662030-the-hills-dcp-2012-part-b-section-5-residential-flat-buildings-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-b-section-5-residential-flat-buildings-may-2026.pdf",
       "bytes": 1861500,
-      "sha256": "95aaae80c2f41ea5992b2a9bc0da892e2c49068437877e0ece7680863cfb289c"
+      "sha256": "95aaae80c2f41ea5992b2a9bc0da892e2c49068437877e0ece7680863cfb289c",
+      "anchor_prefix": "B-5"
     },
     {
       "part": "Part B Section 6 - Business",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661533-the-hills-dcp-2012-part-b-section-6-business-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-b-section-6-business-may-2026.pdf",
       "bytes": 14835631,
-      "sha256": "986bf9e94eaed917a3781156af0a0239903eef0ea99ad3ecea6730729c4b669d"
+      "sha256": "986bf9e94eaed917a3781156af0a0239903eef0ea99ad3ecea6730729c4b669d",
+      "anchor_prefix": "B-6"
     },
     {
       "part": "Part B Section 7 - Industrial",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787359-dcp-file-185713134.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/4/ecm-website-documents/page-documents/building/dcp/part_b_section_7_-_industrial.pdf",
       "bytes": 4876436,
-      "sha256": "2468806674de0ac96748e87e1b48eeb7741189c2b00cac556da7676ab644d1a9"
+      "sha256": "2468806674de0ac96748e87e1b48eeb7741189c2b00cac556da7676ab644d1a9",
+      "anchor_prefix": "B-7"
     },
     {
       "part": "Part B Section 8 - Shop Top Housing and Mixed Use Development",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1783422471-the-hills-dcp-2012-part-b-section-8-shop-top-housing-and-mixed-use-development-june-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-b-section-8-shop-top-housing-and-mixed-use-development-june-2026.pdf",
       "bytes": 734057,
-      "sha256": "063cf863bdb81dde4dd752ac1e386fa11bdb82c18c7838f8fb4500f289e0c895"
+      "sha256": "063cf863bdb81dde4dd752ac1e386fa11bdb82c18c7838f8fb4500f289e0c895",
+      "anchor_prefix": "B-8"
     },
     {
       "part": "Part B Section 9 - Small Lot Housing (Integrated Housing)",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787378-dcp-file-185713136.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_9_-_small_lot_housing_integrated_housing_amended.pdf",
       "bytes": 986548,
-      "sha256": "57571c30b8a76f7ea2394588e70a4aa23225290f688508d5bef3b45d6ad75a7e"
+      "sha256": "57571c30b8a76f7ea2394588e70a4aa23225290f688508d5bef3b45d6ad75a7e",
+      "anchor_prefix": "B-9"
     },
     {
       "part": "Part B Section 10 - Medium Density Residential (Terraces)",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787384-dcp-file-185713137.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_b_section_10_-_medium_density_residential_terraces.pdf",
       "bytes": 679494,
-      "sha256": "21a4453f56b960dc0ae6f47192dbea796c2c3d195b5a1e4c6effeeb784cdde21"
+      "sha256": "21a4453f56b960dc0ae6f47192dbea796c2c3d195b5a1e4c6effeeb784cdde21",
+      "anchor_prefix": "B-10"
     },
     {
       "part": "Part B Section 11 - Manor House",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787397-dcp-file-185713138.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/the_hills_dcp_2012_part_b_section_11_-_manor_house_-_in_force_1_july_2020.pdf",
       "bytes": 1138450,
-      "sha256": "4e58bc4791596c0892506851488d23d3e64f23f26e8105356a4ac8228a79af3d"
+      "sha256": "4e58bc4791596c0892506851488d23d3e64f23f26e8105356a4ac8228a79af3d",
+      "anchor_prefix": "B-11"
     },
     {
       "part": "Part C Section 1 - Parking",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661563-the-hills-dcp-2012-part-c-section-1-parking-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/6/cms-docs/building/dcp/the-hills-dcp-2012-part-c-section-1-parking-may-2026.pdf",
       "bytes": 5151483,
-      "sha256": "b68c1a301efb69c7d1fae0a16149250a528a862af66efa99d11e19b882c94e59"
+      "sha256": "b68c1a301efb69c7d1fae0a16149250a528a862af66efa99d11e19b882c94e59",
+      "anchor_prefix": "C"
     },
     {
       "part": "Part C Section 2 - Signage",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787418-dcp-file-185713140.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_c_section_2_-_signage.pdf",
       "bytes": 1064048,
-      "sha256": "0a979f28defbd59d812cbfb59bd21044834f36b9f8f60a7fad7b39bbc37e917d"
+      "sha256": "0a979f28defbd59d812cbfb59bd21044834f36b9f8f60a7fad7b39bbc37e917d",
+      "anchor_prefix": "C-2"
     },
     {
       "part": "Part C Section 3 - Landscaping",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787427-dcp-file-185713141.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/3/ecm-website-documents/page-documents/building/dcp/part_c_section_3_-_landscaping.pdf",
       "bytes": 2003387,
-      "sha256": "a976e450d39123d05640701c3636da65912141caf64d6814b623378655c5d914"
+      "sha256": "a976e450d39123d05640701c3636da65912141caf64d6814b623378655c5d914",
+      "anchor_prefix": "C-3"
     },
     {
       "part": "Part C Section 4 - Heritage",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787436-dcp-file-185713142.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_c_section_4_-_heritage.pdf",
       "bytes": 1316854,
-      "sha256": "398cfbe9dcf32adae5d3ed73e4f67bfdcfadcf1f128a8a800f091703b03a00a5"
+      "sha256": "398cfbe9dcf32adae5d3ed73e4f67bfdcfadcf1f128a8a800f091703b03a00a5",
+      "anchor_prefix": "C-4"
     },
     {
       "part": "Part C Section 5 - Telecommunication Facilities",
@@ -159,7 +175,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787444-dcp-file-185713143.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_c_section_5_-_telecommunication_facilities.pdf",
       "bytes": 780410,
-      "sha256": "e259756a60bdf0988cf48a9975131984a613af7ab4550f2149b285f63c81c63c"
+      "sha256": "e259756a60bdf0988cf48a9975131984a613af7ab4550f2149b285f63c81c63c",
+      "anchor_prefix": "C-5"
     },
     {
       "part": "Part C Section 6 - Flood Controlled Land",
@@ -168,7 +185,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787450-dcp-file-185713144.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_c_section_6_-_flood_controlled_land.pdf",
       "bytes": 726927,
-      "sha256": "d14c9cb58a706778ceb9007d2dd43c1addb8cbc815dd5c6bc5205ae915597737"
+      "sha256": "d14c9cb58a706778ceb9007d2dd43c1addb8cbc815dd5c6bc5205ae915597737",
+      "anchor_prefix": "C-6"
     },
     {
       "part": "Part D Section 1 - 27 - 33 North Rocks Road North Rocks",
@@ -177,7 +195,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787462-dcp-file-185713145.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/3/ecm-website-documents/page-documents/building/dcp/part_d_section_1_-_27-33_north_rocks_road_north_rocks.pdf",
       "bytes": 2930032,
-      "sha256": "b33db9bfccd1aa58ee68852b032a5c408763b3bac00942a17534c912a1b80e87"
+      "sha256": "b33db9bfccd1aa58ee68852b032a5c408763b3bac00942a17534c912a1b80e87",
+      "anchor_prefix": "D"
     },
     {
       "part": "Part D Section 2 - Pennant Street Target Site Castle Hill",
@@ -186,7 +205,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787480-dcp-file-185713146.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_d_section_2_-_pennant_street_target_site_castle_hill.pdf",
       "bytes": 1868609,
-      "sha256": "6c3673a5a495517ea3fb3dba18e6c55da0631f5d42d3d376c7e24a781a62ac10"
+      "sha256": "6c3673a5a495517ea3fb3dba18e6c55da0631f5d42d3d376c7e24a781a62ac10",
+      "anchor_prefix": "D-2"
     },
     {
       "part": "Part D Section 3 - 257 Windsor Road and Russell Street Baulkham Hills",
@@ -195,7 +215,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787491-dcp-file-185713147.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_d_section_3_-_257_windsor_road__russell_street_baulkham_hills.pdf",
       "bytes": 2609498,
-      "sha256": "7cfbf877b7095d3231fc86c5ef6fe9cadfe53ddf89f7752106d0af7008a69749"
+      "sha256": "7cfbf877b7095d3231fc86c5ef6fe9cadfe53ddf89f7752106d0af7008a69749",
+      "anchor_prefix": "D-3"
     },
     {
       "part": "Part D Section 4 - Target Site Pennant Hills Road Carlingford",
@@ -204,7 +225,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787501-dcp-file-185713148.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_d_section_4_-_target_site_penant_hills_road_carlingford.pdf",
       "bytes": 3202638,
-      "sha256": "425e3b9c04d72092fb812c21278aca44009b699b3553a716a28e739ec06dd9e3"
+      "sha256": "425e3b9c04d72092fb812c21278aca44009b699b3553a716a28e739ec06dd9e3",
+      "anchor_prefix": "D-4"
     },
     {
       "part": "Part D Section 5 - Kellyville Rouse Hill Release Area",
@@ -213,7 +235,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661580-the-hills-dcp-2012-part-d-section-5-kellyville-rouse-hill-release-area-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-5-kellyville-rouse-hill-release-area-may-2026.pdf",
       "bytes": 12080568,
-      "sha256": "5bf9a8c5235fdfa76c0498275b82cbf086c884db16ab8a6a45e0e444232c4dbe"
+      "sha256": "5bf9a8c5235fdfa76c0498275b82cbf086c884db16ab8a6a45e0e444232c4dbe",
+      "anchor_prefix": "D-5"
     },
     {
       "part": "Part D Section 6 - Rouse Hill Regional Centre",
@@ -222,7 +245,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661596-the-hills-dcp-2012-part-d-section-6-rouse-hill-regional-centre-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-6-rouse-hill-regional-centre-may-2026.pdf",
       "bytes": 7652237,
-      "sha256": "138c0b60d3fd654ee90c911279ac8deb470f19e99ba367463a723a40170d1916"
+      "sha256": "138c0b60d3fd654ee90c911279ac8deb470f19e99ba367463a723a40170d1916",
+      "anchor_prefix": "D-6"
     },
     {
       "part": "Part D Section 7 - Balmoral Road Release Area",
@@ -231,7 +255,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661639-the-hills-dcp-2012-part-d-section-7-balmoral-road-release-area-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-7-balmoral-road-release-area-may-2026.pdf",
       "bytes": 11813519,
-      "sha256": "328594e831a2bdadab44cf5748f7ffcbff4f70e482a8a9504810b7418f75fb4f"
+      "sha256": "328594e831a2bdadab44cf5748f7ffcbff4f70e482a8a9504810b7418f75fb4f",
+      "anchor_prefix": "D-7"
     },
     {
       "part": "Balmoral Road Release Area DCP Map",
@@ -240,7 +265,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787587-dcp-file-185713152.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/balmoral-road-release-area-dcp-map-updated-3-april-2023.pdf",
       "bytes": 4488264,
-      "sha256": "f08ab208cc195acc412eb5435c1476913f2d4d38da4324d5362fdb64946074a2"
+      "sha256": "f08ab208cc195acc412eb5435c1476913f2d4d38da4324d5362fdb64946074a2",
+      "anchor_prefix": "Balmoral-Road-Release-Ar"
     },
     {
       "part": "Part D Section 8 - Norwest Town Centre Residential Development",
@@ -249,7 +275,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661655-the-hills-dcp-2012-part-d-section-8-norwest-town-centre-residential-development-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-8-norwest-town-centre-residential-development-may-2026.pdf",
       "bytes": 2609555,
-      "sha256": "a118ee45cb78ffb252fe2d20da5c44a36ade60383676d7d3aae788e45370261d"
+      "sha256": "a118ee45cb78ffb252fe2d20da5c44a36ade60383676d7d3aae788e45370261d",
+      "anchor_prefix": "D-8"
     },
     {
       "part": "Part D Section 9 - Target Site 23-25 North Rocks Road, North Rocks",
@@ -258,7 +285,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787618-dcp-file-185713154.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/4/ecm-website-documents/page-documents/building/dcp/part-d-section-9-target-site-23-25-north-rocks-road-north-rocks.pdf",
       "bytes": 2502701,
-      "sha256": "1b10192717546a1456377ce465e16b68c1607e76e78c52581737c7aac0b353af"
+      "sha256": "1b10192717546a1456377ce465e16b68c1607e76e78c52581737c7aac0b353af",
+      "anchor_prefix": "D-9"
     },
     {
       "part": "Part D Section 10 - Baulkham Hills Town Centre",
@@ -267,7 +295,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661672-the-hills-dcp-2012-part-d-section-10-baulkham-hills-town-centre-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-10-baulkham-hills-town-centre-may-2026.pdf",
       "bytes": 4560706,
-      "sha256": "ddce23d7ef75ec28d50458b4e744d4ea0eae5429128a8fcb4e247214840fcf01"
+      "sha256": "ddce23d7ef75ec28d50458b4e744d4ea0eae5429128a8fcb4e247214840fcf01",
+      "anchor_prefix": "D-10"
     },
     {
       "part": "Part D Section 11 - Terminus Street Precinct",
@@ -276,7 +305,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787652-dcp-file-185713156.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_d_section_11_-_terminus_street_precinct.pdf",
       "bytes": 3438292,
-      "sha256": "879a7c025fc327aa6f0d23122603cba63922a04dbd39d6411332e82d943b7649"
+      "sha256": "879a7c025fc327aa6f0d23122603cba63922a04dbd39d6411332e82d943b7649",
+      "anchor_prefix": "D-11"
     },
     {
       "part": "Part D Section 12 - Carlingford Precinct",
@@ -285,7 +315,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787671-dcp-file-185713157.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/3/ecm-website-documents/page-documents/building/dcp/part_d_section_12_-_carlingford_precinct.pdf",
       "bytes": 6975165,
-      "sha256": "b8b41b95d815915f6a746a3c28246f078a82bb07560a4927c5cbabe0a855f0a9"
+      "sha256": "b8b41b95d815915f6a746a3c28246f078a82bb07560a4927c5cbabe0a855f0a9",
+      "anchor_prefix": "D-12"
     },
     {
       "part": "Part D Section 13 - 354 - 368 Old Northern Road Castle Hill",
@@ -294,7 +325,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787685-dcp-file-185713158.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_d_section_13_-_354-368_old_northern_road_castle_hill.pdf",
       "bytes": 3354988,
-      "sha256": "f2b7ae3692d74f894f7fa267ef6d68d9812976e7d5e9a0545a837bec510dd1f2"
+      "sha256": "f2b7ae3692d74f894f7fa267ef6d68d9812976e7d5e9a0545a837bec510dd1f2",
+      "anchor_prefix": "D-13"
     },
     {
       "part": "Part D Section 14 - Target Site Cnr Windsor Rd Seven Hills Rd Baulkham Hills",
@@ -303,7 +335,8 @@
       "url": "https://www.datocms-assets.com/94948/1725250212-file-mo5euiidq7sxtjys1girzw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-14-target-site-cnr-windsor-rd-seven-hills-rd-baulkham-hills.pdf",
       "bytes": 7257267,
-      "sha256": "8b0c791513cea75819ab7fc51a0aefb22b6c420b445fcf9ca67bd0c4d5522b03"
+      "sha256": "8b0c791513cea75819ab7fc51a0aefb22b6c420b445fcf9ca67bd0c4d5522b03",
+      "anchor_prefix": "D-14"
     },
     {
       "part": "Part D Section 15 - Crane Road Precinct",
@@ -312,7 +345,8 @@
       "url": "https://www.datocms-assets.com/94948/1692787715-dcp-file-185713160.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_d_section_15_crane_road_precinct.pdf",
       "bytes": 2339492,
-      "sha256": "cbf253d20313f4054d7bf3285cb85a103f6605eee3ed58dfa133580c999a4058"
+      "sha256": "cbf253d20313f4054d7bf3285cb85a103f6605eee3ed58dfa133580c999a4058",
+      "anchor_prefix": "D-15"
     },
     {
       "part": "Part D Section 16 - 301 Samantha Riley Drive Kellyville",
@@ -321,7 +355,8 @@
       "url": "https://www.datocms-assets.com/94948/1692791984-dcp-file-185713161.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/4/ecm-website-documents/page-documents/building/dcp/the_hills_development_control_plan_part_d_section_16_-_301_samantha_riley_drive_kellyville.pdf",
       "bytes": 1482193,
-      "sha256": "174a3814d45fff877487d19b83b29f54e95801df92589deae7e2799bdd6ea641"
+      "sha256": "174a3814d45fff877487d19b83b29f54e95801df92589deae7e2799bdd6ea641",
+      "anchor_prefix": "D-16"
     },
     {
       "part": "Part D Section 17 - Gables",
@@ -330,7 +365,8 @@
       "url": "https://www.datocms-assets.com/94948/1789730522-the-hills-dcp-2012-part-d-section-17-gables-september-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-17-gables-september-2026.pdf",
       "bytes": 3298282,
-      "sha256": "ec0b1b827abe15fbc72e020fa6f0c199d0366ede374c9e7660bff9a6039b1255"
+      "sha256": "ec0b1b827abe15fbc72e020fa6f0c199d0366ede374c9e7660bff9a6039b1255",
+      "anchor_prefix": "D-17"
     },
     {
       "part": "Part D Section 18 - 582 and 582a Old Northern Road Dural",
@@ -339,7 +375,8 @@
       "url": "https://www.datocms-assets.com/94948/1692792009-dcp-file-185713163.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/the_hills_dcp_2012_part_d_section_18_-_582_and_582a_old_northern_road_dural.pdf",
       "bytes": 965838,
-      "sha256": "f1071d4fc86fa868aea1d94bdd45e99804e5b203fdedab8e52b5957e5183fe83"
+      "sha256": "f1071d4fc86fa868aea1d94bdd45e99804e5b203fdedab8e52b5957e5183fe83",
+      "anchor_prefix": "D-18"
     },
     {
       "part": "Part D Section 19 - Showground Station Precinct",
@@ -348,7 +385,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661693-the-hills-dcp-2012-part-d-section-19-showground-station-precinct-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/3/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-19-showground-station-precinct-may-2026.pdf",
       "bytes": 12463417,
-      "sha256": "1b5b6f999f6d00ea90e6e204b402101a5631ae44e57bdc20806ce756f323fbfb"
+      "sha256": "1b5b6f999f6d00ea90e6e204b402101a5631ae44e57bdc20806ce756f323fbfb",
+      "anchor_prefix": "D-19"
     },
     {
       "part": "Part D Section 20 - Castle Hill North",
@@ -357,7 +395,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661712-the-hills-dcp-2012-part-d-section-20-castle-hill-north-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/5/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-20-castle-hill-north-may-2026.pdf",
       "bytes": 7482274,
-      "sha256": "4d41e354f7fc1539106d03dbad2d9a36c1ad59063cb705e202bcf54e86973f54"
+      "sha256": "4d41e354f7fc1539106d03dbad2d9a36c1ad59063cb705e202bcf54e86973f54",
+      "anchor_prefix": "D-20"
     },
     {
       "part": "Part D Section 21 - 93-107 Cecil Avenue & 9-10 Roger Avenue, Castle Hill",
@@ -366,7 +405,8 @@
       "url": "https://www.datocms-assets.com/94948/1725250231-file-ruon_pj2rgob2ukhzbdwow.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-21-93-107-cecil-avenue-9-10-roger-avenue-castle-hill.pdf",
       "bytes": 2456298,
-      "sha256": "7884578647f50decf299d074830276f2e38c8017a5c887c50d130a8815363174"
+      "sha256": "7884578647f50decf299d074830276f2e38c8017a5c887c50d130a8815363174",
+      "anchor_prefix": "D-21"
     },
     {
       "part": "Part D Section 22 - Circa Commercial Precinct",
@@ -375,7 +415,8 @@
       "url": "https://www.datocms-assets.com/94948/1692792105-dcp-file-185713167.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_d_section_22_circa_commercial_precinct_in_force_12_november_2021.pdf",
       "bytes": 6225516,
-      "sha256": "ba539a5bae054c9c977fe24c6d96ab53d2e65e0e325223260e9c0ca39b65c28b"
+      "sha256": "ba539a5bae054c9c977fe24c6d96ab53d2e65e0e325223260e9c0ca39b65c28b",
+      "anchor_prefix": "D-22"
     },
     {
       "part": "Part D Section 23 - Norwest Station Site",
@@ -384,7 +425,8 @@
       "url": "https://www.datocms-assets.com/94948/1725250237-file-exjyzg2nrrym-vl9chhmnq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-23-norwest-station-site.pdf",
       "bytes": 1657508,
-      "sha256": "5af7b61b55c9bbbcfcd5de6c81bba9e4ebc7df004db3a3d7caa8e124e8f93603"
+      "sha256": "5af7b61b55c9bbbcfcd5de6c81bba9e4ebc7df004db3a3d7caa8e124e8f93603",
+      "anchor_prefix": "D-23"
     },
     {
       "part": "Part D Section 24 - Mackillop Drive Norwest",
@@ -393,7 +435,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661728-the-hills-dcp-2012-part-d-section-24-mackillop-drive-norwest-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-24-mackillop-drive-norwest-may-2026.pdf",
       "bytes": 2431917,
-      "sha256": "5295d7f19cccfce4708f87194506166799203f3010a8239ad62a53caafcd0123"
+      "sha256": "5295d7f19cccfce4708f87194506166799203f3010a8239ad62a53caafcd0123",
+      "anchor_prefix": "D-24"
     },
     {
       "part": "Part D Section 25 - 14-16 Brookhollow Avenue, Norwest",
@@ -402,7 +445,8 @@
       "url": "https://www.datocms-assets.com/94948/1692792161-dcp-file-185713170.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-25-14-16-brookhollow-avenue-norwest.pdf",
       "bytes": 1665709,
-      "sha256": "5c0b8deef7e2eee0c756313a8605c6671b557da843c36f811232f0346f0603c7"
+      "sha256": "5c0b8deef7e2eee0c756313a8605c6671b557da843c36f811232f0346f0603c7",
+      "anchor_prefix": "D-25"
     },
     {
       "part": "Part D Section 26 - Bella Vista and Kellyville Station Precincts",
@@ -411,7 +455,8 @@
       "url": "https://www.datocms-assets.com/94948/1780661749-the-hills-dcp-2012-part-d-section-26-bella-vista-and-kellyville-station-precincts-may-2026.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-26-bella-vista-and-kellyville-station-precincts-may-2026.pdf",
       "bytes": 9804554,
-      "sha256": "ef9363d1da9582c6a0810fdb7950af98848cf43bee3b50d485cb25e3bc6f4d32"
+      "sha256": "ef9363d1da9582c6a0810fdb7950af98848cf43bee3b50d485cb25e3bc6f4d32",
+      "anchor_prefix": "D-26"
     },
     {
       "part": "Part D Section 27 - Castle Ridge Resort, 346-350 Old Northern Road",
@@ -420,7 +465,8 @@
       "url": "https://www.datocms-assets.com/94948/1725250242-file-u80rkdoiq9weyjoqnj4nrg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/part-d-section-27-castle-ridge-resort-346-350-old-northern-road.pdf",
       "bytes": 1866579,
-      "sha256": "5afc9feaa899436a6dd2e8c62f093ae0a7199d000feecf07760b613506ed95bb"
+      "sha256": "5afc9feaa899436a6dd2e8c62f093ae0a7199d000feecf07760b613506ed95bb",
+      "anchor_prefix": "D-27"
     },
     {
       "part": "Part D Section 28 - 7-15 Columbia Way, Norwest",
@@ -429,7 +475,8 @@
       "url": "https://www.datocms-assets.com/94948/1725250247-file-trtaalmislqelj9nja5psa.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-28-7-15-columbia-way-norwest.pdf",
       "bytes": 3287953,
-      "sha256": "68ef4a0c81b20e198446392fc3db0431997114eaf3821239671c7880a58021b2"
+      "sha256": "68ef4a0c81b20e198446392fc3db0431997114eaf3821239671c7880a58021b2",
+      "anchor_prefix": "D-28"
     },
     {
       "part": "Part D Section 29 - 27 Victoria Avenue, Castle Hill",
@@ -438,7 +485,8 @@
       "url": "https://www.datocms-assets.com/94948/1769481843-file-c5hc2m3yrtif9mtf3tymng.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/2/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-29-27-victoria-avenue-castle-hill.pdf",
       "bytes": 1634169,
-      "sha256": "56effd062b396c4fbb461bf06c19a10296dbd13e2faea724966bed04be8643cb"
+      "sha256": "56effd062b396c4fbb461bf06c19a10296dbd13e2faea724966bed04be8643cb",
+      "anchor_prefix": "D-29"
     },
     {
       "part": "Part D Section 30 - 21-23 Victoria Avenue, Castle Hill",
@@ -447,7 +495,8 @@
       "url": "https://www.datocms-assets.com/94948/1772683459-file-y8hn2psgqaic7fdnbk137a.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/the-hills-dcp-2012-part-d-section-30-21-23-victoria-avenue-castle-hill-february-2026.pdf",
       "bytes": 1653263,
-      "sha256": "a44a8918fb9604caa6574cd571b37a8897cb0e534124caafae303265ee1cebfb"
+      "sha256": "a44a8918fb9604caa6574cd571b37a8897cb0e534124caafae303265ee1cebfb",
+      "anchor_prefix": "D-30"
     },
     {
       "part": "Appendix A - Waste Management Plan",
@@ -456,7 +505,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291985-file-uzuefdq8qmusdqtesyi-lg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/appendix_a_-_waste_management_plan.pdf",
       "bytes": 622386,
-      "sha256": "68947fac4bdf0920d72c2cbfb6a84ed5b6ba922c87292a4d501a0d53d1528189"
+      "sha256": "68947fac4bdf0920d72c2cbfb6a84ed5b6ba922c87292a4d501a0d53d1528189",
+      "anchor_prefix": "Appendix-A-Waste-Managem"
     },
     {
       "part": "Appendix B - Water Sensitive Urban Design",
@@ -465,7 +515,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291990-file-jxivbbymq7cwk1mosy4xxq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/appendix_b_-_water_sensitive_urban_design.pdf",
       "bytes": 647720,
-      "sha256": "bf7348a4100fe5a47389bc0ff0764775840e39989642f31264f2681d7ecf9ac3"
+      "sha256": "bf7348a4100fe5a47389bc0ff0764775840e39989642f31264f2681d7ecf9ac3",
+      "anchor_prefix": "Appendix-B-Water-Sensiti"
     },
     {
       "part": "Part B Section 2 - Sheet Localities Map",
@@ -474,7 +525,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291995-file-nnbs3kr7qwil6d1ihupl1q.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_localities.pdf",
       "bytes": 177103,
-      "sha256": "d030cbf691a944d5845a36fafb61b6415e4388e202e5caa9d5b099fcd24b826c"
+      "sha256": "d030cbf691a944d5845a36fafb61b6415e4388e202e5caa9d5b099fcd24b826c",
+      "anchor_prefix": "B-12"
     },
     {
       "part": "Part B Section 2 - Sheet 1 - Kenthurst",
@@ -483,7 +535,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291999-file-cojd40xpqfch82rxnyjkzq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_1.pdf",
       "bytes": 283118,
-      "sha256": "777373b6c26573eb27d8eae1e7291b550f0338179118fb0a737e97fa7024988e"
+      "sha256": "777373b6c26573eb27d8eae1e7291b550f0338179118fb0a737e97fa7024988e",
+      "anchor_prefix": "B-13"
     },
     {
       "part": "Part B Section 2 - Sheet 2 - Glenhaven",
@@ -492,7 +545,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292006-file-kpqouw4jrxskm8doofuvha.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_2.pdf",
       "bytes": 2014603,
-      "sha256": "be3a80e3327f67651f8f9c9bc844d7ba5d3d0ef40c11c5908a6b59adfa4ce9bd"
+      "sha256": "be3a80e3327f67651f8f9c9bc844d7ba5d3d0ef40c11c5908a6b59adfa4ce9bd",
+      "anchor_prefix": "B-14"
     },
     {
       "part": "Part B Section 2 - Sheet 2a - Glenhaven",
@@ -501,7 +555,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292012-file-d37zaefqr2y46ozl5iqyxa.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_2a.pdf",
       "bytes": 499153,
-      "sha256": "134f1fdc768b6e93f3c680a9fd3531f584c966129226015775f706e5b7dc0032"
+      "sha256": "134f1fdc768b6e93f3c680a9fd3531f584c966129226015775f706e5b7dc0032",
+      "anchor_prefix": "B-15"
     },
     {
       "part": "Part B Section 2 - Sheet 3 - Castle Hill",
@@ -510,7 +565,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292015-file-f7ybz78pq1i2eecsa2tadq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_3.pdf",
       "bytes": 3082686,
-      "sha256": "6cb552d4851a5d237e2dc624e3a70a436bb2c120b60ee0a5505d67c326079bc2"
+      "sha256": "6cb552d4851a5d237e2dc624e3a70a436bb2c120b60ee0a5505d67c326079bc2",
+      "anchor_prefix": "B-16"
     },
     {
       "part": "Part B Section 2 - Sheet 4 - Kellyville",
@@ -519,7 +575,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292089-file-afve9tcrt7a6tqgck4_f8q.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_4.pdf",
       "bytes": 1290910,
-      "sha256": "bc0717df7b0d417d89ef1918347aebeb30df9c80b2b024bf3e2ccfb4c6f9b36e"
+      "sha256": "bc0717df7b0d417d89ef1918347aebeb30df9c80b2b024bf3e2ccfb4c6f9b36e",
+      "anchor_prefix": "B-17"
     },
     {
       "part": "Part B Section 2 - Sheet 5 - Castle Hill",
@@ -528,7 +585,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292093-file-eakmyicotj2w8mpw0koi0q.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_5.pdf",
       "bytes": 1841729,
-      "sha256": "250c0f653526d9175f377791b28139fa69c6b88ac48d7d31462ec7a71654eac2"
+      "sha256": "250c0f653526d9175f377791b28139fa69c6b88ac48d7d31462ec7a71654eac2",
+      "anchor_prefix": "B-18"
     },
     {
       "part": "Part B Section 2 - Sheet 6 - Castle Hill",
@@ -537,7 +595,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292098-file-ifl65e9yray4wj5pt9addw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_6.pdf",
       "bytes": 2195427,
-      "sha256": "b1777305f2f6ff005dd9e59832cad5611903276a3324ef0c003b078262028bc6"
+      "sha256": "b1777305f2f6ff005dd9e59832cad5611903276a3324ef0c003b078262028bc6",
+      "anchor_prefix": "B-19"
     },
     {
       "part": "Part B Section 2 - Sheet 7 - Castle Hill",
@@ -546,7 +605,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292103-file-hab0g-z8qheeimtiraut4q.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_7.pdf",
       "bytes": 1257647,
-      "sha256": "04944b3432f197f88ed12d5947c72e8b89fdcbe8576127c6cf6103cc0aad5afb"
+      "sha256": "04944b3432f197f88ed12d5947c72e8b89fdcbe8576127c6cf6103cc0aad5afb",
+      "anchor_prefix": "B-20"
     },
     {
       "part": "Part B Section 2 - Sheet 8 - Castle Hill",
@@ -555,7 +615,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292107-file-hrxi_fiurpormebygndmvw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/residential-map-sheet-8-castle-hill.pdf",
       "bytes": 2531189,
-      "sha256": "869a880f0957d29731e541ba3e106aaf7f2c91ccec93c115cea795f172d8bbeb"
+      "sha256": "869a880f0957d29731e541ba3e106aaf7f2c91ccec93c115cea795f172d8bbeb",
+      "anchor_prefix": "B-21"
     },
     {
       "part": "Part B Section 2 - Sheet 9 - Castle Hill",
@@ -564,7 +625,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292112-file-ynxqfqkyti-jukja3weyba.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_9.pdf",
       "bytes": 249133,
-      "sha256": "d1f57e5968635d16c9a076e7066b9d71585c91e7b51f5206ee9186801d38df30"
+      "sha256": "d1f57e5968635d16c9a076e7066b9d71585c91e7b51f5206ee9186801d38df30",
+      "anchor_prefix": "B-22"
     },
     {
       "part": "Part B Section 2 - Sheet 10 - Baulkham Hills and Castle Hill",
@@ -573,7 +635,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292117-file-acd_odf0rx2thuq4yduqka.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_10.pdf",
       "bytes": 518048,
-      "sha256": "830da058edfc37ef4c6af9802fe5f50a7cd7d549fee388d7635808319709418c"
+      "sha256": "830da058edfc37ef4c6af9802fe5f50a7cd7d549fee388d7635808319709418c",
+      "anchor_prefix": "B-23"
     },
     {
       "part": "Part B Section 2 - Sheet 11 - Castle Hill",
@@ -582,7 +645,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292122-file-ttvvk2qirn24odlhna9-1q.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_11.pdf",
       "bytes": 455426,
-      "sha256": "cf81ed3e1324c6eaf79782275d9b450aeb859e654b52404234763883da91c24c"
+      "sha256": "cf81ed3e1324c6eaf79782275d9b450aeb859e654b52404234763883da91c24c",
+      "anchor_prefix": "B-24"
     },
     {
       "part": "Part B Section 2 - Sheet 12 - West Pennant Hills",
@@ -591,7 +655,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292127-file-codzaqlttganfsppjzyora.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_12.pdf",
       "bytes": 1429343,
-      "sha256": "225c9842b13edb3bec7b52b8f4c4689db8f00052ee212d0fe1964f1be6fbad52"
+      "sha256": "225c9842b13edb3bec7b52b8f4c4689db8f00052ee212d0fe1964f1be6fbad52",
+      "anchor_prefix": "B-25"
     },
     {
       "part": "Part B Section 2 - Sheet 13 - Baulkham Hills",
@@ -600,7 +665,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292131-file-sghfwsantc-dganuuinbca.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_13.pdf",
       "bytes": 6357336,
-      "sha256": "484966d2e7613cced24a87bb2ae49d6ac75f98cc93bd4aa808a50081cf6de1a4"
+      "sha256": "484966d2e7613cced24a87bb2ae49d6ac75f98cc93bd4aa808a50081cf6de1a4",
+      "anchor_prefix": "B-26"
     },
     {
       "part": "Part B Section 2 - Sheet 14 - Castle Hill",
@@ -609,7 +675,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292139-file-i8vayv49tz-r40dvwzq_pg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_14.pdf",
       "bytes": 1029089,
-      "sha256": "65876a06b00c2fe9116e9f6b4be343de3304a9ba1ffeed0bfae6dc4d56bb6153"
+      "sha256": "65876a06b00c2fe9116e9f6b4be343de3304a9ba1ffeed0bfae6dc4d56bb6153",
+      "anchor_prefix": "B-27"
     },
     {
       "part": "Part B Section 2 - Sheet 15 - Castle Hill",
@@ -618,7 +685,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292143-file-bnsyyg5jshctbxrqcvyueg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_15.pdf",
       "bytes": 363400,
-      "sha256": "a1240e9b8584dabe26a8e68c0828a4673f19862b60b50519a67cf0ac0cb3e67b"
+      "sha256": "a1240e9b8584dabe26a8e68c0828a4673f19862b60b50519a67cf0ac0cb3e67b",
+      "anchor_prefix": "B-28"
     },
     {
       "part": "Part B Section 2 - Sheet 16 - West Pennant Hills",
@@ -627,7 +695,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292146-file-ctn0rwcjtd-guhweujavw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_16.pdf",
       "bytes": 1439714,
-      "sha256": "f2e69c64f1374772a32d8d5c814312c34468a1d479c068a0798f2edabf314302"
+      "sha256": "f2e69c64f1374772a32d8d5c814312c34468a1d479c068a0798f2edabf314302",
+      "anchor_prefix": "B-29"
     },
     {
       "part": "Part B Section 2 - Sheet 17 - West Pennant Hills",
@@ -636,7 +705,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292151-file-sxp-cbhtqfginnfyhixrxg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_17.pdf",
       "bytes": 1914131,
-      "sha256": "d2407b0b14be26781a49f34d66d451cf1dc76a6716e903146a919cbbb69790de"
+      "sha256": "d2407b0b14be26781a49f34d66d451cf1dc76a6716e903146a919cbbb69790de",
+      "anchor_prefix": "B-30"
     },
     {
       "part": "Part B Section 2 - Sheet 18 - Castle Hill",
@@ -645,7 +715,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292157-file-hcqa0fl-symp02xgevr1bw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_18.pdf",
       "bytes": 765273,
-      "sha256": "21c18a320ff1c9278e9053929c80e2deafa96f064c1e459e66171f994584b188"
+      "sha256": "21c18a320ff1c9278e9053929c80e2deafa96f064c1e459e66171f994584b188",
+      "anchor_prefix": "B-31"
     },
     {
       "part": "Part B Section 2 - Sheet 19 - West Pennant Hills",
@@ -654,7 +725,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292162-file-poaqnasarqe7hdltann31w.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_19.pdf",
       "bytes": 2629031,
-      "sha256": "67bc2c014eb9b87f3345141447fcf7bf903ddb13a16dacd6c1816f7874c266c7"
+      "sha256": "67bc2c014eb9b87f3345141447fcf7bf903ddb13a16dacd6c1816f7874c266c7",
+      "anchor_prefix": "B-32"
     },
     {
       "part": "Part B Section 2 - Sheet 20 - West Pennant Hills",
@@ -663,7 +735,8 @@
       "url": "https://www.datocms-assets.com/94948/1774253782-file-flr-g1_qba_0lterqmeaw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/part-b-section-2-sheet-20-updated.pdf",
       "bytes": 1071750,
-      "sha256": "52c1ac9076efb55cd879008b8dfb0edfcad483db48f07135a8c88526ab29cc0f"
+      "sha256": "52c1ac9076efb55cd879008b8dfb0edfcad483db48f07135a8c88526ab29cc0f",
+      "anchor_prefix": "B-33"
     },
     {
       "part": "Part B Section 2 - Sheet 21 - Baulkham Hills",
@@ -672,7 +745,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292175-file-mifojgksq9ek_mymlwvkyq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_21.pdf",
       "bytes": 1324629,
-      "sha256": "9be16cb27d0cf276320762bb11ed7fda5e1d98d92dd7102a6c08b330b2756def"
+      "sha256": "9be16cb27d0cf276320762bb11ed7fda5e1d98d92dd7102a6c08b330b2756def",
+      "anchor_prefix": "B-34"
     },
     {
       "part": "Part B Section 2 - Sheet 22 - Baulkham Hills",
@@ -681,7 +755,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292181-file-gcnxi95tryihjux7khvblg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_22.pdf",
       "bytes": 1287782,
-      "sha256": "a9f43ac989c57275ad5137190f1a12503d58a341833fd4033bb00a9705d90242"
+      "sha256": "a9f43ac989c57275ad5137190f1a12503d58a341833fd4033bb00a9705d90242",
+      "anchor_prefix": "B-35"
     },
     {
       "part": "Part B Section 2 - Sheet 23 - Baulkham Hills",
@@ -690,7 +765,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292186-file-nc9vwyqzt1ifgaedahxkgg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_23.pdf",
       "bytes": 1992211,
-      "sha256": "573924b4d63e5290c6933884dcd7d963ba57120fe6bd13fe4d1f49b60074d83a"
+      "sha256": "573924b4d63e5290c6933884dcd7d963ba57120fe6bd13fe4d1f49b60074d83a",
+      "anchor_prefix": "B-36"
     },
     {
       "part": "Part B Section 2 - Sheet 24 - Carlingford",
@@ -699,7 +775,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292190-file-hktwhfilthccsrq70t2ong.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_24.pdf",
       "bytes": 1210113,
-      "sha256": "53ce4d6278c8d1b53a7f3c8edd8f21c046600551b926dbf20c97a4561709e5c1"
+      "sha256": "53ce4d6278c8d1b53a7f3c8edd8f21c046600551b926dbf20c97a4561709e5c1",
+      "anchor_prefix": "B-37"
     },
     {
       "part": "Part B Section 2 - Sheet 25 - Baulkham Hills",
@@ -708,7 +785,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292196-file-tholt5atraa7_2mrlwdy8q.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_25.pdf",
       "bytes": 2640875,
-      "sha256": "46e009fdc4e4548bc20e39ca4f3ce87dc6f9e86ca04909fa535c08744cafe581"
+      "sha256": "46e009fdc4e4548bc20e39ca4f3ce87dc6f9e86ca04909fa535c08744cafe581",
+      "anchor_prefix": "B-38"
     },
     {
       "part": "Part B Section 2 - Sheet 26 - Baulkham Hills",
@@ -717,7 +795,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292202-file-z4vkgykpt-yorfu1f_qilq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_26.pdf",
       "bytes": 1239081,
-      "sha256": "2e803a7a7f59c7c651316b3220e2b65cfc3aa8b2b11413b08fff4b3134e7440b"
+      "sha256": "2e803a7a7f59c7c651316b3220e2b65cfc3aa8b2b11413b08fff4b3134e7440b",
+      "anchor_prefix": "B-39"
     },
     {
       "part": "Part B Section 2 - Sheet 27 - Baulkham Hills",
@@ -726,7 +805,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292207-file-oqg2os8zromrcf_iln-52w.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_27.pdf",
       "bytes": 2957480,
-      "sha256": "3291489eb2b0b9a0038d8acb94492682f24c74223f37fb61c1d2b19df99f7e79"
+      "sha256": "3291489eb2b0b9a0038d8acb94492682f24c74223f37fb61c1d2b19df99f7e79",
+      "anchor_prefix": "B-40"
     },
     {
       "part": "Part B Section 2 - Sheet 28 - Castle Hill",
@@ -735,7 +815,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292212-file-bv7tdgn2qciacu3qmn9-w.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/assets/public/v/1/cms-docs/building/dcp/part-b-section-2-sheet-28.pdf",
       "bytes": 3595693,
-      "sha256": "c242df60c1498bbec0a0b530426f7382cd3afd204a2fbcd0c513869e7b2e1d60"
+      "sha256": "c242df60c1498bbec0a0b530426f7382cd3afd204a2fbcd0c513869e7b2e1d60",
+      "anchor_prefix": "B-41"
     },
     {
       "part": "Part B Section 2 - Sheet 29 - Northmead",
@@ -744,7 +825,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292217-file-h49qun-cr7ahlumyqy6xlq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_29.pdf",
       "bytes": 1146778,
-      "sha256": "1f346e5f3e942300eb22f23b471c36d6b64d83a2282cf40d506e795805efa29a"
+      "sha256": "1f346e5f3e942300eb22f23b471c36d6b64d83a2282cf40d506e795805efa29a",
+      "anchor_prefix": "B-42"
     },
     {
       "part": "Part B Section 2 - Sheet 30 - North Parramatta",
@@ -753,7 +835,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292222-file-ote-qi1mrqeduxdahssylq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_30.pdf",
       "bytes": 318191,
-      "sha256": "4e61a311ac7742618508ebe40337e46b0190f78929790755dc58fcfb9569eefe"
+      "sha256": "4e61a311ac7742618508ebe40337e46b0190f78929790755dc58fcfb9569eefe",
+      "anchor_prefix": "B-43"
     },
     {
       "part": "Part B Section 2 - Sheet 31 - North Parramatta",
@@ -762,7 +845,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292226-file-vjggflnurnk2lkss_8p6nq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_31.pdf",
       "bytes": 2335658,
-      "sha256": "79a84c3e6ba763a422aedebbf8d44fc286e323f59757eb2352c80fb47e199c11"
+      "sha256": "79a84c3e6ba763a422aedebbf8d44fc286e323f59757eb2352c80fb47e199c11",
+      "anchor_prefix": "B-44"
     },
     {
       "part": "Part B Section 2 - Sheet 32 - Carlingford",
@@ -771,7 +855,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292231-file-ngksafvdq0sv5bz0anvahg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_32.pdf",
       "bytes": 1190585,
-      "sha256": "03dc4162643478143e74ab73f45d1d5236d61d9a3cc731e040e37c2606e4a4ca"
+      "sha256": "03dc4162643478143e74ab73f45d1d5236d61d9a3cc731e040e37c2606e4a4ca",
+      "anchor_prefix": "B-45"
     },
     {
       "part": "Part B Section 2 - Sheet 33 - Bella Vista",
@@ -780,7 +865,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292237-file-zzdht_wxsiqkpgw9k4stdw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_33.pdf",
       "bytes": 2740186,
-      "sha256": "97cd84e936b3ae866a2c75b7b13b6b1ee8c5bb7c4d615de3a8baa700a9a35a31"
+      "sha256": "97cd84e936b3ae866a2c75b7b13b6b1ee8c5bb7c4d615de3a8baa700a9a35a31",
+      "anchor_prefix": "B-46"
     },
     {
       "part": "Part B Section 2 - Sheet 33a - Bella Vista",
@@ -789,7 +875,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292243-file-e12p4vrvtkgkxqbzn4lweq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_33a.pdf",
       "bytes": 70377,
-      "sha256": "f77f4e68e43e78b71578f5fb4ad298dd39f2f432ec470ecd05d797766a15b153"
+      "sha256": "f77f4e68e43e78b71578f5fb4ad298dd39f2f432ec470ecd05d797766a15b153",
+      "anchor_prefix": "B-47"
     },
     {
       "part": "Part B Section 2 - Sheet 34 - Castle Hill",
@@ -798,7 +885,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292247-file-etp9drmaqpsuo94y2xwxmw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_34.pdf",
       "bytes": 1158210,
-      "sha256": "df459a3579d92760c147dd73b5d92e762ef2761b9b210021ed6c5458e64bff44"
+      "sha256": "df459a3579d92760c147dd73b5d92e762ef2761b9b210021ed6c5458e64bff44",
+      "anchor_prefix": "B-48"
     },
     {
       "part": "Part B Section 2 - Sheet 35 - Bella Vista",
@@ -807,7 +895,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292253-file-ntpej0owsbstmqdnmmlnca.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_35.pdf",
       "bytes": 1992340,
-      "sha256": "0ddd8e75ffa88086658b5ff0c6af01995d73dded177b392d4a1d79df9dec9398"
+      "sha256": "0ddd8e75ffa88086658b5ff0c6af01995d73dded177b392d4a1d79df9dec9398",
+      "anchor_prefix": "B-49"
     },
     {
       "part": "Part B Section 2 - Sheet 36 - North Rocks",
@@ -816,7 +905,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292257-file-ywzslmbzqzsvnb6muwbygg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_36.pdf",
       "bytes": 322300,
-      "sha256": "eb6dd158d5c81a1a543f88ba182e37161d31117405dc9b53bf8e7d388c526a20"
+      "sha256": "eb6dd158d5c81a1a543f88ba182e37161d31117405dc9b53bf8e7d388c526a20",
+      "anchor_prefix": "B-50"
     },
     {
       "part": "Part B Section 2 - Sheet 37 - West Pennant Hills",
@@ -825,7 +915,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292263-file-hssglgior5gse7tfuowuha.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_37.pdf",
       "bytes": 394227,
-      "sha256": "9edc7267a01160b5727e66c7ed0465476bea9dbac8070dadae6549c62f0c77ce"
+      "sha256": "9edc7267a01160b5727e66c7ed0465476bea9dbac8070dadae6549c62f0c77ce",
+      "anchor_prefix": "B-51"
     },
     {
       "part": "Part B Section 2 - Sheet 38 - West Pennant Hills",
@@ -834,7 +925,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292267-file-auv0eycmtywg4loajszy8a.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_38.pdf",
       "bytes": 429039,
-      "sha256": "5e0202acd5ef5b41d3db25dd8c34b73d30f04dfdac8d97c0878dfba528c8121b"
+      "sha256": "5e0202acd5ef5b41d3db25dd8c34b73d30f04dfdac8d97c0878dfba528c8121b",
+      "anchor_prefix": "B-52"
     },
     {
       "part": "Part B Section 2 - Sheet 39 - Baulkham Hills",
@@ -843,7 +935,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292272-file-htzygadssvqzf19semnipw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_39.pdf",
       "bytes": 839764,
-      "sha256": "b53cc269a76aeb87b9134437bac02024a2da31611b22513524f550f684968934"
+      "sha256": "b53cc269a76aeb87b9134437bac02024a2da31611b22513524f550f684968934",
+      "anchor_prefix": "B-53"
     },
     {
       "part": "Part B Section 2 - Sheet 40 - Castle Hill",
@@ -852,7 +945,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292276-file-fuf3l80iq66qcrub79nwta.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_40.pdf",
       "bytes": 393019,
-      "sha256": "dc2885c386b44e972afaa4668c9d55180480571c4ce91defe7d42da553cab3fe"
+      "sha256": "dc2885c386b44e972afaa4668c9d55180480571c4ce91defe7d42da553cab3fe",
+      "anchor_prefix": "B-54"
     },
     {
       "part": "Part B Section 2 - Sheet 41 - Crestwood",
@@ -861,7 +955,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292280-file-drcpjqb6tjsmgaa3dhommq.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_41.pdf",
       "bytes": 1609660,
-      "sha256": "6a3286477088e18f11401b0aa8829ccac142bb78ed2442ec23e121f9cbfbae59"
+      "sha256": "6a3286477088e18f11401b0aa8829ccac142bb78ed2442ec23e121f9cbfbae59",
+      "anchor_prefix": "B-55"
     },
     {
       "part": "Part B Section 2 - Sheet 42 - Northmead",
@@ -870,7 +965,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292286-file-eaxnslq2q5-vm_fsil4tlw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_42.pdf",
       "bytes": 50351,
-      "sha256": "691a9934d5a95c74c4d760a322dd0b9ac7105d9348ea8f575b4d3a9b49f09b90"
+      "sha256": "691a9934d5a95c74c4d760a322dd0b9ac7105d9348ea8f575b4d3a9b49f09b90",
+      "anchor_prefix": "B-56"
     },
     {
       "part": "Part B Section 2 - Sheet 43 - Old Windsor Road & Seven Hills Road, Baulkham Hills",
@@ -879,7 +975,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292295-file-opcw7e0ys-sk1mm4mcighg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_43.pdf",
       "bytes": 837360,
-      "sha256": "f435c2d3bb67a336c61fc381874809d07a8e55b114a49aa61163f1c24fe070a1"
+      "sha256": "f435c2d3bb67a336c61fc381874809d07a8e55b114a49aa61163f1c24fe070a1",
+      "anchor_prefix": "B-57"
     },
     {
       "part": "Part B Section 2 - Sheet 44 - Hunterford Estate, Oatlands",
@@ -888,7 +985,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292299-file-oyi8tkdbrq2blxvz9fkucg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_44.pdf",
       "bytes": 999016,
-      "sha256": "6f15af38dfc03d3581d54f72ec7f6528714bd204b73b35bc40ce357dc6541708"
+      "sha256": "6f15af38dfc03d3581d54f72ec7f6528714bd204b73b35bc40ce357dc6541708",
+      "anchor_prefix": "B-58"
     },
     {
       "part": "Part B Section 2 - Sheet 45 - Land Adjoining Heritage Park",
@@ -897,7 +995,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292305-file-sihku77ssuwxlpdeskhggg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/2/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_45.pdf",
       "bytes": 558642,
-      "sha256": "9af8f193cfef0d4d03f323393672977cd258ef66e5dfdc3c451e4887c10ffa48"
+      "sha256": "9af8f193cfef0d4d03f323393672977cd258ef66e5dfdc3c451e4887c10ffa48",
+      "anchor_prefix": "B-59"
     },
     {
       "part": "Part B Section 2 - Sheet 46 - Gilroy College, Castle Hill",
@@ -906,7 +1005,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292309-file-sgrxcb43r0g4ykpohonajw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_b_section_2_-_sheet_46.pdf",
       "bytes": 1025649,
-      "sha256": "9f1839548c428f97119c85440b60a1fed8c527e6424ffe99c4ab51f3fdb0dd11"
+      "sha256": "9f1839548c428f97119c85440b60a1fed8c527e6424ffe99c4ab51f3fdb0dd11",
+      "anchor_prefix": "B-60"
     },
     {
       "part": "Part D Section 5 - Sheet 1",
@@ -915,7 +1015,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292314-file-z83ilodqqoqezjkajtre-w.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_d_section_5_-_sheet_1.pdf",
       "bytes": 558439,
-      "sha256": "2a14fd0f16db5268627fb7d714b2e425d1f8cba5b92e180f73d6a0286fdf8d17"
+      "sha256": "2a14fd0f16db5268627fb7d714b2e425d1f8cba5b92e180f73d6a0286fdf8d17",
+      "anchor_prefix": "D-31"
     },
     {
       "part": "Part D Section 5 - Sheet 2",
@@ -924,7 +1025,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292321-file-nz-hkolt86n3ab2ztsymw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/3/ecm-website-documents/page-documents/building/dcp/part_d_section_5_-_sheet_2.pdf",
       "bytes": 1791090,
-      "sha256": "5fe177a3675778d8a4ab0ec8549b6f06763432d2b1ef9dcd90b2727debe62829"
+      "sha256": "5fe177a3675778d8a4ab0ec8549b6f06763432d2b1ef9dcd90b2727debe62829",
+      "anchor_prefix": "D-32"
     },
     {
       "part": "Part D Section 5 - Sheet 3",
@@ -933,7 +1035,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292324-file-ftbhngfqqxubrynte-gecw.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_d_section_5_-_sheet_3.pdf",
       "bytes": 1035433,
-      "sha256": "139236343ec92e60f4c3320fdb513b4f813cf60fdd43445d299f0c9f5d776928"
+      "sha256": "139236343ec92e60f4c3320fdb513b4f813cf60fdd43445d299f0c9f5d776928",
+      "anchor_prefix": "D-33"
     },
     {
       "part": "Part D Section 5 - Sheet 4",
@@ -942,7 +1045,8 @@
       "url": "https://www.datocms-assets.com/94948/1759292329-file-wgkjmsgrsogo8slohtimdg.pdf",
       "council_url": "https://www.thehills.nsw.gov.au/files/sharedassets/public/v/1/ecm-website-documents/page-documents/building/dcp/part_d_section_5_-_sheet_4.pdf",
       "bytes": 575631,
-      "sha256": "b31d9406919b5ce123555acfe4703ee936a5df4b8c156be8228b82d2075c308c"
+      "sha256": "b31d9406919b5ce123555acfe4703ee936a5df4b8c156be8228b82d2075c308c",
+      "anchor_prefix": "D-34"
     }
   ],
   "councils": [

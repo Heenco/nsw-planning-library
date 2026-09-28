@@ -1,0 +1,44 @@
+{
+  "instrument": "liverpool-growth-centres-precincts-development-control-plan",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\liverpool-growth-centres-precincts-development-control-plan.html",
+  "generated": "2026-09-28T07:33:46.887Z",
+  "parts": 7,
+  "parts_with_sidecar": 7,
+  "source_pages": 0,
+  "bytes": 849741,
+  "unique_anchor_ids": 558,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 7
+  },
+  "totals": {
+    "headings": 551,
+    "tables": 66,
+    "list_items": 2251,
+    "images_placed": 395,
+    "prose_demoted": 7,
+    "page_markers": 374
+  },
+  "weak_parts": [
+    {
+      "prefix": "Schedule-2-Leppington-Ma",
+      "page_coverage": 0.944,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "Appendix-A",
+      "page_coverage": 0.909,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Appendix-B",
+      "page_coverage": 0.944,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "Appendix-C",
+      "page_coverage": 0.909,
+      "distinct_levels": 2
+    }
+  ]
+}

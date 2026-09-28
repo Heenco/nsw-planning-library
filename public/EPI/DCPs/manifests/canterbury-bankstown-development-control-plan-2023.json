@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1788251205-2026-07-17-dcp-2023-amendment-15-chapter-1-1-introduction-and-administration.pdf",
       "council_url": "https://cb.city/DCP1-1",
       "bytes": 677583,
-      "sha256": "5dad320d913e7e3549baaa60b3c0fd573a2681ad91c0b06792b08357fc03961a"
+      "sha256": "5dad320d913e7e3549baaa60b3c0fd573a2681ad91c0b06792b08357fc03961a",
+      "anchor_prefix": "Chapter-1-1-Introduction"
     },
     {
       "part": "Chapter 2.1 - Site Analysis",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894702-file-bnvdadxjr_cqjj2e3xjszq.pdf",
       "council_url": "https://cb.city/DCP2-1",
       "bytes": 380393,
-      "sha256": "d9ebedc5c417acf4a114e3997088f15f0a5c19593d58a03e91b4113ba7e28c03"
+      "sha256": "d9ebedc5c417acf4a114e3997088f15f0a5c19593d58a03e91b4113ba7e28c03",
+      "anchor_prefix": "Chapter-2-1-Site-Analysi"
     },
     {
       "part": "Chapter 2.2 - Flood Risk Management",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1759289358-file-cuy42q-eqsagrra_2e8o-g.pdf",
       "council_url": "https://cb.city/DCP2-2",
       "bytes": 3650141,
-      "sha256": "32d1bc474f5146a42fb4b181cea84d9d8ee08ecf20139f3d4291f4754d0afc60"
+      "sha256": "32d1bc474f5146a42fb4b181cea84d9d8ee08ecf20139f3d4291f4754d0afc60",
+      "anchor_prefix": "Chapter-2-2-Flood-Risk-M"
     },
     {
       "part": "Chapter 2.3 - Tree Management",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1759289365-file-ffd1brxvttqizo9z_euo_w.pdf",
       "council_url": "https://cb.city/DCP2-3",
       "bytes": 540592,
-      "sha256": "44cea5f8146a945ec8493dd06d3226d7a9e10e55e1819ddb625bb449560f70b8"
+      "sha256": "44cea5f8146a945ec8493dd06d3226d7a9e10e55e1819ddb625bb449560f70b8",
+      "anchor_prefix": "Chapter-2-3-Tree-Managem"
     },
     {
       "part": "Chapter 2.4 - Pipeline Corridors",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1759289369-file-hylg78_zrqkywhkijzx8yg.pdf",
       "council_url": "https://cb.city/DCP2-4",
       "bytes": 1273670,
-      "sha256": "c154272788ec4aaab9381d9cbb12da5fa477cc4655c9f7a77b6a17fd86f78dc4"
+      "sha256": "c154272788ec4aaab9381d9cbb12da5fa477cc4655c9f7a77b6a17fd86f78dc4",
+      "anchor_prefix": "Chapter-2-4-Pipeline-Cor"
     },
     {
       "part": "Chapter 3.1 - Development Engineering Standards",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1774249761-file-vy_ac_2atmm3tflbj_kkaq.pdf",
       "council_url": "https://cb.city/DCP3-1",
       "bytes": 608677,
-      "sha256": "33e018a175fdc7e72e5b01d2d05830bf132e20a41bc6c621eea405822ca3adf6"
+      "sha256": "33e018a175fdc7e72e5b01d2d05830bf132e20a41bc6c621eea405822ca3adf6",
+      "anchor_prefix": "Chapter-3-1-Development-"
     },
     {
       "part": "Chapter 3.2 - Parking",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894711-file-gi6d5ckut4s1gkthoxf-9q.pdf",
       "council_url": "https://cb.city/DCP3-2",
       "bytes": 551154,
-      "sha256": "667b74fb2169be9742f52eab1e8bd2d6bf029e391415877e8720201ea719ba53"
+      "sha256": "667b74fb2169be9742f52eab1e8bd2d6bf029e391415877e8720201ea719ba53",
+      "anchor_prefix": "Chapter-3-2-Parking"
     },
     {
       "part": "Chapter 3.3 - Waste Management",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894717-file-hjzmjb4vtu6eevj-trfbuw.pdf",
       "council_url": "https://cb.city/DCP3-3",
       "bytes": 515839,
-      "sha256": "20d7f8ffb0e80495e6320916b2c3d093b2f7957daec9364c3a348cf6fd142628"
+      "sha256": "20d7f8ffb0e80495e6320916b2c3d093b2f7957daec9364c3a348cf6fd142628",
+      "anchor_prefix": "Chapter-3-3-Waste-Manage"
     },
     {
       "part": "Chapter 3.4 - Sustainable Development",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894724-file-kdd88mlsqqadkh4pqg5xwq.pdf",
       "council_url": "https://cb.city/DCP3-4",
       "bytes": 1038341,
-      "sha256": "055afbe9641614116183be1d748fa7ddbbe3e0d5a769de0bbb2d8f7e3d2c1702"
+      "sha256": "055afbe9641614116183be1d748fa7ddbbe3e0d5a769de0bbb2d8f7e3d2c1702",
+      "anchor_prefix": "Chapter-3-4-Sustainable-"
     },
     {
       "part": "Chapter 3.5 - Subdivision",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894731-file-aywol1alqmsbh4jtmgxukg.pdf",
       "council_url": "https://cb.city/DCP3-5",
       "bytes": 410503,
-      "sha256": "e50733593e4137af26a1515a4ba748bf67617b2719381c69f53bd5fb4456265b"
+      "sha256": "e50733593e4137af26a1515a4ba748bf67617b2719381c69f53bd5fb4456265b",
+      "anchor_prefix": "Chapter-3-5-Subdivision"
     },
     {
       "part": "Chapter 3.6 - Signs",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894737-file-gwknfvj7sy6krfma_jlt7w.pdf",
       "council_url": "https://cb.city/DCP3-6",
       "bytes": 632933,
-      "sha256": "ec7a5e05ebb7166950b5f73dda6adde8730e06bd0671ad7443777ac95e01df0b"
+      "sha256": "ec7a5e05ebb7166950b5f73dda6adde8730e06bd0671ad7443777ac95e01df0b",
+      "anchor_prefix": "Chapter-3-6-Signs"
     },
     {
       "part": "Chapter 3.7 - Landscape",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894744-file-atssdg-8tuomhnvlzkmrnw.pdf",
       "council_url": "https://cb.city/DCP3-7",
       "bytes": 499168,
-      "sha256": "d3eb8c7bc4efc7b6e44e15ea00673b9f3499d2f0d4d39a5d6a1d3df4f4d973f2"
+      "sha256": "d3eb8c7bc4efc7b6e44e15ea00673b9f3499d2f0d4d39a5d6a1d3df4f4d973f2",
+      "anchor_prefix": "Chapter-3-7-Landscape"
     },
     {
       "part": "Chapter 4.1 - Introduction",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894750-file-d7_zpbbkqvmn-iff2juabw.pdf",
       "council_url": "https://cb.city/DCP4-1",
       "bytes": 483114,
-      "sha256": "7d6a54e36898aff049757a019e280bee199c01df5f01181c086a20c8cfb8e32d"
+      "sha256": "7d6a54e36898aff049757a019e280bee199c01df5f01181c086a20c8cfb8e32d",
+      "anchor_prefix": "Chapter-4-1-Introduction"
     },
     {
       "part": "Chapter 4.2 - Heritage Items",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894756-file-fsymbhhir3k-uptgantnwq.pdf",
       "council_url": "https://cb.city/DCP4-2",
       "bytes": 512401,
-      "sha256": "6e7cee66edf8ad501fa37d9c81c35f81c288b0fa67744286c5906dcff0be2260"
+      "sha256": "6e7cee66edf8ad501fa37d9c81c35f81c288b0fa67744286c5906dcff0be2260",
+      "anchor_prefix": "Chapter-4-2-Heritage-Ite"
     },
     {
       "part": "Chapter 4.3 - Heritage Conservation Areas",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894876-file-uy7ibbikta-kxty25iulba.pdf",
       "council_url": "https://cb.city/DCP4-3",
       "bytes": 651388,
-      "sha256": "d8219669c9171ea6e0175eea6b4d6fa014998b4ae776bcd47a9988ed55edfcc2"
+      "sha256": "d8219669c9171ea6e0175eea6b4d6fa014998b4ae776bcd47a9988ed55edfcc2",
+      "anchor_prefix": "Chapter-4-3-Heritage-Con"
     },
     {
       "part": "Chapter 4.4 - Development in the Vicinity of Places of Heritage Significance",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894885-file-pbxhje8oqro1yyarwrk7xw.pdf",
       "council_url": "https://cb.city/DCP4-4",
       "bytes": 319117,
-      "sha256": "6b89d72440bbe36dec972e5b2af2fe66f42895ef22cf463c762b2700d90ddf88"
+      "sha256": "6b89d72440bbe36dec972e5b2af2fe66f42895ef22cf463c762b2700d90ddf88",
+      "anchor_prefix": "Chapter-4-4-Development-"
     },
     {
       "part": "Chapter 5.1 - Former Bankstown LGA",
@@ -159,7 +175,8 @@
       "url": "https://www.datocms-assets.com/94948/1774249767-file-rt4gl_llsu-irhvbc9rtyw.pdf",
       "council_url": "https://cb.city/DCP5-1",
       "bytes": 2274836,
-      "sha256": "9ed2afde8672a3488c9f6b41476a87e97e6490c98b1be707c8d6b3552cb6bbcb"
+      "sha256": "9ed2afde8672a3488c9f6b41476a87e97e6490c98b1be707c8d6b3552cb6bbcb",
+      "anchor_prefix": "Chapter-5-1-Former-Banks"
     },
     {
       "part": "Chapter 5.2 - Former Canterbury LGA",
@@ -168,7 +185,8 @@
       "url": "https://www.datocms-assets.com/94948/1774249773-file-kbzt6pgtqhyghkantxhnwq.pdf",
       "council_url": "https://cb.city/DCP5-2",
       "bytes": 1738009,
-      "sha256": "87929106d2e1571ecebbbd0430ccfb9ae7a63e3d5ae030adcd52f8fde35f8121"
+      "sha256": "87929106d2e1571ecebbbd0430ccfb9ae7a63e3d5ae030adcd52f8fde35f8121",
+      "anchor_prefix": "Chapter-5-2-Former-Cante"
     },
     {
       "part": "Chapter 6.1 - General Requirements",
@@ -177,7 +195,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894906-file-ezi7oyx_qcamnmqi7sid2g.pdf",
       "council_url": "https://cb.city/DCP6-1",
       "bytes": 1078724,
-      "sha256": "1660b9d1aace917d8ff27f60fa2c744bda43efe3fd4de05aa05ce3e186b30903"
+      "sha256": "1660b9d1aace917d8ff27f60fa2c744bda43efe3fd4de05aa05ce3e186b30903",
+      "anchor_prefix": "Chapter-6-1-General-Requ"
     },
     {
       "part": "Chapter 6.2 - Bankstown City Centre",
@@ -186,7 +205,8 @@
       "url": "https://www.datocms-assets.com/94948/1789769720-file-krdvjcr4s8g6jizg1l-k4q.pdf",
       "council_url": "https://cb.city/DCP6-2",
       "bytes": 117829367,
-      "sha256": "99377f918fe499f17bfa26b5a0d2cd63cc2297a960f722ccca4bda2a48b7d09a"
+      "sha256": "99377f918fe499f17bfa26b5a0d2cd63cc2297a960f722ccca4bda2a48b7d09a",
+      "anchor_prefix": "Chapter-6-2-Bankstown-Ci"
     },
     {
       "part": "Chapter 6.3 - Campsie Town Centre",
@@ -195,7 +215,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894913-file-zppqhnvlslsf821loulhug.pdf",
       "council_url": "https://cb.city/DCP6-3",
       "bytes": 866297,
-      "sha256": "fc790ddd88434f31715933dcbc0c2d7f70048b03ae570b871619bdb9faf6e03d"
+      "sha256": "fc790ddd88434f31715933dcbc0c2d7f70048b03ae570b871619bdb9faf6e03d",
+      "anchor_prefix": "Chapter-6-3-Campsie-Town"
     },
     {
       "part": "Chapter 7.1 - General Requirements",
@@ -204,7 +225,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894918-file-nar1vyulqveaniffsvwndw.pdf",
       "council_url": "https://cb.city/DCP7-1",
       "bytes": 1381429,
-      "sha256": "1d43dbc1fe037f01efee8c9448cfadf2cee7db025e78774145322aacb41fcb70"
+      "sha256": "1d43dbc1fe037f01efee8c9448cfadf2cee7db025e78774145322aacb41fcb70",
+      "anchor_prefix": "Chapter-7-1-General-Requ"
     },
     {
       "part": "Chapter 7.2 - City West",
@@ -213,7 +235,8 @@
       "url": "https://www.datocms-assets.com/94948/1789769746-file-extaezrism6rsofvx5errw.pdf",
       "council_url": "https://cb.city/DCP7-2",
       "bytes": 7589660,
-      "sha256": "ed1908292cb05b0e9181c46c8909ef03b0461854e0bf9a72c4881692e31f0c6d"
+      "sha256": "ed1908292cb05b0e9181c46c8909ef03b0461854e0bf9a72c4881692e31f0c6d",
+      "anchor_prefix": "Chapter-7-2-City-West"
     },
     {
       "part": "Chapter 7.3 - City East",
@@ -222,7 +245,8 @@
       "url": "https://www.datocms-assets.com/94948/1788251362-2026-04-24-dcp-2023-amendment-14-chapter-7-3-city-east.pdf",
       "council_url": "https://cb.city/DCP7-3",
       "bytes": 2855853,
-      "sha256": "4eb088b73c5a28cb0c3d96ac1ecfdcdda56167dbd28f72a790ee5f6ee71eb631"
+      "sha256": "4eb088b73c5a28cb0c3d96ac1ecfdcdda56167dbd28f72a790ee5f6ee71eb631",
+      "anchor_prefix": "Chapter-7-3-City-East"
     },
     {
       "part": "Chapter 7.4 - Neighbourhood Centres",
@@ -231,7 +255,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894945-file-fdapgjdetqiou14ua7lq4w.pdf",
       "council_url": "https://cb.city/DCP7-4",
       "bytes": 416539,
-      "sha256": "046cd04ae598d63d1256ce2b9f6a0e677498f392136bd29719ee9cbf04d64bcc"
+      "sha256": "046cd04ae598d63d1256ce2b9f6a0e677498f392136bd29719ee9cbf04d64bcc",
+      "anchor_prefix": "Chapter-7-4-Neighbourhoo"
     },
     {
       "part": "Chapter 7.5 - Canterbury Local Centre",
@@ -240,7 +265,8 @@
       "url": "https://www.datocms-assets.com/94948/1789769762-file-xes8uzioth6uou-3q3u0ka.pdf",
       "council_url": "https://cb.city/DCP7-5",
       "bytes": 32888474,
-      "sha256": "955ffed98dc9076589b075b27e29156a30f1c56e1def0e8d5000d298b190de99"
+      "sha256": "955ffed98dc9076589b075b27e29156a30f1c56e1def0e8d5000d298b190de99",
+      "anchor_prefix": "Chapter-7-5-Canterbury-L"
     },
     {
       "part": "Chapter 7.6 - Belmore and Lakemba",
@@ -249,7 +275,8 @@
       "url": "https://www.datocms-assets.com/94948/1788251400-2026-06-22-dcp-2023-amendment-13-chapter-7-6-belmore-and-lakemba-website.pdf",
       "council_url": "https://cb.city/DCP7-6",
       "bytes": 26962854,
-      "sha256": "0c0376ef61e57c100ea8fc1136f78cb3c9930e2eda0d36ecdf0af501e78b8a42"
+      "sha256": "0c0376ef61e57c100ea8fc1136f78cb3c9930e2eda0d36ecdf0af501e78b8a42",
+      "anchor_prefix": "Chapter-7-6-Belmore-and-"
     },
     {
       "part": "Chapter 7.7 - Punchbowl and Wiley Park",
@@ -258,7 +285,8 @@
       "url": "https://www.datocms-assets.com/94948/1788251431-2026-04-24-dcp-2023-amendment-14-chapter-7-7-punchbowl-and-wiley-park-website.pdf",
       "council_url": "https://cb.city/DCP7-7",
       "bytes": 22776070,
-      "sha256": "a16dc55cc6f0b38830a85dbca0e926e005795c974a7baa94d18c77d78059fc55"
+      "sha256": "a16dc55cc6f0b38830a85dbca0e926e005795c974a7baa94d18c77d78059fc55",
+      "anchor_prefix": "Chapter-7-7-Punchbowl-an"
     },
     {
       "part": "Chapter 8.1 - General Requirements",
@@ -267,7 +295,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894973-file-jtfbxi0dquumzbojqljjoa.pdf",
       "council_url": "https://cb.city/DCP8-1",
       "bytes": 566453,
-      "sha256": "ae768de07179d1664c43121d07f8a5aad8c5e535a1586cee1707aa32725c864d"
+      "sha256": "ae768de07179d1664c43121d07f8a5aad8c5e535a1586cee1707aa32725c864d",
+      "anchor_prefix": "Chapter-8-1-General-Requ"
     },
     {
       "part": "Chapter 8.2 - Canterbury Road Enterprise Corridor",
@@ -276,7 +305,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894980-file-pqglf1eaqhcpecc3w4fivg.pdf",
       "council_url": "https://cb.city/DCP8-2",
       "bytes": 945165,
-      "sha256": "6a2f6f2ebe3832d8e1cca4a519ebc9c40de38b88ae88e989dcb7aa7851cad115"
+      "sha256": "6a2f6f2ebe3832d8e1cca4a519ebc9c40de38b88ae88e989dcb7aa7851cad115",
+      "anchor_prefix": "Chapter-8-2-Canterbury-R"
     },
     {
       "part": "Chapter 8.3 - Hume Highway Enterprise Corridor",
@@ -285,7 +315,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894990-file-b70438dvtz-3avzexuha_a.pdf",
       "council_url": "https://cb.city/DCP8-3",
       "bytes": 2297474,
-      "sha256": "49f44f032064c288e76331ad976756302e63f41ee13fab9ff621dff4c639d16b"
+      "sha256": "49f44f032064c288e76331ad976756302e63f41ee13fab9ff621dff4c639d16b",
+      "anchor_prefix": "Chapter-8-3-Hume-Highway"
     },
     {
       "part": "Chapter 9.1 - General Requirements",
@@ -294,7 +325,8 @@
       "url": "https://www.datocms-assets.com/94948/1757894999-file-lkjoaw3gsbwv-e8ytainq.pdf",
       "council_url": "https://cb.city/DCP9-1",
       "bytes": 606105,
-      "sha256": "03f8f331fd4a2a9ef7bb3cb8934f4ea6e2a330550d246bbe6f7da2f425ca9a0f"
+      "sha256": "03f8f331fd4a2a9ef7bb3cb8934f4ea6e2a330550d246bbe6f7da2f425ca9a0f",
+      "anchor_prefix": "Chapter-9-1-General-Requ"
     },
     {
       "part": "Chapter 10.1 - Child Care Centres",
@@ -303,7 +335,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895005-file-ucuom4ijq-i_6fbitcdw3w.pdf",
       "council_url": "https://cb.city/DCP10-1",
       "bytes": 541434,
-      "sha256": "ef08b5d17ce6a0a2bdcf29941582c44f9865ae4537bf33c6e1dafa69ad805be3"
+      "sha256": "ef08b5d17ce6a0a2bdcf29941582c44f9865ae4537bf33c6e1dafa69ad805be3",
+      "anchor_prefix": "Chapter-10-1-Child-Care-"
     },
     {
       "part": "Chapter 10.2 - Schools",
@@ -312,7 +345,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895012-file-db5l4ysds52r3xrrpy-7wg.pdf",
       "council_url": "https://cb.city/DCP10-2",
       "bytes": 552622,
-      "sha256": "e6b15813d67d04c5759f1114eeca2b14e89b2f7a88842295453f56e0960d7bc4"
+      "sha256": "e6b15813d67d04c5759f1114eeca2b14e89b2f7a88842295453f56e0960d7bc4",
+      "anchor_prefix": "Chapter-10-2-Schools"
     },
     {
       "part": "Chapter 10.3 - Home Businesses",
@@ -321,7 +355,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895019-file-dhjx1kcbqckboqz_naf7kw.pdf",
       "council_url": "https://cb.city/DCP10-3",
       "bytes": 368064,
-      "sha256": "9db5bf92001429c2fa97ed8a2fe024f41052c6c9178e14b6c4fc4ed23f440644"
+      "sha256": "9db5bf92001429c2fa97ed8a2fe024f41052c6c9178e14b6c4fc4ed23f440644",
+      "anchor_prefix": "Chapter-10-3-Home-Busine"
     },
     {
       "part": "Chapter 10.4 - Non Residential Land Uses",
@@ -330,7 +365,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895024-file-jad9yrc_tggbx0e4m9tkeg.pdf",
       "council_url": "https://cb.city/DCP10-4",
       "bytes": 604617,
-      "sha256": "5684197e3e7998f3b83831af28c7d9793a7ad0f1ac7e77957cdcb1c98ddd828d"
+      "sha256": "5684197e3e7998f3b83831af28c7d9793a7ad0f1ac7e77957cdcb1c98ddd828d",
+      "anchor_prefix": "Chapter-10-4-Non-Residen"
     },
     {
       "part": "Chapter 10.5 - Places of Public Worship",
@@ -339,7 +375,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895031-file-j9hxrujjq8ezmb2fv_9cua.pdf",
       "council_url": "https://cb.city/DCP10-5",
       "bytes": 677537,
-      "sha256": "406fd036923e436b6c46ca4b80a963df60cf679d9f74e3c6dac5e953fe7f93d2"
+      "sha256": "406fd036923e436b6c46ca4b80a963df60cf679d9f74e3c6dac5e953fe7f93d2",
+      "anchor_prefix": "Chapter-10-5-Places-of-P"
     },
     {
       "part": "Chapter 10.6 - Commercial Land Uses",
@@ -348,7 +385,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895038-file-lhuiehphsxscajrwxad93g.pdf",
       "council_url": "https://cb.city/DCP10-6",
       "bytes": 393937,
-      "sha256": "05580b0c196bc7edaec041fe20234e0fd53dfa6d3bbba035ef63373288dbba4e"
+      "sha256": "05580b0c196bc7edaec041fe20234e0fd53dfa6d3bbba035ef63373288dbba4e",
+      "anchor_prefix": "Chapter-10-6-Commercial-"
     },
     {
       "part": "Chapter 10.7 - Sex Services Premises",
@@ -357,7 +395,8 @@
       "url": "https://www.datocms-assets.com/94948/1759289412-file-c-dcudlxshyl81bgud85xw.pdf",
       "council_url": "https://cb.city/DCP10-7",
       "bytes": 488130,
-      "sha256": "be95e7dca49df710c43c38cb841a56f4cda280500b8792487f43c6bbe7ff7445"
+      "sha256": "be95e7dca49df710c43c38cb841a56f4cda280500b8792487f43c6bbe7ff7445",
+      "anchor_prefix": "Chapter-10-7-Sex-Service"
     },
     {
       "part": "Chapter 10.8 - Telecommunications Facilities",
@@ -366,7 +405,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895045-file-gdvb6clarqo3xu8gk9apew.pdf",
       "council_url": "https://cb.city/DCP10-8",
       "bytes": 447167,
-      "sha256": "a38ee9b74e2b454d0ab1bc3252953a9e7abfe24ebc3bb3b92a6af8b4f8276013"
+      "sha256": "a38ee9b74e2b454d0ab1bc3252953a9e7abfe24ebc3bb3b92a6af8b4f8276013",
+      "anchor_prefix": "Chapter-10-8-Telecommuni"
     },
     {
       "part": "Chapter 11.1 - 149-171 Milton Street - Ashbury",
@@ -375,7 +415,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895052-file-aj7l6onoqsgow93oab4pzg.pdf",
       "council_url": "https://cb.city/DCP11-1",
       "bytes": 1406456,
-      "sha256": "f9d7da53a15e22a923e1318517023147439d749c28d6f509dcc7a5463f4847df"
+      "sha256": "f9d7da53a15e22a923e1318517023147439d749c28d6f509dcc7a5463f4847df",
+      "anchor_prefix": "Chapter-11-1-149-171-Mil"
     },
     {
       "part": "Chapter 11.2 - Undercliff Bridge Precinct - Earlwood",
@@ -384,7 +425,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895057-file-er919wqtqe6vf6nfkrcy7q.pdf",
       "council_url": "https://cb.city/DCP11-2",
       "bytes": 590857,
-      "sha256": "55dc5f0725699d8fc15eadcc09364d09c3a4892781c16296ca0c2fe994b4f609"
+      "sha256": "55dc5f0725699d8fc15eadcc09364d09c3a4892781c16296ca0c2fe994b4f609",
+      "anchor_prefix": "Chapter-11-2-Undercliff-"
     },
     {
       "part": "Chapter 11.3 - 52-60 Roberts Road - Greenacre",
@@ -393,7 +435,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251569-file-bxa6atlltyae6vrxjlnxqa.pdf",
       "council_url": "https://cb.city/DCP11-3",
       "bytes": 503030,
-      "sha256": "6c6caebaed5ce0cd3024a10bb572f32f14995993cfbe62f3ce2d58d5c7665fc3"
+      "sha256": "6c6caebaed5ce0cd3024a10bb572f32f14995993cfbe62f3ce2d58d5c7665fc3",
+      "anchor_prefix": "Chapter-11-3-52-60-Rober"
     },
     {
       "part": "Chapter 11.4 - Croydon Street Precinct Lakemba",
@@ -402,7 +445,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895069-file-bm1c2gw_sy2dyaaid1en4a.pdf",
       "council_url": "https://cb.city/DCP11-4",
       "bytes": 1443977,
-      "sha256": "2ae0c7f93732e826881e109618f55f18f9c657ce59abb8540d58092dc41dc63e"
+      "sha256": "2ae0c7f93732e826881e109618f55f18f9c657ce59abb8540d58092dc41dc63e",
+      "anchor_prefix": "Chapter-11-4-Croydon-Str"
     },
     {
       "part": "Chapter 11.5 - Former Riverlands Golf Course Site - Milperra",
@@ -411,7 +455,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895077-file-ql8pqcs2t_qjz5qzb1fhwg.pdf",
       "council_url": "https://cb.city/DCP11-5",
       "bytes": 1930079,
-      "sha256": "0e9037870de5436f73e4d33322f05a8c77c34d05797ff25189c472342fa93e31"
+      "sha256": "0e9037870de5436f73e4d33322f05a8c77c34d05797ff25189c472342fa93e31",
+      "anchor_prefix": "Chapter-11-5-Former-Rive"
     },
     {
       "part": "Chapter 11.6 - Former Potts Hills Reservoirs Site - Potts Hill",
@@ -420,7 +465,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895085-file-afmj615yswk72gymdsfcrg.pdf",
       "council_url": "https://cb.city/DCP11-6",
       "bytes": 1476904,
-      "sha256": "e9d61c8b1af05e16bc087a7779ed2160b7dadd7e68807b288d446f5604a9e8c7"
+      "sha256": "e9d61c8b1af05e16bc087a7779ed2160b7dadd7e68807b288d446f5604a9e8c7",
+      "anchor_prefix": "Chapter-11-6-Former-Pott"
     },
     {
       "part": "Chapter 11.7 - 30-46 Auburn Road - Regents Park",
@@ -429,7 +475,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895093-file-bxniqnnrqfwuljypfdsxgw.pdf",
       "council_url": "https://cb.city/DCP11-7",
       "bytes": 646664,
-      "sha256": "950ddb504339a8cb0cc5f35e4416f6b78bcb67fbd2b128b9a4c7cbfd73cc47d4"
+      "sha256": "950ddb504339a8cb0cc5f35e4416f6b78bcb67fbd2b128b9a4c7cbfd73cc47d4",
+      "anchor_prefix": "Chapter-11-7-30-46-Aubur"
     },
     {
       "part": "Chapter 11.8 - 20-21 Boorea Avenue - Lakemba",
@@ -438,7 +485,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895100-file-cha_tpkltfs-zk3wqtxniw.pdf",
       "council_url": "https://cb.city/DCP11-8",
       "bytes": 386227,
-      "sha256": "0d17a9cf77b81279b44b2576fa8946731adad446c79ccab8681d9ed44ed56187"
+      "sha256": "0d17a9cf77b81279b44b2576fa8946731adad446c79ccab8681d9ed44ed56187",
+      "anchor_prefix": "Chapter-11-8-20-21-Boore"
     },
     {
       "part": "Chapter 11.9 - 297-299 Canterbury Road - Revesby",
@@ -447,7 +495,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895107-file-jl3xzta6t4kwqqkoozfcvg.pdf",
       "council_url": "https://cb.city/DCP11-9",
       "bytes": 1249954,
-      "sha256": "bb75cd49ba38c3e5f8a989bc1f6f4bfb691dabcd1b882a21a39556c0c38e02e6"
+      "sha256": "bb75cd49ba38c3e5f8a989bc1f6f4bfb691dabcd1b882a21a39556c0c38e02e6",
+      "anchor_prefix": "Chapter-11-9-297-299-Can"
     },
     {
       "part": "Chapter 11.10 - Chullora Marketplace Greenacre",
@@ -456,7 +505,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895115-file-s1z-xn-dq6a5sehfntwtpw.pdf",
       "council_url": "https://cb.city/DCP11-10",
       "bytes": 1012961,
-      "sha256": "b0afd7a58c34ae47b0de8b5c7220bf15d976ba205ac95cf7499966d150d97ece"
+      "sha256": "b0afd7a58c34ae47b0de8b5c7220bf15d976ba205ac95cf7499966d150d97ece",
+      "anchor_prefix": "Chapter-11-10-Chullora-M"
     },
     {
       "part": "Chapter 11.11 - 15-33 Brighton Avenue - Croydon Park",
@@ -465,7 +515,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895122-file-ev69gohjqxsd-m6_qskdg.pdf",
       "council_url": "https://cb.city/DCP11-11",
       "bytes": 640699,
-      "sha256": "01e9463cf4cd57ec8f701a4077b58a596519d82cab8b73251db0fd180cfd0bd3"
+      "sha256": "01e9463cf4cd57ec8f701a4077b58a596519d82cab8b73251db0fd180cfd0bd3",
+      "anchor_prefix": "Chapter-11-11-15-33-Brig"
     },
     {
       "part": "Chapter 11.12 - 445 Canterbury Road - Campsie",
@@ -474,7 +525,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895129-file-ccbkiegws5iyz3qysb1esg.pdf",
       "council_url": "https://cb.city/DCP11-12",
       "bytes": 1291943,
-      "sha256": "5fe4cc061707ea439e1e68e9257383735e79eea933cf6b529d16bc70ed150c08"
+      "sha256": "5fe4cc061707ea439e1e68e9257383735e79eea933cf6b529d16bc70ed150c08",
+      "anchor_prefix": "Chapter-11-12-445-Canter"
     },
     {
       "part": "Chapter 11.13 - Former WSU Campus - Milperra",
@@ -483,7 +535,8 @@
       "url": "https://www.datocms-assets.com/94948/1757895138-file-q2szqciusk6c5zwm6jletw.pdf",
       "council_url": "https://cb.city/DCP11-13",
       "bytes": 2231082,
-      "sha256": "f2aed331ea1126ef8c7dcc9282e071319874e0630a65b56eb4bebab4c0f5f1b1"
+      "sha256": "f2aed331ea1126ef8c7dcc9282e071319874e0630a65b56eb4bebab4c0f5f1b1",
+      "anchor_prefix": "Chapter-11-13-Former-WSU"
     },
     {
       "part": "Chapter 11.14 - Riverwood Estate",
@@ -492,7 +545,8 @@
       "url": "https://www.datocms-assets.com/94948/1789769783-file-vqfdfmfothuyudccdzdkka.pdf",
       "council_url": "https://cb.city/DCP11-14",
       "bytes": 17866198,
-      "sha256": "62b88ac3b1895327cb9f2d2ac1d0250c594a3d5a68a2a2da66529a798143b78d"
+      "sha256": "62b88ac3b1895327cb9f2d2ac1d0250c594a3d5a68a2a2da66529a798143b78d",
+      "anchor_prefix": "Chapter-11-14-Riverwood-"
     },
     {
       "part": "Chapter 11.15 - Marco Avenue",
@@ -501,7 +555,8 @@
       "url": "https://www.datocms-assets.com/94948/1783371349-2025-12-12-dcp-2023-amendment-10-chapter-11-15-marco-avenue.pdf",
       "council_url": "https://cb.city/DCP11-15",
       "bytes": 2257082,
-      "sha256": "ccdc77039c62b7d883f38b9b9edf5d241f8bdbacbcbc078f7db9707e6726d724"
+      "sha256": "ccdc77039c62b7d883f38b9b9edf5d241f8bdbacbcbc078f7db9707e6726d724",
+      "anchor_prefix": "Chapter-11-15-Marco-Aven"
     },
     {
       "part": "Chapter 11.16 - 1 Leicester Street - Chester Hill",
@@ -510,7 +565,8 @@
       "url": "https://www.datocms-assets.com/94948/1788251611-2026-07-17-dcp-2023-amendment-15-chapter-11-16-leicester-street.pdf",
       "council_url": "https://cb.city/DCP11-16",
       "bytes": 15402096,
-      "sha256": "e9a3e83aea82407b3b464afb32d2b8c34099f5566998f8b9027caf078cc26b8b"
+      "sha256": "e9a3e83aea82407b3b464afb32d2b8c34099f5566998f8b9027caf078cc26b8b",
+      "anchor_prefix": "Chapter-11-16-1-Leiceste"
     }
   ],
   "councils": [

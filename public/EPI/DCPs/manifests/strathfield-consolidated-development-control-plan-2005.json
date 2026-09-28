@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1789727028-1-general-introduction-of-scdcp-2005-03-09-26.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/planning-policies/1.-general-introduction-of-scdcp-2005-03.09.26.pdf",
       "bytes": 346348,
-      "sha256": "2313cebbb13abd0bd80b0e9c9b866b754f9184161ede4df44e2eec7c39e29358"
+      "sha256": "2313cebbb13abd0bd80b0e9c9b866b754f9184161ede4df44e2eec7c39e29358",
+      "anchor_prefix": "General-Introduction"
     },
     {
       "part": "General Residential Development Control Plan",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1789727049-final-01-09-26-general-residential-dcp.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/planning-policies/final-01.09.26-general-residential-dcp.pdf",
       "bytes": 7166427,
-      "sha256": "f879c120e25868617a86bcaf5e23cd517b796dbbac1cd2b1acc6e763cef357da"
+      "sha256": "f879c120e25868617a86bcaf5e23cd517b796dbbac1cd2b1acc6e763cef357da",
+      "anchor_prefix": "General-Residential-Deve"
     },
     {
       "part": "Part D - Industrial Development",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808952-dcp-file-185712935.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-d-industrial-development2.pdf",
       "bytes": 129559,
-      "sha256": "621a2babb9e3831f092aa5a7a95c247d4b85bd1b0657707b422b69edf8f857ff"
+      "sha256": "621a2babb9e3831f092aa5a7a95c247d4b85bd1b0657707b422b69edf8f857ff",
+      "anchor_prefix": "D"
     },
     {
       "part": "Part E - Child Care Centres",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808952-dcp-file-185712936.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-e-child-care-centres2.pdf",
       "bytes": 239288,
-      "sha256": "a0e6d4019968fc4ce0d27d8d0a8387420df99278f881e34f90ce8ab87b5793eb"
+      "sha256": "a0e6d4019968fc4ce0d27d8d0a8387420df99278f881e34f90ce8ab87b5793eb",
+      "anchor_prefix": "E"
     },
     {
       "part": "Part F - Bed and Breakfast Establishments",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808951-dcp-file-185712937.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-f-bed-and-breakfast-establishments2.pdf",
       "bytes": 62501,
-      "sha256": "45b837523506707ace41d3439f4e6e99d90ceb64caf8d9e98bfce44d420c8e14"
+      "sha256": "45b837523506707ace41d3439f4e6e99d90ceb64caf8d9e98bfce44d420c8e14",
+      "anchor_prefix": "F"
     },
     {
       "part": "Part G - Brothels",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808946-dcp-file-185712938.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-g-brothels3.pdf",
       "bytes": 1521463,
-      "sha256": "6853180c8e49fe00b1dfce1b2cafb45e6dcb7928205acc6e03b86ce5abfb2da1"
+      "sha256": "6853180c8e49fe00b1dfce1b2cafb45e6dcb7928205acc6e03b86ce5abfb2da1",
+      "anchor_prefix": "G"
     },
     {
       "part": "Part H - Waste Minimisation and Management",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808949-dcp-file-185712939.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-h-waste-minimisation-and-management2.pdf",
       "bytes": 865457,
-      "sha256": "80ce76beaa51b0e579cdbc4969f1514f566193b63d36adfc3561cd014caecb9f"
+      "sha256": "80ce76beaa51b0e579cdbc4969f1514f566193b63d36adfc3561cd014caecb9f",
+      "anchor_prefix": "H"
     },
     {
       "part": "Part I - Provision of Off Street Parking",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808952-dcp-file-185712940.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-i-provision-of-off-street-parking2.pdf",
       "bytes": 482784,
-      "sha256": "bd568986ccce540ef122a57d72a908632856c67f29c2580bb9d814b5886f7c5f"
+      "sha256": "bd568986ccce540ef122a57d72a908632856c67f29c2580bb9d814b5886f7c5f",
+      "anchor_prefix": "I"
     },
     {
       "part": "Part J - Advertising Signs and Structures",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808952-dcp-file-185712941.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-j-advertising-signs-and-structures2.pdf",
       "bytes": 465487,
-      "sha256": "3471b3e28462f22da18280335e656c9a2d5c010ca1f3a13bdaabc645e012aa85"
+      "sha256": "3471b3e28462f22da18280335e656c9a2d5c010ca1f3a13bdaabc645e012aa85",
+      "anchor_prefix": "J"
     },
     {
       "part": "Part K - Development on Contaminated Land",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808952-dcp-file-185712942.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-k-development-on-contaminated-land2.pdf",
       "bytes": 430363,
-      "sha256": "7c3acd13160f09e4248ae9c72737d97e3d79287effd77193ecb3d54db0ffa643"
+      "sha256": "7c3acd13160f09e4248ae9c72737d97e3d79287effd77193ecb3d54db0ffa643",
+      "anchor_prefix": "K"
     },
     {
       "part": "Part M - Educational Establishments",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808948-dcp-file-185712943.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-m-educational-establishments2.pdf",
       "bytes": 179250,
-      "sha256": "bdc77e52c8b22807a22aa216a0c298c0c141c0ab81ac673f9664df8188a4e034"
+      "sha256": "bdc77e52c8b22807a22aa216a0c298c0c141c0ab81ac673f9664df8188a4e034",
+      "anchor_prefix": "M"
     },
     {
       "part": "Part N - Water Sensitive Urban Design",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808950-dcp-file-185712944.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-n-water-sensitive-urban-design-for-wsud-feb-23.pdf",
       "bytes": 585809,
-      "sha256": "baa3ad1de035db29c2c0198373d64166135a1f247c9a2fa690ffc593b588e2a9"
+      "sha256": "baa3ad1de035db29c2c0198373d64166135a1f247c9a2fa690ffc593b588e2a9",
+      "anchor_prefix": "N"
     },
     {
       "part": "Part O - Trees",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808953-dcp-file-185712945.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-o-tree-management-updated-1.pdf",
       "bytes": 392804,
-      "sha256": "664ff9d2d18018a151553b2b476cad11336dfc0671d1fa54a7b57b8d897eb8c4"
+      "sha256": "664ff9d2d18018a151553b2b476cad11336dfc0671d1fa54a7b57b8d897eb8c4",
+      "anchor_prefix": "O"
     },
     {
       "part": "Part P - Heritage",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1757909074-file-ftd4dmlxqt6cnqfcu_ancq.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/dcp_part-p-heritage_a4p_post-exhibition_241107.pdf",
       "bytes": 22342921,
-      "sha256": "0f3b7332ad9cecc55c84767105202288a5aedff111197ae4acb72bed46ee7ee4"
+      "sha256": "0f3b7332ad9cecc55c84767105202288a5aedff111197ae4acb72bed46ee7ee4",
+      "anchor_prefix": "P"
     },
     {
       "part": "Part Q - Urban Design Controls",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808950-dcp-file-185712947.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/part-q-urban-design-controls.pdf",
       "bytes": 772074,
-      "sha256": "50d3636749a6e078e86107050d4d14e7bbbb3108f7ad2d1647637e26242e8cbb"
+      "sha256": "50d3636749a6e078e86107050d4d14e7bbbb3108f7ad2d1647637e26242e8cbb",
+      "anchor_prefix": "Q"
     },
     {
       "part": "Part R - Subdivision Minimum Frontage",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808953-dcp-file-185712948.pdf",
       "council_url": "https://www.strathfield.nsw.gov.au/files/assets/public/v/1/develop/amendment-to-part-r-subdivision-minimum-frontage-adopted-council.pdf",
       "bytes": 472088,
-      "sha256": "3143618a227ceaa8943452875d95b77c9e52d3b6d551c8db806a0599b853601f"
+      "sha256": "3143618a227ceaa8943452875d95b77c9e52d3b6d551c8db806a0599b853601f",
+      "anchor_prefix": "R"
     }
   ],
   "councils": [

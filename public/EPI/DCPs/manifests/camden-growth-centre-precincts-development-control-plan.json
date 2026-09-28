@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1770259600-file-tyihmq2wss6y5ve_ydlvqq.pdf",
       "council_url": "https://www.camden.nsw.gov.au/assets/pdfs/DCPs/Camden-Growth-Centres-Main-Body-DCP/Camden-Growth-Centre-Precincts-DCP.pdf",
       "bytes": 17717549,
-      "sha256": "89aeee27157a6edfb0602c5b1284fdf1b0278b58b9b7df64fe4d9a3e926171d9"
+      "sha256": "89aeee27157a6edfb0602c5b1284fdf1b0278b58b9b7df64fe4d9a3e926171d9",
+      "anchor_prefix": "Camden-Growth-Centre-Pre"
     },
     {
       "part": "Camden Growth Centre Precincts Appendices",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682469-file-ulivygm8s5itrhxpcmopdw.pdf",
       "council_url": "https://www.camden.nsw.gov.au/assets/pdfs/DCPs/Camden-Growth-Centres-Main-Body-DCP/Camden-Growth-Centres-DCP-Appendices-REV-2014.pdf",
       "bytes": 7191204,
-      "sha256": "f12827c40c47a0b089130e1ad6ce6deaa6d390fcff8d49289b96c930af05be03"
+      "sha256": "f12827c40c47a0b089130e1ad6ce6deaa6d390fcff8d49289b96c930af05be03",
+      "anchor_prefix": "Camden-Growth-Centre-Pre-2"
     },
     {
       "part": "Schedule 1 and 2 - Austral & Leppington Major Centre",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1752147275-austral-and-leppington-north-dcp-schedules-1-and-2-growth-centres-dcp-rev-2013.pdf",
       "council_url": "https://www.camden.nsw.gov.au/assets/pdfs/DCPs/Leppington-North-and-Austral/Austral-and-Leppington-North-DCP-Schedules-1-and-2-Growth-Centres-DCP-REV-2013.pdf",
       "bytes": 11842721,
-      "sha256": "65e63213dbeb84966a21310bcb5ecfb7323c21f18254c90564ef7ff81062bdf6"
+      "sha256": "65e63213dbeb84966a21310bcb5ecfb7323c21f18254c90564ef7ff81062bdf6",
+      "anchor_prefix": "Schedule-1-and-2-Austral"
     },
     {
       "part": "Schedule 3 - East Leppington",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1752147304-east-leppington-dcp-schedule-3-camden-growth-centres-dcp-rev-2018.pdf",
       "council_url": "https://www.camden.nsw.gov.au/assets/pdfs/DCPs/East-Leppington/East-Leppington-DCP-Schedule-3-Camden-Growth-Centres-DCP-REV-2018.pdf",
       "bytes": 2454391,
-      "sha256": "b660d3175c5a141a5724b1bb07f02bd2bbdce11503100b706f542163f2e284ac"
+      "sha256": "b660d3175c5a141a5724b1bb07f02bd2bbdce11503100b706f542163f2e284ac",
+      "anchor_prefix": "Schedule-3-East-Leppingt"
     },
     {
       "part": "Schedule 4 - Catherine Field (Part) Precinct",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1770259608-file-eqshyvuis32ply7xs21arg.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/map-files/Schedule-4-Growth-Centres-DCP-Document-for-Website.pdf",
       "bytes": 4837853,
-      "sha256": "f4d8acc8aecb0d41086ba3fa0ec5904a0f4ba2c8064631025d91be7178c0a8e3"
+      "sha256": "f4d8acc8aecb0d41086ba3fa0ec5904a0f4ba2c8064631025d91be7178c0a8e3",
+      "anchor_prefix": "Schedule-4-Catherine-Fie"
     },
     {
       "part": "Schedule 5 - Leppington Precinct",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1752147425-camden-growth-centre-precincts-dcp-schedule-5-leppington-precinct.pdf",
       "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/Camden+Growth+Centre+Precincts+DCP+-+Schedule+5+Leppington+Precinct.pdf",
       "bytes": 2033528,
-      "sha256": "1fefec3134e2e3c49ea7eb29bef3f7d5fcad395495fa795bec6887f4c4640f9c"
+      "sha256": "1fefec3134e2e3c49ea7eb29bef3f7d5fcad395495fa795bec6887f4c4640f9c",
+      "anchor_prefix": "Schedule-5-Leppington-Pr"
     },
     {
       "part": "Schedule 6 - Lowes Creek Maryland Precinct",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1752147455-2012-12-17-final-schedule-6-lowes-creek-maryland-dcp.pdf",
       "council_url": "https://shared-drupal-s3fs.s3.ap-southeast-2.amazonaws.com/master-test/fapub_pdf/2012.12.17+-+Final+Schedule+6+Lowes+Creek+Maryland+DCP.pdf",
       "bytes": 5550940,
-      "sha256": "f54b9a310b395c1feeb36808f09f20f284e3d71143c4c72599d950a8f6ccbace"
+      "sha256": "f54b9a310b395c1feeb36808f09f20f284e3d71143c4c72599d950a8f6ccbace",
+      "anchor_prefix": "Schedule-6-Lowes-Creek-M"
     },
     {
       "part": "Schedule 7 - Pondicherry (Part) Precinct",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1770259616-file-yulhfsxstjmosrycnqaa7q.pdf",
       "council_url": "https://www.camden.nsw.gov.au/assets/pdfs/DCPs/Tranche-41-Part-Pondicherry/Pondicherry-Part-Precinct-DCP-Schedule-7-Growth-Centres-DCP-V1-March-2022.pdf",
       "bytes": 30743307,
-      "sha256": "dd3308dcbc104749a11edd759c1ef56475e52a1efe7ce0c479eb19aa5b75e709"
+      "sha256": "dd3308dcbc104749a11edd759c1ef56475e52a1efe7ce0c479eb19aa5b75e709",
+      "anchor_prefix": "Schedule-7-Pondicherry-P"
     }
   ],
   "councils": [

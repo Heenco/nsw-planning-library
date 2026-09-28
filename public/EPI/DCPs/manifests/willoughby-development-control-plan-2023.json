@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561226-ecm_7229496_v1_part-a-overview-of-willoughby-development-control-plan-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/8/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229496_v1_part-a-overview-of-willoughby-development-control-plan-version-june-2025-pdf-wdcp.pdf",
       "bytes": 603073,
-      "sha256": "87c80a6d0ef847d04d61865e185806ee0c977dc1fd4b10901b2695debac031c0"
+      "sha256": "87c80a6d0ef847d04d61865e185806ee0c977dc1fd4b10901b2695debac031c0",
+      "anchor_prefix": "A"
     },
     {
       "part": "Part B - Residential development",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561234-ecm_7229492_v1_part-b-residential-development-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/5/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229492_v1_part-b-residential-development-version-june-2025-pdf-wdcp.pdf",
       "bytes": 13471187,
-      "sha256": "da1e8494d1c3b7f134ed11c9fcba86cf04570a263624157bf7c44ea2a7c378d2"
+      "sha256": "da1e8494d1c3b7f134ed11c9fcba86cf04570a263624157bf7c44ea2a7c378d2",
+      "anchor_prefix": "B"
     },
     {
       "part": "Part C - Development in the C4 Environmental Living zone",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561252-ecm_7229488_v1_part-c-development-in-c4-zone-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/6/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229488_v1_part-c-development-in-c4-zone-version-june-2025-pdf-wdcp.pdf",
       "bytes": 1137655,
-      "sha256": "28eb3d9ce36d90ed2b36ae760d6061793499bce1d4d219c48ca9182e47b60e70"
+      "sha256": "28eb3d9ce36d90ed2b36ae760d6061793499bce1d4d219c48ca9182e47b60e70",
+      "anchor_prefix": "C"
     },
     {
       "part": "Part D - Commercial development",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561259-ecm_7229485_v1_part-d-commercial-development-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/2/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229485_v1_part-d-commercial-development-version-june-2025-pdf-wdcp.pdf",
       "bytes": 1160903,
-      "sha256": "29f2d67eed1e926eaf41641a70b1ac3bfbae8ce2099c33a9aebf29c7f87aea12"
+      "sha256": "29f2d67eed1e926eaf41641a70b1ac3bfbae8ce2099c33a9aebf29c7f87aea12",
+      "anchor_prefix": "D"
     },
     {
       "part": "Part E - Industrial development",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561269-ecm_7229484_v1_part-e-industrial-development-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/2/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229484_v1_part-e-industrial-development-version-june-2025-pdf-wdcp.pdf",
       "bytes": 495675,
-      "sha256": "41961edda6b015f101b8815b0de99abe94a7e470e6cbbd7289ab521f9dac7404"
+      "sha256": "41961edda6b015f101b8815b0de99abe94a7e470e6cbbd7289ab521f9dac7404",
+      "anchor_prefix": "E"
     },
     {
       "part": "Part F - Transport and parking management",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561279-ecm_7229482_v1_part-f-transport-and-parking-management-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/4/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229482_v1_part-f-transport-and-parking-management-version-june-2025-pdf-wdcp.pdf",
       "bytes": 3825097,
-      "sha256": "06ce14583b9683872d57f4c6012186c58315efaf19ee5bc79459e3ad88136233"
+      "sha256": "06ce14583b9683872d57f4c6012186c58315efaf19ee5bc79459e3ad88136233",
+      "anchor_prefix": "F"
     },
     {
       "part": "Part G - Vegetation management",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561288-ecm_7229480_v1_part-g-vegetation-management-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/2/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229480_v1_part-g-vegetation-management-version-june-2025-pdf-wdcp.pdf",
       "bytes": 499147,
-      "sha256": "401c3bcfde4b550e819da07d571406aa6e4694e2a02f54396186a88288cdbe97"
+      "sha256": "401c3bcfde4b550e819da07d571406aa6e4694e2a02f54396186a88288cdbe97",
+      "anchor_prefix": "G"
     },
     {
       "part": "Part H - Heritage items and heritage conservation areas",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561302-ecm_7229461_v3_part-h-heritage-items-and-heritage-conservation-areas-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/4/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229461_v3_part-h-heritage-items-and-heritage-conservation-areas-version-june-2025-pdf-wdcp.pdf",
       "bytes": 14494902,
-      "sha256": "ca7fdf69aeb5b78aa0ffcf254afc29c0f0ec6a675673c79f48b352506d77712d"
+      "sha256": "ca7fdf69aeb5b78aa0ffcf254afc29c0f0ec6a675673c79f48b352506d77712d",
+      "anchor_prefix": "H"
     },
     {
       "part": "Part I - Stormwater management",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561314-ecm_7229460_v1_part-i-stormwater-management-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/2/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229460_v1_part-i-stormwater-management-version-june-2025-pdf-wdcp.pdf",
       "bytes": 2025904,
-      "sha256": "963655aa59efe4f5ff5c0de656d9767aee361cbea1c4dc7c817d28fefbf41aba"
+      "sha256": "963655aa59efe4f5ff5c0de656d9767aee361cbea1c4dc7c817d28fefbf41aba",
+      "anchor_prefix": "I"
     },
     {
       "part": "Part J - Building sustainability",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561323-ecm_7229453_v1_part-j-building-sustainability-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/2/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229453_v1_part-j-building-sustainability-version-june-2025-pdf-wdcp.pdf",
       "bytes": 362649,
-      "sha256": "f0a40bb3f7efa89b220597a920cf626a9c2de86b701f9c31e69a9827aa059a6e"
+      "sha256": "f0a40bb3f7efa89b220597a920cf626a9c2de86b701f9c31e69a9827aa059a6e",
+      "anchor_prefix": "J"
     },
     {
       "part": "Part K - Ventilation stacks",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1752561331-ecm_7229445_v1_part-k-ventilation-stacks-version-june-2025-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/2/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229445_v1_part-k-ventilation-stacks-version-june-2025-pdf-wdcp.pdf",
       "bytes": 1501800,
-      "sha256": "6b1a438bf6ee4f0ebc2464919949fd9dab020544403b7ebbcb66a34e81df5255"
+      "sha256": "6b1a438bf6ee4f0ebc2464919949fd9dab020544403b7ebbcb66a34e81df5255",
+      "anchor_prefix": "K"
     },
     {
       "part": "Part L - Place based plans",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1783424746-ecm_7229442_v2_part-l-placed-based-plans-2023-version-april-2026-pdf-wdcp.pdf",
       "council_url": "https://www.willoughby.nsw.gov.au/files/assets/public/v/11/documents/publications-reports-master-plans-strategies-action-plans/ecm_7229442_v2_part-l-placed-based-plans-2023-version-april-2026-pdf-wdcp.pdf",
       "bytes": 10610397,
-      "sha256": "eedb36d894d29f3757eb4d75b0cbdcd8ee22e7d5b3eae54f8c43298ef06e72a8"
+      "sha256": "eedb36d894d29f3757eb4d75b0cbdcd8ee22e7d5b3eae54f8c43298ef06e72a8",
+      "anchor_prefix": "L"
     }
   ],
   "councils": [

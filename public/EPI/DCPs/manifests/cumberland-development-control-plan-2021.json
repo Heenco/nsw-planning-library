@@ -15,97 +15,108 @@
       "url": "https://www.datocms-assets.com/94948/1781773944-cumberland-20dcp-202021-20cover-20and-20list-20of-20amendments-20-20updated.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%202021%20Cover%20and%20List%20of%20Amendments%20-%20Updated.pdf",
       "bytes": 370801,
-      "sha256": "ad6ef15b37443042640c1f8b64d768b3a1b49ff585428fed154f0a9c3667ea5b"
+      "sha256": "ad6ef15b37443042640c1f8b64d768b3a1b49ff585428fed154f0a9c3667ea5b",
+      "anchor_prefix": "Cover-and-List-of-Amendm"
     },
     {
-      "part": "Part A – Introduction and General Controls",
+      "part": "Part A \u2013 Introduction and General Controls",
       "order": 1,
       "file": "cumberland-development-control-plan-2021/01-part-a-introduction-and-general-controls.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880094-dcp-file-185711908.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-part-a-adopted-050423.pdf",
       "bytes": 672370,
-      "sha256": "72918a6fc39a208d8d7dc54ccb35c1768fca1144d1384ae00af95af7d86552d1"
+      "sha256": "72918a6fc39a208d8d7dc54ccb35c1768fca1144d1384ae00af95af7d86552d1",
+      "anchor_prefix": "A"
     },
     {
-      "part": "Part B – Development in Residential Zones",
+      "part": "Part B \u2013 Development in Residential Zones",
       "order": 2,
       "file": "cumberland-development-control-plan-2021/02-part-b-development-in-residential-zones.pdf",
       "url": "https://www.datocms-assets.com/94948/1759289646-file-nkfcfpsrqmy3mo5z6vhkpq.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%20Part%20B%20.pdf",
       "bytes": 742528,
-      "sha256": "664c00b804570fbb2e9ce021a3d5ace31eb72d3ac04eefa80a8d1bfdca37f930"
+      "sha256": "664c00b804570fbb2e9ce021a3d5ace31eb72d3ac04eefa80a8d1bfdca37f930",
+      "anchor_prefix": "B"
     },
     {
-      "part": "Part C – Development in Business Zones",
+      "part": "Part C \u2013 Development in Business Zones",
       "order": 3,
       "file": "cumberland-development-control-plan-2021/03-part-c-development-in-business-zones.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880094-dcp-file-185711910.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-part-c-development-business-zones-2021.pdf",
       "bytes": 297832,
-      "sha256": "b8da6a4b58ab2e72c47e0e2efef2868b3f56019c2abad0a501ae8c873489dc79"
+      "sha256": "b8da6a4b58ab2e72c47e0e2efef2868b3f56019c2abad0a501ae8c873489dc79",
+      "anchor_prefix": "C"
     },
     {
-      "part": "Part D – Development in Industrial Zones",
+      "part": "Part D \u2013 Development in Industrial Zones",
       "order": 4,
       "file": "cumberland-development-control-plan-2021/04-part-d-development-in-industrial-zones.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880094-dcp-file-185711911.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-part-d-development-industrial-zones-2021.pdf",
       "bytes": 272628,
-      "sha256": "5dfb595e8cd97c3942cb31e929220833190828712561257dd74b4f5a8f7f99f5"
+      "sha256": "5dfb595e8cd97c3942cb31e929220833190828712561257dd74b4f5a8f7f99f5",
+      "anchor_prefix": "D"
     },
     {
-      "part": "Part E – Other Land Use Based Development Controls",
+      "part": "Part E \u2013 Other Land Use Based Development Controls",
       "order": 5,
       "file": "cumberland-development-control-plan-2021/05-part-e-other-land-use-based-development-controls.pdf",
       "url": "https://www.datocms-assets.com/94948/1759289652-file-rhc0r0m5qms-loyhmhqndw.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%20Part%20E.pdf",
       "bytes": 246455,
-      "sha256": "6dc7535f34df2340fb6047fddaecfdaf93ffd52df0fcabc3d2e6943324db8249"
+      "sha256": "6dc7535f34df2340fb6047fddaecfdaf93ffd52df0fcabc3d2e6943324db8249",
+      "anchor_prefix": "E"
     },
     {
-      "part": "Part F1 – Precinct and Site Specific",
+      "part": "Part F1 \u2013 Precinct and Site Specific",
       "order": 6,
       "file": "cumberland-development-control-plan-2021/06-part-f1-precinct-and-site-specific.pdf",
       "url": "https://www.datocms-assets.com/94948/1759289657-file-gqwrs2j-svycwg1ahsbnyw.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%20Part%20F1.pdf",
       "bytes": 25346414,
-      "sha256": "20c53681b3c77bdffc7aa88ec29c454b67d4fe41662faf907c4f4cf18c2b3649"
+      "sha256": "20c53681b3c77bdffc7aa88ec29c454b67d4fe41662faf907c4f4cf18c2b3649",
+      "anchor_prefix": "F1"
     },
     {
-      "part": "Part F2 – Business Site Specific",
+      "part": "Part F2 \u2013 Business Site Specific",
       "order": 7,
       "file": "cumberland-development-control-plan-2021/07-part-f2-business-site-specific.pdf",
       "url": "https://www.datocms-assets.com/94948/1781773986-cumberland-20dcp-202021-20part-20f2-20-20updated.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%202021%20Part%20F2%20-%20Updated.pdf",
       "bytes": 21632043,
-      "sha256": "b23710b6e0d41b8c7a823da4da49c2d045152e2c26a06ab7e118ae9e1a4fd29e"
+      "sha256": "b23710b6e0d41b8c7a823da4da49c2d045152e2c26a06ab7e118ae9e1a4fd29e",
+      "anchor_prefix": "F2"
     },
     {
-      "part": "Part F3 – Industrial Site Specific",
+      "part": "Part F3 \u2013 Industrial Site Specific",
       "order": 8,
       "file": "cumberland-development-control-plan-2021/08-part-f3-industrial-site-specific.pdf",
       "url": "https://www.datocms-assets.com/94948/1759289672-file-enytkdoqqvilpfzbvfkd7a.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%20Part%20F3.pdf",
       "bytes": 4570754,
-      "sha256": "5c73ccb7af3e5504bdac00a2cfad7b800e1bf8c4c48da2b9da2c760228ba962c"
+      "sha256": "5c73ccb7af3e5504bdac00a2cfad7b800e1bf8c4c48da2b9da2c760228ba962c",
+      "anchor_prefix": "F3"
     },
     {
-      "part": "Part F4 – Special Precincts",
+      "part": "Part F4 \u2013 Special Precincts",
       "order": 9,
       "file": "cumberland-development-control-plan-2021/09-part-f4-special-precincts.pdf",
       "url": "https://www.datocms-assets.com/94948/1781774012-cumberland-20dcp-202021-20part-20f4-20-20updated.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/Cumberland%20DCP%202021%20Part%20F4%20-%20Updated.pdf",
       "bytes": 20346699,
-      "sha256": "472ab4c2a283dac9556869028b74d7647326e0d36cabd9e9dbd12f57fbf135ff"
+      "sha256": "472ab4c2a283dac9556869028b74d7647326e0d36cabd9e9dbd12f57fbf135ff",
+      "anchor_prefix": "F4"
     },
     {
-      "part": "Part G – Miscellaneous Development Controls",
+      "part": "Part G \u2013 Miscellaneous Development Controls",
       "order": 10,
       "file": "cumberland-development-control-plan-2021/10-part-g-miscellaneous-development-controls.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880094-dcp-file-185711917.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-part-g-miscellaneous-development-controls-2021%29.pdf",
       "bytes": 1575397,
-      "sha256": "be86beda1debefdb3e1bd4e77e8a56f6d8c0e70a32acdfa304e6d9e40768264a"
+      "sha256": "be86beda1debefdb3e1bd4e77e8a56f6d8c0e70a32acdfa304e6d9e40768264a",
+      "anchor_prefix": "G"
     },
     {
       "part": "Definitions",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880094-dcp-file-185711918.pdf",
       "council_url": "https://www.cumberland.nsw.gov.au/sites/default/files/inline-files/cumberland-dcp-definitions_0.pdf",
       "bytes": 184144,
-      "sha256": "5d2aa0bf4affc90f7f1a1d9d472c66f177b8807e261a238786368cd8c59d9201"
+      "sha256": "5d2aa0bf4affc90f7f1a1d9d472c66f177b8807e261a238786368cd8c59d9201",
+      "anchor_prefix": "Definitions"
     }
   ],
   "councils": [

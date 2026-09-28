@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1788311722-woollahra-development-control-plan-2015-approved-version-amendment-36-chapter-a1-introduction.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/14/plans-policies-publications/development-control-plans/woollahra-development-control-plan-2015-approved-version-amendment-36-chapter-a1-introduction.pdf",
       "bytes": 377491,
-      "sha256": "28104faa3e47db5ba8a8d14668cb60e4274c5edf965e1df4daad6346e813c1d7"
+      "sha256": "28104faa3e47db5ba8a8d14668cb60e4274c5edf965e1df4daad6346e813c1d7",
+      "anchor_prefix": "Chapter-A1-Introduction"
     },
     {
       "part": "Chapter A3 - Definitions",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1757909568-file-m16z3akutow3c0tmpax1qa.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/3/plans-policies-publications/development-control-plans/chapter-a3-definitions-23may2025.pdf",
       "bytes": 242083,
-      "sha256": "5dcdc73329247644cec14b0125efa0791906af5cb300d9a72e05fcf8005a367c"
+      "sha256": "5dcdc73329247644cec14b0125efa0791906af5cb300d9a72e05fcf8005a367c",
+      "anchor_prefix": "Chapter-A3-Definitions"
     },
     {
       "part": "Chapter B1 - Residential Precincts",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1733119999-file-ka7r4-lrsu-pfyypvkd2oq.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter-b1-residential-precincts.pdf",
       "bytes": 2948965,
-      "sha256": "f4bce89dd4a1911d9a02c3e429b98cefddf50e5ed2d3d9d16bf6e7b4bda24b82"
+      "sha256": "f4bce89dd4a1911d9a02c3e429b98cefddf50e5ed2d3d9d16bf6e7b4bda24b82",
+      "anchor_prefix": "Chapter-B1-Residential-P"
     },
     {
       "part": "Chapter B2 - Neighbourhood Heritage Conservation Areas",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120004-file-hui6ng7nssge7obbczuqkw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/2/plans-policies-publications/development-control-plans/chapter-b2-neighbourhood-hcas.pdf",
       "bytes": 2091148,
-      "sha256": "569fe564e574e1bd2f063493edc7914bf30d85ec99827d882cc2dd6719eb9d59"
+      "sha256": "569fe564e574e1bd2f063493edc7914bf30d85ec99827d882cc2dd6719eb9d59",
+      "anchor_prefix": "Chapter-B2-Neighbourhood"
     },
     {
       "part": "Chapter B3 - General Development Controls",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1788311754-woollahra-development-control-plan-2015-approved-version-amendment-36-chapter-b3-general-development.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/7/plans-policies-publications/development-control-plans/woollahra-development-control-plan-2015-approved-version-amendment-36-chapter-b3-general-development.pdf",
       "bytes": 2973719,
-      "sha256": "114475891aa8740d822bfa7e1aac785dbf052c06b4bb9b22b982760d5ceb6bbc"
+      "sha256": "114475891aa8740d822bfa7e1aac785dbf052c06b4bb9b22b982760d5ceb6bbc",
+      "anchor_prefix": "Chapter-B3-General-Devel"
     },
     {
       "part": "Chapter B4 - Housing in Accessible Areas",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1788311771-chapter-b4-housing-in-accessible-areas.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/2/building-and-development/documents/chapter-b4-housing-in-accessible-areas.pdf",
       "bytes": 573486,
-      "sha256": "0ac389b960b510f46e7d6a951163297721cc8f0f4b34d6caaeb418a2bf6a72fb"
+      "sha256": "0ac389b960b510f46e7d6a951163297721cc8f0f4b34d6caaeb418a2bf6a72fb",
+      "anchor_prefix": "Chapter-B4-Housing-in-Ac"
     },
     {
       "part": "Chapter C1 - Paddington Heritage Conservation Area",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120015-file-yz-dwdw-qwqrgyysbz0dwa.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/3/plans-policies-publications/development-control-plans/chapter-c1-paddington-hca.pdf",
       "bytes": 6780076,
-      "sha256": "05c3a2a17a9022a0b7610b3959711732589e1fa4816814193663f42d4bfe8df2"
+      "sha256": "05c3a2a17a9022a0b7610b3959711732589e1fa4816814193663f42d4bfe8df2",
+      "anchor_prefix": "Chapter-C1-Paddington-He"
     },
     {
       "part": "Chapter C2 - Woollahra Heritage Conservation Area",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120021-file-v1eqxeiqruwpvb6aafbiua.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/3/plans-policies-publications/development-control-plans/chapter-c2-woollahra-hca.pdf",
       "bytes": 7270983,
-      "sha256": "89da3b7af6c5befb52f58df93138f26014eb7346c705ce5732d1a7c061dcb318"
+      "sha256": "89da3b7af6c5befb52f58df93138f26014eb7346c705ce5732d1a7c061dcb318",
+      "anchor_prefix": "Chapter-C2-Woollahra-Her"
     },
     {
       "part": "Chapter C3 - Watsons Bay Heritage Conservation Area",
@@ -86,7 +94,8 @@
       "file": "woollahra-development-control-plan-2015/08-chapter-c3-watsons-bay-heritage-conservation-area.pdf",
       "url": "https://www.datocms-assets.com/94948/1733120030-file-f9_wzsrrtbyd7plbibmqaa.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/3/plans-policies-publications/development-control-plans/chapter-c3-watsons-bay-hca.pdf",
-      "error": "terminated"
+      "error": "terminated",
+      "anchor_prefix": "Chapter-C3-Watsons-Bay-H"
     },
     {
       "part": "Chapter D1 - Neighbourhood Centres",
@@ -95,7 +104,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120039-file-bfh2nxfusbg3_jovncqqfw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/5/plans-policies-publications/development-control-plans/chapter-d1-neighbourhood-centres.pdf",
       "bytes": 2687389,
-      "sha256": "2efa07a500e4b9ce86e454ddb3f0da29ca863a9436d39046a34aa37f54c4e8ce"
+      "sha256": "2efa07a500e4b9ce86e454ddb3f0da29ca863a9436d39046a34aa37f54c4e8ce",
+      "anchor_prefix": "Chapter-D1-Neighbourhood"
     },
     {
       "part": "Chapter D2 - Mixed Use Centres",
@@ -104,7 +114,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120045-file-apo2f0abt5w2nhr3m_qtpg.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/2/plans-policies-publications/development-control-plans/chapter-d2-mixed-use-centres.pdf",
       "bytes": 1582072,
-      "sha256": "0adc2eb048bfbfbb89d3469bcf053cec8159ca60198df3a325da04166d5d5a95"
+      "sha256": "0adc2eb048bfbfbb89d3469bcf053cec8159ca60198df3a325da04166d5d5a95",
+      "anchor_prefix": "Chapter-D2-Mixed-Use-Cen"
     },
     {
       "part": "Chapter D3 - General Controls for Neighbourhood and Mixed Use Centres",
@@ -113,7 +124,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120051-file-eqjapipkt9qp7ywuxdvjda.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/4/plans-policies-publications/development-control-plans/chapter-d3-general-controls-for-neighbourhood-and.pdf",
       "bytes": 1151554,
-      "sha256": "cdeebbb4394223730e7ba1034b84bbcb9bbe2e7b2bd33daba0bec2cded89bcf8"
+      "sha256": "cdeebbb4394223730e7ba1034b84bbcb9bbe2e7b2bd33daba0bec2cded89bcf8",
+      "anchor_prefix": "Chapter-D3-General-Contr"
     },
     {
       "part": "Chapter D4 - Edgecliff Centre",
@@ -122,7 +134,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120056-file-qfcytwjlqcsscejqu-nvhg.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/3/plans-policies-publications/development-control-plans/chapter-d4-edgecliff-centre.pdf",
       "bytes": 746384,
-      "sha256": "37484825f449e6c63779e9061db31dbbb46d337ba33b9a42f43680cc49567e42"
+      "sha256": "37484825f449e6c63779e9061db31dbbb46d337ba33b9a42f43680cc49567e42",
+      "anchor_prefix": "Chapter-D4-Edgecliff-Cen"
     },
     {
       "part": "Chapter D5 - Double Bay Centre",
@@ -131,7 +144,8 @@
       "url": "https://www.datocms-assets.com/94948/1757909589-file-mnadoee2rxc4kju8s3zbga.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/5/plans-policies-publications/development-control-plans/chapter-d5-edgecliff-centre.pdf",
       "bytes": 11039408,
-      "sha256": "1a38115e5a15bd7820c0d31ac25a781f9f6df9c7509156294292ada23052ea08"
+      "sha256": "1a38115e5a15bd7820c0d31ac25a781f9f6df9c7509156294292ada23052ea08",
+      "anchor_prefix": "Chapter-D5-Double-Bay-Ce"
     },
     {
       "part": "Public Domain Strategy",
@@ -140,7 +154,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120070-file-fedllqjntzo1p_z6vblreg.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/double_bay_centre_-_public_domain_strategy_-_aspect_report_2016.pdf",
       "bytes": 48568609,
-      "sha256": "3ef24e810055488cc23d49080edd8f2cfc155b2776d8eefb900155ea29875bf1"
+      "sha256": "3ef24e810055488cc23d49080edd8f2cfc155b2776d8eefb900155ea29875bf1",
+      "anchor_prefix": "Public-Domain-Strategy"
     },
     {
       "part": "Public Domain Lighting Strategy",
@@ -149,7 +164,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120081-file-zqt7biugqleowhojsvtjrg.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/double_bay_centre_-_public_domain_lighting_strategy_2016.pdf",
       "bytes": 25879456,
-      "sha256": "8aa1627c81d782f9e14a348b3a557c1a1adb7ea132022111b1ab53aaa714ff84"
+      "sha256": "8aa1627c81d782f9e14a348b3a557c1a1adb7ea132022111b1ab53aaa714ff84",
+      "anchor_prefix": "Public-Domain-Lighting-S"
     },
     {
       "part": "Double Bay Centre Public Improvements Plan",
@@ -158,7 +174,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120093-file-qfu7jptqreoqfyojr3hs2w.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/pdip_-_double_bay.pdf",
       "bytes": 9691674,
-      "sha256": "c8de2cd40bce92669cb55baa69b30230d9c4833423bc3eb038d8a75545e6ffbf"
+      "sha256": "c8de2cd40bce92669cb55baa69b30230d9c4833423bc3eb038d8a75545e6ffbf",
+      "anchor_prefix": "Double-Bay-Centre-Public"
     },
     {
       "part": "Chapter D6 - Rose Bay Centre",
@@ -167,7 +184,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120099-file-a-jfwrs8txsjolxtr-kwpw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/6/plans-policies-publications/development-control-plans/chapter-d6-rose-bay-centre.pdf",
       "bytes": 4853026,
-      "sha256": "cbe67e0c08f7472fbd89dc262f3224510ceb18411b1d5d556262b5cab601a3dc"
+      "sha256": "cbe67e0c08f7472fbd89dc262f3224510ceb18411b1d5d556262b5cab601a3dc",
+      "anchor_prefix": "Chapter-D6-Rose-Bay-Cent"
     },
     {
       "part": "Chapter E1 - Parking and Access",
@@ -176,7 +194,8 @@
       "url": "https://www.datocms-assets.com/94948/1757909604-file-dsoaxutqsjs4dkttayp_ga.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/6/plans-policies-publications/development-control-plans/chapter-e1-parking-and-access-23may2025.pdf",
       "bytes": 504170,
-      "sha256": "e5c11a82017e1feecb178b001dc47c886f82d83f412789457b66af60de87655e"
+      "sha256": "e5c11a82017e1feecb178b001dc47c886f82d83f412789457b66af60de87655e",
+      "anchor_prefix": "Chapter-E1-Parking-and-A"
     },
     {
       "part": "Chapter E2 - Stormwater, Flood and Geotechnical Risk Management",
@@ -185,7 +204,8 @@
       "url": "https://www.datocms-assets.com/94948/1757909611-file-fbf57elbr5wuy0lhwt4e2q.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/2/plans-policies-publications/development-control-plans/chapter-e2-stormwater-flood-and-geotechnical-risk-management.pdf",
       "bytes": 1040614,
-      "sha256": "f002097f51e3af7a45d83f6d4a64890284bc5dd159d2f62c6215841656101144"
+      "sha256": "f002097f51e3af7a45d83f6d4a64890284bc5dd159d2f62c6215841656101144",
+      "anchor_prefix": "Chapter-E2-Stormwater-Fl"
     },
     {
       "part": "On site detention (OSD) of stormwater exemption area map",
@@ -194,7 +214,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120113-file-can8gbwwsauel6hd8rnkya.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/building-and-development/documents/on_site_detention_exemption_area_map.pdf",
       "bytes": 2276070,
-      "sha256": "26d061cd12c4cc3f6416ec2fd8da5d1645c3eb88e5530b86bc2b81b16fa30f22"
+      "sha256": "26d061cd12c4cc3f6416ec2fd8da5d1645c3eb88e5530b86bc2b81b16fa30f22",
+      "anchor_prefix": "On-site-detention-OSD-of"
     },
     {
       "part": "Chapter E3 - Tree Management",
@@ -203,7 +224,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120120-file-zs2um2fyrb2cgro4ummatw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/2/plans-policies-publications/development-control-plans/chapter-e3-tree-management.pdf",
       "bytes": 190745,
-      "sha256": "5dc9bf507bed94fb08c2acd3d9ac8d70a8ce6254af8243f85bdc56fa7f1a20e9"
+      "sha256": "5dc9bf507bed94fb08c2acd3d9ac8d70a8ce6254af8243f85bdc56fa7f1a20e9",
+      "anchor_prefix": "Chapter-E3-Tree-Manageme"
     },
     {
       "part": "Chapter E4 - Contaminated Land",
@@ -212,7 +234,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120124-file-vlh0x1dpso2-l5krhcsxq.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_e4_contaminated_land.pdf",
       "bytes": 249168,
-      "sha256": "f948367227e9b33790086d549f42d85d14fe9bd4cae6d4dce63cf74a39a01321"
+      "sha256": "f948367227e9b33790086d549f42d85d14fe9bd4cae6d4dce63cf74a39a01321",
+      "anchor_prefix": "Chapter-E4-Contaminated-"
     },
     {
       "part": "Chapter E5 - Waste Management",
@@ -221,7 +244,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120129-file-vy1xtzahssuumh-5zaeylg.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_e5_waste_management.pdf",
       "bytes": 186128,
-      "sha256": "b82a91b51722b9f3f25125c38191303111688bef3b78aaa9e882b5b8b4e77e81"
+      "sha256": "b82a91b51722b9f3f25125c38191303111688bef3b78aaa9e882b5b8b4e77e81",
+      "anchor_prefix": "Chapter-E5-Waste-Managem"
     },
     {
       "part": "Chapter E6 - Sustainability",
@@ -230,7 +254,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120133-file-mxyqjsczsp2_fbxyil6t5q.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/2/plans-policies-publications/development-control-plans/chapter_e6_sustainability.pdf",
       "bytes": 177728,
-      "sha256": "e704c51a31b9709072201938681f5873c64a6db9d3e3b7df3269bf3176f24a0d"
+      "sha256": "e704c51a31b9709072201938681f5873c64a6db9d3e3b7df3269bf3176f24a0d",
+      "anchor_prefix": "Chapter-E6-Sustainabilit"
     },
     {
       "part": "Chapter E7 - Signage",
@@ -239,7 +264,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120138-file-rmnzohc7qvoosbxmbau6hw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/2/plans-policies-publications/development-control-plans/chapter-e7-signage.pdf",
       "bytes": 365874,
-      "sha256": "7bdb21694a683214b7848896e525e2165f5197a5d38f4d69b3457f74f180195b"
+      "sha256": "7bdb21694a683214b7848896e525e2165f5197a5d38f4d69b3457f74f180195b",
+      "anchor_prefix": "Chapter-E7-Signage"
     },
     {
       "part": "Chapter E8 - Adaptable Housing",
@@ -248,7 +274,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120142-file-faslpieprwyuxf2l6iyt3g.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_e8_adaptable_housing.pdf",
       "bytes": 136452,
-      "sha256": "a661e7247ab34b54366670bf9b417c8fab866d61d3227e0722632272f5a4bfc0"
+      "sha256": "a661e7247ab34b54366670bf9b417c8fab866d61d3227e0722632272f5a4bfc0",
+      "anchor_prefix": "Chapter-E8-Adaptable-Hou"
     },
     {
       "part": "Chapter F1 - Child Care Centres",
@@ -257,7 +284,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120147-file-zolxctwwtmyvexgoc6vhqw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_f1_child_care_centres.pdf",
       "bytes": 386874,
-      "sha256": "500490dc21e2a9c75b116541cbe453b5142e333ee8029ff29f99cdb5e037c47f"
+      "sha256": "500490dc21e2a9c75b116541cbe453b5142e333ee8029ff29f99cdb5e037c47f",
+      "anchor_prefix": "Chapter-F1-Child-Care-Ce"
     },
     {
       "part": "Chapter F2 - Educational Establishments",
@@ -266,7 +294,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120150-file-c25ye_6uqbiqvckvf92avq.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_f2_educational_establishments.pdf",
       "bytes": 303978,
-      "sha256": "a135301e76119faa53e8b2e3610321d67770eb6e1442115ad1f4a5da31b9ee4e"
+      "sha256": "a135301e76119faa53e8b2e3610321d67770eb6e1442115ad1f4a5da31b9ee4e",
+      "anchor_prefix": "Chapter-F2-Educational-E"
     },
     {
       "part": "Chapter F3 - Licensed Premises",
@@ -275,7 +304,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120154-file-cw9hujv7saaeh7mluseisa.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/2/plans-policies-publications/development-control-plans/chapter-f3-licensed-premises.pdf",
       "bytes": 189304,
-      "sha256": "624b4e087f924aae102b86a68a6adc74b6ca5b94d3e1262b1715de111cfe11b6"
+      "sha256": "624b4e087f924aae102b86a68a6adc74b6ca5b94d3e1262b1715de111cfe11b6",
+      "anchor_prefix": "Chapter-F3-Licensed-Prem"
     },
     {
       "part": "Chapter F4 - Telecommunications",
@@ -284,7 +314,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120158-file-k-kwijssrkmjh0cpnghrnw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_f4_telecommunications.pdf",
       "bytes": 238753,
-      "sha256": "d5a2948ddeb159ad751771deb8301aa8158bcb36b3032d55cee1aaa0c8fd8cd0"
+      "sha256": "d5a2948ddeb159ad751771deb8301aa8158bcb36b3032d55cee1aaa0c8fd8cd0",
+      "anchor_prefix": "Chapter-F4-Telecommunica"
     },
     {
       "part": "Chapter G1 - Babworth House, Darling Point",
@@ -293,7 +324,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120163-file-kqbv2g3mrxo5yi8ekulevg.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_g1_babworth_house.pdf",
       "bytes": 1576331,
-      "sha256": "c95fbbc6c29d30831d57d7cf0150836f8ff671106f5e3b435bdfd3e05cd61c46"
+      "sha256": "c95fbbc6c29d30831d57d7cf0150836f8ff671106f5e3b435bdfd3e05cd61c46",
+      "anchor_prefix": "Chapter-G1-Babworth-Hous"
     },
     {
       "part": "Chapter G2 - Kilmory, Point Piper",
@@ -302,7 +334,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120168-file-cl1qvbkiqvygdfmuzasoxw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_g2_kilmory.pdf",
       "bytes": 880365,
-      "sha256": "4d1f428e3342a12204b652380d49bbc82ba96f95c9953c1a1d96c87d3468bc1b"
+      "sha256": "4d1f428e3342a12204b652380d49bbc82ba96f95c9953c1a1d96c87d3468bc1b",
+      "anchor_prefix": "Chapter-G2-Kilmory-Point"
     },
     {
       "part": "Chapter G3 - Hawthornden, Woollahra",
@@ -311,7 +344,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120174-file-dm4xgxjqtheedr75da-bcw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_g3_hawthornden.pdf",
       "bytes": 555670,
-      "sha256": "8f154a79e2329f58e6af6b11c5f9b5f1ff1f7540dfd32a207c804a8ec41e9624"
+      "sha256": "8f154a79e2329f58e6af6b11c5f9b5f1ff1f7540dfd32a207c804a8ec41e9624",
+      "anchor_prefix": "Chapter-G3-Hawthornden-W"
     },
     {
       "part": "Chapter G4 - 9a Cooper Park Road, Bellevue Hill",
@@ -320,7 +354,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120179-file-fgmnzj2lqiqz6xgz6vy72g.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter-g4-9a-cooper-park-road.pdf",
       "bytes": 190492,
-      "sha256": "9a1fe4d7da568b12864bf34b5be8e71ecbeb8aede0c072261d650490ab9a3b2a"
+      "sha256": "9a1fe4d7da568b12864bf34b5be8e71ecbeb8aede0c072261d650490ab9a3b2a",
+      "anchor_prefix": "Chapter-G4-9a-Cooper-Par"
     },
     {
       "part": "Chapter G5 - 3-9 Sisters Lane, Edgecliff",
@@ -329,7 +364,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120184-file-fdvbwhfrskkohikdseh7aq.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_g5_3-9_sisters_lane.pdf",
       "bytes": 231557,
-      "sha256": "3fe7ae3870367cb29b198ed0e545d9c4cd8ed4aa97abcb7103834fc5f7faa226"
+      "sha256": "3fe7ae3870367cb29b198ed0e545d9c4cd8ed4aa97abcb7103834fc5f7faa226",
+      "anchor_prefix": "Chapter-G5-3-9-Sisters-L"
     },
     {
       "part": "Chapter G6 - 4A Nelson Street and 118 Wallis Street, Woollahra",
@@ -338,16 +374,18 @@
       "url": "https://www.datocms-assets.com/94948/1733120190-file-d15kgq0bt0snmt6rjqpa8a.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_g6_4a_nelson_street_and_118_wallis_street.pdf",
       "bytes": 607559,
-      "sha256": "512ecd0b1da7bd2b4d78d781c7320e88666756e41484accc477eea4d3891094f"
+      "sha256": "512ecd0b1da7bd2b4d78d781c7320e88666756e41484accc477eea4d3891094f",
+      "anchor_prefix": "Chapter-G6-4A-Nelson-Str"
     },
     {
-      "part": "Chapter G7 - Former Royal Women’s Hospital, Paddington",
+      "part": "Chapter G7 - Former Royal Women\u2019s Hospital, Paddington",
       "order": 37,
       "file": "woollahra-development-control-plan-2015/37-chapter-g7-former-royal-women-s-hospital-paddington.pdf",
       "url": "https://www.datocms-assets.com/94948/1733120194-file-sa_i-qozr-eqqsx7tflslw.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/plans-policies-publications/development-control-plans/chapter_g7_former_royal_womens_hospital.pdf",
       "bytes": 1052545,
-      "sha256": "ca7d7fe0fee98abc2765a5ab58e0dc360d50a767941ccac559398280657a5ca1"
+      "sha256": "ca7d7fe0fee98abc2765a5ab58e0dc360d50a767941ccac559398280657a5ca1",
+      "anchor_prefix": "Chapter-G7-Former-Royal-"
     },
     {
       "part": "Chapter G8 - 252-254 New South Head Road, Double Bay",
@@ -356,7 +394,8 @@
       "url": "https://www.datocms-assets.com/94948/1733120200-file-fulelswnqbytdsgi-bwug.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/3/plans-policies-publications/development-control-plans/chapter-g8-252-254-new-south-head-road-double-bay.pdf",
       "bytes": 342237,
-      "sha256": "3072ae77a2d017a7d994609ce7587228fbc66d4425a8eaf02e76e12b4d2b6454"
+      "sha256": "3072ae77a2d017a7d994609ce7587228fbc66d4425a8eaf02e76e12b4d2b6454",
+      "anchor_prefix": "Chapter-G8-252-254-New-S"
     },
     {
       "part": "Chapter G9 - 488-492 Old South Head Road and 30 Albemarle Avenue, Rose Bay",
@@ -365,7 +404,8 @@
       "url": "https://www.datocms-assets.com/94948/1757909635-file-nifvcerqrienajkp1hgg4q.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/building-and-development/documents/chapter-g9-488-492-old-south-head-road-30-albemarle-avenue.pdf",
       "bytes": 639610,
-      "sha256": "898a3f5c3f005977777b096bd51e7d8f2aaeb0960b1402d56b5699f3afceab1f"
+      "sha256": "898a3f5c3f005977777b096bd51e7d8f2aaeb0960b1402d56b5699f3afceab1f",
+      "anchor_prefix": "Chapter-G9-488-492-Old-S"
     },
     {
       "part": "Chapter G10 - 136-148 New South Head Road, Edgecliff",
@@ -374,7 +414,8 @@
       "url": "https://www.datocms-assets.com/94948/1757909642-file-anlgcnw-rgytp900mn2fpq.pdf",
       "council_url": "https://www.woollahra.nsw.gov.au/files/assets/public/v/1/building-and-development/chapter-g10-136-148-new-south-head-road.pdf",
       "bytes": 1305864,
-      "sha256": "a80aa060951aa1ea8473ef0a6f736c318e5011cdf13323de4086dbe064fc6eae"
+      "sha256": "a80aa060951aa1ea8473ef0a6f736c318e5011cdf13323de4086dbe064fc6eae",
+      "anchor_prefix": "Chapter-G10-136-148-New-"
     }
   ],
   "councils": [

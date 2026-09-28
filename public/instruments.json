@@ -816,9 +816,136 @@
         "label": "Development Control Plans",
         "items": [
           {
+            "slug": "access-development-control-plan-2004",
+            "title": "Access Development Control Plan 2004",
+            "file": "EPI/DCPs/access-development-control-plan-2004.md",
+            "html": "EPI/DCPs/access-development-control-plan-2004.html",
+            "manifest": "EPI/DCPs/manifests/access-development-control-plan-2004.json",
+            "councils": [
+              "Sydney"
+            ],
+            "scope": "citywide",
+            "last_amended": "2004-06-28"
+          },
+          {
+            "slug": "adult-entertainment-and-sex-industry-premises-development-co",
+            "title": "adult-entertainment-and-sex-industry-premises-development-co",
+            "file": "EPI/DCPs/adult-entertainment-and-sex-industry-premises-development-co.md",
+            "html": "EPI/DCPs/adult-entertainment-and-sex-industry-premises-development-co.html"
+          },
+          {
             "slug": "albury-dcp-2010",
             "title": "Albury Development Control Plan 2010",
             "file": "EPI/DCPs/albury-dcp-2010.md"
+          },
+          {
+            "slug": "bayside-development-control-plan-2022",
+            "title": "Bayside Development Control Plan 2022",
+            "file": "EPI/DCPs/bayside-development-control-plan-2022.md",
+            "html": "EPI/DCPs/bayside-development-control-plan-2022.html",
+            "manifest": "EPI/DCPs/manifests/bayside-development-control-plan-2022.json",
+            "councils": [
+              "Bayside",
+              "Bayside"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-04-17"
+          },
+          {
+            "slug": "boarding-houses-development-control-plan-2004",
+            "title": "Boarding Houses Development Control Plan 2004",
+            "file": "EPI/DCPs/boarding-houses-development-control-plan-2004.md",
+            "html": "EPI/DCPs/boarding-houses-development-control-plan-2004.html",
+            "manifest": "EPI/DCPs/manifests/boarding-houses-development-control-plan-2004.json",
+            "councils": [
+              "Sydney"
+            ],
+            "scope": "citywide",
+            "last_amended": "2005-01-12"
+          },
+          {
+            "slug": "burwood-dcp",
+            "title": "Burwood Development Control Plan",
+            "file": "EPI/DCPs/burwood-dcp.md",
+            "html": "EPI/DCPs/burwood-dcp.html",
+            "manifest": "EPI/DCPs/manifests/burwood-development-control-plan.json",
+            "councils": [
+              "Burwood"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-03-05"
+          },
+          {
+            "slug": "burwood-development-control-plan",
+            "title": "Burwood Development Control Plan",
+            "file": "EPI/DCPs/burwood-development-control-plan.md",
+            "html": "EPI/DCPs/burwood-development-control-plan.html",
+            "manifest": "EPI/DCPs/manifests/burwood-development-control-plan.json",
+            "councils": [
+              "Burwood"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-03-05"
+          },
+          {
+            "slug": "campbelltown-growth-centres-development-control-plan",
+            "title": "Campbelltown Growth Centres Development Control Plan",
+            "file": "EPI/DCPs/campbelltown-growth-centres-development-control-plan.md",
+            "html": "EPI/DCPs/campbelltown-growth-centres-development-control-plan.html",
+            "manifest": "EPI/DCPs/manifests/campbelltown-growth-centres-development-control-plan.json",
+            "councils": [
+              "Campbelltown"
+            ],
+            "scope": "citywide",
+            "last_amended": "2016-11-16"
+          },
+          {
+            "slug": "central-sydney-development-control-plan-1996",
+            "title": "Central Sydney Development Control Plan 1996",
+            "file": "EPI/DCPs/central-sydney-development-control-plan-1996.md",
+            "html": "EPI/DCPs/central-sydney-development-control-plan-1996.html",
+            "manifest": "EPI/DCPs/manifests/central-sydney-development-control-plan-1996.json",
+            "councils": [
+              "Sydney"
+            ],
+            "scope": "citywide",
+            "last_amended": "2020-09-10"
+          },
+          {
+            "slug": "child-care-centres-development-control-plan-2005",
+            "title": "Child Care Centres Development Control Plan 2005",
+            "file": "EPI/DCPs/child-care-centres-development-control-plan-2005.md",
+            "html": "EPI/DCPs/child-care-centres-development-control-plan-2005.html",
+            "manifest": "EPI/DCPs/manifests/child-care-centres-development-control-plan-2005.json",
+            "councils": [
+              "Sydney"
+            ],
+            "scope": "citywide",
+            "last_amended": "2005-10-10"
+          },
+          {
+            "slug": "contaminated-land-development-control-plan-2004",
+            "title": "Contaminated Land Development Control Plan 2004",
+            "file": "EPI/DCPs/contaminated-land-development-control-plan-2004.md",
+            "html": "EPI/DCPs/contaminated-land-development-control-plan-2004.html",
+            "manifest": "EPI/DCPs/manifests/contaminated-land-development-control-plan-2004.json",
+            "councils": [
+              "Sydney"
+            ],
+            "scope": "citywide",
+            "last_amended": "2004-06-28"
+          },
+          {
+            "slug": "fairfield-city-wide-development-control-plan-2024",
+            "title": "Fairfield City Wide Development Control Plan 2024",
+            "file": "EPI/DCPs/fairfield-city-wide-development-control-plan-2024.md",
+            "html": "EPI/DCPs/fairfield-city-wide-development-control-plan-2024.html",
+            "manifest": "EPI/DCPs/manifests/fairfield-city-wide-development-control-plan-2024.json",
+            "councils": [
+              "Fairfield"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-02-23"
           },
           {
             "slug": "georges-river-dcp-2021",
@@ -826,10 +953,102 @@
             "file": "EPI/DCPs/georges-river-dcp-2021.md"
           },
           {
+            "slug": "glebe-affordable-housing-project-development-control-plan-20",
+            "title": "glebe-affordable-housing-project-development-control-plan-20",
+            "file": "EPI/DCPs/glebe-affordable-housing-project-development-control-plan-20.md",
+            "html": "EPI/DCPs/glebe-affordable-housing-project-development-control-plan-20.html"
+          },
+          {
+            "slug": "green-square-affordable-housing-development-control-plan-200",
+            "title": "green-square-affordable-housing-development-control-plan-200",
+            "file": "EPI/DCPs/green-square-affordable-housing-development-control-plan-200.md",
+            "html": "EPI/DCPs/green-square-affordable-housing-development-control-plan-200.html"
+          },
+          {
+            "slug": "hawkesbury-development-control-plan-2023",
+            "title": "Hawkesbury Development Control Plan 2023",
+            "file": "EPI/DCPs/hawkesbury-development-control-plan-2023.md",
+            "html": "EPI/DCPs/hawkesbury-development-control-plan-2023.html",
+            "manifest": "EPI/DCPs/manifests/hawkesbury-development-control-plan-2023.json",
+            "councils": [
+              "Hawkesbury"
+            ],
+            "scope": "citywide",
+            "last_amended": "2023-07-24"
+          },
+          {
+            "slug": "heritage-development-control-plan-2006",
+            "title": "Heritage Development Control Plan 2006",
+            "file": "EPI/DCPs/heritage-development-control-plan-2006.md",
+            "html": "EPI/DCPs/heritage-development-control-plan-2006.html",
+            "manifest": "EPI/DCPs/manifests/heritage-development-control-plan-2006.json",
+            "councils": [
+              "Sydney"
+            ],
+            "scope": "citywide",
+            "last_amended": "2020-09-10"
+          },
+          {
+            "slug": "homebush-bay-west-development-control-plan-2004",
+            "title": "Homebush Bay West Development Control Plan 2004",
+            "file": "EPI/DCPs/homebush-bay-west-development-control-plan-2004.md",
+            "html": "EPI/DCPs/homebush-bay-west-development-control-plan-2004.html",
+            "manifest": "EPI/DCPs/manifests/homebush-bay-west-development-control-plan-2004.json",
+            "councils": [
+              "Parramatta"
+            ],
+            "scope": "citywide",
+            "last_amended": "2013-07-31"
+          },
+          {
             "slug": "hornsby-dcp-2024",
             "title": "Hornsby Development Control Plan 2024",
             "file": "EPI/DCPs/hornsby-dcp-2024.md",
-            "pdf": "EPI/DCPs/pdf/hdcp-2024-book-version-26-june-2026-current.pdf"
+            "pdf": "EPI/DCPs/pdf/hdcp-2024-book-version-26-june-2026-current.pdf",
+            "html": "EPI/DCPs/hornsby-dcp-2024.html",
+            "manifest": "EPI/DCPs/manifests/hornsby-dcp-2024.json",
+            "councils": [
+              "Hornsby"
+            ],
+            "as_at": "2025-06-23",
+            "scope": "citywide",
+            "last_amended": "2026-06-26"
+          },
+          {
+            "slug": "hunters-hill-consolidated-development-control-plan-2013",
+            "title": "Hunters Hill Consolidated Development Control Plan 2013",
+            "file": "EPI/DCPs/hunters-hill-consolidated-development-control-plan-2013.md",
+            "html": "EPI/DCPs/hunters-hill-consolidated-development-control-plan-2013.html",
+            "manifest": "EPI/DCPs/manifests/hunters-hill-consolidated-development-control-plan-2013.json",
+            "councils": [
+              "Hunters Hill"
+            ],
+            "scope": "citywide",
+            "last_amended": "2015-11-01"
+          },
+          {
+            "slug": "inner-west-tree-management-development-control-plan-2023",
+            "title": "Inner West Tree Management Development Control Plan 2023",
+            "file": "EPI/DCPs/inner-west-tree-management-development-control-plan-2023.md",
+            "html": "EPI/DCPs/inner-west-tree-management-development-control-plan-2023.html",
+            "manifest": "EPI/DCPs/manifests/inner-west-tree-management-development-control-plan-2023.json",
+            "councils": [
+              "Inner West"
+            ],
+            "scope": "citywide",
+            "last_amended": "2023-12-11"
+          },
+          {
+            "slug": "liverpool-development-control-plan-2008",
+            "title": "Liverpool Development Control Plan 2008",
+            "file": "EPI/DCPs/liverpool-development-control-plan-2008.md",
+            "html": "EPI/DCPs/liverpool-development-control-plan-2008.html",
+            "manifest": "EPI/DCPs/manifests/liverpool-development-control-plan-2008.json",
+            "councils": [
+              "Liverpool"
+            ],
+            "scope": "citywide",
+            "last_amended": "2025-11-01"
           },
           {
             "slug": "liverpool-gcp-main-body",
@@ -852,6 +1071,60 @@
             "file": "EPI/DCPs/liverpool-gcp-schedule-3.md"
           },
           {
+            "slug": "liverpool-growth-centres-precincts-development-control-plan",
+            "title": "Liverpool Growth Centres Precincts Development Control Plan",
+            "file": "EPI/DCPs/liverpool-growth-centres-precincts-development-control-plan.md",
+            "html": "EPI/DCPs/liverpool-growth-centres-precincts-development-control-plan.html",
+            "manifest": "EPI/DCPs/manifests/liverpool-growth-centres-precincts-development-control-plan.json",
+            "councils": [
+              "Liverpool"
+            ],
+            "scope": "citywide",
+            "last_amended": "2023-10-01"
+          },
+          {
+            "slug": "mosman-business-centres-development-control-plan-2012",
+            "title": "Mosman Business Centres Development Control Plan 2012",
+            "file": "EPI/DCPs/mosman-business-centres-development-control-plan-2012.md",
+            "html": "EPI/DCPs/mosman-business-centres-development-control-plan-2012.html",
+            "manifest": "EPI/DCPs/manifests/mosman-business-centres-development-control-plan-2012.json",
+            "councils": [
+              "Mosman"
+            ],
+            "scope": "citywide",
+            "last_amended": "2024-12-06"
+          },
+          {
+            "slug": "mosman-open-space-and-infrastructure-development-control-pla",
+            "title": "mosman-open-space-and-infrastructure-development-control-pla",
+            "file": "EPI/DCPs/mosman-open-space-and-infrastructure-development-control-pla.md",
+            "html": "EPI/DCPs/mosman-open-space-and-infrastructure-development-control-pla.html"
+          },
+          {
+            "slug": "mosman-residential-development-control-plan-2012",
+            "title": "Mosman Residential Development Control Plan 2012",
+            "file": "EPI/DCPs/mosman-residential-development-control-plan-2012.md",
+            "html": "EPI/DCPs/mosman-residential-development-control-plan-2012.html",
+            "manifest": "EPI/DCPs/manifests/mosman-residential-development-control-plan-2012.json",
+            "councils": [
+              "Mosman"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-08-07"
+          },
+          {
+            "slug": "oakdale-east-development-control-plan",
+            "title": "Oakdale East Development Control Plan",
+            "file": "EPI/DCPs/oakdale-east-development-control-plan.md",
+            "html": "EPI/DCPs/oakdale-east-development-control-plan.html",
+            "manifest": "EPI/DCPs/manifests/oakdale-east-development-control-plan.json",
+            "councils": [
+              "Fairfield"
+            ],
+            "scope": "citywide",
+            "last_amended": "2022-05-26"
+          },
+          {
             "slug": "parramatta-dcp-2023",
             "title": "Parramatta Development Control Plan 2023",
             "file": "EPI/DCPs/parramatta-dcp-2023.md"
@@ -865,7 +1138,43 @@
             "slug": "randwick-dcp-2025",
             "title": "Randwick Development Control Plan 2025",
             "file": "EPI/DCPs/randwick-dcp-2025.md",
-            "manifest": "EPI/DCPs/manifests/randwick-dcp-2025.json"
+            "manifest": "EPI/DCPs/manifests/randwick-dcp-2025.json",
+            "html": "EPI/DCPs/randwick-dcp-2025.html",
+            "councils": [
+              "Randwick"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-07-27"
+          },
+          {
+            "slug": "signage-and-advertising-structures-development-control-plan-",
+            "title": "signage-and-advertising-structures-development-control-plan-",
+            "file": "EPI/DCPs/signage-and-advertising-structures-development-control-plan-.md",
+            "html": "EPI/DCPs/signage-and-advertising-structures-development-control-plan-.html"
+          },
+          {
+            "slug": "telecommunications-and-radiocommunications-development-contr",
+            "title": "telecommunications-and-radiocommunications-development-contr",
+            "file": "EPI/DCPs/telecommunications-and-radiocommunications-development-contr.md",
+            "html": "EPI/DCPs/telecommunications-and-radiocommunications-development-contr.html"
+          },
+          {
+            "slug": "visitor-and-tourist-accommodation-development-control-plan-2",
+            "title": "visitor-and-tourist-accommodation-development-control-plan-2",
+            "file": "EPI/DCPs/visitor-and-tourist-accommodation-development-control-plan-2.md",
+            "html": "EPI/DCPs/visitor-and-tourist-accommodation-development-control-plan-2.html"
+          },
+          {
+            "slug": "waverley-development-control-plan-2022",
+            "title": "Waverley Development Control Plan 2022",
+            "file": "EPI/DCPs/waverley-development-control-plan-2022.md",
+            "html": "EPI/DCPs/waverley-development-control-plan-2022.html",
+            "manifest": "EPI/DCPs/manifests/waverley-development-control-plan-2022.json",
+            "councils": [
+              "Waverley"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-04-18"
           }
         ]
       }

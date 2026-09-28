@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718144-kdcp-cover-contents.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/18/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-cover-contents.pdf",
       "bytes": 954586,
-      "sha256": "83e847bea9d34ee036c342e8840a9ba89734d167a727be55a36ea1b7aac45e8e"
+      "sha256": "83e847bea9d34ee036c342e8840a9ba89734d167a727be55a36ea1b7aac45e8e",
+      "anchor_prefix": "Ku-ring-gai-DCP-Cover-Co"
     },
     {
       "part": "Part 1: Introduction, Preliminary, Dictionary",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718164-part-1-introduction-preliminary-dictionary.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/12/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/part-1-introduction-preliminary-dictionary.pdf",
       "bytes": 921742,
-      "sha256": "a286ddf33473fd46e07e5e941b4fc268861fc0ce17fa51719c5a85fb162c38dd"
+      "sha256": "a286ddf33473fd46e07e5e941b4fc268861fc0ce17fa51719c5a85fb162c38dd",
+      "anchor_prefix": "Part-1-Introduction-Prel"
     },
     {
       "part": "Cover and Contents - Section A",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718182-cover-and-contents-section-a.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/13/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/cover-and-contents-section-a.pdf",
       "bytes": 796854,
-      "sha256": "c995f31819cd694487e3f429bc31cffeff138288738aed9e31f7e65287565575"
+      "sha256": "c995f31819cd694487e3f429bc31cffeff138288738aed9e31f7e65287565575",
+      "anchor_prefix": "Cover-and-Contents-Secti"
     },
     {
       "part": "Part 2: Site Analysis",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404518-kdcp-section-a-part-2-site-analysis.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-2-site-analysis.pdf",
       "bytes": 5914311,
-      "sha256": "d8ec4d4c2660489c333a3e361e235722af040d6724e4868c905e47d5c7239fc9"
+      "sha256": "d8ec4d4c2660489c333a3e361e235722af040d6724e4868c905e47d5c7239fc9",
+      "anchor_prefix": "Part-2-Site-Analysis"
     },
     {
       "part": "Part 3: Land Consolidation and Subdivision",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404532-kdcp-section-a-part-3-land-consolidation-and-subdivision.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-3-land-consolidation-and-subdivision.pdf",
       "bytes": 965368,
-      "sha256": "1809cef726150a762789a64e504b4ba5d37a9865f35455455f3a760f9520cc1b"
+      "sha256": "1809cef726150a762789a64e504b4ba5d37a9865f35455455f3a760f9520cc1b",
+      "anchor_prefix": "Part-3-Land-Consolidatio"
     },
     {
       "part": "Part 3R: Minimum Lot Depth Maps for Bushfire Prone Land",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1776268138-file-ag8ffs9lqpatovac4dopra.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-3r-minimum-lot-depth-maps-for-bushfire-prone-land.pdf",
       "bytes": 4381066,
-      "sha256": "ff31f0b94f09a7564bb6dcc9cfbd10f3755a4d03d683e9aaef31ae47646efdf1"
+      "sha256": "ff31f0b94f09a7564bb6dcc9cfbd10f3755a4d03d683e9aaef31ae47646efdf1",
+      "anchor_prefix": "Part-3R-Minimum-Lot-Dept"
     },
     {
       "part": "Part 4: Dwelling Houses",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404554-kdcp-section-a-part-4-dwelling-houses.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-4-dwelling-houses.pdf",
       "bytes": 1874962,
-      "sha256": "2589c5dda1e2a6f545e7afaa592a7fa176d7758dde2700da72e1b51ccf7a8fbe"
+      "sha256": "2589c5dda1e2a6f545e7afaa592a7fa176d7758dde2700da72e1b51ccf7a8fbe",
+      "anchor_prefix": "Part-4-Dwelling-Houses"
     },
     {
       "part": "Part 4.1: Secondary Dwellings",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718222-kdcp-section-a-part-4-1-secondary-dwellings.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-4.1-secondary-dwellings.pdf",
       "bytes": 1337036,
-      "sha256": "8e99716964a1c1665dad45618cc7874a357289b647436710fe41bae1491df524"
+      "sha256": "8e99716964a1c1665dad45618cc7874a357289b647436710fe41bae1491df524",
+      "anchor_prefix": "Part-4-1-Secondary-Dwell"
     },
     {
       "part": "Part 5: Dual Occupancy",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718247-kdcp-section-a-part-5-dual-occupancy.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-5-dual-occupancy.pdf",
       "bytes": 3332283,
-      "sha256": "cb137570eae2d48d579063c97bb1ce112140acedf8620232e1112a4fc24ac4f7"
+      "sha256": "cb137570eae2d48d579063c97bb1ce112140acedf8620232e1112a4fc24ac4f7",
+      "anchor_prefix": "Part-5-Dual-Occupancy"
     },
     {
       "part": "Part 6: Multi-Dwelling Housing (Excluding Terraces)",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718269-kdcp-section-a-part-6-multi-dwelling-housing.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/8/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-6-multi-dwelling-housing.pdf",
       "bytes": 3676105,
-      "sha256": "bdbae1cda0a3720e37e0229de7b4febb4770a11b10b1ae3d8b236c99adbf1943"
+      "sha256": "bdbae1cda0a3720e37e0229de7b4febb4770a11b10b1ae3d8b236c99adbf1943",
+      "anchor_prefix": "Part-6-Multi-Dwelling-Ho"
     },
     {
       "part": "Part 6.1: Multi-Dwelling Housing - Terraces",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1788260680-kdcp-section-a-part-6-1-multi-dwelling-housing-terraces.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/1/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-6.1-multi-dwelling-housing-terraces.pdf",
       "bytes": 300564,
-      "sha256": "2eba32043036dd7e461abbbd10835b050059fea5a22bbda1134b40d642a2e559"
+      "sha256": "2eba32043036dd7e461abbbd10835b050059fea5a22bbda1134b40d642a2e559",
+      "anchor_prefix": "Part-6-1-Multi-Dwelling-"
     },
     {
       "part": "Part 7: Residential Flat Buildings",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1788260700-kdcp-section-a-part-7-residential-flat-buildings.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-7-residential-flat-buildings.pdf",
       "bytes": 6719752,
-      "sha256": "b915e9f568e8916f29f3a8dc506cb9b2aa8a4e39444ccb76e38b91e510ed3b40"
+      "sha256": "b915e9f568e8916f29f3a8dc506cb9b2aa8a4e39444ccb76e38b91e510ed3b40",
+      "anchor_prefix": "Part-7-Residential-Flat-"
     },
     {
       "part": "Part 7.1: Residential Flat Building (Two Storey)",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1788260724-kdcp-section-a-part-7-1-residential-flat-building-two-storey.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/1/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-7.1-residential-flat-building-two-storey.pdf",
       "bytes": 306756,
-      "sha256": "8a3b1a290af72a132a52bcd9917f1209ddac9bb8cac2e712e35bdc8544c8eb25"
+      "sha256": "8a3b1a290af72a132a52bcd9917f1209ddac9bb8cac2e712e35bdc8544c8eb25",
+      "anchor_prefix": "Part-7-1-Residential-Fla"
     },
     {
       "part": "Part 8: Mixed Use Development",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1788260745-kdcp-section-a-part-8-mixed-use-development.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-8-mixed-use-development.pdf",
       "bytes": 11022088,
-      "sha256": "ede379e7608ff2deacc92820e0f29a9521eb159d0241e0cfca36789892996725"
+      "sha256": "ede379e7608ff2deacc92820e0f29a9521eb159d0241e0cfca36789892996725",
+      "anchor_prefix": "Part-8-Mixed-Use-Develop"
     },
     {
       "part": "Part 9: Non-Residential and Office Buildings",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1788260767-kdcp-section-a-part-9-non-residential-and-office-buildings.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-9-non-residential-and-office-buildings.pdf",
       "bytes": 4782049,
-      "sha256": "d863d421d07e0b2749e5260b90e3c9259eb681fe2ecd774540f31bf025baa642"
+      "sha256": "d863d421d07e0b2749e5260b90e3c9259eb681fe2ecd774540f31bf025baa642",
+      "anchor_prefix": "Part-9-Non-Residential-a"
     },
     {
       "part": "Part 10: Child Care Centres",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404685-kdcp-section-a-part-10-child-care-centres.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-10-child-care-centres.pdf",
       "bytes": 523682,
-      "sha256": "cb5a2a3d7e2059600b6c6e63230d43e5eca600412c8475b5dc850e85df4f01cd"
+      "sha256": "cb5a2a3d7e2059600b6c6e63230d43e5eca600412c8475b5dc850e85df4f01cd",
+      "anchor_prefix": "Part-10-Child-Care-Centr"
     },
     {
       "part": "Part 11: Sex Industry Premises",
@@ -159,7 +175,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404700-kdcp-section-a-part-11-sex-industry-premises.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-11-sex-industry-premises.pdf",
       "bytes": 263721,
-      "sha256": "8666823385cf3cd2d8abe9dce6c634f54a9a9706e877e647f2514cb1e5a1deb9"
+      "sha256": "8666823385cf3cd2d8abe9dce6c634f54a9a9706e877e647f2514cb1e5a1deb9",
+      "anchor_prefix": "Part-11-Sex-Industry-Pre"
     },
     {
       "part": "Part 12: Signage and Advertising",
@@ -168,7 +185,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404718-kdcp-section-a-part-12-signage-and-advertising.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-12-signage-and-advertising.pdf",
       "bytes": 371471,
-      "sha256": "bb6f0ff025a0fda2fb6d8be9b32e70f4867aa6b7d3541c5402c935714c0c6bfd"
+      "sha256": "bb6f0ff025a0fda2fb6d8be9b32e70f4867aa6b7d3541c5402c935714c0c6bfd",
+      "anchor_prefix": "Part-12-Signage-and-Adve"
     },
     {
       "part": "Part 13: Tree and Vegetation Preservation",
@@ -177,7 +195,8 @@
       "url": "https://www.datocms-assets.com/94948/1788260800-kdcp-section-a-part-13-tree-and-vegetation-preservation.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/6/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-a-part-13-tree-and-vegetation-preservation.pdf",
       "bytes": 447084,
-      "sha256": "be9506d458579be80899a119dcdaf98f70e6d062fc0100c118d978052d0b24b7"
+      "sha256": "be9506d458579be80899a119dcdaf98f70e6d062fc0100c118d978052d0b24b7",
+      "anchor_prefix": "Part-13-Tree-and-Vegetat"
     },
     {
       "part": "Cover and Contents - Section B",
@@ -186,7 +205,8 @@
       "url": "https://www.datocms-assets.com/94948/1788260819-cover-and-contents-section-b.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/11/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/cover-and-contents-section-b.pdf",
       "bytes": 686690,
-      "sha256": "fb0dba92fef5631917f13f77f8e70c2ac891a83a2ab4d2bf7becb15d06bf7acb"
+      "sha256": "fb0dba92fef5631917f13f77f8e70c2ac891a83a2ab4d2bf7becb15d06bf7acb",
+      "anchor_prefix": "Cover-and-Contents-Secti-2"
     },
     {
       "part": "Part 14: Local Character Areas, Urban Precincts and Sites - Introduction",
@@ -195,7 +215,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404759-kdcp-section-b-part-14-local-character-areas-urban-precincts-and-sites.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14-local-character-areas-urban-precincts-and-sites.pdf",
       "bytes": 581339,
-      "sha256": "1c090dcc10797a4a844db13840ceab442e856949ea7a9015a696300ff02b8886"
+      "sha256": "1c090dcc10797a4a844db13840ceab442e856949ea7a9015a696300ff02b8886",
+      "anchor_prefix": "Part-14-Local-Character-"
     },
     {
       "part": "Part 14: Local Character Areas",
@@ -204,7 +225,8 @@
       "url": "https://www.datocms-assets.com/94948/1776268153-file-fjviqzs1tieipljmaqo5tq.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/1/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14-local-character-areas.pdf",
       "bytes": 6330257,
-      "sha256": "07367dc22006058ecdb96953b66c5cd04a04149f9ca5e73553131be883b0b4a6"
+      "sha256": "07367dc22006058ecdb96953b66c5cd04a04149f9ca5e73553131be883b0b4a6",
+      "anchor_prefix": "Part-14-Local-Character--2"
     },
     {
       "part": "Part 14A: St Ives Local Centre",
@@ -213,7 +235,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404790-kdcp-section-b-part-14a-st-ives-local-centre.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14a-st-ives-local-centre.pdf",
       "bytes": 6177201,
-      "sha256": "db616271d83b0acc6d3f667f4634cd09f1bcdd187780134712f53bff6e09ed12"
+      "sha256": "db616271d83b0acc6d3f667f4634cd09f1bcdd187780134712f53bff6e09ed12",
+      "anchor_prefix": "Part-14A-St-Ives-Local-C"
     },
     {
       "part": "Part 14B: Turramurra Local Centre",
@@ -222,7 +245,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404814-kdcp-section-b-part-14b-turramurra-local-centre.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14b-turramurra-local-centre.pdf",
       "bytes": 5424100,
-      "sha256": "016678eb735be916773ef2b10d520213aadc26c6570fa038bd9931fb2a3be95a"
+      "sha256": "016678eb735be916773ef2b10d520213aadc26c6570fa038bd9931fb2a3be95a",
+      "anchor_prefix": "Part-14B-Turramurra-Loca"
     },
     {
       "part": "Part 14C: Pymble Local Centre",
@@ -231,7 +255,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404833-kdcp-section-b-part-14c-pymble-local-centre.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14c-pymble-local-centre.pdf",
       "bytes": 2811958,
-      "sha256": "f1ba01f3074b79433a63920c3ce8a07546b331a30bc942ff4e569c5204331fb8"
+      "sha256": "f1ba01f3074b79433a63920c3ce8a07546b331a30bc942ff4e569c5204331fb8",
+      "anchor_prefix": "Part-14C-Pymble-Local-Ce"
     },
     {
       "part": "Part 14D: Gordon Local Centre",
@@ -240,7 +265,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404875-kdcp-section-b-part-14d-gordon-local-centre.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14d-gordon-local-centre.pdf",
       "bytes": 8115018,
-      "sha256": "a07977d2c4e6b9a029377270635703173080d21089f5306b1d8b92b97d98677b"
+      "sha256": "a07977d2c4e6b9a029377270635703173080d21089f5306b1d8b92b97d98677b",
+      "anchor_prefix": "Part-14D-Gordon-Local-Ce"
     },
     {
       "part": "Part 14E: Lindfield Local Centre",
@@ -249,7 +275,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404914-kdcp-section-b-part-14e-lindfield-local-centre.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14e-lindfield-local-centre.pdf",
       "bytes": 35405674,
-      "sha256": "94852335b51195327159e6007dc6b2286094e5d63caba23a017aa894735fbf23"
+      "sha256": "94852335b51195327159e6007dc6b2286094e5d63caba23a017aa894735fbf23",
+      "anchor_prefix": "Part-14E-Lindfield-Local"
     },
     {
       "part": "Part 14F: Roseville Local Centre",
@@ -258,7 +285,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404947-kdcp-section-b-part-14f-roseville-local-centre.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14f-roseville-local-centre.pdf",
       "bytes": 3723282,
-      "sha256": "57b869c354530a85017d2a9c077e950520e53a4ff49e490e04963d545301af0e"
+      "sha256": "57b869c354530a85017d2a9c077e950520e53a4ff49e490e04963d545301af0e",
+      "anchor_prefix": "Part-14F-Roseville-Local"
     },
     {
       "part": "Part 14G: Pymble Business Park",
@@ -267,7 +295,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404966-kdcp-section-b-part-14g-pymble-business-park.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14g-pymble-business-park.pdf",
       "bytes": 1240732,
-      "sha256": "7cd7c6120fc4b2302145707821c12374cac01f500e289ed861c44fce1bc412f2"
+      "sha256": "7cd7c6120fc4b2302145707821c12374cac01f500e289ed861c44fce1bc412f2",
+      "anchor_prefix": "Part-14G-Pymble-Business"
     },
     {
       "part": "Part 14H: Screen Australia Site",
@@ -276,7 +305,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404979-kdcp-section-b-part-14h-screen-australia-site.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14h-screen-australia-site.pdf",
       "bytes": 382179,
-      "sha256": "fcf8010293dc5aca4e74c222353464af40409b8b43fff1a81759704e50136c63"
+      "sha256": "fcf8010293dc5aca4e74c222353464af40409b8b43fff1a81759704e50136c63",
+      "anchor_prefix": "Part-14H-Screen-Australi"
     },
     {
       "part": "Part 14I: Killara Golf Club",
@@ -285,7 +315,8 @@
       "url": "https://www.datocms-assets.com/94948/1783404996-kdcp-section-b-part-14i-killara-golf-club.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14i-killara-golf-club.pdf",
       "bytes": 742500,
-      "sha256": "857a6f798f091f591762cb79e526cda867a1c841887d8dd29fb14e3b4af0fe7a"
+      "sha256": "857a6f798f091f591762cb79e526cda867a1c841887d8dd29fb14e3b4af0fe7a",
+      "anchor_prefix": "Part-14I-Killara-Golf-Cl"
     },
     {
       "part": "Part 14J: Holford Crescent, Gordon",
@@ -294,7 +325,8 @@
       "url": "https://www.datocms-assets.com/94948/1768823897-file-bhl8nxsnq_klg4mzrgb5ta.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/3/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14j-holford-crescent-gordon.pdf",
       "bytes": 234633,
-      "sha256": "676badf234819da11c09794a9e715dca7f3bde1a2ebbe3723740612bbbc3d45d"
+      "sha256": "676badf234819da11c09794a9e715dca7f3bde1a2ebbe3723740612bbbc3d45d",
+      "anchor_prefix": "Part-14J-Holford-Crescen"
     },
     {
       "part": "Part 14K: 45-47 Tennyson Avenue and 105 Eastern Road, Turramurra",
@@ -303,7 +335,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405012-kdcp-section-b-part-14k-45-47-tennyson-avenue-and-105-eastern-road-turramurra.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14k-45-47-tennyson-avenue-and-105-eastern-road-turramurra.pdf",
       "bytes": 631974,
-      "sha256": "952e8953fb303ea83661373449d0d33dade3b5c1b8920e560e241ff480a46d60"
+      "sha256": "952e8953fb303ea83661373449d0d33dade3b5c1b8920e560e241ff480a46d60",
+      "anchor_prefix": "Part-14K-45-47-Tennyson-"
     },
     {
       "part": "Part 14L: Part 62 and 64-66 Pacific Highway, Roseville",
@@ -312,7 +345,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405026-kdcp-section-b-part-14l-62-and-64-66-pacific-highway-roseville.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14l-62-and-64-66-pacific-highway-roseville.pdf",
       "bytes": 2604762,
-      "sha256": "e91a141796acf185f799248ac5422f9bfa9f6fd10902f80e4dd14acaa8daa4a0"
+      "sha256": "e91a141796acf185f799248ac5422f9bfa9f6fd10902f80e4dd14acaa8daa4a0",
+      "anchor_prefix": "Part-14L-Part-62-and-64-"
     },
     {
       "part": "Part 14M: 47 Warrane Road, Roseville Chase",
@@ -321,7 +355,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405044-kdcp-section-b-part-14m-47-warrane-road-roseville-chase.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14m-47-warrane-road-roseville-chase.pdf",
       "bytes": 1408529,
-      "sha256": "f800deee5d062ac22c8d37c67a516a614a13c490767b1ca503e3aa67db010818"
+      "sha256": "f800deee5d062ac22c8d37c67a516a614a13c490767b1ca503e3aa67db010818",
+      "anchor_prefix": "Part-14M-47-Warrane-Road"
     },
     {
       "part": "Part 14N: 8a, 14, 16 Buckingham Road, Killara",
@@ -330,7 +365,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405061-kdcp-section-b-part-14n-8a-14-16-buckingham-road-killara.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14n-8a-14-16-buckingham-road-killara.pdf",
       "bytes": 1820292,
-      "sha256": "032f81fb6f0aaff9e0f579edf3271225b5f4eea3ff3bde8dcc480d09304805fc"
+      "sha256": "032f81fb6f0aaff9e0f579edf3271225b5f4eea3ff3bde8dcc480d09304805fc",
+      "anchor_prefix": "Part-14N-8a-14-16-Buckin"
     },
     {
       "part": "Part 14O: 4, 12 and 14 Cowan Road, St Ives (Pymble Golf Club)",
@@ -339,7 +375,8 @@
       "url": "https://www.datocms-assets.com/94948/1768823930-file-gskxstw2t9wqk4cboog4ba.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/2/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14o-pymble-golf-club.pdf",
       "bytes": 632666,
-      "sha256": "59c01a154afbaaf05791b99ec41c03dc4aef68914aac47dd7d8e810bee8e5771"
+      "sha256": "59c01a154afbaaf05791b99ec41c03dc4aef68914aac47dd7d8e810bee8e5771",
+      "anchor_prefix": "Part-14O-4-12-and-14-Cow"
     },
     {
       "part": "Part 14P: Turramurra Plaza, 1364-1396 Pacific Highway; 1, 1A, 3, 3A Kissing Point Road, Turramurra",
@@ -348,7 +385,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405082-kdcp-section-b-part-14p-turramurra-plaza.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14p-turramurra-plaza.pdf",
       "bytes": 610535,
-      "sha256": "10c29504434f240e961fbab9cc8e43040dc4588cc0e6a2190c3c52185b9ae24c"
+      "sha256": "10c29504434f240e961fbab9cc8e43040dc4588cc0e6a2190c3c52185b9ae24c",
+      "anchor_prefix": "Part-14P-Turramurra-Plaz"
     },
     {
       "part": "Part 14R: References - Masterplans",
@@ -357,7 +395,8 @@
       "url": "https://www.datocms-assets.com/94948/1768823936-file-m8ixisfitg2u8pbgw0gt7w.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/3/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-14r-references-masterplans.pdf",
       "bytes": 64028489,
-      "sha256": "6a9cddcfffa2a8e91daf623de5fac77fff7d4d54ce0c9142a02cb419ee020cd5"
+      "sha256": "6a9cddcfffa2a8e91daf623de5fac77fff7d4d54ce0c9142a02cb419ee020cd5",
+      "anchor_prefix": "Part-14R-References-Mast"
     },
     {
       "part": "Part 15: Land Contamination",
@@ -366,7 +405,8 @@
       "url": "https://www.datocms-assets.com/94948/1768823948-file-fzuxkrm3sb2nloxykziofg.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/3/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-15-land-contamination.pdf",
       "bytes": 136946,
-      "sha256": "7e1a5589b0a3f82600044b42276aaea6c68102143ed4d373948c0a7795760b0d"
+      "sha256": "7e1a5589b0a3f82600044b42276aaea6c68102143ed4d373948c0a7795760b0d",
+      "anchor_prefix": "Part-15-Land-Contaminati"
     },
     {
       "part": "Part 16: Bushfire Risk",
@@ -375,7 +415,8 @@
       "url": "https://www.datocms-assets.com/94948/1768823954-file-gjwivyz4rvwx5kj2wiqqca.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/3/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-16-bushfire-risk.pdf",
       "bytes": 1390711,
-      "sha256": "5c86abdf8e584ec107b2cf539b290599b1a93ed9e058bdf7b04f5dfadc27074e"
+      "sha256": "5c86abdf8e584ec107b2cf539b290599b1a93ed9e058bdf7b04f5dfadc27074e",
+      "anchor_prefix": "Part-16-Bushfire-Risk"
     },
     {
       "part": "Part 17: Riparian Lands",
@@ -384,7 +425,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405186-kdcp-section-b-part-17-riparian-lands.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/1/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-17-riparian-lands.pdf",
       "bytes": 2081459,
-      "sha256": "ee500a96b42efdd0ca3441c7984ec27f707a75546f5c75524b5d03522b438684"
+      "sha256": "ee500a96b42efdd0ca3441c7984ec27f707a75546f5c75524b5d03522b438684",
+      "anchor_prefix": "Part-17-Riparian-Lands"
     },
     {
       "part": "Part 18: Biodiversity",
@@ -393,7 +435,8 @@
       "url": "https://www.datocms-assets.com/94948/1768823969-file-zifuet7wq6esmt19f_zola.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/3/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-18-biodiversity.pdf",
       "bytes": 2960137,
-      "sha256": "0eb2345bdd1839c63b4c3c984795b39ce9f5acab4df820b80d3b80f29840f0c1"
+      "sha256": "0eb2345bdd1839c63b4c3c984795b39ce9f5acab4df820b80d3b80f29840f0c1",
+      "anchor_prefix": "Part-18-Biodiversity"
     },
     {
       "part": "Part 18R: References - Greenweb Maps",
@@ -402,7 +445,8 @@
       "url": "https://www.datocms-assets.com/94948/1768823977-file-pewdibzqshmzlio8x2tgtw.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/3/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-18r-references-greenweb-maps.pdf",
       "bytes": 15798055,
-      "sha256": "ebffa68d82929aa2ab70c2d281ede70fba5afe5f3b1aaa9d163918945a490296"
+      "sha256": "ebffa68d82929aa2ab70c2d281ede70fba5afe5f3b1aaa9d163918945a490296",
+      "anchor_prefix": "Part-18R-References-Gree"
     },
     {
       "part": "Part 19: Heritage Items and Heritage Conservation Areas",
@@ -411,7 +455,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405233-kdcp-section-b-part-19-heritage-items-and-heritage-conservation-areas.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-19-heritage-items-and-heritage-conservation-areas.pdf",
       "bytes": 2347873,
-      "sha256": "3ce9b18e4396418a3407b36b5388caf0bcce704d40c319e5465f3f03759ae537"
+      "sha256": "3ce9b18e4396418a3407b36b5388caf0bcce704d40c319e5465f3f03759ae537",
+      "anchor_prefix": "Part-19-Heritage-Items-a"
     },
     {
       "part": "Part 20: Development near Rail Corridors and Busy Roads",
@@ -420,7 +465,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405248-kdcp-section-b-part-20-development-near-rail-corridors-and-busy-roads.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-b-part-20-development-near-rail-corridors-and-busy-roads.pdf",
       "bytes": 250992,
-      "sha256": "18f27713c69352a98dd15aa99d5150a36c399cefe8d6f0c40c094dc4cb39b5f3"
+      "sha256": "18f27713c69352a98dd15aa99d5150a36c399cefe8d6f0c40c094dc4cb39b5f3",
+      "anchor_prefix": "Part-20-Development-near"
     },
     {
       "part": "Cover and Contents - Section C",
@@ -429,7 +475,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718446-kdcp-section-c-cover-and-contents.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/11/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-c-cover-and-contents.pdf",
       "bytes": 483054,
-      "sha256": "845d3d7bcc2dd102552891a9c7a4a03c3f94a462fa7a91f3f41f7ef7b7e47f6f"
+      "sha256": "845d3d7bcc2dd102552891a9c7a4a03c3f94a462fa7a91f3f41f7ef7b7e47f6f",
+      "anchor_prefix": "Cover-and-Contents-Secti-3"
     },
     {
       "part": "Part 21: General Site Design",
@@ -438,7 +485,8 @@
       "url": "https://www.datocms-assets.com/94948/1768824006-file-fpxpr2r-rhsycaltmy9gzw.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/3/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-c-part-21-general-site-design.pdf",
       "bytes": 1268554,
-      "sha256": "70b74982b53448a8acd87cf573904352b93270e08444e08c2b02aa5728b24bb6"
+      "sha256": "70b74982b53448a8acd87cf573904352b93270e08444e08c2b02aa5728b24bb6",
+      "anchor_prefix": "Part-21-General-Site-Des"
     },
     {
       "part": "Part 22: General Access and Parking",
@@ -447,7 +495,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405303-kdcp-section-c-part-22-general-access-and-parking.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-c-part-22-general-access-and-parking.pdf",
       "bytes": 1557475,
-      "sha256": "24450ac3ee937dcbba88b2341e2d7448e71232e846d455750ae18058bf9e8ab7"
+      "sha256": "24450ac3ee937dcbba88b2341e2d7448e71232e846d455750ae18058bf9e8ab7",
+      "anchor_prefix": "Part-22-General-Access-a"
     },
     {
       "part": "Part 23: General Building Design and Sustainability",
@@ -456,7 +505,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405329-kdcp-section-c-part-23-general-building-design-and-sustainability.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-c-part-23-general-building-design-and-sustainability.pdf",
       "bytes": 1364399,
-      "sha256": "efe58119ada0292fa6697dd55f8bda6796708d937c42224a015dba6bc1d34a29"
+      "sha256": "efe58119ada0292fa6697dd55f8bda6796708d937c42224a015dba6bc1d34a29",
+      "anchor_prefix": "Part-23-General-Building"
     },
     {
       "part": "Part 24: Water Management",
@@ -465,7 +515,8 @@
       "url": "https://www.datocms-assets.com/94948/1783405344-kdcp-section-c-part-24-water-management.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/5/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-c-part-24-water-management.pdf",
       "bytes": 1610506,
-      "sha256": "4a5c9c4eb972bc16dbbb8934d0843d679400e0919fe4411834713c8bdec4dacf"
+      "sha256": "4a5c9c4eb972bc16dbbb8934d0843d679400e0919fe4411834713c8bdec4dacf",
+      "anchor_prefix": "Part-24-Water-Management"
     },
     {
       "part": "Part 24R: References - Water Management",
@@ -474,7 +525,8 @@
       "url": "https://www.datocms-assets.com/94948/1768824041-file-bijutikcsa25i-jsdmujjq.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/3/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-c-part-24r-references-water-management.pdf",
       "bytes": 3667895,
-      "sha256": "41586f47f614c94b5cbd56af68153452b3ca570b44899924301752b01b3a92b0"
+      "sha256": "41586f47f614c94b5cbd56af68153452b3ca570b44899924301752b01b3a92b0",
+      "anchor_prefix": "Part-24R-References-Wate"
     },
     {
       "part": "Part 25: Waste Management",
@@ -483,7 +535,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718491-kdcp-section-c-part-25-waste-management.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/4/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-c-part-25-waste-management.pdf",
       "bytes": 483640,
-      "sha256": "a981e35964a2551a1f1fb88cdebe529eb229fd87e53869f579a75865a3b74e99"
+      "sha256": "a981e35964a2551a1f1fb88cdebe529eb229fd87e53869f579a75865a3b74e99",
+      "anchor_prefix": "Part-25-Waste-Management"
     },
     {
       "part": "Part 25R: Waste Management References",
@@ -492,7 +545,8 @@
       "url": "https://www.datocms-assets.com/94948/1789718513-kdcp-section-c-part-25r-waste-management-references.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/1/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-ku-ring-gai-development-control-plan/kdcp-section-c-part-25r-waste-management-references.pdf",
       "bytes": 435261,
-      "sha256": "48afacb03a3a88a4b35c30858bcffaf7cd6611bb10dd173405f9dc4a65a4e746"
+      "sha256": "48afacb03a3a88a4b35c30858bcffaf7cd6611bb10dd173405f9dc4a65a4e746",
+      "anchor_prefix": "Part-25R-Waste-Managemen"
     },
     {
       "part": "Ku-ring-gai Council Tree Replacement Planting List",
@@ -501,7 +555,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251318-file-jpwi12xhsfab0tqogdexoq.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/2/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-urban-planning-and-policies/dcp-june-2023-tree-replacement-planting-tree-species-list.pdf",
       "bytes": 318679,
-      "sha256": "7725b0c2b79d63d20c49b0cb0cc869957b079fcfcb1a3f3f6bc911ec41a1f911"
+      "sha256": "7725b0c2b79d63d20c49b0cb0cc869957b079fcfcb1a3f3f6bc911ec41a1f911",
+      "anchor_prefix": "Ku-ring-gai-Council-Tree"
     },
     {
       "part": "Ku-ring-gai Council Technical Guideline for Water Management",
@@ -510,7 +565,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251325-file-wstx2z-8qq-lll6miy-0iq.pdf",
       "council_url": "https://www.krg.nsw.gov.au/files/assets/public/v/1/hptrim/information-management-publications-public-website-ku-ring-gai-council-website-urban-planning-and-policies/master-technical-guideline-for-water-management.pdf",
       "bytes": 10077349,
-      "sha256": "b5b01fb6478bf6ad9d5e83bb8781a68db2eed0378038801981238889f9f60889"
+      "sha256": "b5b01fb6478bf6ad9d5e83bb8781a68db2eed0378038801981238889f9f60889",
+      "anchor_prefix": "Ku-ring-gai-Council-Tech"
     }
   ],
   "councils": [

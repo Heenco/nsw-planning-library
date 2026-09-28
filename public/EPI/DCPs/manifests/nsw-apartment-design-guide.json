@@ -9,58 +9,64 @@
   "retrieved_at": "2026-09-27",
   "parts": [
     {
-      "part": "Introduction – How to use the guide",
+      "part": "Introduction \u2013 How to use the guide",
       "order": 0,
       "file": "nsw-apartment-design-guide/00-introduction-how-to-use-the-guide.pdf",
       "url": "https://www.datocms-assets.com/94948/1727221632-apartment-design-guide-introduction.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-03/apartment-design-guide-introduction.pdf",
       "bytes": 617884,
-      "sha256": "dccc6e625d91c3d18499bc03bb939aeb0c27e93c25ecccb550496bc13e4bf5a0"
+      "sha256": "dccc6e625d91c3d18499bc03bb939aeb0c27e93c25ecccb550496bc13e4bf5a0",
+      "anchor_prefix": "Introduction-How-to-use-"
     },
     {
-      "part": "Part 1 – Identifying the context",
+      "part": "Part 1 \u2013 Identifying the context",
       "order": 1,
       "file": "nsw-apartment-design-guide/01-part-1-identifying-the-context.pdf",
       "url": "https://www.datocms-assets.com/94948/1727224036-apartment-design-guide-part-1-identifying-the-context.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-03/apartment-design-guide-part-1-identifying-the-context.pdf",
       "bytes": 3179834,
-      "sha256": "7c6e7e867432f68513a57799aa2cd9be58c5d9646741d03868047566234d2b18"
+      "sha256": "7c6e7e867432f68513a57799aa2cd9be58c5d9646741d03868047566234d2b18",
+      "anchor_prefix": "Part-1-Identifying-the-c"
     },
     {
-      "part": "Part 2 – Developing the controls",
+      "part": "Part 2 \u2013 Developing the controls",
       "order": 2,
       "file": "nsw-apartment-design-guide/02-part-2-developing-the-controls.pdf",
       "url": "https://www.datocms-assets.com/94948/1727224077-apartment-design-guide-part-2-developing-the-controls.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-03/apartment-design-guide-part-2-developing-the-controls.pdf",
       "bytes": 1360271,
-      "sha256": "1dbb255bd5e8d881af2386318fc144c3f9b22f7374eb889ad977d5ac45fdaa30"
+      "sha256": "1dbb255bd5e8d881af2386318fc144c3f9b22f7374eb889ad977d5ac45fdaa30",
+      "anchor_prefix": "Part-2-Developing-the-co"
     },
     {
-      "part": "Part 3 – Siting the development",
+      "part": "Part 3 \u2013 Siting the development",
       "order": 3,
       "file": "nsw-apartment-design-guide/03-part-3-siting-the-development.pdf",
       "url": "https://www.datocms-assets.com/94948/1727224101-apartment-design-guide-part-3-siting-the-development.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-03/apartment-design-guide-part-3-siting-the-development.pdf",
       "bytes": 4201047,
-      "sha256": "30e579cadae83a1ffdcd4ce96c416489c082b22ac6cd4c2cf5d595af1f8a85a2"
+      "sha256": "30e579cadae83a1ffdcd4ce96c416489c082b22ac6cd4c2cf5d595af1f8a85a2",
+      "anchor_prefix": "Part-3-Siting-the-develo"
     },
     {
-      "part": "Part 4 – Designing the building",
+      "part": "Part 4 \u2013 Designing the building",
       "order": 4,
       "file": "nsw-apartment-design-guide/04-part-4-designing-the-building.pdf",
       "url": "https://www.datocms-assets.com/94948/1727224127-apartment-design-guide-part-4-designing-the-building.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-03/apartment-design-guide-part-4-designing-the-building.pdf",
       "bytes": 5074767,
-      "sha256": "66e5a6c44e9aa37659679910bfc46ee997448a387a1d6d79cec0e4f9f10f0a07"
+      "sha256": "66e5a6c44e9aa37659679910bfc46ee997448a387a1d6d79cec0e4f9f10f0a07",
+      "anchor_prefix": "Part-4-Designing-the-bui"
     },
     {
-      "part": "Part 5 – Design review panels",
+      "part": "Part 5 \u2013 Design review panels",
       "order": 5,
       "file": "nsw-apartment-design-guide/05-part-5-design-review-panels.pdf",
       "url": "https://www.datocms-assets.com/94948/1727224168-apartment-design-guide-part-5-design-review-panels.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-03/apartment-design-guide-part-5-design-review-panels.pdf",
       "bytes": 404198,
-      "sha256": "91a8e9ef063fc25e9fe02eede701f8ddc03cc8b5a46ce487cef9d824d8046d90"
+      "sha256": "91a8e9ef063fc25e9fe02eede701f8ddc03cc8b5a46ce487cef9d824d8046d90",
+      "anchor_prefix": "Part-5-Design-review-pan"
     },
     {
       "part": "Appendices",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1727224206-apartment-design-guide-appendices.pdf",
       "council_url": "https://www.planning.nsw.gov.au/sites/default/files/2023-03/apartment-design-guide-appendices.pdf",
       "bytes": 7343418,
-      "sha256": "7969c250b1df3616172a0c528ce7572279cb7d7725708f9f5cd01602b08a7c28"
+      "sha256": "7969c250b1df3616172a0c528ce7572279cb7d7725708f9f5cd01602b08a7c28",
+      "anchor_prefix": "Appendices"
     }
   ],
   "councils": [

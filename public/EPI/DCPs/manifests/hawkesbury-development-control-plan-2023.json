@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880381-dcp-file-185712042.pdf",
       "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/Hawkesbury-DCP-2023-Parts-A-and-B-secured.pdf",
       "bytes": 2163482,
-      "sha256": "dd6d2d12b62905366ea13e792feff97258debc0b7c714d77d3622a38a6ecd93e"
+      "sha256": "dd6d2d12b62905366ea13e792feff97258debc0b7c714d77d3622a38a6ecd93e",
+      "anchor_prefix": "Hawkesbury-DCP-2023-Part"
     },
     {
       "part": "Part F: Western Sydney Engineering Design Manual",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1759289983-file-c6u1lksqshamz9anjuhasw.pdf",
       "council_url": "https://www.hawkesbury.nsw.gov.au/_resources/documents/plan-and-build-old/planning-policies/dcp/Western-Sydney-Engineering-Design-Manual.pdf",
       "bytes": 22750806,
-      "sha256": "21603eee3df0849b3406cefe8012d3c6e0d0fd38419677a9a6199498f9dc7fcd"
+      "sha256": "21603eee3df0849b3406cefe8012d3c6e0d0fd38419677a9a6199498f9dc7fcd",
+      "anchor_prefix": "F"
     }
   ],
   "councils": [

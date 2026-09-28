@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1786687199-liverpool-growth-centre-precincts-dcp-main-body_peh-1027.pdf",
       "council_url": "https://www.liverpool.nsw.gov.au/__data/assets/pdf_file/0018/215127/Liverpool-Growth-Centre-Precincts-DCP-Main-Body_PEH-1027.PDF",
       "bytes": 6773295,
-      "sha256": "9bfb2674d81338a7290c3ace0d14dd9114fe3e9561a01d188697df20e502cff8"
+      "sha256": "9bfb2674d81338a7290c3ace0d14dd9114fe3e9561a01d188697df20e502cff8",
+      "anchor_prefix": "Main-Body"
     },
     {
       "part": "Schedule 1 Austral Leppington North",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1786687252-liverpool-growth-centre-precincts-dcp-schedule-1_peh-1027.pdf",
       "council_url": "https://www.liverpool.nsw.gov.au/__data/assets/pdf_file/0015/215124/Liverpool-Growth-Centre-Precincts-DCP-Schedule-1_PEH-1027.pdf",
       "bytes": 14663393,
-      "sha256": "7d1682a35fc0c80dbf8ecbfbbdd8255b2bc266d75e989a8608657d866118ba3a"
+      "sha256": "7d1682a35fc0c80dbf8ecbfbbdd8255b2bc266d75e989a8608657d866118ba3a",
+      "anchor_prefix": "Schedule-1-Austral-Leppi"
     },
     {
       "part": "Schedule 2 Leppington Major Centre",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1786687313-liverpool-growth-centre-precincts-dcp-schedule-2-leppington-major-centre_peh-1027.pdf",
       "council_url": "https://www.liverpool.nsw.gov.au/__data/assets/pdf_file/0016/215125/Liverpool-Growth-Centre-Precincts-DCP-Schedule-2-Leppington-Major-Centre_PEH-1027.pdf",
       "bytes": 4913865,
-      "sha256": "e1410b47a54debda4106fc99c4e83adc0d3e5af8838cde7d1618401e021a7e54"
+      "sha256": "e1410b47a54debda4106fc99c4e83adc0d3e5af8838cde7d1618401e021a7e54",
+      "anchor_prefix": "Schedule-2-Leppington-Ma"
     },
     {
       "part": "Schedule 3 East Leppington",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1786687362-liverpool-growth-centre-precincts-dcp-schedule-3-east-leppington_peh-1027.pdf",
       "council_url": "https://www.liverpool.nsw.gov.au/__data/assets/pdf_file/0017/215126/Liverpool-Growth-Centre-Precincts-DCP-Schedule-3-East-Leppington_PEH-1027.pdf",
       "bytes": 5058534,
-      "sha256": "bb1b5b731da9757824c1b0a96450770c4c90b922ae8582cec487d319322823a7"
+      "sha256": "bb1b5b731da9757824c1b0a96450770c4c90b922ae8582cec487d319322823a7",
+      "anchor_prefix": "Schedule-3-East-Leppingt"
     },
     {
       "part": "Appendix A",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1786687419-liverpool-growth-centre-precincts-dcp-appendix-a_peh-1027.pdf",
       "council_url": "https://www.liverpool.nsw.gov.au/__data/assets/pdf_file/0012/215121/Liverpool-Growth-Centre-Precincts-DCP-Appendix-A_PEH-1027.pdf",
       "bytes": 560228,
-      "sha256": "6f3bac0ae929706f97a87df0c2959a2ff85a96ddc465c7ac9164035a334be922"
+      "sha256": "6f3bac0ae929706f97a87df0c2959a2ff85a96ddc465c7ac9164035a334be922",
+      "anchor_prefix": "Appendix-A"
     },
     {
       "part": "Appendix B",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1786687470-liverpool-growth-centre-precincts-dcp-appendix-b_peh-1027.pdf",
       "council_url": "https://www.liverpool.nsw.gov.au/__data/assets/pdf_file/0013/215122/Liverpool-Growth-Centre-Precincts-DCP-Appendix-B_PEH-1027.pdf",
       "bytes": 326105,
-      "sha256": "bab9757d34d28908351be342f0a515cae747056323cba7a599e405f61aa61274"
+      "sha256": "bab9757d34d28908351be342f0a515cae747056323cba7a599e405f61aa61274",
+      "anchor_prefix": "Appendix-B"
     },
     {
       "part": "Appendix C",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1786687522-liverpool-growth-centre-precincts-dcp-appendix-c_peh-1027.pdf",
       "council_url": "https://www.liverpool.nsw.gov.au/__data/assets/pdf_file/0014/215123/Liverpool-Growth-Centre-Precincts-DCP-Appendix-C_PEH-1027.pdf",
       "bytes": 117388,
-      "sha256": "4d49435cbf5467ce6c9e672b1127e47496d019f106a2a61641f2c1a340afd680"
+      "sha256": "4d49435cbf5467ce6c9e672b1127e47496d019f106a2a61641f2c1a340afd680",
+      "anchor_prefix": "Appendix-C"
     }
   ],
   "councils": [

@@ -479,7 +479,7 @@
       "text_chars": 22442,
       "has_text_layer": true,
       "chars_per_page": 1603,
-      "anchor_prefix": "D3_2013",
+      "anchor_prefix": "D3",
       "part_label": "D3 Randwick Junction Centre (DCP 2013)",
       "code_collision": true
     },
@@ -496,7 +496,7 @@
       "text_chars": 128720,
       "has_text_layer": true,
       "chars_per_page": 1181,
-      "anchor_prefix": "D3",
+      "anchor_prefix": "D3-2",
       "part_label": "D3 Maroubra Junction"
     },
     {

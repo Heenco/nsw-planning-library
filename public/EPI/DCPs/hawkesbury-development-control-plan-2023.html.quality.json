@@ -1,0 +1,23 @@
+{
+  "instrument": "hawkesbury-development-control-plan-2023",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\hawkesbury-development-control-plan-2023.html",
+  "generated": "2026-09-28T07:33:46.053Z",
+  "parts": 2,
+  "parts_with_sidecar": 2,
+  "source_pages": 0,
+  "bytes": 1155661,
+  "unique_anchor_ids": 549,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 2
+  },
+  "totals": {
+    "headings": 547,
+    "tables": 292,
+    "list_items": 1712,
+    "images_placed": 851,
+    "prose_demoted": 23,
+    "page_markers": 414
+  },
+  "weak_parts": []
+}

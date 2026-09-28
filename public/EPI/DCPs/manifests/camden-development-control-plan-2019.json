@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1752213913-dcp-2019-final-part-1-introduction-updated-19-september-2024.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Part-1-Introduction-Updated-19-September-2024.pdf",
       "bytes": 3122428,
-      "sha256": "837eb459f29fdf8b58a83d01fefefcb11f36afecc4353ad890ed0cfebc881e06"
+      "sha256": "837eb459f29fdf8b58a83d01fefefcb11f36afecc4353ad890ed0cfebc881e06",
+      "anchor_prefix": "Part-1-Introduction"
     },
     {
       "part": "Part 2 General Land Use Controls",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1752213945-part-2-general-land-use-controls.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Part-2-General-Land-Use-Controls.pdf",
       "bytes": 3656238,
-      "sha256": "bf7685d4bf8fd51f422211b7d45b67d28f3481171004dc077225a37315f56ccf"
+      "sha256": "bf7685d4bf8fd51f422211b7d45b67d28f3481171004dc077225a37315f56ccf",
+      "anchor_prefix": "Part-2-General-Land-Use-"
     },
     {
       "part": "Part 3 Residential Subdivision",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879876-dcp-file-185711635.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Part-3-Residential-Subdivision-Controls.pdf",
       "bytes": 1092963,
-      "sha256": "c445ba42b028634a2bec07a125d80df22cd44dee95242ff115e7aac05489908d"
+      "sha256": "c445ba42b028634a2bec07a125d80df22cd44dee95242ff115e7aac05489908d",
+      "anchor_prefix": "Part-3-Residential-Subdi"
     },
     {
       "part": "Part 4 Residential Dwelling Controls",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711636.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Part-4-Residential-Dwelling-Controls.pdf",
       "bytes": 1401405,
-      "sha256": "217b15fc6501dc62ac51dad696fabfbd292bf48dfd96d6e6cb1b34d9e6bc7cae"
+      "sha256": "217b15fc6501dc62ac51dad696fabfbd292bf48dfd96d6e6cb1b34d9e6bc7cae",
+      "anchor_prefix": "Part-4-Residential-Dwell"
     },
     {
       "part": "Part 5 Employment Zones Development Controls",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711637.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Part-5-Employment-Zones-Development-Controls.pdf",
       "bytes": 5196420,
-      "sha256": "06c9aa9b3790719d1d24b34be6589ded6452f9b2cd495febd2f5b1ded329a0aa"
+      "sha256": "06c9aa9b3790719d1d24b34be6589ded6452f9b2cd495febd2f5b1ded329a0aa",
+      "anchor_prefix": "Part-5-Employment-Zones-"
     },
     {
       "part": "Part 6 Specific Land Use Controls",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711638.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Part-6-Specific-Land-Use-Controls.pdf",
       "bytes": 703013,
-      "sha256": "32015d5a9f2dd44d031bcc20f882285074416a08d497807b6c6d20b85bca02dc"
+      "sha256": "32015d5a9f2dd44d031bcc20f882285074416a08d497807b6c6d20b85bca02dc",
+      "anchor_prefix": "Part-6-Specific-Land-Use"
     },
     {
       "part": "Appendix A and B",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711639.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Appendix-A-B.PDF",
       "bytes": 620225,
-      "sha256": "33731cef8853daa18e09e4c2b48e433ad41bb821591f6de60bc3e9f08451705f"
+      "sha256": "33731cef8853daa18e09e4c2b48e433ad41bb821591f6de60bc3e9f08451705f",
+      "anchor_prefix": "Appendix-A-and-B"
     },
     {
       "part": "Schedule 1 Elderslie",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711640.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Schedule-1-Elderslie.pdf",
       "bytes": 1995357,
-      "sha256": "35e907d4f6f10cecfcc10ebb28040328ef3713e31631853a21aebc76e44a6b48"
+      "sha256": "35e907d4f6f10cecfcc10ebb28040328ef3713e31631853a21aebc76e44a6b48",
+      "anchor_prefix": "Schedule-1-Elderslie"
     },
     {
       "part": "Schedule 2 Spring Farm",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711641.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Schedule-2-Spring-Farm.pdf",
       "bytes": 2850687,
-      "sha256": "7852c706a4bee15b0468285706b7ebefed05643f4f22644f072270ccb02908dc"
+      "sha256": "7852c706a4bee15b0468285706b7ebefed05643f4f22644f072270ccb02908dc",
+      "anchor_prefix": "Schedule-2-Spring-Farm"
     },
     {
       "part": "Schedule 3 Manooka Valley",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879876-dcp-file-185711642.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Schedule-3-Manooka-Valley.pdf",
       "bytes": 1138986,
-      "sha256": "a2cf42e2b701e28f5debb6fd6cea632689175a779c1eb4af6eef859fdb1074d8"
+      "sha256": "a2cf42e2b701e28f5debb6fd6cea632689175a779c1eb4af6eef859fdb1074d8",
+      "anchor_prefix": "Schedule-3-Manooka-Valle"
     },
     {
       "part": "Schedule 4 Harrington Grove",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711643.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Schedule-4-Harrington-Grove.pdf",
       "bytes": 5576649,
-      "sha256": "59f43410c96c16920cb24ee643ecfe2ac3f015b635c21a57ea8d2c17c698f64d"
+      "sha256": "59f43410c96c16920cb24ee643ecfe2ac3f015b635c21a57ea8d2c17c698f64d",
+      "anchor_prefix": "Schedule-4-Harrington-Gr"
     },
     {
       "part": "Schedule 5 Mater Dei and Kirkham Rise",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251803-file-z_kwrnessz-ogsbriqilvq.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/Final-Adopted-Schedule-5-Mater-Dei-Kirkham-Rise-DCP-30-July-v2.pdf",
       "bytes": 1586663,
-      "sha256": "512d86b528ddc15308e2c85bc92c36ce16a6f4b3445795ea5f1914a4c49539c7"
+      "sha256": "512d86b528ddc15308e2c85bc92c36ce16a6f4b3445795ea5f1914a4c49539c7",
+      "anchor_prefix": "Schedule-5-Mater-Dei-and"
     },
     {
       "part": "Schedule 6 Camden Lakeside",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711645.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Schedule-6-Camden-Lakeside-Current-Version-June-2020.PDF",
       "bytes": 2154888,
-      "sha256": "a649d0b10e3c921ca751d1ce4bcd205569c6fabad230a3a690ceb2e9804004dc"
+      "sha256": "a649d0b10e3c921ca751d1ce4bcd205569c6fabad230a3a690ceb2e9804004dc",
+      "anchor_prefix": "Schedule-6-Camden-Lakesi"
     },
     {
       "part": "Schedule 7 El Caballo Blanco and Gledswood",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879877-dcp-file-185711646.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Schedule-7-El-Caballo-Blanco-Gledswood.PDF",
       "bytes": 2350553,
-      "sha256": "dabe9486b6001da4e252e04a263738ecc1c250f3d1defa16181334e1a34b6dde"
+      "sha256": "dabe9486b6001da4e252e04a263738ecc1c250f3d1defa16181334e1a34b6dde",
+      "anchor_prefix": "Schedule-7-El-Caballo-Bl"
     },
     {
       "part": "Schedule 8 Emerald Hills",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1752213986-dcp-2019-final-schedule-8-emerald-hills-version-4-september-2024.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Schedule-8-Emerald-Hills-Version-4-September-2024.pdf",
       "bytes": 3057471,
-      "sha256": "89e1c9e73e42958fa2aef605cb7f4d8e22dea5465e467b2372c325c757d3c19c"
+      "sha256": "89e1c9e73e42958fa2aef605cb7f4d8e22dea5465e467b2372c325c757d3c19c",
+      "anchor_prefix": "Schedule-8-Emerald-Hills"
     },
     {
       "part": "Schedule 9 Catherine Field Village",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879876-dcp-file-185711648.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Schedule-9-Catherine-Field-Village.PDF",
       "bytes": 633081,
-      "sha256": "2e1fb59753a7c4dff91ef5cd0bdabbe0ad2eda4fce1b9bc7af5b745e369a5910"
+      "sha256": "2e1fb59753a7c4dff91ef5cd0bdabbe0ad2eda4fce1b9bc7af5b745e369a5910",
+      "anchor_prefix": "Schedule-9-Catherine-Fie"
     },
     {
       "part": "Schedule 10 Yamba",
@@ -159,7 +175,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879876-dcp-file-185711649.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Schedule-10-Yamba.PDF",
       "bytes": 622504,
-      "sha256": "3d0c6688480fe082cda63ac5f4c9db34eceddd9384c294d0823722bf4c6ca292"
+      "sha256": "3d0c6688480fe082cda63ac5f4c9db34eceddd9384c294d0823722bf4c6ca292",
+      "anchor_prefix": "Schedule-10-Yamba"
     },
     {
       "part": "Schedule 11 Grasmere",
@@ -168,7 +185,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879876-dcp-file-185711650.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Schedule-11-Grasmere.PDF",
       "bytes": 727465,
-      "sha256": "0e3e9d8e087931fbcbe5393ab7059b74f7e6fbac47f0cb8979773c690ab38ee0"
+      "sha256": "0e3e9d8e087931fbcbe5393ab7059b74f7e6fbac47f0cb8979773c690ab38ee0",
+      "anchor_prefix": "Schedule-11-Grasmere"
     },
     {
       "part": "Schedule 12 121 Raby Road, Gledswood Hills",
@@ -177,7 +195,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879876-dcp-file-185711651.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Schedule-12-121-Raby-Road-Leppington.PDF",
       "bytes": 783981,
-      "sha256": "58412f57fc8455d0c1633258cdb57d1e8c156c4ebfb3932ffcdd91be7b2a0c81"
+      "sha256": "58412f57fc8455d0c1633258cdb57d1e8c156c4ebfb3932ffcdd91be7b2a0c81",
+      "anchor_prefix": "Schedule-12-121-Raby-Roa"
     },
     {
       "part": "Schedule 13 190 Raby Road, Gledswood Hills",
@@ -186,7 +205,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879876-dcp-file-185711652.pdf",
       "council_url": "https://dcp.camden.nsw.gov.au/assets/Downloadable-PDFs/DCP-2019-Final-Schedule-13-190-Raby-Road-Gledswood-Hills-v2.pdf",
       "bytes": 708432,
-      "sha256": "4d7901a95d2247b1a5fff98006451b3457032ab504b2927d97a1ef3b54838d1e"
+      "sha256": "4d7901a95d2247b1a5fff98006451b3457032ab504b2927d97a1ef3b54838d1e",
+      "anchor_prefix": "Schedule-13-190-Raby-Roa"
     }
   ],
   "councils": [

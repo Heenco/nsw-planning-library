@@ -15,61 +15,68 @@
       "url": "https://www.datocms-assets.com/94948/1776276706-file-bg31eo2er5g7c0j6wxy0bq.pdf",
       "council_url": "https://www.waverley.nsw.gov.au/media/documents/building_and_development/dcp/dcp_2022/Document_Information_and_Table_of_Contents.pdf",
       "bytes": 2131704,
-      "sha256": "e682967c9f2e1a5e00b08a5ffeb72b4c898c21128055dbee94f6f1c751302774"
+      "sha256": "e682967c9f2e1a5e00b08a5ffeb72b4c898c21128055dbee94f6f1c751302774",
+      "anchor_prefix": "Document-Information-and"
     },
     {
-      "part": "Part A – Preliminary Information",
+      "part": "Part A \u2013 Preliminary Information",
       "order": 1,
       "file": "waverley-development-control-plan-2022/01-part-a-preliminary-information.pdf",
       "url": "https://www.datocms-assets.com/94948/1776276712-file-dct3nffcrcgq2z2hz-6nag.pdf",
       "council_url": "https://www.waverley.nsw.gov.au/media/documents/building_and_development/dcp/dcp_2022/Waverley_DCP_2022_Part_A_-_Preliminary_Information.pdf",
       "bytes": 728428,
-      "sha256": "891e7381185da9438c961eed5896de33f028f6cdc6e590989439c3d171168f2b"
+      "sha256": "891e7381185da9438c961eed5896de33f028f6cdc6e590989439c3d171168f2b",
+      "anchor_prefix": "A"
     },
     {
-      "part": "Part B – General Provisions",
+      "part": "Part B \u2013 General Provisions",
       "order": 2,
       "file": "waverley-development-control-plan-2022/02-part-b-general-provisions.pdf",
       "url": "https://www.datocms-assets.com/94948/1788308069-waverley_dcp_2022_part_b_general_provisions.pdf",
       "council_url": "https://www.waverley.nsw.gov.au/media/documents/building_and_development/dcp/dcp_2022/Waverley_DCP_2022_Part_B_General_Provisions.pdf",
       "bytes": 4539697,
-      "sha256": "c0a8832323e6a743200e7b7e43af45a15a62df49d75938aae2e4fa10e558579e"
+      "sha256": "c0a8832323e6a743200e7b7e43af45a15a62df49d75938aae2e4fa10e558579e",
+      "anchor_prefix": "B"
     },
     {
-      "part": "Part C – Residential Development",
+      "part": "Part C \u2013 Residential Development",
       "order": 3,
       "file": "waverley-development-control-plan-2022/03-part-c-residential-development.pdf",
       "url": "https://www.datocms-assets.com/94948/1777872127-file-zkv6oj6htyclglpmgnwluw.pdf",
       "council_url": "https://www.waverley.nsw.gov.au/media/documents/building_and_development/dcp/dcp_2022/Waverley_DCP_2022_Part_C_-_Residential_Development.pdf",
       "bytes": 1608878,
-      "sha256": "4d09ea25032f6e0cad076c6fa5aca7c2eb8a57543315445f9f2275e8b78c04a9"
+      "sha256": "4d09ea25032f6e0cad076c6fa5aca7c2eb8a57543315445f9f2275e8b78c04a9",
+      "anchor_prefix": "C"
     },
     {
-      "part": "Part D – Commercial Development",
+      "part": "Part D \u2013 Commercial Development",
       "order": 4,
       "file": "waverley-development-control-plan-2022/04-part-d-commercial-development.pdf",
       "url": "https://www.datocms-assets.com/94948/1777872133-file-cokunu2ptm6y3nchterh0a.pdf",
       "council_url": "https://www.waverley.nsw.gov.au/media/documents/building_and_development/dcp/dcp_2022/Waverley_DCP_2022_Part_D_-_Commercial_Development.pdf",
       "bytes": 367721,
-      "sha256": "ffa995b29ad645320b5b79e3240e318f0540a3d661e8b5a1c9c0b56e13eb964e"
+      "sha256": "ffa995b29ad645320b5b79e3240e318f0540a3d661e8b5a1c9c0b56e13eb964e",
+      "anchor_prefix": "D"
     },
     {
-      "part": "Part E – Site Specific Development",
+      "part": "Part E \u2013 Site Specific Development",
       "order": 5,
       "file": "waverley-development-control-plan-2022/05-part-e-site-specific-development.pdf",
       "url": "https://www.datocms-assets.com/94948/1777872140-file-dcwyy21btvml8hdou7ry0w.pdf",
       "council_url": "https://www.waverley.nsw.gov.au/media/documents/building_and_development/dcp/dcp_2022/Waverley_DCP_2022_-_Part_E_-_Site_Specific_Development.pdf",
       "bytes": 18529182,
-      "sha256": "4e9c8d4b8ef7711146c7df55c8637a6cdfad041d389705eebf91dba66d149bda"
+      "sha256": "4e9c8d4b8ef7711146c7df55c8637a6cdfad041d389705eebf91dba66d149bda",
+      "anchor_prefix": "E"
     },
     {
-      "part": "Part F – Development Specific",
+      "part": "Part F \u2013 Development Specific",
       "order": 6,
       "file": "waverley-development-control-plan-2022/06-part-f-development-specific.pdf",
       "url": "https://www.datocms-assets.com/94948/1777872148-file-qml9nhxcs_ksnfa7bbhs9w.pdf",
       "council_url": "https://www.waverley.nsw.gov.au/media/documents/building_and_development/dcp/dcp_2022/Waverley_DCP_2022_Part_F_-_Development_Specific.pdf/_nocache",
       "bytes": 390706,
-      "sha256": "58a3b34e2d8981a1d75173d90e0e809e13a7727247283d5fbedc7acff2fb55ad"
+      "sha256": "58a3b34e2d8981a1d75173d90e0e809e13a7727247283d5fbedc7acff2fb55ad",
+      "anchor_prefix": "F"
     },
     {
       "part": "Definitions and Abbreviations",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1777872155-file-lgfzgmygrmo7i7qdtj8epw.pdf",
       "council_url": "https://www.waverley.nsw.gov.au/media/documents/building_and_development/dcp/dcp_2022/Waverley_DCP_2022_Definitions_and_abbreviations.pdf",
       "bytes": 463241,
-      "sha256": "9b0af26f6aae8606dab5dc937751208d2629d801a9fa4ba34840b1f2a46be490"
+      "sha256": "9b0af26f6aae8606dab5dc937751208d2629d801a9fa4ba34840b1f2a46be490",
+      "anchor_prefix": "Definitions-and-Abbrevia"
     }
   ],
   "councils": [

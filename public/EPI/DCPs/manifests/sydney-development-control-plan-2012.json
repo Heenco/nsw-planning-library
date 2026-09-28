@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682584-file-khatehdssoqybtmdg-zmpq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2026/tableofcontents_230126.pdf",
       "bytes": 422292,
-      "sha256": "ab90c7528224554a86bd7104530fdfc882d07ab8c823249c238cccc1ed719519"
+      "sha256": "ab90c7528224554a86bd7104530fdfc882d07ab8c823249c238cccc1ed719519",
+      "anchor_prefix": "Table-of-contents-and-gl"
     },
     {
       "part": "Section 1: Introduction",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808334-dcp-file-185713015.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/section1-dcp2012_280223.pdf",
       "bytes": 3291563,
-      "sha256": "4ae7aca1d723d6ab86b44c50d3327c9991a80c31c575bddd4ea3c9b347da4b52"
+      "sha256": "4ae7aca1d723d6ab86b44c50d3327c9991a80c31c575bddd4ea3c9b347da4b52",
+      "anchor_prefix": "Section-1-Introduction"
     },
     {
       "part": "Section 2: Locality statements",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1725250262-file-at0oi3sqtxsp6k3hnsuroq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2023/section2-dcp2012_061023.pdf",
       "bytes": 13504850,
-      "sha256": "759a0bb1215ab8bc2a2e9380ecd94d05da476b1e41d3ba73f42f4e8e759b155e"
+      "sha256": "759a0bb1215ab8bc2a2e9380ecd94d05da476b1e41d3ba73f42f4e8e759b155e",
+      "anchor_prefix": "Section-2-Locality-state"
     },
     {
       "part": "Section 3: General provisions",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1781769822-section3-dcp2012_230126-v2.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2026/section3-dcp2012_230126-v2.pdf",
       "bytes": 15927538,
-      "sha256": "29be9d0f7d592f98d2f723c195ca1f9c86612179fff0db2b46068fd68cfc6483"
+      "sha256": "29be9d0f7d592f98d2f723c195ca1f9c86612179fff0db2b46068fd68cfc6483",
+      "anchor_prefix": "Section-3-General-provis"
     },
     {
       "part": "Section 4: Development types",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808330-dcp-file-185713018.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/section4_dcp2012_091222.pdf",
       "bytes": 1205347,
-      "sha256": "dbd2eb8c7c59e575ab0ebeff292cd14660213b2b72952121ef2d2d4ebbd33aef"
+      "sha256": "dbd2eb8c7c59e575ab0ebeff292cd14660213b2b72952121ef2d2d4ebbd33aef",
+      "anchor_prefix": "Section-4-Development-ty"
     },
     {
       "part": "Section 5: Specific areas",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1757898889-file-lig1bxzesu-iy81qboe72q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/section5-dcp2012_041124.pdf",
       "bytes": 40468311,
-      "sha256": "d94ba64dd18a305750e97dde63862f3afbf300a32340dc0469258a98be6171f7"
+      "sha256": "d94ba64dd18a305750e97dde63862f3afbf300a32340dc0469258a98be6171f7",
+      "anchor_prefix": "Section-5-Specific-areas"
     },
     {
       "part": "Section 6: Specific sites",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1769141265-file-eoniwpe9txst5mi9dsimaa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2025/section6_dcp2012_121225.pdf",
       "bytes": 35322336,
-      "sha256": "83cea7fd926d2bb68e8874f327389ef19531ec349fa5b6b1d7651757fb0b6c7b"
+      "sha256": "83cea7fd926d2bb68e8874f327389ef19531ec349fa5b6b1d7651757fb0b6c7b",
+      "anchor_prefix": "Section-6-Specific-sites"
     },
     {
       "part": "Schedules",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808331-dcp-file-185713021.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/schedules-dcp2012_021222.pdf",
       "bytes": 2217914,
-      "sha256": "68f1bd14dca9f0d6a034afccb32199fd013dd4fb04733c0f81f231c8ff7ffadb"
+      "sha256": "68f1bd14dca9f0d6a034afccb32199fd013dd4fb04733c0f81f231c8ff7ffadb",
+      "anchor_prefix": "Schedules"
     },
     {
       "part": "Development guidelines: Boarding houses (including student accommodation)",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808336-dcp-file-185713022.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/guidelines-boardinghouses-dcp2012.pdf",
       "bytes": 2252914,
-      "sha256": "de864defe6dbf53722d5e39dcf1c71c13138c14497a9a7b6aca0d62ea4001988"
+      "sha256": "de864defe6dbf53722d5e39dcf1c71c13138c14497a9a7b6aca0d62ea4001988",
+      "anchor_prefix": "Development-guidelines-B"
     },
     {
       "part": "Development guidelines: Child care centres",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808323-dcp-file-185713023.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/guidelines-childcare-centres.pdf",
       "bytes": 115369,
-      "sha256": "a7a6947f76b7be38ab45a9721601f70c72545e8cd821cca011b137012757bc9f"
+      "sha256": "a7a6947f76b7be38ab45a9721601f70c72545e8cd821cca011b137012757bc9f",
+      "anchor_prefix": "Development-guidelines-C"
     },
     {
       "part": "Development guidelines: Sex industry and adult entertainment premises",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808326-dcp-file-185713024.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_g/guidelines-sexservices-adultent-dcp2012.pdf",
       "bytes": 1228849,
-      "sha256": "4bc45ddae2fdec9b83b44bceba79645219845fb66ce6c03b4228fb30d1267daa"
+      "sha256": "4bc45ddae2fdec9b83b44bceba79645219845fb66ce6c03b4228fb30d1267daa",
+      "anchor_prefix": "Development-guidelines-S"
     },
     {
       "part": "Alternative natural ventilation of apartments in noisy environments: Performance pathway guideline (draft)",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682605-file-yfqpvviwqz6kmrrgf7qg4a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_n/natural-ventilation-guide-note-310818.pdf",
       "bytes": 2535667,
-      "sha256": "457d6fc01ab07d8308161336bad2999526b1dde3b65ef525450d7a98fd1dd69f"
+      "sha256": "457d6fc01ab07d8308161336bad2999526b1dde3b65ef525450d7a98fd1dd69f",
+      "anchor_prefix": "Alternative-natural-vent"
     },
     {
       "part": "Landscape code (volume 1): Single dwellings",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290821-file-erzdjm-ytakbmkbpf2encq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_l/landscape-code-volume-1-single-dwellings-web.pdf",
       "bytes": 2720673,
-      "sha256": "b0adfc4e985c2080662b93847d52f4f1cb09a63258684d045e43fc3d9179a965"
+      "sha256": "b0adfc4e985c2080662b93847d52f4f1cb09a63258684d045e43fc3d9179a965",
+      "anchor_prefix": "Landscape-code-volume-1-"
     },
     {
       "part": "Landscape code (volume 2): All development except single dwellings",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290829-file-h8gnkiy0s-mql13ea2ydma.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_l/landscape-code-volume-2-web.pdf",
       "bytes": 6758960,
-      "sha256": "167f67aa52fee8a0a47237e272594f3dae9b8e7c1fe0b675850d1af89e38c320"
+      "sha256": "167f67aa52fee8a0a47237e272594f3dae9b8e7c1fe0b675850d1af89e38c320",
+      "anchor_prefix": "Landscape-code-volume-2-"
     },
     {
       "part": "Minimising overshadowing of neighbouring apartments: Documentation guidelines (draft)",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682615-file-jrvevfs0twitejet3xxwxw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_o/overshadowingguidelines-260219.pdf",
       "bytes": 7876777,
-      "sha256": "cf120597d313a4e62e754ea996054583aeb99b031f58ebb04228c2e47dbd637e"
+      "sha256": "cf120597d313a4e62e754ea996054583aeb99b031f58ebb04228c2e47dbd637e",
+      "anchor_prefix": "Minimising-overshadowing"
     },
     {
       "part": "Sheet 001: Building contributions map",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290844-file-dbdfn8g9tiqnurtr2-afqa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-040614-001.pdf",
       "bytes": 454122,
-      "sha256": "d654668a2bfb1ca6be0921f8d46847415ec1c5a0576c2d560026829bb2206381"
+      "sha256": "d654668a2bfb1ca6be0921f8d46847415ec1c5a0576c2d560026829bb2206381",
+      "anchor_prefix": "Sheet-001-Building-contr"
     },
     {
       "part": "Sheet 001: Building height in storeys map",
@@ -159,7 +175,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290848-file-xogus8ngtrmirejyay7ojq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_h/height-in-storeys001.pdf",
       "bytes": 763009,
-      "sha256": "faf14b45f9f5bee2fa2d61fd87d71650d82b1b0cda1d78d62a005468fa6d4b62"
+      "sha256": "faf14b45f9f5bee2fa2d61fd87d71650d82b1b0cda1d78d62a005468fa6d4b62",
+      "anchor_prefix": "Sheet-001-Building-heigh"
     },
     {
       "part": "Sheet 001: Entertainment sound management",
@@ -168,7 +185,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290852-file-ti0lvrcothmunhtk4-gznw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-001-entertainment-sound-management.pdf",
       "bytes": 283187,
-      "sha256": "94d8edb69cdaca5fd2d13ed20743d03afba57d2f52e8d3c3a9f819e5d8e9075f"
+      "sha256": "94d8edb69cdaca5fd2d13ed20743d03afba57d2f52e8d3c3a9f819e5d8e9075f",
+      "anchor_prefix": "Sheet-001-Entertainment-"
     },
     {
       "part": "Sheet 001: Footpath, awnings and colonnades map",
@@ -177,7 +195,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290857-file-k5dja9e4qoih3ryc4xrmig.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awnings-and-colonnades001.pdf",
       "bytes": 686743,
-      "sha256": "3eba1477e6539dc484b59d272044b116eda490d8233fdd884a42310f13ac6c98"
+      "sha256": "3eba1477e6539dc484b59d272044b116eda490d8233fdd884a42310f13ac6c98",
+      "anchor_prefix": "Sheet-001-Footpath-awnin"
     },
     {
       "part": "Sheet 001: Pedestrian priority map",
@@ -186,7 +205,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290863-file-cs2vu0egq2cx5kd-y0r4wq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority001.pdf",
       "bytes": 692652,
-      "sha256": "819726f41ad697b036dcc1a7d3fd9201bda66b746a33e5a157c092815a3f14ac"
+      "sha256": "819726f41ad697b036dcc1a7d3fd9201bda66b746a33e5a157c092815a3f14ac",
+      "anchor_prefix": "Sheet-001-Pedestrian-pri"
     },
     {
       "part": "Sheet 002: Active frontages map",
@@ -195,7 +215,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290868-file-p92ojj8ut7g_gvmnevirpa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_002.pdf",
       "bytes": 960859,
-      "sha256": "dfb69e6152b5184cafe7ae0072e9023f9cfeb2c64276853a46bb2e26253a5727"
+      "sha256": "dfb69e6152b5184cafe7ae0072e9023f9cfeb2c64276853a46bb2e26253a5727",
+      "anchor_prefix": "Sheet-002-Active-frontag"
     },
     {
       "part": "Sheet 002: Building contributions map",
@@ -204,7 +225,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682626-file-h5cgqpvjqn61ldjbiej6ng.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2026/sdcp2012_bc_002.pdf",
       "bytes": 223805,
-      "sha256": "61a901d0d4da25c302e4a06d4b023c0ec9ae8c1ca1f0bd22f38483e9d6820f08"
+      "sha256": "61a901d0d4da25c302e4a06d4b023c0ec9ae8c1ca1f0bd22f38483e9d6820f08",
+      "anchor_prefix": "Sheet-002-Building-contr"
     },
     {
       "part": "Sheet 002: Building height in storeys map",
@@ -213,7 +235,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290877-file-i8a0vj7nqneeqauijz4xia.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_hob_storeys_002.pdf",
       "bytes": 458432,
-      "sha256": "f3d7b539d9806fada8afd0235eaa4e44950a641113f7b2b3c20a4af770c89f3b"
+      "sha256": "f3d7b539d9806fada8afd0235eaa4e44950a641113f7b2b3c20a4af770c89f3b",
+      "anchor_prefix": "Sheet-002-Building-heigh"
     },
     {
       "part": "Sheet 002: Building street frontage height in storeys map",
@@ -222,7 +245,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290881-file-hqrx1od1tm-hueel9mjika.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/building-street-frontage-height-in-storeys002.pdf",
       "bytes": 656756,
-      "sha256": "bfef2a2e6b5099815590407cd068b4e3a4ea13de7f12c4558fcba2b0bbbc5d85"
+      "sha256": "bfef2a2e6b5099815590407cd068b4e3a4ea13de7f12c4558fcba2b0bbbc5d85",
+      "anchor_prefix": "Sheet-002-Building-stree"
     },
     {
       "part": "Sheet 002: Entertainment sound management",
@@ -231,7 +255,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290887-file-amvm3gviquwpjm3onddjvg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-002-entertainment-sound-management.pdf",
       "bytes": 251597,
-      "sha256": "90c78413fefe241d4860b4f643247f1da4f4b67ec7ce20d1ff620fe00ac1dc6a"
+      "sha256": "90c78413fefe241d4860b4f643247f1da4f4b67ec7ce20d1ff620fe00ac1dc6a",
+      "anchor_prefix": "Sheet-002-Entertainment-"
     },
     {
       "part": "Sheet 002: Footpath, awnings and colonnades map",
@@ -240,7 +265,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290893-file-fmemdg65rjsc5qpgwvbghq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awning-and-colonnades002.pdf",
       "bytes": 666614,
-      "sha256": "1002f547c4ab4cda26e4b94c9d1c6c433b972681cf07738bd7c716edae785ace"
+      "sha256": "1002f547c4ab4cda26e4b94c9d1c6c433b972681cf07738bd7c716edae785ace",
+      "anchor_prefix": "Sheet-002-Footpath-awnin"
     },
     {
       "part": "Sheet 002: Late night trading areas map",
@@ -249,7 +275,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290897-file-rarbp6igshmkwp-orobjsg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-lnta-002.pdf",
       "bytes": 279028,
-      "sha256": "2d6399656bb4f84d2eeb9e32d346b36da94d940c60b2d3f57671c19400e80d32"
+      "sha256": "2d6399656bb4f84d2eeb9e32d346b36da94d940c60b2d3f57671c19400e80d32",
+      "anchor_prefix": "Sheet-002-Late-night-tra"
     },
     {
       "part": "Sheet 002: Pedestrian priority map",
@@ -258,7 +285,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290901-file-rwtvcv_hqeqcg7zcfumyuq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority002.pdf",
       "bytes": 665996,
-      "sha256": "8244dbe01e3fe7616cf89b302e80916b9bf07244bb178aee5f3a3ddb05c2c937"
+      "sha256": "8244dbe01e3fe7616cf89b302e80916b9bf07244bb178aee5f3a3ddb05c2c937",
+      "anchor_prefix": "Sheet-002-Pedestrian-pri"
     },
     {
       "part": "Sheet 002: Signage precincts map",
@@ -267,7 +295,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290905-file-fxmuqqfsslch6dlelrmjfw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-002.pdf",
       "bytes": 315932,
-      "sha256": "051fa6660812f5b15bb1494e71421190c9e71bb69bc07f20239510be4f760b4f"
+      "sha256": "051fa6660812f5b15bb1494e71421190c9e71bb69bc07f20239510be4f760b4f",
+      "anchor_prefix": "Sheet-002-Signage-precin"
     },
     {
       "part": "Sheet 002: Stormwater management map",
@@ -276,7 +305,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290908-file-drflc9vjsmizxwi7bkey_g.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-2/stormwater-management002.pdf",
       "bytes": 670289,
-      "sha256": "defbec876cca120e7786cf4f86d9d5c8bb25788a5c76464c477ef77812a66ed9"
+      "sha256": "defbec876cca120e7786cf4f86d9d5c8bb25788a5c76464c477ef77812a66ed9",
+      "anchor_prefix": "Sheet-002-Stormwater-man"
     },
     {
       "part": "Sheet 003: Active Frontages Map",
@@ -285,7 +315,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290913-file-hju-qbykrnchmieg-0kefg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_003.pdf",
       "bytes": 273329,
-      "sha256": "d65762714789a82da12ab05b571f5381dd8ecc353c4480a5528b61880f498284"
+      "sha256": "d65762714789a82da12ab05b571f5381dd8ecc353c4480a5528b61880f498284",
+      "anchor_prefix": "Sheet-003-Active-Frontag"
     },
     {
       "part": "Sheet 003: Building contributions map",
@@ -294,7 +325,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290919-file-zdxnuvwtq0auhoavqhgitw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-040614-003.pdf",
       "bytes": 464281,
-      "sha256": "3a0a2e8eb61110493dd99f690befd374e71639897b0f3c2a8b44b24a57462b69"
+      "sha256": "3a0a2e8eb61110493dd99f690befd374e71639897b0f3c2a8b44b24a57462b69",
+      "anchor_prefix": "Sheet-003-Building-contr"
     },
     {
       "part": "Sheet 003: Building height in storeys map",
@@ -303,7 +335,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290923-file-cdlyjnjwrgiqi-adbcufmg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-hob-storeys-28082015-003.pdf",
       "bytes": 237678,
-      "sha256": "b64d3a671903a1297590a16e519aba75b6f6bfd8046cddcb4d89c7d6618c2a80"
+      "sha256": "b64d3a671903a1297590a16e519aba75b6f6bfd8046cddcb4d89c7d6618c2a80",
+      "anchor_prefix": "Sheet-003-Building-heigh"
     },
     {
       "part": "Sheet 003: Building setback and alignment map",
@@ -312,7 +345,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290928-file-lihlbte8sbggzccokwhl-w.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bsa-003.pdf",
       "bytes": 1077905,
-      "sha256": "509aafe1885da767a786486716835bfee5656ada188656c6d58d052740913e45"
+      "sha256": "509aafe1885da767a786486716835bfee5656ada188656c6d58d052740913e45",
+      "anchor_prefix": "Sheet-003-Building-setba"
     },
     {
       "part": "Sheet 003: Building street frontage height in storeys map",
@@ -321,7 +355,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290934-file-kdjr5mtdqo2hh6ybto2tmw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sfh-28082015-003.pdf",
       "bytes": 222600,
-      "sha256": "54a6bbedae4cb7725252f06bf2c1162259fe9a6e39ddc65d98da782d149583e0"
+      "sha256": "54a6bbedae4cb7725252f06bf2c1162259fe9a6e39ddc65d98da782d149583e0",
+      "anchor_prefix": "Sheet-003-Building-stree"
     },
     {
       "part": "Sheet 003: Entertainment sound management",
@@ -330,7 +365,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290938-file-qyv-8vslstkixxfy2issnq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-003-entertainment-sound-management.pdf",
       "bytes": 293393,
-      "sha256": "b3fc178b1e2abdac9fb4b9daccbe58a90f773c98922bb885a27db44b2e7db2ce"
+      "sha256": "b3fc178b1e2abdac9fb4b9daccbe58a90f773c98922bb885a27db44b2e7db2ce",
+      "anchor_prefix": "Sheet-003-Entertainment-"
     },
     {
       "part": "Sheet 003: Footpath, awnings, and colonnades map",
@@ -339,7 +375,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290944-file-d5bm4ah5r_aujkmmafo69g.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-fac-28082015-003.pdf",
       "bytes": 221051,
-      "sha256": "a07b74dd267772ae4159503d4b081db406d1cd13bba49877705792cdef32c328"
+      "sha256": "a07b74dd267772ae4159503d4b081db406d1cd13bba49877705792cdef32c328",
+      "anchor_prefix": "Sheet-003-Footpath-awnin"
     },
     {
       "part": "Sheet 003: Late night trading areas map",
@@ -348,7 +385,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290949-file-agkjaqncqzsbzp_5lan5ig.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-lnta-003.pdf",
       "bytes": 309321,
-      "sha256": "96be18b2337d27f2d1214e6c4f8c9fc7a4f562aea9266586133ae6406eaad798"
+      "sha256": "96be18b2337d27f2d1214e6c4f8c9fc7a4f562aea9266586133ae6406eaad798",
+      "anchor_prefix": "Sheet-003-Late-night-tra"
     },
     {
       "part": "Sheet 003: Pedestrian priority map",
@@ -357,7 +395,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290953-file-calpmwtgrlq4yqzw2ymzbq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_pp_28082015_003.pdf",
       "bytes": 208234,
-      "sha256": "1ee6439f01808d4908207e8c787c1ed6d9e30109eaf5bad56fbe15bfb4f3dec7"
+      "sha256": "1ee6439f01808d4908207e8c787c1ed6d9e30109eaf5bad56fbe15bfb4f3dec7",
+      "anchor_prefix": "Sheet-003-Pedestrian-pri"
     },
     {
       "part": "Sheet 003: Signage precincts map",
@@ -366,7 +405,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290957-file-vhb2pkalqx6w5pqjostbxa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-003.pdf",
       "bytes": 331646,
-      "sha256": "f73eb01e0d65fa9c11dbaba15eff819a901baea6069b3ff21d30de99dc08e7a2"
+      "sha256": "f73eb01e0d65fa9c11dbaba15eff819a901baea6069b3ff21d30de99dc08e7a2",
+      "anchor_prefix": "Sheet-003-Signage-precin"
     },
     {
       "part": "Sheet 003: Stormwater management map",
@@ -375,7 +415,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290963-file-prfyfre6qg2kxfti5bu0lg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_sm_11112022_003.pdf",
       "bytes": 207028,
-      "sha256": "155ffd63f87732c7669810310ff81fe2882c262ae24f0db8c80e5035f7f32eb6"
+      "sha256": "155ffd63f87732c7669810310ff81fe2882c262ae24f0db8c80e5035f7f32eb6",
+      "anchor_prefix": "Sheet-003-Stormwater-man"
     },
     {
       "part": "Sheet 003: Streets and lanes map",
@@ -384,7 +425,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290967-file-lsgzal5qta6yr6qpqraolq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sl-14072015-003.pdf",
       "bytes": 186548,
-      "sha256": "ad8a5e1f442d3e21bf7e9eb86ad4247ace8a01de0584b1b36b54d8ed9d19c9a6"
+      "sha256": "ad8a5e1f442d3e21bf7e9eb86ad4247ace8a01de0584b1b36b54d8ed9d19c9a6",
+      "anchor_prefix": "Sheet-003-Streets-and-la"
     },
     {
       "part": "Sheet 004: Building contributions map",
@@ -393,7 +435,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290971-file-b0u4hj0lqlss5zbqiwffuq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-040614-004.pdf",
       "bytes": 256469,
-      "sha256": "292185a8c90f0a7befe62b33010894e7b73868d9a09cc992a1559853d442f61a"
+      "sha256": "292185a8c90f0a7befe62b33010894e7b73868d9a09cc992a1559853d442f61a",
+      "anchor_prefix": "Sheet-004-Building-contr"
     },
     {
       "part": "Sheet 004: Building height in storeys map",
@@ -402,7 +445,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290976-file-snui3sxmskko7eb43_2cyw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-hob-storey-004.pdf",
       "bytes": 129722,
-      "sha256": "bfa5bbd826237c8119e5e35c79a0776bc81629057267494e6a3f0263b1d706cb"
+      "sha256": "bfa5bbd826237c8119e5e35c79a0776bc81629057267494e6a3f0263b1d706cb",
+      "anchor_prefix": "Sheet-004-Building-heigh"
     },
     {
       "part": "Sheet 004: Building setback and alignment map",
@@ -411,7 +455,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290980-file-b8s-ctdhr-i4mhhcym0l5w.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bsa-004.pdf",
       "bytes": 790801,
-      "sha256": "187d50bcadd6828b307d182cbf65461999f20eb8c65602ebec06528c61edf36a"
+      "sha256": "187d50bcadd6828b307d182cbf65461999f20eb8c65602ebec06528c61edf36a",
+      "anchor_prefix": "Sheet-004-Building-setba"
     },
     {
       "part": "Sheet 004: Building street frontage height in storeys map",
@@ -420,7 +465,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290985-file-ghicnnr1tagzfubkijo_za.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sfh-004.pdf",
       "bytes": 119191,
-      "sha256": "698d55edd32aee3ab4225d0c3b206e39f610ec5ca4341559a4469c1ba0c7ad60"
+      "sha256": "698d55edd32aee3ab4225d0c3b206e39f610ec5ca4341559a4469c1ba0c7ad60",
+      "anchor_prefix": "Sheet-004-Building-stree"
     },
     {
       "part": "Sheet 004: Entertainment sound management",
@@ -429,7 +475,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290989-file-cfsuijz1rquizxpkqpzagq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-004-entertainment-sound-management.pdf",
       "bytes": 161110,
-      "sha256": "3894e611477ffbd3be34a6e97e6107a6e99385a38c82b39cfac134e90d88fba7"
+      "sha256": "3894e611477ffbd3be34a6e97e6107a6e99385a38c82b39cfac134e90d88fba7",
+      "anchor_prefix": "Sheet-004-Entertainment-"
     },
     {
       "part": "Sheet 004: Footpath, awnings and colonnades map",
@@ -438,7 +485,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290995-file-x3rjuul2tqcpcgfvz3w2ta.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-fac-004.pdf",
       "bytes": 123610,
-      "sha256": "46ae9113af2f885ff9c0ad71a5c85200a310a46e35f259937674fee5e1085e06"
+      "sha256": "46ae9113af2f885ff9c0ad71a5c85200a310a46e35f259937674fee5e1085e06",
+      "anchor_prefix": "Sheet-004-Footpath-awnin"
     },
     {
       "part": "Sheet 004: Late night trading areas map",
@@ -447,7 +495,8 @@
       "url": "https://www.datocms-assets.com/94948/1759290998-file-lbetyouotqaejzwt6qa2ba.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-004.pdf",
       "bytes": 199302,
-      "sha256": "446a4954e0309a18075b3583a5594c6f544853b302e7fccec129be899a918243"
+      "sha256": "446a4954e0309a18075b3583a5594c6f544853b302e7fccec129be899a918243",
+      "anchor_prefix": "Sheet-004-Late-night-tra"
     },
     {
       "part": "Sheet 004: Pedestrian priority map",
@@ -456,7 +505,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291004-file-fcomuu_grpw2wran2awygq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-pp-004.pdf",
       "bytes": 118375,
-      "sha256": "d6bb1054fe655067e888a7f1d2c8438e60e4faa9f6e3f2569cfefd275ac26795"
+      "sha256": "d6bb1054fe655067e888a7f1d2c8438e60e4faa9f6e3f2569cfefd275ac26795",
+      "anchor_prefix": "Sheet-004-Pedestrian-pri"
     },
     {
       "part": "Sheet 004: Proposed open space map",
@@ -465,7 +515,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291008-file-c2emlgbvtacenj0s9931ka.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-pos-004.pdf",
       "bytes": 125589,
-      "sha256": "2cfdd09feb056f6d92022a7cb64c02ba14421be44cb55a04f6b2ff25206c12cb"
+      "sha256": "2cfdd09feb056f6d92022a7cb64c02ba14421be44cb55a04f6b2ff25206c12cb",
+      "anchor_prefix": "Sheet-004-Proposed-open-"
     },
     {
       "part": "Sheet 004: Signage precincts map",
@@ -474,7 +525,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291014-file-fpxq_unmrjum_0ffraa21q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-004.pdf",
       "bytes": 225296,
-      "sha256": "2ff56826043946693026c589ab6b6868b2b29b7b8dbe1a3561a06d60ae331415"
+      "sha256": "2ff56826043946693026c589ab6b6868b2b29b7b8dbe1a3561a06d60ae331415",
+      "anchor_prefix": "Sheet-004-Signage-precin"
     },
     {
       "part": "Sheet 004: Stormwater management map",
@@ -483,7 +535,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291018-file-mjl2r59fr8y808dlvcgjdg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sm-004.pdf",
       "bytes": 175531,
-      "sha256": "6e7ef16601606a731e815392ec0d0ea71b9955d4ab19c030d7f6dae5ac4fead7"
+      "sha256": "6e7ef16601606a731e815392ec0d0ea71b9955d4ab19c030d7f6dae5ac4fead7",
+      "anchor_prefix": "Sheet-004-Stormwater-man"
     },
     {
       "part": "Sheet 004: Streets and lanes map",
@@ -492,7 +545,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291022-file-hdmsoqajqj6gy9ytxirpaw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sl-004.pdf",
       "bytes": 120089,
-      "sha256": "1246b2546456c4ca2927b63e25b87ce5c3277851737bc52308f3de4c156394aa"
+      "sha256": "1246b2546456c4ca2927b63e25b87ce5c3277851737bc52308f3de4c156394aa",
+      "anchor_prefix": "Sheet-004-Streets-and-la"
     },
     {
       "part": "Sheet 004: Through-site links maps",
@@ -501,7 +555,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291026-file-oghldewsrnayxr1h6segug.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-tsl-004.pdf",
       "bytes": 121311,
-      "sha256": "3e01e24e95db60d927deabbd9765eda44aa2f44875240a5bf37f5bda5359b4db"
+      "sha256": "3e01e24e95db60d927deabbd9765eda44aa2f44875240a5bf37f5bda5359b4db",
+      "anchor_prefix": "Sheet-004-Through-site-l"
     },
     {
       "part": "Sheet 005: Building height in storeys map",
@@ -510,7 +565,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291031-file-fzd2tnxjtwuflag1aalyha.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bhs_005.pdf",
       "bytes": 811098,
-      "sha256": "bcd7fd11cafa8884fc1aa58149eee085ee8591c5054433fe5fec878a21dbe647"
+      "sha256": "bcd7fd11cafa8884fc1aa58149eee085ee8591c5054433fe5fec878a21dbe647",
+      "anchor_prefix": "Sheet-005-Building-heigh"
     },
     {
       "part": "Sheet 005: Building setback and alignment map",
@@ -519,7 +575,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291035-file-unekfrx6r12cc0q5ft_dta.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsa_005.pdf",
       "bytes": 162444,
-      "sha256": "377a88853e72f0eec61654981eaded3866dd9512c838d5767fbffcb7ac7a1c9f"
+      "sha256": "377a88853e72f0eec61654981eaded3866dd9512c838d5767fbffcb7ac7a1c9f",
+      "anchor_prefix": "Sheet-005-Building-setba"
     },
     {
       "part": "Sheet 005: Proposed open space map",
@@ -528,7 +585,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291039-file-fzxebhvttgmippv2huqtkq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pos_005.pdf",
       "bytes": 159163,
-      "sha256": "68bc4bbac6588a8bf39d3181ff5710402f5ed522de113ce6ba075bb9c0106e88"
+      "sha256": "68bc4bbac6588a8bf39d3181ff5710402f5ed522de113ce6ba075bb9c0106e88",
+      "anchor_prefix": "Sheet-005-Proposed-open-"
     },
     {
       "part": "Sheet 005: Public domain setbacks map",
@@ -537,7 +595,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291043-file-kjdoa5c5t2y5-c24xg-mda.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pds_005-1.pdf",
       "bytes": 165115,
-      "sha256": "d15cc5c93d64996c1a9d2f7302937414812eaf39afae3e3c1f29c16bd1ca5ec4"
+      "sha256": "d15cc5c93d64996c1a9d2f7302937414812eaf39afae3e3c1f29c16bd1ca5ec4",
+      "anchor_prefix": "Sheet-005-Public-domain-"
     },
     {
       "part": "Sheet 005: Stormwater management map",
@@ -546,7 +605,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291047-file-hw83fshprs6vona3fipaza.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sm_005.pdf",
       "bytes": 160046,
-      "sha256": "8ea9f082d70bb01bf51c1a74125106286ab7c828daee277f2d6611aff2906213"
+      "sha256": "8ea9f082d70bb01bf51c1a74125106286ab7c828daee277f2d6611aff2906213",
+      "anchor_prefix": "Sheet-005-Stormwater-man"
     },
     {
       "part": "Sheet 005: Streets and lanes map",
@@ -555,7 +615,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291051-file-qcefqx6qsscrqe5l65mghw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sl_005.pdf",
       "bytes": 157758,
-      "sha256": "d3b84db47cca94dbab5f195275b8745352547ac73e0ccfe6b93556ab48f6fe43"
+      "sha256": "d3b84db47cca94dbab5f195275b8745352547ac73e0ccfe6b93556ab48f6fe43",
+      "anchor_prefix": "Sheet-005-Streets-and-la"
     },
     {
       "part": "Sheet 005: Through-site links maps",
@@ -564,7 +625,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291055-file-b-uwfjqzry2tyzb2gs3-0q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_tsl_005.pdf",
       "bytes": 159304,
-      "sha256": "3863ae31b808e07d2448038e971777efb29cb9428547d5233ade84a640401360"
+      "sha256": "3863ae31b808e07d2448038e971777efb29cb9428547d5233ade84a640401360",
+      "anchor_prefix": "Sheet-005-Through-site-l"
     },
     {
       "part": "Sheet 007: Active frontages map",
@@ -573,7 +635,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291059-file-aguuzbaztpw-ihn9ylb8yq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_007.pdf",
       "bytes": 281172,
-      "sha256": "fde4e4d97f4a3a2bb08a547f6aa6a613f264da12d04ad121c25064db3744c736"
+      "sha256": "fde4e4d97f4a3a2bb08a547f6aa6a613f264da12d04ad121c25064db3744c736",
+      "anchor_prefix": "Sheet-007-Active-frontag"
     },
     {
       "part": "Sheet 007: Building contributions map",
@@ -582,7 +645,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291064-file-qprvzghssy6lvpqwwnxpuq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-040614-007.pdf",
       "bytes": 382383,
-      "sha256": "879719dd48ed720683e1db8c72ad7cca29e2cea1122518db689b0ad15e345b6e"
+      "sha256": "879719dd48ed720683e1db8c72ad7cca29e2cea1122518db689b0ad15e345b6e",
+      "anchor_prefix": "Sheet-007-Building-contr"
     },
     {
       "part": "Sheet 007: Building height in storeys map",
@@ -591,7 +655,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291069-file-dlxtusirth-dpk2xwedyaq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-hob-storeys-050614-007.pdf",
       "bytes": 436151,
-      "sha256": "fa0b3ec56ee2caf3d66f0dd4ad4add2933e4c7eb1db6074cbf3c5eed222d9452"
+      "sha256": "fa0b3ec56ee2caf3d66f0dd4ad4add2933e4c7eb1db6074cbf3c5eed222d9452",
+      "anchor_prefix": "Sheet-007-Building-heigh"
     },
     {
       "part": "Sheet 007: Building setback and alignment map",
@@ -600,7 +665,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291073-file-eyhspbnsthkeazmwcj108w.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bsa-007.pdf",
       "bytes": 1099756,
-      "sha256": "73908fe5abbe1eb0b6cfe5bd6fe7af06b6d74e379d1f2b7d9df465ffda12e775"
+      "sha256": "73908fe5abbe1eb0b6cfe5bd6fe7af06b6d74e379d1f2b7d9df465ffda12e775",
+      "anchor_prefix": "Sheet-007-Building-setba"
     },
     {
       "part": "Sheet 007: Building street frontage height in storeys map",
@@ -609,7 +675,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291077-file-kfwayjihrgqvi9vnvruk2g.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/building-street-frontage-height-in-storeys007.pdf",
       "bytes": 682369,
-      "sha256": "56fd04dcb0aa20a449a03eee752b6dbb256b3c50dd54dcf4c2dbf21da11b348f"
+      "sha256": "56fd04dcb0aa20a449a03eee752b6dbb256b3c50dd54dcf4c2dbf21da11b348f",
+      "anchor_prefix": "Sheet-007-Building-stree"
     },
     {
       "part": "Sheet 007: Entertainment sound management",
@@ -618,7 +685,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291083-file-f02wggikq-gh1kg3_o1-fq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-007-entertainment-sound-management.pdf",
       "bytes": 308539,
-      "sha256": "a00bfd53dfe1bcc68bd8bd057c316f5b46d5146ac228702fc415973189377db9"
+      "sha256": "a00bfd53dfe1bcc68bd8bd057c316f5b46d5146ac228702fc415973189377db9",
+      "anchor_prefix": "Sheet-007-Entertainment-"
     },
     {
       "part": "Sheet 007: Footpath, awnings and colonnades map",
@@ -627,7 +695,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291089-file-ahr_yjjlry2qzp_ystls1q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awning-and-colonnades007.pdf",
       "bytes": 686483,
-      "sha256": "e8006674ca448d109a6a10368312820b7704b88d09c449027c6e983ebe0f9c66"
+      "sha256": "e8006674ca448d109a6a10368312820b7704b88d09c449027c6e983ebe0f9c66",
+      "anchor_prefix": "Sheet-007-Footpath-awnin"
     },
     {
       "part": "Sheet 007: Late night trading areas map",
@@ -636,7 +705,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291093-file-eofqmi17s2-s02bfm-wfja.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-007.pdf",
       "bytes": 315802,
-      "sha256": "0caa3414d9aec0b9b0939c70ff62f5a02ac83c72ff60fd7bfcb07713fa93b448"
+      "sha256": "0caa3414d9aec0b9b0939c70ff62f5a02ac83c72ff60fd7bfcb07713fa93b448",
+      "anchor_prefix": "Sheet-007-Late-night-tra"
     },
     {
       "part": "Sheet 007: Pedestrian priority map",
@@ -645,7 +715,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291098-file-v5wdnxb6qz-rc3udltupjw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority007.pdf",
       "bytes": 689025,
-      "sha256": "cfb5697de551f15c6c316368f1ec1c7aae81d79a193741d371cc97730d9f3600"
+      "sha256": "cfb5697de551f15c6c316368f1ec1c7aae81d79a193741d371cc97730d9f3600",
+      "anchor_prefix": "Sheet-007-Pedestrian-pri"
     },
     {
       "part": "Sheet 007: Signage precincts map",
@@ -654,7 +725,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291103-file-w4gwmq_jtsq8bclgnvpuua.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-007.pdf",
       "bytes": 338906,
-      "sha256": "f0c1a4d8dcf8ef3580f4dd273d8a23772bcaa1fa17dbe64f77f3041a4bbf3afb"
+      "sha256": "f0c1a4d8dcf8ef3580f4dd273d8a23772bcaa1fa17dbe64f77f3041a4bbf3afb",
+      "anchor_prefix": "Sheet-007-Signage-precin"
     },
     {
       "part": "Sheet 008: Active frontages map",
@@ -663,7 +735,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291107-file-qdv6dep_smqafnvaco_joq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_008.pdf",
       "bytes": 1286637,
-      "sha256": "58096ee0e22e3de0809eb256eb241301856823d2f598d310f9bea546a6759db9"
+      "sha256": "58096ee0e22e3de0809eb256eb241301856823d2f598d310f9bea546a6759db9",
+      "anchor_prefix": "Sheet-008-Active-frontag"
     },
     {
       "part": "Sheet 008: Building contributions map",
@@ -672,7 +745,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291113-file-apvkdtpvr56qmwaggtnneg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bc_008.pdf",
       "bytes": 460585,
-      "sha256": "2d2f20362de7074830d9d4c7dd5323e3228738a4cef644494aedf25bd287213c"
+      "sha256": "2d2f20362de7074830d9d4c7dd5323e3228738a4cef644494aedf25bd287213c",
+      "anchor_prefix": "Sheet-008-Building-contr"
     },
     {
       "part": "Sheet 008: Building height in storeys map",
@@ -681,7 +755,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291119-file-lujifwbjryorogiqmwssda.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-hob-storeys-050614-008.pdf",
       "bytes": 665108,
-      "sha256": "969b085c4cd925c45587f5df5074248aa6c4a2eb0b66721c73e0728d1e58dfa9"
+      "sha256": "969b085c4cd925c45587f5df5074248aa6c4a2eb0b66721c73e0728d1e58dfa9",
+      "anchor_prefix": "Sheet-008-Building-heigh"
     },
     {
       "part": "Sheet 008: Building setback and alignment map",
@@ -690,7 +765,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291125-file-bcvetpaatkgonxv_e7avzq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bsa-008.pdf",
       "bytes": 1495354,
-      "sha256": "b3a4ffa04b51c3bd10a0329e650994b757275edf36c447628624d7e980d87650"
+      "sha256": "b3a4ffa04b51c3bd10a0329e650994b757275edf36c447628624d7e980d87650",
+      "anchor_prefix": "Sheet-008-Building-setba"
     },
     {
       "part": "Sheet 008: Building street frontage height in storeys map",
@@ -699,7 +775,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291129-file-pizpzokxqxqduqtewu-ebg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/building-street-frontage-height-in-storeys008.pdf",
       "bytes": 846023,
-      "sha256": "8087517eb7f64bfb402f6a2506abc73c55af9303d0e51cfb20b98b8b1dcbad3e"
+      "sha256": "8087517eb7f64bfb402f6a2506abc73c55af9303d0e51cfb20b98b8b1dcbad3e",
+      "anchor_prefix": "Sheet-008-Building-stree"
     },
     {
       "part": "Sheet 008: Entertainment sound management",
@@ -708,7 +785,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291135-file-qdmfcj6iqsko_gfyckreew.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-008-entertainment-sound-management.pdf",
       "bytes": 458870,
-      "sha256": "b6838a5757907a4f5450c3fc7e3e4a0c2cf2879b6aab4344549fb59f8be201ae"
+      "sha256": "b6838a5757907a4f5450c3fc7e3e4a0c2cf2879b6aab4344549fb59f8be201ae",
+      "anchor_prefix": "Sheet-008-Entertainment-"
     },
     {
       "part": "Sheet 008: Footpath, awnings and colonnades map",
@@ -717,7 +795,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291140-file-bqqy8obisre87vcf2fkdna.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awning-and-colonnades008.pdf",
       "bytes": 863072,
-      "sha256": "92d5ce74238946549c5356b6b71212fb8f56afcd545188dc901438577e5f1d53"
+      "sha256": "92d5ce74238946549c5356b6b71212fb8f56afcd545188dc901438577e5f1d53",
+      "anchor_prefix": "Sheet-008-Footpath-awnin"
     },
     {
       "part": "Sheet 008: Late night trading areas map",
@@ -726,7 +805,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291144-file-jpympjvaquy4keojqzwtwa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-008.pdf",
       "bytes": 462272,
-      "sha256": "3bc1d55da4690f2effb15adf37326e632a0fac53ccc3058031a98f7d40ea2d93"
+      "sha256": "3bc1d55da4690f2effb15adf37326e632a0fac53ccc3058031a98f7d40ea2d93",
+      "anchor_prefix": "Sheet-008-Late-night-tra"
     },
     {
       "part": "Sheet 008: Pedestrian priority map",
@@ -735,7 +815,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291149-file-fcgjxtkfqkopjicdhluzda.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority008.pdf",
       "bytes": 865408,
-      "sha256": "482548cfa38f72de99e1f6e45854ec3e677d2e024ef1dea732a755aadc23d4a7"
+      "sha256": "482548cfa38f72de99e1f6e45854ec3e677d2e024ef1dea732a755aadc23d4a7",
+      "anchor_prefix": "Sheet-008-Pedestrian-pri"
     },
     {
       "part": "Sheet 008: Signage precincts map",
@@ -744,7 +825,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291155-file-jlzlmybyqx6skdtvrou8eq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-008.pdf",
       "bytes": 459343,
-      "sha256": "cbe53bfeb03b9d22ad9880aa8ac4fa60d91f81196c4ef707c0eeccce9dde4a79"
+      "sha256": "cbe53bfeb03b9d22ad9880aa8ac4fa60d91f81196c4ef707c0eeccce9dde4a79",
+      "anchor_prefix": "Sheet-008-Signage-precin"
     },
     {
       "part": "Sheet 008: Stormwater management map",
@@ -753,7 +835,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291159-file-wwawqwo6sa6rmoap7ovejg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-2/stormwater-management008.pdf",
       "bytes": 877884,
-      "sha256": "548daea5e8979370078656657a531ef04ffb3869dc6a4fd06471eded4042753a"
+      "sha256": "548daea5e8979370078656657a531ef04ffb3869dc6a4fd06471eded4042753a",
+      "anchor_prefix": "Sheet-008-Stormwater-man"
     },
     {
       "part": "Sheet 009: Active frontages map",
@@ -762,7 +845,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291163-file-csnmkhqkrqo8zwkebz2icg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_009-1.pdf",
       "bytes": 304495,
-      "sha256": "68ac199f27784aedd1fa7a8764407ef52ac0d05bb0310ed6cb8d97d2eda1615c"
+      "sha256": "68ac199f27784aedd1fa7a8764407ef52ac0d05bb0310ed6cb8d97d2eda1615c",
+      "anchor_prefix": "Sheet-009-Active-frontag"
     },
     {
       "part": "Sheet 009: Building contributions map",
@@ -771,7 +855,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291167-file-lir-6zibraauwfyphdnrug.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bc_009-1.pdf",
       "bytes": 365885,
-      "sha256": "7d527488356ea9cccbc96ad805a08ea3591b219825926309cd9ca9a0920e2a19"
+      "sha256": "7d527488356ea9cccbc96ad805a08ea3591b219825926309cd9ca9a0920e2a19",
+      "anchor_prefix": "Sheet-009-Building-contr"
     },
     {
       "part": "Sheet 009: Building height in storeys map",
@@ -780,7 +865,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291171-file-rndlq8swtwkna_xu8utwba.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_h/height-in-storeys009.pdf",
       "bytes": 869898,
-      "sha256": "6b5e8f4d896fa685a21695c60fca061b048cb5bc72ca12f077c7f660c0b0c7ad"
+      "sha256": "6b5e8f4d896fa685a21695c60fca061b048cb5bc72ca12f077c7f660c0b0c7ad",
+      "anchor_prefix": "Sheet-009-Building-heigh"
     },
     {
       "part": "Sheet 009: Building street frontage height in storeys map",
@@ -789,7 +875,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291178-file-k1edbvcmrxi9thlph6bmhq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/building-street-frontage-height009.pdf",
       "bytes": 689800,
-      "sha256": "ff12960097a43efdb327f2c092ad41848a55f5ec1c85d66b8e7a6d7176dd292d"
+      "sha256": "ff12960097a43efdb327f2c092ad41848a55f5ec1c85d66b8e7a6d7176dd292d",
+      "anchor_prefix": "Sheet-009-Building-stree"
     },
     {
       "part": "Sheet 009: Entertainment sound management",
@@ -798,7 +885,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291184-file-hcz3ipe9r6kee2_bohdf2a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-009-entertainment-sound-management.pdf",
       "bytes": 337514,
-      "sha256": "074646f840f4874f539dd7f91d8078838b5cd6dec6377e7564643eb174b50c92"
+      "sha256": "074646f840f4874f539dd7f91d8078838b5cd6dec6377e7564643eb174b50c92",
+      "anchor_prefix": "Sheet-009-Entertainment-"
     },
     {
       "part": "Sheet 009: Footpath, awnings and colonnades map",
@@ -807,7 +895,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291189-file-tpgxdxr0re6wmryecuazxq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_fac_009-1.pdf",
       "bytes": 307744,
-      "sha256": "623680b091b76568e0a944afc78780be8faa4aa569df96979da9b7145a30e452"
+      "sha256": "623680b091b76568e0a944afc78780be8faa4aa569df96979da9b7145a30e452",
+      "anchor_prefix": "Sheet-009-Footpath-awnin"
     },
     {
       "part": "Sheet 009: Late night trading areas",
@@ -816,7 +905,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291193-file-cpmi_4cbtaw8fgvfew2teg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-009.pdf",
       "bytes": 351574,
-      "sha256": "f22b288b56df747a98c42385e92c8a6c049710e315d22b1e5ae4dfdf957d45d3"
+      "sha256": "f22b288b56df747a98c42385e92c8a6c049710e315d22b1e5ae4dfdf957d45d3",
+      "anchor_prefix": "Sheet-009-Late-night-tra"
     },
     {
       "part": "Sheet 009: Pedestrian priority map",
@@ -825,7 +915,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291197-file-hiaulrbwshaqbeztmuy5uw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_pp_009-1.pdf",
       "bytes": 298403,
-      "sha256": "d3e7a6d228adad0c5d18be1ee691b5d2ca1db754244799e86821cacbdf192457"
+      "sha256": "d3e7a6d228adad0c5d18be1ee691b5d2ca1db754244799e86821cacbdf192457",
+      "anchor_prefix": "Sheet-009-Pedestrian-pri"
     },
     {
       "part": "Sheet 009: Signage precincts map",
@@ -834,7 +925,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291203-file-syfi_dy8qm-q3hxyvhqjkw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-009.pdf",
       "bytes": 338247,
-      "sha256": "78ae1bb175c7cfa8f79784778cb5a9d90a753b1ea77a1bb5bd54bdc2ed013313"
+      "sha256": "78ae1bb175c7cfa8f79784778cb5a9d90a753b1ea77a1bb5bd54bdc2ed013313",
+      "anchor_prefix": "Sheet-009-Signage-precin"
     },
     {
       "part": "Sheet 009: Stormwater management map",
@@ -843,7 +935,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291208-file-dloqr0_trz6893kktcfc5q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-2/stormwater-management009.pdf",
       "bytes": 703845,
-      "sha256": "d8cc8d275ab4af4eeccb8f63a34d58b624124891283787c747764e9076ded784"
+      "sha256": "d8cc8d275ab4af4eeccb8f63a34d58b624124891283787c747764e9076ded784",
+      "anchor_prefix": "Sheet-009-Stormwater-man"
     },
     {
       "part": "Sheet 010: Active frontages map",
@@ -852,7 +945,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291211-file-d1oz4vi5t6egknxqhpsyzw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2023/sdcp2012_af_010.pdf",
       "bytes": 387166,
-      "sha256": "b167b55f734f1f159b9012d5eec97c8165bde3c504b4d2d1556bc5b505043d04"
+      "sha256": "b167b55f734f1f159b9012d5eec97c8165bde3c504b4d2d1556bc5b505043d04",
+      "anchor_prefix": "Sheet-010-Active-frontag"
     },
     {
       "part": "Sheet 010: Building contributions map",
@@ -861,7 +955,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291216-file-glnyrifutycejildafn1kw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bc_010-1.pdf",
       "bytes": 429123,
-      "sha256": "d4b76961368132acf9f96a86d659cd65f6489f59add1c9481115e5f65cab52af"
+      "sha256": "d4b76961368132acf9f96a86d659cd65f6489f59add1c9481115e5f65cab52af",
+      "anchor_prefix": "Sheet-010-Building-contr"
     },
     {
       "part": "Sheet 010: Building height in storeys map",
@@ -870,7 +965,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291221-file-yb6f96qlreup_moxkmosqg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bhs_010-1.pdf",
       "bytes": 464092,
-      "sha256": "9d103adbb2bf3ba4b09d73ecce07c9f0b0e9d0a88f7f660442cd9e7a585e8c32"
+      "sha256": "9d103adbb2bf3ba4b09d73ecce07c9f0b0e9d0a88f7f660442cd9e7a585e8c32",
+      "anchor_prefix": "Sheet-010-Building-heigh"
     },
     {
       "part": "Sheet 010: Building setback and alignment map",
@@ -879,7 +975,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291225-file-f0dwdvuqti60ceomxcww6q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bsa_010-1.pdf",
       "bytes": 393035,
-      "sha256": "78b9d86e3418f12f128db3a1fab29c6432e201bbe129f05f475ebefb3cfc9ba6"
+      "sha256": "78b9d86e3418f12f128db3a1fab29c6432e201bbe129f05f475ebefb3cfc9ba6",
+      "anchor_prefix": "Sheet-010-Building-setba"
     },
     {
       "part": "Sheet 010: Building street frontage height in storeys map",
@@ -888,7 +985,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291230-file-r3howjketuuwqjkpixevhw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bsfh_010-1.pdf",
       "bytes": 383585,
-      "sha256": "8f22004ff60c36ee77345e3745e58762a5445cd132690b6ab87c1280d650e484"
+      "sha256": "8f22004ff60c36ee77345e3745e58762a5445cd132690b6ab87c1280d650e484",
+      "anchor_prefix": "Sheet-010-Building-stree"
     },
     {
       "part": "Sheet 010: Entertainment sound management",
@@ -897,7 +995,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291234-file-cso5z0yetzskcv3ucfkfoq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-010-entertainment-sound-management.pdf",
       "bytes": 362777,
-      "sha256": "910a64e8f40dc6639a9190b3e02288fc790d435055ec257d4b03eff1c0b36a7a"
+      "sha256": "910a64e8f40dc6639a9190b3e02288fc790d435055ec257d4b03eff1c0b36a7a",
+      "anchor_prefix": "Sheet-010-Entertainment-"
     },
     {
       "part": "Sheet 010: Footpath, awnings and colonnades map",
@@ -906,7 +1005,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291239-file-knkfwx-hs9w_w-qu7ogyma.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_fac_010-1.pdf",
       "bytes": 374676,
-      "sha256": "07f137f37a7025639dcae5f3687c4dea009c7094120e5386c0a173c5e0fa19ad"
+      "sha256": "07f137f37a7025639dcae5f3687c4dea009c7094120e5386c0a173c5e0fa19ad",
+      "anchor_prefix": "Sheet-010-Footpath-awnin"
     },
     {
       "part": "Sheet 010: Late night trading areas map",
@@ -915,7 +1015,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291243-file-otfwnnq8s1oq8kyweeeyqa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-010-1.pdf",
       "bytes": 420042,
-      "sha256": "f6438531283f28de846b6bb8ea104cb066bde16ad6efbf5e4c32aab52870a364"
+      "sha256": "f6438531283f28de846b6bb8ea104cb066bde16ad6efbf5e4c32aab52870a364",
+      "anchor_prefix": "Sheet-010-Late-night-tra"
     },
     {
       "part": "Sheet 010: Pedestrian priority map",
@@ -924,7 +1025,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291248-file-enl4vsqbtz2ksgytq9yjrq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_pp_010-1.pdf",
       "bytes": 372191,
-      "sha256": "6006ecf8eaf697cdb8c1a831b07860fafcc8ef3bde94831df4077642472cab0d"
+      "sha256": "6006ecf8eaf697cdb8c1a831b07860fafcc8ef3bde94831df4077642472cab0d",
+      "anchor_prefix": "Sheet-010-Pedestrian-pri"
     },
     {
       "part": "Sheet 010: Proposed open space map",
@@ -933,7 +1035,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291252-file-rzonicd0quobgsidht2elw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pos_010.pdf",
       "bytes": 368651,
-      "sha256": "42c01d4386188557afd6d633953c4d7726db5555c4e34588bf95cf47802bedf9"
+      "sha256": "42c01d4386188557afd6d633953c4d7726db5555c4e34588bf95cf47802bedf9",
+      "anchor_prefix": "Sheet-010-Proposed-open-"
     },
     {
       "part": "Sheet 010: Public domain setbacks map",
@@ -942,7 +1045,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291257-file-flx-duzpqcgl3b5exmk-bg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_pds_010-2.pdf",
       "bytes": 375703,
-      "sha256": "c5f0fbf0e8f67204aad8fb08a3e165bdafd8ff9405a6dcfd460545006688194b"
+      "sha256": "c5f0fbf0e8f67204aad8fb08a3e165bdafd8ff9405a6dcfd460545006688194b",
+      "anchor_prefix": "Sheet-010-Public-domain-"
     },
     {
       "part": "Sheet 010: Signage precincts map",
@@ -951,7 +1055,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291261-file-csu7blz0qi2ovgnzmuc-gq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-010.pdf",
       "bytes": 384326,
-      "sha256": "ef1f7117ce2b9d012a64bab45743580993706c4d6a019b2b1fb442deff6eed00"
+      "sha256": "ef1f7117ce2b9d012a64bab45743580993706c4d6a019b2b1fb442deff6eed00",
+      "anchor_prefix": "Sheet-010-Signage-precin"
     },
     {
       "part": "Sheet 010: Stormwater management map",
@@ -960,7 +1065,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291265-file-efopiex_sqea4iirk2vwqq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_sm_010-1.pdf",
       "bytes": 389691,
-      "sha256": "25d5cb47c15dc11020c7902c74f8880a8ada2ec9bb41db4b75a9db818fd5ffc0"
+      "sha256": "25d5cb47c15dc11020c7902c74f8880a8ada2ec9bb41db4b75a9db818fd5ffc0",
+      "anchor_prefix": "Sheet-010-Stormwater-man"
     },
     {
       "part": "Sheet 010: Streets and lanes map",
@@ -969,7 +1075,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291269-file-gydbg2xpqbaqkzzakabnzw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_sl_010-1.pdf",
       "bytes": 371502,
-      "sha256": "206e0f6bde6f53451ab2fa424ce3c7e824f6342fcfbb0754fd83ec2dd928f3f8"
+      "sha256": "206e0f6bde6f53451ab2fa424ce3c7e824f6342fcfbb0754fd83ec2dd928f3f8",
+      "anchor_prefix": "Sheet-010-Streets-and-la"
     },
     {
       "part": "Sheet 010: Through-site links map",
@@ -978,7 +1085,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291275-file-qpdses-mtd2hyvnqjha5sq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_tsl_010-1.pdf",
       "bytes": 372161,
-      "sha256": "165d58b1033c5cdaeda314aa8ceed05eccded338d5d61a07529585e72dc1be1e"
+      "sha256": "165d58b1033c5cdaeda314aa8ceed05eccded338d5d61a07529585e72dc1be1e",
+      "anchor_prefix": "Sheet-010-Through-site-l"
     },
     {
       "part": "Sheet 011: Active frontages map",
@@ -987,7 +1095,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291281-file-cumakpfksqsovlgne73tda.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2023/sdcp2012_af_011.pdf",
       "bytes": 298582,
-      "sha256": "b1aa61302986e544b31dce4682559d4a5f792c0ac25dab3cc4cce2981fbcc747"
+      "sha256": "b1aa61302986e544b31dce4682559d4a5f792c0ac25dab3cc4cce2981fbcc747",
+      "anchor_prefix": "Sheet-011-Active-frontag"
     },
     {
       "part": "Sheet 011: Building contributions map",
@@ -996,7 +1105,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291285-file-hiffmrl3rqalcolrj1aqbq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-011.pdf",
       "bytes": 1075969,
-      "sha256": "28fcc7b78aef2c458875ec4d51a9fa790019665df47c6152aa0d59d2c055ff0d"
+      "sha256": "28fcc7b78aef2c458875ec4d51a9fa790019665df47c6152aa0d59d2c055ff0d",
+      "anchor_prefix": "Sheet-011-Building-contr"
     },
     {
       "part": "Sheet 011: Building height in storeys map",
@@ -1005,7 +1115,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291289-file-livu3uaps0aydvm7j-4bhq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bhs_011.pdf",
       "bytes": 368566,
-      "sha256": "7b28549656ad54c8ecf43298a2fde19d0ee7561d17c786a0ef60d225707dc657"
+      "sha256": "7b28549656ad54c8ecf43298a2fde19d0ee7561d17c786a0ef60d225707dc657",
+      "anchor_prefix": "Sheet-011-Building-heigh"
     },
     {
       "part": "Sheet 011: Building setback and alignment map",
@@ -1014,7 +1125,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291293-file-eqwzmf99r5czv6hk66akcq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsa_011.pdf",
       "bytes": 310766,
-      "sha256": "369bce5528e61127c3dab64457a9cefe3673df3054d211fc422ab3253d075068"
+      "sha256": "369bce5528e61127c3dab64457a9cefe3673df3054d211fc422ab3253d075068",
+      "anchor_prefix": "Sheet-011-Building-setba"
     },
     {
       "part": "Sheet 011: Building street frontage height in storeys map",
@@ -1023,7 +1135,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291299-file-krc9ppmhszcu4mxcnajnbg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsfh_011.pdf",
       "bytes": 299571,
-      "sha256": "7e728c3f80306b5b3d19d0f51644d90f1ff1886ec6e7a6a552638eb54e5b5881"
+      "sha256": "7e728c3f80306b5b3d19d0f51644d90f1ff1886ec6e7a6a552638eb54e5b5881",
+      "anchor_prefix": "Sheet-011-Building-stree"
     },
     {
       "part": "Sheet 011: Footpath, awnings and colonnades map",
@@ -1032,7 +1145,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291302-file-bffixek7tni5y8m3rfot9w.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_fac_011.pdf",
       "bytes": 293586,
-      "sha256": "d102f810547216661248a4ba080c5e5173dad20099e54013a01f365798b5616f"
+      "sha256": "d102f810547216661248a4ba080c5e5173dad20099e54013a01f365798b5616f",
+      "anchor_prefix": "Sheet-011-Footpath-awnin"
     },
     {
       "part": "Sheet 011: Late night trading areas map",
@@ -1041,7 +1155,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291307-file-wxnl0s2ysruvvxhoo5nbyw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-011-1.pdf",
       "bytes": 317920,
-      "sha256": "f9455f192e8d41b56e1d0432a457d893083a5a022c1d24d02bd46bfbda6d3520"
+      "sha256": "f9455f192e8d41b56e1d0432a457d893083a5a022c1d24d02bd46bfbda6d3520",
+      "anchor_prefix": "Sheet-011-Late-night-tra"
     },
     {
       "part": "Sheet 011: Pedestrian priority map",
@@ -1050,7 +1165,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291311-file-f4glcc2rqwwajrcopszhoq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pp_011.pdf",
       "bytes": 294865,
-      "sha256": "cdda5c542d77925b95446b3114c7a66e148943a76ec6b1131136c57c029ababb"
+      "sha256": "cdda5c542d77925b95446b3114c7a66e148943a76ec6b1131136c57c029ababb",
+      "anchor_prefix": "Sheet-011-Pedestrian-pri"
     },
     {
       "part": "Sheet 011: Proposed open space map",
@@ -1059,7 +1175,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291317-file-eb-9tx9oslqngaog2zuifa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pos_011.pdf",
       "bytes": 298673,
-      "sha256": "28ea3af52529e5389117204ff56907b1444e76f2891025f6b2a0eb908465f99e"
+      "sha256": "28ea3af52529e5389117204ff56907b1444e76f2891025f6b2a0eb908465f99e",
+      "anchor_prefix": "Sheet-011-Proposed-open-"
     },
     {
       "part": "Sheet 011: Public domain setbacks map",
@@ -1068,7 +1185,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291321-file-hlzojekuqy6etqwcudaypq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pds_011-1.pdf",
       "bytes": 316817,
-      "sha256": "6bd22b2934cfe355f0e213cfb1da2cec595d9aea20363fe5811361aef0cdb6e7"
+      "sha256": "6bd22b2934cfe355f0e213cfb1da2cec595d9aea20363fe5811361aef0cdb6e7",
+      "anchor_prefix": "Sheet-011-Public-domain-"
     },
     {
       "part": "Sheet 011: Signage precincts map",
@@ -1077,7 +1195,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291325-file-boar_obxsxw8n4tzawo3ra.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-011.pdf",
       "bytes": 306628,
-      "sha256": "71d82a93247805f312a738ac8a1058965b91b2eed6cabe4929d22c51025baee1"
+      "sha256": "71d82a93247805f312a738ac8a1058965b91b2eed6cabe4929d22c51025baee1",
+      "anchor_prefix": "Sheet-011-Signage-precin"
     },
     {
       "part": "Sheet 011: Stormwater management map",
@@ -1086,7 +1205,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291329-file-q9wxwhspth63d5ifwsctgq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sm_011.pdf",
       "bytes": 305759,
-      "sha256": "8d834c27f1059f9f168a383cc790a70d5cf13ca5b43dbc7303f483cdb0742806"
+      "sha256": "8d834c27f1059f9f168a383cc790a70d5cf13ca5b43dbc7303f483cdb0742806",
+      "anchor_prefix": "Sheet-011-Stormwater-man"
     },
     {
       "part": "Sheet 011: Streets and lanes map",
@@ -1095,7 +1215,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291333-file-kuqtz2ettiggizmfz6teng.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sl_011.pdf",
       "bytes": 294556,
-      "sha256": "849ab3683f0dce5cc3c2f2940a53ee1094eb819dfbe9a3013a5d0c97f5381b27"
+      "sha256": "849ab3683f0dce5cc3c2f2940a53ee1094eb819dfbe9a3013a5d0c97f5381b27",
+      "anchor_prefix": "Sheet-011-Streets-and-la"
     },
     {
       "part": "Sheet 011: Through-site links map",
@@ -1104,7 +1225,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291336-file-khyvwdngs7co0uc1w2mdxa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_tsl_011.pdf",
       "bytes": 300918,
-      "sha256": "9735b4bf0073c205f989bebdb45479983602265920ad3929c074c24b2f92e9fa"
+      "sha256": "9735b4bf0073c205f989bebdb45479983602265920ad3929c074c24b2f92e9fa",
+      "anchor_prefix": "Sheet-011-Through-site-l"
     },
     {
       "part": "Sheet 012: Active frontages map",
@@ -1113,7 +1235,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291341-file-phgvddxkqls4gzbjkhw5mw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_af_012.pdf",
       "bytes": 880638,
-      "sha256": "da2e9741dba68036595ba2319eb770c98ccb72f32f467ae5c5fcd4cd8f54869d"
+      "sha256": "da2e9741dba68036595ba2319eb770c98ccb72f32f467ae5c5fcd4cd8f54869d",
+      "anchor_prefix": "Sheet-012-Active-frontag"
     },
     {
       "part": "Sheet 012: Building height in storeys map",
@@ -1122,7 +1245,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291346-file-xeltfdroscklfw41jio5fq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bhs_012.pdf",
       "bytes": 227762,
-      "sha256": "5360463c51742643060f1d101cb02e50d66b93563cfd6d76edd8b6d98ddaaf4c"
+      "sha256": "5360463c51742643060f1d101cb02e50d66b93563cfd6d76edd8b6d98ddaaf4c",
+      "anchor_prefix": "Sheet-012-Building-heigh"
     },
     {
       "part": "Sheet 012: Building setback and alignment map",
@@ -1131,7 +1255,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291350-file-odl9ol2asa62p3b4kgw3ha.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsa_012.pdf",
       "bytes": 203335,
-      "sha256": "02396635b60a39e2eb58e2692396c126f3d4537ffcb5ab2fb02ae1e12950f69b"
+      "sha256": "02396635b60a39e2eb58e2692396c126f3d4537ffcb5ab2fb02ae1e12950f69b",
+      "anchor_prefix": "Sheet-012-Building-setba"
     },
     {
       "part": "Sheet 012: Building street frontage height in storeys map",
@@ -1140,7 +1265,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291354-file-gtz3qbapth6fdudobooqzw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsfh_012.pdf",
       "bytes": 176631,
-      "sha256": "9a34a8e66d6ffc1a59c81a3cbe114f1ba50c1be02841859804b9d697e8209154"
+      "sha256": "9a34a8e66d6ffc1a59c81a3cbe114f1ba50c1be02841859804b9d697e8209154",
+      "anchor_prefix": "Sheet-012-Building-stree"
     },
     {
       "part": "Sheet 012: Footpath, awnings and colonnades map",
@@ -1149,7 +1275,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291358-file-ylg0uvorsogrlg41rpvi4q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_fac_012.pdf",
       "bytes": 199343,
-      "sha256": "84bbca5472291146d8b765c2e6c2488e7d5bc8c0450530d3698a08d1483a9995"
+      "sha256": "84bbca5472291146d8b765c2e6c2488e7d5bc8c0450530d3698a08d1483a9995",
+      "anchor_prefix": "Sheet-012-Footpath-awnin"
     },
     {
       "part": "Sheet 012: Proposed open space map",
@@ -1158,7 +1285,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291363-file-hat-gmwhs3ggr7brrl2-hw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pos_012.pdf",
       "bytes": 198670,
-      "sha256": "9de1ef14e6807967902ba4357406fe9301a6a3924d0b61422709a9749ab98031"
+      "sha256": "9de1ef14e6807967902ba4357406fe9301a6a3924d0b61422709a9749ab98031",
+      "anchor_prefix": "Sheet-012-Proposed-open-"
     },
     {
       "part": "Sheet 012: Public domain setbacks map",
@@ -1167,7 +1295,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291367-file-uriofer6qi-amlgtm_vclg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pds_012-1.pdf",
       "bytes": 209885,
-      "sha256": "64ae2a98144313317efdf77716aa6c5f8715431a76d157e8f9a2ac1414a5c57e"
+      "sha256": "64ae2a98144313317efdf77716aa6c5f8715431a76d157e8f9a2ac1414a5c57e",
+      "anchor_prefix": "Sheet-012-Public-domain-"
     },
     {
       "part": "Sheet 012: Stormwater management map",
@@ -1176,7 +1305,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291371-file-wvxrr6-sq5wbscyfhvooyg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sm_012.pdf",
       "bytes": 202422,
-      "sha256": "6cf9f7ce7abed073ff12667f5278e34c21d9e07a1a24454c8f79b70370b2f288"
+      "sha256": "6cf9f7ce7abed073ff12667f5278e34c21d9e07a1a24454c8f79b70370b2f288",
+      "anchor_prefix": "Sheet-012-Stormwater-man"
     },
     {
       "part": "Sheet 012: Streets and lanes map",
@@ -1185,7 +1315,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291374-file-ocioydscsa2vubesmw84-q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sl_012.pdf",
       "bytes": 196804,
-      "sha256": "f519b4062c0090c5efc3a224627c65f757a71a30cd565a69520a91ba398dc6c4"
+      "sha256": "f519b4062c0090c5efc3a224627c65f757a71a30cd565a69520a91ba398dc6c4",
+      "anchor_prefix": "Sheet-012-Streets-and-la"
     },
     {
       "part": "Sheet 012: Through-site links map",
@@ -1194,7 +1325,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291378-file-bzm-nsj-smcvjhdmhzl9_q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_tsl_012.pdf",
       "bytes": 198658,
-      "sha256": "d33637650b76d82097f6f034f764b48880a0c5312c2fe9d6903ce55039b33b56"
+      "sha256": "d33637650b76d82097f6f034f764b48880a0c5312c2fe9d6903ce55039b33b56",
+      "anchor_prefix": "Sheet-012-Through-site-l"
     },
     {
       "part": "Sheet 013: Active frontages map",
@@ -1203,7 +1335,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291382-file-majstw32q6khemmqhdt_5a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_013.pdf",
       "bytes": 240780,
-      "sha256": "39c3fb3e040bed22082eb2878abfd6e466e4f632b49e984748065f88d842f491"
+      "sha256": "39c3fb3e040bed22082eb2878abfd6e466e4f632b49e984748065f88d842f491",
+      "anchor_prefix": "Sheet-013-Active-frontag"
     },
     {
       "part": "Sheet 013: Building contributions map",
@@ -1212,7 +1345,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291386-file-rtvvrorxrxmbpikog7y-8q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-013.pdf",
       "bytes": 1164127,
-      "sha256": "0c9f0b0aa7fabb2f880d9722a84fe31b5d9a8ef05708857a8a76429cc73521c0"
+      "sha256": "0c9f0b0aa7fabb2f880d9722a84fe31b5d9a8ef05708857a8a76429cc73521c0",
+      "anchor_prefix": "Sheet-013-Building-contr"
     },
     {
       "part": "Sheet 013: Entertainment sound management",
@@ -1221,7 +1355,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291393-file-ogvmyt7usy-tixrvh94gra.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-013-entertainment-sound-management.pdf",
       "bytes": 289536,
-      "sha256": "d2b221fdaf3efcc8f4165ebb89c84d0bc37b6a5d56385df534b928fc209e8a59"
+      "sha256": "d2b221fdaf3efcc8f4165ebb89c84d0bc37b6a5d56385df534b928fc209e8a59",
+      "anchor_prefix": "Sheet-013-Entertainment-"
     },
     {
       "part": "Sheet 013: Late night trading areas map",
@@ -1230,7 +1365,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291397-file-eo3xzdjhsg281xagv9npaw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-013.pdf",
       "bytes": 290859,
-      "sha256": "00b96c11416df09dac3cdedb9f168d3cfbc012e96cb33e65fb757407a113d7ed"
+      "sha256": "00b96c11416df09dac3cdedb9f168d3cfbc012e96cb33e65fb757407a113d7ed",
+      "anchor_prefix": "Sheet-013-Late-night-tra"
     },
     {
       "part": "Sheet 013: Pedestrian priority map",
@@ -1239,7 +1375,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291401-file-a2inenq1rw-ajqwgc9dyaq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority013.pdf",
       "bytes": 627701,
-      "sha256": "62a012be0eeaac072ac1a811dcc319a4a9d9a8533e9beb47a64143d963fae9da"
+      "sha256": "62a012be0eeaac072ac1a811dcc319a4a9d9a8533e9beb47a64143d963fae9da",
+      "anchor_prefix": "Sheet-013-Pedestrian-pri"
     },
     {
       "part": "Sheet 013: Signage precincts map",
@@ -1248,7 +1385,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291405-file-c6xrl_3gqz69rtoejssiwg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-013.pdf",
       "bytes": 299287,
-      "sha256": "d152a46c6c87067a259f2f9746c4420d34a7571a973e72cc83eaa241f1bae5d3"
+      "sha256": "d152a46c6c87067a259f2f9746c4420d34a7571a973e72cc83eaa241f1bae5d3",
+      "anchor_prefix": "Sheet-013-Signage-precin"
     },
     {
       "part": "Sheet 014: Active frontages map",
@@ -1257,7 +1395,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291409-file-fd_yxnzntkiuzm5696fh2a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_014.pdf",
       "bytes": 525552,
-      "sha256": "75d3a843716cd83734ceba7b2d9c369d3c87e98015474be9d127ed2fd9edd46f"
+      "sha256": "75d3a843716cd83734ceba7b2d9c369d3c87e98015474be9d127ed2fd9edd46f",
+      "anchor_prefix": "Sheet-014-Active-frontag"
     },
     {
       "part": "Sheet 014: Building contributions map",
@@ -1266,7 +1405,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291412-file-i-2ipts6q8ok8rggn_potq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-014.pdf",
       "bytes": 2005912,
-      "sha256": "bd5d3200b03bb6cff0bd47c3ce66e9cb3e05143358c36fb97a608c2f79ec2136"
+      "sha256": "bd5d3200b03bb6cff0bd47c3ce66e9cb3e05143358c36fb97a608c2f79ec2136",
+      "anchor_prefix": "Sheet-014-Building-contr"
     },
     {
       "part": "Sheet 014: Building height in storeys map",
@@ -1275,7 +1415,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291417-file-cm_8rqucsbs8lqasi5u8cg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-hob-storeys-050614-014.pdf",
       "bytes": 471531,
-      "sha256": "baf7b66ebf4eeff0f87c3e6be8f68b692908fdb5ce6b5c4a0449e0bced6a1056"
+      "sha256": "baf7b66ebf4eeff0f87c3e6be8f68b692908fdb5ce6b5c4a0449e0bced6a1056",
+      "anchor_prefix": "Sheet-014-Building-heigh"
     },
     {
       "part": "Sheet 014: Entertainment sound management",
@@ -1284,7 +1425,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291421-file-yw9curkesoigpqg4cpu2xq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-014-entertainment-sound-management.pdf",
       "bytes": 514197,
-      "sha256": "d202a459ac3d6dd3531695a6e7de6d5f65502d06d7bcd0f9c85d8eb652948354"
+      "sha256": "d202a459ac3d6dd3531695a6e7de6d5f65502d06d7bcd0f9c85d8eb652948354",
+      "anchor_prefix": "Sheet-014-Entertainment-"
     },
     {
       "part": "Sheet 014: Footpath, awnings and colonnades map",
@@ -1293,7 +1435,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291425-file-sfe1y8ijsg6rnz7kj_ycoq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awning-and-colonnades014.pdf",
       "bytes": 846536,
-      "sha256": "beddee2ea0ab13b64f9d1fef1cec4ad90b605f4fa648130205f14d4d604b3252"
+      "sha256": "beddee2ea0ab13b64f9d1fef1cec4ad90b605f4fa648130205f14d4d604b3252",
+      "anchor_prefix": "Sheet-014-Footpath-awnin"
     },
     {
       "part": "Sheet 014: Late night trading areas map",
@@ -1302,7 +1445,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291430-file-e0btorgrqy-m-8bgr5brpq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-014-1.pdf",
       "bytes": 585507,
-      "sha256": "784b07cec114102301960599abd40c3bcbcdfb039ff5d3fa03397fec9f523bc7"
+      "sha256": "784b07cec114102301960599abd40c3bcbcdfb039ff5d3fa03397fec9f523bc7",
+      "anchor_prefix": "Sheet-014-Late-night-tra"
     },
     {
       "part": "Sheet 014: Pedestrian priority map",
@@ -1311,7 +1455,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291436-file-bhh0o5grrxeryxlbc8xa5a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority014.pdf",
       "bytes": 848196,
-      "sha256": "10d4e1ce10b510ff81fd971a4be6fd4deb0c794c5ca4c01545224b9df4ec281a"
+      "sha256": "10d4e1ce10b510ff81fd971a4be6fd4deb0c794c5ca4c01545224b9df4ec281a",
+      "anchor_prefix": "Sheet-014-Pedestrian-pri"
     },
     {
       "part": "Sheet 014: Signage precincts map",
@@ -1320,7 +1465,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291441-file-hgmc0ircsvuhhdzrgjlqyw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-014.pdf",
       "bytes": 469947,
-      "sha256": "5f8bd0f537568f937324461b85f4d5978a6be2484d3aee60606980b2897da6fa"
+      "sha256": "5f8bd0f537568f937324461b85f4d5978a6be2484d3aee60606980b2897da6fa",
+      "anchor_prefix": "Sheet-014-Signage-precin"
     },
     {
       "part": "Sheet 014: Streets and lanes map",
@@ -1329,7 +1475,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291445-file-oac3sivat72cnqsljsgnrq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-2/streets-and-lanes014.pdf",
       "bytes": 837981,
-      "sha256": "2ae81bfa4b1366e5978eda1bb576d305c42e7da8b0c1764bc14535e8e12189e8"
+      "sha256": "2ae81bfa4b1366e5978eda1bb576d305c42e7da8b0c1764bc14535e8e12189e8",
+      "anchor_prefix": "Sheet-014-Streets-and-la"
     },
     {
       "part": "Sheet 014: Through-site links map",
@@ -1338,7 +1485,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291448-file-srgcszwaqxicrvx5qmppnq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_t/through-site-links014.pdf",
       "bytes": 815857,
-      "sha256": "eceb6dcf62454893fd7bb70204cc9988e6cada4e66d04d2d8dfc78478099385d"
+      "sha256": "eceb6dcf62454893fd7bb70204cc9988e6cada4e66d04d2d8dfc78478099385d",
+      "anchor_prefix": "Sheet-014-Through-site-l"
     },
     {
       "part": "Sheet 015: Active frontages map",
@@ -1347,7 +1495,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291454-file-bclrxksdr0k6bt-cl5aujq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_015.pdf",
       "bytes": 569147,
-      "sha256": "f928de284c4a29b3577f71a5305f427394dd1e0726ffd1dec0b05272e7675675"
+      "sha256": "f928de284c4a29b3577f71a5305f427394dd1e0726ffd1dec0b05272e7675675",
+      "anchor_prefix": "Sheet-015-Active-frontag"
     },
     {
       "part": "Sheet 015: Building contributions map",
@@ -1356,7 +1505,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682745-file-jljqyzslqaakehah74ejsa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2026/sdcp2012_bc_015.pdf",
       "bytes": 516952,
-      "sha256": "51e06f2dc94cea198b636d877eacd5e4fb99e37b8039631a215e49769ad853d5"
+      "sha256": "51e06f2dc94cea198b636d877eacd5e4fb99e37b8039631a215e49769ad853d5",
+      "anchor_prefix": "Sheet-015-Building-contr"
     },
     {
       "part": "Sheet 015: Building height in storeys map",
@@ -1365,7 +1515,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291462-file-xymimr8ctwmhg3odvopbpq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-hob-storeys-050614-015.pdf",
       "bytes": 754007,
-      "sha256": "a497578a3a44d8d7600887eb33f62de09292759d6a3d43994f0bae96d1e1330a"
+      "sha256": "a497578a3a44d8d7600887eb33f62de09292759d6a3d43994f0bae96d1e1330a",
+      "anchor_prefix": "Sheet-015-Building-heigh"
     },
     {
       "part": "Sheet 015: Alternative building height in storeys map",
@@ -1374,7 +1525,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291467-file-dpdrftkktpob3yflo0pfaa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/sdcp2012_abhs_015.pdf",
       "bytes": 759939,
-      "sha256": "e467f3ecb71a6197f9bda504f18cd615b3378c2dff169bd2d3499b0a4926cece"
+      "sha256": "e467f3ecb71a6197f9bda504f18cd615b3378c2dff169bd2d3499b0a4926cece",
+      "anchor_prefix": "Sheet-015-Alternative-bu"
     },
     {
       "part": "Sheet 015: Building street frontage height in storeys map",
@@ -1383,7 +1535,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291471-file-lesi2xq-tlscnu0flveuyq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/building-street-frontage-height-in-storeys015.pdf",
       "bytes": 997034,
-      "sha256": "c047e892723c34129790af545f0a7a3177a918a4154269af1cd83533e153da95"
+      "sha256": "c047e892723c34129790af545f0a7a3177a918a4154269af1cd83533e153da95",
+      "anchor_prefix": "Sheet-015-Building-stree"
     },
     {
       "part": "Sheet 015: Alternative building street frontage height in storeys map",
@@ -1392,7 +1545,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291476-file-zqd1afrqtfon4n-olvfoq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/sdcp2012_abhsf_015.pdf",
       "bytes": 545704,
-      "sha256": "0983d5e3a4a5889fd995f969e77dc1e839c006a5038a8b0e90f579c41677c7d8"
+      "sha256": "0983d5e3a4a5889fd995f969e77dc1e839c006a5038a8b0e90f579c41677c7d8",
+      "anchor_prefix": "Sheet-015-Alternative-bu-2"
     },
     {
       "part": "Sheet 015: Entertainment sound management",
@@ -1401,7 +1555,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291482-file-skj5beekqc64qclwkdslfq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-015-entertainment-sound-management.pdf",
       "bytes": 628805,
-      "sha256": "c4a5db5a1fe5a10e1b4c71d0e036dcc53e0ce4798f596cc8795e049b201bf87b"
+      "sha256": "c4a5db5a1fe5a10e1b4c71d0e036dcc53e0ce4798f596cc8795e049b201bf87b",
+      "anchor_prefix": "Sheet-015-Entertainment-"
     },
     {
       "part": "Sheet 015: Footpath, awnings and colonnades map",
@@ -1410,7 +1565,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291489-file-kph0jekctnyp66yvlkkscq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awning-and-colonnades015.pdf",
       "bytes": 1022134,
-      "sha256": "e33adcd41f3a8e10a7083eca749ae63480f60d67b6d9507802f80171cfff82c2"
+      "sha256": "e33adcd41f3a8e10a7083eca749ae63480f60d67b6d9507802f80171cfff82c2",
+      "anchor_prefix": "Sheet-015-Footpath-awnin"
     },
     {
       "part": "Sheet 015: Late night trading areas map",
@@ -1419,7 +1575,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291492-file-k6vggfokrga3pwjzpukq0a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-015.pdf",
       "bytes": 655551,
-      "sha256": "ec7edb3f791a8a2570cc77c7c5ef0ff6bf63c85cfffbc28cf44067b45f228147"
+      "sha256": "ec7edb3f791a8a2570cc77c7c5ef0ff6bf63c85cfffbc28cf44067b45f228147",
+      "anchor_prefix": "Sheet-015-Late-night-tra"
     },
     {
       "part": "Sheet 015: Pedestrian priority map",
@@ -1428,7 +1585,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291497-file-eagpesservokgf-a4tmusq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority015.pdf",
       "bytes": 1019272,
-      "sha256": "1055222fd3e934b70641f501ae67042f23828b9be5f112bf4a60a53712eba9dd"
+      "sha256": "1055222fd3e934b70641f501ae67042f23828b9be5f112bf4a60a53712eba9dd",
+      "anchor_prefix": "Sheet-015-Pedestrian-pri"
     },
     {
       "part": "Sheet 015: Proposed open space map",
@@ -1437,7 +1595,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291501-file-azwq2optt9gtwf5grnrjog.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p-1/proposed-open-space015.pdf",
       "bytes": 1006972,
-      "sha256": "f546fbc4266854b730f35ad5ffd80d007ea51a122190962dc1740ee067fab292"
+      "sha256": "f546fbc4266854b730f35ad5ffd80d007ea51a122190962dc1740ee067fab292",
+      "anchor_prefix": "Sheet-015-Proposed-open-"
     },
     {
       "part": "Sheet 015: Signage precincts map",
@@ -1446,7 +1605,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291505-file-u-kibi6prn6ex5zgsqxi9g.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-015.pdf",
       "bytes": 586817,
-      "sha256": "c45f224c5206a2283283256e4b5db9a4c46b43b490d10c70d116fac29f0605ad"
+      "sha256": "c45f224c5206a2283283256e4b5db9a4c46b43b490d10c70d116fac29f0605ad",
+      "anchor_prefix": "Sheet-015-Signage-precin"
     },
     {
       "part": "Sheet 015: Streets and lanes map",
@@ -1455,7 +1615,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291509-file-bgoj5ceqray7wgzht9quhg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-2/streets-and-lanes015.pdf",
       "bytes": 1005820,
-      "sha256": "c8a6ade26f8f1f3680773e6d1c789a93cd2545fadeeb1f7c0bc8ea842fedd685"
+      "sha256": "c8a6ade26f8f1f3680773e6d1c789a93cd2545fadeeb1f7c0bc8ea842fedd685",
+      "anchor_prefix": "Sheet-015-Streets-and-la"
     },
     {
       "part": "Sheet 015: Through-site links map",
@@ -1464,7 +1625,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291513-file-qpqbpcuiry-ixaahdk3d_w.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/sdcp2012_tsl_015.pdf",
       "bytes": 548067,
-      "sha256": "7543939f6c75eb4cb2e1024aba67d330aa80ea7dfdcfbf0f9bb137ea6a26ce33"
+      "sha256": "7543939f6c75eb4cb2e1024aba67d330aa80ea7dfdcfbf0f9bb137ea6a26ce33",
+      "anchor_prefix": "Sheet-015-Through-site-l"
     },
     {
       "part": "Sheet 016: Active frontages map",
@@ -1473,7 +1635,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291518-file-ass9cwe-ttkkxgcezlntgg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_016.pdf",
       "bytes": 440016,
-      "sha256": "45701b63b1583f0ae793709782106a75cb54af9fbda938164747a1672eca84b1"
+      "sha256": "45701b63b1583f0ae793709782106a75cb54af9fbda938164747a1672eca84b1",
+      "anchor_prefix": "Sheet-016-Active-frontag"
     },
     {
       "part": "Sheet 016: Building contributions map",
@@ -1482,7 +1645,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682763-file-sljypescqrqisxrroze7ya.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2026/sdcp2012_bc_016.pdf",
       "bytes": 483225,
-      "sha256": "69b32a93f06781e7286f74357aeb43f3a29c908d7e92c49bb7967f55253229df"
+      "sha256": "69b32a93f06781e7286f74357aeb43f3a29c908d7e92c49bb7967f55253229df",
+      "anchor_prefix": "Sheet-016-Building-contr"
     },
     {
       "part": "Sheet 016: Building height in storeys map",
@@ -1491,7 +1655,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291529-file-rytbievgtty9sff12eeluw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-hob-storeys-016.pdf",
       "bytes": 2223090,
-      "sha256": "2199c7c83e8c535286032ef54d8a96fc15e45b6e7c4a93834c4f781253e78dff"
+      "sha256": "2199c7c83e8c535286032ef54d8a96fc15e45b6e7c4a93834c4f781253e78dff",
+      "anchor_prefix": "Sheet-016-Building-heigh"
     },
     {
       "part": "Sheet 016: Building setback and alignment map",
@@ -1500,7 +1665,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291533-file-p_goqknntgwqkuuhenurfg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bsa-016.pdf",
       "bytes": 1724775,
-      "sha256": "a64136b38ac39c82d91d125e2846a6ac24c8fe91f3c994ce8f5076f863526813"
+      "sha256": "a64136b38ac39c82d91d125e2846a6ac24c8fe91f3c994ce8f5076f863526813",
+      "anchor_prefix": "Sheet-016-Building-setba"
     },
     {
       "part": "Sheet 016: Building street frontage height in storeys map",
@@ -1509,7 +1675,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291554-file-s5plvtvsq-6pohzq_1bxxg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sfh-016.pdf",
       "bytes": 577915,
-      "sha256": "881f9f4ebd56171c9cac61cafc7c3a0bfac9b8f852f3ba71bf258c19f64fa99d"
+      "sha256": "881f9f4ebd56171c9cac61cafc7c3a0bfac9b8f852f3ba71bf258c19f64fa99d",
+      "anchor_prefix": "Sheet-016-Building-stree"
     },
     {
       "part": "Sheet 016: Entertainment sound management",
@@ -1518,7 +1685,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291558-file-v69qzqijrw-pmciyptx2gq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-016-entertainment-sound-management.pdf",
       "bytes": 485185,
-      "sha256": "87aed3e98dfd9d9387273f5c986fca969e91b44a86a0701b33ef0f534dec2925"
+      "sha256": "87aed3e98dfd9d9387273f5c986fca969e91b44a86a0701b33ef0f534dec2925",
+      "anchor_prefix": "Sheet-016-Entertainment-"
     },
     {
       "part": "Sheet 016: Footpath, awnings and colonnades map",
@@ -1527,7 +1695,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291562-file-z2bdru8ptxiq4ei7esnfxq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awning-and-colonnades016.pdf",
       "bytes": 840343,
-      "sha256": "c33421c50627a866e32b77cfc0d5d0e1fc0e4e07d2673ecf7412c0aec0fa449b"
+      "sha256": "c33421c50627a866e32b77cfc0d5d0e1fc0e4e07d2673ecf7412c0aec0fa449b",
+      "anchor_prefix": "Sheet-016-Footpath-awnin"
     },
     {
       "part": "Sheet 016: Late night trading areas",
@@ -1536,7 +1705,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291573-file-rkhv6enlrn2cq130jnepwa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-016.pdf",
       "bytes": 502865,
-      "sha256": "c92ac40a05fa4a4daf3f132ea4a46f887b691af5dadf77ce45d2842ef2da6781"
+      "sha256": "c92ac40a05fa4a4daf3f132ea4a46f887b691af5dadf77ce45d2842ef2da6781",
+      "anchor_prefix": "Sheet-016-Late-night-tra"
     },
     {
       "part": "Sheet 016: Pedestrian priority map",
@@ -1545,7 +1715,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291579-file-fle6usshtzmklhwt6p5wcg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority016.pdf",
       "bytes": 844586,
-      "sha256": "e47dfd74bdad86e0ecdc409859fe2c9dbf9523e4c1fc1723b186b7e4698c0a4c"
+      "sha256": "e47dfd74bdad86e0ecdc409859fe2c9dbf9523e4c1fc1723b186b7e4698c0a4c",
+      "anchor_prefix": "Sheet-016-Pedestrian-pri"
     },
     {
       "part": "Sheet 016: Public domain setbacks map",
@@ -1554,7 +1725,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291583-file-bqrnbk3ktqulzadzpm2cja.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-pds-016.pdf",
       "bytes": 570427,
-      "sha256": "bd3d7b4d149098832976b7e73b2d2647bbd0b6dd8ec1a2997ba083f9704bb8e7"
+      "sha256": "bd3d7b4d149098832976b7e73b2d2647bbd0b6dd8ec1a2997ba083f9704bb8e7",
+      "anchor_prefix": "Sheet-016-Public-domain-"
     },
     {
       "part": "Sheet 016: Signage precincts map",
@@ -1563,7 +1735,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291587-file-lgw0oy02qtgxpdonseprog.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-016.pdf",
       "bytes": 463443,
-      "sha256": "162694fcac0c86778403f19f7a32812dcf4f126b17cbf90e405749d60d504acb"
+      "sha256": "162694fcac0c86778403f19f7a32812dcf4f126b17cbf90e405749d60d504acb",
+      "anchor_prefix": "Sheet-016-Signage-precin"
     },
     {
       "part": "Sheet 016: Streets and lanes map",
@@ -1572,7 +1745,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291591-file-l-yhtfkasmm75uvh2ninhg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sl-016.pdf",
       "bytes": 1705530,
-      "sha256": "dbb306f539c54839448f269d8985f9f09a2cc057343d4add251a9dc396f6424b"
+      "sha256": "dbb306f539c54839448f269d8985f9f09a2cc057343d4add251a9dc396f6424b",
+      "anchor_prefix": "Sheet-016-Streets-and-la"
     },
     {
       "part": "Sheet 016: Through-site links map",
@@ -1581,7 +1755,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291595-file-azj4os0briwd3gcfbmut5a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-tsl-016.pdf",
       "bytes": 1708327,
-      "sha256": "4d4b2812c1d56c5eeb513617a94b1bbf30b290ab82fa1ec7c31b64ee01dec5f8"
+      "sha256": "4d4b2812c1d56c5eeb513617a94b1bbf30b290ab82fa1ec7c31b64ee01dec5f8",
+      "anchor_prefix": "Sheet-016-Through-site-l"
     },
     {
       "part": "Sheet 017: Active frontages map",
@@ -1590,7 +1765,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291600-file-s-rcwoxbsq-r0hhkndc3ww.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2024/sdcp2012_af_017.pdf",
       "bytes": 294754,
-      "sha256": "be2072526f5ecd6c5fcca57e13905819479d91ee3b1410f33e67e4b94e9264bd"
+      "sha256": "be2072526f5ecd6c5fcca57e13905819479d91ee3b1410f33e67e4b94e9264bd",
+      "anchor_prefix": "Sheet-017-Active-frontag"
     },
     {
       "part": "Sheet 017: Building contributions map",
@@ -1599,7 +1775,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291604-file-evgoeicjtogbpysmyrgajw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc.pdf",
       "bytes": 211396,
-      "sha256": "6cf2188b91b44a77d4c22e5018feb75d6409c8bc65a36daf7312751f8a3e8a5a"
+      "sha256": "6cf2188b91b44a77d4c22e5018feb75d6409c8bc65a36daf7312751f8a3e8a5a",
+      "anchor_prefix": "Sheet-017-Building-contr"
     },
     {
       "part": "Sheet 017: Building height in storeys map",
@@ -1608,7 +1785,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291608-file-adlxgn8btdeluy8nd9ktsw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2024/sdcp2012_bhs_017.pdf",
       "bytes": 538950,
-      "sha256": "643af7f4ba1524fcb0a322716b2a1f37d167cbf46ccfb320a15fcb1e5c6c4342"
+      "sha256": "643af7f4ba1524fcb0a322716b2a1f37d167cbf46ccfb320a15fcb1e5c6c4342",
+      "anchor_prefix": "Sheet-017-Building-heigh"
     },
     {
       "part": "Sheet 017: Building setback and alignment map",
@@ -1617,7 +1795,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291613-file-gwweweaira-qyzcmwtu2qa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2024/sdcp2012_bsa_017.pdf",
       "bytes": 306296,
-      "sha256": "476d1caac2a191da56931388c9827ccfa8c37e1693f45783b9644d49bb65f6db"
+      "sha256": "476d1caac2a191da56931388c9827ccfa8c37e1693f45783b9644d49bb65f6db",
+      "anchor_prefix": "Sheet-017-Building-setba"
     },
     {
       "part": "Sheet 017: Building street frontage height in storeys map",
@@ -1626,7 +1805,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291617-file-fml8xknxqmce_dxc5jducg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bsfh_017-1.pdf",
       "bytes": 296867,
-      "sha256": "fdd150c3a7e493df33eb2e30c8ccac238a281423759d5087769ac3b670476860"
+      "sha256": "fdd150c3a7e493df33eb2e30c8ccac238a281423759d5087769ac3b670476860",
+      "anchor_prefix": "Sheet-017-Building-stree"
     },
     {
       "part": "Sheet 017: Entertainment sound management",
@@ -1635,7 +1815,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291623-file-mz4nk3srq3kxgtu-jq1lfg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-017-entertainment-sound-management.pdf",
       "bytes": 277931,
-      "sha256": "f8b473d46c706411af2bfeb117c93d2584825af3705da11075e2572ee56061f6"
+      "sha256": "f8b473d46c706411af2bfeb117c93d2584825af3705da11075e2572ee56061f6",
+      "anchor_prefix": "Sheet-017-Entertainment-"
     },
     {
       "part": "Sheet 017: Footpath, awnings and colonnades map",
@@ -1644,7 +1825,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291627-file-c38bedafqjg69km6h6daga.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_fac_017-1.pdf",
       "bytes": 292541,
-      "sha256": "759d84cd286cbcdc06725f47d4d920e069c07c6fb4ce472f9cf82c072044138a"
+      "sha256": "759d84cd286cbcdc06725f47d4d920e069c07c6fb4ce472f9cf82c072044138a",
+      "anchor_prefix": "Sheet-017-Footpath-awnin"
     },
     {
       "part": "Sheet 017: Late night trading areas map",
@@ -1653,7 +1835,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291631-file-qcfuje3bryo1fqvfw0v9tg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-017.pdf",
       "bytes": 329319,
-      "sha256": "679e073ca3ecd64f9d809634b4b66b380806c410ab8ec2c8dc626acebcf48448"
+      "sha256": "679e073ca3ecd64f9d809634b4b66b380806c410ab8ec2c8dc626acebcf48448",
+      "anchor_prefix": "Sheet-017-Late-night-tra"
     },
     {
       "part": "Sheet 017: Pedestrian priority map",
@@ -1662,7 +1845,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291635-file-iex0s09rqea3scvnwjpzgw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_pp_017-1.pdf",
       "bytes": 289592,
-      "sha256": "caaba37ac3bc85457f04eb623636f070f0c413935de9729f9fc884e11b8b78b8"
+      "sha256": "caaba37ac3bc85457f04eb623636f070f0c413935de9729f9fc884e11b8b78b8",
+      "anchor_prefix": "Sheet-017-Pedestrian-pri"
     },
     {
       "part": "Sheet 017: Proposed open space map",
@@ -1671,7 +1855,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291639-file-lmigsjkit9kxyhjo2nosnw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-17/sdcp2012_pos_017.pdf",
       "bytes": 287062,
-      "sha256": "356b19c47495cca6068999132c83a8d5acd30a75cc71dc3e071dc59710e1b8e7"
+      "sha256": "356b19c47495cca6068999132c83a8d5acd30a75cc71dc3e071dc59710e1b8e7",
+      "anchor_prefix": "Sheet-017-Proposed-open-"
     },
     {
       "part": "Sheet 017: Public domain setbacks map",
@@ -1680,7 +1865,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291643-file-sn9-rye4si6rh0a2y5mnga.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pds_017-1.pdf",
       "bytes": 313952,
-      "sha256": "aa882ad9eb2d50635775d7bec00662ac3af115fc674bce0c80c8255f88fb5c25"
+      "sha256": "aa882ad9eb2d50635775d7bec00662ac3af115fc674bce0c80c8255f88fb5c25",
+      "anchor_prefix": "Sheet-017-Public-domain-"
     },
     {
       "part": "Sheet 017: Signage precincts map",
@@ -1689,7 +1875,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291647-file-uzpz6t6nswiyr2bq2tcaog.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-017.pdf",
       "bytes": 320739,
-      "sha256": "3781c4b030084be9e8792f20ffb2d44778a3ed43d1e925d9a770d72d84a3986d"
+      "sha256": "3781c4b030084be9e8792f20ffb2d44778a3ed43d1e925d9a770d72d84a3986d",
+      "anchor_prefix": "Sheet-017-Signage-precin"
     },
     {
       "part": "Sheet 017: Stormwater management map",
@@ -1698,7 +1885,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291652-file-mpx19sz5rqgn-cxkegzdya.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_sm_017-1.pdf",
       "bytes": 315712,
-      "sha256": "c4ea63c16a45af3ff587e30080a193a6723bc843cfff3b1730aaf9c95f75ba13"
+      "sha256": "c4ea63c16a45af3ff587e30080a193a6723bc843cfff3b1730aaf9c95f75ba13",
+      "anchor_prefix": "Sheet-017-Stormwater-man"
     },
     {
       "part": "Sheet 017: Streets and lanes map",
@@ -1707,7 +1895,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291656-file-fqrwf3_orfac6ittxzmiga.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_sl_017-1.pdf",
       "bytes": 289096,
-      "sha256": "7da55db8598872a602bfe99e9470ad3d9c2b60063aafe647000a781363ba8057"
+      "sha256": "7da55db8598872a602bfe99e9470ad3d9c2b60063aafe647000a781363ba8057",
+      "anchor_prefix": "Sheet-017-Streets-and-la"
     },
     {
       "part": "Sheet 017: Through-site links map",
@@ -1716,7 +1905,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291660-file-wqulmytgtpmvsfpyre25cq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_tsl_017-1.pdf",
       "bytes": 290066,
-      "sha256": "2c37e47c7223d963e9866902c0a3fc59bac21c50cdb3480b923eb26e223c9467"
+      "sha256": "2c37e47c7223d963e9866902c0a3fc59bac21c50cdb3480b923eb26e223c9467",
+      "anchor_prefix": "Sheet-017-Through-site-l"
     },
     {
       "part": "Sheet 018: Active frontages map",
@@ -1725,7 +1915,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291666-file-k8-sbrbsqeqoddyqtd2hwa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_af_018.pdf",
       "bytes": 971556,
-      "sha256": "1f116bac6d7faf08f3a225813c829df1c10f072f322cf990dfb4440d79bb370e"
+      "sha256": "1f116bac6d7faf08f3a225813c829df1c10f072f322cf990dfb4440d79bb370e",
+      "anchor_prefix": "Sheet-018-Active-frontag"
     },
     {
       "part": "Sheet 018: Building contributions map",
@@ -1734,7 +1925,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291671-file-tprswdzsrnuy_us4wqlcsq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-040614-018.pdf",
       "bytes": 321964,
-      "sha256": "ab3b007fcba2aadbf1b274f3db0d6ebcbb452b69a09a648bb426a7b4adb3608b"
+      "sha256": "ab3b007fcba2aadbf1b274f3db0d6ebcbb452b69a09a648bb426a7b4adb3608b",
+      "anchor_prefix": "Sheet-018-Building-contr"
     },
     {
       "part": "Sheet 018: Building height in storeys map",
@@ -1743,7 +1935,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291675-file-mryiwb-usjivi0zscogkkg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bhs_018.pdf",
       "bytes": 310740,
-      "sha256": "ee0face72a7cdaa94126108c19e3d1620db100f5bade3a09eec624743de31c42"
+      "sha256": "ee0face72a7cdaa94126108c19e3d1620db100f5bade3a09eec624743de31c42",
+      "anchor_prefix": "Sheet-018-Building-heigh"
     },
     {
       "part": "Sheet 018: Building setback and alignment map",
@@ -1752,7 +1945,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291680-file-ev_z2t7rtxqmu0w5_ibtna.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsa_018.pdf",
       "bytes": 267011,
-      "sha256": "658c5e7a32fad20ac91faa11a2e59e38e9566f144ab4a8c7bb509865887dad93"
+      "sha256": "658c5e7a32fad20ac91faa11a2e59e38e9566f144ab4a8c7bb509865887dad93",
+      "anchor_prefix": "Sheet-018-Building-setba"
     },
     {
       "part": "Sheet 018: Building street frontage height in storeys map",
@@ -1761,7 +1955,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291683-file-ysqgkwvutyseepnc-ttdrq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsfh_018.pdf",
       "bytes": 246549,
-      "sha256": "bbb88d952d8cd395a5f2aca956e68d00361b6e3df9061b8f5ad4706c81ebf1f7"
+      "sha256": "bbb88d952d8cd395a5f2aca956e68d00361b6e3df9061b8f5ad4706c81ebf1f7",
+      "anchor_prefix": "Sheet-018-Building-stree"
     },
     {
       "part": "Sheet 018: Footpath, awnings and colonnades map",
@@ -1770,7 +1965,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291687-file-khjdyiolqvo19vfwdzldta.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_fac_018.pdf",
       "bytes": 243747,
-      "sha256": "e3c5dfbd6b9135a44930da80c53eae90d3cbb0349f2c630dd558990c2018ceb5"
+      "sha256": "e3c5dfbd6b9135a44930da80c53eae90d3cbb0349f2c630dd558990c2018ceb5",
+      "anchor_prefix": "Sheet-018-Footpath-awnin"
     },
     {
       "part": "Sheet 018: Late night trading areas map",
@@ -1779,7 +1975,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291692-file-l_ucqhnqqcetgwjwek68lq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-018.pdf",
       "bytes": 266044,
-      "sha256": "3a6580979fef95e9c32a7c35758e469415904a2acb7b5399e91f7f334c138f97"
+      "sha256": "3a6580979fef95e9c32a7c35758e469415904a2acb7b5399e91f7f334c138f97",
+      "anchor_prefix": "Sheet-018-Late-night-tra"
     },
     {
       "part": "Sheet 018: Proposed open space map",
@@ -1788,7 +1985,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291696-file-eo_4jbtxrearpcz_wkixfq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pos_018.pdf",
       "bytes": 243295,
-      "sha256": "739839c275aaae4011ba96574585e7c3904c2e9dffbc6cc2c520e897f7af5dc4"
+      "sha256": "739839c275aaae4011ba96574585e7c3904c2e9dffbc6cc2c520e897f7af5dc4",
+      "anchor_prefix": "Sheet-018-Proposed-open-"
     },
     {
       "part": "Sheet 018: Public domain setbacks map",
@@ -1797,7 +1995,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291702-file-os2rirjcsvgkuorwcfnhea.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pds_018-1.pdf",
       "bytes": 260728,
-      "sha256": "166b134804fded5b8e9575d100aead99dde0f3c55c6c28d49d16a0f349c07788"
+      "sha256": "166b134804fded5b8e9575d100aead99dde0f3c55c6c28d49d16a0f349c07788",
+      "anchor_prefix": "Sheet-018-Public-domain-"
     },
     {
       "part": "Sheet 018: Signage precincts map",
@@ -1806,7 +2005,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291706-file-jg4ymjyvqy65ujvfrovc3a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-018.pdf",
       "bytes": 275164,
-      "sha256": "63c4b1df28a95c42bd932d3cf1a5139fce4156664e6332963520313c2649296a"
+      "sha256": "63c4b1df28a95c42bd932d3cf1a5139fce4156664e6332963520313c2649296a",
+      "anchor_prefix": "Sheet-018-Signage-precin"
     },
     {
       "part": "Sheet 018: Stormwater management map",
@@ -1815,7 +2015,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291710-file-e0qzml_lr6wjtbqpuiqmdg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sm_018.pdf",
       "bytes": 254174,
-      "sha256": "323a4a6b4a87b575f6157f385a9132d77972d97e0ca38e66a8991285f639dc8c"
+      "sha256": "323a4a6b4a87b575f6157f385a9132d77972d97e0ca38e66a8991285f639dc8c",
+      "anchor_prefix": "Sheet-018-Stormwater-man"
     },
     {
       "part": "Sheet 018: Streets and lanes map",
@@ -1824,7 +2025,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291714-file-delkijgpr_6gstlqfchv9a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sl_018.pdf",
       "bytes": 237711,
-      "sha256": "17da8aecac1c3c6f877415cb619280587626bd320604be5f80ec2c96477af3ad"
+      "sha256": "17da8aecac1c3c6f877415cb619280587626bd320604be5f80ec2c96477af3ad",
+      "anchor_prefix": "Sheet-018-Streets-and-la"
     },
     {
       "part": "Sheet 018: Through-site links map",
@@ -1833,7 +2035,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291718-file-ygkjhlidr5stsh62y83lug.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_tsl_018.pdf",
       "bytes": 242971,
-      "sha256": "39108e88ed3b2ccf2e1d9b7a5cc615a2f6e45cd333eca13c0fbf8b693a6fe9fa"
+      "sha256": "39108e88ed3b2ccf2e1d9b7a5cc615a2f6e45cd333eca13c0fbf8b693a6fe9fa",
+      "anchor_prefix": "Sheet-018-Through-site-l"
     },
     {
       "part": "Sheet 019: Active frontages map",
@@ -1842,7 +2045,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291722-file-cnpolq9hsoontxdcw8taew.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_af_019.pdf",
       "bytes": 846120,
-      "sha256": "2e4f43fded00ff6791b59e35aa883cb3f29e4518f5fae09b2990ef182e6aa72c"
+      "sha256": "2e4f43fded00ff6791b59e35aa883cb3f29e4518f5fae09b2990ef182e6aa72c",
+      "anchor_prefix": "Sheet-019-Active-frontag"
     },
     {
       "part": "Sheet 019: Building height in storeys map",
@@ -1851,7 +2055,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291726-file-wbyoesoqqvynsqumbkyyfg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bhs_019.pdf",
       "bytes": 210172,
-      "sha256": "523c2624cf807e2cc0d136ea7476419c8782476d064cc6f505b6698f072b11f4"
+      "sha256": "523c2624cf807e2cc0d136ea7476419c8782476d064cc6f505b6698f072b11f4",
+      "anchor_prefix": "Sheet-019-Building-heigh"
     },
     {
       "part": "Sheet 019: Building setback and alignment map",
@@ -1860,7 +2065,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291730-file-wyxejim2r9gkabu_al-m-g.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsa_019.pdf",
       "bytes": 201149,
-      "sha256": "7d16e586978618af99076a5882d329681a4bdb2b7f0ac84c3fc9a6f2efcabb24"
+      "sha256": "7d16e586978618af99076a5882d329681a4bdb2b7f0ac84c3fc9a6f2efcabb24",
+      "anchor_prefix": "Sheet-019-Building-setba"
     },
     {
       "part": "Sheet 019: Building street frontage height in storeys map",
@@ -1869,7 +2075,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291735-file-a-2i4fa8qwe5itkcskh0pw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_bsfh_019.pdf",
       "bytes": 184253,
-      "sha256": "2221ab19a50c720fa0072e317f66f55c0067d16521e7c13e59d9b7b5c0615898"
+      "sha256": "2221ab19a50c720fa0072e317f66f55c0067d16521e7c13e59d9b7b5c0615898",
+      "anchor_prefix": "Sheet-019-Building-stree"
     },
     {
       "part": "Sheet 019: Footpath, awnings and colonnades map",
@@ -1878,7 +2085,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291739-file-hpuxg4kzslwmz8yptfp39a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_fac_019.pdf",
       "bytes": 183436,
-      "sha256": "c6e82b8b0933c040b859630cedbf4bdac819aa74ed7ca4573f163c54fa4a6744"
+      "sha256": "c6e82b8b0933c040b859630cedbf4bdac819aa74ed7ca4573f163c54fa4a6744",
+      "anchor_prefix": "Sheet-019-Footpath-awnin"
     },
     {
       "part": "Sheet 019: Proposed open space map",
@@ -1887,7 +2095,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291742-file-sx4jltffskqug5ribgotqq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pos_019.pdf",
       "bytes": 183329,
-      "sha256": "cf0367698a3acd36ddbfde5719585e0d148a0b84e4dfe78a669ab6979937e05d"
+      "sha256": "cf0367698a3acd36ddbfde5719585e0d148a0b84e4dfe78a669ab6979937e05d",
+      "anchor_prefix": "Sheet-019-Proposed-open-"
     },
     {
       "part": "Sheet 019: Public domain set backs map",
@@ -1896,7 +2105,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291747-file-m3823nq-s6wwgkrfg9y-dq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_pds_019-1.pdf",
       "bytes": 195233,
-      "sha256": "7a6e5fa135eea2aa275cefe2c53d9046f0ab118f8110d736985084f3f79ee8b1"
+      "sha256": "7a6e5fa135eea2aa275cefe2c53d9046f0ab118f8110d736985084f3f79ee8b1",
+      "anchor_prefix": "Sheet-019-Public-domain-"
     },
     {
       "part": "Sheet 019: Stormwater management map",
@@ -1905,7 +2115,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291750-file-fjgmnckjq52zs4icp9yibg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sm_019.pdf",
       "bytes": 186858,
-      "sha256": "71cd3b76e25171c57a76b5783cfcb8094efaf8550f4361a27a9e7245316a6ec1"
+      "sha256": "71cd3b76e25171c57a76b5783cfcb8094efaf8550f4361a27a9e7245316a6ec1",
+      "anchor_prefix": "Sheet-019-Stormwater-man"
     },
     {
       "part": "Sheet 019: Streets and lanes map",
@@ -1914,7 +2125,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291756-file-a1ttcgf1rwysy3nsqhqifg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_sl_019.pdf",
       "bytes": 182914,
-      "sha256": "d0bd1f2bca048b87b64abce966bad87515501ca9f7118f1b1f02a8a5182656fd"
+      "sha256": "d0bd1f2bca048b87b64abce966bad87515501ca9f7118f1b1f02a8a5182656fd",
+      "anchor_prefix": "Sheet-019-Streets-and-la"
     },
     {
       "part": "Sheet 019: Through-site links map",
@@ -1923,7 +2135,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291760-file-tm-tmfckrzw3dwfaht6dww.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022/sdcp2012_tsl_019.pdf",
       "bytes": 185017,
-      "sha256": "d14c41625721d7034caccabbfea6caee68a761d71ff4a18a4ab497c9cf08d477"
+      "sha256": "d14c41625721d7034caccabbfea6caee68a761d71ff4a18a4ab497c9cf08d477",
+      "anchor_prefix": "Sheet-019-Through-site-l"
     },
     {
       "part": "Sheet 021: Active frontages map",
@@ -1932,7 +2145,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291767-file-bks6rsr0qbyrudtweeehgq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_021.pdf",
       "bytes": 212503,
-      "sha256": "cecf1b800393727c136a435430832f667e7a7410494c4c94eaffa1f54e4b7050"
+      "sha256": "cecf1b800393727c136a435430832f667e7a7410494c4c94eaffa1f54e4b7050",
+      "anchor_prefix": "Sheet-021-Active-frontag"
     },
     {
       "part": "Sheet 021: Building contributions map",
@@ -1941,7 +2155,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682810-file-t6b9a38dric0wl2mltr1ow.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2026/sdcp2012_bc_021.pdf",
       "bytes": 211710,
-      "sha256": "d33956a10103079d9ac5fea89dfd6d1ce75fa7774d51ff6a7900e3f35a400bbe"
+      "sha256": "d33956a10103079d9ac5fea89dfd6d1ce75fa7774d51ff6a7900e3f35a400bbe",
+      "anchor_prefix": "Sheet-021-Building-contr"
     },
     {
       "part": "Sheet 021: Building height in storeys map",
@@ -1950,7 +2165,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291777-file-d3ecqw7mrlmpep1adfkedq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_h/height-in-storeys021.pdf",
       "bytes": 631186,
-      "sha256": "3e7e8d6604b6d6e1dc7b8412ad105ed6fe77b3fee75be3e615352f3ffd722f50"
+      "sha256": "3e7e8d6604b6d6e1dc7b8412ad105ed6fe77b3fee75be3e615352f3ffd722f50",
+      "anchor_prefix": "Sheet-021-Building-heigh"
     },
     {
       "part": "Sheet 021: Building setback and alignment map",
@@ -1959,7 +2175,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291782-file-odj32bqas7sb82yvfa8qrg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bsa-021.pdf",
       "bytes": 813119,
-      "sha256": "a4bcdd58d87f5a5712d9549d13186e065f588de27001ba948e6a6a478014f313"
+      "sha256": "a4bcdd58d87f5a5712d9549d13186e065f588de27001ba948e6a6a478014f313",
+      "anchor_prefix": "Sheet-021-Building-setba"
     },
     {
       "part": "Sheet 021: Building street frontage height in storeys map",
@@ -1968,7 +2185,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291788-file-n4mawq-eriooz8f6swaeba.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/building-street-frontage-height-in-storeys021.pdf",
       "bytes": 578533,
-      "sha256": "dd33f3da181be6fc03d04acb0c442cc5e10fe915a6e0f8074aa18e864ce4347e"
+      "sha256": "dd33f3da181be6fc03d04acb0c442cc5e10fe915a6e0f8074aa18e864ce4347e",
+      "anchor_prefix": "Sheet-021-Building-stree"
     },
     {
       "part": "Sheet 021: Entertainment sound management",
@@ -1977,7 +2195,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291792-file-sphlomudqvklfy5j1ih85q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-021-entertainment-sound-management.pdf",
       "bytes": 220015,
-      "sha256": "fcc175dabb37bc8462e9880bd1678910e338ff6fe818f9ac049090dfd6c7cbcf"
+      "sha256": "fcc175dabb37bc8462e9880bd1678910e338ff6fe818f9ac049090dfd6c7cbcf",
+      "anchor_prefix": "Sheet-021-Entertainment-"
     },
     {
       "part": "Sheet 021: Footpath, awnings and colonnades map",
@@ -1986,7 +2205,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291796-file-ecv5rhjhrngq_otyzephzq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awning-and-colonnades021.pdf",
       "bytes": 573337,
-      "sha256": "770ddf2c3924616431cc89c272f7d5eb65af87ea8f9d8cbef6917b3098a88141"
+      "sha256": "770ddf2c3924616431cc89c272f7d5eb65af87ea8f9d8cbef6917b3098a88141",
+      "anchor_prefix": "Sheet-021-Footpath-awnin"
     },
     {
       "part": "Sheet 021: Late night trading areas map",
@@ -1995,7 +2215,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291801-file-mt1em1l3sok2ge7mxdupzq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-021.pdf",
       "bytes": 248417,
-      "sha256": "b9b24c8d7df5ee6f7e77a598b18f8f7061ac5ae7b690f1c9d6c07ba822b2b314"
+      "sha256": "b9b24c8d7df5ee6f7e77a598b18f8f7061ac5ae7b690f1c9d6c07ba822b2b314",
+      "anchor_prefix": "Sheet-021-Late-night-tra"
     },
     {
       "part": "Sheet 022: Active frontages map",
@@ -2004,7 +2225,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291805-file-ho9irsrvryim8tndukyymw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_022.pdf",
       "bytes": 330714,
-      "sha256": "c4e3bc4e17d57c94b38ccc5b0fdd1e07c4a4f6910f333eca666d0a2706b8bac4"
+      "sha256": "c4e3bc4e17d57c94b38ccc5b0fdd1e07c4a4f6910f333eca666d0a2706b8bac4",
+      "anchor_prefix": "Sheet-022-Active-frontag"
     },
     {
       "part": "Sheet 022: Building contributions map",
@@ -2013,7 +2235,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682821-file-cw5fc3xwruu0yiexs5gymg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2026/sdcp2012_bc_022.pdf",
       "bytes": 346100,
-      "sha256": "c0b0c93c6104e53d0522e10169e8769c1b8cf7a641ed837641392a29ebe4d859"
+      "sha256": "c0b0c93c6104e53d0522e10169e8769c1b8cf7a641ed837641392a29ebe4d859",
+      "anchor_prefix": "Sheet-022-Building-contr"
     },
     {
       "part": "Sheet 022: Building height in storeys map",
@@ -2022,7 +2245,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291814-file-ejloggoatkkhfl4jnzpivq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bhs_022_2022-08-01.pdf",
       "bytes": 628660,
-      "sha256": "ff6a14ddc96831ccc0f305448477e0fce417dc2ef5e017b35f504fae56b854d6"
+      "sha256": "ff6a14ddc96831ccc0f305448477e0fce417dc2ef5e017b35f504fae56b854d6",
+      "anchor_prefix": "Sheet-022-Building-heigh"
     },
     {
       "part": "Sheet 022: Alternative building height in storeys map",
@@ -2031,7 +2255,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291818-file-ckbrtld0qw65z7urxlp4xa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/sdcp2012_abhs_022.pdf",
       "bytes": 424575,
-      "sha256": "a5004c9de3f79ebbf647db0ab8d093c9a24c9a7764127aa079c6ff58c6fef0c2"
+      "sha256": "a5004c9de3f79ebbf647db0ab8d093c9a24c9a7764127aa079c6ff58c6fef0c2",
+      "anchor_prefix": "Sheet-022-Alternative-bu"
     },
     {
       "part": "Sheet 022: Building setback and alignment map",
@@ -2040,7 +2265,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291822-file-emgrcki9qribhmhv0nrvsa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bsa-022.pdf",
       "bytes": 1209481,
-      "sha256": "2c5658271b577ecc9bb93e0eaece2e157c9dcd0f0aa3ae58cc2a9008d867a596"
+      "sha256": "2c5658271b577ecc9bb93e0eaece2e157c9dcd0f0aa3ae58cc2a9008d867a596",
+      "anchor_prefix": "Sheet-022-Building-setba"
     },
     {
       "part": "Sheet 022: Building street frontage height in storeys map",
@@ -2049,7 +2275,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291826-file-jb7z6pqgtjgb1zbshyshea.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_bsfh_022_2022-08-01.pdf",
       "bytes": 442868,
-      "sha256": "4941aa8ba25bfe7aec9da1a5bf2d8be13a78926b50a4444e2598ba6b18bebef2"
+      "sha256": "4941aa8ba25bfe7aec9da1a5bf2d8be13a78926b50a4444e2598ba6b18bebef2",
+      "anchor_prefix": "Sheet-022-Building-stree"
     },
     {
       "part": "Sheet 022: Alternative building street frontage height in storeys map",
@@ -2058,7 +2285,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291830-file-oqdmxxzpss694eot8dzolg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/sdcp2012_abhsf_022.pdf",
       "bytes": 318594,
-      "sha256": "9798020ac2fbf49a416706de25ad077841f5f677829c52aae98072c282f54a07"
+      "sha256": "9798020ac2fbf49a416706de25ad077841f5f677829c52aae98072c282f54a07",
+      "anchor_prefix": "Sheet-022-Alternative-bu-2"
     },
     {
       "part": "Sheet 022: Entertainment sound management",
@@ -2067,7 +2295,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291834-file-rzkyztikqtkee3snlfgrra.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-022-entertainment-sound-management.pdf",
       "bytes": 352314,
-      "sha256": "c20c94af60e6039de6bb545061b89c9e4b486cd0940556d0a94055d0e98a8245"
+      "sha256": "c20c94af60e6039de6bb545061b89c9e4b486cd0940556d0a94055d0e98a8245",
+      "anchor_prefix": "Sheet-022-Entertainment-"
     },
     {
       "part": "Sheet 022: Footpath, awnings and colonnades map",
@@ -2076,7 +2305,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291840-file-sgmk8rtft9g_wiiivmwq9g.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-fac-022.pdf",
       "bytes": 364764,
-      "sha256": "ba183d4ab1b85dcb211c7ac21e0acf0337b3726f6e854e4c0b4170b373cdca72"
+      "sha256": "ba183d4ab1b85dcb211c7ac21e0acf0337b3726f6e854e4c0b4170b373cdca72",
+      "anchor_prefix": "Sheet-022-Footpath-awnin"
     },
     {
       "part": "Sheet 022: Late night trading areas map",
@@ -2085,7 +2315,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291844-file-lpgt5av_sz2kpfl-a9fvcg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-022.pdf",
       "bytes": 366085,
-      "sha256": "f2fa8a63c4972d34413142c3c902dfa745b69bdf7817c0402f5f4e0df7a5e865"
+      "sha256": "f2fa8a63c4972d34413142c3c902dfa745b69bdf7817c0402f5f4e0df7a5e865",
+      "anchor_prefix": "Sheet-022-Late-night-tra"
     },
     {
       "part": "Sheet 022: Pedestrian priority map",
@@ -2094,7 +2325,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291848-file-dgi2vitysaehb9ryrgndrw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority022.pdf",
       "bytes": 711511,
-      "sha256": "a888e05c6c1bb826a997976761707c06ca9087d3598e5e98c895615377c90a37"
+      "sha256": "a888e05c6c1bb826a997976761707c06ca9087d3598e5e98c895615377c90a37",
+      "anchor_prefix": "Sheet-022-Pedestrian-pri"
     },
     {
       "part": "Sheet 022: Signage precincts map",
@@ -2103,7 +2335,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291854-file-uuyoiftjshugdr-2tglriq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-022.pdf",
       "bytes": 376203,
-      "sha256": "97fd38434dabb537b3cd2ce4aff9a1bc8b97308667e0f8a61cada9172a7a6a36"
+      "sha256": "97fd38434dabb537b3cd2ce4aff9a1bc8b97308667e0f8a61cada9172a7a6a36",
+      "anchor_prefix": "Sheet-022-Signage-precin"
     },
     {
       "part": "Sheet 022: Through-site links map",
@@ -2112,7 +2345,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291858-file-uqud1zxxr-ce8ccnc6yfda.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/sdcp2012_tsl_022.pdf",
       "bytes": 318478,
-      "sha256": "65fc7a08cb01c4715f6bc366878c1578a585b7909a66ed0cc6f20003516ffdab"
+      "sha256": "65fc7a08cb01c4715f6bc366878c1578a585b7909a66ed0cc6f20003516ffdab",
+      "anchor_prefix": "Sheet-022-Through-site-l"
     },
     {
       "part": "Sheet 023: Active frontages map",
@@ -2121,7 +2355,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291862-file-czbpnnajt1wkwixp83e0vq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sdcp2012_af_023.pdf",
       "bytes": 257906,
-      "sha256": "03a0c2fb5b415abdf614ca23d05e632713860d1ea317c9474b53acbdca148450"
+      "sha256": "03a0c2fb5b415abdf614ca23d05e632713860d1ea317c9474b53acbdca148450",
+      "anchor_prefix": "Sheet-023-Active-frontag"
     },
     {
       "part": "Sheet 023: Building contributions map",
@@ -2130,7 +2365,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682836-file-lsg3stvrtkwrriaucdl_cw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2026/sdcp2012_bc_023.pdf",
       "bytes": 241793,
-      "sha256": "24511926e1669840c13c58a8c39fa760d123027495666a3418540faf59c1f674"
+      "sha256": "24511926e1669840c13c58a8c39fa760d123027495666a3418540faf59c1f674",
+      "anchor_prefix": "Sheet-023-Building-contr"
     },
     {
       "part": "Sheet 023: Building height in storeys map",
@@ -2139,7 +2375,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291871-file-y-npfqo5spazp1sobvg4uq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_h/height-in-storeys023.pdf",
       "bytes": 712740,
-      "sha256": "150e92fe617d613aafb81a3481e3f4ba21c47b41a04864de02a09f8eafb8930f"
+      "sha256": "150e92fe617d613aafb81a3481e3f4ba21c47b41a04864de02a09f8eafb8930f",
+      "anchor_prefix": "Sheet-023-Building-heigh"
     },
     {
       "part": "Sheet 023: Alternative building height in storeys map",
@@ -2148,7 +2385,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291877-file-bg880jrqr7okngq3l3ig1q.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/sdcp2012_abhs_023.pdf",
       "bytes": 329171,
-      "sha256": "b88f99296f5bc07d9416b086c7b4c1ce6b5c8a8e629e22512e7b0292bc75332a"
+      "sha256": "b88f99296f5bc07d9416b086c7b4c1ce6b5c8a8e629e22512e7b0292bc75332a",
+      "anchor_prefix": "Sheet-023-Alternative-bu"
     },
     {
       "part": "Sheet 023: Building street frontage height in storeys map",
@@ -2157,7 +2395,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291881-file-kz_z-nwsq9knm4wcn56cra.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_b/building-street-frontage-height-in-storeys023.pdf",
       "bytes": 623487,
-      "sha256": "cc1fb920288ef8b8d9bb6311a43a74460ba03838ae168fa9408b6598b2f4cf10"
+      "sha256": "cc1fb920288ef8b8d9bb6311a43a74460ba03838ae168fa9408b6598b2f4cf10",
+      "anchor_prefix": "Sheet-023-Building-stree"
     },
     {
       "part": "Sheet 023: Alternative building street frontage height in storeys map",
@@ -2166,7 +2405,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291885-file-i7xbu7o1rbaropkff4vzja.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/2022-12/sdcp2012_abhsf_023.pdf",
       "bytes": 254131,
-      "sha256": "76ffc6e03ebf9a8e59f88c39c6947c731d47ff9b6c81a8e85edc805dde40aa7f"
+      "sha256": "76ffc6e03ebf9a8e59f88c39c6947c731d47ff9b6c81a8e85edc805dde40aa7f",
+      "anchor_prefix": "Sheet-023-Alternative-bu-2"
     },
     {
       "part": "Sheet 023: Entertainment sound management",
@@ -2175,7 +2415,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291888-file-c3v7aysctuaqaaepxm5mbw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-023-entertainment-sound-management.pdf",
       "bytes": 350550,
-      "sha256": "ff77a5e6da47d0b9310b913f0c787ab3ac375926c8a97b908e8ada017d40febb"
+      "sha256": "ff77a5e6da47d0b9310b913f0c787ab3ac375926c8a97b908e8ada017d40febb",
+      "anchor_prefix": "Sheet-023-Entertainment-"
     },
     {
       "part": "Sheet 023: Footpath, awnings and colonnades map",
@@ -2184,7 +2425,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291892-file-ravrmc3urhuubht5cq6pjw.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_f/footpath-awnings-and-colonnades023.pdf",
       "bytes": 621163,
-      "sha256": "7a97a976ae64da7bb1e03db7dc3c625d71cf40e20856c1df8293258371882ddd"
+      "sha256": "7a97a976ae64da7bb1e03db7dc3c625d71cf40e20856c1df8293258371882ddd",
+      "anchor_prefix": "Sheet-023-Footpath-awnin"
     },
     {
       "part": "Sheet 023: Late night trading areas map",
@@ -2193,7 +2435,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291897-file-gohfozmfsb-zxda8fj8xza.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-lnta-023.pdf",
       "bytes": 283291,
-      "sha256": "91e7e4addabb015e974a6af164476c4132b37630a120aebc2de80b3a30d9131a"
+      "sha256": "91e7e4addabb015e974a6af164476c4132b37630a120aebc2de80b3a30d9131a",
+      "anchor_prefix": "Sheet-023-Late-night-tra"
     },
     {
       "part": "Sheet 023: Pedestrian priority map",
@@ -2202,7 +2445,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291901-file-ers3rmu5rucfx8phoov2wa.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_p/pedestrian-priority023.pdf",
       "bytes": 626866,
-      "sha256": "c79024a881cf96abc2a80292a68a097794156e192913f254edfce58da38325d1"
+      "sha256": "c79024a881cf96abc2a80292a68a097794156e192913f254edfce58da38325d1",
+      "anchor_prefix": "Sheet-023-Pedestrian-pri"
     },
     {
       "part": "Sheet 023: Signage precincts map",
@@ -2211,7 +2455,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291906-file-rvp66ctgream1nsfynomeg.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s-1/sdcp2012-sp-13122016-023.pdf",
       "bytes": 304250,
-      "sha256": "3b7e7c9f9161f57a92821785111c3b1e85cbc6c681a6f33767e7be6a42d5f4ce"
+      "sha256": "3b7e7c9f9161f57a92821785111c3b1e85cbc6c681a6f33767e7be6a42d5f4ce",
+      "anchor_prefix": "Sheet-023-Signage-precin"
     },
     {
       "part": "Sheet 024: Building contributions map",
@@ -2220,7 +2465,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291910-file-p_gfxpx5tu-lqxikroksag.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_s/sdcp2012-bc-040614-024.pdf",
       "bytes": 239220,
-      "sha256": "1f4450e2693639dab1fb29f1ad38ab50bdc6c35357fd7e1e606574283b09be63"
+      "sha256": "1f4450e2693639dab1fb29f1ad38ab50bdc6c35357fd7e1e606574283b09be63",
+      "anchor_prefix": "Sheet-024-Building-contr"
     },
     {
       "part": "Sheet 024: Building height in storeys map",
@@ -2229,7 +2475,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291914-file-ugwysnqfq8ihtb9cjtjn2a.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/2020-07-migrated/files_h/height-in-storeys024.pdf",
       "bytes": 518687,
-      "sha256": "735e9d563fce0d3cc0a981e8ad6f2effc848ba783670b119ba50eb9c570b0143"
+      "sha256": "735e9d563fce0d3cc0a981e8ad6f2effc848ba783670b119ba50eb9c570b0143",
+      "anchor_prefix": "Sheet-024-Building-heigh"
     },
     {
       "part": "Sheet 024: Entertainment sound management",
@@ -2238,7 +2485,8 @@
       "url": "https://www.datocms-assets.com/94948/1759291918-file-dnlrwsoqttkwwh4v-yezyq.pdf",
       "council_url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/publications/development-control-plans/sheet-024-entertainment-sound-management.pdf",
       "bytes": 177752,
-      "sha256": "1903299f97c12a317a92a2f7892298f3ffba20971bc133d743f04b0b8edc97f1"
+      "sha256": "1903299f97c12a317a92a2f7892298f3ffba20971bc133d743f04b0b8edc97f1",
+      "anchor_prefix": "Sheet-024-Entertainment-"
     }
   ],
   "councils": [

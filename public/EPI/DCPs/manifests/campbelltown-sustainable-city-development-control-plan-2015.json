@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682503-file-dgyr0ohxry62psxaqqx4dg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/9/business/build-and-develop/documents/dcp/volume-1/part-0-table-of-contents-amendment-26-feb-26.pdf",
       "bytes": 143027,
-      "sha256": "1481a5c2b0d1479659924f117de853a979ef335669a90aac615f1f17c7beea92"
+      "sha256": "1481a5c2b0d1479659924f117de853a979ef335669a90aac615f1f17c7beea92",
+      "anchor_prefix": "Part-00-List-of-Amendmen"
     },
     {
       "part": "Part 1 Preliminary",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682508-file-indfds-griac5ovqw5hacg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/7/business/build-and-develop/documents/dcp/volume-1/part-1-preliminary.pdf",
       "bytes": 710095,
-      "sha256": "7d119afc5b4dcd929f0dc60f558d9c66ceb5952c210f2c557406fd415a941472"
+      "sha256": "7d119afc5b4dcd929f0dc60f558d9c66ceb5952c210f2c557406fd415a941472",
+      "anchor_prefix": "Part-1-Preliminary"
     },
     {
       "part": "Part 2 Requirements Applying to All Types of Development",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551442-file-dlrtdaoita-v5bjdm5iibw.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-2-requirements-applying-to-all-types-of-development-amendment-21-sept2024.pdf",
       "bytes": 3433619,
-      "sha256": "8bac055c7fdfe019f0e0397483d0d1bb6a4de596320489f7a29f8a37d767a760"
+      "sha256": "8bac055c7fdfe019f0e0397483d0d1bb6a4de596320489f7a29f8a37d767a760",
+      "anchor_prefix": "Part-2-Requirements-Appl"
     },
     {
       "part": "Part 3 Low and Medium Density Residential",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551450-file-s-dz2rpuramksikcivhc6q.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-3-low-and-medium-desnity-residential-development-amendment-21-sept2024.pdf",
       "bytes": 4546180,
-      "sha256": "adf1072837a1cf0a2c7f8df93275c643fc408a1ef50ea69eb064b074f677fce1"
+      "sha256": "adf1072837a1cf0a2c7f8df93275c643fc408a1ef50ea69eb064b074f677fce1",
+      "anchor_prefix": "Part-3-Low-and-Medium-De"
     },
     {
       "part": "Part 4 Rural Residential Development",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551459-file-ggxeey2uth-8pnjlhhvyqg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-4-rural-resdiential-development-amendment-21-sept2024.pdf",
       "bytes": 1979953,
-      "sha256": "512dfb1e59a1d3456b65497e23c7509cb3e55032b957f26818b93c439978b794"
+      "sha256": "512dfb1e59a1d3456b65497e23c7509cb3e55032b957f26818b93c439978b794",
+      "anchor_prefix": "Part-4-Rural-Residential"
     },
     {
       "part": "Part 5 Residential Flat Buildings and Mixed-Use Development",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551467-file-fvftmbfet7odupp9kxu3na.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-5-residential-flat-buildings-and-mixeduse-development-amendment-21-sept2024.pdf",
       "bytes": 3023578,
-      "sha256": "15e41e8cad46643ecfeb85b084dd19f1caeffd9900b5c98a40425230c6a05873"
+      "sha256": "15e41e8cad46643ecfeb85b084dd19f1caeffd9900b5c98a40425230c6a05873",
+      "anchor_prefix": "Part-5-Residential-Flat-"
     },
     {
       "part": "Part 6 Commercial Development",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551474-file-k0vndsuir2-mja73molxwq.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-6-commercial-dcp-amendment-21-sept2024.pdf",
       "bytes": 2975166,
-      "sha256": "50cbd64749eac62710d40b7b5f2f0af4ef44ab68f3f7bfb8c6d7908bcaefe512"
+      "sha256": "50cbd64749eac62710d40b7b5f2f0af4ef44ab68f3f7bfb8c6d7908bcaefe512",
+      "anchor_prefix": "Part-6-Commercial-Develo"
     },
     {
       "part": "Part 7 Industrial Development",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551483-file-ri3cgikvrts8jqvprpt4oa.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-7-industrial-dcp-amendment-21-sept2024.pdf",
       "bytes": 2571721,
-      "sha256": "492f1d49f94c96f7bbe1c9fed11b134a548267ae78f7028c0e808f0290823df5"
+      "sha256": "492f1d49f94c96f7bbe1c9fed11b134a548267ae78f7028c0e808f0290823df5",
+      "anchor_prefix": "Part-7-Industrial-Develo"
     },
     {
       "part": "Part 8 Centre-Based Child Care Facilities",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551490-file-cvzyyduqs9adti0fcdjv_q.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-8-childcare-centres-amendment-21-sept2024.pdf",
       "bytes": 824678,
-      "sha256": "35d12c7b378d14731cec4f9b31aa1af696fd506f59918422503f5f62a2cdd5b5"
+      "sha256": "35d12c7b378d14731cec4f9b31aa1af696fd506f59918422503f5f62a2cdd5b5",
+      "anchor_prefix": "Part-8-Centre-Based-Chil"
     },
     {
       "part": "Part 10 Places of Worship",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551496-file-cuvacivxqbqrkrg3fhpgeq.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-10-places-of-worship-amendment-21-sept2024.pdf",
       "bytes": 241762,
-      "sha256": "208a05448bea0613801dff565dc1485f47a66306d798643fd32190a543f4332b"
+      "sha256": "208a05448bea0613801dff565dc1485f47a66306d798643fd32190a543f4332b",
+      "anchor_prefix": "Part-10-Places-of-Worshi"
     },
     {
       "part": "Part 11 Vegetation and Wildlife Management",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551504-file-zpjl65wps6ehwaargebfcq.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-11-vegetation-amendment-21-sept2024.pdf",
       "bytes": 2751689,
-      "sha256": "35ca86564555738029524e3b65908258e453f8e953f167c4b450d41b41e73021"
+      "sha256": "35ca86564555738029524e3b65908258e453f8e953f167c4b450d41b41e73021",
+      "anchor_prefix": "Part-11-Vegetation-and-W"
     },
     {
       "part": "Part 12 Telecommunications Facilities",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551512-file-kogbikhmsluqqpfmhk9vgg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-12-telecommunications-amendment-21-sept2024.pdf",
       "bytes": 451821,
-      "sha256": "5fd15dc8880bdef4b97169433d9848a63e9bea1b67c227db5e1e5930eef229b4"
+      "sha256": "5fd15dc8880bdef4b97169433d9848a63e9bea1b67c227db5e1e5930eef229b4",
+      "anchor_prefix": "Part-12-Telecommunicatio"
     },
     {
       "part": "Part 13 Sex Industry Premises",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551519-file-do7j9elkqjyaazlsjgzodg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-13-sex-industry-amendment-21-sept2024.pdf",
       "bytes": 186715,
-      "sha256": "1a3cf862cafbc8dae2cb292361855e0ce759016f27f339535e3dc6d96d590d87"
+      "sha256": "1a3cf862cafbc8dae2cb292361855e0ce759016f27f339535e3dc6d96d590d87",
+      "anchor_prefix": "Part-13-Sex-Industry-Pre"
     },
     {
       "part": "Part 14 Parking of Heavy Vehicles on Residential, Rural and Environmental Protection Land Premises",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551526-file-dge4eyxqsriayude7d0zwg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-14-truck-parking-amendment-21-sept2024.pdf",
       "bytes": 231658,
-      "sha256": "73c66e9ae912df18c2b8d9b07ebb9653dd5ebb9e10dd5eae47ad74dce637c1f6"
+      "sha256": "73c66e9ae912df18c2b8d9b07ebb9653dd5ebb9e10dd5eae47ad74dce637c1f6",
+      "anchor_prefix": "Part-14-Parking-of-Heavy"
     },
     {
       "part": "Part 15 Animal Boarding or Training Establishments",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551533-file-bs-hhvy_r9yph1hogfexow.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-15-animal-boarding-and-training-establishments-amendment-21-sept2024.pdf",
       "bytes": 112560,
-      "sha256": "796de93e4ee523f284bb181d2a5029e1a9b2a8a848d93207c5417df37702ba7f"
+      "sha256": "796de93e4ee523f284bb181d2a5029e1a9b2a8a848d93207c5417df37702ba7f",
+      "anchor_prefix": "Part-15-Animal-Boarding-"
     },
     {
       "part": "Part 16 Advertising and Signage",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551538-file-mtrxu-lwsa6cxj1plcncvw.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-16-advertising-and-signage-amendment-21-sept2024.pdf",
       "bytes": 388395,
-      "sha256": "7d906c501f1bb99f14fb35e1fc09c79abcce969e3944efb9d69580fa9cc60dda"
+      "sha256": "7d906c501f1bb99f14fb35e1fc09c79abcce969e3944efb9d69580fa9cc60dda",
+      "anchor_prefix": "Part-16-Advertising-and-"
     },
     {
       "part": "Part 17 Boarding Houses and Co-Living Housing",
@@ -159,7 +175,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551545-file-dhuo1v-dtdsjc2ymsj625g.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-17-boarding-houses-amendment-21-sept2024.pdf",
       "bytes": 450790,
-      "sha256": "cd7d84813d07e2a4fb272430ff0bb99846f93ae093450e5dc79b3d19671fb0c0"
+      "sha256": "cd7d84813d07e2a4fb272430ff0bb99846f93ae093450e5dc79b3d19671fb0c0",
+      "anchor_prefix": "Part-17-Boarding-Houses-"
     },
     {
       "part": "Part 18 Tattoo Parlour Premises",
@@ -168,7 +185,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551551-file-ugvi0zrxqw62kwsbgtoz2a.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-18-tattoo-parlour-premises-amendment-21-sept2024.pdf",
       "bytes": 180713,
-      "sha256": "b6d3eed285fe176e63c3b29c028fec561486509d6efbe589b86c2902c62d4d82"
+      "sha256": "b6d3eed285fe176e63c3b29c028fec561486509d6efbe589b86c2902c62d4d82",
+      "anchor_prefix": "Part-18-Tattoo-Parlour-P"
     },
     {
       "part": "Part 19 Seniors Living and Housing for People with a Disability",
@@ -177,7 +195,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551557-file-tqymyvhwrpe1qfsuvujm8a.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/part-19-seniors-living-and-people-with-disability-amendment-21-sept2024.pdf",
       "bytes": 183772,
-      "sha256": "bdcae382f197884b0dc023eb5b4334a59eaae699cfc120a78a6020bda84413af"
+      "sha256": "bdcae382f197884b0dc023eb5b4334a59eaae699cfc120a78a6020bda84413af",
+      "anchor_prefix": "Part-19-Seniors-Living-a"
     },
     {
       "part": "Appendices",
@@ -186,7 +205,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551564-file-n0vr6q51sfcxnnbrqi6fwg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/dcp/volume-1/appendix-amendment-21-sept2024.pdf",
       "bytes": 488368,
-      "sha256": "f8bfa00a2f86b5af756279f5d2b22fc8596ceaf75d8b4cf8a28601e73dbd62b3"
+      "sha256": "f8bfa00a2f86b5af756279f5d2b22fc8596ceaf75d8b4cf8a28601e73dbd62b3",
+      "anchor_prefix": "Appendices"
     },
     {
       "part": "Part 1 - Minto Renewal DCP - Volume 2",
@@ -195,7 +215,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879912-dcp-file-185711681.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume-2-part-1-minto-renewal-dcp-with-cover.pdf",
       "bytes": 14467771,
-      "sha256": "ebfeab29735604f1bfa2af9531d7505bb80ba80ec655443a6776f561d1ec4766"
+      "sha256": "ebfeab29735604f1bfa2af9531d7505bb80ba80ec655443a6776f561d1ec4766",
+      "anchor_prefix": "Part-1-Minto-Renewal-DCP"
     },
     {
       "part": "Part 2 - Glenfield Site DCP - Volume 2",
@@ -204,7 +225,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879910-dcp-file-185711682.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume-2-part-2-glenfield-site-dcp-with-cover.pdf",
       "bytes": 2768686,
-      "sha256": "f8149bffa0780093c4c06df37c02f58a4136f323f244316bf8b02bc9778910db"
+      "sha256": "f8149bffa0780093c4c06df37c02f58a4136f323f244316bf8b02bc9778910db",
+      "anchor_prefix": "Part-2-Glenfield-Site-DC"
     },
     {
       "part": "Part 3 - Campbelltown Link Site DCP - Volume 2",
@@ -213,7 +235,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879910-dcp-file-185711683.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume-2-part-3-campbelltown-link-site-dcp-with-cover.pdf",
       "bytes": 3735499,
-      "sha256": "dbbf620435e129b664b6c6be4c32d834c63214f533c51a59e212b8aa8dee84f0"
+      "sha256": "dbbf620435e129b664b6c6be4c32d834c63214f533c51a59e212b8aa8dee84f0",
+      "anchor_prefix": "Part-3-Campbelltown-Link"
     },
     {
       "part": "Part 4 - Site Specific Development Controls for Certain Heritage Items - Volume 2",
@@ -222,7 +245,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879910-dcp-file-185711684.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume-2-part-4-site-specific-development-controls-for-certain-heritage-items-with-cover.pdf",
       "bytes": 2189468,
-      "sha256": "23a3d14c979252820632cda5918f4d6be38d43c81ebd995fc591b5babca7c0a3"
+      "sha256": "23a3d14c979252820632cda5918f4d6be38d43c81ebd995fc591b5babca7c0a3",
+      "anchor_prefix": "Part-4-Site-Specific-Dev"
     },
     {
       "part": "Part 5 - University of Western Sydney DCP - Volume 2",
@@ -231,7 +255,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879913-dcp-file-185711685.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume-2-part-5-university-of-western-sydney-dcp-including-amendment-no-5-effective-25-april-2018-final.pdf",
       "bytes": 40612497,
-      "sha256": "ff484a9fb4e5cbf10e382d4474b1cc3d4fddd7192a6cda795d0c69f6376e2185"
+      "sha256": "ff484a9fb4e5cbf10e382d4474b1cc3d4fddd7192a6cda795d0c69f6376e2185",
+      "anchor_prefix": "Part-5-University-of-Wes"
     },
     {
       "part": "Part 6 - Edmondson Park Smart Growth DCP - Volume 2",
@@ -240,7 +265,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879913-dcp-file-185711686.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume-2-part-6-edmondson-park-smart-growth-dcp-with-cover.pdf",
       "bytes": 4551057,
-      "sha256": "2a2a178759b578f447d2156fd0ee1eb8c793a32443eff78728d3fcb8547c2590"
+      "sha256": "2a2a178759b578f447d2156fd0ee1eb8c793a32443eff78728d3fcb8547c2590",
+      "anchor_prefix": "Part-6-Edmondson-Park-Sm"
     },
     {
       "part": "Part 7 - Mount Gilead DCP - Volume 2",
@@ -249,7 +275,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879913-dcp-file-185711687.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume2part7figtreehilldevelopmentcontrolplanamendment17april2022.pdf",
       "bytes": 4536751,
-      "sha256": "d065f09b8fb13031597b16fdf503ba35a597c2f20a679a27d067a618b4fc3d14"
+      "sha256": "d065f09b8fb13031597b16fdf503ba35a597c2f20a679a27d067a618b4fc3d14",
+      "anchor_prefix": "Part-7-Mount-Gilead-DCP-"
     },
     {
       "part": "Part 8A - Menangle Park DCP - Volume 2",
@@ -258,7 +285,8 @@
       "url": "https://www.datocms-assets.com/94948/1759289326-file-pktvkqptrkegq671memzda.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/3/business/build-and-develop/documents/part8amenanglepark.pdf",
       "bytes": 14267559,
-      "sha256": "b05e5f0326ecfa6bfe4f454b184cc11aaa033c5ab9f8754b9225c94178c2fad4"
+      "sha256": "b05e5f0326ecfa6bfe4f454b184cc11aaa033c5ab9f8754b9225c94178c2fad4",
+      "anchor_prefix": "Part-8A-Menangle-Park-DC"
     },
     {
       "part": "Part 8B - Glenlee Estate DCP - Volume 2",
@@ -267,7 +295,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551573-file-cuqxpvapqmmofqsed_4dqg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/dcp/volume-2/part-8b-glenlee-estate-dcp.pdf",
       "bytes": 35774455,
-      "sha256": "adec470d8b21d74c6eaf60f10e910f5b2e516965ba556a5d7e074051110033ab"
+      "sha256": "adec470d8b21d74c6eaf60f10e910f5b2e516965ba556a5d7e074051110033ab",
+      "anchor_prefix": "Part-8B-Glenlee-Estate-D"
     },
     {
       "part": "Part 9 - Urban Renewal Areas Airds Claymore DCP - Volume 2",
@@ -276,7 +305,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879913-dcp-file-185711689.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume2part9urbanrenewalareasairdsclaymoredcp.pdf",
       "bytes": 7996104,
-      "sha256": "7fdd0166f4474d55122f97b476a477dc0d92444397d141cdb0a7f62757ce7940"
+      "sha256": "7fdd0166f4474d55122f97b476a477dc0d92444397d141cdb0a7f62757ce7940",
+      "anchor_prefix": "Part-9-Urban-Renewal-Are"
     },
     {
       "part": "Part 10 - Blairmount and Badgally Road DCP - Volume 2",
@@ -285,7 +315,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879909-dcp-file-185711690.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume-2-part-10blairmountandbadgallyroaddcp.pdf",
       "bytes": 1238555,
-      "sha256": "5dca120d308ee158e14be8b71b0c8d60edf8636584456f7a677adce42e1f3015"
+      "sha256": "5dca120d308ee158e14be8b71b0c8d60edf8636584456f7a677adce42e1f3015",
+      "anchor_prefix": "Part-10-Blairmount-and-B"
     },
     {
       "part": "Part 11 - Caledonia DCP - Volume 2",
@@ -294,7 +325,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879912-dcp-file-185711691.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume2part11caledoniadcpversion5effectivedate.pdf",
       "bytes": 4544955,
-      "sha256": "eef2d18066c1a20d018fd8c6fe320635b02d2b5b70ef5c504361604d9e3082bd"
+      "sha256": "eef2d18066c1a20d018fd8c6fe320635b02d2b5b70ef5c504361604d9e3082bd",
+      "anchor_prefix": "Part-11-Caledonia-DCP-Vo"
     },
     {
       "part": "Part 12 - Glenlee Precinct DCP - Volume 2",
@@ -303,7 +335,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879912-dcp-file-185711692.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/volume2sitespecificdcps-part12glenleedcp.pdf",
       "bytes": 4185177,
-      "sha256": "86f74c9d0670160d4b7593ec3569fc2b169ade8fd6208ccf0252056a7dbf494d"
+      "sha256": "86f74c9d0670160d4b7593ec3569fc2b169ade8fd6208ccf0252056a7dbf494d",
+      "anchor_prefix": "Part-12-Glenlee-Precinct"
     },
     {
       "part": "Part 13 - Maryfields Development Control Plan",
@@ -312,7 +345,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879913-dcp-file-185711693.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/part13maryfieldsdcp.pdf",
       "bytes": 11532347,
-      "sha256": "e6a9e5851d9cf1fd9555dd793891ae2dfbed3dc6d5719d6a336f3bb85ae83e56"
+      "sha256": "e6a9e5851d9cf1fd9555dd793891ae2dfbed3dc6d5719d6a336f3bb85ae83e56",
+      "anchor_prefix": "Part-13-Maryfields-Devel"
     },
     {
       "part": "Part 14 - 22-32 Queen Street Development Control Plan",
@@ -321,7 +355,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879910-dcp-file-185711694.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/scdcpvolume2part14_2232queenstreetdcp.pdf",
       "bytes": 2996436,
-      "sha256": "c4c68b7bcdb91146060252078160fe98e156a1a47468bf47ce90ae04624fac3c"
+      "sha256": "c4c68b7bcdb91146060252078160fe98e156a1a47468bf47ce90ae04624fac3c",
+      "anchor_prefix": "Part-14-22-32-Queen-Stre"
     },
     {
       "part": "Part 15 - Glenfield East Development Control Plan - Volume 2",
@@ -330,7 +365,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879913-dcp-file-185711695.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/2/business/build-and-develop/documents/dcp/volume-2/volume-2-part-15-glenfield-east.pdf",
       "bytes": 25907139,
-      "sha256": "15a3218ca99996850c033c92cda53337b80c3fc22a88a84fff1635c791cc543b"
+      "sha256": "15a3218ca99996850c033c92cda53337b80c3fc22a88a84fff1635c791cc543b",
+      "anchor_prefix": "Part-15-Glenfield-East-D"
     },
     {
       "part": "Part 16 - Macarthur Gardens North Development Control Plan - Volume 2",
@@ -339,7 +375,8 @@
       "url": "https://www.datocms-assets.com/94948/1762302662-file-ily37h6br_id0z4fwujfyw.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/4/business/build-and-develop/documents/dcp/volume-2/attachment-1-vol-2-part-16-macarthur-gardens-north-dcp-final.pdf",
       "bytes": 3016271,
-      "sha256": "3fe2df3b4ae62bbadad71a62e09eb82af41d9622163aab7fc02a32602da98dd9"
+      "sha256": "3fe2df3b4ae62bbadad71a62e09eb82af41d9622163aab7fc02a32602da98dd9",
+      "anchor_prefix": "Part-16-Macarthur-Garden"
     },
     {
       "part": "Part 17 - Ingleburn CBD Development Control Plan - Volume 2",
@@ -348,7 +385,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251749-file-fiwuhni0sskjbkivm_evjg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/dcp/volume-2/part-17-ingleburn-cbd-development-control-plan-volume-2.pdf",
       "bytes": 7513554,
-      "sha256": "9cd0d5e71004685080c7aaec3082190e976e0a7931d3b60e64d3e79e49a3397d"
+      "sha256": "9cd0d5e71004685080c7aaec3082190e976e0a7931d3b60e64d3e79e49a3397d",
+      "anchor_prefix": "Part-17-Ingleburn-CBD-De"
     },
     {
       "part": "Part 18 - 80 O'Sullivan Road Development Control Plan - Volume 2",
@@ -357,7 +395,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551596-file-fiwuhni0sskjbkivm_evjg.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/dcp/volume-2/part-18-80-osullivan-road-development-control-plan-volume-2.pdf",
       "bytes": 1017661,
-      "sha256": "6b0fadaf551d3c21fcc29a1b791277ff321a5ff24360d41c6f6f1d941c42efa3"
+      "sha256": "6b0fadaf551d3c21fcc29a1b791277ff321a5ff24360d41c6f6f1d941c42efa3",
+      "anchor_prefix": "Part-18-80-O-Sullivan-Ro"
     },
     {
       "part": "Part 19 - Macarthur Grange Development Control Plan Volume-2",
@@ -366,7 +405,8 @@
       "url": "https://www.datocms-assets.com/94948/1757551602-file-rnbtfii-tusqpfwbxael5q.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/dcp/volume-2/part-19-macarthur-grange-development-control-plan-volume-2-final.pdf",
       "bytes": 996599,
-      "sha256": "09f2a9811faf245892d0f2eff924d780af818c2852462c5b23974074d0178abf"
+      "sha256": "09f2a9811faf245892d0f2eff924d780af818c2852462c5b23974074d0178abf",
+      "anchor_prefix": "Part-19-Macarthur-Grange"
     },
     {
       "part": "Part 20 - 34 Queen Street Development Control Plan - Volume 2",
@@ -375,7 +415,8 @@
       "url": "https://www.datocms-assets.com/94948/1772682552-file-yfbztearqpm3gdzccriluw.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/dcp/volume-2/part-20-34-queen-street-development-control-plan-volume-2.pdf",
       "bytes": 3921807,
-      "sha256": "5456909e641ff53cb880dcb6ba7f3bad0ea33c89f541c7c572cb71ad9a770673"
+      "sha256": "5456909e641ff53cb880dcb6ba7f3bad0ea33c89f541c7c572cb71ad9a770673",
+      "anchor_prefix": "Part-20-34-Queen-Street-"
     },
     {
       "part": "Volume 3 - Front Cover",
@@ -384,7 +425,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879909-dcp-file-185711697.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/covervolume3.pdf",
       "bytes": 864412,
-      "sha256": "d16f195ea5c528b6116b4844c59a2a9ba30fc0aabe2a92e71c8aa01720210b48"
+      "sha256": "d16f195ea5c528b6116b4844c59a2a9ba30fc0aabe2a92e71c8aa01720210b48",
+      "anchor_prefix": "Volume-3-Front-Cover"
     },
     {
       "part": "Table of Contents - Volume 3",
@@ -393,7 +435,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879909-dcp-file-185711698.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/part0tableofcontentsvolume3.pdf",
       "bytes": 88596,
-      "sha256": "81f1a529c489889122568c1cb948108d8a4027624c16edf12cf2631988aac972"
+      "sha256": "81f1a529c489889122568c1cb948108d8a4027624c16edf12cf2631988aac972",
+      "anchor_prefix": "Table-of-Contents-Volume"
     },
     {
       "part": "Part 1 - Preliminary - Volume 3",
@@ -402,7 +445,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879909-dcp-file-185711699.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/part1preliminaryvolume3.pdf",
       "bytes": 599560,
-      "sha256": "64ae801e3725e5eae64f4f99ebef752fd947c1b62a2c5671fb28bbbdf213acf1"
+      "sha256": "64ae801e3725e5eae64f4f99ebef752fd947c1b62a2c5671fb28bbbdf213acf1",
+      "anchor_prefix": "Part-1-Preliminary-Volum"
     },
     {
       "part": "Part 2 - Residential and Ancillary Development - Volume 3",
@@ -411,7 +455,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879913-dcp-file-185711700.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/part2residentialandancillarydevelopment-onurbanlandvolume3.pdf",
       "bytes": 5758042,
-      "sha256": "9cb7c2692b455a61d8b3fbb4342274404781a31b416e940b18719d5a1b8a00a7"
+      "sha256": "9cb7c2692b455a61d8b3fbb4342274404781a31b416e940b18719d5a1b8a00a7",
+      "anchor_prefix": "Part-2-Residential-and-A"
     },
     {
       "part": "Part 3 - Residential Development on Non Urban Land - Volume 3",
@@ -420,7 +465,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879912-dcp-file-185711701.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/part3resdientialdevelopmentwithinnonurbanlandvolume3.pdf",
       "bytes": 1642315,
-      "sha256": "a684dc9d34f1b204469cb20f1e2d547c2ae45b2be2b040032a2eb15a938933e2"
+      "sha256": "a684dc9d34f1b204469cb20f1e2d547c2ae45b2be2b040032a2eb15a938933e2",
+      "anchor_prefix": "Part-3-Residential-Devel"
     },
     {
       "part": "Part 4 - Residential Flat Buildings and Mixed Use Development - Volume 3",
@@ -429,7 +475,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879909-dcp-file-185711702.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/part4residentialflatbuildingsandmixedusedevelopmentvolume3.pdf",
       "bytes": 2032588,
-      "sha256": "ffbfed700364a15def57e1aa6b3282577494fc86b0f5eeaa8a7eee1e491c2344"
+      "sha256": "ffbfed700364a15def57e1aa6b3282577494fc86b0f5eeaa8a7eee1e491c2344",
+      "anchor_prefix": "Part-4-Residential-Flat-"
     },
     {
       "part": "Part 5 - Commercial Development - Volume 3",
@@ -438,7 +485,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879912-dcp-file-185711703.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/part5commercialdevelopmentvolume3.pdf",
       "bytes": 1456791,
-      "sha256": "c39c9ed0ff442ae42b15c31344dce49e493bfedd2b5f1a22d1d0e52ae733fd6d"
+      "sha256": "c39c9ed0ff442ae42b15c31344dce49e493bfedd2b5f1a22d1d0e52ae733fd6d",
+      "anchor_prefix": "Part-5-Commercial-Develo"
     },
     {
       "part": "Part 6 - Industrial Development - Volume 3",
@@ -447,7 +495,8 @@
       "url": "https://www.datocms-assets.com/94948/1692879910-dcp-file-185711704.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/part6industrialdevelopmentvolume3.pdf",
       "bytes": 2901971,
-      "sha256": "b3a2cc928b9e7e8baa82f5dd7e22439e12052c8ba0185796c18631ffcc05934e"
+      "sha256": "b3a2cc928b9e7e8baa82f5dd7e22439e12052c8ba0185796c18631ffcc05934e",
+      "anchor_prefix": "Part-6-Industrial-Develo"
     },
     {
       "part": "Koala Habitat Planning Map",
@@ -456,7 +505,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251771-file-fl32zzlft-upccs8wqrr0q.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/koalahabitatplanningmap.pdf",
       "bytes": 4700382,
-      "sha256": "2379e86f4530563a5be8fd80d5c9babb5d27c7ac5e59b711d5a72d7932ac75d2"
+      "sha256": "2379e86f4530563a5be8fd80d5c9babb5d27c7ac5e59b711d5a72d7932ac75d2",
+      "anchor_prefix": "Koala-Habitat-Planning-M"
     },
     {
       "part": "Zones of Aboriginal Archaeological Sensitivity Map",
@@ -465,7 +515,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251781-file-ciiycp0dtugtjdsj1hq0cq.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/zonesofaboriginalarchaeologicalsensitivitymap.pdf",
       "bytes": 943294,
-      "sha256": "6305359e6928fd931cd2f387e2526af4e233ef8098b68ef2a29a3b4c00e2ca38"
+      "sha256": "6305359e6928fd931cd2f387e2526af4e233ef8098b68ef2a29a3b4c00e2ca38",
+      "anchor_prefix": "Zones-of-Aboriginal-Arch"
     },
     {
       "part": "Revised Masterplan for Glenfield Road Urban Release Area",
@@ -474,7 +525,8 @@
       "url": "https://www.datocms-assets.com/94948/1725251787-file-d3rsx5z9qcgtc5lrhjh66q.pdf",
       "council_url": "https://www.campbelltown.nsw.gov.au/files/sharedassets/public/v/1/business/build-and-develop/documents/revisedmasterplanglenfieldroadurbanreleasearea.pdf",
       "bytes": 1359131,
-      "sha256": "1c307973052dc01dd9e2b4f5c0d9255052f33e6e9f7197125a6b6dbd20794313"
+      "sha256": "1c307973052dc01dd9e2b4f5c0d9255052f33e6e9f7197125a6b6dbd20794313",
+      "anchor_prefix": "Revised-Masterplan-for-G"
     }
   ],
   "councils": [

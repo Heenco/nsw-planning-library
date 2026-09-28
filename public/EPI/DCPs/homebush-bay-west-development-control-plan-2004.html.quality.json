@@ -1,0 +1,29 @@
+{
+  "instrument": "homebush-bay-west-development-control-plan-2004",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\homebush-bay-west-development-control-plan-2004.html",
+  "generated": "2026-09-28T07:33:46.357Z",
+  "parts": 3,
+  "parts_with_sidecar": 3,
+  "source_pages": 0,
+  "bytes": 691201,
+  "unique_anchor_ids": 844,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 3
+  },
+  "totals": {
+    "headings": 841,
+    "tables": 22,
+    "list_items": 1779,
+    "images_placed": 465,
+    "prose_demoted": 54,
+    "page_markers": 198
+  },
+  "weak_parts": [
+    {
+      "prefix": "Homebush-Bay-West-Develo-2",
+      "page_coverage": 0.824,
+      "distinct_levels": 3
+    }
+  ]
+}

@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1789727249-01-introduction-am-12-a10467224.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0025/125494/01-Introduction-Am-12-A10467224.pdf",
       "bytes": 279981,
-      "sha256": "7eb8253d15258fb25d465de2bd106f955cffaaa2f903a9b56b080cb94a70f9b1"
+      "sha256": "7eb8253d15258fb25d465de2bd106f955cffaaa2f903a9b56b080cb94a70f9b1",
+      "anchor_prefix": "Chapter-1-Introduction"
     },
     {
       "part": "Chapter 2 Dwelling Houses",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1780644647-chapter-2-dwelling-houses-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0016/119230/Chapter-2-Dwelling-Houses-May-2026.pdf",
       "bytes": 1800484,
-      "sha256": "5aabb8ad7a0dac158a496aea81400911ecf50eb9a66eb06d13d5b39025c94e30"
+      "sha256": "5aabb8ad7a0dac158a496aea81400911ecf50eb9a66eb06d13d5b39025c94e30",
+      "anchor_prefix": "Chapter-2-Dwelling-House"
     },
     {
       "part": "Chapter 3 Secondary Dwellings",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1780644694-chapter-3-secondary-dwellings-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0017/119231/Chapter-3-Secondary-Dwellings-May-2026.pdf",
       "bytes": 1736526,
-      "sha256": "9a858dc8e26d9c74141abb330a9fb36460e415d53b5892743fcfb5674460a526"
+      "sha256": "9a858dc8e26d9c74141abb330a9fb36460e415d53b5892743fcfb5674460a526",
+      "anchor_prefix": "Chapter-3-Secondary-Dwel"
     },
     {
       "part": "Chapter 4 Dual Occupancy",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1780644779-chapter-4-dual-occupancy-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0018/119232/Chapter-4-Dual-Occupancy-May-2026.pdf",
       "bytes": 3411306,
-      "sha256": "0e4555bbf70ea8a0bf26829deefaa276eaa343a7a1d2a27412035d23d98d8740"
+      "sha256": "0e4555bbf70ea8a0bf26829deefaa276eaa343a7a1d2a27412035d23d98d8740",
+      "anchor_prefix": "Chapter-4-Dual-Occupancy"
     },
     {
       "part": "Chapter 5 Multi Dwelling Housing",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1780644821-chapter-5-multi-dwelling-housing-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0019/119233/Chapter-5-Multi-Dwelling-Housing-May-2026.pdf",
       "bytes": 1060037,
-      "sha256": "8abce66938f3928e0760a4641005b09d78f558c5ba9f4f6d7a5df87bb4f72f0a"
+      "sha256": "8abce66938f3928e0760a4641005b09d78f558c5ba9f4f6d7a5df87bb4f72f0a",
+      "anchor_prefix": "Chapter-5-Multi-Dwelling"
     },
     {
       "part": "Chapter 6 Residential Flat Buildings",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1789727429-chapter-06-residential-flat-buildings-a10461542.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0024/125493/Chapter-06-Residential-Flat-Buildings-A10461542.pdf",
       "bytes": 4937277,
-      "sha256": "12a1b91a088e31c08ebe9e6ee46506ca975d65d871d505520e3896e43888fee2"
+      "sha256": "12a1b91a088e31c08ebe9e6ee46506ca975d65d871d505520e3896e43888fee2",
+      "anchor_prefix": "Chapter-6-Residential-Fl"
     },
     {
       "part": "Chapter 7 Caringbah North Residential Flat Precinct",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1780644899-chapter-7-caringbah-north-residential-flat-precinct-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0021/119235/Chapter-7-Caringbah-North-Residential-Flat-Precinct-May-2026.pdf",
       "bytes": 1384521,
-      "sha256": "eca3bf7eab65f5b011bb1bebcd79a07e34626d44cfc8ef51daf0103d60f298d4"
+      "sha256": "eca3bf7eab65f5b011bb1bebcd79a07e34626d44cfc8ef51daf0103d60f298d4",
+      "anchor_prefix": "Chapter-7-Caringbah-Nort"
     },
     {
       "part": "Chapter 8 Pinnacle Street Precinct",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1780644942-chapter-8-pinnacle-street-precinct-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0022/119236/Chapter-8-Pinnacle-Street-Precinct-May-2026.pdf",
       "bytes": 2098816,
-      "sha256": "5a7a5ff2098635ead1a99a77a0be2579d19cdec756d166dd7382b7a92e33f894"
+      "sha256": "5a7a5ff2098635ead1a99a77a0be2579d19cdec756d166dd7382b7a92e33f894",
+      "anchor_prefix": "Chapter-8-Pinnacle-Stree"
     },
     {
       "part": "Chapter 9 Caringbah Medical Precinct",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645022-chapter-9-caringbah-medical-precinct-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0023/119237/Chapter-9-Caringbah-Medical-Precinct-May-2026.pdf",
       "bytes": 1833431,
-      "sha256": "d39f1a5f90476e7bd7bd8ee116228b47aa23b863075188bde06bdd31572bfccb"
+      "sha256": "d39f1a5f90476e7bd7bd8ee116228b47aa23b863075188bde06bdd31572bfccb",
+      "anchor_prefix": "Chapter-9-Caringbah-Medi"
     },
     {
       "part": "Chapter 10 Foreshores and W1 Natural Waterways",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645067-10-foreshores-w1-natural-waterways-am-6-to-publish-pdf-20210310.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0026/6686/10-foreshores-w1-natural-waterways-am-6-to-publish-pdf-20210310.pdf",
       "bytes": 400179,
-      "sha256": "8b917d35e1b00d5581e0b9a9c4b25eb3d3b30c0b192bb6530ea262237870ab7d"
+      "sha256": "8b917d35e1b00d5581e0b9a9c4b25eb3d3b30c0b192bb6530ea262237870ab7d",
+      "anchor_prefix": "Chapter-10-Foreshores-an"
     },
     {
       "part": "Chapter 11 Foreshores and W2 Recreational Waterways",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645119-11-foreshores-w2-recreational-waterways-am-6-to-publish-pdf-20210310.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0025/6685/11-foreshores-w2-recreational-waterways-am-6-to-publish-pdf-20210310.pdf",
       "bytes": 672577,
-      "sha256": "e072bf437740904d4e81cad606599e1332e450aa3426eb345f171e27c5bc5617"
+      "sha256": "e072bf437740904d4e81cad606599e1332e450aa3426eb345f171e27c5bc5617",
+      "anchor_prefix": "Chapter-11-Foreshores-an"
     },
     {
       "part": "Chapter 12 B1 Neighbourhood Centre",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645160-chapter-12-b1-neighbourhood-centre-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0023/118256/Chapter-12-B1-Neighbourhood-Centre-2026.pdf",
       "bytes": 579495,
-      "sha256": "53a0dba5ca3557ba55829ddd4e107dfd523d63415450835e9e8530cd53f0b4eb"
+      "sha256": "53a0dba5ca3557ba55829ddd4e107dfd523d63415450835e9e8530cd53f0b4eb",
+      "anchor_prefix": "Chapter-12-B1-Neighbourh"
     },
     {
       "part": "Chapter 13 E1 Local Centre Bangor, Illawong, Kareela and Woolooware Bay",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645201-chapter-13-e1-local-centre-bangor-illawong-kareela-and-woolooware-bay.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0019/119242/Chapter-13-E1-Local-Centre-Bangor-Illawong-Kareela-and-Woolooware-Bay.pdf",
       "bytes": 1179049,
-      "sha256": "41d2456b0e5dc1b634f4ff678f1624f73ff89654799f1498ae2c9a3417692b48"
+      "sha256": "41d2456b0e5dc1b634f4ff678f1624f73ff89654799f1498ae2c9a3417692b48",
+      "anchor_prefix": "Chapter-13-E1-Local-Cent"
     },
     {
       "part": "Chapter 14 E1 Local Centre Gymea",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645237-chapter-14-e1-local-centre-gymea.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0018/119241/Chapter-14-E1-Local-Centre-Gymea.pdf",
       "bytes": 1734037,
-      "sha256": "886e6349826dd2790fa672ee58cf5af1086366ec58dd25b4fbcfda3ccabcaf04"
+      "sha256": "886e6349826dd2790fa672ee58cf5af1086366ec58dd25b4fbcfda3ccabcaf04",
+      "anchor_prefix": "Chapter-14-E1-Local-Cent"
     },
     {
       "part": "Chapter 15 E1 Local Centre Heathcote",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645331-chapter-15-e1-local-centre-heathcote-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0020/119243/Chapter-15-E1-Local-Centre-Heathcote-May-2026.pdf",
       "bytes": 1778869,
-      "sha256": "9b0391ce74b7804834dd414915a7778582f174690b3263f02496b4906c0107be"
+      "sha256": "9b0391ce74b7804834dd414915a7778582f174690b3263f02496b4906c0107be",
+      "anchor_prefix": "Chapter-15-E1-Local-Cent"
     },
     {
       "part": "Chapter 16 E1 Local Centre Jannali",
@@ -150,7 +165,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645383-chapter-16-e1-local-centre-jannali-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0021/119244/Chapter-16-E1-Local-Centre-Jannali-May-2026.pdf",
       "bytes": 1569622,
-      "sha256": "6da772efc67945e55fe975d569bebfde8e6ca847d68968094edf0ac44c183f5e"
+      "sha256": "6da772efc67945e55fe975d569bebfde8e6ca847d68968094edf0ac44c183f5e",
+      "anchor_prefix": "Chapter-16-E1-Local-Cent"
     },
     {
       "part": "Chapter 17 E1 Local Centre MU1 Mixed Use Kirrawee",
@@ -159,7 +175,8 @@
       "url": "https://www.datocms-assets.com/94948/1783420716-chapter-17-e1-local-centre-b4-mixed-use-kirrawee-am-11.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0017/122039/Chapter-17-E1-Local-Centre-B4-Mixed-Use-Kirrawee-Am-11.pdf",
       "bytes": 1256135,
-      "sha256": "17ea23cf9f157088cfb2cd9dbab294f00cf7f33296dbeeb2233c5610f32dd1ad"
+      "sha256": "17ea23cf9f157088cfb2cd9dbab294f00cf7f33296dbeeb2233c5610f32dd1ad",
+      "anchor_prefix": "Chapter-17-E1-Local-Cent"
     },
     {
       "part": "Chapter 18 E2 Commercial Core Caringbah",
@@ -168,7 +185,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645421-chapter-18-e2-commercial-centre-caringbah-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0024/119247/Chapter-18-E2-Commercial-Centre-Caringbah-May-2026.pdf",
       "bytes": 3803735,
-      "sha256": "05ce7fa4b7ecd5e20947ed43397bc6d295fcb1783f5235217c71ca751b1b98a0"
+      "sha256": "05ce7fa4b7ecd5e20947ed43397bc6d295fcb1783f5235217c71ca751b1b98a0",
+      "anchor_prefix": "Chapter-18-E2-Commercial"
     },
     {
       "part": "Chapter 19 E2 Commercial Core Cronulla",
@@ -177,7 +195,8 @@
       "url": "https://www.datocms-assets.com/94948/1789727862-chapter-19-e2-commerical-centre-cronulla-a10461638.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0023/125492/Chapter-19-E2-Commerical-Centre-Cronulla-A10461638.pdf",
       "bytes": 8585843,
-      "sha256": "47e2dbf3a5dc8b1ff24084b1dba744895b835bfd2c7931344d552bd9cd9f5122"
+      "sha256": "47e2dbf3a5dc8b1ff24084b1dba744895b835bfd2c7931344d552bd9cd9f5122",
+      "anchor_prefix": "Chapter-19-E2-Commercial"
     },
     {
       "part": "Chapter 20 E2 Commercial Core Engadine",
@@ -186,7 +205,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645671-chapter-20-e2-commercial-centre-engadine-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0026/119249/Chapter-20-E2-Commercial-Centre-Engadine-May-2026.pdf",
       "bytes": 2471086,
-      "sha256": "23eb7684d2a9feda2d337183b96067e018ddc7a19765590075733713a6d4104f"
+      "sha256": "23eb7684d2a9feda2d337183b96067e018ddc7a19765590075733713a6d4104f",
+      "anchor_prefix": "Chapter-20-E2-Commercial"
     },
     {
       "part": "Chapter 21 E2 Commercial Core Menai",
@@ -195,7 +215,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645713-chapter-21-e2-commercial-centre-menai-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0018/119250/Chapter-21-E2-Commercial-Centre-Menai-May-2026.pdf",
       "bytes": 1758306,
-      "sha256": "6b8d7d3e241bded3299324621192cd74639629371bd5e8dc7ea882abe06fbc99"
+      "sha256": "6b8d7d3e241bded3299324621192cd74639629371bd5e8dc7ea882abe06fbc99",
+      "anchor_prefix": "Chapter-21-E2-Commercial"
     },
     {
       "part": "Chapter 22 E2 Commercial Core Miranda",
@@ -204,7 +225,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645759-chapter-22-e2-commercial-centre-miranda-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0019/119251/Chapter-22-E2-Commercial-Centre-Miranda-May-2026.pdf",
       "bytes": 1864860,
-      "sha256": "6066a049bbb9fb8751face22c2a7471559491908b301ae5dd43b7704d6ae3d9f"
+      "sha256": "6066a049bbb9fb8751face22c2a7471559491908b301ae5dd43b7704d6ae3d9f",
+      "anchor_prefix": "Chapter-22-E2-Commercial"
     },
     {
       "part": "Chapter 23 E2 Commercial Core Southgate",
@@ -213,7 +235,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645802-chapter-23-e2-commercial-centre-southgate-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0020/119252/Chapter-23-E2-Commercial-Centre-Southgate-May-2026.pdf",
       "bytes": 906381,
-      "sha256": "5283d881d576be034c076c3ee5812b78dea5b076a47257eaf009319f230ba36c"
+      "sha256": "5283d881d576be034c076c3ee5812b78dea5b076a47257eaf009319f230ba36c",
+      "anchor_prefix": "Chapter-23-E2-Commercial"
     },
     {
       "part": "Chapter 24 E2 Commercial Core Sutherland",
@@ -222,7 +245,8 @@
       "url": "https://www.datocms-assets.com/94948/1780985570-chapter-24-e2-commercial-centre-sutherland-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0021/119253/Chapter-24-E2-Commercial-Centre-Sutherland-May-2026.pdf",
       "bytes": 3789429,
-      "sha256": "d80c9606c50776d507c39049d35d734b8b9d951fb741075c9c2d2541f3722ed0"
+      "sha256": "d80c9606c50776d507c39049d35d734b8b9d951fb741075c9c2d2541f3722ed0",
+      "anchor_prefix": "Chapter-24-E2-Commercial"
     },
     {
       "part": "Chapter 25 E3 Productivity Support",
@@ -231,7 +255,8 @@
       "url": "https://www.datocms-assets.com/94948/1780645978-chapter-25-e3-productivity-support-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0022/119254/Chapter-25-E3-Productivity-Support-May-2026.pdf",
       "bytes": 853948,
-      "sha256": "fc6749c622ba07028264087c1a76e7fcc3138326cdb93920f9ad97ea95675204"
+      "sha256": "fc6749c622ba07028264087c1a76e7fcc3138326cdb93920f9ad97ea95675204",
+      "anchor_prefix": "Chapter-25-E3-Productivi"
     },
     {
       "part": "Chapter 26 B6 Enterprise Development",
@@ -240,7 +265,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646036-26-b6-enterprise-corridor-am-6-to-publish-pdf-20210310.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0021/6708/26-b6-enterprise-corridor-am-6-to-publish-pdf-20210310.pdf",
       "bytes": 807253,
-      "sha256": "2674e9029db9e6c558181ccb818de1856c5dbec338450da88c35c13a0e8d406d"
+      "sha256": "2674e9029db9e6c558181ccb818de1856c5dbec338450da88c35c13a0e8d406d",
+      "anchor_prefix": "Chapter-26-B6-Enterprise"
     },
     {
       "part": "Chapter 27 SP4 Enterprise",
@@ -249,7 +275,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646081-chapter-27-sp4-enterprise-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0023/119255/Chapter-27-SP4-Enterprise-May-2026.pdf",
       "bytes": 806894,
-      "sha256": "3259ac5bb461c8be2752da5649d163efff928d9549208e4c23c9a88d30e81b0b"
+      "sha256": "3259ac5bb461c8be2752da5649d163efff928d9549208e4c23c9a88d30e81b0b",
+      "anchor_prefix": "Chapter-27-SP4-Enterpris"
     },
     {
       "part": "Chapter 28 E4 General Industrial",
@@ -258,7 +285,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646117-chapter-28-e4-general-industrial-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0024/119256/Chapter-28-E4-General-Industrial-May-2026.pdf",
       "bytes": 857736,
-      "sha256": "514aa9f45b635412e05699ad152128755bdc1d2dff08db69b95b0aa7e38c8013"
+      "sha256": "514aa9f45b635412e05699ad152128755bdc1d2dff08db69b95b0aa7e38c8013",
+      "anchor_prefix": "Chapter-28-E4-General-In"
     },
     {
       "part": "Chapter 29 IN2 Light Industrial",
@@ -267,7 +295,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646164-29-in2-light-industrial-am-6-to-publish-pdf-20210310.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0018/6705/29-in2-light-industrial-am-6-to-publish-pdf-20210310.pdf",
       "bytes": 807359,
-      "sha256": "b161c8d3cc0b7d68d2e795467062ac8c23fb1d899b8a748f98ebdafc4ab65c21"
+      "sha256": "b161c8d3cc0b7d68d2e795467062ac8c23fb1d899b8a748f98ebdafc4ab65c21",
+      "anchor_prefix": "Chapter-29-IN2-Light-Ind"
     },
     {
       "part": "Chapter 30 E5 Heavy Industrial Zone",
@@ -276,7 +305,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646205-chapter-30-e5-heavy-industrial-zone-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0025/119257/Chapter-30-E5-Heavy-Industrial-Zone-May-2026.pdf",
       "bytes": 875144,
-      "sha256": "637b3c23a627098c7e34ab907d6bb85f83e52805465c4604819e642320d28e25"
+      "sha256": "637b3c23a627098c7e34ab907d6bb85f83e52805465c4604819e642320d28e25",
+      "anchor_prefix": "Chapter-30-E5-Heavy-Indu"
     },
     {
       "part": "Chapter 31 W4 Working Waterfront",
@@ -285,7 +315,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646252-chapter-31-w4-working-waterfront-zone-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0026/119258/Chapter-31-W4-Working-Waterfront-Zone-May-2026.pdf",
       "bytes": 953088,
-      "sha256": "5b4b373ab949416bc8597a6c457c85e444a2911917584cc7de097937d8e135b0"
+      "sha256": "5b4b373ab949416bc8597a6c457c85e444a2911917584cc7de097937d8e135b0",
+      "anchor_prefix": "Chapter-31-W4-Working-Wa"
     },
     {
       "part": "Chapter 32 SP3 Tourist Zone - Prince Street",
@@ -294,7 +325,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646295-chapter-32-sp3-tourist-zone-prince-street-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0024/119238/Chapter-32-SP3-Tourist-Zone-Prince-Street-May-2026.pdf",
       "bytes": 1033167,
-      "sha256": "76296b7a001493a61a94249edcb0cd7ba499be96c8a2a79dfd5e7eaed04d7adc"
+      "sha256": "76296b7a001493a61a94249edcb0cd7ba499be96c8a2a79dfd5e7eaed04d7adc",
+      "anchor_prefix": "Chapter-32-SP3-Tourist-Z"
     },
     {
       "part": "Chapter 33 RE2 Private Recreation",
@@ -303,7 +335,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646339-33-re2-private-recreation-zone-pdf.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0021/6717/33-re2-private-recreation-zone-pdf.pdf",
       "bytes": 356239,
-      "sha256": "f7b22c338b590432affa7334ba43be2612493b00b2a95cb71ae8790607d783ad"
+      "sha256": "f7b22c338b590432affa7334ba43be2612493b00b2a95cb71ae8790607d783ad",
+      "anchor_prefix": "Chapter-33-RE2-Private-R"
     },
     {
       "part": "Chapter 34 Ancillary Development",
@@ -312,7 +345,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646376-34-ancillary-development-am-6-to-publish-20210310_v2.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0020/6716/34-ancillary-development-am-6-to-publish-20210310_v2.pdf",
       "bytes": 1724286,
-      "sha256": "7f0325d2c708209a716d5d36cc2e5a2e81af091760d759fe2a5a5b079872665b"
+      "sha256": "7f0325d2c708209a716d5d36cc2e5a2e81af091760d759fe2a5a5b079872665b",
+      "anchor_prefix": "Chapter-34-Ancillary-Dev"
     },
     {
       "part": "Chapter 35 Other Uses",
@@ -321,7 +355,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646420-dcp-chapter-35-other-uses-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0018/90162/DCP-Chapter-35-Other-Uses-May-2026.pdf",
       "bytes": 832441,
-      "sha256": "873704967fce0ec58397ac614441902a847dff2bab36129bfc038ccf90ed9a86"
+      "sha256": "873704967fce0ec58397ac614441902a847dff2bab36129bfc038ccf90ed9a86",
+      "anchor_prefix": "Chapter-35-Other-Uses"
     },
     {
       "part": "Chapter 36 Vehicular Access, Traffic, Parking and Bicycles",
@@ -330,7 +365,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646468-chapter-36-vehicular-access-traffic-parking-and-bicycles-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0027/119259/Chapter-36-Vehicular-Access,-Traffic,-Parking-and-Bicycles-May-2026.pdf",
       "bytes": 539682,
-      "sha256": "1deadd3ae61a57e7a451f913e72f403c789675369b09f8185c666ebe8425c02b"
+      "sha256": "1deadd3ae61a57e7a451f913e72f403c789675369b09f8185c666ebe8425c02b",
+      "anchor_prefix": "Chapter-36-Vehicular-Acc"
     },
     {
       "part": "Chapter 37 Late Night Trading",
@@ -339,7 +375,8 @@
       "url": "https://www.datocms-assets.com/94948/1789728452-chapter-37-late-night-trading-a10461639.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0022/125491/Chapter-37-Late-Night-Trading-A10461639.pdf",
       "bytes": 16331354,
-      "sha256": "0df4e8b897e54ce80c9b67cf3fc513ac7cef9da9654d44a1c12e7c801e948666"
+      "sha256": "0df4e8b897e54ce80c9b67cf3fc513ac7cef9da9654d44a1c12e7c801e948666",
+      "anchor_prefix": "Chapter-37-Late-Night-Tr"
     },
     {
       "part": "Chapter 38 Stormwater and Groundwater Management",
@@ -348,7 +385,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646550-chapter-38-stormwater-and-groundwater-management-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0019/119260/Chapter-38-Stormwater-and-Groundwater-Management-May-2026.pdf",
       "bytes": 344450,
-      "sha256": "4eabfa548caf3ab6b4a595984f5d5a11c2021f754ed4a6fbdbed308f8ee26067"
+      "sha256": "4eabfa548caf3ab6b4a595984f5d5a11c2021f754ed4a6fbdbed308f8ee26067",
+      "anchor_prefix": "Chapter-38-Stormwater-an"
     },
     {
       "part": "Chapter 39 Natural Resource Management",
@@ -357,7 +395,8 @@
       "url": "https://www.datocms-assets.com/94948/1770336250-39-natural-resource-management-am-9.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0038/99695/39-Natural-Resource-Management-Am-9.pdf",
       "bytes": 12837583,
-      "sha256": "64ad7f5117801e53958911a90df3a4f7df2d7c09522f2f58bb7cfa5df4c06954"
+      "sha256": "64ad7f5117801e53958911a90df3a4f7df2d7c09522f2f58bb7cfa5df4c06954",
+      "anchor_prefix": "Chapter-39-Natural-Resou"
     },
     {
       "part": "Chapter 40 Environmental Risk",
@@ -366,7 +405,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646641-40-environmental-risk-am-10-a9928443.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0026/119591/40-Environmental-Risk-Am-10-A9928443.pdf",
       "bytes": 1081738,
-      "sha256": "b0e79f7fe03cee29db14a418e9d07488ba3ab41274b710e01892b9724d4302c8"
+      "sha256": "b0e79f7fe03cee29db14a418e9d07488ba3ab41274b710e01892b9724d4302c8",
+      "anchor_prefix": "Chapter-40-Environmental"
     },
     {
       "part": "Chapter 41 Social Impact",
@@ -375,7 +415,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646684-41-social-impact-pdf.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0022/6718/41-social-impact-pdf.pdf",
       "bytes": 432298,
-      "sha256": "2c90f637e9ff744a867765c5089d4e23ab5a8f01f967efcfb48bfe9f4b26def4"
+      "sha256": "2c90f637e9ff744a867765c5089d4e23ab5a8f01f967efcfb48bfe9f4b26def4",
+      "anchor_prefix": "Chapter-41-Social-Impact"
     },
     {
       "part": "Chapter 42 Administrative Provisions",
@@ -384,7 +425,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646737-42-administrative-provisions-am-8.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0023/6719/42-Administrative-Provisions-Am-8.pdf",
       "bytes": 204560,
-      "sha256": "ffb6c52126438c127bc881deb438a5f4d9b7fef1c1b0abc4604bf5ab306b3e7d"
+      "sha256": "ffb6c52126438c127bc881deb438a5f4d9b7fef1c1b0abc4604bf5ab306b3e7d",
+      "anchor_prefix": "Chapter-42-Administrativ"
     },
     {
       "part": "Chapter 43 101-151 Port Hacking Road, Sylvania, Frank Vickery",
@@ -393,7 +435,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646773-chapter-43-101-151-port-hacking-road-sylvania-frank-vickery-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0025/119239/Chapter-43-101-151-Port-Hacking-Road,-Sylvania,-Frank-Vickery-May-2026.pdf",
       "bytes": 1188196,
-      "sha256": "1110e772918ac47a7cfd00e7faa627e4de407f586e53311ae5e44c510ccf86db"
+      "sha256": "1110e772918ac47a7cfd00e7faa627e4de407f586e53311ae5e44c510ccf86db",
+      "anchor_prefix": "Chapter-43-101-151-Port-"
     },
     {
       "part": "Chapter 44 147 Garnet Road, Kareela",
@@ -402,7 +445,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646821-chapter-44-147-garnet-road-kareela-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0017/119240/Chapter-44-147-Garnet-Road,-Kareela-May-2026.pdf",
       "bytes": 867003,
-      "sha256": "05a4cc700163fa4cbf5dd728ea9a953d357b25bf4b3ea62bd6f4d37f1181f448"
+      "sha256": "05a4cc700163fa4cbf5dd728ea9a953d357b25bf4b3ea62bd6f4d37f1181f448",
+      "anchor_prefix": "Chapter-44-147-Garnet-Ro"
     },
     {
       "part": "Chapter 45 Special Entertainment Precincts",
@@ -411,7 +455,8 @@
       "url": "https://www.datocms-assets.com/94948/1789728725-chapter-45-special-entertainment-precincts-a10461640.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0021/125490/Chapter-45-Special-Entertainment-Precincts-A10461640.pdf",
       "bytes": 4729760,
-      "sha256": "73a5a4ba1004397e20c16847c72da01e42cb9189bd2a6f8b731099a24c705127"
+      "sha256": "73a5a4ba1004397e20c16847c72da01e42cb9189bd2a6f8b731099a24c705127",
+      "anchor_prefix": "Chapter-45-Special-Enter"
     },
     {
       "part": "Community Engagement Strategy",
@@ -420,7 +465,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808468-dcp-file-185713004.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0022/37822/Community-Engagement-Strategy-Interactive-Index.pdf",
       "bytes": 9084633,
-      "sha256": "39a5b3068c74c776c48bf2dc717229e2b36132f4015165f56e37f4b3cb9081b8"
+      "sha256": "39a5b3068c74c776c48bf2dc717229e2b36132f4015165f56e37f4b3cb9081b8",
+      "anchor_prefix": "Community-Engagement-Str"
     },
     {
       "part": "Soil Infiltration Map",
@@ -429,7 +475,8 @@
       "url": "https://www.datocms-assets.com/94948/1780646899-a3_dcp15_final_soilinfiltrationpotential_2.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0015/6720/a3_dcp15_final_soilinfiltrationpotential_2.pdf",
       "bytes": 720813,
-      "sha256": "88e345f1d47503597742b1eb48c79097ee502fd0ec31303f798f87a44a9eaee9"
+      "sha256": "88e345f1d47503597742b1eb48c79097ee502fd0ec31303f798f87a44a9eaee9",
+      "anchor_prefix": "Soil-Infiltration-Map"
     },
     {
       "part": "Greenweb Map",
@@ -438,7 +485,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808463-dcp-file-185713006.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0021/6726/dcp15_greenweb_complete.pdf",
       "bytes": 11311759,
-      "sha256": "f6b7b647f0bc1339205b7a2217e157c0ee09ba82c88515940f7acfaaaebfdcf2"
+      "sha256": "f6b7b647f0bc1339205b7a2217e157c0ee09ba82c88515940f7acfaaaebfdcf2",
+      "anchor_prefix": "Greenweb-Map"
     },
     {
       "part": "Protected Species and Communities of High Conservation Significance Map",
@@ -447,7 +495,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808885-dcp-file-185713007.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0020/6725/dcp15_final_comm_highconservsignif.pdf",
       "bytes": 20427186,
-      "sha256": "b3a82f6583eefc873024538629054dd766a050800064266f61ff51f2393c2254"
+      "sha256": "b3a82f6583eefc873024538629054dd766a050800064266f61ff51f2393c2254",
+      "anchor_prefix": "Protected-Species-and-Co"
     },
     {
       "part": "Wetlands and Waterways Map",
@@ -456,7 +505,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808469-dcp-file-185713008.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0018/6723/dcp15_wetlandswaterways.pdf",
       "bytes": 13577804,
-      "sha256": "c42d2a16e1e6a54b7d57565a36159f5be7d37b8ef0efed6aa8a73f63bcaf8bf6"
+      "sha256": "c42d2a16e1e6a54b7d57565a36159f5be7d37b8ef0efed6aa8a73f63bcaf8bf6",
+      "anchor_prefix": "Wetlands-and-Waterways-M"
     },
     {
       "part": "Flood Risk Management Map",
@@ -465,7 +515,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808480-dcp-file-185713009.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0017/6722/dcp15_final_floodriskmanagement_forweb.pdf",
       "bytes": 20882184,
-      "sha256": "75444ccc331df8c798684941029013b306072f14ae2f875c37dd421dfb380626"
+      "sha256": "75444ccc331df8c798684941029013b306072f14ae2f875c37dd421dfb380626",
+      "anchor_prefix": "Flood-Risk-Management-Ma"
     },
     {
       "part": "Road and Rail Noise Buffer Map",
@@ -474,7 +525,8 @@
       "url": "https://www.datocms-assets.com/94948/1692808476-dcp-file-185713010.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0018/6732/dcp15_final_roadrailnoisebuffer.pdf",
       "bytes": 15348913,
-      "sha256": "9c0d20d555415837c7a8eec5f2193bb724946fd7c084e8c6c3902815b418a2b8"
+      "sha256": "9c0d20d555415837c7a8eec5f2193bb724946fd7c084e8c6c3902815b418a2b8",
+      "anchor_prefix": "Road-and-Rail-Noise-Buff"
     },
     {
       "part": "Bicycle Network Map",
@@ -483,7 +535,8 @@
       "url": "https://www.datocms-assets.com/94948/1780647355-a3_dcp15_final_bicyclenetwork.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0017/6731/a3_dcp15_final_bicyclenetwork.pdf",
       "bytes": 554316,
-      "sha256": "95f426375be063678208704a32753f9ff48332e3c04b558b57eb37a4fd5c91a3"
+      "sha256": "95f426375be063678208704a32753f9ff48332e3c04b558b57eb37a4fd5c91a3",
+      "anchor_prefix": "Bicycle-Network-Map"
     },
     {
       "part": "Road Hierarchy Map",
@@ -492,7 +545,8 @@
       "url": "https://www.datocms-assets.com/94948/1780647395-dcp-road-hierarchy-map.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0016/6730/dcp-road-hierarchy-map.pdf",
       "bytes": 491462,
-      "sha256": "183da1a41503bd022740498ca1b471785001a9faca11e0136b56565868c1d451"
+      "sha256": "183da1a41503bd022740498ca1b471785001a9faca11e0136b56565868c1d451",
+      "anchor_prefix": "Road-Hierarchy-Map"
     },
     {
       "part": "2025 Waste Collection for New Multi-Unit Dwellings and Residential Flat Buildings",
@@ -501,7 +555,8 @@
       "url": "https://www.datocms-assets.com/94948/1777872457-specification-waste-spec-new-multi-dwelling-housing-and-rfbs-october-2025.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0028/108784/Specification-Waste-Spec-New-Multi-Dwelling-Housing-and-RFBs-October-2025.pdf",
       "bytes": 549368,
-      "sha256": "fb639af743c72a1bf16419a3f3980419b5827de6a3b9b5c4f172ea92cd311f1c"
+      "sha256": "fb639af743c72a1bf16419a3f3980419b5827de6a3b9b5c4f172ea92cd311f1c",
+      "anchor_prefix": "2025"
     },
     {
       "part": "2020 Bed and Breakfast Specification",
@@ -510,7 +565,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954567-2021-03-10-2020-bed-and-breakfast-specification.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0023/6593/2021-03-10-2020-bed-and-breakfast-specification.pdf",
       "bytes": 227124,
-      "sha256": "7791ce883ad21aa7ba8b184bc5838ad39f4f5fb4be5df3a6f57624cebd39a74b"
+      "sha256": "7791ce883ad21aa7ba8b184bc5838ad39f4f5fb4be5df3a6f57624cebd39a74b",
+      "anchor_prefix": "2020"
     },
     {
       "part": "2020 Brothels Specification",
@@ -519,7 +575,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954570-2021-03-10-2020-brothels-specification.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0024/6594/2021-03-10-2020-brothels-specification.pdf",
       "bytes": 265769,
-      "sha256": "171834f455d4b928d5eb9f046450dca09855cc0aba87ada41ce12cf6a6b4e1fe"
+      "sha256": "171834f455d4b928d5eb9f046450dca09855cc0aba87ada41ce12cf6a6b4e1fe",
+      "anchor_prefix": "2020-2"
     },
     {
       "part": "2020 Environmental Site Management",
@@ -528,7 +585,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954583-2021-03-10-2020-environmental-site-management_v2.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0025/6595/2021-03-10-2020-environmental-site-management_v2.pdf",
       "bytes": 3745423,
-      "sha256": "3d24e438e991ce40dedff3b73c070a76cda5ee36c8e25ddc1436026a327b5406"
+      "sha256": "3d24e438e991ce40dedff3b73c070a76cda5ee36c8e25ddc1436026a327b5406",
+      "anchor_prefix": "2020-3"
     },
     {
       "part": "2020 Greenweb Specification",
@@ -537,7 +595,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954597-2021-03-10-2020-greenweb-specification.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0026/6596/2021-03-10-2020-greenweb-specification.pdf",
       "bytes": 442046,
-      "sha256": "f7643fcb8850f98ba22ee29018706f50bcc877fb4bf12bf6b893702cbad006cf"
+      "sha256": "f7643fcb8850f98ba22ee29018706f50bcc877fb4bf12bf6b893702cbad006cf",
+      "anchor_prefix": "2020-4"
     },
     {
       "part": "2020 Sustainable Building Materials Specification",
@@ -546,7 +605,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954609-2021-03-10-sustainable-building-materials-specification.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0022/6646/2021-03-10-sustainable-building-materials-specification.pdf",
       "bytes": 384402,
-      "sha256": "82c58dbbdc44f3e194241c0beb4fe404afd1263daf7cbdb740cdb22dae37524b"
+      "sha256": "82c58dbbdc44f3e194241c0beb4fe404afd1263daf7cbdb740cdb22dae37524b",
+      "anchor_prefix": "2020-5"
     },
     {
       "part": "2025 Stormwater Management Specification",
@@ -555,7 +615,8 @@
       "url": "https://www.datocms-assets.com/94948/1780649627-specification-stormwater-management-environmental-may-2026.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0026/119267/Specification-Stormwater-Management-Environmental-May-2026.pdf",
       "bytes": 1933642,
-      "sha256": "94202c3a4929a4ac793fc6bf51099d9aa1a308d6eaf777d5c70b8366490fb24b"
+      "sha256": "94202c3a4929a4ac793fc6bf51099d9aa1a308d6eaf777d5c70b8366490fb24b",
+      "anchor_prefix": "2025-2"
     },
     {
       "part": "2020 Late Night Trading Specification",
@@ -564,7 +625,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954650-2021-03-10-late-night-trading-specification-2020.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0007/5110/2021-03-10-Late-Night-Trading-Specification-2020.pdf",
       "bytes": 529423,
-      "sha256": "05c627e5ef57448cb54642baef3394b249933640110fe06a4e74a5199fae9621"
+      "sha256": "05c627e5ef57448cb54642baef3394b249933640110fe06a4e74a5199fae9621",
+      "anchor_prefix": "2020-6"
     },
     {
       "part": "Part 1: Planting and Landscaping Guidelines",
@@ -573,7 +635,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954673-2021-03-10-part-1-planting-and-landscaping-guidelines.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0028/6598/2021-03-10-part-1-planting-and-landscaping-guidelines.pdf",
       "bytes": 719097,
-      "sha256": "8b8b2ebff4b3feb1fafde15557f965532dee50f7b19f5af4229fff9117df4e1f"
+      "sha256": "8b8b2ebff4b3feb1fafde15557f965532dee50f7b19f5af4229fff9117df4e1f",
+      "anchor_prefix": "Part-1-Planting-and-Land"
     },
     {
       "part": "Part 2: Guidelines for Specific Uses",
@@ -582,7 +645,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954685-2021-03-10-part-2-guidelines-for-specific-uses.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0029/6599/2021-03-10-Part-2-Guidelines-for-Specific-Uses.pdf",
       "bytes": 408459,
-      "sha256": "83d674b851cae88104a469cb945602fea128dc5a52e1370bbe6f6e2ac9410e1e"
+      "sha256": "83d674b851cae88104a469cb945602fea128dc5a52e1370bbe6f6e2ac9410e1e",
+      "anchor_prefix": "Part-2-Guidelines-for-Sp"
     },
     {
       "part": "Part 3: Locality Guidelines",
@@ -591,7 +655,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954698-2021-03-10-part-3-landscape-locality-guidelines.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0012/6600/2021-03-10-part-3-landscape-locality-guidelines.pdf",
       "bytes": 696170,
-      "sha256": "abf46a9a020ab756e64b45cb74396e558a018453aa505d2dda9871a5ec25dc4b"
+      "sha256": "abf46a9a020ab756e64b45cb74396e558a018453aa505d2dda9871a5ec25dc4b",
+      "anchor_prefix": "Part-3-Locality-Guidelin"
     },
     {
       "part": "Part 4: Plant Selection Guide",
@@ -600,7 +665,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954713-2021-03-10-part-4-plant-selection-guide.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0013/6601/2021-03-10-part-4-plant-selection-guide.pdf",
       "bytes": 1993995,
-      "sha256": "be53f375628cf80102ce1206021abde52b9c0f338ab5d2c266cb2f8ef326faff"
+      "sha256": "be53f375628cf80102ce1206021abde52b9c0f338ab5d2c266cb2f8ef326faff",
+      "anchor_prefix": "Part-4-Plant-Selection-G"
     },
     {
       "part": "Part 5: Tree Protection on Constructing Sites",
@@ -609,7 +675,8 @@
       "url": "https://www.datocms-assets.com/94948/1777954728-2021-03-10-part-5-tree-protection-on-constructing-sites_v2.pdf",
       "council_url": "https://www.sutherlandshire.nsw.gov.au/__data/assets/pdf_file/0014/6602/2021-03-10-part-5-tree-protection-on-constructing-sites_v2.pdf",
       "bytes": 381599,
-      "sha256": "7cb2097319db6667ecfc83464b178d405c55db8d0298d9518be79d7da6f3223c"
+      "sha256": "7cb2097319db6667ecfc83464b178d405c55db8d0298d9518be79d7da6f3223c",
+      "anchor_prefix": "Part-5-Tree-Protection-o"
     }
   ],
   "councils": [

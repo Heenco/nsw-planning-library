@@ -1,0 +1,23 @@
+{
+  "instrument": "hunters-hill-consolidated-development-control-plan-2013",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\hunters-hill-consolidated-development-control-plan-2013.html",
+  "generated": "2026-09-28T07:33:46.209Z",
+  "parts": 2,
+  "parts_with_sidecar": 2,
+  "source_pages": 0,
+  "bytes": 658114,
+  "unique_anchor_ids": 539,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 2
+  },
+  "totals": {
+    "headings": 537,
+    "tables": 35,
+    "list_items": 2234,
+    "images_placed": 144,
+    "prose_demoted": 14,
+    "page_markers": 253
+  },
+  "weak_parts": []
+}

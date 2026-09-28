@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1692880435-dcp-file-185712085.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%201%20-%20Cover%20-%20Amdt%2018%20-%20March%2023.pdf",
       "bytes": 877520,
-      "sha256": "d0f69e01c4407f416854b5d9fb9c5ee7a200bee5aef76d7c4c2bc88115a84f58"
+      "sha256": "d0f69e01c4407f416854b5d9fb9c5ee7a200bee5aef76d7c4c2bc88115a84f58",
+      "anchor_prefix": "Cover-Page"
     },
     {
       "part": "Contents Page",
@@ -24,61 +25,68 @@
       "url": "https://www.datocms-assets.com/94948/1757896573-file-owztj0x8svgwix7k3qmsha.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%20Contents%20Page%20Amdt%20No%2019%20-%20November%202023.pdf",
       "bytes": 865999,
-      "sha256": "04b453db60da380e56849d9bc1e9cc002a35cb5638377b9366317d4c9c75cc7a"
+      "sha256": "04b453db60da380e56849d9bc1e9cc002a35cb5638377b9366317d4c9c75cc7a",
+      "anchor_prefix": "Contents-Page"
     },
     {
-      "part": "Part A – Introduction",
+      "part": "Part A \u2013 Introduction",
       "order": 2,
       "file": "leichhardt-development-control-plan-2013/02-part-a-introduction.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880435-dcp-file-185712087.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%203%20-%20Part%20A%20%20Introduction%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 566232,
-      "sha256": "c154085ba821dba4f7d07ab96c3154f7a2b1ae7dbc5f96f41dbbaa9b1473bf30"
+      "sha256": "c154085ba821dba4f7d07ab96c3154f7a2b1ae7dbc5f96f41dbbaa9b1473bf30",
+      "anchor_prefix": "A"
     },
     {
-      "part": "Part B – Connections",
+      "part": "Part B \u2013 Connections",
       "order": 3,
       "file": "leichhardt-development-control-plan-2013/03-part-b-connections.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880435-dcp-file-185712088.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%204%20-%20Part%20B%20Connections%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 349640,
-      "sha256": "dfcd0a72f399f4a51930f3f0dba7b22d1b7fe8ef76f705d27c47ccfc97139b9e"
+      "sha256": "dfcd0a72f399f4a51930f3f0dba7b22d1b7fe8ef76f705d27c47ccfc97139b9e",
+      "anchor_prefix": "B"
     },
     {
-      "part": "Part C – Place – Section 1: General Provisions",
+      "part": "Part C \u2013 Place \u2013 Section 1: General Provisions",
       "order": 4,
       "file": "leichhardt-development-control-plan-2013/04-part-c-place-section-1-general-provisions.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880436-dcp-file-185712089.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%205%20-%20%20Part%20C%20Place%20Section%201%20-%20with%20IWLEP%202022%20amendments%20March%2023.pdf",
       "bytes": 3416446,
-      "sha256": "030050d900f2c2eb55f2ee9c2e0967811cc90d09e2ed0933142afda5f1e61ad8"
+      "sha256": "030050d900f2c2eb55f2ee9c2e0967811cc90d09e2ed0933142afda5f1e61ad8",
+      "anchor_prefix": "C"
     },
     {
-      "part": "Part C – Place – Section 2: Urban Character",
+      "part": "Part C \u2013 Place \u2013 Section 2: Urban Character",
       "order": 5,
       "file": "leichhardt-development-control-plan-2013/05-part-c-place-section-2-urban-character.pdf",
       "url": "https://www.datocms-assets.com/94948/1692894998-dcp-file-185712090.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%206%20-%20Part%20C%20Place%20Section%202%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 31223869,
-      "sha256": "01197779ac61d394b64a483b66ea56c9f426d0642a5ef138c97cacb988521044"
+      "sha256": "01197779ac61d394b64a483b66ea56c9f426d0642a5ef138c97cacb988521044",
+      "anchor_prefix": "C-2"
     },
     {
-      "part": "Part C – Place – Section 3: Residential Provisions",
+      "part": "Part C \u2013 Place \u2013 Section 3: Residential Provisions",
       "order": 6,
       "file": "leichhardt-development-control-plan-2013/06-part-c-place-section-3-residential-provisions.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880435-dcp-file-185712092.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%207%20-%20Part%20C%20Place%20Section%203%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 575341,
-      "sha256": "1bf9424cef4a5dcc4786d47bb7c85535526528436bc47acbdcb938387f3212fc"
+      "sha256": "1bf9424cef4a5dcc4786d47bb7c85535526528436bc47acbdcb938387f3212fc",
+      "anchor_prefix": "C-3"
     },
     {
-      "part": "Part C – Place – Section 4: Non-Residential Provisions",
+      "part": "Part C \u2013 Place \u2013 Section 4: Non-Residential Provisions",
       "order": 7,
       "file": "leichhardt-development-control-plan-2013/07-part-c-place-section-4-non-residential-provisions.pdf",
       "url": "https://www.datocms-assets.com/94948/1693334685-dcp-file-185712093.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%208%20-%20Part%20C%20Place%20Section%204%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 1481436,
-      "sha256": "b20336b94639f646a2cb49605a9c10ecba934b7fad0d284526aa8147bd28723d"
+      "sha256": "b20336b94639f646a2cb49605a9c10ecba934b7fad0d284526aa8147bd28723d",
+      "anchor_prefix": "C-4"
     },
     {
       "part": "Part C - Place - Section 5: Special Entertainment Precinct",
@@ -87,106 +95,118 @@
       "url": "https://www.datocms-assets.com/94948/1757896593-file-bqhxoozvtnct09x_r5gazw.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20Part%20C%20Section%205.pdf",
       "bytes": 1088383,
-      "sha256": "6aa03512b32566e035dbfe8c98632cad8826bf980e9f1e66f7f13be8cd315505"
+      "sha256": "6aa03512b32566e035dbfe8c98632cad8826bf980e9f1e66f7f13be8cd315505",
+      "anchor_prefix": "C-5"
     },
     {
-      "part": "Part D – Energy",
+      "part": "Part D \u2013 Energy",
       "order": 9,
       "file": "leichhardt-development-control-plan-2013/09-part-d-energy.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880436-dcp-file-185712094.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%209%20-%20Part%20D%20Energy%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 292192,
-      "sha256": "3ec959cf4bbb9072fd3a93a2886992a34a5c9f9381abe66613fb709f10a21146"
+      "sha256": "3ec959cf4bbb9072fd3a93a2886992a34a5c9f9381abe66613fb709f10a21146",
+      "anchor_prefix": "D"
     },
     {
-      "part": "Part E – Water",
+      "part": "Part E \u2013 Water",
       "order": 10,
       "file": "leichhardt-development-control-plan-2013/10-part-e-water.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880435-dcp-file-185712095.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-01/Leichhardt%20DCP%202013%20-%2010%20-%20Part%20E%20Water%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 315005,
-      "sha256": "be9972d17e7ce579ef2e0f1cf3e49ce21732a22cdad438163c6182cacf00b460"
+      "sha256": "be9972d17e7ce579ef2e0f1cf3e49ce21732a22cdad438163c6182cacf00b460",
+      "anchor_prefix": "E"
     },
     {
-      "part": "Part F – Food",
+      "part": "Part F \u2013 Food",
       "order": 11,
       "file": "leichhardt-development-control-plan-2013/11-part-f-food.pdf",
       "url": "https://www.datocms-assets.com/94948/1692894996-dcp-file-185712096.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%2011%20-%20Part%20F%20Food%20-%20with%20IWLEP%202022%20amendments_0.pdf",
       "bytes": 161944,
-      "sha256": "b8fefee8b9f590aaf42c1dafc0cb702b2033cda4587c4eb107d901e84917bf5f"
+      "sha256": "b8fefee8b9f590aaf42c1dafc0cb702b2033cda4587c4eb107d901e84917bf5f",
+      "anchor_prefix": "F"
     },
     {
-      "part": "Part G – Site Specific Controls - Section 1-12",
+      "part": "Part G \u2013 Site Specific Controls - Section 1-12",
       "order": 12,
       "file": "leichhardt-development-control-plan-2013/12-part-g-site-specific-controls-section-1-12.pdf",
       "url": "https://www.datocms-assets.com/94948/1777871983-file-dmpriu3uriudfcrasinwow.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%2012%20-%20Part%20G%20Section%201-12%20-%20Amdt%2019%20-%20Nov%202023.pdf",
       "bytes": 7523548,
-      "sha256": "3cdb55799d0e9e7e2def305ca3c66b5cbac7e7b86e11f5479d5874a8a78b657e"
+      "sha256": "3cdb55799d0e9e7e2def305ca3c66b5cbac7e7b86e11f5479d5874a8a78b657e",
+      "anchor_prefix": "G"
     },
     {
-      "part": "Part G – Site Specific Controls - Section 13",
+      "part": "Part G \u2013 Site Specific Controls - Section 13",
       "order": 13,
       "file": "leichhardt-development-control-plan-2013/13-part-g-site-specific-controls-section-13.pdf",
       "url": "https://www.datocms-assets.com/94948/1757896613-file-mreumixatbkm67lyhzvtka.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%2012%20-%20Part%20G%20Section%2013%20-%20Amdt%2019%20-%20Pyrmont%20Bridge%20Road%20Nov%202023.pdf",
       "bytes": 1421565,
-      "sha256": "2c7f0ebaae1ca13b865dd7cb798038bd7ddc16fcf4f10bf514154dc39e6f8a17"
+      "sha256": "2c7f0ebaae1ca13b865dd7cb798038bd7ddc16fcf4f10bf514154dc39e6f8a17",
+      "anchor_prefix": "G-2"
     },
     {
-      "part": "Appendix A – Glossary",
+      "part": "Appendix A \u2013 Glossary",
       "order": 14,
       "file": "leichhardt-development-control-plan-2013/14-appendix-a-glossary.pdf",
       "url": "https://www.datocms-assets.com/94948/1692894995-dcp-file-185712098.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%2013%20-%20Appendix%20A%20Glossary%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 171873,
-      "sha256": "d4f37e893a447ebbed2f6c4641a7a0e95394969c8c690660e578b201ea21fd31"
+      "sha256": "d4f37e893a447ebbed2f6c4641a7a0e95394969c8c690660e578b201ea21fd31",
+      "anchor_prefix": "Appendix-A-Glossary"
     },
     {
-      "part": "Appendix B – Building Typologies",
+      "part": "Appendix B \u2013 Building Typologies",
       "order": 15,
       "file": "leichhardt-development-control-plan-2013/15-appendix-b-building-typologies.pdf",
       "url": "https://www.datocms-assets.com/94948/1692880436-dcp-file-185712099.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%2014%20-%20Appendix%20B%20Building%20Typologies%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 362080,
-      "sha256": "8c32fd53e60fcee38f9b125251f24654a68b7fa445f5a7fedabfe301856cd013"
+      "sha256": "8c32fd53e60fcee38f9b125251f24654a68b7fa445f5a7fedabfe301856cd013",
+      "anchor_prefix": "Appendix-B-Building-Typo"
     },
     {
-      "part": "Appendix C – Urban Framework Plans",
+      "part": "Appendix C \u2013 Urban Framework Plans",
       "order": 16,
       "file": "leichhardt-development-control-plan-2013/16-appendix-c-urban-framework-plans.pdf",
       "url": "https://www.datocms-assets.com/94948/1692894996-dcp-file-185712100.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%2015%20-Appendix%20C%20Urban%20Framework%20Plans%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 460450,
-      "sha256": "a90b6caaa2b1fb156efdf1fd9a2765af865df1efc9d3ee0db457226f2a148ec0"
+      "sha256": "a90b6caaa2b1fb156efdf1fd9a2765af865df1efc9d3ee0db457226f2a148ec0",
+      "anchor_prefix": "Appendix-C-Urban-Framewo"
     },
     {
-      "part": "Appendix D – Site Waste Minimisation and Management Plan Template",
+      "part": "Appendix D \u2013 Site Waste Minimisation and Management Plan Template",
       "order": 17,
       "file": "leichhardt-development-control-plan-2013/17-appendix-d-site-waste-minimisation-and-management-plan-templat.pdf",
       "url": "https://www.datocms-assets.com/94948/1693334685-dcp-file-185712101.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/LE9962_1.PDF",
       "bytes": 615228,
-      "sha256": "a745735664e1e98a4138f4974bfd333d5ad17c2a974d879a086619ee6c2a9913"
+      "sha256": "a745735664e1e98a4138f4974bfd333d5ad17c2a974d879a086619ee6c2a9913",
+      "anchor_prefix": "Appendix-D-Site-Waste-Mi"
     },
     {
-      "part": "Appendix E – Water Guidelines",
+      "part": "Appendix E \u2013 Water Guidelines",
       "order": 18,
       "file": "leichhardt-development-control-plan-2013/18-appendix-e-water-guidelines.pdf",
       "url": "https://www.datocms-assets.com/94948/1692894996-dcp-file-185712102.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%2017%20-%20Appendix%20E%20Water%20Guidelines%20-%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 2706384,
-      "sha256": "0e7155146e8c1aaedfa537468a861093ba534ee5ff6cec3ca8b6472bdfaed65e"
+      "sha256": "0e7155146e8c1aaedfa537468a861093ba534ee5ff6cec3ca8b6472bdfaed65e",
+      "anchor_prefix": "Appendix-E-Water-Guideli"
     },
     {
-      "part": "Appendix F – Late Night Trading Maps",
+      "part": "Appendix F \u2013 Late Night Trading Maps",
       "order": 19,
       "file": "leichhardt-development-control-plan-2013/19-appendix-f-late-night-trading-maps.pdf",
       "url": "https://www.datocms-assets.com/94948/1693334685-dcp-file-185712108.pdf",
       "council_url": "https://www.innerwest.nsw.gov.au/sites/default/files/2026-03/Leichhardt%20DCP%202013%20-%2018%20-%20Appendix%20F%20Late%20Night%20Trading%20Maps%20with%20IWLEP%202022%20amendments.pdf",
       "bytes": 1379684,
-      "sha256": "c6e0025f5b193146ff9d2893b1429c8f0af4365adf6c7e5e5b6d4ff33804cea0"
+      "sha256": "c6e0025f5b193146ff9d2893b1429c8f0af4365adf6c7e5e5b6d4ff33804cea0",
+      "anchor_prefix": "Appendix-F-Late-Night-Tr"
     }
   ],
   "councils": [

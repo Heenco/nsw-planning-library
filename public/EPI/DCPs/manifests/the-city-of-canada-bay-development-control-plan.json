@@ -15,7 +15,8 @@
       "url": "https://www.datocms-assets.com/94948/1757898987-file-dnnc7cvktvsxx_cumty4vq.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719475&streamId=streampdf-7719475",
       "bytes": 266261,
-      "sha256": "3e9b0c8cff5e028a41dd7dc8547f36c87069794129d57cc848dabeb82f6ac573"
+      "sha256": "3e9b0c8cff5e028a41dd7dc8547f36c87069794129d57cc848dabeb82f6ac573",
+      "anchor_prefix": "A"
     },
     {
       "part": "Part B General Control",
@@ -24,7 +25,8 @@
       "url": "https://www.datocms-assets.com/94948/1759304610-ecm_7719476_v9_ccb-dcp-03_part-b-general-controls_v2022-08-26.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719476&streamId=streampdf-7719476",
       "bytes": 24364353,
-      "sha256": "ddb8e257644d2451b108662ba52c9853a2d88aded765f9a1b840175a24761f35"
+      "sha256": "ddb8e257644d2451b108662ba52c9853a2d88aded765f9a1b840175a24761f35",
+      "anchor_prefix": "B"
     },
     {
       "part": "Part C Heritage",
@@ -33,7 +35,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899011-file-ewzlpme7rawvvsfblqub7g.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719477&streamId=streampdf-7719477",
       "bytes": 445726,
-      "sha256": "d747d5b10a6e88f1b595146aa42a9949d770677f2e2e15302c1215d2e81ab5df"
+      "sha256": "d747d5b10a6e88f1b595146aa42a9949d770677f2e2e15302c1215d2e81ab5df",
+      "anchor_prefix": "C"
     },
     {
       "part": "Part D Boarding Houses",
@@ -42,7 +45,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899018-file-seaowly5roaenewu4mac6g.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719478&streamId=streampdf-7719478",
       "bytes": 299471,
-      "sha256": "e921a54dc5eac773a62eed18005e0f7a0baa0d987b369acdcc9072c430075011"
+      "sha256": "e921a54dc5eac773a62eed18005e0f7a0baa0d987b369acdcc9072c430075011",
+      "anchor_prefix": "D"
     },
     {
       "part": "Part E Single Dwellings, Semi-Detached Dwellings, Dual Occupancies and Secondary Dwellings",
@@ -51,7 +55,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899024-file-czdrppqnrac_gvubdo52jq.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719479&streamId=streampdf-7719479",
       "bytes": 3054363,
-      "sha256": "d8e758df6a423d1a5b436cf13edb06ad7c810a3e20673963ffcf76a7e9773f52"
+      "sha256": "d8e758df6a423d1a5b436cf13edb06ad7c810a3e20673963ffcf76a7e9773f52",
+      "anchor_prefix": "E"
     },
     {
       "part": "Part F Multi-Dwelling Housing, Multi Dwelling Housing (Terraces), Manor Houses and Residential Flat Buildings",
@@ -60,7 +65,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899033-file-cbfuvpvjszc2waqrtg8jza.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719480&streamId=streampdf-7719480",
       "bytes": 3210193,
-      "sha256": "8d9960852b967f1e5629a2cba79c120d770e0a6b4604b1172a5d0c1662ed1a0f"
+      "sha256": "8d9960852b967f1e5629a2cba79c120d770e0a6b4604b1172a5d0c1662ed1a0f",
+      "anchor_prefix": "F"
     },
     {
       "part": "Part G Local Centres",
@@ -69,7 +75,8 @@
       "url": "https://www.datocms-assets.com/94948/1759304633-ecm_7719481_v4_ccb-dcp-08_part-g-local-centres_v2022-05-16.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719481&streamId=streampdf-7719481",
       "bytes": 10129345,
-      "sha256": "e9e403d72b57523fb772ffee410b5ef62eac452404842b09facc4a9f5a4cb5a7"
+      "sha256": "e9e403d72b57523fb772ffee410b5ef62eac452404842b09facc4a9f5a4cb5a7",
+      "anchor_prefix": "G"
     },
     {
       "part": "Part H Industrial",
@@ -78,7 +85,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899051-file-rm6q1bmeqkyllf2b9qmyfw.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719482&streamId=streampdf-7719482",
       "bytes": 216431,
-      "sha256": "430d61bb0d3b44597ee9128ebfe601ba61bb90026dc0f7ccd8975be821c36b07"
+      "sha256": "430d61bb0d3b44597ee9128ebfe601ba61bb90026dc0f7ccd8975be821c36b07",
+      "anchor_prefix": "H"
     },
     {
       "part": "Part I Signage and Advertising",
@@ -87,7 +95,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899058-file-lkg-tnppqvc0bxxkl7ecpa.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719483&streamId=streampdf-7719483",
       "bytes": 487002,
-      "sha256": "2f19142b2712f070ec7487aa063196a972ad928e98791f1cd52221090920c969"
+      "sha256": "2f19142b2712f070ec7487aa063196a972ad928e98791f1cd52221090920c969",
+      "anchor_prefix": "I"
     },
     {
       "part": "Part J Child care Centres",
@@ -96,7 +105,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899064-file-dosyqjbxtemc9-cwqvqx6g.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719484&streamId=streampdf-7719484",
       "bytes": 180538,
-      "sha256": "54d859dca17c340ea664a947b171d6801b675e2e07098ba3cdaf52029b4e679b"
+      "sha256": "54d859dca17c340ea664a947b171d6801b675e2e07098ba3cdaf52029b4e679b",
+      "anchor_prefix": "J"
     },
     {
       "part": "Part K Special Precincts",
@@ -105,7 +115,8 @@
       "url": "https://www.datocms-assets.com/94948/1759304659-ecm_7719485_v9_ccb-dcp-12_part-k-special-precincts_v2022-05-16.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719485&streamId=streampdf-7719485",
       "bytes": 60608692,
-      "sha256": "93a5683885fd4f10bf12e19f6eda81435b7ef8f1b36cbb004381d780d0548864"
+      "sha256": "93a5683885fd4f10bf12e19f6eda81435b7ef8f1b36cbb004381d780d0548864",
+      "anchor_prefix": "K"
     },
     {
       "part": "Part L Definitions",
@@ -114,7 +125,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899090-file-pfslth26s02290su6_eq7g.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719486&streamId=streampdf-7719486",
       "bytes": 289500,
-      "sha256": "d15c17fff3119931e1fd0d7796d4378b83dc55aff4e3cda34ab6f5aaed2bd3b2"
+      "sha256": "d15c17fff3119931e1fd0d7796d4378b83dc55aff4e3cda34ab6f5aaed2bd3b2",
+      "anchor_prefix": "L"
     },
     {
       "part": "Appendix 1 Conservation Areas",
@@ -123,7 +135,8 @@
       "url": "https://www.datocms-assets.com/94948/1759304691-ecm_7719487_v5_ccb-dcp-14_appendix-1-conservation-areas_v2022-05-16.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719487&streamId=streampdf-7719487",
       "bytes": 11466166,
-      "sha256": "222583111bf73cd5be3dce39007d46a91f7132cfe22ae3891e5d4863fb95f92d"
+      "sha256": "222583111bf73cd5be3dce39007d46a91f7132cfe22ae3891e5d4863fb95f92d",
+      "anchor_prefix": "Appendix-1-Conservation-"
     },
     {
       "part": "Appendix 2 Engineering Specifications",
@@ -132,7 +145,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899107-file-jmzsmtp7qqsssoobv2mdhg.pdf",
       "council_url": "https://canadabay.t1cloud.com/T1Default/CiAnywhere/Web/CANADABAY/API/CMIS/PUB/content/?id=folder-7719488&streamId=streampdf-7719488",
       "bytes": 4494498,
-      "sha256": "ab4578fa1f8059da67c87ef6268765bf34c8f6d1c10c81fc625cb133e54d8f07"
+      "sha256": "ab4578fa1f8059da67c87ef6268765bf34c8f6d1c10c81fc625cb133e54d8f07",
+      "anchor_prefix": "Appendix-2-Engineering-S"
     },
     {
       "part": "Appendix 3 Tree Species",
@@ -141,7 +155,8 @@
       "url": "https://www.datocms-assets.com/94948/1757899114-file-efw1atubqb6cl2mbdfhyvq.pdf",
       "council_url": "https://www.canadabay.nsw.gov.au/sites/default/files/CCB-DCP-16_Appendix-3-Tree-Species.pdf",
       "bytes": 392246,
-      "sha256": "eec63fdfc0e99868e82e85407facc1535b0339a8912d468d6893768bb2f6eab7"
+      "sha256": "eec63fdfc0e99868e82e85407facc1535b0339a8912d468d6893768bb2f6eab7",
+      "anchor_prefix": "Appendix-3-Tree-Species"
     }
   ],
   "councils": [
