@@ -16,10 +16,10 @@
  * Colour of a hit is a different question and is not answered here: the verdict list and the caught overlay
  * are coloured by scope (what the clause rules out), because that is what the verdict is about.
  */
+import { HATCH_NONE, hatchCss, hatchId, type Hatch } from './hatch'
 import { ZONE_COLOURS } from './lmr-layers'
 
-/** ESRI simple-fill hatch styles, as the renderers name them. */
-export type Hatch = 'bdiag' | 'fdiag' | 'vertical' | 'horizontal' | 'dcross'
+export { HATCH_NONE, hatchImage, type Hatch } from './hatch'
 
 export interface Sym {
   /** Fill colour; null for an outline-only symbol. With `hatch` it is the colour of the hatch lines. */
@@ -382,12 +382,7 @@ export function swatchCss(sym: Sym, opacity = 0.6): Record<string, string> {
   if (!fill) {
     style.background = 'transparent'
   } else if (sym.hatch) {
-    // stripes run across the gradient's direction, so a 45deg gradient draws '\'
-    const angle = { bdiag: '45deg', fdiag: '135deg', vertical: '90deg', horizontal: '0deg', dcross: '45deg' }[sym.hatch]
-    const lines = `repeating-linear-gradient(${angle}, ${fill} 0 1.5px, transparent 1.5px 4px)`
-    style.background = sym.hatch === 'dcross'
-      ? `${lines}, repeating-linear-gradient(135deg, ${fill} 0 1.5px, transparent 1.5px 4px)`
-      : lines
+    style.background = hatchCss(sym.hatch, fill)
   } else {
     style.background = withAlpha(fill, Math.max(opacity, 0.55))
   }
@@ -441,9 +436,6 @@ export const lineColour = (s: Sym) => s.line ?? CLEAR
 export const lineWidth = (s: Sym) => (s.line ? Math.max(s.width ?? 0.8, 0.4) : 0)
 export const patternId = (s: Sym) => (s.fill && s.hatch ? hatchId(s.hatch, s.fill) : HATCH_NONE)
 
-export const HATCH_NONE = 'cdc-hatch-none'
-export const hatchId = (h: Hatch, colour: string) => `cdc-hatch-${h}-${colour.replace('#', '')}`
-
 /** Every hatch image the layers need, so the page can register them before drawing. */
 export function hatchesNeeded(keys: string[]): { id: string; hatch: Hatch; colour: string }[] {
   const seen = new Map<string, { id: string; hatch: Hatch; colour: string }>()
@@ -458,35 +450,4 @@ export function hatchesNeeded(keys: string[]): { id: string; hatch: Hatch; colou
     }
   }
   return [...seen.values()]
-}
-
-/**
- * A hatch tile: lines of the colour on transparent, 16 px drawn at pixelRatio 2 so the spacing is 8 css px.
- * The lines wrap at the tile edge, so the pattern repeats without a seam.
- */
-export function hatchImage(h: Hatch | 'none', colour: string): { width: number; height: number; data: Uint8Array } {
-  const size = 16
-  const data = new Uint8Array(size * size * 4)
-  if (h === 'none') return { width: size, height: size, data }
-  const n = parseInt(colour.slice(1), 16)
-  const rgb = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
-  const on = (x: number, y: number): boolean => {
-    const d1 = (x - y + size) % size // '\' when drawn top-down
-    const d2 = (x + y) % size // '/'
-    switch (h) {
-      case 'bdiag': return d1 < 2
-      case 'fdiag': return d2 < 2
-      case 'vertical': return x % size < 2
-      case 'horizontal': return y % size < 2
-      case 'dcross': return d1 < 2 || d2 < 2
-    }
-  }
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      if (!on(x, y)) continue
-      const i = (y * size + x) * 4
-      data[i] = rgb[0]!; data[i + 1] = rgb[1]!; data[i + 2] = rgb[2]!; data[i + 3] = 235
-    }
-  }
-  return { width: size, height: size, data }
 }

@@ -149,10 +149,17 @@ export const SITE_PAGES: SitePage[] = [
     reads: ['/api/frontage', '/api/frontage-lot-search', '/api/lot-intersect', '/api/map-layer', 'up_property_d_4'],
   },
   {
-    route: '/lmr', name: 'Low and Mid Rise housing and SEPP layers', status: 'live', kind: 'map', added: '2026-09-18',
-    summary: 'Every SEPP land application layer on one map - the four Housing SEPP low and mid-rise layers first - over the constraint layers the policy is checked against: stations and their walking catchments, heritage, bush fire, flood, coastal, aircraft noise and the pipelines with their 200 m buffers.',
+    route: '/lmr', name: 'Low and Mid Rise housing', status: 'live', kind: 'map', added: '2026-09-18',
+    summary: 'The four Housing SEPP low and mid-rise layers over the constraint layers the policy is checked against: stations and their walking catchments, heritage, bush fire, flood, coastal, aircraft noise judged band by band against ANEF 25 / ANEC 20, the pipelines with their 200 m buffers, and the four council areas excluded whole.',
     detail: 'Served from two PMTiles archives on the planningai host rather than a tile server or the database; search an address or lot reference to go to that lot, clicking the map says what applies at that point, and a guide beside it sets out how the LMR layer itself gets built. Rebuild after each EPI load.',
     reads: ['/api/lmr/layers', '/api/lmr/tiles', '/api/lmr/at', 'epi.epi_land_application', 'the lmr schema'],
+    notebook: '01A dump-gdal',
+  },
+  {
+    route: '/sepp-map', name: 'SEPP land application layers', status: 'live', kind: 'map', added: '2026-09-28',
+    summary: 'The 33 SEPP land application layers that are not low and mid-rise ones - the Biodiversity and Conservation catchments, the Precincts SEPPs, the Codes SEPP, Resilience and Hazards and the rest - on one map, by family and SEPP.',
+    detail: 'Split out of /lmr and read from the same PMTiles archive; drawn in the NSW Spatial Viewer symbology where it has the layer. Search an address or click the map to see which of them apply at a point.',
+    reads: ['/api/lmr/layers', '/api/lmr/tiles', '/api/lmr/at', 'epi.epi_land_application'],
     notebook: '01A dump-gdal',
   },
   {

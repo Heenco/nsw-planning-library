@@ -5,20 +5,24 @@
  * A layer is one (SEPP, lay_name) pair - "SEPP Land Application" alone is a lay_name in eleven SEPPs - and its
  * key is the layer_key property on every tile feature.
  *
- * COLOUR
+ * COLOUR (2026-09-28)
  *
- * The four Low and Mid Rise layers follow the NSW Planning Portal's own LMR legend, so the page reads the same
- * as the map people already know:
- *   LMR Centre (our Town Centre)                    very light blue fill, dark purple outline
- *   TOD Accelerated Rezoning Area (Accelerated TOD) mauve fill, dark grey outline
- *   TOD Area                                        light pink-mauve fill, no outline
- *   Low and Mid Rise Housing Exclusion              grey diagonal hatch, dark outline
- * The portal's other two entries, LMR Station and Indicative LMR Housing Area, are not in the SEPP land
- * application data, so they are not on this page.
+ * Every layer takes the NSW Planning Portal Spatial Viewer's own symbol where it has one - the renderer in
+ * the drawingInfo of the ArcGIS layer each `from` names (mapprod3.environment.nsw.gov.au). The SEPP layers
+ * are matched to the consolidated Planning/SEPP_<name>_2021 services, which are organised the way this page
+ * is; the ePlanning Planning_Portal_SEPP service still groups its layers under the pre-2021 SEPP names.
+ *   TOD Area                  SEPP/752  dark blue fill, white outline
+ *   Accelerated TOD Precinct  SEPP/759  violet fill, purple outline
+ *   Town Centre               SEPP/766  blue outline, no fill
+ *   LMR Exclusion             SEPP/776  black backward-diagonal hatch
+ * These replaced the colours of the Planning Portal's separate LMR map legend (TOD Area pink-mauve, LMR
+ * Centre pale blue with a purple outline, exclusion grey hatch), which the page followed until now.
  *
- * Every other SEPP layer takes the colour of its family and draws with a dashed outline, so it is never told
- * apart from an LMR layer by colour alone; every layer is also named in the panel and in the click popup.
+ * A SEPP layer the Spatial Viewer does not carry keeps the colour of its family with a dashed outline, which is
+ * how every non-LMR SEPP layer used to be drawn; every layer is also named in the panel and the click popup.
  */
+
+import { hatchCss, type Hatch } from './hatch'
 
 export type LmrFamily = 'lmr' | 'housing' | 'precincts' | 'environment' | 'systems'
 
@@ -29,29 +33,92 @@ export const LMR_LAYER_NAMES = [
   'Accelerated TOD Precinct',
 ] as const
 
-export interface LmrStyle {
-  /** The name the NSW Planning Portal's legend uses. */
-  portalName: string
+/** How a SEPP layer is drawn. `fillOpacity: 0` is an outline-only symbol; with `hatch`, `fill` is the line colour. */
+export interface SeppStyle {
   fill: string
   fillOpacity: number
   line: string
   lineWidth: number
-  /** Drawn as a diagonal hatch rather than a flat fill. */
-  hatch?: boolean
+  hatch?: Hatch
+  /** Outline dashed - only the family fallback, so a layer we styled ourselves never passes for a portal one. */
+  dashed?: boolean
+  /** The ArcGIS layer the symbol was read from, or why there is none. */
+  from: string
 }
 
-/** LMR layers by lay_name: the Planning Portal's legend, sampled from its symbols. */
+export interface LmrStyle extends SeppStyle {
+  /** The name the Planning Portal's LMR map legend uses. */
+  portalName: string
+}
+
+const SV = 'Spatial Viewer'
+
+/** LMR layers by lay_name. */
 export const LMR_STYLE: Record<string, LmrStyle> = {
-  'Transport Oriented Development Area': { portalName: 'TOD Area', fill: '#d4acd0', fillOpacity: 0.85, line: '#d4acd0', lineWidth: 0.5 },
-  'Town Centre': { portalName: 'LMR Centre', fill: '#e6eaf8', fillOpacity: 0.85, line: '#2f1c86', lineWidth: 2 },
-  'Low and Mid Rise Housing Exclusion Area': { portalName: 'Low and Mid Rise Housing Exclusion', fill: '#6b6b6b', fillOpacity: 1, line: '#3a3a3a', lineWidth: 1.2, hatch: true },
-  'Accelerated TOD Precinct': { portalName: 'TOD Accelerated Rezoning Area', fill: '#c296b9', fillOpacity: 0.85, line: '#4d4d4d', lineWidth: 2 },
+  'Transport Oriented Development Area': { portalName: 'TOD Area', fill: '#004da8', fillOpacity: 0.55, line: '#ffffff', lineWidth: 1.5, from: `${SV} · Planning_Portal_SEPP/752 Transport Oriented Development Sites` },
+  'Town Centre': { portalName: 'LMR Centre', fill: '#005ce6', fillOpacity: 0, line: '#005ce6', lineWidth: 2.5, from: `${SV} · Planning_Portal_SEPP/766 Town Centres` },
+  'Low and Mid Rise Housing Exclusion Area': { portalName: 'Low and Mid Rise Housing Exclusion', fill: '#000000', fillOpacity: 0, line: '#000000', lineWidth: 0.8, hatch: 'bdiag', from: `${SV} · Planning_Portal_SEPP/776 Low and Mid Rise Housing Exclusion` },
+  'Accelerated TOD Precinct': { portalName: 'TOD Accelerated Rezoning Area', fill: '#df73ff', fillOpacity: 0.6, line: '#c500ff', lineWidth: 1, from: `${SV} · Planning_Portal_SEPP/759 Accelerated TOD Precincts` },
 }
 
-const FALLBACK_STYLE: LmrStyle = { portalName: '', fill: '#cbd5e1', fillOpacity: 0.6, line: '#475569', lineWidth: 1 }
+const FALLBACK_STYLE: LmrStyle = { portalName: '', fill: '#cbd5e1', fillOpacity: 0.6, line: '#475569', lineWidth: 1, from: 'ours - no symbol recorded' }
 
 export function lmrStyle(layName: string): LmrStyle {
   return LMR_STYLE[layName] ?? FALLBACK_STYLE
+}
+
+/** A SEPP layer's Spatial Viewer symbol from its consolidated SEPP service, Planning/SEPP_<svc>/<id>. */
+const sv = (svc: string, id: number, name: string, s: Omit<SeppStyle, 'from'>): SeppStyle =>
+  ({ ...s, from: `${SV} · Planning/SEPP_${svc}/${id} ${name}` })
+const outline = (line: string, lineWidth = 2) => ({ fill: line, fillOpacity: 0, line, lineWidth })
+
+/** The other SEPP layers, by layer key. A key missing here falls back to its family's dashed outline. */
+export const SEPP_STYLE: Record<string, SeppStyle> = {
+  // Biodiversity and Conservation
+  biodiversity_and_conservation_sepp_land_application: sv('Biodiversity_and_Conservation_2021', 1, 'Land Application', outline('#a83800')),
+  biodiversity_and_conservation_allowable_clearing: sv('Biodiversity_and_Conservation_2021', 15, 'Allowable Clearing', outline('#4e4e4e', 1)),
+  biodiversity_and_conservation_foreshores_and_waterways_area: sv('Biodiversity_and_Conservation_2021', 2, 'Foreshores and Waterways Area', outline('#e60000')),
+  biodiversity_and_conservation_georges_river_catchment: sv('Biodiversity_and_Conservation_2021', 5, 'Georges River Catchment', { fill: '#ffebe8', fillOpacity: 0.5, line: '#000000', lineWidth: 0.8 }),
+  biodiversity_and_conservation_hawkesbury_nepean_catchment: sv('Biodiversity_and_Conservation_2021', 3, 'Hawkesbury-Nepean Catchment', outline('#ff0000')),
+  biodiversity_and_conservation_hawkesbury_nepean_sub_catchments: sv('Biodiversity_and_Conservation_2021', 3, 'Hawkesbury-Nepean Sub-Catchments', { fill: '#ffa77f', fillOpacity: 0.4, line: '#ff5500', lineWidth: 2 }),
+  biodiversity_and_conservation_special_purposes_commercial_marinas_and_boat_building_and_repair_facilities: sv('Biodiversity_and_Conservation_2021', 7, 'Special Purposes (Commercial Marinas ...)', outline('#a80000')),
+  biodiversity_and_conservation_strategic_foreshore_sites_map: sv('Biodiversity_and_Conservation_2021', 8, 'Strategic Harbour Foreshore Sites', outline('#8400a8')),
+  biodiversity_and_conservation_sydney_harbour_catchment: sv('Biodiversity_and_Conservation_2021', 9, 'Sydney Harbour Catchment', outline('#00a9e6')),
+  // Codes SEPP
+  exempt_and_complying_development_codes_sepp_land_application: sv('Exempt_and_Complying_Development_Codes_2008', 2, 'Land Application', outline('#ffd37f')),
+  exempt_and_complying_development_codes_greenfield_housing_code_area: { fill: '#ffbebe', fillOpacity: 0.55, line: '#ff0000', lineWidth: 1.5, from: `${SV} · Planning_Portal_Development_Control/222 Greenfield Housing Code Area` },
+  // Housing, other than the four LMR layers
+  housing_sepp_land_application: sv('Housing_2021', 1, 'Land Application', outline('#a83800')),
+  housing_short_term_rental_accommodation_area: sv('Housing_2021', 2, 'Short-term Rental Accommodation Area', outline('#a83800')),
+  // the rest
+  industry_and_employment_sepp_land_application: sv('Industry_and_Employment_2021', 1, 'Land Application', outline('#000000')),
+  planning_systems_sepp_land_application: sv('Planning_Systems_2021', 1, 'Land Application', outline('#f57ab6')),
+  precincts_central_river_city_sepp_land_application: sv('Precincts_Central_River_City_2021', 2, 'Land Application', outline('#ff0000')),
+  precincts_central_river_city_growth_centres: sv('Precincts_Central_River_City_2021', 17, 'Growth Centres', outline('#000000')),
+  precincts_eastern_harbour_city_sepp_land_application: sv('Precincts_Eastern_Harbour_City_2021', 2, 'Land Application', outline('#00a884')),
+  precincts_eastern_harbour_city_land_application: sv('Precincts_Eastern_Harbour_City_2021', 2, 'Land Application', outline('#00a884')),
+  precincts_eastern_harbour_city_sydney_opera_house_buffer_zone: { fill: '#0070ff', fillOpacity: 0, line: '#000000', lineWidth: 2, hatch: 'bdiag', from: `${SV} · Planning_Portal_SEPP/296 Sydney Opera House Buffer Zone` },
+  precincts_regional_sepp_land_application: sv('Precincts_Regional_2021', 2, 'Land Application', outline('#000000')),
+  precincts_western_parkland_city_sepp_land_application: sv('Precincts_Western_Parkland_City_2021', 2, 'Land Application', outline('#ff0000')),
+  precincts_western_parkland_city_growth_centres: sv('Precincts_Western_Parkland_City_2021', 13, 'Growth Centres', outline('#000000')),
+  primary_production_sepp_land_application: sv('Primary_Production_2021', 2, 'Land Application', outline('#000000')),
+  resilience_and_hazards_sepp_land_application: sv('Resilience_and_Hazards_2021', 1, 'Land Application Map', outline('#ff0000', 3)),
+  resources_and_energy_sepp_land_application: sv('Resources_and_Energy_2021', 1, 'Land Application', outline('#000000')),
+  transport_and_infrastructure_sepp_land_application: sv('Transport_and_Infrastructure_2021', 2, 'Land Application', outline('#66cdab')),
+  transport_and_infrastructure_subject_land: sv('Transport_and_Infrastructure_2021', 1, 'Subject Land', outline('#ff0000')),
+  transport_and_infrastructure_renewables_zone: { fill: '#ffebaf', fillOpacity: 0.5, line: '#ffaa00', lineWidth: 2, from: 'REI/AEMO_Zones/0 Renewable Energy Zones (the NSW renewable energy viewer; not an ePlanning layer)' },
+  // not in the Spatial Viewer, so the family fallback: planning_systems_darkinjung_lalc_land,
+  // resilience_and_hazards_cockle_creek_smelter_land, sustainable_buildings_sepp_land_application,
+  // transport_and_infrastructure_affected_land
+}
+
+/** How a SEPP layer is drawn: an LMR layer by name, another by key, and the family's dashed outline otherwise. */
+export function seppStyle(layer: { key?: string; family: LmrFamily; layName: string }): SeppStyle {
+  if (layer.family === 'lmr') return lmrStyle(layer.layName)
+  const own = layer.key ? SEPP_STYLE[layer.key] : undefined
+  if (own) return own
+  const color = FAMILY[layer.family].color
+  return { fill: color, fillOpacity: 0.12, line: color, lineWidth: 1.4, dashed: true, from: 'ours - not in the Spatial Viewer, so the colour of its SEPP family' }
 }
 
 export const FAMILY: Record<Exclude<LmrFamily, 'lmr'>, { title: string; color: string; blurb: string }> = {
@@ -70,22 +137,24 @@ export function familyOf(sepp: string, layerGroup: string): LmrFamily {
   return 'systems'
 }
 
-/** The layer's outline colour: an LMR layer's portal outline, else its family colour. */
-export function colorOf(layer: { family: LmrFamily; layName: string }): string {
-  return layer.family === 'lmr' ? lmrStyle(layer.layName).line : FAMILY[layer.family].color
+/** The layer's outline colour, for the few places that show one colour. A white outline reads as its fill. */
+export function colorOf(layer: { key?: string; family: LmrFamily; layName: string }): string {
+  const s = seppStyle(layer)
+  return s.line.toLowerCase() === '#ffffff' ? s.fill : s.line
 }
 
-/** CSS for a legend swatch, matching the map: LMR fill + outline (or hatch), other layers a dashed family outline. */
-export function swatchCss(layer: { family: LmrFamily; layName: string }): Record<string, string> {
-  if (layer.family !== 'lmr') return { background: 'transparent', borderColor: FAMILY[layer.family].color, borderStyle: 'dashed' }
-  const s = lmrStyle(layer.layName)
-  return {
-    borderColor: s.line,
-    borderStyle: 'solid',
-    background: s.hatch
-      ? `repeating-linear-gradient(135deg, ${s.fill} 0 1.5px, #ffffff 1.5px 4px)`
-      : s.fill,
-  }
+/** CSS for a legend swatch, matching the map: the fill (or hatch) inside the outline, dashed for the fallback. */
+export function swatchCss(layer: { key?: string; family: LmrFamily; layName: string }): Record<string, string> {
+  return styleSwatch(seppStyle(layer))
+}
+
+function styleSwatch(s: { fill: string; fillOpacity: number; line?: string; lineWidth?: number; hatch?: Hatch; dashed?: boolean }): Record<string, string> {
+  // a white outline would vanish on the white panel, so the swatch borders in the fill instead
+  const border = !s.lineWidth || !s.line || s.line.toLowerCase() === '#ffffff' ? s.fill : s.line
+  const base = { borderColor: border, borderStyle: s.dashed ? 'dashed' : 'solid' }
+  if (s.hatch) return { ...base, background: hatchCss(s.hatch, s.fill) }
+  if (s.fillOpacity === 0) return { ...base, background: 'transparent' }
+  return { ...base, background: s.fill, opacity: String(Math.max(0.55, s.fillOpacity + 0.3)) }
 }
 
 /** What each LMR layer means, in one line, for the panel. */
@@ -147,6 +216,10 @@ export interface ConstraintStyle {
   line?: string
   lineWidth?: number
   dashed?: boolean
+  /** Drawn as hatch lines of `color` instead of a flat fill, as the portal draws its proximity areas. */
+  hatch?: Hatch
+  /** The ArcGIS layer the symbol was read from, or why there is none. */
+  from?: string
   /** Colours by the feature's category (bushfire vegetation categories) instead of one colour. */
   classes?: Record<string, string>
   /**
@@ -263,41 +336,79 @@ export const ZONE_COLOURS: Record<string, string> = {
 }
 
 /**
- * Constraint styling. Bush fire prone land uses the RFS's own category colours; the Planning Portal's LMR
- * Station is a grey dot. The rest take one hue family per group - heritage browns, flood blues, coastal greens,
- * noise purple, pipeline orange - with proximity areas and pipeline buffers drawn dashed, so two layers of
- * a group are never told apart by colour alone. Every layer is named in the panel and the click popup.
+ * Constraint styling (2026-09-28): the NSW Planning Portal Spatial Viewer's own symbol wherever it has the
+ * layer - `from` names the ArcGIS layer it was read from - so bush fire prone land, heritage, flood, the
+ * coastal wetlands and the noise contours look here the way they look on the portal. Categories key on what
+ * the tiles carry, which for these layers is the very field the portal's renderer keys on (d_category,
+ * lay_class, anef_code, sym_code). The proximity areas are the portal's backward-diagonal hatches.
+ *
+ * Ours, because no Spatial Viewer layer exists: the LMR Station dot and the walking catchments (the portal's
+ * separate LMR map legend), the FRMSP catchments, the 200 m pipeline buffers and the whole-LGA exclusion.
+ * The pipelines take the NSW renewable energy viewer's gas and petroleum pipeline colours.
  *
  * The FRMSP catchments are the one layer in `hazards` that is not a hazard extent: they say which study
  * speaks for a catchment, not which land floods. They take an indigo the flood blues do not use, drawn
  * dashed and barely filled, so they never read as an extent - and are coloured by the kind of report.
  */
 export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
-  lmr_train_stations: { group: 'housing', title: 'LMR Station', portalName: 'LMR Station', kind: 'point', color: '#7a7a7a', defaultOn: true },
+  lmr_train_stations: { group: 'housing', title: 'LMR Station', portalName: 'LMR Station', kind: 'point', color: '#7a7a7a', defaultOn: true, from: 'Planning Portal LMR map legend' },
   // walking catchments: the portal's "Indicative LMR Housing Area" pale yellow for 800 m, a stronger amber for
   // 400 m drawn over it; town centres with a dashed outline so the two catchment layers stay apart
   station_walking_catchments: {
     group: 'housing', title: 'Station walking catchments (400 m, 800 m)', kind: 'fill', color: '#fde3ae', fillOpacity: 0.55,
     line: '#c9912f', lineWidth: 1, classes: { '800 m': '#fde3ae', '400 m': '#f5b95a' }, defaultOn: true,
+    from: 'Planning Portal LMR map legend (Indicative LMR Housing Area)',
   },
   town_centre_walking_catchments: {
     group: 'housing', title: 'Town centre walking catchments (400 m, 800 m)', kind: 'fill', color: '#fde3ae', fillOpacity: 0.55,
     line: '#c9912f', lineWidth: 1, dashed: true, classes: { '800 m': '#fde3ae', '400 m': '#f5b95a' }, defaultOn: true,
+    from: 'Planning Portal LMR map legend (Indicative LMR Housing Area)',
+  },
+  // The Department names four councils rather than mapping them, so there is no portal symbol. A dark red
+  // hatch under a heavy outline: an exclusion, like the black LMR exclusion hatch, but never mistaken for it,
+  // and the hatch lets the land underneath show through across 10,000 km2.
+  whole_lga_exclusion: {
+    group: 'housing', title: 'Whole-LGA exclusion', kind: 'fill', color: '#9f1239', hatch: 'bdiag',
+    line: '#9f1239', lineWidth: 2.5, from: 'ours - the four councils are named, not mapped; boundaries from ePlanning Administration/5',
   },
   epi_land_zoning: {
     group: 'zoning', title: 'Land zoning (LEP and SEPP maps)', portalName: 'Land Zoning Map', kind: 'fill',
     color: '#cbd5e1', fillOpacity: 0.55, lineWidth: 0, classes: ZONE_COLOURS,
+    from: 'Spatial Viewer · Planning_Portal_Principal_Planning/19 Land Zoning Map',
   },
-  shr_curtilage: { group: 'heritage', title: 'State Heritage Register curtilage', kind: 'fill', color: '#8c2d19', fillOpacity: 0.35, line: '#8c2d19', lineWidth: 1.5 },
-  epi_heritage_items: { group: 'heritage', title: 'Heritage items (LEP maps)', kind: 'fill', color: '#c98b4a', fillOpacity: 0.4, line: '#8a5a2b', lineWidth: 1 },
+  shr_curtilage: {
+    group: 'heritage', title: 'State Heritage Register curtilage', kind: 'fill', color: '#0070ff', hatch: 'vertical',
+    line: '#6e6e6e', lineWidth: 1, from: 'Spatial Viewer · Planning_Portal_Principal_Planning/221 State Heritage Register Curtilage',
+  },
+  epi_heritage_items: {
+    group: 'heritage', title: 'Heritage items (LEP maps)', kind: 'fill', color: '#dbbb7b', fillOpacity: 0.6, line: '#000000', lineWidth: 0.6,
+    classes: {
+      'Item - General': '#dbbb7b', 'Local Heritage - General': '#dbbb7b', 'Item - Archaeological': '#ffffbf',
+      'Item - Landscape': '#b3e096', 'Item - Aboriginal': '#ffc700', 'Aboriginal Object': '#ffc700',
+      'Aboriginal Place of Heritage Significance': '#ffc700',
+    },
+    from: 'Spatial Viewer · Planning_Portal_Principal_Planning/16 EPI Heritage',
+  },
   bushfire_prone_land: {
-    group: 'hazards', title: 'Bush fire prone land', kind: 'fill', color: '#f46d43', fillOpacity: 0.45, lineWidth: 0,
-    classes: { 'Vegetation Category 1': '#e31a1c', 'Vegetation Category 2': '#fdae61', 'Vegetation Category 3': '#f46d43', 'Vegetation Buffer': '#ffe34d' },
+    group: 'hazards', title: 'Bush fire prone land', kind: 'fill', color: '#ff8000', fillOpacity: 0.45, lineWidth: 0,
+    classes: { 'Vegetation Category 1': '#ff0000', 'Vegetation Category 2': '#ffd200', 'Vegetation Category 3': '#ff8000', 'Vegetation Buffer': '#ffff73' },
+    from: 'Spatial Viewer · Planning_Portal_Hazard/229 Bushfire Prone Land',
   },
-  flood_planning: { group: 'hazards', title: 'Flood planning (LEP maps)', kind: 'fill', color: '#2171b5', fillOpacity: 0.3, line: '#08519c', lineWidth: 1 },
+  flood_planning: {
+    group: 'hazards', title: 'Flood planning (LEP maps)', kind: 'fill', color: '#00c2ed', fillOpacity: 0.5, line: '#000000', lineWidth: 0.6,
+    classes: {
+      'Flood Prone and Major Creeks Land': '#73b2ff', 'Flood Planning Area': '#00c2ed', '1 in 100 AEP Flood Extent': '#1976d2',
+      'Area 1': '#002673', 'Transitional Land': '#ff52d7', 'Level of Probable Maximum Flood': '#000aff',
+      'Land Identified in Section 3.27': '#ff0000',
+    },
+    from: 'Spatial Viewer · Planning_Portal_Hazard/230 Flood Planning Map',
+  },
   // flood_sfd_1aep, the other load of this same extent, is no longer drawn (2026-09-23), so this one is
   // titled plainly and solid rather than "second load" dashed against a first that is not on the page.
-  flood_sfd_1aep_1: { group: 'hazards', title: '1% AEP flood extent (SFD)', kind: 'fill', color: '#6baed6', fillOpacity: 0.35, line: '#3182bd', lineWidth: 1 },
+  flood_sfd_1aep_1: {
+    group: 'hazards', title: '1% AEP flood extent (SFD)', kind: 'fill', color: '#1976d2', fillOpacity: 0.5, line: '#1976d2', lineWidth: 0.4,
+    from: 'Spatial Viewer · Planning_Portal_SEPP/293 1 in 100 AEP Flood Extents',
+  },
   // Drawn as an outline and not filled, because these catchments NEST: one row per report, and a
   // whole-of-river flood study, a council-wide study and a single-creek plan all cover the same land.
   // 60 of the 66 overlap another by more than 5% of their area and 24 stack at one point, so even a 0.12
@@ -311,22 +422,57 @@ export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
       'Floodplain Risk Management Study and Plan': '#6079b5',
       'Floodplain Risk Management Plan': '#41598f',
     },
+    from: 'ours - an FRMSP deliverable, not a Spatial Viewer layer',
   },
-  // Filled, unlike the FRMSP catchments: these do not nest - only 2 of the 117 overlap another by more
-  // than 5% of their area and nothing stacks deeper than 2. A dark cyan, well below the group's lighter
-  // #41b6c4 in lightness, so it is not read as a coastal vulnerability area.
-  epi_drinking_water_catchments: { group: 'coastal', title: 'Drinking water catchment (LEP maps)', kind: 'fill', color: '#00838f', fillOpacity: 0.3, line: '#005662', lineWidth: 1.2 },
-  sepp_coastal_vulnerability_areas: { group: 'coastal', title: 'Coastal vulnerability areas', kind: 'fill', color: '#41b6c4', fillOpacity: 0.35, line: '#1d91c0', lineWidth: 1.5 },
-  sepp_coastal_wetlands: { group: 'coastal', title: 'Coastal wetlands', kind: 'fill', color: '#1b9e77', fillOpacity: 0.5, line: '#137259', lineWidth: 1 },
-  sepp_coastal_wetlands_proximity: { group: 'coastal', title: 'Coastal wetlands proximity area', kind: 'fill', color: '#1b9e77', fillOpacity: 0.1, line: '#1b9e77', lineWidth: 1.2, dashed: true },
-  sepp_littoral_rainforest: { group: 'coastal', title: 'Littoral rainforest', kind: 'fill', color: '#4d7d2a', fillOpacity: 0.55, line: '#3a5f1f', lineWidth: 1 },
-  sepp_littoral_rainforest_proximity: { group: 'coastal', title: 'Littoral rainforest proximity area', kind: 'fill', color: '#4d7d2a', fillOpacity: 0.1, line: '#4d7d2a', lineWidth: 1.2, dashed: true },
-  airport_noise: { group: 'noise', title: 'Aircraft noise contours (ANEF / ANEI)', kind: 'fill', color: '#8856a7', fillOpacity: 0.18, line: '#6e3f91', lineWidth: 1.2 },
-  gas_pipelines: { group: 'noise', title: 'Gas pipelines', kind: 'line', color: '#e6550d', lineWidth: 2.2 },
+  epi_drinking_water_catchments: {
+    group: 'coastal', title: 'Drinking water catchment (LEP maps)', kind: 'fill', color: '#8cf1fc', fillOpacity: 0.5, line: '#000000', lineWidth: 0.8,
+    from: 'Spatial Viewer · Planning_Portal_Protection/236 Drinking Water Catchment',
+  },
+  sepp_coastal_vulnerability_areas: {
+    group: 'coastal', title: 'Coastal vulnerability areas', kind: 'fill', color: '#9c9c9c', hatch: 'bdiag', line: '#9c9c9c', lineWidth: 1.5,
+    from: 'Spatial Viewer · Planning_Portal_SEPP/251 Coastal Vulnerability Area',
+  },
+  sepp_coastal_wetlands: {
+    group: 'coastal', title: 'Coastal wetlands', kind: 'fill', color: '#006fff', fillOpacity: 0.6, line: '#002474', lineWidth: 0.5,
+    from: 'Spatial Viewer · Planning_Portal_SEPP/35 Coastal Wetlands',
+  },
+  sepp_coastal_wetlands_proximity: {
+    group: 'coastal', title: 'Coastal wetlands proximity area', kind: 'fill', color: '#0070ff', hatch: 'bdiag', line: '#004da8', lineWidth: 1,
+    from: 'Spatial Viewer · Planning_Portal_SEPP/35 Coastal Wetlands Proximity Area',
+  },
+  sepp_littoral_rainforest: {
+    group: 'coastal', title: 'Littoral rainforest', kind: 'fill', color: '#38a800', fillOpacity: 0.6, line: '#267300', lineWidth: 0.5,
+    from: 'Spatial Viewer · Planning_Portal_SEPP/34 Littoral Rainforest',
+  },
+  sepp_littoral_rainforest_proximity: {
+    group: 'coastal', title: 'Littoral rainforest proximity area', kind: 'fill', color: '#38a800', hatch: 'bdiag', line: '#38a800', lineWidth: 1,
+    from: 'Spatial Viewer · Planning_Portal_SEPP/34 Littoral Rainforest Proximity Area',
+  },
+  // Coloured by band in the portal's ANEF_CODE colours - the Defence "25 +" style bands and the Sydney Airport
+  // ANEI contours take the colour of the band with the same number. HOW STRONGLY a contour is drawn is the
+  // verdict against the policy (scripts/add-lmr-noise-bands.mjs): filled where excluded (ANEF 25+, ANEC 20+),
+  // half where the data cannot say (Defence 20-25, every ANEI, Gloucester's unnumbered contours), and only a
+  // faint outline where it is not excluded (ANEF 20-25, Defence 15-20) - see VERDICT_OPACITY in lmr.vue.
+  airport_noise: {
+    group: 'noise', title: 'Aircraft noise contours (ANEF / ANEI)', kind: 'fill', color: '#b0b0b0', fillOpacity: 0.55, line: '#6e6e6e', lineWidth: 0.4,
+    classes: {
+      '15 - 20': '#f0f0d8', '20 - 25': '#ffffbe', 'ANEI 20': '#ffffbe', '25 - 30': '#ffd500', '25 +': '#ffd500', 'ANEI 25': '#ffd500',
+      '30 - 35': '#ffa0a0', '30 +': '#ffa0a0', 'ANEI 30': '#ffa0a0', '35 - 40': '#f56464', '35 +': '#f56464', 'ANEI 35': '#f56464',
+      '40 +': '#e60000', 'Low Noise': '#b0b0b0', 'High Noise': '#6e6e6e',
+    },
+    from: 'Spatial Viewer · Planning_Portal_Protection/235 Airport Noise',
+  },
+  gas_pipelines: { group: 'noise', title: 'Gas pipelines', kind: 'line', color: '#a900e6', lineWidth: 2.2, from: 'REI/Topo_Infrastructure/16 Gas_Pipeline (the NSW renewable energy viewer)' },
   // the 200 m the Low and Mid-Rise Housing Policy excludes, drawn like a proximity area: the pipeline's colour, faint, dashed
-  gas_pipelines_buffer_200m: { group: 'noise', title: 'Gas pipelines, 200 m buffer', kind: 'fill', color: '#e6550d', fillOpacity: 0.15, line: '#e6550d', lineWidth: 1.2, dashed: true },
-  oil_pipelines: { group: 'noise', title: 'Oil pipelines (none in NSW)', kind: 'line', color: '#3d3d3d', lineWidth: 2.2 },
-  oil_pipelines_buffer_200m: { group: 'noise', title: 'Oil pipelines, 200 m buffer (none in NSW)', kind: 'fill', color: '#3d3d3d', fillOpacity: 0.12, line: '#3d3d3d', lineWidth: 1.2, dashed: true },
+  gas_pipelines_buffer_200m: {
+    group: 'noise', title: 'Gas pipelines, 200 m buffer', kind: 'fill', color: '#a900e6', fillOpacity: 0.15, line: '#a900e6', lineWidth: 1.2, dashed: true,
+    from: 'ours - the pipeline colour, faint and dashed',
+  },
+  oil_pipelines: { group: 'noise', title: 'Oil pipelines (none in NSW)', kind: 'line', color: '#732600', lineWidth: 2.2, from: 'REI/Topo_Infrastructure/17 Petroleum_Pipeline (the NSW renewable energy viewer)' },
+  oil_pipelines_buffer_200m: {
+    group: 'noise', title: 'Oil pipelines, 200 m buffer (none in NSW)', kind: 'fill', color: '#732600', fillOpacity: 0.12, line: '#732600', lineWidth: 1.2, dashed: true,
+    from: 'ours - the pipeline colour, faint and dashed',
+  },
 }
 
 
@@ -342,6 +488,7 @@ export function constraintSwatchCss(key: string, category?: string | null): Reco
   const fill = (category && s.classes?.[category]) || s.color
   if (s.kind === 'point') return { background: fill, borderColor: '#ffffff', borderStyle: 'solid', borderRadius: '50%' }
   if (s.kind === 'line') return { background: 'transparent', borderColor: 'transparent', borderStyle: 'solid', boxShadow: `inset 0 -3px 0 ${fill}`, borderRadius: '0' }
+  if (s.hatch) return { background: hatchCss(s.hatch, fill), borderColor: s.line ?? fill, borderStyle: s.dashed ? 'dashed' : 'solid' }
   // an unfilled layer is drawn as its outline, so its swatch is an outline too
   if (s.fillOpacity === 0) return { background: 'transparent', borderColor: fill, borderStyle: s.dashed ? 'dashed' : 'solid' }
   return {

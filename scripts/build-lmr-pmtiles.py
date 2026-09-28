@@ -30,7 +30,7 @@ The walking catchments (station_walking_catchments, town_centre_walking_catchmen
 scripts/build-lmr-walking.py from the Mapbox Isochrone API; their category is the distance, "400 m" or "800 m".
 
 EACH FEATURE carries layer_key (the table name), category (what the page colours by, where a table has one),
-name and detail (what the click popup shows). A table with more than HEAVY_VERTICES vertices is drawn from
+name and detail (what the click popup shows), and any `extra` properties a spec names (airport_noise's verdict). A table with more than HEAVY_VERTICES vertices is drawn from
 HEAVY_MIN_ZOOM, so the low-zoom tiles of all NSW are not spent on bushfire and wetland proximity polygons.
 """
 import json
@@ -75,14 +75,20 @@ LAYERS = {
     "sepp_coastal_wetlands_proximity": dict(category="NULL", name="label", detail="lga_name"),
     "sepp_littoral_rainforest": dict(category="NULL", name="label", detail="lga_name"),
     "sepp_littoral_rainforest_proximity": dict(category="NULL", name="label", detail="lga_name"),
-    "airport_noise": dict(category="btrim(anef_code)", name="coalesce(btrim(anef_code), name, lay_name)",
-                          detail="coalesce(epi_name, name, folderpath)"),
+    # banded and judged by scripts/add-lmr-noise-bands.mjs: the category is the band the page colours by, and
+    # `verdict` (excluded / not excluded / undetermined) is how strongly it is drawn - ANEF 25+ and ANEC 20+ only
+    "airport_noise": dict(category="CASE WHEN noise_metric = 'ANEI' THEN 'ANEI ' || noise_band ELSE coalesce(noise_band, btrim(anef_code)) END",
+                          name="coalesce(name, btrim(anef_code), lay_name)",
+                          detail="concat_ws(' · ', noise_verdict, coalesce(epi_name, folderpath))",
+                          extra={"verdict": "lmr_verdict"}),
     "gas_pipelines": dict(category="operational_status", name="name", detail="concat_ws(' · ', state, operational_status)"),
     "oil_pipelines": dict(category="operational_status", name="name", detail="concat_ws(' · ', state, operational_status)"),
     "gas_pipelines_buffer_200m": dict(category="operational_status", name="name",
                                       detail="'within 200 m of the pipeline · ' || concat_ws(' · ', state, operational_status)"),
     "oil_pipelines_buffer_200m": dict(category="operational_status", name="name",
                                       detail="'within 200 m of the pipeline · ' || concat_ws(' · ', state, operational_status)"),
+    # the four council areas excluded whole (scripts/add-lmr-whole-lga-exclusion.mjs); the popup gives the reason
+    "whole_lga_exclusion": dict(category="lga_name", name="council_name", detail="reason"),
 }
 EXTRACT = {"POINT": 1, "LINESTRING": 2, "POLYGON": 3}
 
@@ -125,19 +131,24 @@ def main():
             stream = conn.cursor(name=f"s_{table}")
             stream.itersize = 1000
             geom = f'ST_Force2D("{gcol}")' if srid in (4283, 4326) else f'ST_Transform(ST_Force2D("{gcol}"), 4283)'
+            extra = spec.get("extra", {})
+            extra_sql = "".join(f", ({sql})::text" for sql in extra.values())
             stream.execute(f"""
-                SELECT ({spec['category']})::text, ({spec['name']})::text, ({spec['detail']})::text,
+                SELECT ({spec['category']})::text, ({spec['name']})::text, ({spec['detail']})::text{extra_sql},
                        ST_XMin(g), ST_YMin(g), ST_XMax(g), ST_YMax(g),
                        ST_AsGeoJSON(ST_Transform(ST_CollectionExtract(ST_MakeValid(g), {EXTRACT[kind]}), 4326), 7)
                 FROM (SELECT *, ST_SetSRID({geom}, CASE WHEN {srid} = 4326 THEN 4326 ELSE 4283 END) AS g FROM "{schema}"."{table}" {where}) s
                 WHERE g IS NOT NULL""")
             count, cats, bbox = 0, {}, [180.0, 90.0, -180.0, -90.0]
             t1 = time.time()
-            for category, name, detail, w, s, e, nth, gj in stream:
+            for row in stream:
+                category, name, detail = row[:3]
+                extras = dict(zip(extra.keys(), row[3:3 + len(extra)]))
+                w, s, e, nth, gj = row[3 + len(extra):]
                 if not gj or '"coordinates":[]' in gj:
                     continue
                 feature = {"type": "Feature",
-                           "properties": {"layer_key": table, "category": category, "name": name, "detail": detail},
+                           "properties": {"layer_key": table, "category": category, "name": name, "detail": detail, **extras},
                            "geometry": json.loads(gj)}
                 if min_zoom:
                     feature["tippecanoe"] = {"minzoom": min_zoom}

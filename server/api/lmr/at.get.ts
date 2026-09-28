@@ -92,8 +92,8 @@ async function featuresAt(set: ArchiveSet, lon: number, lat: number): Promise<Re
 // ── The lot path ────────────────────────────────────────────────────────────────────────────────
 
 /** The label column, first match wins. The lmr tables come from as many publishers as the esa ones. */
-const NAME_COLUMNS = ['label', 'station', 'itemname', 'h_name', 'name', 'cat_name', 'lay_class', 'd_category',
-  'anef_code', 'sym_code', 'precinct', 'amendment']
+const NAME_COLUMNS = ['noise_verdict', 'label', 'station', 'itemname', 'h_name', 'name', 'cat_name', 'lay_class', 'd_category',
+  'anef_code', 'sym_code', 'precinct', 'amendment', 'council_name']
 
 /** The schemas a catalogue row may name. A relation outside these is never measured. */
 const SCHEMAS = ['lmr', 'epi', 'flood']

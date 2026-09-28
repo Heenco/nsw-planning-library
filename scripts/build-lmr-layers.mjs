@@ -268,7 +268,9 @@ const LMR_CONSTRAINTS = [
   {
     key: 'airport_noise', title: 'Aircraft noise contours (ANEF / ANEI)', grp: 'noise', kind: 'exclusion',
     clause: 'Housing SEPP ch 6 - ANEF 25 / ANEC 20 and above',
-    role: 'The aircraft noise contours the exclusion is read off.',
+    role: 'The aircraft noise contours the exclusion is read off, each judged against it in lmr_verdict: excluded '
+      + '(ANEF 25+, ANEC 20+), not excluded (ANEF 20-25, Defence 15-20) or undetermined (Defence 20-25, every ANEI, '
+      + 'Gloucester\'s unnumbered contours). Written by scripts/add-lmr-noise-bands.mjs.',
     sourceKind: 'urbanportaldbp', source: 'UrbanPortalDBP public."AirportNoise" - EPI noise maps + Defence ANEF/ANEC + Sydney Airport ANEI',
     sourceDateSql: 'max(currency_date)::date', loadedAt: '2026-09-17',
     caveat: 'Three sources in one table, and the gap is the point: the EPI noise maps cover only Cessnock, Gloucester, '
@@ -297,6 +299,20 @@ const LMR_CONSTRAINTS = [
       + 'segments a quarter circle). Measured edge-to-line geodesic distance is 198.2-200.3 m, median 200.0; the '
       + 'shortfall is MGA scale at the far ends of long pipelines. The Department says 200 m, March-2025 commentaries '
       + 'say 800 m. Rebuild whenever lmr.gas_pipelines is rebuilt.',
+  },
+  {
+    key: 'whole_lga_exclusion', title: 'Whole-LGA exclusion', grp: 'lmr', kind: 'exclusion',
+    clause: 'Housing SEPP ch 6 - the Department excludes all land in four council areas',
+    role: 'All land in the Bathurst Regional, Blue Mountains, Hawkesbury and Wollondilly LGAs. Bathurst has only 2 small '
+      + 'R2 areas, one affected by Mount Panorama racetrack noise and the other by sewage treatment plant odour; the '
+      + 'other three are excluded mainly because of bush fire, flood and evacuation risk.',
+    sourceKind: 'download', source: 'ePlanning Planning_Portal_Administration/MapServer/5 (Local Government Area), the four named councils',
+    sourceUrl: `${EPLANNING}/ePlanning/Planning_Portal_Administration/MapServer/5`,
+    filter: "LGANAME IN ('BATHURST REGIONAL','BLUE MOUNTAINS','HAWKESBURY','WOLLONDILLY')",
+    sourceDateSql: 'max(lga_lastupdate)::date', loadedAtSql: 'max(fetched_at)::date',
+    caveat: 'No exclusion map exists - the Department names the councils, so the boundary is the ePlanning LGA layer. '
+      + 'None of the four hosts a nominated station or town centre, so this rarely changes a result. '
+      + 'Built by scripts/add-lmr-whole-lga-exclusion.mjs, which refuses unless all four councils come back.',
   },
   {
     key: 'oil_pipelines', title: 'Oil pipelines (none in NSW)', grp: 'noise', kind: 'context',

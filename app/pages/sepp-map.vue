@@ -1,16 +1,16 @@
 <!--
-  /lmr - Low and Mid Rise housing: the Housing SEPP's four LMR layers and the constraints the policy is checked
-  against, on one map. The other SEPP land application layers moved to /sepp-map on 2026-09-28.
+  /sepp-map - every SEPP land application layer that is not a low and mid-rise one, on one map.
 
-  The layers come from the All-EPI geodatabase (epi.epi_land_application, SEPP rows), baked into one PMTiles
-  archive by scripts/build-sepp-pmtiles.py and served as a static file on the planningai host. /api/lmr/tiles
-  reads tiles out of that archive - there is no tile server and no database behind this page.
+  Split out of /lmr (2026-09-28), which now carries only the Housing SEPP's low and mid-rise layers and the
+  constraints the policy is checked against. These 33 layers - the Biodiversity and Conservation catchments,
+  the Precincts SEPPs, the Codes SEPP, Resilience and Hazards and the rest - come from the same PMTiles
+  archive (scripts/build-sepp-pmtiles.py, layer_group 'sepp'), so both pages read the one build.
 
-  - The panel lists the layers: the four LMR layers of the Housing SEPP first (on by default), then the lmr
-    schema's constraints (shared/lmr-layers.ts). The panel is the legend.
-  - One vector source holding every layer; the toggles are a map filter on layer_key, so switching a layer on
-    or off draws from tiles already loaded.
-  - Clicking the map asks /api/lmr/at what applies at that point, and shows the LMR layers and constraints.
+  - The panel lists the layers by family and SEPP, drawn in the NSW Spatial Viewer's symbology where it has
+    them (shared/lmr-layers.ts SEPP_STYLE); the panel is the legend.
+  - The toggles are a map filter on layer_key, so switching a layer draws from tiles already loaded.
+  - Clicking the map, or picking an address, asks /api/lmr/at what applies at that point, and shows the SEPP
+    layers among the answer.
   - The switched-on layers and the view are kept in the URL hash, so a view can be shared.
 -->
 
@@ -19,12 +19,12 @@
     <header class="lm-header">
       <div>
         <NuxtLink to="/" class="lm-back">&larr; Home</NuxtLink>
-        <h1 class="lm-title">Low and Mid Rise housing</h1>
+        <h1 class="lm-title">SEPP land application layers</h1>
       </div>
       <div v-if="catalogue" class="lm-header-stat">
-        {{ layerCount }} layers<template v-if="catalogue.sourceDate">
+        {{ seppLayers.length }} layers from <strong>epi_land_application</strong><template v-if="catalogue.sourceDate">
           · EPI data of <strong>{{ fmtDate(catalogue.sourceDate) }}</strong></template>
-        · <NuxtLink to="/sepp-map" class="lm-link">the other SEPP layers</NuxtLink>
+        · <NuxtLink to="/lmr" class="lm-link">low and mid-rise layers</NuxtLink>
       </div>
     </header>
 
@@ -72,98 +72,59 @@
             No address or lot matched <b>{{ lastSearched }}</b>. Press Enter to look for a place of that name instead.
           </p>
 
+
           <p v-if="loadError" class="lm-error">{{ loadError }}</p>
           <p v-else-if="!catalogue" class="lm-dim">Loading layers…</p>
 
           <template v-else>
             <p class="lm-allrow">
-              <span class="lm-dim">{{ on.size }} of {{ layerCount }} layers on</span>
+              <span class="lm-dim">{{ on.size }} of {{ seppLayers.length }} layers on</span>
               <button type="button" class="lm-link" :disabled="!on.size" @click="allOff">Turn all off</button>
             </p>
 
-            <!-- The Housing SEPP layers: Low and Mid Rise housing, then Transport Oriented Development -->
-            <section v-for="g in housingGroups" :key="g.title" class="lm-group">
-              <h2 class="lm-h2">{{ g.title }}</h2>
-              <p class="lm-lead">{{ g.lead }}</p>
-              <ul class="lm-list">
-                <li v-for="l in g.layers" :key="l.key" class="lm-item">
-                  <label class="lm-row">
-                    <input type="checkbox" :checked="on.has(l.key)" @change="toggle(l.key)">
-                    <span class="lm-swatch lm-swatch--lmr" :style="swatchStyle(l)" :title="lmrStyle(l.layName).from" />
-                    <span class="lm-name">{{ l.layName }}</span>
-                    <span class="lm-count">{{ fmt(l.features) }}</span>
-                  </label>
-                  <p class="lm-blurb">{{ LMR_BLURB[l.layName] }}</p>
-                  <p class="lm-meta">
-                    <template v-if="lmrStyle(l.layName).portalName && lmrStyle(l.layName).portalName !== l.layName">"{{ lmrStyle(l.layName).portalName }}" on the Planning Portal · </template>
-                    <template v-if="l.commenced">commenced {{ fmtDate(l.commenced) }}</template>
-                    <button v-if="l.bbox" type="button" class="lm-link" @click="zoomTo(l.key, l.bbox)">zoom to</button>
-                  </p>
-                </li>
-                <!-- constraint layers that belong with this group: the LMR stations -->
-                <li v-for="c in constraintsIn(g.key)" :key="c.key" class="lm-item">
-                  <label class="lm-row">
-                    <input type="checkbox" :checked="on.has(c.key)" @change="toggle(c.key)">
-                    <span class="lm-swatch lm-swatch--lmr" :style="constraintSwatchCss(c.key)" :title="constraintStyle(c.key).from" />
-                    <span class="lm-name">{{ c.title }}</span>
-                    <span class="lm-count">{{ fmt(c.features) }}</span>
-                  </label>
-                  <p class="lm-blurb">{{ firstSentence(c.comment) }}</p>
-                  <p class="lm-meta"><code>{{ c.table }}</code><button v-if="c.bbox" type="button" class="lm-link" @click="zoomTo(c.key, c.bbox)">zoom to</button></p>
-                </li>
-              </ul>
-            </section>
-
-            <!-- The lmr schema: what the Low and Mid-Rise Housing Policy is checked against -->
-            <section v-if="constraintLayers.length" class="lm-group">
-              <h2 class="lm-h2">LMR constraints</h2>
-              <p class="lm-lead">The datasets in the <code>lmr</code> schema that the Low and Mid-Rise Housing Policy is checked against. Each layer's note is its table's own description.</p>
-              <details v-for="cg in constraintGroups" :key="cg.key" class="lm-family" :open="cg.layers.some(c => on.has(c.key))">
+            <!-- Every SEPP layer that is not a low and mid-rise one, by family and SEPP -->
+            <section class="lm-group">
+              <h2 class="lm-h2">SEPP land application layers</h2>
+              <p class="lm-lead">Drawn in the NSW Spatial Viewer's symbology where it has the layer, and with a dashed outline in the family's colour where it does not. Click the map to see every layer that applies at a point.</p>
+              <details v-for="fam in families" :key="fam.key" class="lm-family" :open="true">
                 <summary class="lm-family-sum">
-                  <span class="lm-swatch" :style="constraintSwatchCss(cg.layers[0]!.key)" />
-                  <span class="lm-name">{{ cg.title }}</span>
-                  <span class="lm-count">{{ cg.layers.length }}</span>
+                  <span class="lm-swatch lm-swatch--dash" :style="{ borderColor: fam.color }" />
+                  <span class="lm-name">{{ fam.title }}</span>
+                  <span class="lm-count">{{ fam.layers.length }}</span>
                 </summary>
-                <p class="lm-blurb">{{ cg.lead }}</p>
-                <ul class="lm-list lm-list--indent">
-                  <li v-for="c in cg.layers" :key="c.key" class="lm-item">
-                    <label class="lm-row">
-                      <input type="checkbox" :checked="on.has(c.key)" @change="toggle(c.key)">
-                      <span class="lm-swatch" :style="constraintSwatchCss(c.key)" :title="constraintStyle(c.key).from" />
-                      <span class="lm-name">{{ c.title }}</span>
-                      <span class="lm-count">{{ fmt(c.features) }}</span>
-                    </label>
-                    <ul v-if="constraintStyle(c.key).classes" class="lm-cats">
-                      <li v-for="cat in c.categories" :key="cat.name">
-                        <span class="lm-swatch lm-swatch--small" :style="constraintSwatchCss(c.key, cat.name)" />{{ cat.name }} <span class="lm-dim">{{ fmt(cat.features) }}</span>
-                      </li>
-                    </ul>
-                    <p class="lm-meta">
-                      <code>{{ c.table }}</code><template v-if="c.minZoom"> · shown from zoom {{ c.minZoom }}</template>
-                      <button v-if="c.bbox" type="button" class="lm-link" @click="zoomTo(c.key, c.bbox)">zoom to</button>
-                    </p>
-                    <details v-if="c.comment" class="lm-classes">
-                      <summary>about this table</summary>
-                      <p class="lm-about">{{ c.comment }}</p>
-                    </details>
-                  </li>
-                </ul>
+                <p class="lm-blurb">{{ fam.blurb }}</p>
+                <div v-for="s in fam.sepps" :key="s.sepp" class="lm-sepp">
+                  <p class="lm-sepp-name">{{ s.sepp }}</p>
+                  <ul class="lm-list">
+                    <li v-for="l in s.layers" :key="l.key" class="lm-item">
+                      <label class="lm-row">
+                        <input type="checkbox" :checked="on.has(l.key)" @change="toggle(l.key)">
+                        <span class="lm-swatch" :style="swatchStyle(l)" :title="seppStyle(l).from" />
+                        <span class="lm-name">{{ l.layName }}</span>
+                        <span class="lm-count">{{ fmt(l.features) }}</span>
+                      </label>
+                      <p class="lm-meta">
+                        <!-- lga_name on SEPP rows holds the text "SEPP", not a council, so no council count here -->
+                        <template v-if="l.classes.length > 1">{{ l.classes.length }} classes</template>
+                        <template v-if="l.minZoom">{{ l.classes.length > 1 ? ' · ' : '' }}shown from zoom {{ l.minZoom }}</template>
+                        <button v-if="l.bbox" type="button" class="lm-link" @click="zoomTo(l.key, l.bbox)">zoom to</button>
+                      </p>
+                      <details v-if="l.classes.length > 1" class="lm-classes">
+                        <summary>classes</summary>
+                        <ul><li v-for="c in l.classes" :key="c.name">{{ c.name }} <span class="lm-dim">{{ fmt(c.features) }}</span></li></ul>
+                      </details>
+                    </li>
+                  </ul>
+                </div>
               </details>
             </section>
 
-            <p class="lm-lead">
-              The other SEPP land application layers - the catchments, the precincts, the Codes SEPP and the rest -
-              are on <NuxtLink to="/sepp-map" class="lm-link">/sepp-map</NuxtLink>.
-            </p>
 
             <p class="lm-foot">
               Source: <code>epi.epi_land_application</code>, SEPP rows, as loaded by <code>01A dump-gdal</code><template v-if="catalogue.sourceLoadedAt">
               on {{ fmtDate(catalogue.sourceLoadedAt) }}</template>. Tiles: <code>{{ catalogue.archive }}</code>, built
               {{ catalogue.builtAt ? fmtDate(catalogue.builtAt) : '—' }} by <code>scripts/build-sepp-pmtiles.py</code>; rebuild after each EPI load.
-              <template v-if="catalogue.constraints">
-                LMR constraints: the <code>lmr</code> schema, tiles <code>{{ catalogue.constraints.archive }}</code> built
-                {{ catalogue.constraints.builtAt ? fmtDate(catalogue.constraints.builtAt) : '—' }} by <code>scripts/build-lmr-pmtiles.py</code>.
-              </template>
+              The four low and mid-rise layers of the Housing SEPP are on <NuxtLink to="/lmr" class="lm-link">/lmr</NuxtLink>.
             </p>
           </template>
         </div>
@@ -184,12 +145,10 @@
           <p v-if="picking" class="lm-dim">Checking every SEPP layer…</p>
           <p v-else-if="pickError" class="lm-error">{{ pickError }}</p>
           <template v-else>
-            <p v-if="!picked.hits.length" class="lm-dim">No LMR layer or constraint covers this point.</p>
-            <p v-else-if="!picked.hits.some(h => h.family === 'lmr')" class="lm-note lm-note--plain">None of the four LMR layers covers this point.</p>
+            <p v-if="!picked.hits.length" class="lm-dim">No SEPP land application layer covers this point.</p>
             <ul class="lm-hits">
               <li v-for="(h, i) in picked.hits" :key="i" class="lm-hit">
-                <span v-if="h.family === 'constraint'" class="lm-swatch" :style="constraintSwatchCss(h.key, h.layClass)" />
-                <span v-else class="lm-swatch lm-swatch--lmr" :style="swatchStyle(h as any)" />
+                <span class="lm-swatch" :style="swatchStyle(h as any)" />
                 <div>
                   <p class="lm-hit-name">{{ h.layName }}<span v-if="h.layClass && h.layClass !== h.layName" class="lm-dim"> · {{ h.layClass }}</span></p>
                   <p class="lm-meta">{{ h.sepp }}<template v-if="h.clause"> · {{ h.clause }}</template><template v-if="h.lga && h.lga !== 'SEPP'"> · {{ h.lga }}</template></p>
@@ -202,63 +161,21 @@
         </section>
       </div>
 
-      <!-- How the layer gets built, beside the map it is built from -->
-      <aside class="lm-guide" :class="{ 'lm-guide--closed': !guideOpen }">
-        <button type="button" class="lm-guide-toggle" :aria-expanded="guideOpen" @click="toggleGuide">
-          {{ guideOpen ? 'Hide guide' : 'How the LMR layer is built' }}
-        </button>
-        <div v-show="guideOpen" class="lm-guide-inner">
-          <h2 class="lm-h2">How the LMR layer is built</h2>
-          <p class="lm-lead">{{ LMR_METHOD_LEAD }}</p>
-          <ol class="lm-steps">
-            <li v-for="step in LMR_METHOD" :key="step.n" class="lm-step">
-              <p class="lm-step-title"><span class="lm-step-n">{{ step.n }}</span>{{ step.title }}</p>
-              <p class="lm-step-body">{{ step.body }}</p>
-              <p v-if="step.layers" class="lm-step-layers">
-                <button
-                  v-for="name in step.layers" :key="name" type="button"
-                  class="lm-chip" :class="{ 'lm-chip--on': !!keyOf(name) && on.has(keyOf(name)!) }"
-                  :disabled="!keyOf(name)"
-                  :title="keyOf(name) ? 'Show or hide this layer' : 'Not on the map yet'"
-                  @click="toggleNamed(name)"
-                >{{ name }}</button>
-              </p>
-              <p v-if="step.note" class="lm-step-note">{{ step.note }}</p>
-            </li>
-          </ol>
-          <h3 class="lm-h3">Still to settle</h3>
-          <div v-for="gap in LMR_METHOD_GAPS" :key="gap.title" class="lm-gap">
-            <p class="lm-step-title">{{ gap.title }}</p>
-            <p class="lm-step-body">{{ gap.body }}</p>
-          </div>
-          <p class="lm-foot">
-            Chapter 6 of State Environmental Planning Policy (Housing) 2021. Stage 1 (dual occupancies in R2 across
-            NSW) commenced 1 July 2024, Stage 2 (the low and mid-rise housing areas) 28 February 2025; exclusions as
-            the Department listed them on 24 April 2026.
-          </p>
-        </div>
-      </aside>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { LMR_METHOD, LMR_METHOD_GAPS, LMR_METHOD_LEAD } from '#shared/lmr-method'
-import {
-  CONSTRAINT_GROUPS, CONSTRAINT_STYLE, LMR_BLURB, LMR_LAYER_NAMES,
-  constraintStyle, constraintSwatchCss, lmrStyle, seppStyle, swatchCss,
-  type ConstraintCatalogue, type ConstraintGroup, type ConstraintLayer,
-  type LmrCatalogue, type LmrFamily, type LmrHit, type LmrLayer,
-} from '#shared/lmr-layers'
+import { FAMILY, seppStyle, swatchCss, type LmrCatalogue, type LmrFamily, type LmrHit, type LmrLayer } from '#shared/lmr-layers'
 import { ensureHatch, HATCH_NONE } from '#shared/hatch'
 
-useHead({ title: 'LMR · Planning Library' })
+useHead({ title: 'SEPP layers · Planning Library' })
 
 const config = useRuntimeConfig()
 const mapboxToken = String((config.public as any).mapboxToken || '')
 
-type Catalogue = LmrCatalogue & { archive: string; constraints: ConstraintCatalogue | null }
+type Catalogue = LmrCatalogue & { archive: string }
 const catalogue = ref<Catalogue | null>(null)
 const loadError = ref('')
 const on = ref(new Set<string>())
@@ -272,53 +189,21 @@ let marker: any = null
 
 const SOURCE = 'sepp'
 
-const lmrLayers = computed(() => {
-  const ls = (catalogue.value?.layers ?? []).filter(l => l.family === 'lmr')
-  return [...ls].sort((a, b) => LMR_LAYER_NAMES.indexOf(a.layName as any) - LMR_LAYER_NAMES.indexOf(b.layName as any))
-})
+/** The SEPP families this page draws; the low and mid-rise layers ('lmr') belong to /lmr. */
+const FAMILIES = ['housing', 'precincts', 'environment', 'systems'] as const
+const isSeppHit = (h: LmrHit) => (FAMILIES as readonly string[]).includes(h.family)
 
-/** The four Housing SEPP layers, split into the two provisions they serve, each listed in panel order. */
-const HOUSING_GROUPS: { key: ConstraintGroup | 'tod'; title: string; lead: string; names: string[] }[] = [
-  {
-    key: 'housing',
-    title: 'Low and Mid Rise housing',
-    lead: 'The Housing SEPP layers that decide where the low and mid rise housing provisions reach.',
-    names: ['Town Centre', 'Low and Mid Rise Housing Exclusion Area'],
-  },
-  {
-    key: 'tod',
-    title: 'Transport Oriented Development',
-    lead: 'The Housing SEPP\'s TOD areas, and the precincts rezoned under the accelerated TOD program.',
-    names: ['Transport Oriented Development Area', 'Accelerated TOD Precinct'],
-  },
-]
+const seppLayers = computed(() => (catalogue.value?.layers ?? []).filter(l => l.family !== 'lmr'))
 
-const housingGroups = computed(() => HOUSING_GROUPS.map(g => ({
-  ...g,
-  layers: g.names.map(n => lmrLayers.value.find(l => l.layName === n)).filter((l): l is LmrLayer => !!l),
-})).filter(g => g.layers.length))
-
-// ── the lmr schema layers ────────────────────────────────────────────────────
-
-const constraintLayers = computed<ConstraintLayer[]>(() => catalogue.value?.constraints?.layers ?? [])
-
-function constraintsIn(group: string): ConstraintLayer[] {
-  // panel order is the order of CONSTRAINT_STYLE, not the order the archive was built in
-  const order = Object.keys(CONSTRAINT_STYLE)
-  return constraintLayers.value.filter(c => c.group === group).sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key))
-}
-
-const constraintGroups = computed(() => (Object.keys(CONSTRAINT_GROUPS) as (keyof typeof CONSTRAINT_GROUPS)[])
-  .map(key => ({ key, ...CONSTRAINT_GROUPS[key], layers: constraintsIn(key) }))
-  .filter(g => g.layers.length))
-
-/** A table comment's opening sentence, for the panel. */
-function firstSentence(text: string | null): string {
-  if (!text) return ''
-  const m = text.match(/^(.+?[.:])(\s|$)/)
-  // a description that opens "X: how it was made" reads as a sentence once the colon is a full stop
-  return m ? m[1]!.replace(/:$/, '.') : text
-}
+const families = computed(() => FAMILIES.map((key) => {
+  const layers = seppLayers.value.filter(l => l.family === key)
+  const bySepp = new Map<string, LmrLayer[]>()
+  for (const l of layers) {
+    if (!bySepp.has(l.sepp)) bySepp.set(l.sepp, [])
+    bySepp.get(l.sepp)!.push(l)
+  }
+  return { key, ...FAMILY[key], layers, sepps: [...bySepp.entries()].map(([sepp, ls]) => ({ sepp, layers: ls })) }
+}).filter(f => f.layers.length))
 
 // ── the map ────────────────────────────────────────────────────────────────
 
@@ -328,204 +213,49 @@ function tileUrl(): string {
   return `${window.location.origin}/api/lmr/tiles/{z}/{x}/{y}?v=${v}`
 }
 
-/** A match expression over layer_key, one value per LMR layer. */
-function byLayer(value: (l: LmrLayer) => string | number, fallback: string | number): any[] {
-  const pairs = lmrLayers.value.flatMap(l => [l.key, value(l)])
-  return pairs.length ? ['match', ['get', 'layer_key'], ...pairs, fallback] : fallback as any
+/** A match expression over layer_key, one value per layer on this page. */
+function byLayer(value: (l: LmrLayer) => string | number, fallback: string | number): any {
+  const pairs = seppLayers.value.flatMap(l => [l.key, value(l)])
+  return pairs.length ? ['match', ['get', 'layer_key'], ...pairs, fallback] : fallback
 }
 
-/** Draw order within the LMR group, bottom to top, as on the Planning Portal: TOD areas under the precincts
- *  and centres, the exclusion hatch over everything. */
-const LMR_ORDER: Record<string, number> = {
-  'Transport Oriented Development Area': 1,
-  'Accelerated TOD Precinct': 2,
-  'Town Centre': 3,
-  'Low and Mid Rise Housing Exclusion Area': 4,
-}
-
-/** An LMR layer, and switched on. The archive's other SEPP layers are drawn on /sepp-map. */
-function zoomFilter(group: 'lmr'): any[] {
-  return ['all', ['==', ['get', 'layer_group'], group], ['in', ['get', 'layer_key'], ['literal', [...on.value]]]]
+/** A SEPP layer, and switched on. Heavy layers' minimum zoom is baked into the archive by tippecanoe. */
+function onFilter(): any[] {
+  return ['all', ['==', ['get', 'layer_group'], 'sepp'], ['in', ['get', 'layer_key'], ['literal', [...on.value]]]]
 }
 
 /**
- * Four map layers: the flat fill, the portal's hatches as a data-driven pattern (a solid layer gets the empty
- * tile), the solid outline, and a dashed outline no LMR layer uses today. The constraints go underneath.
+ * Four map layers, as on /lmr: the flat fill, the portal's hatches as a data-driven pattern (a solid layer gets
+ * the empty tile), the solid outline, and the dashed outline only the family fallback uses.
  */
-const PARTS = ['fill', 'hatch', 'line', 'dash'] as const
-const DRAWN = PARTS.map(part => [`lmr-${part}`, 'lmr'] as const)
+const DRAWN = ['sepp-fill', 'sepp-hatch', 'sepp-line', 'sepp-dash'] as const
 
 function addLayers() {
   if (!map || map.getSource(SOURCE)) return
   // the archive stops at zoom 14; the map overzooms its tiles past that
   map.addSource(SOURCE, { type: 'vector', tiles: [tileUrl()], minzoom: 4, maxzoom: 14 })
-  const common = { source: SOURCE, 'source-layer': 'sepp' }
+  const common = { source: SOURCE, 'source-layer': 'sepp', filter: onFilter() }
   const sym = (l: LmrLayer) => seppStyle(l)
-  for (const l of lmrLayers.value) {
+  for (const l of seppLayers.value) {
     const s = sym(l)
     if (s.hatch) ensureHatch(map, s.hatch, s.fill)
   }
-  const order = byLayer(l => LMR_ORDER[l.layName] ?? 0, 0)
-
-  for (const group of ['lmr'] as const) {
-    map.addLayer({
-      ...common, id: `${group}-fill`, type: 'fill', filter: zoomFilter(group),
-      layout: { 'fill-sort-key': order },
-      paint: { 'fill-color': byLayer(l => sym(l).fill, '#cbd5e1'), 'fill-opacity': byLayer(l => (sym(l).hatch ? 0 : sym(l).fillOpacity), 0.3) },
-    })
-    map.addLayer({
-      ...common, id: `${group}-hatch`, type: 'fill', filter: zoomFilter(group),
-      paint: { 'fill-pattern': byLayer(l => { const s = sym(l); return s.hatch ? `hatch-${s.hatch}-${s.fill.slice(1)}` : HATCH_NONE }, HATCH_NONE) },
-    })
-    map.addLayer({
-      ...common, id: `${group}-line`, type: 'line', filter: zoomFilter(group),
-      layout: { 'line-sort-key': order, 'line-join': 'round' },
-      paint: { 'line-color': byLayer(l => sym(l).line, '#475569'), 'line-width': byLayer(l => (sym(l).dashed ? 0 : sym(l).lineWidth), 1) },
-    })
-    map.addLayer({
-      ...common, id: `${group}-dash`, type: 'line', filter: zoomFilter(group),
-      paint: {
-        'line-color': byLayer(l => sym(l).line, '#475569'),
-        'line-width': byLayer(l => (sym(l).dashed ? sym(l).lineWidth : 0), 0),
-        'line-dasharray': [3, 2],
-      },
-    })
-  }
-}
-
-// ── the constraints source: the lmr schema archive ───────────────────────────
-
-const guideOpen = ref(true)
-
-/** The map has to be told its box changed when the guide opens or closes. */
-async function toggleGuide() {
-  guideOpen.value = !guideOpen.value
-  await nextTick()
-  map?.resize()
-}
-
-/**
- * A layer title in the guide back to its key, so a step's chips switch the very layers it
- * describes. A title we hold no layer for resolves to nothing and its chip stays inert.
- */
-function keyOf(title: string): string | undefined {
-  const c = constraintLayers.value.find(l => l.title === title)
-  if (c) return c.key
-  return (catalogue.value?.layers ?? []).find(l => l.layName === title)?.key
-}
-
-function toggleNamed(title: string) {
-  const key = keyOf(title)
-  if (key) toggle(key)
-}
-
-const CSOURCE = 'lmrc'
-
-/** Constraint layer keys matching a test on their style. */
-function constraintKeys(test: (s: ReturnType<typeof constraintStyle>) => boolean): string[] {
-  return constraintLayers.value.filter(c => test(constraintStyle(c.key))).map(c => c.key)
-}
-
-/** A match expression over layer_key for the constraint layers. */
-function byConstraint(value: (s: ReturnType<typeof constraintStyle>) => string | number, fallback: string | number): any {
-  const pairs = constraintLayers.value.flatMap(c => [c.key, value(constraintStyle(c.key))])
-  return pairs.length ? ['match', ['get', 'layer_key'], ...pairs, fallback] : fallback
-}
-
-/** Which constraint layers a drawn layer covers, intersected with what is switched on. */
-const C_DRAWN: [string, (s: ReturnType<typeof constraintStyle>) => boolean][] = [
-  ['c-fill', s => s.kind === 'fill' && !s.hatch],
-  ['c-hatch', s => s.kind === 'fill' && !!s.hatch],
-  ['c-line', s => (s.kind === 'fill' && !!s.lineWidth && !s.dashed) || s.kind === 'line'],
-  ['c-line-dash', s => s.kind === 'fill' && !!s.lineWidth && !!s.dashed],
-  ['c-circle', s => s.kind === 'point'],
-]
-
-function constraintFilter(test: (s: ReturnType<typeof constraintStyle>) => boolean): any[] {
-  const keys = constraintKeys(test).filter(k => on.value.has(k))
-  return ['in', ['get', 'layer_key'], ['literal', keys]]
-}
-
-/**
- * Fill strength of a contour by its verdict against the policy's noise exclusion (ANEF 25+ or ANEC 20+): the
- * excluded bands solid, the ones the data cannot decide at half, and the rest nearly clear so they read as
- * "a contour is here" and never as excluded land.
- */
-const VERDICT_OPACITY: Record<string, number> = { 'excluded': 0.6, 'undetermined': 0.3, 'not excluded': 0.06 }
-
-function addConstraintLayers() {
-  const cat = catalogue.value?.constraints
-  if (!map || !cat || map.getSource(CSOURCE)) return
-  const v = encodeURIComponent(cat.archive)
-  map.addSource(CSOURCE, { type: 'vector', tiles: [`${window.location.origin}/api/lmr/tiles/{z}/{x}/{y}?set=lmr&v=${v}`], minzoom: 4, maxzoom: 14 })
-  const common = { source: CSOURCE, 'source-layer': 'lmr' }
-  // a layer with classes (bushfire RFS categories, walking catchment distances) is coloured by its category,
-  // everything else by its layer's colour
-  const classed = constraintLayers.value.filter(c => constraintStyle(c.key).classes)
-  const fillColor = classed.length
-    ? ['case',
-        ...classed.flatMap(c => {
-          const s = constraintStyle(c.key)
-          return [['==', ['get', 'layer_key'], c.key], ['match', ['coalesce', ['get', 'category'], ''], ...Object.entries(s.classes!).flat(), s.color]]
-        }),
-        byConstraint(s => s.color, '#94a3b8')]
-    : byConstraint(s => s.color, '#94a3b8')
-  // a `classLine` layer is drawn line-only, so its categories have to colour the OUTLINE instead. Opt-in,
-  // because the walking catchments are classed AND filled and their outline stays the one amber.
-  const classedLine = classed.filter(c => constraintStyle(c.key).classLine)
-  const lineColor = classedLine.length
-    ? ['case',
-        ...classedLine.flatMap(c => {
-          const s = constraintStyle(c.key)
-          return [['==', ['get', 'layer_key'], c.key], ['match', ['coalesce', ['get', 'category'], ''], ...Object.entries(s.classes!).flat(), s.line ?? s.color]]
-        }),
-        byConstraint(s => s.line ?? s.color, '#475569')]
-    : byConstraint(s => s.line ?? s.color, '#475569')
-  // constraints draw between the other SEPP layers and the LMR layers, so the Housing SEPP layers stay on top
-  const before = map.getLayer('lmr-fill') ? 'lmr-fill' : undefined
-  const filters = Object.fromEntries(C_DRAWN.map(([id, test]) => [id, constraintFilter(test)]))
-  // a feature with a verdict (the noise contours) is drawn as strongly as the policy treats it
-  const fillOpacity = ['match', ['coalesce', ['get', 'verdict'], ''], ...Object.entries(VERDICT_OPACITY).flat(),
-    byConstraint(s => s.fillOpacity ?? 0.3, 0.3)]
-  map.addLayer({ ...common, id: 'c-fill', type: 'fill', filter: filters['c-fill'],
-    // land zoning is the base of the constraints, and a 400 m catchment draws over the 800 m one it sits inside
-    layout: { 'fill-sort-key': ['case', ['==', ['get', 'layer_key'], 'epi_land_zoning'], 0, ['==', ['get', 'category'], '400 m'], 2, 1] },
-    paint: { 'fill-color': fillColor, 'fill-opacity': fillOpacity } }, before)
-  // the portal's hatched symbols - proximity areas, SHR curtilage, the whole-LGA exclusion
-  for (const c of constraintLayers.value) {
-    const s = constraintStyle(c.key)
-    if (s.hatch) ensureHatch(map, s.hatch, s.color)
-  }
-  map.addLayer({ ...common, id: 'c-hatch', type: 'fill', filter: filters['c-hatch'],
-    paint: { 'fill-pattern': byConstraint(s => (s.hatch ? `hatch-${s.hatch}-${s.color.slice(1)}` : HATCH_NONE), HATCH_NONE) } }, before)
-  map.addLayer({ ...common, id: 'c-line', type: 'line', filter: filters['c-line'], layout: { 'line-join': 'round', 'line-cap': 'round' },
-    paint: { 'line-color': lineColor, 'line-width': byConstraint(s => s.lineWidth ?? 1, 1) } }, before)
-  map.addLayer({ ...common, id: 'c-line-dash', type: 'line', filter: filters['c-line-dash'],
-    paint: { 'line-color': lineColor, 'line-width': byConstraint(s => s.lineWidth ?? 1, 1), 'line-dasharray': [3, 2] } }, before)
-  // the stations sit on top of everything, like the portal's LMR Station dots
-  map.addLayer({ ...common, id: 'c-circle', type: 'circle', filter: filters['c-circle'],
-    paint: {
-      'circle-color': byConstraint(s => s.color, '#7a7a7a'),
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 3, 12, 5, 16, 7],
-      'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5,
-    } })
+  map.addLayer({ ...common, id: 'sepp-fill', type: 'fill',
+    paint: { 'fill-color': byLayer(l => sym(l).fill, '#cbd5e1'), 'fill-opacity': byLayer(l => (sym(l).hatch ? 0 : sym(l).fillOpacity), 0.3) } })
+  map.addLayer({ ...common, id: 'sepp-hatch', type: 'fill',
+    paint: { 'fill-pattern': byLayer(l => { const s = sym(l); return s.hatch ? `hatch-${s.hatch}-${s.fill.slice(1)}` : HATCH_NONE }, HATCH_NONE) } })
+  map.addLayer({ ...common, id: 'sepp-line', type: 'line', layout: { 'line-join': 'round' },
+    paint: { 'line-color': byLayer(l => sym(l).line, '#475569'), 'line-width': byLayer(l => (sym(l).dashed ? 0 : sym(l).lineWidth), 1) } })
+  map.addLayer({ ...common, id: 'sepp-dash', type: 'line',
+    paint: { 'line-color': byLayer(l => sym(l).line, '#475569'), 'line-width': byLayer(l => (sym(l).dashed ? sym(l).lineWidth : 0), 0), 'line-dasharray': [3, 2] } })
 }
 
 function refreshTiles() {
   if (map?.getSource(SOURCE)) {
-    for (const [id, group] of DRAWN) {
-      if (!map.getLayer(id)) continue
-      map.setFilter(id, zoomFilter(group))
-    }
-  }
-  if (map?.getSource(CSOURCE)) {
-    for (const [id, test] of C_DRAWN) if (map.getLayer(id)) map.setFilter(id, constraintFilter(test))
+    for (const id of DRAWN) if (map.getLayer(id)) map.setFilter(id, onFilter())
   }
   syncHash()
 }
-
-/** Every layer the panel offers, so the count beside "Turn all off" matches what can be switched on. */
-const layerCount = computed(() => lmrLayers.value.length + constraintLayers.value.length)
 
 /** Clear the map: the same path as a toggle, so the filters and the URL follow. */
 function allOff() {
@@ -552,6 +282,7 @@ const picked = ref<{ lon: number; lat: number; hits: LmrHit[] } | null>(null)
 const picking = ref(false)
 const pickError = ref('')
 
+/** The same point query as /lmr, narrowed to the SEPP layers this page draws. */
 async function pick(lon: number, lat: number) {
   picked.value = { lon, lat, hits: [] }
   picking.value = true
@@ -560,8 +291,7 @@ async function pick(lon: number, lat: number) {
   marker = new mapboxgl.Marker({ color: '#0f172a', scale: 0.7 }).setLngLat([lon, lat]).addTo(map)
   try {
     const r = await $fetch<{ lon: number; lat: number; hits: LmrHit[] }>('/api/lmr/at', { query: { lon, lat } })
-    // the point query answers for every SEPP layer too; those are /sepp-map's
-    if (picked.value?.lon === lon && picked.value?.lat === lat) picked.value = { ...r, hits: r.hits.filter(h => h.family === 'lmr' || h.family === 'constraint') }
+    if (picked.value?.lon === lon && picked.value?.lat === lat) picked.value = { ...r, hits: r.hits.filter(isSeppHit) }
   } catch (e: any) {
     pickError.value = e?.data?.statusMessage || e?.message || 'Could not read the layers at this point.'
   } finally {
@@ -795,12 +525,9 @@ onMounted(async () => {
     return
   }
   const hash = readHash()
-  const known = new Set([...lmrLayers.value.map(l => l.key), ...constraintLayers.value.map(c => c.key)])
-  const defaults = [
-    ...lmrLayers.value.map(l => l.key),
-    ...constraintLayers.value.filter(c => constraintStyle(c.key).defaultOn).map(c => c.key),
-  ]
-  on.value = new Set(hash?.layers.length ? hash.layers.filter(k => known.has(k)) : defaults)
+  const known = new Set(seppLayers.value.map(l => l.key))
+  // nothing on by default: these are reference layers, and a view someone shared brings its own
+  on.value = new Set(hash?.layers.filter(k => known.has(k)) ?? [])
 
   if (!mapboxToken) return
   const mod = await import('mapbox-gl')
@@ -810,11 +537,11 @@ onMounted(async () => {
     container: mapEl.value!,
     style: 'mapbox://styles/mapbox/light-v11',
     center: hash ? [hash.lon, hash.lat] : [151.0, -33.8],
-    zoom: hash ? hash.zoom : 10,
+    zoom: hash ? hash.zoom : 9,
   })
   map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
   map.addControl(new mapboxgl.ScaleControl({ maxWidth: 100, unit: 'metric' }), 'bottom-left')
-  map.on('load', () => { addLayers(); addConstraintLayers() })
+  map.on('load', addLayers)
   map.on('moveend', syncHash)
   map.on('click', (e: any) => pick(e.lngLat.lng, e.lngLat.lat))
   map.on('dataloading', () => { if (on.value.size) status.value = 'Loading tiles…' })
@@ -823,7 +550,6 @@ onMounted(async () => {
     const msg = e?.error?.message || ''
     if (msg && !/aborted/i.test(msg)) status.value = msg.slice(0, 140)
   })
-  if (import.meta.dev) (window as any).__lmrMap = map
 })
 
 onBeforeUnmount(() => {
