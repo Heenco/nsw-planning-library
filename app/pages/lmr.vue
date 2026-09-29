@@ -205,9 +205,112 @@
       <!-- How the layer gets built, beside the map it is built from -->
       <aside class="lm-guide" :class="{ 'lm-guide--closed': !guideOpen }">
         <button type="button" class="lm-guide-toggle" :aria-expanded="guideOpen" @click="toggleGuide">
-          {{ guideOpen ? 'Hide guide' : 'How the LMR layer is built' }}
+          {{ guideOpen ? 'Hide guide' : 'Guide, rules and this lot' }}
         </button>
-        <div v-show="guideOpen" class="lm-guide-inner">
+        <nav v-show="guideOpen" class="lm-tabs" role="tablist">
+          <button type="button" role="tab" class="lm-tab" :class="{ 'lm-tab--on': guideTab === 'method' }" :aria-selected="guideTab === 'method'" @click="guideTab = 'method'">How it's built</button>
+          <button type="button" role="tab" class="lm-tab" :class="{ 'lm-tab--on': guideTab === 'rules' }" :aria-selected="guideTab === 'rules'" @click="openRules">The rules</button>
+          <button type="button" role="tab" class="lm-tab" :class="{ 'lm-tab--on': guideTab === 'lot' }" :aria-selected="guideTab === 'lot'" @click="guideTab = 'lot'">This lot</button>
+        </nav>
+
+        <!-- ── This lot: Chapter 6 against the picked lot ───────────────────── -->
+        <div v-if="guideOpen && guideTab === 'lot'" class="lm-guide-inner">
+          <p v-if="!lotAnswer && !judging && !judgeError" class="lm-lead">
+            Search an address or click the map: the lot under it is judged against Chapter 6 - where the chapter
+            reaches (s 163), the land it excludes (s 164), and each housing form's own standards (s 166-180).
+          </p>
+          <p v-if="judging" class="lm-dim">Judging the lot…</p>
+          <p v-if="judgeError" class="lm-error">{{ judgeError }}</p>
+          <template v-if="lotAnswer && !judging">
+            <h2 class="lm-h2">{{ lotAnswer.lot.lotId || lotAnswer.lot.cadid }}</h2>
+            <p class="lm-lot-facts">
+              {{ lotAnswer.lot.lga || 'council not recorded' }} ·
+              {{ lotAnswer.lot.zones.join(', ') || 'no zone' }} ·
+              {{ lotAnswer.lot.areaM2 != null ? Math.round(lotAnswer.lot.areaM2).toLocaleString('en-AU') + ' m²' : 'area not measured' }} ·
+              {{ lotAnswer.lot.widthM != null ? lotAnswer.lot.widthM.toFixed(1) + ' m wide' : 'width not measured' }}
+            </p>
+            <p class="lm-band" :class="lotAnswer.lot.band ? 'lm-band--in' : 'lm-band--out'">
+              <template v-if="lotAnswer.lot.band === 'inner'">Inner area - within 400 m of {{ lotAnswer.lot.measuredFrom.filter(m => m.includes('400')).join(', ') }}</template>
+              <template v-else-if="lotAnswer.lot.band === 'outer'">Outer area - 400-800 m of {{ lotAnswer.lot.measuredFrom.join(', ') }}</template>
+              <template v-else>Outside every low and mid rise housing area (s 163)</template>
+            </p>
+
+            <h3 class="lm-h3">Where the chapter does not apply (s 164)</h3>
+            <ul class="lm-gen">
+              <li v-for="g in lotAnswer.general" :key="g.clause" class="lm-gen-row" :class="`lm-gen--${g.status.replace('/', '')}`">
+                <a :href="g.href" target="_blank" rel="noopener" class="lm-clause">{{ g.clause }}</a>
+                <span class="lm-gen-text">{{ g.text.length > 90 ? g.text.slice(0, 88) + '…' : g.text }}</span>
+                <span class="lm-gen-status" :title="g.why">{{ STATUS_WORD[g.status] }}</span>
+                <p v-if="g.status === 'excluded' || g.status === 'unknown'" class="lm-gen-why">{{ g.why }}</p>
+              </li>
+            </ul>
+
+            <h3 class="lm-h3">Each housing form</h3>
+            <p class="lm-dim">
+              {{ lotAnswer.summary.eligible }} eligible · {{ lotAnswer.summary.unknown }} undecided ·
+              {{ lotAnswer.summary.notEligible }} not eligible
+            </p>
+            <div v-for="t in lotAnswer.types" :key="t.key" class="lm-type" :class="t.eligible === true ? 'lm-type--yes' : t.eligible === false ? 'lm-type--no' : 'lm-type--maybe'">
+              <p class="lm-type-head">
+                <span class="lm-type-verdict">{{ VERDICT_WORD(t.eligible) }}</span>
+                <span class="lm-type-name">{{ t.name }}</span>
+                <span class="lm-dim">{{ t.sections }}</span>
+              </p>
+              <p class="lm-type-why">{{ t.verdict }}</p>
+              <ul class="lm-checks">
+                <li v-for="c in t.checks" :key="c.column + c.says" :class="`lm-check--${c.pass === true ? 'yes' : c.pass === false ? 'no' : 'maybe'}`">
+                  <span class="lm-check-mark">{{ passMark(c.pass) }}</span> {{ c.says }}<span v-if="c.actual" class="lm-dim"> - {{ c.actual }}</span>
+                </li>
+              </ul>
+              <p v-if="t.eligible !== false && t.allowances.length" class="lm-allow">
+                Allowed: <span v-for="(a, i) in t.allowances" :key="i">{{ i ? '; ' : '' }}{{ fmtAllowance(a) }} <span class="lm-dim">(s {{ a.clause }})</span></span>
+              </p>
+            </div>
+            <p class="lm-foot">
+              Width is measured at the 4.5 m setback line, standing in for "the front building line", which the
+              chapter does not define. {{ lotAnswer.summary.gaps.length }} exclusions have no data and are never counted
+              as clear: s {{ lotAnswer.summary.gaps.join(', s ') }}. {{ lotAnswer.ms }} ms.
+            </p>
+          </template>
+        </div>
+
+        <!-- ── The rules: Chapter 6 as the catalogue holds it ────────────────── -->
+        <div v-if="guideOpen && guideTab === 'rules'" class="lm-guide-inner">
+          <p v-if="!criteria" class="lm-dim">Loading the rules…</p>
+          <template v-else>
+            <h2 class="lm-h2">Housing SEPP 2021, Chapter 6</h2>
+            <p class="lm-lead">
+              {{ criteria.counts.types }} housing forms, {{ criteria.counts.requirements }} requirements -
+              {{ criteria.counts.tested }} of them tested against a lot - and {{ criteria.counts.general }} kinds of land the
+              chapter does not apply to. Each clause links to the legislation.
+            </p>
+            <h3 class="lm-h3">Where the chapter does not apply (s 164)</h3>
+            <ul class="lm-gen">
+              <li v-for="g in criteria.general" :key="g.clause" class="lm-gen-row" :class="`lm-cov--${g.coverage}`">
+                <a :href="g.href" target="_blank" rel="noopener" class="lm-clause">{{ g.clause }}</a>
+                <span class="lm-gen-text">{{ g.text }}</span>
+                <span class="lm-gen-status">{{ g.coverage === 'full' ? 'held' : g.coverage === 'partial' ? 'partly held' : 'no data' }}</span>
+                <p v-if="g.caveat" class="lm-gen-why">{{ g.caveat }}</p>
+              </li>
+            </ul>
+            <details v-for="t in criteria.types" :key="t.key" class="lm-rule">
+              <summary class="lm-rule-sum">
+                <span class="lm-type-name">{{ t.name }}</span>
+                <span class="lm-dim">{{ t.part }} · {{ t.sections }} · {{ t.testedCount }}/{{ t.requirements.length }} tested</span>
+              </summary>
+              <p v-if="t.note" class="lm-step-note">{{ t.note }}</p>
+              <ul class="lm-reqs">
+                <li v-for="r in t.requirements" :key="r.clause" :class="{ 'lm-req--tested': r.tested }">
+                  <a :href="r.href" target="_blank" rel="noopener" class="lm-clause">{{ r.clause }}</a>
+                  <span>{{ r.text }}</span>
+                  <span class="lm-req-how">{{ r.tested ? (r.derived ? `tested - ${r.derived}` : 'tested') : r.untestedWhy }}</span>
+                </li>
+              </ul>
+            </details>
+          </template>
+        </div>
+
+        <div v-if="guideOpen && guideTab === 'method'" class="lm-guide-inner">
           <h2 class="lm-h2">How the LMR layer is built</h2>
           <p class="lm-lead">{{ LMR_METHOD_LEAD }}</p>
           <ol class="lm-steps">
@@ -251,6 +354,8 @@ import {
   type ConstraintCatalogue, type ConstraintGroup, type ConstraintLayer,
   type LmrCatalogue, type LmrFamily, type LmrHit, type LmrLayer,
 } from '#shared/lmr-layers'
+import type { LmrCriteria } from '../../server/api/lmr/criteria.get'
+import type { LmrTypesResponse } from '../../server/api/lmr/types.get'
 import { ensureHatch, HATCH_NONE } from '#shared/hatch'
 
 useHead({ title: 'LMR · Planning Library' })
@@ -552,12 +657,14 @@ const picked = ref<{ lon: number; lat: number; hits: LmrHit[] } | null>(null)
 const picking = ref(false)
 const pickError = ref('')
 
-async function pick(lon: number, lat: number) {
+async function pick(lon: number, lat: number, cadid?: string) {
   picked.value = { lon, lat, hits: [] }
   picking.value = true
   pickError.value = ''
   marker?.remove()
   marker = new mapboxgl.Marker({ color: '#0f172a', scale: 0.7 }).setLngLat([lon, lat]).addTo(map)
+  // the chapter 6 verdict for the lot under the point, beside the layers at the point
+  judgeLot(cadid ? { cadid } : { lon, lat })
   try {
     const r = await $fetch<{ lon: number; lat: number; hits: LmrHit[] }>('/api/lmr/at', { query: { lon, lat } })
     // the point query answers for every SEPP layer too; those are /sepp-map's
@@ -574,6 +681,52 @@ function clearPick() {
   marker?.remove()
   marker = null
   clearLot()
+}
+
+// ── Chapter 6: the rules, and a lot against them ─────────────────────────────
+//
+// The same shape as /cdc and /cdc-map: the rules are data (lmr.type, lmr.type_requirement,
+// lmr.type_check, lmr.general - /api/lmr/criteria), and /api/lmr/types evaluates those same rows
+// against one lot, so the rules tab and the lot tab can never disagree.
+
+type GuideTab = 'method' | 'rules' | 'lot'
+const guideTab = ref<GuideTab>('method')
+const criteria = ref<LmrCriteria | null>(null)
+const lotAnswer = ref<LmrTypesResponse | null>(null)
+const judging = ref(false)
+const judgeError = ref('')
+let judgeSeq = 0
+
+async function openRules() {
+  guideTab.value = 'rules'
+  if (!guideOpen.value) await toggleGuide()
+  if (!criteria.value) criteria.value = await $fetch<LmrCriteria>('/api/lmr/criteria').catch(() => null)
+}
+
+async function judgeLot(q: { cadid?: string; lon?: number; lat?: number }) {
+  const seq = ++judgeSeq
+  judging.value = true
+  judgeError.value = ''
+  guideTab.value = 'lot'
+  if (!guideOpen.value) await toggleGuide()
+  try {
+    const r = await $fetch<LmrTypesResponse>('/api/lmr/types', { query: q })
+    if (seq === judgeSeq) lotAnswer.value = r
+  } catch (e: any) {
+    if (seq === judgeSeq) { lotAnswer.value = null; judgeError.value = e?.data?.statusMessage || e?.message || 'Could not judge this lot.' }
+  } finally {
+    if (seq === judgeSeq) judging.value = false
+  }
+}
+
+const VERDICT_WORD = (e: boolean | null) => (e === true ? 'Eligible' : e === false ? 'Not eligible' : 'Undecided')
+const STATUS_WORD: Record<string, string> = { clear: 'clear', excluded: 'excluded', unknown: 'undecided', gap: 'no data', 'n/a': 'does not apply' }
+const passMark = (p: boolean | null) => (p === true ? '✓' : p === false ? '✗' : '?')
+
+function fmtAllowance(a: LmrTypesResponse['types'][number]['allowances'][number]): string {
+  return [a.forUse, a.fsr != null ? `FSR ${a.fsr}:1` : null, a.heightM != null ? `${a.heightM} m` : null,
+    a.storeys ? `${a.storeys} storeys` : null, a.parkingPerDwelling != null ? `${a.parkingPerDwelling} car space/dwelling` : null]
+    .filter(Boolean).join(' · ')
 }
 
 function swatchStyle(h: { key?: string; family: LmrFamily; layName: string }) {
@@ -700,7 +853,7 @@ async function pickLot(r: LotMatch) {
     const box = bboxOf(d.lotGeom)
     map.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: 80, maxZoom: 17.5, duration: 800 })
     const p = d.points.find(x => x.msoid === r.msoid) ?? d.points[0]
-    await pick(p ? p.lon : (box[0] + box[2]) / 2, p ? p.lat : (box[1] + box[3]) / 2)
+    await pick(p ? p.lon : (box[0] + box[2]) / 2, p ? p.lat : (box[1] + box[3]) / 2, r.cadid)
   } catch (e: any) {
     searchMsg.value = e?.data?.message || e?.message || 'Could not open that lot.'
   } finally {
@@ -881,6 +1034,50 @@ body { margin: 0; background: #f8fafb; }
 .lm-step-note { margin: 0.45rem 0 0; padding-left: 0.5rem; border-left: 2px solid #cbd5e1; font-size: 0.78rem; line-height: 1.5; color: #57534e; }
 .lm-h3 { margin: 1.4rem 0 0.4rem; font-size: 0.95rem; font-weight: 800; color: #0f172a; }
 .lm-gap { margin-bottom: 0.7rem; }
+.lm-tabs { display: flex; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+.lm-tab { flex: 1; padding: 0.5rem 0.4rem; border: 0; border-bottom: 2px solid transparent; background: none; font: inherit; font-size: 0.8rem; font-weight: 600; color: #64748b; cursor: pointer; }
+.lm-tab:hover:not(.lm-tab--on) { color: #0f172a; }
+.lm-tab--on { color: #0f172a; border-bottom-color: #0f172a; background: #fff; }
+.lm-lot-facts { margin: 0.1rem 0 0.5rem; font-size: 0.8rem; color: #475569; }
+.lm-band { margin: 0 0 0.4rem; padding: 0.45rem 0.6rem; border-radius: 6px; font-size: 0.82rem; font-weight: 600; }
+.lm-band--in { background: #fef3c7; color: #78350f; }
+.lm-band--out { background: #f1f5f9; color: #475569; }
+.lm-gen { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.2rem; }
+.lm-gen-row { display: grid; grid-template-columns: 4.6rem 1fr auto; gap: 0.1rem 0.4rem; align-items: baseline; padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.76rem; color: #334155; }
+.lm-gen-why { grid-column: 2 / -1; margin: 0; font-size: 0.72rem; color: #64748b; }
+.lm-gen-status { font-size: 0.7rem; font-weight: 700; white-space: nowrap; color: #64748b; }
+.lm-gen--excluded .lm-gen-status { color: #b91c1c; }
+.lm-gen--unknown .lm-gen-status, .lm-gen--gap .lm-gen-status { color: #b45309; }
+.lm-gen--clear .lm-gen-status { color: #15803d; }
+.lm-gen--na { opacity: 0.6; }
+.lm-cov--none .lm-gen-status { color: #b91c1c; }
+.lm-cov--partial .lm-gen-status { color: #b45309; }
+.lm-clause { font-size: 0.72rem; font-weight: 700; color: #2a78d6; text-decoration: none; white-space: nowrap; }
+.lm-clause:hover { text-decoration: underline; }
+.lm-type { margin: 0.5rem 0; padding: 0.55rem 0.65rem; border: 1px solid #e2e8f0; border-left-width: 4px; border-radius: 6px; }
+.lm-type--yes { border-left-color: #16a34a; }
+.lm-type--no { border-left-color: #dc2626; }
+.lm-type--maybe { border-left-color: #d97706; }
+.lm-type-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem; margin: 0; }
+.lm-type-verdict { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
+.lm-type--yes .lm-type-verdict { color: #15803d; }
+.lm-type--no .lm-type-verdict { color: #b91c1c; }
+.lm-type--maybe .lm-type-verdict { color: #b45309; }
+.lm-type-name { font-size: 0.84rem; font-weight: 700; color: #0f172a; }
+.lm-type-why { margin: 0.25rem 0; font-size: 0.76rem; line-height: 1.45; color: #334155; }
+.lm-checks { list-style: none; margin: 0.2rem 0 0; padding: 0; font-size: 0.74rem; color: #334155; }
+.lm-check-mark { display: inline-block; width: 0.9rem; font-weight: 800; }
+.lm-check--yes .lm-check-mark { color: #16a34a; }
+.lm-check--no .lm-check-mark { color: #dc2626; }
+.lm-check--maybe .lm-check-mark { color: #d97706; }
+.lm-allow { margin: 0.35rem 0 0; font-size: 0.74rem; color: #0f172a; }
+.lm-rule { border-top: 1px solid #e2e8f0; padding: 0.35rem 0; }
+.lm-rule-sum { display: flex; flex-direction: column; cursor: pointer; list-style: none; }
+.lm-rule-sum::-webkit-details-marker { display: none; }
+.lm-reqs { list-style: none; margin: 0.3rem 0 0; padding: 0; display: grid; gap: 0.3rem; font-size: 0.75rem; color: #334155; }
+.lm-reqs li { display: grid; grid-template-columns: 4.6rem 1fr; gap: 0.1rem 0.4rem; }
+.lm-req-how { grid-column: 2; font-size: 0.7rem; color: #94a3b8; }
+.lm-req--tested .lm-req-how { color: #15803d; font-weight: 600; }
 .lm-map { position: absolute; inset: 0; }
 
 .lm-search { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; }

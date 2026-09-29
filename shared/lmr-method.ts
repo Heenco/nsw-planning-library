@@ -88,9 +88,10 @@ export const LMR_METHOD_GAPS: MethodGap[] = [
       + 'metro stations.',
   },
   {
-    title: 'Numbers to confirm in the SEPP',
-    body: 'The Department gives ANEF 25 and ANEC 20, a 200 m pipeline buffer and 22 flood-affected councils. '
-      + 'Commentaries from March 2025 say 20 for both contours, 800 m for pipelines and 23 councils. The pipeline '
-      + 'data is Geoscience Australia’s, not the register of pipelines licensed under the Pipelines Act 1967.',
+    title: 'Settled by the SEPP itself',
+    body: 'Section 164(1) of the Housing SEPP answers the numbers that sources disagreed on: ANEF 25 or greater and '
+      + 'ANEC 20 or greater (h), 200 m of a relevant pipeline (i), and 23 flood-affected councils (g) - the '
+      + 'Department’s page lists 22. The pipeline data is still Geoscience Australia’s, not the register of '
+      + 'pipelines licensed under the Pipelines Act 1967 that s 164(1)(i) points to.',
   },
 ]

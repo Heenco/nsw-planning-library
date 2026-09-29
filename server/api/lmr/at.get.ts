@@ -29,7 +29,7 @@
  */
 import { VectorTile } from '@mapbox/vector-tile'
 import Pbf from 'pbf'
-import { CONSTRAINT_GROUPS, constraintStyle, familyOf, type LmrHit } from '#shared/lmr-layers'
+import { CONSTRAINT_GROUPS, CONSTRAINT_STYLE, constraintStyle, familyOf, type LmrHit } from '#shared/lmr-layers'
 import { nswQuery } from '../../utils/nsw-kg/pool'
 import { archiveFor, MVT_LAYER, type ArchiveSet } from '../../utils/sepp-pmtiles'
 
@@ -249,6 +249,8 @@ export default defineEventHandler(async (event): Promise<LmrAtResponse> => {
     commenced: p.commenced ?? null,
   }))
   for (const p of lmr) {
+    // a layer the page no longer offers can still be in an archive built before it was dropped
+    if (!CONSTRAINT_STYLE[String(p.layer_key)]) continue
     const s = constraintStyle(String(p.layer_key))
     hits.push({
       key: String(p.layer_key),

@@ -202,24 +202,7 @@ const LMR_CONSTRAINTS = [
       + 'un-parsed. The geodatabase names 31 fields A..AE with the meaning only in the field alias - the columns '
       + 'are renamed from those aliases and each COLUMN COMMENT keeps the letter it came from.',
   },
-  {
-    key: 'epi_drinking_water_catchments', table: 'epi.epi_drinking_water_catchments',
-    title: 'Drinking water catchment (LEP maps)', grp: 'coastal', kind: 'context',
-    clause: 'Codes SEPP 1.19(1)(j)(i) - not a low and mid-rise test',
-    role: 'The Drinking Water Catchment layer of the LEP maps: 117 polygons across 22 LEPs and 22 LGAs. It is an '
-      + 'exclusion for COMPLYING DEVELOPMENT under the Codes SEPP, which is why /cdc tests it. Chapter 6 of the '
-      + 'Housing SEPP does not list it, so on this page it is context only and changes no low and mid-rise result.',
-    sourceKind: 'epi', source: `epi.epi_drinking_water_catchments - ${EPI_GDB}`,
-    sourceDateSql: 'max(currency_date)::date', loadedAt: '2026-09-15',
-    caveat: 'Read straight from epi rather than copied into the lmr schema, so it cannot go stale behind an epi '
-      + 'reload - but 01A drops epi with DROP SCHEMA epi CASCADE, so the layer is missing between a drop and the '
-      + 'reload that follows. 3 of the 117 polygons are invalid. Only 22 of the 128 LEPs map the layer at all, so '
-      + 'blank ground means "this LEP maps no drinking water catchment", never "this land is outside one". '
-      + 'lay_class is not used as the map category: 111 rows read "Drinking Water Catchment" and the remainder are '
-      + 'truncated by the source ("Special Area - Chicheste*"), and only 18 of the 117 carry a label at all. '
-      + 'Water NSW special and controlled areas (epi.epi_special_areas, Codes SEPP 1.19(1)(i)) are the neighbouring '
-      + 'layer and are NOT loaded here.',
-  },
+  // epi_drinking_water_catchments taken off /lmr 2026-09-29 - a Codes SEPP test, not a Chapter 6 one
   {
     key: 'sepp_coastal_vulnerability_areas', title: 'Coastal vulnerability areas', grp: 'coastal', kind: 'exclusion',
     clause: 'Housing SEPP ch 6 - coastal vulnerability area',

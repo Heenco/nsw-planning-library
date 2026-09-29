@@ -77,14 +77,17 @@ export const LMR_RULES: LmrRule[] = [
     fsr: { 400: 2.20, 800: 1.50 }, hobM: { 400: 22.0, 800: 17.5 },
   },
   {
-    // Nothing is stated for the 800 m band, which is why both figures are null
-    // there rather than repeated from the 400 m one.
+    // Housing SEPP s 180(3) sets the outer-area standards for residential flat buildings AND shop top
+    // housing alike - FSR 1.5:1, 17.5 m. The notebook's config left the 800 m band null, which read as
+    // "no standard"; corrected here from the instrument (shared/lmr-criteria.ts).
     landUse: 'Shop top Housing',
     zones: ['R3', 'R4'],
     minLotSizeSqm: null, minLotWidthM: null,
-    fsr: { 400: 2.20, 800: null }, hobM: { 400: 24.0, 800: null },
+    fsr: { 400: 2.20, 800: 1.50 }, hobM: { 400: 24.0, 800: 17.5 },
   },
   {
+    // The label is the notebook's and is kept so the stored lmr_landuse strings still match. The figures
+    // are Housing SEPP s 168 - which is DUAL OCCUPANCIES only; Chapter 6 never mentions manor houses.
     landUse: 'Manor Homes & Dual Occupancies',
     zones: ['R1', 'R2', 'R3', 'R4'],
     minLotSizeSqm: 450, minLotWidthM: 12,

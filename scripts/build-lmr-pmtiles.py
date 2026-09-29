@@ -65,11 +65,8 @@ LAYERS = {
     "flood_sfd_1aep_1": dict(category="NULL", name="'1% AEP flood extent'", detail="'SFD 1% AEP (Web Mercator load)'"),
     "frmsp_georges_river": dict(schema="flood", category="rep_type", name="cat_name",
                                 detail="concat_ws(' · ', report_title, owner, rep_date)"),
-    # read straight from epi rather than copied into lmr, so an epi reload can never leave a stale copy.
-    # category is NULL on purpose: lay_class is 'Drinking Water Catchment' for 111 of the 117 and the rest
-    # are ArcGIS-truncated ('Special Area - Chicheste*'), which would make a legend of nothing but noise.
-    "epi_drinking_water_catchments": dict(schema="epi", category="NULL", name="coalesce(label, lay_name)",
-                                          detail="concat_ws(' · ', lay_class, epi_name, lga_name)"),
+    # epi_drinking_water_catchments left out from 2026-09-29: a Codes SEPP test, not a Chapter 6 one, and
+    # /lmr no longer shows it. /cdc-map draws it from the cdc archive.
     "sepp_coastal_vulnerability_areas": dict(category="NULL", name="label", detail="concat_ws(' · ', amendment, lga_name)"),
     "sepp_coastal_wetlands": dict(category="NULL", name="label", detail="lga_name"),
     "sepp_coastal_wetlands_proximity": dict(category="NULL", name="label", detail="lga_name"),

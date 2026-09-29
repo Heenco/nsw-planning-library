@@ -202,7 +202,7 @@ export const CONSTRAINT_GROUPS: Record<Exclude<ConstraintGroup, 'housing'>, { ti
   zoning: { title: 'Land zoning', lead: 'The LEP and SEPP land zoning maps, in the zone colours of the NSW Planning Portal. The low and mid-rise provisions apply in R1, R2, R3 and R4.' },
   heritage: { title: 'Heritage', lead: 'State Heritage Register land and the LEP heritage maps.' },
   hazards: { title: 'Bushfire and flood', lead: 'RFS bush fire prone land, the flood maps, and the catchments a floodplain risk management study or flood study speaks for.' },
-  coastal: { title: 'Coast and water', lead: 'The Resilience and Hazards SEPP coastal wetland, littoral rainforest and vulnerability maps, and the LEP drinking water catchment maps.' },
+  coastal: { title: 'Coast and water', lead: 'The Resilience and Hazards SEPP coastal wetland, littoral rainforest and vulnerability maps.' },
   noise: { title: 'Noise and pipelines', lead: 'Aircraft noise contours, the national gas and oil pipeline maps, and the 200 m around each pipeline.' },
 }
 
@@ -424,10 +424,8 @@ export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
     },
     from: 'ours - an FRMSP deliverable, not a Spatial Viewer layer',
   },
-  epi_drinking_water_catchments: {
-    group: 'coastal', title: 'Drinking water catchment (LEP maps)', kind: 'fill', color: '#8cf1fc', fillOpacity: 0.5, line: '#000000', lineWidth: 0.8,
-    from: 'Spatial Viewer · Planning_Portal_Protection/236 Drinking Water Catchment',
-  },
+  // epi_drinking_water_catchments taken off the page 2026-09-29: a Codes SEPP complying development test,
+  // not in Chapter 6's list, so it changed no low and mid-rise result. /cdc-map still draws and tests it.
   sepp_coastal_vulnerability_areas: {
     group: 'coastal', title: 'Coastal vulnerability areas', kind: 'fill', color: '#9c9c9c', hatch: 'bdiag', line: '#9c9c9c', lineWidth: 1.5,
     from: 'Spatial Viewer · Planning_Portal_SEPP/251 Coastal Vulnerability Area',

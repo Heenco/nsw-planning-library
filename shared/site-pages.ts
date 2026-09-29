@@ -151,8 +151,8 @@ export const SITE_PAGES: SitePage[] = [
   {
     route: '/lmr', name: 'Low and Mid Rise housing', status: 'live', kind: 'map', added: '2026-09-18',
     summary: 'The four Housing SEPP low and mid-rise layers over the constraint layers the policy is checked against: stations and their walking catchments, heritage, bush fire, flood, coastal, aircraft noise judged band by band against ANEF 25 / ANEC 20, the pipelines with their 200 m buffers, and the four council areas excluded whole.',
-    detail: 'Served from two PMTiles archives on the planningai host rather than a tile server or the database; search an address or lot reference to go to that lot, clicking the map says what applies at that point, and a guide beside it sets out how the LMR layer itself gets built. Rebuild after each EPI load.',
-    reads: ['/api/lmr/layers', '/api/lmr/tiles', '/api/lmr/at', 'epi.epi_land_application', 'the lmr schema'],
+    detail: 'Served from two PMTiles archives on the planningai host rather than a tile server or the database. Beside the map, three tabs: how the LMR layer is built; the rules - Housing SEPP Chapter 6 clause by clause, held as data in the lmr schema the way the CDC rules are; and this lot - pick one and each housing form is judged against where the chapter reaches (s 163), the land it excludes (s 164) and its own standards, with what the lot is then allowed. Exclusions with no dataset are shown as gaps, never as clear.',
+    reads: ['/api/lmr/layers', '/api/lmr/tiles', '/api/lmr/at', '/api/lmr/criteria', '/api/lmr/types', 'lmr.type · type_requirement · type_check · general', 'the lmr schema'],
     notebook: '01A dump-gdal',
   },
   {

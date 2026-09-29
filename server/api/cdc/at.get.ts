@@ -72,6 +72,8 @@ export interface CdcHit {
   scope: CdcScope
   kind: CdcKind
   columnTested: string | null
+  /** Where the layer's data comes from, e.g. "esa.coastal_wetlands" - schema-qualified. */
+  source: string | null
   note: string | null
   /** What the layer calls the features that were hit, deduplicated. */
   names: string[]
@@ -123,7 +125,7 @@ async function build(): Promise<{ sql: string; gaps: CdcGap[] }> {
   if (cached && Date.now() - cached.at < CACHE_MS) return cached
 
   const cat = await nswQuery<any>(`
-    SELECT key, srid, features, source_kind, title, clauses, note
+    SELECT key, srid, features, source_kind, source, title, clauses, note
     FROM cdc.layers ORDER BY grp, title`)
 
   const live = cat.rows.filter(r => Number(r.features) > 0)
@@ -202,7 +204,7 @@ export default defineEventHandler(async (event): Promise<CdcAtResponse> => {
     : nswQuery<LotRow>(
         `SELECT ${LOT_COLUMNS} FROM cadastre.lot
          WHERE geom && $1::geometry AND ST_Intersects(geom, $1::geometry)
-         ORDER BY shape_area NULLS LAST LIMIT 1`, [point])
+         ORDER BY ST_Area(geom) LIMIT 1`, [point])
   ).catch(() => ({ rows: [] as LotRow[] }))
 
   const lot = lotRes.rows[0] ?? null
@@ -212,7 +214,7 @@ export default defineEventHandler(async (event): Promise<CdcAtResponse> => {
 
   const { sql, gaps } = await build()
   const cat = await nswQuery<any>(`
-    SELECT key, title, grp, grp_title, clauses, kind, column_tested, note, features
+    SELECT key, title, grp, grp_title, clauses, kind, column_tested, note, features, source
     FROM cdc.layers`)
   const meta = new Map(cat.rows.map(r => [r.key, r]))
 
@@ -232,6 +234,8 @@ export default defineEventHandler(async (event): Promise<CdcAtResponse> => {
         kind: kindOf(m.kind),
         columnTested: m.column_tested ?? null,
         note: m.note ?? null,
+        /** The schema this layer reads from - "esa.coastal_wetlands" etc. Lets a page link on. */
+        source: m.source ?? null,
         names: (r.names ?? []).filter(Boolean),
         coverPct: r.cover_pct == null ? 0 : Math.min(100, Number(r.cover_pct)),
         geom: r.geojson ? JSON.parse(r.geojson) : null,
