@@ -1,0 +1,84 @@
+{
+  "instrument": "campbelltown-sustainable-city-development-control-plan-2015",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\campbelltown-sustainable-city-development-control-plan-2015.html",
+  "generated": "2026-09-28T10:20:40.279Z",
+  "parts": 52,
+  "parts_with_sidecar": 52,
+  "source_pages": 0,
+  "bytes": 4642359,
+  "unique_anchor_ids": 4157,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 52
+  },
+  "totals": {
+    "headings": 4105,
+    "tables": 293,
+    "list_items": 9220,
+    "images_placed": 1782,
+    "prose_demoted": 237,
+    "page_markers": 1910
+  },
+  "weak_parts": [
+    {
+      "prefix": "Part-00-List-of-Amendmen",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-1-Preliminary",
+      "page_coverage": 0.944,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "Part-13-Sex-Industry-Pre",
+      "page_coverage": 0.9,
+      "distinct_levels": 2
+    },
+    {
+      "prefix": "Appendices",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-3-Campbelltown-Link",
+      "page_coverage": 0.656,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-4-Site-Specific-Dev",
+      "page_coverage": 0.9,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "Part-10-Blairmount-and-B",
+      "page_coverage": 0.875,
+      "distinct_levels": 2
+    },
+    {
+      "prefix": "Volume-3-Front-Cover",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Table-of-Contents-Volume",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Koala-Habitat-Planning-M",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Zones-of-Aboriginal-Arch",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Revised-Masterplan-for-G",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    }
+  ]
+}

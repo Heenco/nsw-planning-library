@@ -852,6 +852,18 @@
             "last_amended": "2026-04-17"
           },
           {
+            "slug": "blue-mountains-development-control-plan-2015",
+            "title": "Blue Mountains Development Control Plan 2015",
+            "file": "EPI/DCPs/blue-mountains-development-control-plan-2015.md",
+            "html": "EPI/DCPs/blue-mountains-development-control-plan-2015.html",
+            "manifest": "EPI/DCPs/manifests/blue-mountains-development-control-plan-2015.json",
+            "councils": [
+              "Blue Mountains"
+            ],
+            "scope": "citywide",
+            "last_amended": "2025-11-20"
+          },
+          {
             "slug": "boarding-houses-development-control-plan-2004",
             "title": "Boarding Houses Development Control Plan 2004",
             "file": "EPI/DCPs/boarding-houses-development-control-plan-2004.md",
@@ -888,6 +900,18 @@
             "last_amended": "2026-03-05"
           },
           {
+            "slug": "camden-development-control-plan-2019",
+            "title": "Camden Development Control Plan 2019",
+            "file": "EPI/DCPs/camden-development-control-plan-2019.md",
+            "html": "EPI/DCPs/camden-development-control-plan-2019.html",
+            "manifest": "EPI/DCPs/manifests/camden-development-control-plan-2019.json",
+            "councils": [
+              "Camden"
+            ],
+            "scope": "citywide",
+            "last_amended": "2024-09-19"
+          },
+          {
             "slug": "campbelltown-growth-centres-development-control-plan",
             "title": "Campbelltown Growth Centres Development Control Plan",
             "file": "EPI/DCPs/campbelltown-growth-centres-development-control-plan.md",
@@ -898,6 +922,31 @@
             ],
             "scope": "citywide",
             "last_amended": "2016-11-16"
+          },
+          {
+            "slug": "campbelltown-sustainable-city-development-control-plan-2015",
+            "title": "Campbelltown (Sustainable City) Development Control Plan 2015",
+            "file": "EPI/DCPs/campbelltown-sustainable-city-development-control-plan-2015.md",
+            "html": "EPI/DCPs/campbelltown-sustainable-city-development-control-plan-2015.html",
+            "manifest": "EPI/DCPs/manifests/campbelltown-sustainable-city-development-control-plan-2015.json",
+            "councils": [
+              "Campbelltown"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-02-06"
+          },
+          {
+            "slug": "canterbury-bankstown-development-control-plan-2023",
+            "title": "Canterbury-Bankstown Development Control Plan 2023",
+            "file": "EPI/DCPs/canterbury-bankstown-development-control-plan-2023.md",
+            "html": "EPI/DCPs/canterbury-bankstown-development-control-plan-2023.html",
+            "manifest": "EPI/DCPs/manifests/canterbury-bankstown-dcp-2023.json",
+            "councils": [
+              "Canterbury-Bankstown"
+            ],
+            "as_at": "2026-07-17",
+            "scope": "citywide",
+            "last_amended": "2026-07-17"
           },
           {
             "slug": "central-sydney-development-control-plan-1996",
@@ -922,6 +971,18 @@
             ],
             "scope": "citywide",
             "last_amended": "2005-10-10"
+          },
+          {
+            "slug": "city-of-ryde-development-control-plan-2014",
+            "title": "City of Ryde Development Control Plan 2014",
+            "file": "EPI/DCPs/city-of-ryde-development-control-plan-2014.md",
+            "html": "EPI/DCPs/city-of-ryde-development-control-plan-2014.html",
+            "manifest": "EPI/DCPs/manifests/city-of-ryde-development-control-plan-2014.json",
+            "councils": [
+              "Ryde"
+            ],
+            "scope": "citywide",
+            "last_amended": "2024-03-13"
           },
           {
             "slug": "contaminated-land-development-control-plan-2004",
@@ -1039,6 +1100,18 @@
             "last_amended": "2023-12-11"
           },
           {
+            "slug": "ku-ring-gai-development-control-plan",
+            "title": "Ku-ring-gai Development Control Plan",
+            "file": "EPI/DCPs/ku-ring-gai-development-control-plan.md",
+            "html": "EPI/DCPs/ku-ring-gai-development-control-plan.html",
+            "manifest": "EPI/DCPs/manifests/ku-ring-gai-development-control-plan.json",
+            "councils": [
+              "Ku-ring-gai"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-08-21"
+          },
+          {
             "slug": "liverpool-development-control-plan-2008",
             "title": "Liverpool Development Control Plan 2008",
             "file": "EPI/DCPs/liverpool-development-control-plan-2008.md",
@@ -1130,6 +1203,18 @@
             "file": "EPI/DCPs/parramatta-dcp-2023.md"
           },
           {
+            "slug": "parramatta-development-control-plan-2023",
+            "title": "Parramatta Development Control Plan 2023",
+            "file": "EPI/DCPs/parramatta-development-control-plan-2023.md",
+            "html": "EPI/DCPs/parramatta-development-control-plan-2023.html",
+            "manifest": "EPI/DCPs/manifests/parramatta-development-control-plan-2023.json",
+            "councils": [
+              "Parramatta"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-06-17"
+          },
+          {
             "slug": "randwick-comprehensive-dcp-2013",
             "title": "Randwick Comprehensive Development Control Plan 2013",
             "file": "EPI/DCPs/randwick-comprehensive-dcp-2013.md"
@@ -1153,10 +1238,34 @@
             "html": "EPI/DCPs/signage-and-advertising-structures-development-control-plan-.html"
           },
           {
+            "slug": "strathfield-consolidated-development-control-plan-2005",
+            "title": "Strathfield Consolidated Development Control Plan 2005",
+            "file": "EPI/DCPs/strathfield-consolidated-development-control-plan-2005.md",
+            "html": "EPI/DCPs/strathfield-consolidated-development-control-plan-2005.html",
+            "manifest": "EPI/DCPs/manifests/strathfield-consolidated-development-control-plan-2005.json",
+            "councils": [
+              "Strathfield"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-09-01"
+          },
+          {
             "slug": "telecommunications-and-radiocommunications-development-contr",
             "title": "telecommunications-and-radiocommunications-development-contr",
             "file": "EPI/DCPs/telecommunications-and-radiocommunications-development-contr.md",
             "html": "EPI/DCPs/telecommunications-and-radiocommunications-development-contr.html"
+          },
+          {
+            "slug": "the-city-of-canada-bay-development-control-plan",
+            "title": "The City of Canada Bay Development Control Plan",
+            "file": "EPI/DCPs/the-city-of-canada-bay-development-control-plan.md",
+            "html": "EPI/DCPs/the-city-of-canada-bay-development-control-plan.html",
+            "manifest": "EPI/DCPs/manifests/the-city-of-canada-bay-development-control-plan.json",
+            "councils": [
+              "Canada Bay"
+            ],
+            "scope": "citywide",
+            "last_amended": "2025-09-16"
           },
           {
             "slug": "visitor-and-tourist-accommodation-development-control-plan-2",
@@ -1175,6 +1284,42 @@
             ],
             "scope": "citywide",
             "last_amended": "2026-04-18"
+          },
+          {
+            "slug": "willoughby-development-control-plan-2023",
+            "title": "Willoughby Development Control Plan 2023",
+            "file": "EPI/DCPs/willoughby-development-control-plan-2023.md",
+            "html": "EPI/DCPs/willoughby-development-control-plan-2023.html",
+            "manifest": "EPI/DCPs/manifests/willoughby-development-control-plan-2023.json",
+            "councils": [
+              "Willoughby"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-05-01"
+          },
+          {
+            "slug": "wilton-development-control-plan-2021",
+            "title": "Wilton Development Control Plan 2021",
+            "file": "EPI/DCPs/wilton-development-control-plan-2021.md",
+            "html": "EPI/DCPs/wilton-development-control-plan-2021.html",
+            "manifest": "EPI/DCPs/manifests/wilton-development-control-plan-2021.json",
+            "councils": [
+              "Wollondilly"
+            ],
+            "scope": "citywide",
+            "last_amended": "2023-11-29"
+          },
+          {
+            "slug": "wollondilly-development-control-plan-2016",
+            "title": "Wollondilly Development Control Plan 2016",
+            "file": "EPI/DCPs/wollondilly-development-control-plan-2016.md",
+            "html": "EPI/DCPs/wollondilly-development-control-plan-2016.html",
+            "manifest": "EPI/DCPs/manifests/wollondilly-development-control-plan-2016.json",
+            "councils": [
+              "Wollondilly"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-07-31"
           }
         ]
       }

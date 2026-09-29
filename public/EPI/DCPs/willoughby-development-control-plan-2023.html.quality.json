@@ -1,0 +1,49 @@
+{
+  "instrument": "willoughby-development-control-plan-2023",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\willoughby-development-control-plan-2023.html",
+  "generated": "2026-09-28T07:42:01.382Z",
+  "parts": 12,
+  "parts_with_sidecar": 12,
+  "source_pages": 0,
+  "bytes": 2020767,
+  "unique_anchor_ids": 1741,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 12
+  },
+  "totals": {
+    "headings": 1729,
+    "tables": 148,
+    "list_items": 4553,
+    "images_placed": 1288,
+    "prose_demoted": 100,
+    "page_markers": 691
+  },
+  "weak_parts": [
+    {
+      "prefix": "A",
+      "page_coverage": 0.917,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "E",
+      "page_coverage": 0.947,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "G",
+      "page_coverage": 0.889,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "J",
+      "page_coverage": 0.923,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "K",
+      "page_coverage": 0.938,
+      "distinct_levels": 2
+    }
+  ]
+}

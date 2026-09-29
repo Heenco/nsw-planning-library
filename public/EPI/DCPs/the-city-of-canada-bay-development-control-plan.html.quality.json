@@ -1,0 +1,89 @@
+{
+  "instrument": "the-city-of-canada-bay-development-control-plan",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\the-city-of-canada-bay-development-control-plan.html",
+  "generated": "2026-09-28T07:42:02.136Z",
+  "parts": 15,
+  "parts_with_sidecar": 15,
+  "source_pages": 0,
+  "bytes": 2400994,
+  "unique_anchor_ids": 2268,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 15
+  },
+  "totals": {
+    "headings": 2253,
+    "tables": 1019,
+    "list_items": 2751,
+    "images_placed": 718,
+    "prose_demoted": 28,
+    "page_markers": 996
+  },
+  "weak_parts": [
+    {
+      "prefix": "B",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "C",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "D",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "E",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "F",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "G",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "H",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "I",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "J",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "L",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Appendix-1-Conservation-",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Appendix-2-Engineering-S",
+      "page_coverage": 0.989,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Appendix-3-Tree-Species",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    }
+  ]
+}

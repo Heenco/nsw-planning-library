@@ -1,0 +1,2273 @@
+{
+ "epi_land_zoning": {
+  "name": "Land Zoning Map",
+  "from": "Spatial Viewer · Principal Planning/19 Land Zoning Map + Principal Planning/18 Additional Controls + base: Protection/234 Non Standard Values",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "SYM_CODE, LAY_CLASS",
+  "transparency": 50,
+  "base": {
+   "fill": "#6e6e6e",
+   "hatch": "fdiag",
+   "line": "#000000",
+   "width": 1
+  },
+  "classes": {
+   "2(a) - Residential (Low Density)": {
+    "fill": "#ffa6a3",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "2(c) - Urban Expansion": {
+    "fill": "#ffbee8",
+    "line": "#000000",
+    "width": 0.4
+   },
+   "7(l) - Environmental Protection (Habitat)": {
+    "fill": "#ffaa00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "7(a) - Environmental Protection (Wetlands and Littoral Rainforests)": {
+    "fill": "#ffd37f",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "A - Residential Zone - Medium Density Residential": {
+    "fill": "#fc776e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "AGB - Agribusiness": {
+    "fill": "#fae8c5",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B - Business Zone - Local Centre": {
+    "fill": "#63f0f5",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B1 - Neighbourhood Centre": {
+    "fill": "#c9fff9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B2 - Local Centre": {
+    "fill": "#62f0f5",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B3 - Commercial Core": {
+    "fill": "#00c2ed",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B4 - Mixed Use": {
+    "fill": "#959dc2",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B5 - Business Development": {
+    "fill": "#7da0ab",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B6 - Enterprise Corridor": {
+    "fill": "#95bfcc",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B7 - Business Park": {
+    "fill": "#bad6de",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "B8 - Metropolitan Centre": {
+    "fill": "#c8e6e0",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "C - Business Zone - Business Park": {
+    "fill": "#bad6de",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "C1 - National Parks and Nature Reserves": {
+    "fill": "#e69900",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "C2 - Environmental Conservation; C2, Environmental Management": {
+    "fill": "#f0ae3c",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "C3 - Environmental Management": {
+    "fill": "#f7c568",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "C4 - Environmental Living": {
+    "fill": "#ffda96",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "D - Business Zone - Mixed Use": {
+    "fill": "#959dc2",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "DR - Drainage": {
+    "fill": "#ffff70",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "E - Business Zone - Commercial Core (SEPP State Significant Precincts 2005)": {
+    "fill": "#00c2ed",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "E - Environment (SEPP Penrith Lakes Scheme 1989)": {
+    "fill": "#f0ae3c",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "E1 - Local Centre": {
+    "fill": "#99ccff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "E2 - Commercial Centre": {
+    "fill": "#b4c6e7",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "E2 - Environmental Conservation": {
+    "fill": "#f0ae3c",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "E3 - Productivity Support": {
+    "fill": "#8ea9db",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "E4 - General Industrial": {
+    "fill": "#9999ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "E5 - Heavy Industrial": {
+    "fill": "#9966ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "EM - Employment": {
+    "fill": "#95bfcc",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "EP - Employment": {
+    "fill": "#fcf9b6",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "ECO - Environmental Conservation": {
+    "fill": "#ecffbe",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "ENP - Environment Protection": {
+    "fill": "#ffd640",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "ENT - Enterprise": {
+    "fill": "#76c0d6",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "ENZ - Environment and Recreation": {
+    "fill": "#73b273",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "F - Special Purposes Zone - Community": {
+    "fill": "#ffffa1",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "G - Special Purposes Zone - Infrastucture": {
+    "fill": "#ffff70",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "H - Recreation Zone - Public Recreation": {
+    "fill": "#55ff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "I - Recreation Zone - Private Recreation": {
+    "fill": "#d3ffbf",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "IN1 - General Industrial": {
+    "fill": "#deb8f5",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "IN2 - Light Industrial": {
+    "fill": "#f3dbff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "IN3 - Heavy Industrial": {
+    "fill": "#c595e8",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "IN4 - Working Waterfront": {
+    "fill": "#ae73de",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "MAP - Marine Park": {
+    "fill": "#e6ffff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "MU - Mixed Use": {
+    "fill": "#959dc2",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "MU1 - Mixed Use": {
+    "fill": "#959dc2",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "OSP -  Open Space": {
+    "fill": "#55ff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "P - Parkland": {
+    "fill": "#b3ccfc",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "PAE - Port and Employment": {
+    "fill": "#f4ec49",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "PEP - Permanent Park Preserve": {
+    "fill": "#74b374",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "PRC - Public Recreation": {
+    "fill": "#549980",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "PRR - Public Recreation - Regional": {
+    "fill": "#70a600",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "R - Residential": {
+    "fill": "#b3fcb3",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RAC - Rural Activity Zone": {
+    "fill": "#e6cb97",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RAZ - Rural Activity Zone": {
+    "fill": "#e6cb97",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "REPL - Public Recreation – Preferred Locations": {
+    "fill": "#f0f0f0",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RESI - Residential": {
+    "fill": "#d3163e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RESB - Residential – Business": {
+    "fill": "#f3fd36",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RLWY - Railways": {
+    "fill": "#0000ac",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "R1 - General Residential": {
+    "fill": "#ffcfff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "R2 - Low Density Residential": {
+    "fill": "#ffa6a3",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "R3 - Medium Density Residential": {
+    "fill": "#ff776e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "R4  High Density Residential": {
+    "fill": "#ff483b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "R5 - Large Lot Residential": {
+    "fill": "#ffd9d9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RE1 - Public Recreation": {
+    "fill": "#55ff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RE2 - Private Recreation": {
+    "fill": "#d3ffbe",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "REC - Recreation": {
+    "fill": "#aef2b3",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "REZ - Regional Enterprise Zone": {
+    "fill": "#deb8f5",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RO - Regional Open Space": {
+    "fill": "#55ff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RP - Regional Park": {
+    "fill": "#d3ffbe",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RU1 - Primary Production": {
+    "fill": "#edd8ad",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RU2 - Rural Landscape": {
+    "fill": "#e6cb97",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RU3 - Forestry": {
+    "fill": "#dec083",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RU4 - Primary Production Small Lots": {
+    "fill": "#d6b46f",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RU5 - Village": {
+    "fill": "#d7a39e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RU6 - Transition": {
+    "fill": "#c79e4c",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RUR - Rural": {
+    "fill": "#efe4be",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "RW - Road and Road Widening": {
+    "fill": "#d3b8f5",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SET - Settlement": {
+    "fill": "#ffd2dc",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SP1 - Special Activities": {
+    "fill": "#ffffa0",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SP2 - Infrastructure": {
+    "fill": "#ffff70",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SP3 - Tourist": {
+    "fill": "#ffff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SP4 - Enterprise": {
+    "fill": "#ffff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SP4 - Special Activities": {
+    "fill": "#ffff09",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SP5 - Metropolitan Centre": {
+    "fill": "#e6e600",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SPU - Special Uses": {
+    "fill": "#ffff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "SUS - Special Uses": {
+    "fill": "#ffffa1",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "T - Tourism": {
+    "fill": "#fcd2ef",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "UD - Urban Development": {
+    "fill": "#ff7f63",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "UR - Urban": {
+    "fill": "#ff776e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "W - Waterway": {
+    "fill": "#fcc4b8",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "W1 - Natural Waterways": {
+    "fill": "#d9fff2",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "W2 - Recreational Waterways": {
+    "fill": "#99ffdd",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "W3 - Working Waterways": {
+    "fill": "#33ffbb",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "W4 - Working Waterfront": {
+    "fill": "#00e6a9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "WFU - Waterfront Use": {
+    "fill": "#1182c2",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "U - Unzoned": {
+    "fill": "#cafced",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "UL - Unzoned Land": {
+    "fill": "#ffffff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "DM - Deferred Matter": {
+    "fill": "#ffffff",
+    "line": "#ff0000",
+    "width": 2
+   },
+   "Additional Controls": {
+    "fill": null,
+    "line": "#0070ff",
+    "width": 2
+   }
+  },
+  "base_from": "Non Standard Values, borrowed from Protection/234"
+ },
+ "epi_lot_size": {
+  "name": "Minimum Lot Size",
+  "from": "Spatial Viewer · Principal Planning/22 Minimum Lot Size + Principal Planning/21 Additional Controls + base: Protection/234 Non Standard Values",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "SYM_CODE",
+  "transparency": 0,
+  "base": {
+   "fill": "#6e6e6e",
+   "hatch": "fdiag",
+   "line": "#000000",
+   "width": 1
+  },
+  "classes": {
+   "0 - 199 sq m": {
+    "fill": "#c9fff9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "200 - 249 sq m": {
+    "fill": "#99fffd",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "250 - 299 sq m": {
+    "fill": "#66f2ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "300 - 349 sq m": {
+    "fill": "#33daff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "350 - 399 sq m": {
+    "fill": "#d3ffbf",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "400 - 449 sq m": {
+    "fill": "#c3f0aa",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "450 - 474 sq m": {
+    "fill": "#b4e096",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "475 - 499 sq m": {
+    "fill": "#a3d182",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "500 - 524 sq m": {
+    "fill": "#95c270",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "525 - 549 sq m": {
+    "fill": "#89b560",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "550 - 574 sq m": {
+    "fill": "#ffffbf",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "575 - 599 sq m": {
+    "fill": "#ffff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "600 - 624 sq m": {
+    "fill": "#dbdb00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "625 - 649 sq m": {
+    "fill": "#edd8ad",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "650 - 674 sq m": {
+    "fill": "#e3c891",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "675 - 699 sq m": {
+    "fill": "#dbbb7b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "700 - 749 sq m": {
+    "fill": "#d1ac62",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "750 - 799 sq m": {
+    "fill": "#c79e4c",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "800 - 899 sq m": {
+    "fill": "#ffd9d9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "900 - 999 sq m": {
+    "fill": "#ffa6a3",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1000 - 1999 sq m": {
+    "fill": "#ff776e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "2000 - 2999 sq m": {
+    "fill": "#ff483b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "3000 - 4999 sq m": {
+    "fill": "#cc6666",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "5000 - 9999 sq m": {
+    "fill": "#e9bfff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1 - 1.9 ha": {
+    "fill": "#d489fa",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "2 - 4.9 ha": {
+    "fill": "#be51f0",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "5 - 9.9 ha": {
+    "fill": "#ff73de",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "10 - 49.9 ha": {
+    "fill": "#cc6699",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "50 - 99.9 ha": {
+    "fill": "#ba5487",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "100 - 199 ha": {
+    "fill": "#ffebad",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "200 - 399 ha": {
+    "fill": "#ffd68f",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "400 - 599 ha": {
+    "fill": "#ffc700",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "600 - 799 ha": {
+    "fill": "#ffaa00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "800 - 999 ha": {
+    "fill": "#e69800",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1000+ ha": {
+    "fill": "#ff8c00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Complex Area": {
+    "fill": null,
+    "line": "#33daff",
+    "width": 2
+   },
+   "Additional Controls": {
+    "fill": null,
+    "line": "#0070ff",
+    "width": 2
+   }
+  },
+  "base_from": "Non Standard Values, borrowed from Protection/234"
+ },
+ "epi_floor_space_ratio": {
+  "name": "Floor Space Ratio Map",
+  "from": "Spatial Viewer · Principal Planning/11 Floor Space Ratio Map + base: Protection/234 Non Standard Values",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "SYM_CODE",
+  "transparency": 0,
+  "base": {
+   "fill": "#6e6e6e",
+   "hatch": "fdiag",
+   "line": "#000000",
+   "width": 1
+  },
+  "classes": {
+   "Additional Controls": {
+    "fill": null,
+    "line": "#0070ff",
+    "width": 2
+   },
+   "Existing": {
+    "fill": "#ffffff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0 - 0.39": {
+    "fill": "#c9fff9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.4 - 0.44": {
+    "fill": "#99fffd",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.45 - 0.49": {
+    "fill": "#66f2ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.5 - 0.54": {
+    "fill": "#33daff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.55 - 0.59": {
+    "fill": "#d3ffbf",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.6 - 0.64": {
+    "fill": "#c3f0aa",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.65 - 0.69": {
+    "fill": "#b4e096",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.7 - 0.74": {
+    "fill": "#a3d182",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.75 - 0.79": {
+    "fill": "#95c270",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.8 - 0.84": {
+    "fill": "#89b560",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.85 - 0.89": {
+    "fill": "#ffffbf",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.9 - 0.94": {
+    "fill": "#ffff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0.95 - 0.99": {
+    "fill": "#dbdb00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1 - 1.09": {
+    "fill": "#edd8ad",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1.1 - 1.19": {
+    "fill": "#e3c891",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1.2 - 1.29": {
+    "fill": "#dbbb7b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1.3 - 1.39": {
+    "fill": "#d1ac62",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1.4 - 1.49": {
+    "fill": "#c79e4c",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "1.5 - 1.99": {
+    "fill": "#ffd9d9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "2 - 2.49": {
+    "fill": "#ffa6a3",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "2.5 - 2.99": {
+    "fill": "#ff776e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "3 - 3.49": {
+    "fill": "#ff483b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "3.5 - 3.99": {
+    "fill": "#cc6666",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "4 - 4.49": {
+    "fill": "#e9bfff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "4.5 - 4.99": {
+    "fill": "#d489fa",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "5 - 5.99": {
+    "fill": "#be51f0",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "6 - 6.99": {
+    "fill": "#ff73de",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "7 - 7.99": {
+    "fill": "#cc6699",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "8 - 8.99": {
+    "fill": "#ba5487",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "9 - 9.99": {
+    "fill": "#ffebad",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "10 - 10.99": {
+    "fill": "#ffd68f",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "11 - 11.99": {
+    "fill": "#ffc700",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "12 - 12.99": {
+    "fill": "#ffaa00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "13 - 13.99": {
+    "fill": "#e69800",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "14+": {
+    "fill": "#ff8c00",
+    "line": "#000000",
+    "width": 0.8
+   }
+  },
+  "base_from": "Non Standard Values, borrowed from Protection/234"
+ },
+ "epi_height_of_building": {
+  "name": "Height of Buildings Map",
+  "from": "Spatial Viewer · Principal Planning/14 Height of Buildings Map + Principal Planning/13 Additional Controls + base: Protection/234 Non Standard Values",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "SYM_CODE",
+  "transparency": 0,
+  "base": {
+   "fill": "#6e6e6e",
+   "hatch": "fdiag",
+   "line": "#000000",
+   "width": 1
+  },
+  "classes": {
+   "Existing": {
+    "fill": "#ffffff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0 - 3.6 m": {
+    "fill": "#c9fff9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "3.7 - 4.9 m": {
+    "fill": "#99fffd",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "5 - 5.4 m": {
+    "fill": "#66f2ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "5.5 - 5.9 m": {
+    "fill": "#33daff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "6 - 6.4 m": {
+    "fill": "#d3ffbf",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "6.5 - 6.9 m": {
+    "fill": "#c3f0aa",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "7 - 7.4 m": {
+    "fill": "#b4e096",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "7.5 - 7.9 m": {
+    "fill": "#a3d182",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "8 - 8.9 m": {
+    "fill": "#95c270",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "9 - 9.9 m": {
+    "fill": "#89b560",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "10 - 10.9 m": {
+    "fill": "#ffffbf",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "11 - 11.9 m": {
+    "fill": "#ffff00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "12 - 12.9 m": {
+    "fill": "#dbdb00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "13 - 14.9 m": {
+    "fill": "#edd8ad",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "15 - 16.9 m": {
+    "fill": "#e3c891",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "17 - 18.9 m": {
+    "fill": "#dbbb7b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "19 - 20.9 m": {
+    "fill": "#d1ac62",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "21 - 22.9 m": {
+    "fill": "#c79e4c",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "23 - 24.9 m": {
+    "fill": "#ffd9d9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "25 - 29.9 m": {
+    "fill": "#ffa6a3",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "30 - 34.9 m": {
+    "fill": "#ff776e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "35 - 39.9 m": {
+    "fill": "#ff483b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "40 - 44.9 m": {
+    "fill": "#cc6666",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "45 - 49.9 m": {
+    "fill": "#e9bfff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "50 - 54.9 m": {
+    "fill": "#d489fa",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "55 - 59.9 m": {
+    "fill": "#be51f0",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "60 - 79.9 m": {
+    "fill": "#ff73de",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "80 - 99.9 m": {
+    "fill": "#cc6699",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "100 - 124.9 m": {
+    "fill": "#ba5487",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "125 - 149.9 m": {
+    "fill": "#ffebad",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "150 - 174.9 m": {
+    "fill": "#ffd68f",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "175 - 199.9 m": {
+    "fill": "#ffc700",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "200 - 224.9 m": {
+    "fill": "#ffaa00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "225 - 249.9 m": {
+    "fill": "#e69800",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "250+ m": {
+    "fill": "#ff8c00",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "0 - 20 m(RL)": {
+    "fill": "#f0f0f0",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "20 - 40 m(RL)": {
+    "fill": "#dcdcdc",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "40 - 60 m(RL)": {
+    "fill": "#b9b9b9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "60 - 80 m(RL)": {
+    "fill": "#919191",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "80 - 100 m(RL)": {
+    "fill": "#535353",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "100+ m(RL)": {
+    "fill": "#414141",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Additional Controls": {
+    "fill": null,
+    "line": "#0070ff",
+    "width": 2
+   }
+  },
+  "base_from": "Non Standard Values, borrowed from Protection/234"
+ },
+ "epi_dwelling_density": {
+  "name": "Minimum Dwelling Density Area",
+  "from": "Spatial Viewer · Principal Planning/25 Minimum Dwelling Density Area",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": {
+   "fill": "#edfcca",
+   "line": "#6e6e6e",
+   "width": 0.4
+  },
+  "classes": {
+   "Dwelling Density": {
+    "fill": "#ffbee8",
+    "line": "#000000",
+    "width": 0.4
+   },
+   "Development Control Plan": {
+    "fill": "#004da8",
+    "hatch": "bdiag",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Restricted Dwelling Yield": {
+    "fill": null,
+    "line": "#e60000",
+    "width": 0.8
+   },
+   "Dwelling Density (dwelling/ha)": {
+    "fill": "#e9bfff",
+    "line": "#000000",
+    "width": 0.8
+   }
+  }
+ },
+ "epi_land_reservation_acquisition": {
+  "name": "Land Reservation Acquisition",
+  "from": "Spatial Viewer · Principal Planning/24 Land Reservation Acquisition",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#ffff73",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_land_reclassification": {
+  "name": "Land Reclassification",
+  "from": "Spatial Viewer · Principal Planning/23 Land Reclassification",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": null,
+  "classes": {
+   "Operational Land": {
+    "fill": "#ffffff",
+    "line": "#ff0000",
+    "width": 2
+   },
+   "Community Land": {
+    "fill": "#ffffff",
+    "line": "#005ce6",
+    "width": 2
+   }
+  }
+ },
+ "epi_heritage": {
+  "name": "EPI Heritage",
+  "from": "Spatial Viewer · Principal Planning/16 EPI Heritage + Principal Planning/221 State Heritage Register Curtilage",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": null,
+  "classes": {
+   "Aboriginal Object": {
+    "fill": "#ffc700",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Aboriginal Place of Heritage Significance": {
+    "fill": null,
+    "line": "#ffc700",
+    "width": 0.8
+   },
+   "Conservation Area - Aboriginal": {
+    "fill": null,
+    "line": "#ffc700",
+    "width": 0.8
+   },
+   "Conservation Area - Archaeological": {
+    "fill": "#e4df17",
+    "line": "#e4df17",
+    "width": 0.8
+   },
+   "Conservation Area - General": {
+    "fill": "#ff0000",
+    "hatch": "bdiag",
+    "line": "#ff0000",
+    "width": 0.8
+   },
+   "Conservation Area - Landscape": {
+    "fill": "#38a800",
+    "hatch": "bdiag",
+    "line": "#38a800",
+    "width": 0.8
+   },
+   "Heritage Conservation Area": {
+    "fill": "#38a800",
+    "hatch": "vertical",
+    "line": "#38a800",
+    "width": 0.8
+   },
+   "Item - Aboriginal": {
+    "fill": "#ffc700",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Item - Archaeological": {
+    "fill": "#ffffbf",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Item - General": {
+    "fill": "#dbbb7b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Item - Landscape": {
+    "fill": "#b3e096",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Local Heritage - General": {
+    "fill": "#dbbb7b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "State Heritage Register Curtilage": {
+    "fill": "#0070ff",
+    "hatch": "vertical",
+    "line": "#6e6e6e",
+    "width": 1
+   }
+  }
+ },
+ "epi_foreshore_building_line": {
+  "name": "Foreshore Building Line",
+  "from": "Spatial Viewer · Principal Planning/26 Foreshore Building Line",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": null,
+  "classes": {
+   "Foreshore Area": {
+    "fill": "#ff80c0",
+    "line": "#ff0000",
+    "width": 0.8
+   },
+   "Foreshore Building Area": {
+    "fill": "#ff80c0",
+    "line": "#ff0000",
+    "width": 0.8
+   },
+   "Foreshore Building Line": {
+    "fill": "#ff0000",
+    "line": "#ff0000",
+    "width": 0.8
+   },
+   "Land Below Foreshore Building Line": {
+    "fill": "#ff0000",
+    "hatch": "bdiag",
+    "line": "#ff0000",
+    "width": 0.8
+   }
+  }
+ },
+ "epi_gross_floor_area": {
+  "name": "Gross Floor Area",
+  "from": "Spatial Viewer · SEPP/136 Gross Floor Area",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#ff8c00",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_reduced_level": {
+  "name": "Reduced Level",
+  "from": "Spatial Viewer · SEPP/135 Reduced Level",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "SYM_CODE",
+  "transparency": 0,
+  "base": {
+   "fill": "#e3c891",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {
+   "O": {
+    "fill": "#e3c891",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "S": {
+    "fill": "#ffd9d9",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "T": {
+    "fill": "#ffa6a3",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "U1": {
+    "fill": "#ff776e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "U2": {
+    "fill": "#ff776e",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "V": {
+    "fill": "#ff483b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "W": {
+    "fill": "#cc6666",
+    "line": "#000000",
+    "width": 0.8
+   }
+  },
+  "base_from": "O"
+ },
+ "epi_land_application": {
+  "name": "Land Application Map",
+  "from": "Spatial Viewer · SEPP/78 Land Application Map",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": null,
+   "line": "#000000",
+   "width": 2
+  },
+  "classes": {}
+ },
+ "epi_terrestrial_biodiversity": {
+  "name": "Terrestrial Biodiversity",
+  "from": "Spatial Viewer · Protection/243 Terrestrial Biodiversity + Protection/768 Biodiversity Map + Protection/737 Natural Resources Sensitivity Map",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#95c270",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {
+   "Areas of biodiversity significance": {
+    "fill": "#d3ffbe",
+    "line": null
+   },
+   "Areas of high biodiversity significance": {
+    "fill": "#38a800",
+    "line": null
+   },
+   "Biodiversity": {
+    "fill": "#95c26f",
+    "line": "#343434",
+    "width": 0.8
+   },
+   "Key Fish Habitat": {
+    "fill": "#005ce6",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Remnant Native Vegetation": {
+    "fill": "#95c26f",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Terrestrial Biodiversity": {
+    "fill": "#00a884",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Natural Resources Sensitivity Map": {
+    "fill": "#b3e096",
+    "line": "#000000",
+    "width": 0.8
+   }
+  }
+ },
+ "epi_riparian_lands_watercourses": {
+  "name": "Riparian Lands and Watercourses",
+  "from": "Spatial Viewer · Protection/240 Riparian Lands and Watercourses + Protection/751 Watercourses Map + Protection/1024 Riparian Land and Watercourses + Protection/740 Natural Resource - Water Map + Protection/590 Natural Resources - Water Map",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": {
+   "fill": "#b3e096",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {
+   "Environmentally Sensitive Land": {
+    "fill": "#00c5ea",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Riparian Land": {
+    "fill": "#b3e096",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Watercourse": {
+    "fill": "#00c5ea",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Wetland": {
+    "fill": "#00c5ea",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Riparian Land and Watercourses": {
+    "fill": "#b3e096",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Natural Resource - Water Map, Riparian Land": {
+    "fill": "#b3e096",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Natural Resource - Water Map, Wetland": {
+    "fill": "#00c5ea",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "10m": {
+    "fill": "#ff483b",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "30m": {
+    "fill": "#c651f0",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "50m": {
+    "fill": "#89b560",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "100m": {
+    "fill": "#33daff",
+    "line": "#000000",
+    "width": 0.8
+   }
+  },
+  "base_from": "Riparian Land"
+ },
+ "epi_wetlands": {
+  "name": "Wetlands",
+  "from": "Spatial Viewer · Protection/244 Wetlands",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#c9fff9",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_native_veg_protection": {
+  "name": "Native Vegetation Protection",
+  "from": "Spatial Viewer · SEPP/123 Native Vegetation Protection",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#98e678",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_environmental_cons_area": {
+  "name": "Environmental Conservation Area",
+  "from": "Spatial Viewer · SEPP/141 Environmental Conservation Area",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#aaff00",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_environmentally_sensitive_land": {
+  "name": "Environmentally Sensitive Land",
+  "from": "Spatial Viewer · Protection/245 Environmentally Sensitive Land",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": {
+   "fill": "#55ff00",
+   "hatch": "bdiag",
+   "line": "#55ff00",
+   "width": 0.8
+  },
+  "classes": {
+   "Environmental Protection Land": {
+    "fill": "#55ff00",
+    "line": "#6e6e6e",
+    "width": 1
+   },
+   "Environmentally Sensitive Land": {
+    "fill": "#55ff00",
+    "hatch": "bdiag",
+    "line": "#55ff00",
+    "width": 0.8
+   },
+   "Environmentally Significant Land": {
+    "fill": "#d1ff73",
+    "line": "#000000",
+    "width": 0.8
+   }
+  },
+  "base_from": "Environmentally Sensitive Land"
+ },
+ "epi_special_areas": {
+  "name": "Special Areas",
+  "from": "Spatial Viewer · SEPP/127 Special Areas",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#ffd37f",
+   "line": "#000000",
+   "width": 0.4
+  },
+  "classes": {}
+ },
+ "epi_scenic_protection": {
+  "name": "Scenic Protection Land",
+  "from": "Spatial Viewer · Protection/242 Scenic Protection Land + SEPP/183 Hawkesbury-Nepean Riverine Scenic Area",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#ffa699",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {
+   "Local significance": {
+    "fill": "#ffbee8",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Regional significance": {
+    "fill": "#ffa77f",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Significance beyond the region": {
+    "fill": "#73b2ff",
+    "line": "#000000",
+    "width": 0.8
+   }
+  }
+ },
+ "epi_acid_sulfate_soils": {
+  "name": "Acid Sulfate Soils",
+  "from": "Spatial Viewer · Protection/234 Acid Sulfate Soils",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": {
+   "fill": "#6e6e6e",
+   "hatch": "fdiag",
+   "line": "#000000",
+   "width": 1
+  },
+  "classes": {
+   "Class 1": {
+    "fill": "#00c5ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Class 2": {
+    "fill": "#ff00c5",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Class 2a": {
+    "fill": "#ff00c5",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Class 2b": {
+    "fill": "#ff0078",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Class 3": {
+    "fill": "#ffbee8",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Class 4": {
+    "fill": "#df73ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Class 5": {
+    "fill": "#ffffbe",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Non Standard Values": {
+    "fill": "#6e6e6e",
+    "hatch": "fdiag",
+    "line": "#000000",
+    "width": 1
+   }
+  },
+  "base_from": "Non Standard Values"
+ },
+ "epi_csg_exclusions": {
+  "name": "Coal Seam Gas Exclusion",
+  "from": "Spatial Viewer · SEPP/107 Coal Seam Gas Exclusion",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#bee8ff",
+   "line": null
+  },
+  "classes": {}
+ },
+ "epi_salinity": {
+  "name": "Salinity",
+  "from": "Spatial Viewer · Protection/241 Salinity",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#ff0000",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_groundwater_vulnerability": {
+  "name": "Groundwater Vulnerability",
+  "from": "Spatial Viewer · Protection/237 Groundwater Vulnerability",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#99fffd",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_strategic_agricultural_land": {
+  "name": "Biophysical Strategic Agricultural Land",
+  "from": "Spatial Viewer · SEPP/104 Biophysical Strategic Agricultural Land",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#267300",
+   "line": "#6e6e6e",
+   "width": 0.4
+  },
+  "classes": {}
+ },
+ "epi_drinking_water_catchments": {
+  "name": "Drinking Water Catchment",
+  "from": "Spatial Viewer · Protection/236 Drinking Water Catchment",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#8cf1fc",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_water_zoning": {
+  "name": "Foreshores and Waterways Area - Zone",
+  "from": "Spatial Viewer · SEPP/169 Foreshores and Waterways Area - Zone",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "SYM_CODE",
+  "transparency": 0,
+  "base": null,
+  "classes": {
+   "Zone 1— Maritime Waters": {
+    "fill": "#8bd7fc",
+    "line": "#343434",
+    "width": 0.8
+   },
+   "Zone 2— Environment Protection": {
+    "fill": "#38a800",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Zone 3— Naval Waters": {
+    "fill": "#9c9c9c",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Zone 4— Aviation": {
+    "fill": "#fce6cc",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Zone 5— Water Recreation": {
+    "fill": "#00c5ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Zone 6— Scenic Waters— Active Use": {
+    "fill": "#f0d2fc",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Zone 7— Scenic Waters— Casual Use": {
+    "fill": "#6677cd",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Zone 8— Scenic Waters— Passive Use": {
+    "fill": "#e8fcd4",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Zone 9— National Parks and Nature Reserves": {
+    "fill": "#ff7f7f",
+    "line": "#000000",
+    "width": 0.8
+   }
+  }
+ },
+ "epi_mineral_and_extractive": {
+  "name": "Mineral and Resource Land",
+  "from": "Spatial Viewer · Protection/238 Mineral and Resource Land + SEPP/108 Mineral and Resource Land",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#cc6666",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {
+   "Mineral and Resource Land": {
+    "fill": "#cc6666",
+    "line": "#000000",
+    "width": 0.8
+   }
+  }
+ },
+ "epi_flood": {
+  "name": "Flood Planning Map",
+  "from": "Spatial Viewer · Hazard/230 Flood Planning Map",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": {
+   "fill": "#e60000",
+   "line": "#6e6e6e",
+   "width": 0.4
+  },
+  "classes": {
+   "Flood Planning Level (1:100 ARI)": {
+    "fill": null,
+    "line": "#000aff",
+    "width": 2
+   },
+   "Land Identified in Section 3.27": {
+    "fill": null,
+    "line": "#ff0000",
+    "width": 2
+   },
+   "1 in 100 AEP Flood Extent": {
+    "fill": "#1976d2",
+    "line": null
+   },
+   "Area 1": {
+    "fill": "#002673",
+    "hatch": "bdiag",
+    "line": "#002673",
+    "width": 0.4
+   },
+   "Flood Planning Area": {
+    "fill": "#00c2ed",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Flood Prone and Major Creeks Land": {
+    "fill": "#73b2ff",
+    "line": "#000000",
+    "width": 0.8
+   },
+   "Cultural Heritage Landscape Area": {
+    "fill": "#a86f00",
+    "hatch": "bdiag",
+    "line": "#a86f00",
+    "width": 2
+   },
+   "Transitional Land": {
+    "fill": "#ff52d7",
+    "hatch": "bdiag",
+    "line": "#ff52d7",
+    "width": 1
+   }
+  }
+ },
+ "epi_landslide_risk": {
+  "name": "Landslide Risk Land",
+  "from": "Spatial Viewer · Hazard/232 Landslide Risk Land",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#e69800",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_geotechnical": {
+  "name": "Geotechnical",
+  "from": "Spatial Viewer · SEPP/99 Geotechnical",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#d7c29e",
+   "line": "#734c00",
+   "width": 1
+  },
+  "classes": {}
+ },
+ "epi_noise_exposure_forecast": {
+  "name": "Airport Noise",
+  "from": "Spatial Viewer · Protection/235 Airport Noise",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "ANEF_CODE",
+  "transparency": 0,
+  "base": {
+   "fill": "#6e6e6e",
+   "hatch": "bdiag",
+   "line": "#6e6e6e",
+   "width": 1
+  },
+  "classes": {
+   "ANEF between 20 and 25": {
+    "fill": "#ffffbe",
+    "line": "#6e6e6e",
+    "width": 0.4
+   },
+   "ANEF between 25 and 30": {
+    "fill": "#ffd500",
+    "line": "#6e6e6e",
+    "width": 0.4
+   },
+   "ANEF between 30 and 35": {
+    "fill": "#ffa0a0",
+    "line": "#6e6e6e",
+    "width": 0.4
+   },
+   "ANEF between 35 and 40": {
+    "fill": "#f56464",
+    "line": "#6e6e6e",
+    "width": 0.4
+   },
+   "ANEF exceeding 40": {
+    "fill": "#e60000",
+    "line": "#6e6e6e",
+    "width": 0.4
+   },
+   "Runway": {
+    "fill": "#686868",
+    "line": "#373737",
+    "width": 0.4
+   },
+   "Non Standard Values": {
+    "fill": "#6e6e6e",
+    "hatch": "bdiag",
+    "line": "#6e6e6e",
+    "width": 1
+   }
+  },
+  "base_from": "Non Standard Values"
+ },
+ "epi_obstacle_limitation_surface": {
+  "name": "Obstacle Limitation Surface",
+  "from": "Spatial Viewer · Protection/239 Obstacle Limitation Surface",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": null,
+   "line": "#a80000",
+   "width": 1.5
+  },
+  "classes": {}
+ },
+ "epi_heritage_points": {
+  "name": "Sydney Harbour Heritage",
+  "from": "Spatial Viewer · SEPP/285 Sydney Harbour Heritage",
+  "geometry": "esriGeometryPoint",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": null,
+   "line": null,
+   "point": true
+  },
+  "classes": {}
+ },
+ "epi_additional_permitted_uses": {
+  "name": "Additional Permitted Uses",
+  "from": "Spatial Viewer · Development Control/225 Additional Permitted Uses",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#d69dbc",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_active_street_frontages": {
+  "name": "Active Street Frontages",
+  "from": "Spatial Viewer · Development Control/224 Active Street Frontages",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": {
+   "fill": null,
+   "line": "#ff0000",
+   "width": 3
+  },
+  "classes": {
+   "Active Street Frontage": {
+    "fill": null,
+    "line": "#ff0000",
+    "width": 3
+   }
+  },
+  "base_from": "Active Street Frontage"
+ },
+ "epi_key_sites": {
+  "name": "Key Sites",
+  "from": "Spatial Viewer · Development Control/226 Key Sites",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#e600a9",
+   "hatch": "bdiag",
+   "line": "#e600a9",
+   "width": 1.5
+  },
+  "classes": {}
+ },
+ "epi_local_complying_exclusion": {
+  "name": "Complying Local Exclusion",
+  "from": "Spatial Viewer · SEPP/92 Complying Local Exclusion",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#d79e9e",
+   "line": null
+  },
+  "classes": {}
+ },
+ "epi_local_exempt_exclusion": {
+  "name": "Exempt Local Exclusion",
+  "from": "Spatial Viewer · SEPP/93 Exempt Local Exclusion",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#d79e9e",
+   "line": null
+  },
+  "classes": {}
+ },
+ "epi_urban_release_area": {
+  "name": "Urban Release Area",
+  "from": "Spatial Viewer · Development Control/227 Urban Release Area",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#ffc700",
+   "line": "#000000",
+   "width": 0.8
+  },
+  "classes": {}
+ },
+ "epi_industrial_release_area": {
+  "name": "Industrial Release Area",
+  "from": "Spatial Viewer · SEPP/82 Industrial Release Area",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#e8dbff",
+   "line": "#6e6e6e",
+   "width": 1
+  },
+  "classes": {}
+ },
+ "epi_growth_centres": {
+  "name": "Growth Centres",
+  "from": "Spatial Viewer · SEPP/117 Growth Centres",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": null,
+   "line": "#000000",
+   "width": 2
+  },
+  "classes": {}
+ },
+ "epi_precinct_boundaries": {
+  "name": "Precinct Boundaries",
+  "from": "Spatial Viewer · SEPP/124 Precinct Boundaries",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": null,
+   "line": "#005ce6",
+   "width": 2
+  },
+  "classes": {}
+ },
+ "epi_state_significant_dev_sites": {
+  "name": "State Significant Development Sites Map",
+  "from": "Spatial Viewer · SEPP/697 State Significant Development Sites Map",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": null,
+   "line": "#000000",
+   "width": 3
+  },
+  "classes": {}
+ },
+ "epi_strategic_foreshore_sites_points": {
+  "name": "Strategic Foreshore Sites Map",
+  "from": "Spatial Viewer · SEPP/186 Strategic Foreshore Sites Map",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": null,
+   "line": "#8400a8",
+   "width": 2
+  },
+  "classes": {}
+ },
+ "epi_additional_rural_village_land": {
+  "name": "Additional Rural Village Land",
+  "from": "Spatial Viewer · SEPP/106 Additional Rural Village Land",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#ffc700",
+   "line": "#6e6e6e",
+   "width": 0.4
+  },
+  "classes": {}
+ },
+ "epi_bulk_water_supply": {
+  "name": "Bulk Water Supply Infrastructure",
+  "from": "Spatial Viewer · SEPP/87 Bulk Water Supply Infrastructure",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#75ebf2",
+   "line": "#4065eb",
+   "width": 0.4
+  },
+  "classes": {}
+ },
+ "epi_lease_area": {
+  "name": "Lease Area",
+  "from": "Spatial Viewer · SEPP/722 Lease Area",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_NAME",
+  "transparency": 0,
+  "base": {
+   "fill": "#ffbebe",
+   "line": "#e60000",
+   "width": 1
+  },
+  "classes": {
+   "Lease Area": {
+    "fill": "#ffbebe",
+    "line": "#e60000",
+    "width": 1
+   }
+  },
+  "base_from": "Lease Area"
+ },
+ "epi_future_residential_growth_area": {
+  "name": "Future Residential Growth Area",
+  "from": "Spatial Viewer · SEPP/105 Future Residential Growth Area",
+  "geometry": "esriGeometryPolygon",
+  "type": "simple",
+  "field": null,
+  "transparency": 0,
+  "base": {
+   "fill": "#e60000",
+   "line": "#6e6e6e",
+   "width": 0.4
+  },
+  "classes": {}
+ },
+ "epi_referral_area": {
+  "name": "SEPP (Planning Systems) 2021 Three Ports Referral Area Map",
+  "from": "Spatial Viewer · SEPP/796 SEPP (Planning Systems) 2021 Three Ports Referral Area Map",
+  "geometry": "esriGeometryPolygon",
+  "type": "uniqueValue",
+  "field": "LAY_CLASS",
+  "transparency": 0,
+  "base": {
+   "fill": "#ffaa00",
+   "line": "#e69800",
+   "width": 1.5
+  },
+  "classes": {
+   "Referral Area": {
+    "fill": "#ffaa00",
+    "line": "#e69800",
+    "width": 1.5
+   }
+  },
+  "base_from": "Referral Area"
+ }
+}

@@ -1,0 +1,184 @@
+{
+  "instrument": "ku-ring-gai-development-control-plan",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\ku-ring-gai-development-control-plan.html",
+  "generated": "2026-09-28T13:23:14.782Z",
+  "parts": 56,
+  "parts_with_sidecar": 56,
+  "source_pages": 0,
+  "bytes": 7986411,
+  "unique_anchor_ids": 3229,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 56
+  },
+  "totals": {
+    "headings": 3173,
+    "tables": 199,
+    "list_items": 8661,
+    "images_placed": 7912,
+    "prose_demoted": 379,
+    "page_markers": 1311
+  },
+  "weak_parts": [
+    {
+      "prefix": "Ku-ring-gai-DCP-Cover-Co",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Cover-and-Contents-Secti",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-3-Land-Consolidatio",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-3R-Minimum-Lot-Dept",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Part-4-Dwelling-Houses",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-4-1-Secondary-Dwell",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-5-Dual-Occupancy",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-6-Multi-Dwelling-Ho",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-6-1-Multi-Dwelling-",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-7-Residential-Flat-",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-7-1-Residential-Fla",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-8-Mixed-Use-Develop",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-9-Non-Residential-a",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Cover-and-Contents-Secti-2",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14-Local-Character-",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14D-Gordon-Local-Ce",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14G-Pymble-Business",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14H-Screen-Australi",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14I-Killara-Golf-Cl",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14J-Holford-Crescen",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14K-45-47-Tennyson-",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14L-Part-62-and-64-",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14N-8a-14-16-Buckin",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14O-4-12-and-14-Cow",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-14P-Turramurra-Plaz",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-18R-References-Gree",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-19-Heritage-Items-a",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Cover-and-Contents-Secti-3",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-24-Water-Management",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-24R-References-Wate",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-25-Waste-Management",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Ku-ring-gai-Council-Tree",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    }
+  ]
+}

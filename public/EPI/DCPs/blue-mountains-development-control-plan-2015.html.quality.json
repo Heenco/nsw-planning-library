@@ -1,0 +1,44 @@
+{
+  "instrument": "blue-mountains-development-control-plan-2015",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\blue-mountains-development-control-plan-2015.html",
+  "generated": "2026-09-28T07:42:00.889Z",
+  "parts": 11,
+  "parts_with_sidecar": 11,
+  "source_pages": 0,
+  "bytes": 2001968,
+  "unique_anchor_ids": 1416,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 11
+  },
+  "totals": {
+    "headings": 1405,
+    "tables": 63,
+    "list_items": 4672,
+    "images_placed": 1239,
+    "prose_demoted": 15,
+    "page_markers": 908
+  },
+  "weak_parts": [
+    {
+      "prefix": "I",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "J",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "K",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "L",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    }
+  ]
+}

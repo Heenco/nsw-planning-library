@@ -1,0 +1,234 @@
+{
+  "instrument": "canterbury-bankstown-dcp-2023",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\canterbury-bankstown-development-control-plan-2023.html",
+  "generated": "2026-09-28T11:48:10.855Z",
+  "parts": 56,
+  "parts_with_sidecar": 56,
+  "source_pages": 0,
+  "bytes": 4433163,
+  "unique_anchor_ids": 4640,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 56
+  },
+  "totals": {
+    "headings": 4584,
+    "tables": 268,
+    "list_items": 11335,
+    "images_placed": 2114,
+    "prose_demoted": 63,
+    "page_markers": 1943
+  },
+  "weak_parts": [
+    {
+      "prefix": "1-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "2-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "2-2",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "2-3",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "2-4",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "3-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "3-2",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "3-3",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "3-5",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "3-6",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "3-7",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "4-2",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "4-3",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "4-4",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "5-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "6-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "6-3",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "7-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "7-3",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "7-4",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "8-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "9-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "10-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "10-2",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "10-3",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "10-4",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "10-5",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "10-6",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "10-7",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-1",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-2",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-3",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-4",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-5",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-6",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-7",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-8",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-9",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-10",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-11",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-12",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "11-16",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    }
+  ]
+}

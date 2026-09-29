@@ -1,0 +1,29 @@
+{
+  "instrument": "wilton-development-control-plan-2021",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\wilton-development-control-plan-2021.html",
+  "generated": "2026-09-28T07:42:00.156Z",
+  "parts": 8,
+  "parts_with_sidecar": 8,
+  "source_pages": 0,
+  "bytes": 856011,
+  "unique_anchor_ids": 651,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 8
+  },
+  "totals": {
+    "headings": 643,
+    "tables": 73,
+    "list_items": 2370,
+    "images_placed": 219,
+    "prose_demoted": 13,
+    "page_markers": 341
+  },
+  "weak_parts": [
+    {
+      "prefix": "Wilton-DCP-What-we-heard",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    }
+  ]
+}

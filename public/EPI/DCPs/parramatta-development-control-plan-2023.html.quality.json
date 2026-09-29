@@ -1,0 +1,34 @@
+{
+  "instrument": "parramatta-development-control-plan-2023",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\parramatta-development-control-plan-2023.html",
+  "generated": "2026-09-28T07:42:01.756Z",
+  "parts": 13,
+  "parts_with_sidecar": 13,
+  "source_pages": 0,
+  "bytes": 4311995,
+  "unique_anchor_ids": 3052,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 13
+  },
+  "totals": {
+    "headings": 3039,
+    "tables": 184,
+    "list_items": 12372,
+    "images_placed": 1155,
+    "prose_demoted": 70,
+    "page_markers": 1676
+  },
+  "weak_parts": [
+    {
+      "prefix": "Cover-and-Contents",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Part-11-Glossary",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    }
+  ]
+}

@@ -14,6 +14,12 @@
   and driven by the notebook "01A-pmtiles-epi". One MVT layer "epi" in every archive, so one style serves
   them all; the page shows and hides tables with a filter on layer_key.
 
+  Symbology: each layer draws with the NSW Planning Portal Spatial Viewer's own symbol, measured from the
+  ArcGIS services into shared/epi-renderers.json and keyed to our categories by shared/epi-symbology.ts, so
+  a layer reads here the way it reads on the map people already check a property against. Every paint
+  property is one data-driven expression over layer_key and category, which is why switching a layer on is
+  still only a filter change.
+
   Search is the same lot and address combobox as /lmr and /testing-spatial-services, over
   derived.lot_address through /api/lotprofile, with Mapbox kept as the Enter fallback for a place name.
 -->
@@ -187,7 +193,6 @@
 
           <section v-for="g in groups" :key="g.key" class="ep-group">
             <h2 class="ep-h2">
-              <i class="ep-key" :style="{ background: fillOf(g.key), borderColor: lineOf(g.key) }" />
               {{ g.label }}
               <span class="ep-g-n">{{ g.layers.length }}</span>
             </h2>
@@ -198,7 +203,7 @@
                     type="checkbox" :checked="shown.has(l.key) && l.drawn" :disabled="!l.drawn"
                     @change="toggle(l.key)"
                   >
-                  <span class="ep-swatch" :style="{ background: fillOf(g.key), borderColor: lineOf(g.key) }" />
+                  <span class="ep-swatch" :style="swatchOf(l)" :title="symFrom(l.key)" />
                   <span class="ep-name">{{ l.title }}</span>
                   <span class="ep-count">{{ fmt(l.rows) }}</span>
                 </label>
@@ -223,10 +228,17 @@
                   <template v-if="l.categories.length">
                     <p class="ep-more-head">Classes in this layer</p>
                     <ul class="ep-cats">
-                      <li v-for="c in l.categories.slice(0, 18)" :key="c.name">{{ c.name }} <span class="ep-dim">{{ fmt(c.features) }}</span></li>
+                      <li v-for="c in l.categories.slice(0, 18)" :key="c.name">
+                        <span class="ep-cat-name">
+                          <i class="ep-swatch ep-swatch--sm" :style="classSwatch(l.key, c.name)" />{{ c.name }}
+                        </span>
+                        <span class="ep-dim">{{ fmt(c.features) }}</span>
+                      </li>
                     </ul>
                     <p v-if="l.categories.length > 18" class="ep-dim ep-more-tail">and {{ l.categories.length - 18 }} more</p>
                   </template>
+                  <p class="ep-more-head">Drawn as</p>
+                  <p class="ep-prov">{{ symFrom(l.key) }}</p>
                 </div>
               </li>
             </ul>
@@ -243,9 +255,10 @@
           Zoom in to draw {{ tooFarOut.map(pretty).join(', ') }}
         </p>
         <div v-if="legend.length" class="ep-legend">
-          <span v-for="g in legend" :key="g.key">
-            <i class="ep-key" :style="{ background: fillOf(g.key), borderColor: lineOf(g.key) }" />{{ g.label }}
+          <span v-for="l in legend" :key="l.key">
+            <i class="ep-key" :style="swatchOf(l)" />{{ l.title }}
           </span>
+          <span v-if="legendMore" class="ep-dim">and {{ legendMore }} more</span>
         </div>
       </div>
 
@@ -319,6 +332,10 @@
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { epiTitle } from '#shared/epi-layers'
+import {
+  epiByLayerExpr, epiHatchesNeeded, epiOpacity, epiSwatch, epiSwatchCss, epiSymFor, epiSymbology,
+  fillColour, hatchImage, HATCH_NONE, lineColour, lineWidth, patternId, type EpiLayerCats,
+} from '#shared/epi-symbology'
 import { MAP_SECTIONS, MAP_SERVICES } from '#shared/nsw-map-services'
 import type { EpiLayersResponse } from '../../server/api/epi/layers.get'
 import type { EpiAtResponse } from '../../server/api/epi/at.get'
@@ -338,23 +355,34 @@ interface LotMatch {
   lgaName: string | null
 }
 
-/** One colour per group. Six colours read; fifty-six do not. */
-const GROUP_COLOUR: Record<string, string> = {
-  principal: '#2563eb',
-  application: '#64748b',
-  biodiversity: '#15803d',
-  resources: '#a16207',
-  hazard: '#dc2626',
-  development: '#7c3aed',
-  unbuilt: '#94a3b8',
-}
-const lineOf = (g: string) => GROUP_COLOUR[g] ?? GROUP_COLOUR.unbuilt!
-const fillOf = (g: string) => `${lineOf(g)}4d`
-
 /** The layer that is worth seeing before anything is chosen. */
 const DEFAULT_ON = ['epi_land_zoning']
 
-const FILL_OPACITY = 0.12
+/**
+ * How solid a fill is where the portal does not say. The Spatial Viewer draws one map at a time over a
+ * basemap and can be opaque; here a dozen layers stack, so they have to let the lot underneath show. A
+ * layer the portal publishes with its own transparency - zoning, at 50 - keeps that instead.
+ */
+const DEFAULT_OPACITY = 0.4
+
+/** The four map layers each tiled group draws with, as on /cdc-map. */
+const AREAS = ['!=', ['geometry-type'], 'Point']
+const POINTS = ['==', ['geometry-type'], 'Point']
+const DRAWN: { suffix: string; geom: any }[] = [
+  { suffix: 'fill', geom: AREAS }, { suffix: 'hatch', geom: AREAS },
+  { suffix: 'line', geom: AREAS }, { suffix: 'point', geom: POINTS },
+]
+
+/** The swatch for a whole layer: its base symbol, or its biggest class where the renderer has no default. */
+const swatchOf = (l: { key: string; categories: { name: string }[] }) =>
+  epiSwatchCss(epiSwatch(l.key, l.categories[0]?.name), epiOpacity(l.key, DEFAULT_OPACITY))
+
+/** The swatch for one class of a layer, in the class list. */
+const classSwatch = (key: string, category: string) =>
+  epiSwatchCss(epiSymFor(key, category), epiOpacity(key, DEFAULT_OPACITY))
+
+/** Which ArcGIS layer the symbol was read from - or that it is ours, and why. */
+const symFrom = (key: string) => epiSymbology(key).from
 
 /** Which half of the left panel is showing: our own layers, or the live services. */
 const tab = ref<'layers' | 'live'>('layers')
@@ -408,9 +436,11 @@ const groups = computed(() => {
 /** Only a layer that has tiles counts as on; the default can name one before a build exists. */
 const onCount = computed(() => [...shown.value].filter(k => drawable.value.has(k)).length)
 
-const legend = computed(() =>
-  groups.value.filter(g => g.layers.some(l => shown.value.has(l.key) && l.drawn))
-    .map(g => ({ key: g.key, label: g.label })))
+/** Every layer that is actually drawing, with its own symbol. Capped: the legend sits over the map. */
+const LEGEND_MAX = 12
+const visible = computed(() => layers.value.filter(l => shown.value.has(l.key) && l.drawn))
+const legend = computed(() => visible.value.slice(0, LEGEND_MAX))
+const legendMore = computed(() => Math.max(0, visible.value.length - LEGEND_MAX))
 
 /** Layers that are on but whose tiles do not start until further in. */
 const tooFarOut = computed(() =>
@@ -441,14 +471,19 @@ function setAll(on: boolean) {
   refresh()
 }
 
-/** Every group's pair of map layers reads the same shown set; a group draws only its own members. */
+/**
+ * Every group's four map layers read the same shown set; a group draws only its own members. The geometry
+ * test goes in the filter rather than the paint, so the point layer never draws a circle at the centroid of
+ * a polygon and the fill layer never tries to fill a point.
+ */
 function refresh() {
   if (!map) return
   for (const g of data.value?.groups ?? []) {
     const keys = layers.value.filter(l => l.group === g.key && shown.value.has(l.key)).map(l => l.key)
-    const f = ['in', ['get', 'layer_key'], ['literal', keys]]
-    for (const id of [`epi-${g.key}-fill`, `epi-${g.key}-line`]) {
-      if (map.getLayer(id)) map.setFilter(id, f)
+    const on = ['in', ['get', 'layer_key'], ['literal', keys]]
+    for (const { suffix, geom } of DRAWN) {
+      const id = `epi-${g.key}-${suffix}`
+      if (map.getLayer(id)) map.setFilter(id, ['all', on, geom])
     }
   }
 }
@@ -872,8 +907,22 @@ async function searchPlace() {
 }
 
 // ── the map ──────────────────────────────────────────────────────────────────
+
+/** Register every hatch tile the layers need, plus the empty one a solid feature resolves to. */
+function addHatches() {
+  if (!map.hasImage(HATCH_NONE)) map.addImage(HATCH_NONE, hatchImage('none', '#000000'), { pixelRatio: 2 })
+  for (const h of epiHatchesNeeded(catsOf(layers.value))) {
+    if (!map.hasImage(h.id)) map.addImage(h.id, hatchImage(h.hatch, h.colour), { pixelRatio: 2 })
+  }
+}
+
+/** What the expression builder needs: each layer's key and the categories its tiles carry. */
+const catsOf = (list: typeof layers.value): EpiLayerCats[] =>
+  list.map(l => ({ key: l.key, categories: l.categories }))
+
 function addLayers() {
   const groupsIn = data.value?.groups ?? []
+  addHatches()
   // reversed build order: the big blankets go down first, the small precise layers on top
   for (const g of [...groupsIn].reverse()) {
     const src = `epi-${g.key}`
@@ -883,18 +932,53 @@ function addLayers() {
       minzoom: g.minZoom,
       maxzoom: g.maxZoom,
     })
-    const none = ['in', ['get', 'layer_key'], ['literal', []]]
+    const none = ['all', ['in', ['get', 'layer_key'], ['literal', []]], AREAS]
+    // styled per feature, not per source: an archive is a bundle of layers that happen to be tiled
+    // together, and a layer's symbol - and each of its classes' - belongs to the layer
+    const cats = catsOf(layers.value.filter(l => l.group === g.key))
+    const common = { source: src, 'source-layer': 'epi', filter: none }
     map.addLayer({
-      id: `${src}-fill`, type: 'fill', source: src, 'source-layer': 'epi', filter: none,
-      paint: { 'fill-color': lineOf(g.key), 'fill-opacity': fillsOn.value ? FILL_OPACITY : 0 },
+      ...common, id: `${src}-fill`, type: 'fill',
+      paint: {
+        'fill-color': epiByLayerExpr(cats, fillColour, '#94a3b8'),
+        'fill-opacity': fillsOn.value ? fillOpacityExpr(cats) : 0,
+      },
+    })
+    // the portal's hatched symbols - heritage conservation areas, buffers, transitional flood land - as a
+    // pattern over the same features; a solid feature gets the empty tile and draws nothing here
+    map.addLayer({
+      ...common, id: `${src}-hatch`, type: 'fill',
+      paint: {
+        'fill-pattern': epiByLayerExpr(cats, patternId, HATCH_NONE),
+        'fill-opacity': fillsOn.value ? 0.85 : 0,
+      },
     })
     map.addLayer({
-      id: `${src}-line`, type: 'line', source: src, 'source-layer': 'epi', filter: none,
-      paint: { 'line-color': lineOf(g.key), 'line-width': 1, 'line-opacity': 0.85 },
+      ...common, id: `${src}-line`, type: 'line',
+      paint: {
+        'line-color': epiByLayerExpr(cats, lineColour, '#475569'),
+        'line-width': epiByLayerExpr(cats, lineWidth, 0.8),
+        'line-opacity': 0.9,
+      },
+    })
+    map.addLayer({
+      ...common, id: `${src}-point`, type: 'circle',
+      paint: {
+        'circle-color': epiByLayerExpr(cats, s => s.fill ?? s.line ?? '#475569', '#475569'),
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 2.5, 16, 6],
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1,
+      },
     })
   }
   refresh()
 }
+
+/** Each layer's own fill opacity: the portal's transparency where it publishes one, else the default. */
+const fillOpacityExpr = (cats: EpiLayerCats[]) =>
+  ['match', ['get', 'layer_key'],
+    ...cats.flatMap(c => [c.key, epiOpacity(c.key, DEFAULT_OPACITY)]),
+    DEFAULT_OPACITY]
 
 /**
  * Several of these layers are blankets over a whole council or the whole state, so even a light fill
@@ -904,8 +988,13 @@ function setFills(on: boolean) {
   fillsOn.value = on
   if (!map) return
   for (const g of data.value?.groups ?? []) {
-    const id = `epi-${g.key}-fill`
-    if (map.getLayer(id)) map.setPaintProperty(id, 'fill-opacity', on ? FILL_OPACITY : 0)
+    const cats = catsOf(layers.value.filter(l => l.group === g.key))
+    const fill = `epi-${g.key}-fill`
+    if (map.getLayer(fill)) {
+      map.setPaintProperty(fill, 'fill-opacity', on ? fillOpacityExpr(cats) : 0)
+    }
+    const hatch = `epi-${g.key}-hatch`
+    if (map.getLayer(hatch)) map.setPaintProperty(hatch, 'fill-opacity', on ? 0.85 : 0)
   }
 }
 
@@ -1043,6 +1132,9 @@ onBeforeUnmount(() => {
 .ep-more-head:first-child { margin-top: 0; }
 .ep-cats { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.05rem; }
 .ep-cats li { font-size: 0.71rem; color: #334155; display: flex; justify-content: space-between; gap: 0.5rem; }
+.ep-cat-name { display: flex; align-items: center; gap: 0.35rem; min-width: 0; }
+.ep-swatch--sm { width: 10px; height: 10px; border-width: 1.5px; border-radius: 2px; }
+.ep-prov { margin: 0.1rem 0 0.15rem; font-size: 0.67rem; line-height: 1.35; color: #64748b; }
 .ep-more-tail { margin: 0.15rem 0 0; font-size: 0.68rem; }
 
 .ep-lead { margin: 0 0 0.7rem; font-size: 0.8rem; line-height: 1.5; color: #475569; }

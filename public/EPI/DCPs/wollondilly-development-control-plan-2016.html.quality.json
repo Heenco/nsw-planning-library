@@ -1,0 +1,23 @@
+{
+  "instrument": "wollondilly-development-control-plan-2016",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\wollondilly-development-control-plan-2016.html",
+  "generated": "2026-09-28T07:42:00.420Z",
+  "parts": 8,
+  "parts_with_sidecar": 8,
+  "source_pages": 0,
+  "bytes": 1024165,
+  "unique_anchor_ids": 1032,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 8
+  },
+  "totals": {
+    "headings": 1024,
+    "tables": 125,
+    "list_items": 2459,
+    "images_placed": 532,
+    "prose_demoted": 19,
+    "page_markers": 328
+  },
+  "weak_parts": []
+}
