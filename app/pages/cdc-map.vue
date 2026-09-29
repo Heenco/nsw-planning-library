@@ -654,6 +654,28 @@ async function pickLot(r: LotMatch) {
   await read({ cadid: r.cadid })
 }
 
+/*
+ * The lot lives in the URL, so this page can be linked to.
+ *
+ * The CDC eligibility section names the layer that ruled a lot out; without this there was nowhere
+ * for that to point. `replace` rather than `push`: opening four lots in a row should not leave four
+ * entries for the back button.
+ */
+const route = useRoute()
+const router = useRouter()
+/** A layer key from the query, so a link can say WHICH layer to look at, not just which lot. */
+const focusLayer = ref(String(route.query.layer ?? '').trim())
+
+function rememberLot(cadid: string) {
+  void router.replace({ query: { cadid, ...(focusLayer.value ? { layer: focusLayer.value } : {}) } })
+}
+
+onMounted(() => {
+  const cadid = String(route.query.cadid ?? '').trim()
+  // read() is what the search calls; a link is the same act with the lot already chosen
+  if (cadid) void read({ cadid })
+})
+
 // ── the map ──────────────────────────────────────────────────────────────────
 const mapEl = ref<HTMLElement | null>(null)
 let mapboxgl: any = null
@@ -805,11 +827,12 @@ async function read(opts: { cadid?: string; lon?: number; lat?: number }) {
     if (!ctrl.signal.aborted) msg.value = e?.data?.message || 'Could not read that lot.'
   } finally {
     if (reading === ctrl) { reading = null; status.value = '' }
+    if (opts.cadid) rememberLot(opts.cadid)
   }
 }
 
 onMounted(async () => {
-  if (!mapboxToken || !mapEl.value) return
+  if (!mapboxToken || !mapEl.value) return   // the ?cadid read above does not depend on the map
   const mod = await import('mapbox-gl')
   mapboxgl = mod.default || mod
   mapboxgl.accessToken = mapboxToken

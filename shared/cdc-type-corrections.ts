@@ -1,3 +1,12 @@
+/*
+ * SEED ONLY - NOT READ AT RUNTIME.
+ *
+ * The CDC type catalogue now lives in cdc.type / cdc.type_requirement / cdc.type_check, and both
+ * /cdc and /api/cdc/types read it through /api/cdc/criteria. This file is the seed that
+ * `npm run build:cdccatalogue` loads from, kept so the first load is reproducible.
+ *
+ * Editing it changes nothing until that script is re-run. To change a rule, change the table.
+ */
 /**
  * What the Codes SEPP and the Housing SEPP say that the Department workbook's PER-CODE sheets left out,
  * read from the instruments themselves.

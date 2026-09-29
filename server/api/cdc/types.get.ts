@@ -8,9 +8,13 @@
  * code per development type, each with its own zone list, lot size, width and land tests, and a lot can
  * clear the general prerequisites while failing every type or passing only one.
  *
- * This route answers all twelve types in shared/cdc-criteria.ts, which is the Department's workbook as
- * "07 - CDC rules" read it: 97 type requirements across Low Rise Housing Diversity, Housing, Rural
- * Housing, Inland, Greenfield Housing, Agritourism, Farm Stay and the Housing SEPP's mid-rise clause.
+ * This route answers every type in the cdc.type catalogue - the Department's workbook as
+ * "07 - CDC rules" read it, across Low Rise Housing Diversity, Housing, Rural Housing, Inland,
+ * Greenfield Housing, Agritourism and Farm Stay.
+ *
+ * The Housing SEPP's mid-rise clause 182 was in that workbook and is NOT here: it is a development
+ * application pathway, not complying development, so it is excluded when the catalogue is loaded.
+ * Its own pathway is on /pattern-book.
  *
  * WHAT IS RECOMPUTED, AND WHAT THE WORKBOOK ONLY DESCRIBES
  *
@@ -25,15 +29,39 @@
  *
  * The remaining 68 requirements are real requirements that nothing here tests - setbacks, heights,
  * BASIX, the things that need a design rather than a lot. They are counted and returned per type as
- * `untested`, because a type reported "eligible" on four checks out of twelve is not the same claim as
+ * `untested`, because a type reported "eligible" on four checks out of twelve requirements is not the same claim as
  * one that has been fully tested, and a reader has to be able to tell.
  *
  * The `says` strings come from the workbook and are parsed rather than re-encoded, so a change there
  * reaches this without a second edit: "zone is RU5, R1, R2, R3", "lot area >= 400 m2",
  * "lot width >= 15 m", and the two that are simply a layer being present or absent.
  */
-import { CDC_TYPES, type CdcType } from '#shared/cdc-criteria'
 import { nswQuery } from '../../utils/nsw-kg/pool'
+import { usesShown } from '#shared/cdc-permissibility'
+// The catalogue, from cdc.type / cdc.type_requirement / cdc.type_check. /cdc renders the same rows,
+// so the page can no longer cite one rule while this route tests another.
+import { loadCriteria, type CriteriaType } from './criteria.get'
+
+type CdcType = CriteriaType
+
+export interface PermissibilityRow {
+  source: 'lep' | 'sepp'
+  instrument: string
+  zone: string
+  landUse: string
+  status: string
+}
+
+/**
+ * The clause is satisfied by consent-permissibility only.
+ *
+ * "permitted_without_consent" is land where the use needs no consent at all, which is not what
+ * 1.18(1)(b) asks for - it asks that the use BE permissible with consent. Reported, never counted.
+ */
+function permits(rows: PermissibilityRow[], uses: string[]) {
+  const want = new Set(uses.map(u => u.toLowerCase()))
+  return rows.filter(r => want.has(r.landUse.toLowerCase()))
+}
 
 export interface TypeCheck {
   column: string
@@ -53,10 +81,15 @@ export interface CdcTypeResult {
   /** true / false / null when something it depends on was not measured. */
   eligible: boolean | null
   /** General prerequisite layers that caught this lot, when the type inherits them. */
-  generalBlockers: { title: string; clauses: string[]; note: string | null }[]
+  generalBlockers: {
+    title: string; clauses: string[]; note: string | null
+    key: string | null; coverPct: number | null; source: string | null; names: string[] | null
+  }[]
   checks: TypeCheck[]
   /** Requirements the workbook records for this type that nothing here tests. */
   untested: number
+  /** The verdict as separate statements, one per line, rather than one run-on sentence. */
+  verdictLines: { kind: string; text: string }[]
   /** What each of those is actually waiting on - not one blanket reason for all of them. */
   untestedReasons: { reason: string; count: number }[]
   requirements: number
@@ -114,7 +147,9 @@ function thresholdFrom(says: string): number | null {
  *     storage area, floodway, flow path, high hazard or high risk area". Being on such a lot is not
  *     itself a bar, so failing a lot for intersecting a flood layer would be wrong in the over-strict
  *     direction.
- *   width at the building line (7 clauses) - the threshold is conditional: 12 m where the car parking
+ *   property frontage (7 clauses) - what we hold is an ESTIMATE measured from the lot geometry, and
+ *     "width at the building line" has no legal definition to measure against. The threshold is also
+ *     conditional: 12 m where the car parking
  *     is accessed only from a secondary road, parallel road or lane, 15 m otherwise. Nothing here knows
  *     the parking access, so neither figure can be applied without inventing the condition.
  */
@@ -155,7 +190,8 @@ function untestedReasons(t: CdcType, derivedFor: Set<string>): { reason: string;
     if (r.tested || derivedFor.has(r.clause)) continue
     const txt = (r.text || '').toLowerCase()
     const reason = txt.includes('flood') ? "flood control lot - the clause turns on an engineer's certificate for the part built on"
-      : txt.includes('width') ? 'width at the building line - the threshold depends on where car parking is accessed from'
+      : txt.includes('width') ? 'property frontage - an estimate measured from the lot geometry, and the '
+        + "clause's threshold also depends on where car parking is accessed from"
         : txt.includes('unsewered') ? 'unsewered land - no dataset exists'
           : (txt.includes('battle-axe') || txt.includes('laneway')) ? 'battle-axe access dimensions - we hold the stem width but not the usable area'
             : (txt.includes('within 250m') || txt.includes('setback') || txt.includes('height') || txt.includes('storey'))
@@ -167,8 +203,77 @@ function untestedReasons(t: CdcType, derivedFor: Set<string>): { reason: string;
   return Object.entries(tally).map(([reason, count]) => ({ reason, count })).sort((a, b) => b.count - a.count)
 }
 
+/**
+ * cl 1.18(1)(b) for one type: is this code's land use permissible, with consent, here?
+ *
+ * Any zone under the lot permitting it counts, which is the same rule the zone check already uses
+ * (`have.some(...)`) - a lot split across two zones is not automatically ineligible. Every zone is
+ * named in the text so a reader can see the split rather than take the verdict on trust.
+ */
+function permissibilityCheck(t: CdcType, lot: any): TypeCheck {
+  const uses = t.landUses
+  /*
+   * Named at the length of the other checks beside it - "zone is RU5, R1, R2, R3", "lot area >=
+   * 400 m2". Saying "the use is permissible with consent under an EPI applying to the land" is the
+   * clause, but it does not say WHICH use, which is the only part that differs per type.
+   */
+  const shown = usesShown(uses)
+  const label = shown.length
+    ? `cl 1.18(1)(b): ${shown.join(' or ')} permissible with consent`
+    : 'cl 1.18(1)(b): permissible with consent under an EPI'
+
+  if (!uses || uses.length === 0) {
+    return { column: 'permissibility', says: label, pass: null,
+             actual: `which land use the ${t.code} turns on has not been decided - no Standard `
+                   + `Instrument term matches it, so this is not tested rather than guessed` }
+  }
+  const rows: PermissibilityRow[] = lot.permissibility ?? []
+  if (!rows.length) {
+    return { column: 'permissibility', says: label, pass: null,
+             actual: 'no zoning or permissibility record for this lot' }
+  }
+  const mine = permits(rows, uses)
+  if (!mine.length) {
+    return { column: 'permissibility', says: label, pass: null,
+             actual: `no permissibility recorded for ${uses[0]} in `
+                   + `${[...new Set(rows.map(r => r.zone))].join(', ')}` }
+  }
+  // an inferred mapping is labelled everywhere it is used, not just where it is defined
+  const caveat = t.landUsesInferred
+    ? ` - "manor house" is not a Standard Instrument term, so this tests residential flat buildings `
+      + `or multi dwelling housing instead`
+    : ''
+  const yes = mine.filter(r => r.status === 'permitted_with_consent')
+  if (yes.length) {
+    const r = yes[0]!
+    return { column: 'permissibility', says: label, pass: true,
+             actual: `${r.landUse} permitted with consent in ${r.zone} under ${r.instrument}${caveat}` }
+  }
+  const noConsent = mine.filter(r => r.status === 'permitted_without_consent')
+  if (noConsent.length) {
+    const r = noConsent[0]!
+    return { column: 'permissibility', says: label, pass: false,
+             actual: `${r.landUse} is permitted WITHOUT consent in ${r.zone} under ${r.instrument} `
+                   + `- the clause asks for permissible with consent` }
+  }
+  /*
+   * Name every use that was tested, not just the first.
+   *
+   * Manor houses pass if EITHER residential flat buildings or multi dwelling housing is permitted,
+   * so a failure means both were checked and both failed. Reporting one of them read as though the
+   * other had never been looked at.
+   */
+  const byUse = new Map<string, string>()
+  for (const m of mine) if (!byUse.has(m.landUse)) byUse.set(m.landUse, m.status)
+  const zones = [...new Set(mine.map(m => m.zone))].join(', ')
+  const said = [...byUse].map(([u, s]) => `${u} ${s.replace(/_/g, ' ')}`).join('; ')
+  return { column: 'permissibility', says: label, pass: false,
+           actual: `${said} in ${zones} under ${mine[0]!.instrument}${caveat}` }
+}
+
 function evaluate(t: CdcType, lot: any, generalBlockers: any[], generalError: string): CdcTypeResult {
-  const checks: TypeCheck[] = []
+  // 1.18(1)(b) first: it is the prerequisite the code's own zone list is only a proxy for
+  const checks: TypeCheck[] = [permissibilityCheck(t, lot)]
   for (const test of t.tests) {
     for (const c of test.checks) {
       if (c.column === 'lzn_sym_code') {
@@ -199,6 +304,34 @@ function evaluate(t: CdcType, lot: any, generalBlockers: any[], generalError: st
           actual: lot.inGreenfield ? 'inside the Greenfield Housing Code area' : 'outside it',
           pass: lot.inGreenfield,
         })
+      } else if (c.column === 'bushfire_prone') {
+        checks.push({
+          column: c.column, says: c.says,
+          actual: lot.bushfireProne == null ? null
+            : lot.bushfireProne ? 'bush fire prone land mapped on the lot' : 'none mapped',
+          pass: lot.bushfireProne == null ? null : !lot.bushfireProne,
+        })
+      } else if (c.column === 'ghc_excluded') {
+        // the inverse of ghc_lay_class: these codes are excluded FROM the Greenfield area
+        checks.push({
+          column: c.column, says: c.says,
+          actual: lot.inGreenfield ? 'inside the Greenfield Housing Code area' : 'outside it',
+          pass: !lot.inGreenfield,
+        })
+      } else if (c.column === 'esa_land') {
+        checks.push({
+          column: c.column, says: c.says,
+          actual: lot.inEsa == null ? null
+            : lot.inEsa ? 'an environmentally sensitive area covers the lot' : 'none covers the lot',
+          pass: lot.inEsa == null ? null : !lot.inEsa,
+        })
+      } else if (c.column === 'heritage_item') {
+        checks.push({
+          column: c.column, says: c.says,
+          actual: lot.hasHeritage == null ? null
+            : lot.hasHeritage ? 'a heritage layer covers the lot' : 'no heritage layer covers the lot',
+          pass: lot.hasHeritage == null ? null : !lot.hasHeritage,
+        })
       } else if (c.column === 'landsliderisk') {
         checks.push({
           column: c.column, says: c.says,
@@ -224,10 +357,12 @@ function evaluate(t: CdcType, lot: any, generalBlockers: any[], generalError: st
   /*
    * A type with NO evaluable checks is undecided, not eligible.
    *
-   * mid-rise-housing-pattern is the case: twelve requirements, none of them reducible to a column, and
-   * it does not inherit the general prerequisites either. Treating "nothing failed" as a pass would
-   * have reported it eligible on the strength of having tested nothing at all - the most confident
-   * answer on the page resting on the least evidence.
+   * The case that proved it was mid-rise, since removed from the catalogue for not being complying
+   * development at all: twelve requirements, none reducible to a column, and it did not inherit the
+   * general prerequisites either. Treating "nothing failed" as a pass would have reported it
+   * eligible on the strength of having tested nothing - the most confident answer on the page
+   * resting on the least evidence. The rule stays because the next such type will not announce
+   * itself.
    */
   const eligible = blockers.length || failed ? false
     : (generalUnknown || unknown || checks.length === 0) ? null
@@ -237,31 +372,48 @@ function evaluate(t: CdcType, lot: any, generalBlockers: any[], generalError: st
   const reasons = untestedReasons(t, derivedFor)
   const untested = reasons.reduce((n, r) => n + r.count, 0)
 
-  let verdict: string
+  /*
+   * The verdict, as separate statements rather than one sentence.
+   *
+   * It used to be assembled by string concatenation - headline, then every blocker comma-joined,
+   * then every untested reason semicolon-joined - which on a ruled-out type ran to four lines of
+   * prose with the actual reason buried mid-paragraph. These are distinct facts and each gets its
+   * own line. `verdict` is still produced, unchanged, because it reads well in a log and an API
+   * consumer may already depend on it.
+   */
+  const lines: { kind: 'head' | 'blocker' | 'fail' | 'unknown' | 'untested'; text: string }[] = []
   if (generalUnknown) {
-    verdict = `Cannot be decided: ${generalError}, and this type inherits the general prerequisites.`
+    lines.push({ kind: 'head', text: `Cannot be decided: ${generalError}, and this type inherits the general prerequisites.` })
   } else if (blockers.length) {
-    verdict = `Ruled out by ${blockers.length === 1 ? 'a general prerequisite' : blockers.length + ' general prerequisites'}: `
-      + blockers.map(b => b.title).join(', ') + '.'
+    lines.push({ kind: 'head', text: `Ruled out by ${blockers.length === 1 ? 'a general prerequisite' : blockers.length + ' general prerequisites'}:` })
+    for (const b of blockers) lines.push({ kind: 'blocker', text: b.title })
   } else if (failed) {
-    verdict = 'Fails ' + checks.filter(c => c.pass === false).map(c => c.says).join('; ') + '.'
+    lines.push({ kind: 'head', text: 'Fails:' })
+    for (const c of checks.filter(c => c.pass === false)) lines.push({ kind: 'fail', text: c.says })
   } else if (checks.length === 0) {
-    verdict = 'Nothing here can test this type: the workbook records no check that reduces to a lot.'
+    lines.push({ kind: 'head', text: 'Nothing here can test this type: the workbook records no check that reduces to a lot.' })
   } else if (unknown) {
-    verdict = 'Cannot be decided: ' + checks.filter(c => c.pass === null).map(c => c.column).join(', ') + ' not measured for this lot.'
+    lines.push({ kind: 'head', text: 'Cannot be decided:' })
+    for (const c of checks.filter(c => c.pass === null)) {
+      lines.push({ kind: 'unknown', text: `${c.column} not measured for this lot` })
+    }
   } else {
-    verdict = `Clears every check this route can make (${checks.length}).`
+    lines.push({ kind: 'head', text: `Clears every check this route can make (${checks.length}).` })
   }
   if (untested) {
     // NOT "they need a design, not a lot" - that was true of four requirements out of 68 and false of
-    // the rest. Each type now says what its own untested requirements actually wait on.
-    verdict += ` ${untested} of its ${t.requirements.length} requirements are not tested here: `
-      + reasons.map(r => `${r.count} ${r.reason}`).join('; ') + '.'
+    // the rest. Each type says what its own untested requirements actually wait on.
+    lines.push({ kind: 'head', text: `${untested} of its ${t.requirements.length} requirements are not tested here:` })
+    for (const r of reasons) lines.push({ kind: 'untested', text: `${r.count} ${r.reason}` })
   }
+  // the one-sentence form, kept for logs and any consumer already reading it
+  const verdict = lines.map((l, i) => l.kind === 'head' ? (i ? ' ' : '') + l.text
+    : (lines[i - 1]?.kind === 'head' ? ' ' : '; ') + l.text).join('').replace(/:\s/g, ': ')
 
   return {
     key: t.key, name: t.name, code: t.code, inheritsGeneral: t.inheritsGeneral,
     eligible, generalBlockers: blockers, checks, untested, untestedReasons: reasons,
+    verdictLines: lines,
     requirements: t.requirements.length, verdict,
   }
 }
@@ -293,6 +445,36 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
   if (!r) throw createError({ statusCode: 404, statusMessage: `No lot with cadid ${cadid}` })
 
   /*
+   * What each instrument over this lot says about the uses the codes turn on.
+   *
+   * A second round trip rather than a subquery on the first: this returns many rows per lot where
+   * the other returns one, and the join key is (epi_name, zone) read off the SAME zoning polygons
+   * the zone check uses, so the two can never disagree about which instrument applies.
+   */
+  const perm = await nswQuery<any>(`
+    WITH z AS (
+      SELECT DISTINCT z.epi_name, z.sym_code
+        FROM cadastre.lot l
+        JOIN epi.epi_land_zoning z ON z.geom && l.geom AND ST_Intersects(z.geom, l.geom)
+       WHERE l.cadid = $1 AND z.sym_code IS NOT NULL)
+    SELECT 'lep' AS source, z.epi_name AS instrument, z.sym_code AS zone,
+           p.land_use, p.status
+      FROM z JOIN nsw.lep_permissibility p
+        ON p.epi_name = z.epi_name AND p.zone_code = z.sym_code
+       AND lower(p.land_use) = ANY($2)
+    UNION ALL
+    -- the second route 1.18(1)(b) allows: an EPI other than the LEP applying to the same land
+    SELECT 'sepp', s.sepp, z.sym_code, s.land_use, 'permitted_with_consent'
+      FROM z JOIN nsw.sepp_permissible_landuse s
+        ON s.zone = z.sym_code AND lower(s.land_use) = ANY($2)`,
+    [cadid, [...new Set((await loadCriteria()).flatMap(x => x.landUses))].map(u => u.toLowerCase())])
+
+  r.permissibility = perm.rows.map((x: any) => ({
+    source: x.source, instrument: x.instrument, zone: x.zone,
+    landUse: x.land_use, status: x.status,
+  }))
+
+  /*
    * The general prerequisites, from the same catalogue-driven sweep /cdc-map uses.
    *
    * event.$fetch, not $fetch: the app sits behind a password middleware, and a bare $fetch from inside a
@@ -316,15 +498,43 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
     // area "unless the development is a detached outbuilding, detached development (other than a
     // detached studio) or swimming pool", and a bare "ruled out by: Heritage conservation areas" reads
     // as though nothing at all can be built there
-    .map(h => ({ title: h.title, clauses: h.clauses ?? [], note: h.note ?? null }))
+    /*
+     * Everything a reader needs to check the claim, not just the layer's name.
+     *
+     *   key       so the page can link to /cdc-map and say WHICH layer to draw
+     *   coverPct  "62% of the lot" is a different fact from "this layer touches the lot"
+     *   source    14 of the 66 live layers are esa.*, and those have their own page
+     */
+    .map(h => ({
+      title: h.title, clauses: h.clauses ?? [], note: h.note ?? null,
+      key: h.key ?? null, coverPct: h.coverPct ?? null,
+      source: h.source ?? null, names: h.names ?? null,
+    }))
   const generalGaps = ((at?.gaps ?? []) as any[]).map(g => ({ title: g.title, clauses: g.clauses ?? [] }))
+
+  /*
+   * Facts the type checks need that the general sweep has already measured.
+   *
+   * bush fire, landslide, the Greenfield area, the ESA layers and heritage are all cdc.layers, and
+   * /api/cdc/at has just tested every one of them against this lot. Asking the database again would
+   * be a second answer to a question already answered, and the two could disagree.
+   *
+   * null, not false, when the sweep failed: a clause we could not test is undecidable, and reading
+   * "no heritage layer hit" off an empty result would report a heritage lot as clear.
+   */
+  const atHits = ((at?.hits ?? []) as any[])
+  const hitWhere = (f: (h: any) => boolean) => generalError === '' ? atHits.some(f) : null
 
   const lot = {
     cadid: r.cadid, lotId: r.lot_id,
+    bushfireProne: hitWhere(h => h.key === 'bushfire_prone_land'),
+    inEsa: hitWhere(h => typeof h.source === 'string' && h.source.startsWith('esa.')),
+    hasHeritage: hitWhere(h => h.group === 'heritage'),
     areaM2: r.area_m2 == null ? null : Number(r.area_m2),
     widthM: r.width_at_setback_m != null ? Number(r.width_at_setback_m)
       : r.lot_width_max_m != null ? Number(r.lot_width_max_m) : null,
     zones: (r.zones ?? []) as string[],
+    permissibility: r.permissibility ?? [],
     inGreenfield: Boolean(r.in_greenfield),
     landslideRisk: Boolean(r.landslide_risk),
     isBattleaxe: r.is_battleaxe == null ? null : Boolean(r.is_battleaxe),
@@ -332,7 +542,23 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
     inInlandCode: Boolean(r.in_inland_code),
   }
 
-  const types = CDC_TYPES.map(t => evaluate(t, lot, generalBlockers, generalError))
+  /*
+   * Eligible first, then undecidable, then ruled out.
+   *
+   * These used to come back in catalogue order, so on a lot where only one of them works, the
+   * answer could sit anywhere in the list and the reader had to scan for it. Ordered by
+   * what the lot can actually do, the useful row is the first one.
+   *
+   * Sorted here rather than on the page because /report reads the same route, and two orderings of
+   * the same answers is a difference a reader would have to explain to themselves.
+   */
+  const VERDICT_ORDER = (e: boolean | null) => (e === true ? 0 : e === null ? 1 : 2)
+  const catalogue = await loadCriteria()
+  const types = catalogue
+    .map((t, i) => ({ ...evaluate(t, lot, generalBlockers, generalError), _i: i }))
+    // declaration order is the tie-break, so the list is stable within a group
+    .sort((a, b) => VERDICT_ORDER(a.eligible) - VERDICT_ORDER(b.eligible) || a._i - b._i)
+    .map(({ _i, ...rest }) => rest)
   return {
     lot,
     types,

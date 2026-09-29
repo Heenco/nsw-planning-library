@@ -132,9 +132,18 @@ export const CDC_ADDED: AddedRequirement[] = [
     after: '1.18(1)(a)',
     text: 'be permissible, with consent, under an environmental planning instrument applying to the land '
       + 'on which the development is carried out, and',
-    why: 'TESTABLE TODAY. We already resolve permissibility from the zone on /testing-spatial-services, '
-      + 'and this is the clause that makes it a prerequisite. See also 1.18(4), which excludes land that '
-      + 'is permissible only because of the Standard Instrument, Schedule 1, clause 5.',
+    why: 'NOW TESTED, per development type. Each code turns on a land use, and the check asks whether '
+      + 'that use is permitted with consent on this lot - from nsw.lep_permissibility joined on the '
+      + 'instrument and zone read off the lot polygon, or from nsw.sepp_permissible_landuse, which is '
+      + 'the second route the clause allows. It is not the same test as the zone: the Codes SEPP allows '
+      + 'a dual occupancy in R2, but only where the LEP applying to THAT land permits dual occupancies '
+      + 'in R2, and 148 LEPs answer differently for the same zone code. Ten of the twelve types map to '
+      + 'a Standard Instrument term directly. MANOR HOUSES DO NOT: "manor house" is not in the 203-term '
+      + 'vocabulary, so that type is tested against residential flat buildings OR multi dwelling housing '
+      + '- an inference, labelled as one wherever it appears. The mid-rise pathway is left untested for '
+      + 'the same reason, with none of its requirements testable yet. "Permitted without consent" does '
+      + 'not satisfy this clause either, since it asks for permissible WITH consent. Still to do: 1.18(4), '
+      + 'which excludes land permissible only because of the Standard Instrument, Schedule 1, clause 5.',
   },
   {
     clause: '1.18(1)(c)',

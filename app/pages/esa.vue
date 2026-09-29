@@ -459,18 +459,39 @@ function pickHighlighted() {
 
 async function pickLot(r: LotMatch) {
   listOpen.value = false
-  q.value = r.address || r.lotId || r.cadid
+  await openLot(r.cadid, r.address || r.lotId || r.cadid)
+}
+
+/*
+ * Opening a lot, by whatever route - the search list, or a ?cadid in the URL.
+ *
+ * Split out of pickLot so a link can do exactly what a click does. 14 of the 66 live layers in
+ * cdc.layers are ESA-sourced, so the CDC eligibility section points here when one of those is what
+ * caught a lot; before this there was no way to arrive with the lot already chosen.
+ */
+const route = useRoute()
+const router = useRouter()
+
+async function openLot(cadid: string, label?: string) {
+  q.value = label || cadid
   atBusy.value = true
   atError.value = ''
   at.value = null
+  // `replace`, not `push`: four lots in a row should not be four back-button entries
+  void router.replace({ query: { cadid } })
   try {
-    at.value = await $fetch<EsaAt>('/api/esa/at', { query: { cadid: r.cadid } })
+    at.value = await $fetch<EsaAt>('/api/esa/at', { query: { cadid } })
   } catch (e: any) {
     atError.value = e?.data?.statusMessage || e?.message || 'Could not test that lot.'
   } finally {
     atBusy.value = false
   }
 }
+
+onMounted(() => {
+  const cadid = String(route.query.cadid ?? '').trim()
+  if (cadid) void openLot(cadid)
+})
 
 const TABS = [
   { key: 'wide', label: 'Clause 3.3 itself', note: 'state-wide, every lot' },

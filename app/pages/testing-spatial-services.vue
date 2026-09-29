@@ -800,16 +800,41 @@
           <p v-if="cdcTypes.generalBlockers.length" class="lp-verdict lp-verdict--no">
             <strong>{{ cdcTypes.generalBlockers.length }} general
             {{ cdcTypes.generalBlockers.length === 1 ? 'prerequisite rules' : 'prerequisites rule' }} out every
-            type that inherits them</strong> &mdash;
-            {{ cdcTypes.generalBlockers.map((b: any) => b.title).join(', ') }}.
+            type that inherits them.</strong>
           </p>
+
+          <!-- What caught the lot, and where to go and look at it ─────────────────────────
+               The layer's name on its own is not a reason. The clause is the reason, the share
+               of the lot is how much of one, and the links are how a reader checks it rather
+               than taking it. 14 of the 66 live layers are esa.*, which have their own page. -->
+          <div v-if="cdcTypes.generalBlockers.length" class="lp-scroll">
+            <table class="lp-table lp-blockers">
+              <thead>
+                <tr><th>What caught it</th><th>Clause</th><th>Of the lot</th><th>Look at it</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="b in cdcTypes.generalBlockers" :key="b.key || b.title">
+                  <td>
+                    <strong>{{ b.title }}</strong>
+                    <span v-if="b.names && b.names.length" class="lp-dset-sub">{{ b.names.join(', ') }}</span>
+                    <span v-if="b.note" class="lp-blocker-note">{{ b.note }}</span>
+                  </td>
+                  <td><span v-for="(c, i) in b.clauses" :key="i" class="lp-mapcl">cl {{ c }}</span>
+                      <span v-if="!b.clauses.length" class="lp-dim">&mdash;</span></td>
+                  <td class="lp-num">{{ b.coverPct == null ? '—' : b.coverPct.toFixed(1) + '%' }}</td>
+                  <td>
+                    <NuxtLink v-if="b.key && openedCadid"
+                              :to="`/cdc-map?cadid=${openedCadid}&layer=${b.key}`">on the map</NuxtLink>
+                    <NuxtLink v-if="isEsaLayer(b) && openedCadid" class="lp-blocker-esa"
+                              :to="`/esa?cadid=${openedCadid}`">in ESA</NuxtLink>
+                    <span class="lp-dset-sub">{{ b.source }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <p v-else class="lp-verdict lp-verdict--yes">
             <strong>No general prerequisite catches this lot</strong> &mdash; each type below stands on its own tests.
-          </p>
-          <!-- the clause's own exception, where it has one. "Ruled out by: Heritage conservation areas"
-               reads as though nothing can be built; 1.19(1)(a) still allows a shed or a pool. -->
-          <p v-for="b in cdcTypes.generalBlockers.filter((x: any) => x.note)" :key="b.title" class="lp-note lp-note--warn">
-            <strong>{{ b.title }}:</strong> {{ b.note }}
           </p>
           <p v-if="cdcTypes.generalGaps.length" class="lp-note lp-note--warn">
             {{ cdcTypes.generalGaps.length }} general
@@ -835,7 +860,14 @@
                           :title="c.actual ? `lot has ${c.actual}` : 'not measured'">{{ c.says }}</span>
                     <span v-if="!t.checks.length" class="lp-dim">none testable</span>
                   </td>
-                  <td>{{ t.verdict }}</td>
+                  <!-- one statement per line: a ruled-out type states its blockers, its failed
+                       checks and what it could not test, and running them together buried the
+                       reason mid-paragraph -->
+                  <td>
+                    <span v-for="(l, i) in (t.verdictLines ?? [])" :key="i"
+                          class="lp-vline" :class="`lp-vline--${l.kind}`">{{ l.text }}</span>
+                    <span v-if="!t.verdictLines">{{ t.verdict }}</span>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -1428,6 +1460,11 @@ const planning = ref<Partial<Record<PlanningKey, { data: any; ms: number; error?
 // Both are recomputed rather than read. /report answers them from d_4's stored flags; here the CDC
 // answer is the cdc sweep already on this page, regrouped the way /report groups it, and the Pattern
 // Book is measured from the lot by /api/pattern-book/at.
+
+/** An ESA-sourced layer has a page of its own; 14 of the 66 live cdc layers read from esa.*. */
+function isEsaLayer(b: any) {
+  return typeof b?.source === 'string' && b.source.startsWith('esa.')
+}
 
 const cdcTypes = ref<any>(null)
 const cdcTypesError = ref('')
@@ -2155,6 +2192,22 @@ body { margin: 0; background: #f8fafb; }
 .lp-env-others { display: block; margin-top: 2px; font-size: 11.5px; color: #64748b; }
 .lp-env-others a { margin-right: 5px; }
 .lp-mapcl { display: inline-block; margin-right: 7px; white-space: nowrap; }
+/* the verdict, line by line: the headline sits flush, the facts under it are indented so the
+   shape of the answer is visible before a word of it is read */
+.lp-vline { display: block; }
+.lp-vline--head { margin-top: 5px; font-weight: 600; color: #0f172a; }
+.lp-vline--head:first-child { margin-top: 0; }
+.lp-vline--blocker, .lp-vline--fail { padding-left: 10px; color: #991b1b; }
+.lp-vline--unknown { padding-left: 10px; color: #6d28d9; }
+.lp-vline--untested { padding-left: 10px; color: #64748b; }
+.lp-blockers { width: 100%; table-layout: fixed; }
+.lp-blockers td:nth-child(1) { width: 40%; }
+.lp-blockers td:nth-child(2) { width: 18%; }
+.lp-blockers td:nth-child(3) { width: 12%; }
+.lp-blockers td:nth-child(4) { width: 30%; }
+.lp-blockers tbody td { white-space: normal; overflow-wrap: anywhere; vertical-align: top; }
+.lp-blocker-note { display: block; margin-top: 3px; font-size: 11.5px; color: #92400e; }
+.lp-blocker-esa { margin-left: 8px; }
 .lp-unlock { width: 100%; }
 .lp-unlock td:nth-child(1) { width: 8%; }
 .lp-unlock td:nth-child(2) { width: 22%; }
@@ -2449,7 +2502,10 @@ body { margin: 0; background: #f8fafb; }
 .lp-gate--no { background: #fee2e2; color: #991b1b; }
 .lp-gate--open { background: #fef3c7; color: #92400e; }
 .lp-pb-block { margin-bottom: 0.25rem; display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; }
-.lp-pb-check { font-size: 0.7rem; padding: 0.05rem 0.35rem; border-radius: 4px; background: #f1f5f9; color: #475569; white-space: nowrap; }
+/* nowrap suited the short pattern-book pills; a cl 1.18(1)(b) label naming the land use is
+   longer than the column, and a pill that cannot wrap overflows into the next cell instead. */
+.lp-pb-check { font-size: 0.7rem; padding: 0.05rem 0.35rem; border-radius: 4px; background: #f1f5f9;
+               color: #475569; white-space: normal; overflow-wrap: anywhere; display: inline-block; }
 .lp-pb-check--no { background: #fee2e2; color: #991b1b; }
 .lp-pb-check--unk { background: #f5f3ff; color: #6d28d9; }
 .lp-dset-sub { display: block; font-size: 0.7rem; color: #94a3b8; }
