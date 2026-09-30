@@ -1017,17 +1017,30 @@
             &middot; {{ pattern.lot.maxSlopePct != null ? 'slope ' + pattern.lot.maxSlopePct.toFixed(1) + '% max' : 'slope unknown' }}
             &middot; {{ pattern.lot.isCorner ? 'corner lot' : 'not a corner lot' }}
             &middot; {{ pattern.lot.inTod ? 'in a TOD precinct' : 'not in a TOD precinct' }}
+            &middot; {{ pattern.lot.lmrBand ? pattern.lot.lmrBand + ' band of an LMR area' : 'no LMR area' }}
+            <template v-if="pattern.lot.depthM != null">&middot; {{ pattern.lot.depthM.toFixed(0) }} m deep</template>
           </p>
           <ul class="lp-caveats">
             <li v-for="(c, i) in pattern.caveats" :key="i">{{ c }}</li>
           </ul>
           <div class="lp-scroll">
             <table class="lp-table lp-pb-table">
-              <thead><tr><th>Design</th><th>Category</th><th>Needs</th><th>Area gate</th><th>Thresholds</th></tr></thead>
+              <thead><tr><th>Design</th><th>Pathway</th><th>Needs</th><th>Area gate</th>
+                <th>What stands in front</th><th>Thresholds</th></tr></thead>
               <tbody>
                 <tr v-for="d in pattern.designs" :key="d.key">
                   <td>{{ d.designer }}<span class="lp-dset-sub">{{ d.key }}</span></td>
-                  <td>{{ d.category }}</td>
+                  <!-- the pathway IS the difference: Part 3BA is complying development and carries the
+                       Codes SEPP prerequisites; Chapter 7 is a development application with its own
+                       exclusions at s 182, and the Codes SEPP does not reach it -->
+                  <td>
+                    <span class="lp-via" :class="d.pathway === 'da' ? 'lp-via--esa' : 'lp-via--cdc'">
+                      {{ d.pathway === 'da' ? 'DA' : 'CDC' }}
+                    </span>
+                    {{ d.category }}
+                    <span class="lp-dset-sub">{{ d.pathway === 'da'
+                      ? 'Housing SEPP Ch 7 - needs consent' : 'Codes SEPP Part 3BA' }}</span>
+                  </td>
                   <td>{{ d.requiredUse }}<span v-if="d.requiresCornerLot" class="lp-dset-sub">corner lot</span></td>
                   <td>
                     <span class="lp-gate" :class="d.areaGate === true ? 'lp-gate--yes' : d.areaGate === false ? 'lp-gate--no' : 'lp-gate--open'">
@@ -1036,7 +1049,16 @@
                     <span class="lp-dset-sub">{{ d.areaGateWhy }}</span>
                   </td>
                   <td>
-                    <div v-for="b in d.blocks" :key="b.block" class="lp-pb-block">
+                    <span class="lp-gate" :class="d.gatesClear === true ? 'lp-gate--yes' : d.gatesClear === false ? 'lp-gate--no' : 'lp-gate--open'">
+                      {{ d.gatesClear === true ? 'all clear' : d.gatesClear === false ? 'ruled out' : 'not all testable' }}
+                    </span>
+                    <span v-for="(g, i) in (d.gates ?? [])" :key="i" class="lp-pb-check"
+                          :class="g.pass === false ? 'lp-pb-check--no' : g.pass === null ? 'lp-pb-check--unk' : ''"
+                          :title="g.what + ' - ' + g.why">{{ g.clause }}</span>
+                  </td>
+                  <td>
+                    <!-- only the block that governs; the other numbers are behind the summary below -->
+                    <div v-for="b in d.blocks.filter((x: any) => x.governs !== false)" :key="b.block" class="lp-pb-block">
                       <span class="lp-gate" :class="b.qualifies === true ? 'lp-gate--yes' : b.qualifies === false ? 'lp-gate--no' : 'lp-gate--open'">
                         {{ b.block }}
                       </span>
@@ -1046,6 +1068,16 @@
                         / {{ c.required }}{{ c.unit }}
                       </span>
                     </div>
+                    <details v-if="d.blocks.some((x: any) => x.governs === false)" class="lp-pb-other">
+                      <summary>the other block's numbers</summary>
+                      <div v-for="b in d.blocks.filter((x: any) => x.governs === false)" :key="b.block" class="lp-pb-block">
+                        <span class="lp-gate lp-gate--open">{{ b.block }}</span>
+                        <span v-for="c in b.checks" :key="c.label" class="lp-pb-check">
+                          {{ c.label }} {{ c.actual == null ? '?' : c.actual.toFixed(c.unit === 'm²' ? 0 : 1) }}{{ c.unit }}
+                          / {{ c.required }}{{ c.unit }}
+                        </span>
+                      </div>
+                    </details>
                   </td>
                 </tr>
               </tbody>
@@ -2623,13 +2655,18 @@ body { margin: 0; background: #f8fafb; }
 .lp-note--warn { color: #92400e; }
 /* fixed layout so the Thresholds column keeps its room - left to itself the browser gives the long
    "area gate" prose most of the table and clips the numbers, which are the point of the row */
-.lp-pb-table { table-layout: fixed; }
-.lp-pb-table th:nth-child(1), .lp-pb-table td:nth-child(1) { width: 17%; }
-.lp-pb-table th:nth-child(2), .lp-pb-table td:nth-child(2) { width: 12%; }
-.lp-pb-table th:nth-child(3), .lp-pb-table td:nth-child(3) { width: 10%; }
-.lp-pb-table th:nth-child(4), .lp-pb-table td:nth-child(4) { width: 25%; }
-.lp-pb-table th:nth-child(5), .lp-pb-table td:nth-child(5) { width: 36%; }
-.lp-pb-table td { overflow-wrap: anywhere; white-space: normal; }
+/* Six columns since the pathway and its gates were split out. With table-layout: fixed the HEADER
+   row sets the widths, so every rule here has to name th as well as td - a td-only rule leaves the
+   new column at zero width, which wraps its content one word per line and makes a 1,700px row. */
+.lp-pb-table { table-layout: fixed; width: 100%; }
+.lp-pb-table th:nth-child(1), .lp-pb-table td:nth-child(1) { width: 15%; }
+.lp-pb-table th:nth-child(2), .lp-pb-table td:nth-child(2) { width: 13%; }
+.lp-pb-table th:nth-child(3), .lp-pb-table td:nth-child(3) { width:  9%; }
+.lp-pb-table th:nth-child(4), .lp-pb-table td:nth-child(4) { width: 17%; }
+.lp-pb-table th:nth-child(5), .lp-pb-table td:nth-child(5) { width: 20%; }
+.lp-pb-table th:nth-child(6), .lp-pb-table td:nth-child(6) { width: 26%; }
+.lp-pb-table td { overflow-wrap: anywhere; white-space: normal; vertical-align: top; }
+.lp-pb-other { margin-top: 4px; font-size: 11.5px; color: #64748b; }
 /* .lp-table td is nowrap, which is right for the raw column dumps this page is mostly made of - one
    row per record, scrolled sideways - and wrong for the two prose columns here */
 .lp-verdict { margin: 0.2rem 0 0.6rem; padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.82rem; border-left: 3px solid; }
