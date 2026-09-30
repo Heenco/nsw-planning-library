@@ -48,17 +48,39 @@ export interface MissingCode {
 }
 
 /**
- * The ten paragraphs of the environmentally sensitive area test are the DEFINITION in clause 1.5(1),
- * the dictionary. Clause 1.17A(1)(e) is a single paragraph that refers to it; the instrument has no
- * 1.17A(1)(e)(a). The workbook listed them indented under 1.17A(1)(e) and the generator turned that
- * indentation into a sub-paragraph number. The WORDING we carry is right; only the citation is invented.
+ * The ten paragraphs of the environmentally sensitive area test belong to the LEP, not to this clause.
+ *
+ * Verified 30 September against the instruments themselves rather than the workbook:
+ *
+ *   epi-2008-0572 cl 1.17A(1)(e), verbatim - "except as otherwise provided by this Policy, be on land
+ *   that is within an environmentally sensitive area." ONE paragraph. The instrument has no
+ *   1.17A(1)(e)(a); the workbook listed the definition indented beneath it and the generator turned
+ *   that indentation into a sub-paragraph number.
+ *
+ *   Albury LEP 2010 cl 3.3(2) - "environmentally sensitive area for exempt or complying development
+ *   means any of the following - (a) the coastal waters of the State ... (j) ... (ja) land within the
+ *   Landfill Buffer Area". THAT is the (a)-(j) list, every LEP carries it, and (ja) onwards are what
+ *   an individual plan inserts. It is what esa.layers has always cited, correctly.
+ *
+ * The right citation is therefore the LEP's, with the Codes SEPP paragraph that consumes it:
+ * "LEP cl 3.3(2)(g)" -> "Codes SEPP cl 1.17A(1)(e)". Both now sit on esa.layers as `clause` and
+ * `cdc_clause`.
+ *
+ * NOT VERIFIED: where the Codes SEPP itself defines the term. The copy we hold
+ * (public/EPI/SEPP/epi-2008-0572_2026-03-26.xml) contains no Dictionary - the word does not appear -
+ * and the term is used nine times without being defined. An earlier version of this note asserted
+ * clause 1.5(1); that was not checkable against anything we hold, so it is not claimed here.
+ *
+ * The WORDING we carry is right either way; only the citation was invented.
  */
 export const CDC_CLAUSE_FIXES: ClauseFix[] = [
   ...'abcdefghij'.split('').map(letter => ({
     wrong: `1.17A(1)(e)(${letter})`,
-    right: `1.5(1), "environmentally sensitive area", para (${letter})`,
-    why: 'These ten paragraphs are the dictionary definition in clause 1.5(1), not sub-paragraphs of '
-      + '1.17A(1)(e). The instrument gives 1.17A(1)(e) no paragraphs at all.',
+    right: `LEP cl 3.3(2)(${letter})`,
+    why: 'These ten paragraphs are the LEP definition of "environmentally sensitive area for exempt '
+      + 'or complying development", not sub-paragraphs of 1.17A(1)(e) - the instrument gives that '
+      + 'paragraph none at all. Codes SEPP cl 1.17A(1)(e) is what excludes complying development on '
+      + 'land the LEP clause catches.',
   })),
   {
     wrong: '1.19(1)(j)(i)',

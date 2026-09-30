@@ -64,6 +64,29 @@ export interface EsaAtHit {
   coverageType: string | null
   /** Additions only: the item has to be checked by hand before it is relied on. */
   verifyRequired: boolean
+  /** Additions only: the plan's own words for the exception, and its reference in the plan. */
+  exceptionText: string | null
+  planRef: string | null
+  /** The LEP paragraph that makes the land sensitive, e.g. "LEP cl 3.3(2)(g)". */
+  clause: string | null
+  /** The Codes SEPP paragraph that stops complying development on it: cl 1.17A(1)(e). */
+  cdcClause: string | null
+}
+
+/**
+ * Every state-wide layer the lot was tested against, caught or not - so a panel can show the whole
+ * clause, item by item, rather than only what was found. Clear is a claim too, and it needs its list.
+ */
+export interface EsaAtTested {
+  key: string
+  paragraph: string | null
+  item: string
+  kind: 'exclusion' | 'context'
+  /** What the layer is for, from esa.layers. */
+  role: string | null
+  source: string | null
+  caveat: string | null
+  verified: boolean
 }
 
 export interface EsaAtGap {
@@ -92,11 +115,13 @@ export interface EsaAtResponse {
     gaps: number
   }
   gaps: EsaAtGap[]
+  /** Every state-wide layer tested, in paragraph order - the hits are a subset of these. */
+  tested: EsaAtTested[]
   ms: number
 }
 
 const CACHE_MS = 5 * 60 * 1000
-let cached: { at: number; sql: string; meta: Map<string, any>; gaps: EsaAtGap[]; tested: number } | null = null
+let cached: { at: number; sql: string; meta: Map<string, any>; gaps: EsaAtGap[]; tested: number; testedList: EsaAtTested[] } | null = null
 
 /** One UNION ALL over every clause 3.3 layer that holds features, plus the plan additions. */
 async function build() {
@@ -106,7 +131,8 @@ async function build() {
   // the Biodiversity Values map reads as an exclusion when it is the Offsets Scheme entry map and
   // carries no exempt-or-complying-development consequence at all.
   const reg = await nswQuery<any>(`
-    SELECT key, paragraph, item, table_name, kind, note
+    SELECT key, paragraph, item, table_name, kind, note, role, source, caveat, verified,
+           clause, cdc_clause
     FROM esa.layers
     WHERE half = 'clause33'
     ORDER BY coalesce(paragraph, 'z'), item`)
@@ -133,6 +159,7 @@ async function build() {
   const parts: string[] = []
   const meta = new Map<string, any>()
   const gaps: EsaAtGap[] = []
+  const testedList: EsaAtTested[] = []
 
   for (const r of reg.rows) {
     if (!r.table_name) {
@@ -154,24 +181,30 @@ async function build() {
         ${name ? `array_agg(DISTINCT c."${name}"::text) FILTER (WHERE c."${name}" IS NOT NULL)` : 'NULL::text[]'} AS names,
         100 * ST_Area(ST_Transform(${caught}, 3308)) / NULLIF(max(t.area_m2), 0) AS cover_pct,
         ST_AsGeoJSON(ST_Transform(${caught}, 4283), 6) AS geojson,
-        NULL::text AS coverage_type, false AS verify_required
+        NULL::text AS coverage_type, false AS verify_required, NULL::text AS exception_text, NULL::text AS plan_ref
       FROM "${schema}"."${rel}" c, t
       WHERE c."${t.gcol}" && ${g} AND ST_Intersects(c."${t.gcol}", ${g})`)
-    meta.set(r.key, { half: 'statewide', paragraph: r.paragraph, item: r.item, kind: r.kind })
+    meta.set(r.key, { half: 'statewide', paragraph: r.paragraph, item: r.item, kind: r.kind,
+                      clause: r.clause, cdcClause: r.cdc_clause })
+    testedList.push({
+      key: r.key, paragraph: r.paragraph, item: r.item, kind: r.kind === 'context' ? 'context' : 'exclusion',
+      role: r.role ?? null, source: r.source ?? null, caveat: r.caveat ?? null, verified: Boolean(r.verified),
+    })
   }
 
   // the additions, one row per exception item rather than one per layer, so an advisory item keeps its
   // own tier and verify flag instead of being averaged into a layer
   const add = byRel.get('esa.additional_exceptions')
   if (add?.gcol) {
-    const g = `ST_Transform(t.g, ${Number(add.srid) || 4326})`
+    const g = `ST_Transform(t.g, ${Number(add.srid) || 4283})`   // everything is 4283 now
     const caught = `ST_Union(ST_Intersection(ST_ClipByBox2D(c."${add.gcol}", ST_Envelope(${g})), ${g}))`
     parts.push(`SELECT 'addition:' || c.id::text AS key,
         array_agg(DISTINCT concat_ws(' ', c.lep_name, c.ref)) AS names,
         100 * ST_Area(ST_Transform(${caught}, 3308)) / NULLIF(max(t.area_m2), 0) AS cover_pct,
         ST_AsGeoJSON(ST_Transform(${caught}, 4283), 6) AS geojson,
         max(c.coverage_type)::text AS coverage_type,
-        bool_or(coalesce(c.verify_required, false)) AS verify_required
+        bool_or(coalesce(c.verify_required, false)) AS verify_required,
+        max(c.exception_text)::text AS exception_text, max(c.ref)::text AS plan_ref
       FROM esa.additional_exceptions c, t
       WHERE c."${add.gcol}" && ${g} AND ST_Intersects(c."${add.gcol}", ${g})
       GROUP BY c.id`)
@@ -192,7 +225,7 @@ async function build() {
 `
     + parts.join('\nUNION ALL\n')
 
-  cached = { at: Date.now(), sql, meta, gaps, tested: parts.length }
+  cached = { at: Date.now(), sql, meta, gaps, tested: parts.length, testedList }
   return cached
 }
 
@@ -205,7 +238,9 @@ interface LotRow {
   geojson: string | null
 }
 
-const LOT_COLUMNS = `cadid, lotidstring AS "lotId", lganame AS lga,
+// cadastre.lot.lganame is NULL on every row; derived.lot_lga is where the council actually lives
+const LOT_COLUMNS = `cadid, lotidstring AS "lotId",
+                     coalesce(lganame, (SELECT ll.lga_name FROM derived.lot_lga ll WHERE ll.cadid = cadastre.lot.cadid)) AS lga,
                      ST_Area(geom::geography) AS "areaM2",
                      ST_AsEWKT(geom) AS ewkt, ST_AsGeoJSON(geom, 6) AS geojson`
 
@@ -230,7 +265,9 @@ export default defineEventHandler(async (event): Promise<EsaAtResponse> => {
     : nswQuery<LotRow>(
         `SELECT ${LOT_COLUMNS} FROM cadastre.lot
          WHERE geom && $1::geometry AND ST_Intersects(geom, $1::geometry)
-         ORDER BY shape_area NULLS LAST LIMIT 1`, [point])
+         ORDER BY ST_Area(geom) LIMIT 1`, [point])
+  // cadastre.lot has no shape_area column: ordering by it threw, the catch below swallowed it, and every
+  // map click fell back to testing a bare point (the same bug /api/cdc/at had, fixed 2026-09-29)
   ).catch(() => ({ rows: [] as LotRow[] }))
 
   const lot = lotRes.rows[0] ?? null
@@ -238,7 +275,7 @@ export default defineEventHandler(async (event): Promise<EsaAtResponse> => {
     throw createError({ statusCode: 404, statusMessage: `No lot with cadid ${cadid}` })
   }
 
-  const { sql, meta, gaps, tested } = await build()
+  const { sql, meta, gaps, tested, testedList } = await build()
   const res = await nswQuery<any>(sql, [lot?.ewkt ?? point!])
 
   const hits: EsaAtHit[] = res.rows
@@ -256,8 +293,20 @@ export default defineEventHandler(async (event): Promise<EsaAtResponse> => {
         coverPct: r.cover_pct == null ? 0 : Math.min(100, Number(r.cover_pct)),
         geom: r.geojson ? JSON.parse(r.geojson) : null,
         kind: m.kind === 'context' ? 'context' as const : 'exclusion' as const,
+        /*
+         * The citation chain, so a reader can follow the answer back to the instruments:
+         *   clause     the LEP paragraph that makes the land sensitive - LEP cl 3.3(2)(g)
+         *   cdcClause  the Codes SEPP paragraph that stops complying development on it
+         * An addition is the same chain with the plan's own name on the front.
+         */
+        clause: isAdd
+          ? (r.plan_ref ? `LEP cl 3.3(2)${String(r.plan_ref).trim()}` : 'LEP cl 3.3(2)')
+          : (m.clause ?? null),
+        cdcClause: isAdd ? 'Codes SEPP cl 1.17A(1)(e)' : (m.cdcClause ?? null),
         coverageType: r.coverage_type ?? null,
         verifyRequired: Boolean(r.verify_required),
+        exceptionText: r.exception_text ?? null,
+        planRef: r.plan_ref ?? null,
       }
     })
     // state-wide first - they are the exclusions - then the additions, biggest share first within each
@@ -280,6 +329,7 @@ export default defineEventHandler(async (event): Promise<EsaAtResponse> => {
       gaps: gaps.length,
     },
     gaps,
+    tested: testedList,
     ms: Date.now() - started,
   }
 })

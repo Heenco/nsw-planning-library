@@ -12,10 +12,11 @@
  * excluded while a hit on the zoning layer reads as a fact - every lot in NSW is inside a zone, and
  * reporting that as a failure would exclude the state.
  *
- * The lot is transformed into each layer's own SRID rather than the layers into one common SRID. epi is
- * in 4283 and one lmr table is in 4326, and transforming the layer side would make its GiST index
- * unusable: the predicate would no longer be on the indexed column. Transforming the single small lot
- * costs nothing and keeps every index a real index.
+ * The lot is transformed into each layer's own SRID rather than the layers into one common SRID.
+ * Every geometry column is 4283 as of 30 September, so that transform is now a no-op - but the shape
+ * stays, because transforming the LAYER side would make its GiST index unusable: the predicate would
+ * no longer be on the indexed column. Transforming the single small lot costs nothing, and the day a
+ * layer arrives in another SRID this keeps working instead of failing on mixed SRIDs.
  *
  * Each hit carries the intersection clipped to the lot, so the map can draw exactly the part of the lot
  * that is caught rather than a statewide polygon.

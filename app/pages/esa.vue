@@ -76,39 +76,12 @@
         </div>
         <p v-if="searchMsg" class="ea-lot-msg">{{ searchMsg }}</p>
 
-        <template v-if="atBusy"><p class="ea-lot-msg">Testing the lot&hellip;</p></template>
-        <template v-else-if="atError"><p class="ea-lot-msg ea-lot-msg--err">{{ atError }}</p></template>
-        <template v-else-if="at">
-          <p class="ea-lot-head">
-            <strong>{{ at.lot?.lotId || at.lot?.cadid }}</strong>
-            <span class="ea-lot-dim">{{ at.summary.tested }} layers tested &middot; {{ at.ms }} ms</span>
-          </p>
-          <p class="ea-lot-verdict" :class="at.summary.statewide ? 'ea-lot-verdict--caught' : 'ea-lot-verdict--clear'">
-            <template v-if="at.summary.statewide">
-              Environmentally sensitive: <strong>{{ at.summary.statewide }}</strong>
-              state-wide {{ at.summary.statewide === 1 ? 'item' : 'items' }} catch this lot.
-            </template>
-            <template v-else>No state-wide clause 3.3 item catches this lot.</template>
-            <template v-if="at.summary.gaps">
-              <br>{{ at.summary.gaps }} {{ at.summary.gaps === 1 ? 'item has' : 'items have' }}
-              no dataset, so it cannot be fully cleared.
-            </template>
-          </p>
-          <ul class="ea-lot-hits">
-            <li v-for="h in at.hits" :key="h.key" class="ea-lot-hit" :class="`ea-lot-hit--${h.kind}`">
-              <span class="ea-lot-hit-item">{{ h.item }}</span>
-              <span class="ea-lot-hit-meta">
-                <template v-if="h.paragraph">cl 3.3({{ h.paragraph }})</template>
-                <template v-else-if="h.half === 'addition'">plan addition</template>
-                <template v-else>not a clause 3.3 exclusion</template>
-                &middot; {{ h.coverPct.toFixed(1) }}%
-                <template v-if="h.coverageType"> &middot; {{ h.coverageType }}</template>
-                <template v-if="h.verifyRequired"> &middot; verify by hand</template>
-              </span>
-              <span v-if="h.names.length" class="ea-lot-hit-names">{{ h.names.slice(0, 3).join('; ') }}</span>
-            </li>
-          </ul>
-        </template>
+        <p v-if="atBusy" class="ea-lot-msg">Testing the lot&hellip;</p>
+        <p v-else-if="atError" class="ea-lot-msg ea-lot-msg--err">{{ atError }}</p>
+        <p v-else-if="at" class="ea-lot-msg">
+          <strong>{{ at.lot?.lotId || at.lot?.cadid || 'this point' }}</strong> &mdash; the full answer is on the right.
+        </p>
+        <p v-else class="ea-lot-msg">Search a lot, or click one on the map.</p>
       </div>
 
         <div class="ea-tabs">
@@ -345,7 +318,104 @@
 
       <!-- ── how it was built ─────────────────────────────────────────────── -->
       <aside class="ea-guide">
-        <div class="ea-guide-inner">
+        <div class="ea-gtabs" role="tablist">
+          <button type="button" role="tab" class="ea-gtab" :class="{ 'ea-gtab--on': guideTab === 'lot' }"
+                  :aria-selected="guideTab === 'lot'" @click="guideTab = 'lot'">This lot</button>
+          <button type="button" role="tab" class="ea-gtab" :class="{ 'ea-gtab--on': guideTab === 'build' }"
+                  :aria-selected="guideTab === 'build'" @click="guideTab = 'build'">How it's built</button>
+        </div>
+
+        <!-- ── This lot: clause 3.3 against the lot, item by item ──────────────
+             Every state-wide item is listed, not only the ones that caught the lot:
+             "clear" is a claim too, and it is only worth something beside the list it
+             was tested against. Gaps sit in their paragraph, as untested. -->
+        <div v-if="guideTab === 'lot'" class="ea-guide-inner">
+          <p v-if="atBusy" class="ea-dim">Testing the lot&hellip;</p>
+          <p v-else-if="atError" class="ea-error">{{ atError }}</p>
+          <template v-else-if="at">
+            <div class="ea-lothead">
+              <h2 class="ea-h2">{{ at.lot?.lotId || at.lot?.cadid || 'A point with no lot' }}</h2>
+              <button type="button" class="ea-x" aria-label="Clear" @click="clearLot">&times;</button>
+            </div>
+            <p class="ea-lotfacts">
+              {{ at.lot?.lga || 'council not recorded' }}
+              <template v-if="at.lot?.areaM2"> &middot; {{ fmt(at.lot.areaM2) }} m²</template>
+              &middot; {{ at.basis === 'lot' ? 'the lot polygon, shrunk 10 cm' : 'a single point - no lot here' }}
+              &middot; {{ at.ms }} ms
+              <button v-if="at.lotGeom" type="button" class="ea-link" @click="zoomToLot">zoom to</button>
+            </p>
+            <p class="ea-lot-verdict" :class="at.summary.statewide ? 'ea-lot-verdict--caught' : 'ea-lot-verdict--clear'">
+              <template v-if="at.summary.statewide">
+                <strong>Environmentally sensitive land.</strong> {{ at.summary.statewide }} state-wide clause 3.3
+                {{ at.summary.statewide === 1 ? 'item catches' : 'items catch' }} this lot.
+              </template>
+              <template v-else><strong>No state-wide clause 3.3 item catches this lot.</strong></template>
+              <template v-if="at.summary.gaps">
+                {{ at.summary.gaps }} {{ at.summary.gaps === 1 ? 'item has' : 'items have' }} no dataset, so it cannot be
+                fully cleared.
+              </template>
+            </p>
+
+            <h3 class="ea-h3">Clause 3.3, item by item</h3>
+            <section v-for="g in lotByParagraph" :key="g.para" class="ea-lpara">
+              <h4 class="ea-lpara-h">
+                <i class="ea-key" :style="{ background: fillOf(g.para), borderColor: lineOf(g.para) }" />
+                {{ g.para === '?' ? 'Not a clause 3.3 paragraph' : `Paragraph (${g.para})` }}
+              </h4>
+              <ul class="ea-lrows">
+                <li v-for="r in g.rows" :key="r.key" class="ea-lrow" :class="`ea-lrow--${r.status}`">
+                  <div class="ea-lrow-head">
+                    <span class="ea-lrow-item">{{ r.item }}</span>
+                    <span class="ea-lrow-status">{{ LOT_STATUS[r.status] }}<template v-if="r.cover != null"> &middot; {{ r.cover.toFixed(1) }}%</template></span>
+                  </div>
+                  <p v-if="r.names.length" class="ea-lrow-names">{{ r.names.slice(0, 4).join('; ') }}</p>
+                  <p v-if="r.status === 'context'" class="ea-lrow-note">A fact about the lot, not a clause 3.3 exclusion.</p>
+                  <p v-if="r.reason" class="ea-lrow-note">{{ r.reason }}</p>
+                  <details v-if="r.role || r.caveat || r.source" class="ea-lrow-more">
+                    <summary>about this layer</summary>
+                    <p v-if="r.role">{{ r.role }}</p>
+                    <p v-if="r.source" class="ea-dim">
+                      <a v-if="isUrl(r.source)" :href="r.source" target="_blank" rel="noopener" class="ea-src">{{ sourceLabel(r.source) }}</a>
+                      <template v-else>{{ r.source }}</template>
+                      <template v-if="r.verified"> &middot; <span class="ea-ok">reconciled</span></template>
+                    </p>
+                    <p v-if="r.caveat" class="ea-warn">{{ r.caveat }}</p>
+                  </details>
+                </li>
+              </ul>
+            </section>
+
+            <h3 class="ea-h3">What local plans add</h3>
+            <p v-if="!lotAdditions.length" class="ea-lead">No plan addition reaches this lot.</p>
+            <ul v-else class="ea-lrows">
+              <li v-for="h in lotAdditions" :key="h.key" class="ea-lrow" :class="h.coverageType === 'advisory' ? 'ea-lrow--advisory' : 'ea-lrow--caught'">
+                <div class="ea-lrow-head">
+                  <span class="ea-lrow-item">{{ h.names[0] || h.item }}</span>
+                  <span class="ea-lrow-status">
+                    <span class="ea-pill" :class="`ea-pill--${h.coverageType || 'precise'}`">{{ h.coverageType || 'precise' }}</span>
+                    &middot; {{ h.coverPct.toFixed(1) }}%
+                  </span>
+                </div>
+                <p v-if="h.exceptionText" class="ea-lrow-names">{{ h.exceptionText }}</p>
+                <p class="ea-lrow-note">
+                  <template v-if="h.coverageType === 'advisory'">Advisory: the exception exists somewhere in this plan and is drawn over the whole council area - it does not say this lot is caught.</template>
+                  <template v-else>Precise: drawn from the plan's own layer, so a hit means what it says.</template>
+                  <template v-if="h.verifyRequired"> Check it by hand before relying on it.</template>
+                </p>
+              </li>
+            </ul>
+          </template>
+          <template v-else>
+            <h2 class="ea-h2">This lot</h2>
+            <p class="ea-lead">
+              Click a lot on the map, or search one on the left. Every clause 3.3 item is then tested against the
+              lot polygon, and each one is listed here - what caught the lot and how much of it, what it is clear
+              of, and what has no dataset to test against.
+            </p>
+          </template>
+        </div>
+
+        <div v-if="guideTab === 'build'" class="ea-guide-inner">
           <h2 class="ea-h2">{{ tab === 'wide' ? 'How the state-wide set is built' : 'How the additions are built' }}</h2>
           <p class="ea-lead">{{ tab === 'wide' ? ESA33_LEAD : ESA_LEAD }}</p>
           <ol class="ea-steps">
@@ -383,6 +453,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ESA33_CAVEATS, ESA33_LEAD, ESA33_STEPS, ESA_CAVEATS, ESA_LEAD, ESA_STEPS } from '#shared/esa-method'
 import type { EsaBuild, EsaItem } from '../../server/api/esa/index.get'
 import type { Clause33Build } from '../../server/api/esa/clause33.get'
+import type { EsaAtResponse } from '../../server/api/esa/at.get'
 
 useHead({ title: 'Environmentally sensitive areas · Planning Library' })
 
@@ -399,17 +470,7 @@ const { data: wide, error: wideError } = await useFetch<Clause33Build>('/api/esa
 // that costs someone a certificate.
 
 interface LotMatch { cadid: string; lotId: string | null; address: string | null }
-interface EsaAtHit {
-  key: string; half: 'statewide' | 'addition'; paragraph: string | null; item: string
-  names: string[]; coverPct: number; kind: 'exclusion' | 'context'
-  coverageType: string | null; verifyRequired: boolean
-}
-interface EsaAt {
-  lot: { cadid: string | null; lotId: string | null } | null
-  hits: EsaAtHit[]
-  summary: { statewide: number; additions: number; advisory: number; tested: number; gaps: number }
-  ms: number
-}
+type EsaAt = EsaAtResponse
 
 const q = ref('')
 const results = ref<LotMatch[]>([])
@@ -459,7 +520,7 @@ function pickHighlighted() {
 
 async function pickLot(r: LotMatch) {
   listOpen.value = false
-  await openLot(r.cadid, r.address || r.lotId || r.cadid)
+  await openLot({ cadid: r.cadid }, r.address || r.lotId || r.cadid)
 }
 
 /*
@@ -472,25 +533,117 @@ async function pickLot(r: LotMatch) {
 const route = useRoute()
 const router = useRouter()
 
-async function openLot(cadid: string, label?: string) {
-  q.value = label || cadid
+/** Which tab the right panel shows: the lot's answer, or how the layers were built. */
+const guideTab = ref<'lot' | 'build'>('build')
+let openSeq = 0
+
+async function openLot(where: { cadid: string } | { lon: number; lat: number }, label?: string) {
+  const seq = ++openSeq
+  if (label) q.value = label
   atBusy.value = true
   atError.value = ''
   at.value = null
-  // `replace`, not `push`: four lots in a row should not be four back-button entries
-  void router.replace({ query: { cadid } })
+  guideTab.value = 'lot'
   try {
-    at.value = await $fetch<EsaAt>('/api/esa/at', { query: { cadid } })
+    const r = await $fetch<EsaAt>('/api/esa/at', { query: where })
+    if (seq !== openSeq) return
+    at.value = r
+    const cadid = r.lot?.cadid
+    if (cadid) {
+      if (!label) q.value = r.lot?.lotId || cadid
+      // `replace`, not `push`: four lots in a row should not be four back-button entries
+      void router.replace({ query: { cadid } })
+    }
+    drawLot(r, 'cadid' in where)
   } catch (e: any) {
-    atError.value = e?.data?.statusMessage || e?.message || 'Could not test that lot.'
+    if (seq === openSeq) atError.value = e?.data?.statusMessage || e?.message || 'Could not test that lot.'
   } finally {
-    atBusy.value = false
+    if (seq === openSeq) atBusy.value = false
   }
+}
+
+function clearLot() {
+  openSeq++
+  at.value = null
+  atError.value = ''
+  void router.replace({ query: {} })
+  ;(map?.getSource('esa-lot') as any)?.setData({ type: 'FeatureCollection', features: [] })
+  guideTab.value = 'build'
+}
+
+/** What each state-wide row says about the lot. */
+const LOT_STATUS: Record<string, string> = {
+  caught: 'catches the lot', context: 'on the lot - context only', clear: 'clear', gap: 'no dataset',
+}
+
+/**
+ * Every state-wide item under its paragraph, with this lot's answer beside it: caught (and how much), a
+ * context hit, clear, or a gap. Built from `tested` - the list the lot was actually tested against - so
+ * "clear" is only ever said of something that was looked at.
+ */
+const lotByParagraph = computed(() => {
+  const a = at.value
+  if (!a) return []
+  const hitBy = new Map(a.hits.filter(h => h.half === 'statewide').map(h => [h.key, h]))
+  const rows = [
+    ...a.tested.map((t) => {
+      const h = hitBy.get(t.key)
+      return {
+        key: t.key, para: t.paragraph ?? '?', item: t.item,
+        status: h ? (t.kind === 'context' ? 'context' : 'caught') : 'clear',
+        cover: h ? h.coverPct : null, names: h?.names ?? [],
+        role: t.role, source: t.source, caveat: t.caveat, verified: t.verified, reason: null as string | null,
+      }
+    }),
+    ...a.gaps.map(g => ({
+      key: g.key, para: g.paragraph ?? '?', item: g.item, status: 'gap', cover: null, names: [] as string[],
+      role: null, source: null, caveat: null, verified: false, reason: g.reason || 'No dataset is published for this item.',
+    })),
+  ]
+  const order: Record<string, number> = { caught: 0, context: 1, gap: 2, clear: 3 }
+  const by = new Map<string, typeof rows>()
+  for (const r of rows) {
+    if (!by.has(r.para)) by.set(r.para, [])
+    by.get(r.para)!.push(r)
+  }
+  return [...by].sort((x, y) => (x[0] === '?' ? 1 : y[0] === '?' ? -1 : x[0].localeCompare(y[0])))
+    .map(([para, list]) => ({ para, rows: list.sort((x, y) => order[x.status]! - order[y.status]! || x.item.localeCompare(y.item)) }))
+})
+
+const lotAdditions = computed(() => (at.value?.hits ?? []).filter(h => h.half === 'addition'))
+
+/** The lot outline and the parts of it each state-wide item caught, coloured by paragraph. */
+function drawLot(r: EsaAt, fit: boolean) {
+  const src = map?.getSource('esa-lot') as any
+  if (!src) return
+  const features: any[] = []
+  for (const h of r.hits) {
+    if (!h.geom || h.half !== 'statewide') continue
+    features.push({ type: 'Feature', properties: { role: 'hit', colour: lineOf(h.paragraph) }, geometry: h.geom })
+  }
+  if (r.lotGeom) features.push({ type: 'Feature', properties: { role: 'lot' }, geometry: r.lotGeom })
+  src.setData({ type: 'FeatureCollection', features })
+  if (fit && r.lotGeom) zoomToLot()
+}
+
+function zoomToLot() {
+  const g: any = at.value?.lotGeom
+  if (!map || !g) return
+  const box = [180, 90, -180, -90]
+  const walk = (c: any) => {
+    if (typeof c[0] === 'number') {
+      box[0] = Math.min(box[0]!, c[0]); box[1] = Math.min(box[1]!, c[1]); box[2] = Math.max(box[2]!, c[0]); box[3] = Math.max(box[3]!, c[1])
+      return
+    }
+    for (const x of c) walk(x)
+  }
+  walk(g.coordinates)
+  map.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: 80, maxZoom: 17.5, duration: 700 })
 }
 
 onMounted(() => {
   const cadid = String(route.query.cadid ?? '').trim()
-  if (cadid) void openLot(cadid)
+  if (cadid) void openLot({ cadid })
 })
 
 const TABS = [
@@ -668,15 +821,15 @@ function clearFilters() {
   layerFilter.value = ''
 }
 
-/** Select an item: the panel shows it and the map goes to it. */
-function select(item: EsaItem | null) {
+/** Select an item: the panel shows it and, unless told not to, the map goes to it. */
+function select(item: EsaItem | null, fly = true) {
   selected.value = item
   if (!map || !item) {
     map?.getLayer('esa-selected') && map.setFilter('esa-selected', ['==', ['get', 'id'], -1])
     return
   }
   map.setFilter('esa-selected', ['==', ['get', 'id'], item.id])
-  if (item.bbox) {
+  if (fly && item.bbox) {
     const [w, s, e, n] = item.bbox
     map.fitBounds([[w, s], [e, n]], { padding: 60, duration: 800, maxZoom: 15 })
   }
@@ -691,11 +844,27 @@ function refreshMap() {
 }
 watch(visible, refreshMap)
 
-/** Both archives on one map: the additions underneath, the state-wide set above, selection on top. */
+/** Both archives on one map: the additions underneath, the state-wide set above, selection and the lot on top. */
 function addLayers() {
   addAdditionLayers()
   addWideLayers()
   addSelectionLayer()
+  addLotLayer()
+}
+
+/**
+ * The picked lot: what each state-wide item caught, filled in its paragraph's colour, under the lot's own
+ * outline. Any click on the map opens the lot under it - the answer is the lot, not the feature clicked.
+ */
+function addLotLayer() {
+  if (!map) return
+  map.addSource('esa-lot', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } })
+  map.addLayer({ id: 'esa-lot-hit', type: 'fill', source: 'esa-lot', filter: ['==', ['get', 'role'], 'hit'],
+    paint: { 'fill-color': ['get', 'colour'], 'fill-opacity': 0.55 } })
+  map.addLayer({ id: 'esa-lot-line', type: 'line', source: 'esa-lot', filter: ['==', ['get', 'role'], 'lot'],
+    paint: { 'line-color': '#0f172a', 'line-width': 2.5 } })
+  map.on('click', (e: any) => { void openLot({ lon: e.lngLat.lng, lat: e.lngLat.lat }) })
+  if (at.value) drawLot(at.value, true)
 }
 
 function addAdditionLayers() {
@@ -727,7 +896,8 @@ function addAdditionLayers() {
     // the smallest thing under the cursor is the one meant: a precise item inside an advisory blanket
     const here = e.features.map((f: any) => items.value.find(i => i.id === f.properties.id)).filter(Boolean) as EsaItem[]
     here.sort((a, b) => (a.areaKm2 ?? 0) - (b.areaKm2 ?? 0))
-    select(here[0] ?? null)
+    // no fly: the same click also opens the lot under it, and an advisory item is a whole council area
+    select(here[0] ?? null, false)
   })
   for (const ev of ['mouseenter', 'mouseleave']) {
     map.on(ev, 'esa-fill', () => { map.getCanvas().style.cursor = ev === 'mouseenter' ? 'pointer' : '' })
@@ -759,21 +929,7 @@ function addWideLayers() {
   })
   refreshWide()
 
-  map.on('click', 'esa33-fill', (e: any) => {
-    const p = e.features?.[0]?.properties
-    if (!p || !mapboxgl) return
-    const layer = wideLayers.value.find(l => l.key === p.layer_key)
-    const lines = [
-      `<strong>${escapeHtml(p.name || layer?.item || p.layer_key)}</strong>`,
-      layer ? `<span class="ea-pop-item">${escapeHtml(layer.item)}</span>` : '',
-      // a layer with no detail column falls back to its item name, which the line above already shows
-      p.detail && p.detail !== p.name && p.detail !== layer?.item
-        ? `<span class="ea-pop-detail">${escapeHtml(p.detail)}</span>` : '',
-      p.paragraph && p.paragraph !== '?' ? `<span class="ea-pop-para">clause 3.3 (${escapeHtml(p.paragraph)})</span>` : '',
-    ].filter(Boolean)
-    new mapboxgl.Popup({ closeButton: true, maxWidth: '280px' })
-      .setLngLat(e.lngLat).setHTML(`<div class="ea-pop">${lines.join('')}</div>`).addTo(map)
-  })
+  // a click opens the lot under it (addLotLayer); the panel names every feature, so no popup here
   for (const ev of ['mouseenter', 'mouseleave']) {
     map.on(ev, 'esa33-fill', () => { map.getCanvas().style.cursor = ev === 'mouseenter' ? 'pointer' : '' })
   }
@@ -959,6 +1115,36 @@ onBeforeUnmount(() => {
 .ea-pill--derived { background: #fae8ff; color: #86198f; }
 .ea-pill--gap { background: #fee2e2; color: #991b1b; }
 .ea-ok { color: #15803d; }
+
+/* ── the right panel: This lot | How it's built ─────────────────────────────── */
+.ea-guide { padding: 0; }
+.ea-guide-inner { padding: 0.9rem 1rem 2rem; }
+.ea-gtabs { position: sticky; top: 0; z-index: 3; display: flex; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+.ea-gtab { flex: 1; padding: 0.55rem 0.4rem; border: 0; border-bottom: 2px solid transparent; background: none; font: inherit; font-size: 0.82rem; font-weight: 700; color: #64748b; cursor: pointer; }
+.ea-gtab:hover:not(.ea-gtab--on) { color: #0f172a; }
+.ea-gtab--on { color: #0f172a; border-bottom-color: #0f172a; background: #fff; }
+.ea-lothead { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.ea-lotfacts { margin: 0.1rem 0 0.6rem; font-size: 0.76rem; color: #64748b; }
+.ea-lpara { margin-top: 0.7rem; }
+.ea-lpara-h { display: flex; align-items: center; gap: 0.4rem; margin: 0 0 0.25rem; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: #475569; }
+.ea-lrows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
+.ea-lrow { padding: 0.35rem 0.5rem; border-radius: 6px; background: #f8fafc; border-left: 3px solid #cbd5e1; font-size: 0.78rem; }
+.ea-lrow--caught { border-left-color: #dc2626; background: #fef2f2; }
+.ea-lrow--context { border-left-color: #94a3b8; }
+.ea-lrow--gap { border-left-color: #d97706; background: #fffbeb; }
+.ea-lrow--clear { border-left-color: #16a34a; opacity: 0.8; }
+.ea-lrow--advisory { border-left-color: #d97706; }
+.ea-lrow-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.ea-lrow-item { color: #0f172a; font-weight: 600; }
+.ea-lrow-status { flex: none; font-size: 0.7rem; font-weight: 700; color: #64748b; white-space: nowrap; }
+.ea-lrow--caught .ea-lrow-status { color: #b91c1c; }
+.ea-lrow--gap .ea-lrow-status { color: #b45309; }
+.ea-lrow--clear .ea-lrow-status { color: #15803d; }
+.ea-lrow-names { margin: 0.15rem 0 0; font-size: 0.74rem; color: #475569; font-style: italic; }
+.ea-lrow-note { margin: 0.15rem 0 0; font-size: 0.72rem; color: #64748b; }
+.ea-lrow-more { margin-top: 0.2rem; font-size: 0.72rem; color: #475569; }
+.ea-lrow-more summary { cursor: pointer; color: #94a3b8; }
+.ea-lrow-more p { margin: 0.2rem 0 0; }
 </style>
 
 <style>

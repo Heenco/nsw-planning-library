@@ -77,7 +77,7 @@ export interface LotProvisions {
  * the same convention the mapped attributes already use.
  */
 const CONTAINS = `
-  ST_Contains(sr.geom, ST_SetSRID(ST_MakePoint($2::float8, $1::float8), 4326))`
+  ST_Contains(sr.geom, ST_SetSRID(ST_MakePoint($2::float8, $1::float8), 4283))`
 
 export async function getLotProvisions(
   client: pg.PoolClient,

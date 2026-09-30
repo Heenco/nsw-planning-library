@@ -85,6 +85,13 @@ export interface CdcTypeResult {
   generalBlockers: {
     title: string; clauses: string[]; note: string | null
     key: string | null; coverPct: number | null; source: string | null; names: string[] | null
+    /** 'cdc' from the cdc.layers sweep, 'esa' from the clause 3.3 test. */
+    via: 'cdc' | 'esa'
+    /** For an ESA blocker: the LEP paragraph that makes the land sensitive. */
+    clause: string | null
+    coverageType: string | null
+    verifyRequired: boolean
+    half: string | null
   }[]
   checks: TypeCheck[]
   /** Requirements the workbook records for this type that nothing here tests. */
@@ -493,8 +500,62 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
   } catch (e: any) {
     generalError = e?.data?.statusMessage || e?.message || 'the general prerequisite sweep could not be read'
   }
+  /*
+   * The ESA test in full, beside the CDC sweep.
+   *
+   * cdc.layers holds 14 esa-sourced layers - about half the state-wide test and none of the 52
+   * local-plan additions. /api/esa/at holds all of it, tiered and cited, so it is asked directly
+   * rather than a copy of part of it being maintained here.
+   */
+  let esa: any = null
+  let esaError = ''
+  try {
+    esa = await event.$fetch('/api/esa/at', { query: { cadid } })
+  } catch (e: any) {
+    esaError = e?.data?.statusMessage || e?.message || 'the environmentally sensitive area test could not be read'
+  }
+  const esaHits = ((esa?.hits ?? []) as any[]).filter(h => h.kind === 'exclusion')
+
+  /*
+   * Advisory geometry is the plan's whole area rather than the mapped item, so it cannot rule a lot
+   * out - it flags. verify_required IS real geometry and does rule out, while saying it needs a
+   * human. Getting either of these the wrong way round is expensive in one direction or the other.
+   */
+  const esaExcludes = esaHits.filter(h => h.coverageType !== 'advisory')
+  const esaFlags = esaHits.filter(h => h.coverageType === 'advisory')
+
+  /*
+   * The same land, reported twice.
+   *
+   * Two ways it happens. 14 esa layers are in cdc.layers directly, matched on the source name. And
+   * some are the same dataset loaded into both schemas under different names - cdc's
+   * terrestrial_biodiversity is epi.epi_terrestrial_biodiversity (431,369 features) and esa's
+   * epi_biodiversity_significance is the same GEODAAS source (431,416), both paragraph (g).
+   *
+   * The second is matched on evidence rather than a rule: the same definition paragraph AND the
+   * same share of this lot to within 0.05 points. Dropping every cdc layer that merely shares a
+   * paragraph would hide real second hits - paragraph (c) is coastal wetlands AND littoral
+   * rainforest, two different things - and ESA has no (b) at all, so a blanket rule would lose it.
+   */
+  const esaKeys = new Set(esaHits.map(h => String(h.key)))
+  const esaByPara = esaHits.filter(h => h.paragraph)
+    .map(h => ({ para: String(h.paragraph).toLowerCase(), cover: Number(h.coverPct) || 0 }))
+
+  function alreadyInEsa(h: any) {
+    const src = typeof h.source === 'string' ? h.source : ''
+    if (src.startsWith('esa.') && esaKeys.has(src.slice(4))) return true
+    // "1.17A(1)(e)(g)" -> "g", the workbook's numbering for the definition paragraph
+    const para = (h.clauses ?? [])
+      .map((c: string) => /1\.17A\(1\)\(e\)\(([a-j])\)/.exec(String(c))?.[1])
+      .find(Boolean)
+    if (!para) return false
+    const cover = Number(h.coverPct) || 0
+    return esaByPara.some(e => e.para === para && Math.abs(e.cover - cover) < 0.05)
+  }
+
   const generalBlockers = ((at?.hits ?? []) as any[])
     .filter(h => h.kind === 'exclusion' && h.scope === 'general')
+    .filter(h => !alreadyInEsa(h))
     // the note travels with the blocker: clause 1.19(1)(a) bars development in a heritage conservation
     // area "unless the development is a detached outbuilding, detached development (other than a
     // detached studio) or swimming pool", and a bare "ruled out by: Heritage conservation areas" reads
@@ -510,7 +571,18 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
       title: h.title, clauses: h.clauses ?? [], note: h.note ?? null,
       key: h.key ?? null, coverPct: h.coverPct ?? null,
       source: h.source ?? null, names: h.names ?? null,
+      via: 'cdc' as const, clause: null as string | null,
+      coverageType: null as string | null, verifyRequired: false, half: null as string | null,
     }))
+    .concat(esaExcludes.map(h => ({
+      // titled by the item, because "esa.crown_reserves" is not what the clause calls it
+      title: h.item, clauses: [h.cdcClause].filter(Boolean) as string[],
+      note: null, key: h.key ?? null, coverPct: h.coverPct ?? null,
+      source: 'esa', names: h.names ?? null,
+      via: 'esa' as const, clause: h.clause ?? null,
+      coverageType: h.coverageType ?? null, verifyRequired: Boolean(h.verifyRequired),
+      half: h.half ?? null,
+    })))
   const generalGaps = ((at?.gaps ?? []) as any[]).map(g => ({ title: g.title, clauses: g.clauses ?? [] }))
 
   /*
@@ -573,6 +645,18 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
     generalBlockers,
     generalGaps,
     generalError,
+    /*
+     * Advisory ESA items: shown, never counted against a type. Their geometry is the plan's whole
+     * area rather than the item the clause describes, so ruling a lot out on it would fail lots the
+     * instrument does not catch. verify_required items DO rule out and are in generalBlockers.
+     */
+    esaFlags: esaFlags.map((h: any) => ({
+      item: h.item, clause: h.clause ?? null, cdcClause: h.cdcClause ?? null,
+      coverageType: h.coverageType ?? null, verifyRequired: Boolean(h.verifyRequired),
+      coverPct: h.coverPct ?? null, half: h.half ?? null,
+    })),
+    /** Non-empty when the ESA test could not be read; its exclusions are then unknown, not absent. */
+    esaError,
     ms: Date.now() - started,
   }
 })

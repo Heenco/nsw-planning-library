@@ -815,19 +815,32 @@
               <tbody>
                 <tr v-for="b in cdcTypes.generalBlockers" :key="b.key || b.title">
                   <td>
+                    <!-- which test found it: the cdc.layers sweep, or the clause 3.3 ESA test -->
+                    <span class="lp-via" :class="`lp-via--${b.via}`">{{ b.via }}</span>
                     <strong>{{ b.title }}</strong>
+                    <span v-if="b.verifyRequired" class="lp-verify">needs checking by hand</span>
                     <span v-if="b.names && b.names.length" class="lp-dset-sub">{{ b.names.join(', ') }}</span>
                     <span v-if="b.note" class="lp-blocker-note">{{ b.note }}</span>
                   </td>
-                  <td><span v-for="(c, i) in b.clauses" :key="i" class="lp-mapcl">cl {{ c }}</span>
-                      <span v-if="!b.clauses.length" class="lp-dim">&mdash;</span></td>
+                  <td>
+                    <!-- the chain: what makes the land sensitive, then what that stops -->
+                    <span v-if="b.clause" class="lp-mapcl">{{ b.clause }}</span>
+                    <span v-for="(c, i) in b.clauses" :key="i" class="lp-mapcl">
+                      <template v-if="b.clause">&rarr; </template>{{ c.startsWith('Codes') ? c : 'cl ' + c }}</span>
+                    <span v-if="!b.clauses.length && !b.clause" class="lp-dim">&mdash;</span>
+                  </td>
                   <td class="lp-num">{{ b.coverPct == null ? '—' : b.coverPct.toFixed(1) + '%' }}</td>
                   <td>
-                    <NuxtLink v-if="b.key && openedCadid"
-                              :to="`/cdc-map?cadid=${openedCadid}&layer=${b.key}`">on the map</NuxtLink>
-                    <NuxtLink v-if="isEsaLayer(b) && openedCadid" class="lp-blocker-esa"
-                              :to="`/esa?cadid=${openedCadid}`">in ESA</NuxtLink>
-                    <span class="lp-dset-sub">{{ b.source }}</span>
+                    <!-- an ESA blocker is not a cdc.layers layer, so ?layer= would name nothing;
+                         it belongs on /esa, which is where its item and tier are shown -->
+                    <NuxtLink v-if="b.via === 'esa' && openedCadid" :to="`/esa?cadid=${openedCadid}`">
+                      on the ESA map</NuxtLink>
+                    <template v-else-if="b.key && openedCadid">
+                      <NuxtLink :to="`/cdc-map?cadid=${openedCadid}&layer=${b.key}`">on the map</NuxtLink>
+                      <NuxtLink v-if="isEsaLayer(b)" class="lp-blocker-esa"
+                                :to="`/esa?cadid=${openedCadid}`">in ESA</NuxtLink>
+                    </template>
+                    <span class="lp-dset-sub">{{ b.via === 'esa' ? (b.half || 'esa') : b.source }}</span>
                   </td>
                 </tr>
               </tbody>
@@ -835,6 +848,21 @@
           </div>
           <p v-else class="lp-verdict lp-verdict--yes">
             <strong>No general prerequisite catches this lot</strong> &mdash; each type below stands on its own tests.
+          </p>
+          <!-- advisory ESA items: the plan's whole area, not the mapped item, so they cannot rule a
+               lot out - but a reader should know the plan says something about this land -->
+          <p v-if="(cdcTypes.esaFlags ?? []).length" class="lp-note lp-note--warn">
+            <strong>{{ cdcTypes.esaFlags.length }} advisory
+            {{ cdcTypes.esaFlags.length === 1 ? 'item' : 'items' }} from the clause 3.3 test</strong>
+            &mdash; mapped as the plan's whole area rather than the item the clause describes, so
+            {{ cdcTypes.esaFlags.length === 1 ? 'it is' : 'they are' }} shown, not counted against
+            any type:
+            <span v-for="(f, i) in cdcTypes.esaFlags" :key="i" class="lp-mapcl">
+              {{ f.item }}<template v-if="f.clause"> ({{ f.clause }})</template></span>
+          </p>
+          <p v-if="cdcTypes.esaError" class="lp-note lp-note--warn">
+            The environmentally sensitive area test could not be read ({{ cdcTypes.esaError }}), so
+            its exclusions are unknown rather than absent.
           </p>
           <p v-if="cdcTypes.generalGaps.length" class="lp-note lp-note--warn">
             {{ cdcTypes.generalGaps.length }} general
@@ -2318,6 +2346,13 @@ body { margin: 0; background: #f8fafb; }
 .lp-blockers td:nth-child(4) { width: 30%; }
 .lp-blockers tbody td { white-space: normal; overflow-wrap: anywhere; vertical-align: top; }
 .lp-blocker-note { display: block; margin-top: 3px; font-size: 11.5px; color: #92400e; }
+/* which test found it - the two answer different questions and a reader should see which spoke */
+.lp-via { display: inline-block; margin-right: 6px; padding: 0 5px; border-radius: 4px;
+          font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.lp-via--cdc { background: #e0f2fe; color: #075985; }
+.lp-via--esa { background: #dcfce7; color: #166534; }
+.lp-verify { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 4px;
+             background: #fef3c7; color: #92400e; font-size: 11px; }
 .lp-blocker-esa { margin-left: 8px; }
 .lp-unlock { width: 100%; }
 .lp-unlock td:nth-child(1) { width: 8%; }
