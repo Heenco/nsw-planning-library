@@ -875,6 +875,93 @@
         </template>
       </div>
 
+      <!-- ── LMR eligibility ──────────────────────────────────────────────
+           Housing SEPP Chapter 6 against this lot, in the same order as the
+           "This lot" tab on /lmr: where the chapter reaches (s 163), the land
+           it does not apply to (s 164), then each housing form's own checks
+           and what the lot is then allowed (s 166-180). Same route, so the
+           same verdict. -->
+      <div id="lmr-eligibility" class="lp-group">
+        <h3 class="lp-h3">
+          LMR eligibility &mdash; every housing form
+          <span class="lp-dim"><code>/api/lmr/types</code></span>
+        </h3>
+        <p class="lp-basis lp-basis--lot">Computed from the lot polygon, shrunk 10 cm, against the lmr catalogue (Housing SEPP Chapter 6).</p>
+
+        <p v-if="lmrTypesError" class="lp-error">{{ lmrTypesError }}</p>
+        <p v-else-if="!lmrTypes" class="lp-dim">Loading&hellip;</p>
+        <template v-else>
+          <p class="lp-chips">
+            <span class="lp-chip"><strong>{{ lmrTypes.summary.eligible }}</strong> eligible</span>
+            <span class="lp-chip"><strong>{{ lmrTypes.summary.notEligible }}</strong> not eligible</span>
+            <span class="lp-chip"><strong>{{ lmrTypes.summary.unknown }}</strong> undecided</span>
+            <span class="lp-dim">{{ lmrTypes.ms }} ms</span>
+          </p>
+          <p class="lp-note">
+            {{ lmrTypes.lot.lga || 'council not recorded' }}
+            &middot; Zone {{ lmrTypes.lot.zones.join(', ') || 'unknown' }}
+            &middot; {{ lmrTypes.lot.areaM2 ? Math.round(lmrTypes.lot.areaM2).toLocaleString() + ' m²' : 'area unknown' }}
+            &middot; {{ lmrTypes.lot.widthM != null ? lmrTypes.lot.widthM.toFixed(1) + ' m of frontage' : 'no road frontage recorded' }}
+          </p>
+          <p class="lp-verdict" :class="lmrTypes.lot.band ? 'lp-verdict--yes' : 'lp-verdict--no'">
+            <strong v-if="lmrTypes.lot.band === 'inner'">Inner area (s 163) &mdash; within 400 m walking of {{ lmrTypes.lot.measuredFrom.filter((m: string) => m.includes('400')).join(', ') }}</strong>
+            <strong v-else-if="lmrTypes.lot.band === 'outer'">Outer area (s 163) &mdash; 400-800 m walking of {{ lmrTypes.lot.measuredFrom.join(', ') }}</strong>
+            <strong v-else>Outside every low and mid rise housing area (s 163)</strong>
+          </p>
+
+          <h4 class="lp-h4">Where the chapter does not apply (s 164)</h4>
+          <div class="lp-scroll">
+            <table class="lp-table lp-lmr-gen">
+              <thead><tr><th>Clause</th><th>Land</th><th></th><th>Why</th></tr></thead>
+              <tbody>
+                <tr v-for="g in lmrTypes.general" :key="g.clause" :class="`lp-lmr-gen--${g.status.replace('/', '')}`">
+                  <td><a :href="g.href" target="_blank" rel="noopener" class="lp-mapcl">s {{ g.clause }}</a></td>
+                  <td>{{ g.text.length > 110 ? g.text.slice(0, 108) + '…' : g.text }}
+                    <span v-if="g.coverage !== 'full'" class="lp-dset-sub">{{ g.coverage === 'none' ? 'no dataset' : 'partly held' }}</span></td>
+                  <td>
+                    <span class="lp-gate" :class="g.status === 'excluded' ? 'lp-gate--no' : g.status === 'clear' ? 'lp-gate--yes' : 'lp-gate--open'">
+                      {{ LMR_STATUS[g.status] }}
+                    </span>
+                  </td>
+                  <td>{{ g.why }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4 class="lp-h4">Each housing form (s 166-180)</h4>
+          <div class="lp-scroll">
+            <table class="lp-table lp-lmr-types">
+              <thead><tr><th>Housing form</th><th></th><th>Checks</th><th>Allowed</th><th>Where it stands</th></tr></thead>
+              <tbody>
+                <tr v-for="t in lmrTypes.types" :key="t.key">
+                  <td>{{ t.name }}<span class="lp-dset-sub">{{ t.part }} &middot; {{ t.sections }}</span></td>
+                  <td>
+                    <span class="lp-gate" :class="t.eligible === true ? 'lp-gate--yes' : t.eligible === false ? 'lp-gate--no' : 'lp-gate--open'">
+                      {{ t.eligible === true ? 'eligible' : t.eligible === false ? 'not eligible' : 'undecided' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span v-for="c in t.checks" :key="c.column + c.says" class="lp-pb-check"
+                          :class="c.pass === false ? 'lp-pb-check--no' : c.pass === null ? 'lp-pb-check--unk' : ''"
+                          :title="c.actual ? `lot has ${c.actual}` : 'not measured'">{{ c.says }}</span>
+                  </td>
+                  <td>
+                    <span v-for="(a, i) in t.allowances" :key="i" class="lp-dset-sub">{{ lmrAllowance(a) }}</span>
+                    <span v-if="!t.allowances.length" class="lp-dim">&mdash;</span>
+                  </td>
+                  <td>{{ t.verdict }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="lp-note">
+            Width is the property's primary frontage, standing in for "the width at the front building line", which
+            Chapter 6 does not define - the same measure the CDC and Pattern Book sections use. <NuxtLink v-if="openedCadid" to="/lmr">See it on /lmr</NuxtLink>
+          </p>
+        </template>
+      </div>
+
       <!-- ── Pattern Book ─────────────────────────────────────────────────
            /report reads the stored pattern-book flags. This measures the lot
            against the Pattern Book's own thresholds. It does not pick an LMR
@@ -1333,7 +1420,7 @@ async function open(cadid: string, msoid: number | null = null) {
     observeSections()
     // deliberately not awaited: the lot dump is the point of the page and should not wait on four
     // planning sweeps, the slowest of which is a few hundred ms
-    void Promise.all([loadPlanning(cadid), loadPattern(cadid), loadCdcTypes(cadid),
+    void Promise.all([loadPlanning(cadid), loadPattern(cadid), loadCdcTypes(cadid), loadLmrTypes(cadid),
       loadLepRules(cadid),
       // the report's own path, fetched beside the derived view rather than instead of it
       loadReportInputs(cadid)]).then(() => nextTick()).then(() => {
@@ -1464,6 +1551,29 @@ const planning = ref<Partial<Record<PlanningKey, { data: any; ms: number; error?
 /** An ESA-sourced layer has a page of its own; 14 of the 66 live cdc layers read from esa.*. */
 function isEsaLayer(b: any) {
   return typeof b?.source === 'string' && b.source.startsWith('esa.')
+}
+
+// Housing SEPP Chapter 6, judged for this lot - the same /api/lmr/types the "This lot" tab on /lmr reads,
+// so the two show the same verdict. The route's facts come from the lot polygon, as the rest of this page's.
+const lmrTypes = ref<any>(null)
+const lmrTypesError = ref('')
+
+async function loadLmrTypes(cadid: string) {
+  lmrTypes.value = null
+  lmrTypesError.value = ''
+  try {
+    lmrTypes.value = await $fetch<any>('/api/lmr/types', { query: { cadid } })
+  } catch (e: any) {
+    lmrTypesError.value = e?.data?.statusMessage || e?.message || 'Could not judge the lot against Chapter 6.'
+  }
+}
+
+const LMR_STATUS: Record<string, string> = { clear: 'clear', excluded: 'excluded', unknown: 'undecided', gap: 'no data', 'n/a': 'does not apply' }
+
+function lmrAllowance(a: any): string {
+  return [a.forUse, a.fsr != null ? `FSR ${a.fsr}:1` : null, a.heightM != null ? `${a.heightM} m` : null,
+    a.storeys ? `${a.storeys} storeys` : null, a.parkingPerDwelling != null ? `${a.parkingPerDwelling} car space/dwelling` : null]
+    .filter(Boolean).join(' · ') + ` (s ${a.clause})`
 }
 
 const cdcTypes = ref<any>(null)
@@ -1943,6 +2053,7 @@ const lotSections = computed(() => {
   out.push({ id: 'permissibility', label: 'Permissibility' })
   out.push({ id: 'lep-rules', label: 'LEP rules for this lot' })
   out.push({ id: 'cdc-eligibility', label: 'CDC eligibility' })
+  out.push({ id: 'lmr-eligibility', label: 'LMR eligibility' })
   out.push({ id: 'pattern-book', label: 'Pattern Book' })
   if (inputs.value) {
     out.push({ id: 'report-inputs', label: 'What /report is built from' })
@@ -2509,4 +2620,20 @@ body { margin: 0; background: #f8fafb; }
 .lp-pb-check--no { background: #fee2e2; color: #991b1b; }
 .lp-pb-check--unk { background: #f5f3ff; color: #6d28d9; }
 .lp-dset-sub { display: block; font-size: 0.7rem; color: #94a3b8; }
+.lp-h4 { margin: 1rem 0 0.35rem; font-size: 0.86rem; font-weight: 800; color: #0f172a; }
+.lp-lmr-gen { table-layout: fixed; width: 100%; }
+.lp-lmr-gen td { font-size: 0.8rem; vertical-align: top; white-space: normal; overflow-wrap: anywhere; }
+.lp-lmr-gen th:nth-child(1), .lp-lmr-gen td:nth-child(1) { width: 10%; }
+.lp-lmr-gen th:nth-child(2), .lp-lmr-gen td:nth-child(2) { width: 44%; }
+.lp-lmr-gen th:nth-child(3), .lp-lmr-gen td:nth-child(3) { width: 12%; }
+.lp-lmr-gen th:nth-child(4), .lp-lmr-gen td:nth-child(4) { width: 34%; }
+.lp-lmr-types { table-layout: fixed; width: 100%; }
+.lp-lmr-types td { vertical-align: top; white-space: normal; overflow-wrap: anywhere; }
+.lp-lmr-types th:nth-child(1), .lp-lmr-types td:nth-child(1) { width: 17%; }
+.lp-lmr-types th:nth-child(2), .lp-lmr-types td:nth-child(2) { width: 9%; }
+.lp-lmr-types th:nth-child(3), .lp-lmr-types td:nth-child(3) { width: 30%; }
+.lp-lmr-types th:nth-child(4), .lp-lmr-types td:nth-child(4) { width: 19%; }
+.lp-lmr-types th:nth-child(5), .lp-lmr-types td:nth-child(5) { width: 25%; }
+.lp-lmr-types .lp-pb-check { display: inline-block; margin: 0 0.2rem 0.2rem 0; overflow-wrap: normal; }
+.lp-lmr-gen--na td { color: #94a3b8; }
 </style>

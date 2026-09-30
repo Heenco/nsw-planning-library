@@ -284,6 +284,26 @@ const LMR_CONSTRAINTS = [
       + 'say 800 m. Rebuild whenever lmr.gas_pipelines is rebuilt.',
   },
   {
+    key: 'deferred_tod_areas', title: 'Deferred TOD areas (800 m)', grp: 'lmr', kind: 'exclusion',
+    clause: 'Housing SEPP s 164(1)(k) - within 800 m of a Schedule 12 station',
+    role: 'The land within 800 m, in a straight line, of the eight deferred TOD stations of Schedule 12: Belmore, '
+      + 'Canterbury, Cockle Creek, Lakemba, North Wollongong, Punchbowl, St Marys and Wiley Park.',
+    sourceKind: 'derived', source: 'lmr.deferred_tod_stations, buffered 800 m in the MGA zone of each station',
+    sourceDateSql: 'max(now())::date', loadedAt: '2026-09-30',
+    caveat: 'Schedule 12 is not in the library copy of the SEPP and the Department Deferred TOD Areas Map '
+      + '(Planning/SEPP_Housing_2021/MapServer/5) is published empty, so the list comes from two law-firm readings of the '
+      + 'amendment. Measured from one point per station, not each public entrance. Built by scripts/add-lmr-deferred-tod.mjs.',
+  },
+  {
+    key: 'deferred_tod_stations', title: 'Deferred TOD stations (Schedule 12)', grp: 'lmr', kind: 'context',
+    clause: 'Housing SEPP Schedule 12',
+    role: 'The eight deferred TOD stations the 800 m areas are measured from.',
+    sourceKind: 'download', source: 'NSW Spatial Services NSW_FOI_Transport_Facilities/MapServer/1 (Train Station)',
+    sourceUrl: 'https://portal.spatial.nsw.gov.au/server/rest/services/NSW_FOI_Transport_Facilities/MapServer/1',
+    sourceDateSql: 'max(foi_moddate)::date', loadedAtSql: 'max(fetched_at)::date',
+    caveat: 'One point per station, as for the Schedule 11 stations.',
+  },
+  {
     key: 'whole_lga_exclusion', title: 'Whole-LGA exclusion', grp: 'lmr', kind: 'exclusion',
     clause: 'Housing SEPP ch 6 - the Department excludes all land in four council areas',
     role: 'All land in the Bathurst Regional, Blue Mountains, Hawkesbury and Wollondilly LGAs. Bathurst has only 2 small '

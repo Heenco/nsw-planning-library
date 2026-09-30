@@ -290,8 +290,10 @@ export const LMR_GENERAL: LmrGeneralSeed[] = [
     layers: ['gas_pipelines_buffer_200m', 'oil_pipelines_buffer_200m'], coverage: 'partial',
     caveat: 'Geoscience Australia\'s pipeline map, buffered 200 m - not the register of pipelines licensed under the Pipelines Act 1967 that s 2.77 refers to.' },
   { clause: '164(1)(k)', text: 'land within 800m of a public entrance to a railway, metro or light rail station listed in Schedule 12',
-    layers: [], coverage: 'none',
-    caveat: 'Not loaded: the Schedule 12 stations are not in our copy of the SEPP, and they have no published map.' },
+    layers: ['deferred_tod_areas'], coverage: 'full',
+    caveat: 'Schedule 12 is the eight deferred TOD stations - Belmore, Canterbury, Cockle Creek, Lakemba, North Wollongong, '
+      + 'Punchbowl, St Marys, Wiley Park (scripts/add-lmr-deferred-tod.mjs). 800 m in a straight line, as the clause says, '
+      + 'measured from the station point rather than each public entrance.' },
   { clause: '164(1)(l)', text: 'land identified as "Accelerated TOD Precinct" on the Accelerated Transport Oriented Development Precincts Rezoning Areas Map',
     layers: ['sepp_tod_accelerated_precincts'], coverage: 'full' },
   { clause: '164(1)(m)', text: 'land identified as "exclusion area" on the Low and Mid Rise Housing Exclusion Map', layers: ['sepp_lmr_exclusion_areas'], coverage: 'full' },

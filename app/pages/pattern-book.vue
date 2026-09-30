@@ -267,8 +267,10 @@
           ground the building stands on, so read a near miss as a reason to look rather than an answer.
         </li>
         <li>
-          <b>The width is the one at the front building line.</b> That is the pattern's own definition,
-          not the frontage the cadastre gives; on an irregular lot they differ.
+          <b>The pattern means the width at the front building line; a lot is checked on its frontage.</b>
+          Every lot test in the library - Pattern Book, complying development and low and mid-rise - measures
+          width as the property's primary frontage. On a regular lot the two agree; on an irregular, corner or
+          battle-axe lot they differ, and a lot with no road frontage cannot be tested on width at all.
         </li>
         <li>
           <b>Permissibility is a separate question.</b> Manor house, multi dwelling housing and multi

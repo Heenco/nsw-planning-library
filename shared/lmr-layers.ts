@@ -364,6 +364,36 @@ export const CONSTRAINT_STYLE: Record<string, ConstraintStyle> = {
     line: '#c9912f', lineWidth: 1, dashed: true, classes: { '800 m': '#fde3ae', '400 m': '#f5b95a' }, defaultOn: true,
     from: 'Planning Portal LMR map legend (Indicative LMR Housing Area)',
   },
+  // The LMR layer itself (scripts/build-lmr-lots.ts). Ours: no published layer is this - the Department's map
+  // is indicative and applies no exclusions. Blue for land the chapter reaches, amber where the data cannot
+  // decide an s 164 item, grey where s 164 takes the lot out - so the product reads apart from the pale amber
+  // catchments it is built from. The dissolved outline is for low zoom; the pink lots are 05_lmr's disagreements.
+  lot_lmr: {
+    group: 'housing', title: 'LMR layer - lots (in, undecided, excluded)', kind: 'fill', color: '#1971c2', fillOpacity: 0.6,
+    line: '#1864ab', lineWidth: 0.4, classes: { in: '#1971c2', undecided: '#f08c00', excluded: '#adb5bd' }, defaultOn: true,
+    from: 'ours - built by scripts/build-lmr-lots.ts from Chapter 6',
+  },
+  lmr_area: {
+    group: 'housing', title: 'LMR layer - outline (inner, outer)', kind: 'fill', color: '#1864ab', fillOpacity: 0,
+    line: '#1864ab', lineWidth: 2, classLine: true, classes: { inner: '#1864ab', outer: '#4dabf7' },
+    from: 'ours - the in-class lots dissolved by band',
+  },
+  lot_lmr_05_only: {
+    group: 'housing', title: 'In 05_lmr but not in this build', kind: 'fill', color: '#c2255c', fillOpacity: 0.35,
+    line: '#a61e4d', lineWidth: 0.8, dashed: true,
+    classes: { 'outside our walking catchments': '#c2255c', 'no part in R1-R4 on our zoning': '#e64980', 'only touches our catchment at the boundary': '#f783ac' },
+    from: 'ours - nsw.up_property_d_4.in_lmr_housing_area lots missing from lmr.lot_lmr',
+  },
+  // Schedule 12: the Spatial Viewer's own symbol for the Deferred TOD Areas map (Planning/SEPP_Housing_2021/5) -
+  // a black vertical hatch in a red outline - though that map is published empty and these areas are ours.
+  deferred_tod_areas: {
+    group: 'housing', title: 'Deferred TOD areas (800 m)', kind: 'fill', color: '#000000', hatch: 'vertical',
+    line: '#e60000', lineWidth: 1.5, from: 'Spatial Viewer · Planning/SEPP_Housing_2021/5 Deferred TOD Areas (symbol only - the layer is empty)',
+  },
+  deferred_tod_stations: {
+    group: 'housing', title: 'Deferred TOD stations (Schedule 12)', kind: 'point', color: '#e60000',
+    from: 'ours - the Schedule 12 stations, in the deferred TOD outline red',
+  },
   // The Department names four councils rather than mapping them, so there is no portal symbol. A dark red
   // hatch under a heavy outline: an exclusion, like the black LMR exclusion hatch, but never mistaken for it,
   // and the hatch lets the land underneath show through across 10,000 km2.

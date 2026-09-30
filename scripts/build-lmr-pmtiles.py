@@ -84,6 +84,18 @@ LAYERS = {
                                       detail="'within 200 m of the pipeline · ' || concat_ws(' · ', state, operational_status)"),
     "oil_pipelines_buffer_200m": dict(category="operational_status", name="name",
                                       detail="'within 200 m of the pipeline · ' || concat_ws(' · ', state, operational_status)"),
+    # the LMR layer itself (scripts/build-lmr-lots.ts): every residential lot the catchments reach, by class,
+    # the in-class lots dissolved by band for low zoom, and the lots 05_lmr had that this build does not
+    "lot_lmr": dict(category="class", name="lot_id",
+                    detail="concat_ws(' · ', band || ' area', CASE WHEN class = 'excluded' THEN 'excluded by s ' || array_to_string(excluded_by, ', s ') "
+                           "WHEN class = 'undecided' THEN undecided_why "
+                           "ELSE coalesce('eligible: ' || nullif(array_to_string(eligible_types, ', '), ''), 'in the area, but no housing form fits the lot') END)"),
+    "lmr_area": dict(category="band", name="band || ' area'", detail="lots || ' lots in the LMR area'"),
+    "lot_lmr_05_only": dict(category="why", name="lot_id",
+                            detail="'05_lmr had it (' || coalesce(band_05, '?') || ' m, ' || coalesce(zone_05, '?') || ') - ' || why"),
+    # Schedule 12, the deferred TOD stations, and the 800 m around each that s 164(1)(k) excludes
+    "deferred_tod_areas": dict(category="NULL", name="station || ' (deferred TOD)'", detail="label"),
+    "deferred_tod_stations": dict(category="NULL", name="station || ' station'", detail="'Housing SEPP Schedule 12 - deferred TOD'"),
     # the four council areas excluded whole (scripts/add-lmr-whole-lga-exclusion.mjs); the popup gives the reason
     "whole_lga_exclusion": dict(category="lga_name", name="council_name", detail="reason"),
 }

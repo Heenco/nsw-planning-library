@@ -58,7 +58,7 @@ export const LMR_METHOD: MethodStep[] = [
       'Heritage items (LEP maps)', 'State Heritage Register curtilage', 'Bush fire prone land', 'Flood planning (LEP maps)',
       '1% AEP flood extent (SFD)', 'Coastal wetlands', 'Littoral rainforest',
       'Coastal vulnerability areas', 'Aircraft noise contours (ANEF / ANEI)', 'Gas pipelines, 200 m buffer',
-      'Oil pipelines, 200 m buffer (none in NSW)', 'Whole-LGA exclusion'],
+      'Oil pipelines, 200 m buffer (none in NSW)', 'Whole-LGA exclusion', 'Deferred TOD areas (800 m)'],
     note: 'Test whole lots, not clipped shapes: the policy excludes land that is or contains the constraint, so any '
       + 'overlap takes the whole lot. Keep one flag per exclusion, so a report can say which one removed a lot.',
   },

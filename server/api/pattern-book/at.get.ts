@@ -179,7 +179,7 @@ export default defineEventHandler(async (event): Promise<PatternBookAtResponse> 
   const res = await nswQuery<any>(`
     SELECT l.cadid, l.lotidstring AS "lotId",
            ST_Area(l.geom::geography) AS "areaM2",
-           p.lot_width_max_m, p.width_at_setback_m, p.core_width_min_m, p.is_corner_lot,
+           p.primary_frontage_length_m, p.core_width_min_m, p.is_corner_lot,
            s.max_slope_pct, s.mean_slope_pct,
            EXISTS (SELECT 1 FROM lmr.sepp_tod_areas t
                     WHERE t.geom && l.geom AND ST_Intersects(t.geom, l.geom)) AS in_tod
@@ -191,11 +191,10 @@ export default defineEventHandler(async (event): Promise<PatternBookAtResponse> 
   const r = res.rows[0]
   if (!r) throw createError({ statusCode: 404, statusMessage: `No lot with cadid ${cadid}` })
 
-  // the Pattern Book measures the frontage width; width_at_setback_m is the one taken at the building
-  // line, which is what the thresholds mean, with the lot's maximum as the fallback
-  const widthM = num(r.width_at_setback_m) ?? num(r.lot_width_max_m)
-  const widthBasis = r.width_at_setback_m != null ? 'width at the setback'
-    : r.lot_width_max_m != null ? 'maximum lot width' : null
+  // lot width is the property's primary frontage (Manni, 2026-09-30) - the same figure /cdc and /lmr test,
+  // and what 07 - Pattern book read. A landlocked lot has none, and its width check is then undecided.
+  const widthM = num(r.primary_frontage_length_m)
+  const widthBasis = widthM != null ? 'primary frontage' : null
 
   const lot = {
     cadid: r.cadid, lotId: r.lotId, areaM2: num(r.areaM2), widthM, widthBasis,

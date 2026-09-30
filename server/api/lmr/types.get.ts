@@ -8,11 +8,14 @@
  *   s 163   does the chapter reach the lot at all - is it within the 400 m or 800 m walking catchment of
  *           a Town Centre or Schedule 11 station (lmr.station_walking_catchments,
  *           lmr.town_centre_walking_catchments). The band decides the R3/R4 standards.
- *   s 164   the "general prerequisites": thirteen kinds of land the chapter does not apply to, each read
- *           from the layers lmr.general names for it. One hit rules out every type.
+ *   s 164   the "general prerequisites": the kinds of land the chapter does not apply to, each read from
+ *           the layers lmr.general names for it. One hit rules out every type.
  *   s 166-180  per type: zone, permissibility, lot area, lot width, and what the lot is then ALLOWED -
  *           FSR, height, storeys, parking - for its band. Those are standards a design meets, so they are
  *           returned beside the verdict, never tested as if they were facts about the land.
+ *
+ * The facts are read here; the verdict comes from shared/lmr-evaluate.ts, which scripts/build-lmr-lots.ts
+ * also uses for every lot of the LMR layer - so a lot's tab and its colour on the map cannot disagree.
  *
  * WHAT IS NEVER CALLED CLEAR
  *
@@ -27,59 +30,16 @@
  * layer into the lot's, so the GiST index is used.
  */
 import { nswQuery } from '../../utils/nsw-kg/pool'
-import { loadLmrCriteria, type LmrAllowanceRow, type LmrGeneralItem, type LmrType } from './criteria.get'
+import { loadLmrCriteria, type LmrGeneralItem } from './criteria.get'
+import {
+  bandFrom, evaluateGeneral, evaluateType, NAME_COLUMNS,
+  type LmrGeneralResult, type LmrLotFacts, type LmrTypeResult, type Perm,
+} from '#shared/lmr-evaluate'
 
-export type Band = 'inner' | 'outer'
-
-export interface LmrTypeCheck {
-  column: string
-  says: string
-  actual: string | null
-  /** null when nothing measured it - unknown is not failure. */
-  pass: boolean | null
-}
-
-export interface LmrGeneralResult {
-  clause: string
-  text: string
-  href: string
-  coverage: 'full' | 'partial' | 'none'
-  caveat: string | null
-  /** excluded: the lot is in it. unknown: the data cannot say. gap: nothing answers it. n/a: the clause does not reach this council. */
-  status: 'clear' | 'excluded' | 'unknown' | 'gap' | 'n/a'
-  why: string
-  layers: string[]
-  names: string[]
-}
-
-export interface LmrTypeResult {
-  key: string
-  name: string
-  part: string
-  sections: string
-  eligible: boolean | null
-  checks: LmrTypeCheck[]
-  /** What the lot is allowed for this type in its band: standards the design has to meet. */
-  allowances: LmrAllowanceRow[]
-  untested: number
-  untestedReasons: { reason: string; count: number }[]
-  requirements: number
-  verdict: string
-}
+export type { Band, LmrGeneralResult, LmrTypeCheck, LmrTypeResult } from '#shared/lmr-evaluate'
 
 export interface LmrTypesResponse {
-  lot: {
-    cadid: string
-    lotId: string | null
-    lga: string | null
-    areaM2: number | null
-    widthM: number | null
-    isBattleaxe: boolean | null
-    zones: string[]
-    band: Band | null
-    /** What the band was measured from: '<station> (400 m)', '<town centre> (800 m)'. */
-    measuredFrom: string[]
-  }
+  lot: LmrLotFacts
   general: LmrGeneralResult[]
   types: LmrTypeResult[]
   summary: { eligible: number; notEligible: number; unknown: number; total: number; excludedBy: string[]; gaps: string[] }
@@ -88,8 +48,6 @@ export interface LmrTypesResponse {
 
 // ── the s 164 sweep, built from lmr.general ─────────────────────────────────────────────────────
 
-// noise_verdict first: the Sydney Airport ANEI rows carry no name, and the verdict sentence is the useful label
-const NAME_COLUMNS = ['noise_verdict', 'label', 'name', 'itemname', 'h_name', 'council_name', 'station', 'lay_class', 'd_category']
 const CACHE_MS = 5 * 60 * 1000
 let sweep: { at: number; sql: string } | null = null
 
@@ -136,129 +94,6 @@ const SHRUNK_LOT = `WITH raw AS MATERIALIZED (SELECT ST_MakeValid(geom) AS g0 FR
     SELECT CASE WHEN b IS NULL OR ST_IsEmpty(b) THEN g0 ELSE b END AS g
       FROM raw, LATERAL (SELECT ST_Transform(ST_Buffer(ST_Transform(g0, 3308), -0.1), 4283) AS b) x)`
 
-function evaluateGeneral(item: LmrGeneralItem, rows: any[], lga: string | null): LmrGeneralResult {
-  const mine = rows.filter(r => r.clause === item.clause)
-  const failN = mine.reduce((n, r) => n + Number(r.fail_n), 0)
-  const unknownN = mine.reduce((n, r) => n + Number(r.unknown_n), 0)
-  const names = [...new Set(mine.flatMap(r => r.names ?? []))].slice(0, 4)
-  const base = { clause: item.clause, text: item.text, href: item.href, coverage: item.coverage,
-                 caveat: item.caveat, layers: item.layerKeys, names }
-
-  if (item.coverage === 'none') return { ...base, status: 'gap', why: 'No dataset answers this, so the lot is untested against it.' }
-  if (item.lgaScope && lga && !item.lgaScope.includes(lga)) {
-    return { ...base, status: 'n/a', why: `Only reaches ${item.lgaScope.length} named councils; this lot is in ${lga}.` }
-  }
-  if (failN) return { ...base, status: 'excluded', why: names.length ? `On the lot: ${names.join(', ')}.` : 'The lot is in it.' }
-  if (unknownN) return { ...base, status: 'unknown', why: `On the lot, but the data cannot decide it: ${names.join(', ') || 'see the layer'}.` }
-  if (item.lgaScope && lga && item.heldLgas && !item.heldLgas.includes(lga)) {
-    return { ...base, status: 'unknown', why: `${lga} is one of the councils this reaches, and we hold no map of it there.` }
-  }
-  if (item.lgaScope && !lga) return { ...base, status: 'unknown', why: 'The lot\'s council is not recorded, so whether this reaches it is not known.' }
-  return { ...base, status: 'clear', why: 'Nothing on the lot.' }
-}
-
-// ── the per-type checks ─────────────────────────────────────────────────────────────────────────
-
-function zonesFrom(says: string): string[] {
-  const m = says.match(/zone is (.+)$/i)
-  return m ? m[1]!.split(/,\s*/).map(z => z.trim().toUpperCase()) : []
-}
-function thresholdFrom(says: string): number | null {
-  const m = says.replace(/,/g, '').match(/([\d.]+)\s*m/i)
-  return m ? Number(m[1]) : null
-}
-
-interface Perm { epi: string; zone: string; landUse: string; status: string }
-
-function permissibility(t: LmrType, says: string, zones: string[], perm: Perm[]): LmrTypeCheck {
-  const inTypeZones = zones.filter(z => t.zones.includes(z))
-  // the SEPP's own grant wins whatever the LEP says: s 166 dual occupancies in R2, s 170, s 174, s 169(1A), s 173(1A)
-  const granted = inTypeZones.filter(z => t.seppPermitsIn.includes(z))
-  if (granted.length) {
-    return { column: 'permissibility', says, pass: true,
-             actual: `permitted with consent by s ${t.seppPermitsClause} in ${granted.join(', ')}, whatever the LEP says` }
-  }
-  if (!inTypeZones.length) return { column: 'permissibility', says, pass: null, actual: 'not in a zone this type applies in' }
-  if (!t.landUses.length) return { column: 'permissibility', says, pass: null, actual: 'no land-use term to test' }
-  const want = new Set(t.landUses.map(u => u.toLowerCase()))
-  const rows = perm.filter(p => inTypeZones.includes(p.zone) && want.has(p.landUse.toLowerCase()))
-  const yes = rows.find(p => p.status === 'permitted_with_consent')
-  if (yes) return { column: 'permissibility', says, pass: true, actual: `${yes.landUse} permitted with consent in ${yes.zone} under ${yes.epi}` }
-  if (!rows.length) {
-    return { column: 'permissibility', says, pass: null,
-             actual: `no permissibility recorded for ${t.landUses[0]} in ${inTypeZones.join(', ')}` }
-  }
-  const mixed = rows.find(p => p.status === 'mixed')
-  if (mixed) return { column: 'permissibility', says, pass: null, actual: `${mixed.landUse} is permitted only in part of ${mixed.zone} under ${mixed.epi}` }
-  const r = rows[0]!
-  return { column: 'permissibility', says, pass: false, actual: `${r.landUse} ${r.status.replace(/_/g, ' ')} in ${r.zone} under ${r.epi}` }
-}
-
-function evaluate(t: LmrType, lot: LmrTypesResponse['lot'], perm: Perm[], excluded: LmrGeneralResult[], undecided: LmrGeneralResult[]): LmrTypeResult {
-  const checks: LmrTypeCheck[] = t.checks.map((c) => {
-    switch (c.column) {
-      case 'lmr_area':
-        return { ...c, pass: lot.band != null,
-                 actual: lot.band ? `${lot.band === 'inner' ? 'inner area, within 400 m' : 'outer area, 400-800 m'} of ${lot.measuredFrom.join(', ')}`
-                   : 'outside the 800 m walking catchments of every Town Centre and Schedule 11 station' }
-      case 'zone': {
-        const want = zonesFrom(c.says)
-        return { ...c, actual: lot.zones.length ? lot.zones.join(', ') : null,
-                 pass: lot.zones.length ? lot.zones.some(z => want.includes(z)) : null }
-      }
-      case 'permissibility':
-        return permissibility(t, c.says, lot.zones, perm)
-      case 'area': {
-        const need = thresholdFrom(c.says)
-        return { ...c, actual: lot.areaM2 == null ? null : `${Math.round(lot.areaM2).toLocaleString()} m²`,
-                 pass: lot.areaM2 == null || need == null ? null : lot.areaM2 >= need }
-      }
-      case 'width': {
-        const need = thresholdFrom(c.says)
-        return { ...c, actual: lot.widthM == null ? null : `${lot.widthM.toFixed(1)} m at the setback line`,
-                 pass: lot.widthM == null || need == null ? null : lot.widthM >= need }
-      }
-      case 'derived:not_battleaxe':
-        return { ...c, actual: lot.isBattleaxe == null ? null : lot.isBattleaxe ? 'is a battle-axe lot' : 'is not a battle-axe lot',
-                 pass: lot.isBattleaxe == null ? null : !lot.isBattleaxe }
-      default:
-        return { ...c, actual: null, pass: null }
-    }
-  })
-
-  const failed = checks.filter(c => c.pass === false)
-  const unknown = checks.filter(c => c.pass === null)
-  const eligible = excluded.length || failed.length ? false : (undecided.length || unknown.length) ? null : true
-
-  const allowances = t.allowances.filter(a => a.band === 'any' || a.band === lot.band)
-  const tally: Record<string, number> = {}
-  for (const r of t.requirements) if (!r.tested && r.untestedWhy) tally[r.untestedWhy] = (tally[r.untestedWhy] ?? 0) + 1
-  const untestedReasons = Object.entries(tally).map(([reason, count]) => ({ reason, count })).sort((a, b) => b.count - a.count)
-  const untested = untestedReasons.reduce((n, r) => n + r.count, 0)
-
-  let verdict: string
-  // an exclusion is the stronger answer: it holds wherever the catchments are later redrawn
-  if (excluded.length) verdict = `Excluded by s ${excluded.map(e => e.clause).join(', s ')}: the chapter does not apply to this land.`
-  else if (!lot.band) verdict = 'The chapter does not reach this lot: it is outside every low and mid rise housing area (s 163).'
-  else if (failed.length) verdict = 'Fails ' + failed.map(c => c.says).join('; ') + '.'
-  else if (undecided.length) verdict = `Clears its own checks, but s ${undecided.map(e => e.clause).join(', s ')} cannot be decided for this lot.`
-  else if (unknown.length) verdict = 'Cannot be decided: ' + unknown.map(c => `${c.column} (${c.actual ?? 'not measured'})`).join('; ') + '.'
-  else verdict = `Clears every check that reduces to a lot (${checks.length}).`
-  if (eligible !== false && allowances.length) {
-    verdict += ' Allowed: ' + allowances.map(a => [
-      a.forUse, a.fsr != null ? `FSR ${a.fsr}:1` : null, a.heightM != null ? `${a.heightM} m` : null,
-      a.storeys ? `${a.storeys} storeys` : null,
-    ].filter(Boolean).join(' ')).join('; ') + '.'
-  }
-  if (untested) {
-    verdict += ` ${untested} of its ${t.requirements.length} requirements are not tested here: `
-      + untestedReasons.map(r => `${r.count} ${r.reason}`).join('; ') + '.'
-  }
-
-  return { key: t.key, name: t.name, part: t.part, sections: t.sections, eligible, checks, allowances,
-           untested, untestedReasons, requirements: t.requirements.length, verdict }
-}
-
 // ── the route ───────────────────────────────────────────────────────────────────────────────────
 
 export default defineEventHandler(async (event): Promise<LmrTypesResponse> => {
@@ -282,7 +117,7 @@ export default defineEventHandler(async (event): Promise<LmrTypesResponse> => {
 
   const facts = await nswQuery<any>(`${SHRUNK_LOT}
     SELECT l.cadid, l.lotidstring AS lot_id, ST_Area(l.geom::geography) AS area_m2,
-           p.width_at_setback_m, p.lot_width_max_m, p.is_battleaxe,
+           p.primary_frontage_length_m, p.is_battleaxe,
            (SELECT upper(lga_name) FROM derived.lot_lga WHERE cadid = l.cadid) AS lga,
            (SELECT array_agg(DISTINCT z.sym_code::text) FROM epi.epi_land_zoning z
              WHERE z.geom && t.g AND ST_Intersects(z.geom, t.g) AND z.sym_code IS NOT NULL) AS zones,
@@ -290,25 +125,26 @@ export default defineEventHandler(async (event): Promise<LmrTypesResponse> => {
              WHERE w.geom && t.g AND ST_Intersects(w.geom, t.g)) AS stations,
            (SELECT min(w.distance_m) FROM lmr.station_walking_catchments w
              WHERE w.geom && t.g AND ST_Intersects(w.geom, t.g)) AS station_min,
+           -- declared plain geometry (geometry_columns says SRID 0), but every row is 4283
            (SELECT array_agg(DISTINCT w.label || ' (' || w.distance_m || ' m)') FROM lmr.town_centre_walking_catchments w
-             WHERE w.geom && ST_SetSRID(t.g, 0) AND ST_Intersects(w.geom, ST_SetSRID(t.g, 0))) AS centres,
+             WHERE w.geom && t.g AND ST_Intersects(w.geom, t.g)) AS centres,
            (SELECT min(w.distance_m) FROM lmr.town_centre_walking_catchments w
-             WHERE w.geom && ST_SetSRID(t.g, 0) AND ST_Intersects(w.geom, ST_SetSRID(t.g, 0))) AS centre_min
+             WHERE w.geom && t.g AND ST_Intersects(w.geom, t.g)) AS centre_min
       FROM cadastre.lot l CROSS JOIN t
       LEFT JOIN derived.lot_profile p ON p.cadid = l.cadid
      WHERE l.cadid = $1 LIMIT 1`, [cadid])
   const r = facts.rows[0]
   if (!r) throw createError({ statusCode: 404, statusMessage: `No lot with cadid ${cadid}` })
 
-  const nearest = Math.min(Number(r.station_min ?? Infinity), Number(r.centre_min ?? Infinity))
-  const band: Band | null = nearest <= 400 ? 'inner' : nearest <= 800 ? 'outer' : null
-  const lot: LmrTypesResponse['lot'] = {
+  const lot: LmrLotFacts = {
     cadid: r.cadid, lotId: r.lot_id, lga: r.lga ?? null,
     areaM2: r.area_m2 == null ? null : Number(r.area_m2),
-    widthM: r.width_at_setback_m != null ? Number(r.width_at_setback_m) : r.lot_width_max_m != null ? Number(r.lot_width_max_m) : null,
+    // lot width is the property's primary frontage (Manni, 2026-09-30): the same figure /cdc and the Pattern
+    // Book test. A landlocked lot has none, and its width checks are then undecided rather than guessed.
+    widthM: r.primary_frontage_length_m != null ? Number(r.primary_frontage_length_m) : null,
     isBattleaxe: r.is_battleaxe == null ? null : Boolean(r.is_battleaxe),
     zones: (r.zones ?? []).sort(),
-    band,
+    band: bandFrom(r.station_min == null ? null : Number(r.station_min), r.centre_min == null ? null : Number(r.centre_min)),
     measuredFrom: [...(r.stations ?? []), ...(r.centres ?? [])].sort(),
   }
 
@@ -323,13 +159,20 @@ export default defineEventHandler(async (event): Promise<LmrTypesResponse> => {
   const permRows: Perm[] = perm.rows.map((x: any) => ({ epi: x.epi, zone: x.zone, landUse: x.land_use, status: x.status }))
 
   const sweepRows = (await nswQuery<any>(await buildSweep(criteria.general), [cadid])).rows
-  const general = criteria.general.map(g => evaluateGeneral(g, sweepRows, lot.lga))
+  const general = criteria.general.map((g) => {
+    const mine = sweepRows.filter(s => s.clause === g.clause)
+    return evaluateGeneral(g, {
+      failN: mine.reduce((n, s) => n + Number(s.fail_n), 0),
+      unknownN: mine.reduce((n, s) => n + Number(s.unknown_n), 0),
+      names: [...new Set(mine.flatMap(s => s.names ?? []))] as string[],
+    }, lot.lga)
+  })
   const excluded = general.filter(g => g.status === 'excluded')
   const undecided = general.filter(g => g.status === 'unknown')
 
   const ORDER = (e: boolean | null) => (e === true ? 0 : e === null ? 1 : 2)
   const types = criteria.types
-    .map((t, i) => ({ ...evaluate(t, lot, permRows, excluded, undecided), _i: i }))
+    .map((t, i) => ({ ...evaluateType(t, lot, permRows, excluded, undecided), _i: i }))
     .sort((a, b) => ORDER(a.eligible) - ORDER(b.eligible) || a._i - b._i)
     .map(({ _i, ...rest }) => rest)
 

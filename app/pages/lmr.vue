@@ -210,8 +210,105 @@
         <nav v-show="guideOpen" class="lm-tabs" role="tablist">
           <button type="button" role="tab" class="lm-tab" :class="{ 'lm-tab--on': guideTab === 'method' }" :aria-selected="guideTab === 'method'" @click="guideTab = 'method'">How it's built</button>
           <button type="button" role="tab" class="lm-tab" :class="{ 'lm-tab--on': guideTab === 'rules' }" :aria-selected="guideTab === 'rules'" @click="openRules">The rules</button>
+          <button type="button" role="tab" class="lm-tab" :class="{ 'lm-tab--on': guideTab === 'layer' }" :aria-selected="guideTab === 'layer'" @click="openLayer">The layer</button>
           <button type="button" role="tab" class="lm-tab" :class="{ 'lm-tab--on': guideTab === 'lot' }" :aria-selected="guideTab === 'lot'" @click="guideTab = 'lot'">This lot</button>
         </nav>
+
+        <!-- ── The layer: lmr.lot_lmr in numbers, and against 05_lmr ───────── -->
+        <div v-if="guideOpen && guideTab === 'layer'" class="lm-guide-inner">
+          <p v-if="layerError" class="lm-error">{{ layerError }}</p>
+          <p v-else-if="!layerSummary" class="lm-dim">Loading the layer…</p>
+          <template v-else>
+            <h2 class="lm-h2">The LMR layer</h2>
+            <p class="lm-lead">
+              Every lot with any part in R1-R4 inside an 800 m walking catchment - {{ fmt(layerSummary.totals.all) }} of
+              them - judged against Chapter 6 the same way "This lot" judges one. Built
+              {{ layerSummary.builtAt ? fmtDate(layerSummary.builtAt) : '—' }} by <code>scripts/build-lmr-lots.ts</code>.
+            </p>
+            <div class="lm-kpis">
+              <div class="lm-kpi lm-kpi--in"><b>{{ fmt(layerSummary.totals.in) }}</b><span>in the LMR area</span></div>
+              <div class="lm-kpi lm-kpi--maybe"><b>{{ fmt(layerSummary.totals.undecided) }}</b><span>undecided</span></div>
+              <div class="lm-kpi lm-kpi--out"><b>{{ fmt(layerSummary.totals.excluded) }}</b><span>excluded (s 164)</span></div>
+            </div>
+            <p class="lm-step-layers">
+              <button v-for="k in ['lot_lmr', 'lmr_area', 'lot_lmr_05_only']" :key="k" type="button" class="lm-chip"
+                      :class="{ 'lm-chip--on': on.has(k) }" :disabled="!constraintLayers.some(c => c.key === k)" @click="toggle(k)">
+                {{ CONSTRAINT_STYLE[k]?.title }}
+              </button>
+            </p>
+
+            <h3 class="lm-h3">By area</h3>
+            <table class="lm-tbl">
+              <thead><tr><th /><th>in</th><th>undecided</th><th>excluded</th></tr></thead>
+              <tbody>
+                <tr v-for="b in layerSummary.byBand" :key="b.band">
+                  <td>{{ b.band === 'inner' ? 'Inner (400 m)' : 'Outer (400-800 m)' }}</td>
+                  <td>{{ fmt(b.in) }}</td><td>{{ fmt(b.undecided) }}</td><td>{{ fmt(b.excluded) }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 class="lm-h3">What takes lots out</h3>
+            <p class="lm-dim">A lot can be caught by more than one clause, so these add to more than the excluded total.</p>
+            <table class="lm-tbl">
+              <tbody>
+                <tr v-for="e in layerSummary.excludedBy" :key="e.clause">
+                  <td><a :href="clauseHref(e.clause)" target="_blank" rel="noopener" class="lm-clause">s {{ e.clause }}</a></td>
+                  <td class="lm-tbl-wide">{{ clauseText(e.clause) }}</td><td>{{ fmt(e.lots) }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <template v-if="layerSummary.undecidedBy.length">
+              <h3 class="lm-h3">What leaves lots undecided</h3>
+              <table class="lm-tbl">
+                <tbody>
+                  <tr v-for="e in layerSummary.undecidedBy" :key="e.clause">
+                    <td><a :href="clauseHref(e.clause)" target="_blank" rel="noopener" class="lm-clause">s {{ e.clause }}</a></td>
+                    <td class="lm-tbl-wide">{{ clauseText(e.clause) }}</td><td>{{ fmt(e.lots) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </template>
+
+            <h3 class="lm-h3">What the lots are eligible for</h3>
+            <table class="lm-tbl">
+              <thead><tr><th /><th>eligible</th><th>undecided</th></tr></thead>
+              <tbody>
+                <tr v-for="e in layerSummary.eligible" :key="e.type">
+                  <td class="lm-tbl-wide">{{ e.type }}</td><td>{{ fmt(e.lots) }}</td><td>{{ fmt(e.undecided) }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 class="lm-h3">Against 05_lmr</h3>
+            <p class="lm-dim">
+              05_lmr is the earlier notebook build (the property table's <code>in_lmr_housing_area</code>): the zone ×
+              400/800 m bands, with no exclusions applied.
+            </p>
+            <table class="lm-tbl">
+              <tbody>
+                <tr><td class="lm-tbl-wide">In both</td><td>{{ fmt(layerSummary.compare.both) }}</td></tr>
+                <tr><td class="lm-tbl-wide">In this build only</td><td>{{ fmt(layerSummary.compare.oursOnly) }}</td></tr>
+                <tr><td class="lm-tbl-wide">In 05_lmr, but excluded here by s 164</td><td>{{ fmt(layerSummary.compare.excludedButIn05) }}</td></tr>
+                <tr><td class="lm-tbl-wide">In 05_lmr, undecided here</td><td>{{ fmt(layerSummary.compare.undecidedButIn05) }}</td></tr>
+                <tr v-for="w in layerSummary.compare.theirsOnly" :key="w.why">
+                  <td class="lm-tbl-wide">In 05_lmr only - {{ w.why }}</td><td>{{ fmt(w.lots) }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 class="lm-h3">By council</h3>
+            <table class="lm-tbl lm-tbl--small">
+              <thead><tr><th /><th>in</th><th>undec.</th><th>excl.</th><th>05_lmr</th><th>05 only</th></tr></thead>
+              <tbody>
+                <tr v-for="l in layerSummary.byLga" :key="l.lga">
+                  <td class="lm-tbl-wide">{{ l.lga }}</td><td>{{ fmt(l.in) }}</td><td>{{ fmt(l.undecided) }}</td>
+                  <td>{{ fmt(l.excluded) }}</td><td>{{ fmt(l.in05) }}</td><td>{{ fmt(l.only05) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+        </div>
 
         <!-- ── This lot: Chapter 6 against the picked lot ───────────────────── -->
         <div v-if="guideOpen && guideTab === 'lot'" class="lm-guide-inner">
@@ -267,8 +364,8 @@
               </p>
             </div>
             <p class="lm-foot">
-              Width is measured at the 4.5 m setback line, standing in for "the front building line", which the
-              chapter does not define. {{ lotAnswer.summary.gaps.length }} exclusions have no data and are never counted
+              Width is the property's primary frontage, standing in for "the width at the front building line",
+              which the chapter does not define - the same measure /cdc and the Pattern Book use. {{ lotAnswer.summary.gaps.length }} exclusions have no data and are never counted
               as clear: s {{ lotAnswer.summary.gaps.join(', s ') }}. {{ lotAnswer.ms }} ms.
             </p>
           </template>
@@ -356,6 +453,7 @@ import {
 } from '#shared/lmr-layers'
 import type { LmrCriteria } from '../../server/api/lmr/criteria.get'
 import type { LmrTypesResponse } from '../../server/api/lmr/types.get'
+import type { LmrLayerSummary } from '../../server/api/lmr/layer-summary.get'
 import { ensureHatch, HATCH_NONE } from '#shared/hatch'
 
 useHead({ title: 'LMR · Planning Library' })
@@ -593,8 +691,10 @@ function addConstraintLayers() {
   const fillOpacity = ['match', ['coalesce', ['get', 'verdict'], ''], ...Object.entries(VERDICT_OPACITY).flat(),
     byConstraint(s => s.fillOpacity ?? 0.3, 0.3)]
   map.addLayer({ ...common, id: 'c-fill', type: 'fill', filter: filters['c-fill'],
-    // land zoning is the base of the constraints, and a 400 m catchment draws over the 800 m one it sits inside
-    layout: { 'fill-sort-key': ['case', ['==', ['get', 'layer_key'], 'epi_land_zoning'], 0, ['==', ['get', 'category'], '400 m'], 2, 1] },
+    // land zoning is the base of the constraints, a 400 m catchment draws over the 800 m one it sits inside,
+    // and the LMR layer's lots over the catchments they were built from
+    layout: { 'fill-sort-key': ['case', ['==', ['get', 'layer_key'], 'epi_land_zoning'], 0, ['==', ['get', 'layer_key'], 'lot_lmr'], 3,
+      ['==', ['get', 'category'], '400 m'], 2, 1] },
     paint: { 'fill-color': fillColor, 'fill-opacity': fillOpacity } }, before)
   // the portal's hatched symbols - proximity areas, SHR curtilage, the whole-LGA exclusion
   for (const c of constraintLayers.value) {
@@ -689,7 +789,29 @@ function clearPick() {
 // lmr.type_check, lmr.general - /api/lmr/criteria), and /api/lmr/types evaluates those same rows
 // against one lot, so the rules tab and the lot tab can never disagree.
 
-type GuideTab = 'method' | 'rules' | 'lot'
+type GuideTab = 'method' | 'rules' | 'layer' | 'lot'
+const layerSummary = ref<LmrLayerSummary | null>(null)
+const layerError = ref('')
+
+async function openLayer() {
+  guideTab.value = 'layer'
+  if (!guideOpen.value) await toggleGuide()
+  // the clause text beside each count comes from the catalogue
+  if (!criteria.value) criteria.value = await $fetch<LmrCriteria>('/api/lmr/criteria').catch(() => null)
+  if (!layerSummary.value) {
+    try { layerSummary.value = await $fetch<LmrLayerSummary>('/api/lmr/layer-summary') }
+    catch (e: any) { layerError.value = e?.data?.statusMessage || e?.message || 'Could not load the layer summary.' }
+  }
+}
+
+function clauseText(clause: string): string {
+  const t = criteria.value?.general.find(g => g.clause === clause)?.text ?? ''
+  return t.length > 70 ? t.slice(0, 68) + '…' : t
+}
+function clauseHref(clause: string): string {
+  return criteria.value?.general.find(g => g.clause === clause)?.href
+    ?? 'https://legislation.nsw.gov.au/view/html/inforce/current/epi-2021-0714#sec.164'
+}
 const guideTab = ref<GuideTab>('method')
 const criteria = ref<LmrCriteria | null>(null)
 const lotAnswer = ref<LmrTypesResponse | null>(null)
@@ -1078,6 +1200,19 @@ body { margin: 0; background: #f8fafb; }
 .lm-reqs li { display: grid; grid-template-columns: 4.6rem 1fr; gap: 0.1rem 0.4rem; }
 .lm-req-how { grid-column: 2; font-size: 0.7rem; color: #94a3b8; }
 .lm-req--tested .lm-req-how { color: #15803d; font-weight: 600; }
+.lm-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin: 0.6rem 0; }
+.lm-kpi { padding: 0.5rem; border-radius: 6px; border-left: 4px solid; background: #f8fafc; }
+.lm-kpi b { display: block; font-size: 1.05rem; font-variant-numeric: tabular-nums; color: #0f172a; }
+.lm-kpi span { font-size: 0.7rem; color: #475569; }
+.lm-kpi--in { border-color: #1971c2; }
+.lm-kpi--maybe { border-color: #f08c00; }
+.lm-kpi--out { border-color: #adb5bd; }
+.lm-tbl { width: 100%; border-collapse: collapse; font-size: 0.76rem; color: #334155; }
+.lm-tbl th { text-align: right; font-size: 0.68rem; font-weight: 700; color: #64748b; padding: 0.15rem 0.3rem; }
+.lm-tbl td { padding: 0.2rem 0.3rem; border-top: 1px solid #f1f5f9; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lm-tbl td:first-child { text-align: left; }
+.lm-tbl-wide { text-align: left !important; white-space: normal !important; width: 100%; }
+.lm-tbl--small { font-size: 0.7rem; }
 .lm-map { position: absolute; inset: 0; }
 
 .lm-search { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; }

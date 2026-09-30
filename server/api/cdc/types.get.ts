@@ -23,7 +23,8 @@
  *
  *   lzn_sym_code   the zone            epi.epi_land_zoning, by lot polygon
  *   area_h         lot area            measured off the lot geometry
- *   do_width       lot width           derived.lot_profile.width_at_setback_m
+ *   do_width       lot width           derived.lot_profile.primary_frontage_length_m - the property frontage,
+ *                                      as /lmr and the Pattern Book read it (2026-09-30; was width at the setback)
  *   ghc_lay_class  Greenfield area     cdc.greenfield_housing_code
  *   landsliderisk  landslide risk      cdc.landslide_risk
  *
@@ -295,7 +296,7 @@ function evaluate(t: CdcType, lot: any, generalBlockers: any[], generalError: st
         const need = thresholdFrom(c.says)
         checks.push({
           column: c.column, says: c.says,
-          actual: lot.widthM == null ? null : `${lot.widthM.toFixed(1)} m`,
+          actual: lot.widthM == null ? null : `${lot.widthM.toFixed(1)} m of frontage`,
           pass: lot.widthM == null || need == null ? null : lot.widthM >= need,
         })
       } else if (c.column === 'ghc_lay_class') {
@@ -430,7 +431,7 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
     WITH l AS (SELECT cadid, lotidstring AS lot_id, geom, ST_Area(geom::geography) AS area_m2
                FROM cadastre.lot WHERE cadid = $1 LIMIT 1)
     SELECT l.cadid, l.lot_id, l.area_m2,
-           p.width_at_setback_m, p.lot_width_max_m, p.is_battleaxe, p.stem_width_m,
+           p.primary_frontage_length_m, p.is_battleaxe, p.stem_width_m,
            (SELECT array_agg(DISTINCT z.sym_code::text) FROM epi.epi_land_zoning z
              WHERE z.geom && l.geom AND ST_Intersects(z.geom, l.geom) AND z.sym_code IS NOT NULL) AS zones,
            EXISTS (SELECT 1 FROM cdc.greenfield_housing_code g
@@ -531,8 +532,8 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
     inEsa: hitWhere(h => typeof h.source === 'string' && h.source.startsWith('esa.')),
     hasHeritage: hitWhere(h => h.group === 'heritage'),
     areaM2: r.area_m2 == null ? null : Number(r.area_m2),
-    widthM: r.width_at_setback_m != null ? Number(r.width_at_setback_m)
-      : r.lot_width_max_m != null ? Number(r.lot_width_max_m) : null,
+    // the property frontage; a landlocked lot has none, and its width checks are undecided, not guessed
+    widthM: r.primary_frontage_length_m != null ? Number(r.primary_frontage_length_m) : null,
     zones: (r.zones ?? []) as string[],
     permissibility: r.permissibility ?? [],
     inGreenfield: Boolean(r.in_greenfield),
