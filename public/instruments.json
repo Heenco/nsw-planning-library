@@ -1156,6 +1156,18 @@
             "last_amended": "2023-10-01"
           },
           {
+            "slug": "marrickville-development-control-plan-2011",
+            "title": "Marrickville Development Control Plan 2011",
+            "file": "EPI/DCPs/marrickville-development-control-plan-2011.md",
+            "html": "EPI/DCPs/marrickville-development-control-plan-2011.html",
+            "manifest": "EPI/DCPs/manifests/marrickville-development-control-plan-2011.json",
+            "councils": [
+              "Inner West"
+            ],
+            "scope": "citywide",
+            "last_amended": "2025-07-31"
+          },
+          {
             "slug": "mosman-business-centres-development-control-plan-2012",
             "title": "Mosman Business Centres Development Control Plan 2012",
             "file": "EPI/DCPs/mosman-business-centres-development-control-plan-2012.md",
@@ -1250,6 +1262,18 @@
             "last_amended": "2026-09-01"
           },
           {
+            "slug": "sydney-development-control-plan-2012",
+            "title": "Sydney Development Control Plan 2012",
+            "file": "EPI/DCPs/sydney-development-control-plan-2012.md",
+            "html": "EPI/DCPs/sydney-development-control-plan-2012.html",
+            "manifest": "EPI/DCPs/manifests/sydney-development-control-plan-2012.json",
+            "councils": [
+              "Sydney"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-06-16"
+          },
+          {
             "slug": "telecommunications-and-radiocommunications-development-contr",
             "title": "telecommunications-and-radiocommunications-development-contr",
             "file": "EPI/DCPs/telecommunications-and-radiocommunications-development-contr.md",
@@ -1266,6 +1290,18 @@
             ],
             "scope": "citywide",
             "last_amended": "2025-09-16"
+          },
+          {
+            "slug": "the-hills-development-control-plan-2012",
+            "title": "The Hills Development Control Plan 2012",
+            "file": "EPI/DCPs/the-hills-development-control-plan-2012.md",
+            "html": "EPI/DCPs/the-hills-development-control-plan-2012.html",
+            "manifest": "EPI/DCPs/manifests/the-hills-development-control-plan-2012.json",
+            "councils": [
+              "The Hills"
+            ],
+            "scope": "citywide",
+            "last_amended": "2026-09-04"
           },
           {
             "slug": "visitor-and-tourist-accommodation-development-control-plan-2",

@@ -1,0 +1,384 @@
+{
+  "instrument": "the-hills-development-control-plan-2012",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\the-hills-development-control-plan-2012.html",
+  "generated": "2026-09-29T12:56:09.189Z",
+  "parts": 104,
+  "parts_with_sidecar": 104,
+  "source_pages": 0,
+  "bytes": 5467314,
+  "unique_anchor_ids": 6845,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 104
+  },
+  "totals": {
+    "headings": 6741,
+    "tables": 339,
+    "list_items": 8914,
+    "images_placed": 2771,
+    "prose_demoted": 1601,
+    "page_markers": 1558
+  },
+  "weak_parts": [
+    {
+      "prefix": "A",
+      "page_coverage": 0.613,
+      "distinct_levels": 2
+    },
+    {
+      "prefix": "C-2",
+      "page_coverage": 0.85,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "C-3",
+      "page_coverage": 0.943,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "C-4",
+      "page_coverage": 0.85,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "C-5",
+      "page_coverage": 0.786,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "C-6",
+      "page_coverage": 0.889,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "D",
+      "page_coverage": 0.917,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "D-2",
+      "page_coverage": 0.929,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "D-3",
+      "page_coverage": 0.917,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "D-4",
+      "page_coverage": 0.938,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "Balmoral-Road-Release-Ar",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "D-9",
+      "page_coverage": 0.944,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "D-10",
+      "page_coverage": 0.947,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "D-11",
+      "page_coverage": 0.921,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "D-13",
+      "page_coverage": 0.912,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "D-15",
+      "page_coverage": 0.893,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "D-16",
+      "page_coverage": 0.909,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "Appendix-A-Waste-Managem",
+      "page_coverage": 0.857,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Appendix-B-Water-Sensiti",
+      "page_coverage": 0.875,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-12",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-13",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-14",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-15",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-16",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-17",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-18",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-19",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-20",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-21",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-22",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-23",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-24",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-25",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-26",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-27",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-28",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-29",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-30",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-31",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-32",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-33",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-34",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-35",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-36",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-37",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-38",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-39",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-40",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-41",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-42",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-43",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-44",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-45",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-46",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-47",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-48",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-49",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-50",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-51",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-52",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-53",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-54",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-55",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-56",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-57",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-58",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "B-59",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "B-60",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "D-31",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "D-32",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "D-33",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "D-34",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    }
+  ]
+}

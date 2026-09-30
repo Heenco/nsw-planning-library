@@ -369,7 +369,9 @@ export default defineEventHandler(async (event): Promise<LepRulesResponse> => {
   const spatial = (await nswQuery<any>(
     `SELECT sr.rule_id, sr.value, sr.map_layer, sr.geom IS NOT NULL AS resolved,
             CASE WHEN sr.geom IS NULL THEN NULL
-                 ELSE st_intersects(sr.geom, st_transform(l.geom, 4326)) END AS covers
+                 -- the lot goes into whatever SRID the ref was resolved in: the table moved from 4326 to 4283
+                 -- (2026-09), and a hard-coded 4326 made every lot fail with "mixed SRID geometries"
+                 ELSE st_intersects(sr.geom, st_transform(l.geom, st_srid(sr.geom))) END AS covers
        FROM nsw.rule_spatial_ref sr, cadastre.lot l
       WHERE sr.document_id = $1 AND l.cadid = $2`,
     [doc.id, cadid],

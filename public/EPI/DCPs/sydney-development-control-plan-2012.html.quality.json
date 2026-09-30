@@ -1,0 +1,1214 @@
+{
+  "instrument": "sydney-development-control-plan-2012",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\sydney-development-control-plan-2012.html",
+  "generated": "2026-09-29T16:47:39.655Z",
+  "parts": 248,
+  "parts_with_sidecar": 248,
+  "source_pages": 0,
+  "bytes": 4808450,
+  "unique_anchor_ids": 3470,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 248
+  },
+  "totals": {
+    "headings": 3222,
+    "tables": 111,
+    "list_items": 9413,
+    "images_placed": 1792,
+    "prose_demoted": 30,
+    "page_markers": 1526
+  },
+  "weak_parts": [
+    {
+      "prefix": "Table-of-contents-and-gl",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Development-guidelines-B",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Landscape-code-volume-1-",
+      "page_coverage": 0.907,
+      "distinct_levels": 2
+    },
+    {
+      "prefix": "Landscape-code-volume-2-",
+      "page_coverage": 0.909,
+      "distinct_levels": 2
+    },
+    {
+      "prefix": "Minimising-overshadowing",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-001-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-001-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-001-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-001-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-001-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-002-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Active-Frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-003-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-004-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-005-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-005-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-005-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-005-Public-domain-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-005-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-005-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-005-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-007-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-007-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-007-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-007-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-007-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-007-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-007-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-007-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-007-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-007-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-008-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-008-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-008-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-009-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-009-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Public-domain-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-010-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Public-domain-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-011-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Public-domain-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-012-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-013-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-013-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-013-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-013-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-013-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-013-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-014-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-014-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-014-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-014-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-014-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-014-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-014-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-014-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-014-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-014-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Alternative-bu",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Alternative-bu-2",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-015-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-016-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-016-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-016-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-016-Public-domain-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-016-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Public-domain-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-017-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Public-domain-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-018-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Proposed-open-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Public-domain-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Stormwater-man",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Streets-and-la",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-019-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-021-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-021-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-021-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-021-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-021-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-021-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-021-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-021-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Alternative-bu",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Building-setba",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Alternative-bu-2",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-022-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-022-Through-site-l",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Active-frontag",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-023-Alternative-bu",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Building-stree",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Sheet-023-Alternative-bu-2",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Footpath-awnin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Late-night-tra",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Pedestrian-pri",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-023-Signage-precin",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-024-Building-contr",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-024-Building-heigh",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Sheet-024-Entertainment-",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    }
+  ]
+}

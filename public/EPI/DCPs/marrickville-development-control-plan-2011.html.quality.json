@@ -1,0 +1,114 @@
+{
+  "instrument": "marrickville-development-control-plan-2011",
+  "output": "C:\\Users\\manni.kheradmandi\\OneDrive - COSOL GLOBAL\\nsw-planning-library\\public\\EPI\\DCPs\\marrickville-development-control-plan-2011.html",
+  "generated": "2026-09-29T04:10:27.302Z",
+  "parts": 95,
+  "parts_with_sidecar": 95,
+  "source_pages": 0,
+  "bytes": 4321114,
+  "unique_anchor_ids": 2683,
+  "duplicate_anchor_ids": 0,
+  "vintages": {
+    "undefined": 95
+  },
+  "totals": {
+    "headings": 2588,
+    "tables": 241,
+    "list_items": 8046,
+    "images_placed": 2010,
+    "prose_demoted": 117,
+    "page_markers": 1403
+  },
+  "weak_parts": [
+    {
+      "prefix": "Table-of-Contents",
+      "page_coverage": 2.167,
+      "distinct_levels": 1
+    },
+    {
+      "prefix": "Development-Application-",
+      "page_coverage": 0.889,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "Cover-page",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "2-8",
+      "page_coverage": 0.875,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "2-10-2",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "2-13-2",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "2-14-2",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Marrickville-Flood-Liabl",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Marrickville-Flood-Plann",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Cover-page-Part-4",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "4-3",
+      "page_coverage": 0.889,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "Cover-page-Part-7",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "7-1",
+      "page_coverage": 0.818,
+      "distinct_levels": 3
+    },
+    {
+      "prefix": "Heritage-Conservation-Ar",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Cover-page-Part-9",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "Map-Planning-Precincts",
+      "page_coverage": 1,
+      "distinct_levels": 0
+    },
+    {
+      "prefix": "9-2",
+      "page_coverage": 0.9,
+      "distinct_levels": 4
+    },
+    {
+      "prefix": "Part-10-Definitions",
+      "page_coverage": 1,
+      "distinct_levels": 1
+    }
+  ]
+}
