@@ -434,6 +434,40 @@
         </div>
       </div>
 
+      <!-- ── Uses permitted via SEPP ─────────────────────────────────────────
+           The report's own SEPP section (nsw.up_property_d_4.sepp_landuses, through
+           /api/testing/report-inputs), shown beside Permissibility because it is the other half of
+           "what may be built here". Taken out of the "What /report is built from" list below so it
+           is not shown twice. -->
+      <div v-if="seppUses" :id="seppUses.id" class="lp-group">
+        <h3 class="lp-h3">
+          {{ seppUses.title }}
+          <span class="lp-dim"><code>{{ seppUses.source }}</code></span>
+        </h3>
+        <p v-if="seppUses.coverage" class="lp-basis lp-basis--warn">{{ seppUses.coverage }}</p>
+        <div v-if="seppUses.fields.length" class="lp-scroll"><table class="lp-table">
+          <thead><tr><th>Field</th><th>Column in d_4</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr v-for="f in seppUses.fields" :key="f.column">
+              <td>{{ f.label }}</td>
+              <td><code>{{ f.column }}</code></td>
+              <td><span v-if="f.value !== null">{{ f.value }}</span><span v-else class="lp-dim">null</span></td>
+            </tr>
+          </tbody>
+        </table></div>
+        <div v-if="seppUses.rows && seppUses.rows.values.length" class="lp-scroll"><table class="lp-table">
+          <thead><tr><th v-for="c in seppUses.rows.columns" :key="c">{{ c }}</th></tr></thead>
+          <tbody>
+            <tr v-for="(r, i) in seppUses.rows.values" :key="i">
+              <td v-for="(v, j) in r" :key="j"><span v-if="v !== null">{{ v }}</span><span v-else class="lp-dim">null</span></td>
+            </tr>
+          </tbody>
+        </table></div>
+        <p v-else-if="seppUses.rows" class="lp-dim">No rows.</p>
+        <p v-if="seppUses.note" class="lp-note">{{ seppUses.note }}</p>
+      </div>
+      <p v-else-if="inputsError" class="lp-dim" id="ri-sepp-uses">The SEPP uses come with the report inputs, which did not load.</p>
+
       <!-- ── The LEP rule layer, decided against this lot ──────────────────
            Permissibility says what may be built here; this says under what
            constraints. Every fact it decides on is one the sections above
@@ -1118,6 +1152,83 @@
         </template>
       </div>
 
+      <!-- ── Build-to-rent and the affordable housing bonus ─────────────────
+           Housing SEPP s 72 and s 15C for this lot - the same /api/housing/at the "This lot" tab on
+           /build-to-rent and /affordable-housing reads, fetched once for both sections. Each route or
+           test is listed with its clause and why, as there. -->
+      <div v-for="h in HOUSING_SECTIONS" :id="h.id" :key="h.id" class="lp-group">
+        <h3 class="lp-h3">
+          {{ h.title }}
+          <span class="lp-dim"><code>/api/housing/at</code></span>
+        </h3>
+        <p class="lp-basis lp-basis--lot">{{ h.basis }}</p>
+
+        <p v-if="housingError" class="lp-error">{{ housingError }}</p>
+        <p v-else-if="!housing" class="lp-dim">Loading&hellip;</p>
+        <template v-else>
+          <p class="lp-verdict" :class="`lp-verdict--${triWord(housing[h.key].eligible)}`">
+            <strong>{{ TRI_LABEL[triWord(housing[h.key].eligible)] }}</strong> &mdash; {{ housing[h.key].headline }}
+          </p>
+          <p class="lp-note">
+            {{ housing.facts.lga || 'council not recorded' }}
+            &middot; Zone {{ housing.facts.zones.join(', ') || 'unknown' }}
+            &middot; {{ housing.facts.areaM2 ? Math.round(housing.facts.areaM2).toLocaleString() + ' m²' : 'area unknown' }}
+            <span class="lp-dim">&middot; {{ housing.ms }} ms</span>
+          </p>
+
+          <h4 class="lp-h4">{{ h.limbsTitle }}</h4>
+          <div class="lp-scroll">
+            <table class="lp-table lp-lmr-gen">
+              <thead><tr><th>Clause</th><th>Test</th><th></th><th>Why</th></tr></thead>
+              <tbody>
+                <tr v-for="l in housing[h.key].limbs" :key="l.clause + l.label">
+                  <td><a :href="housingClauseUrl(l.clause)" target="_blank" rel="noopener" class="lp-mapcl">s {{ l.clause }}</a></td>
+                  <td>{{ l.label }}</td>
+                  <td>
+                    <span class="lp-gate" :class="l.informational ? 'lp-gate--open' : `lp-gate--${triWord(l.pass)}`">
+                      {{ l.informational ? 'not counted' : l.pass === true ? 'yes' : l.pass === false ? 'no' : 'undecided' }}
+                    </span>
+                  </td>
+                  <td>{{ l.why }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <template v-if="housing[h.key].exclusions.length">
+            <h4 class="lp-h4">Where it does not apply (s 15C(2A))</h4>
+            <div class="lp-scroll">
+              <table class="lp-table lp-lmr-gen">
+                <thead><tr><th>Clause</th><th>Land</th><th></th><th>Why</th></tr></thead>
+                <tbody>
+                  <tr v-for="l in housing[h.key].exclusions" :key="l.clause + l.label">
+                    <td><a :href="housingClauseUrl(l.clause)" target="_blank" rel="noopener" class="lp-mapcl">s {{ l.clause }}</a></td>
+                    <td>{{ l.label }}</td>
+                    <td><span class="lp-gate" :class="l.pass ? 'lp-gate--no' : 'lp-gate--yes'">{{ l.pass ? 'excluded' : 'clear' }}</span></td>
+                    <td>{{ l.why }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+
+          <template v-if="housing[h.key].allowances.length">
+            <h4 class="lp-h4">{{ h.key === 'btr' ? 'What the land already allows (no bonus)' : 'What the bonus gives' }}</h4>
+            <p class="lp-chips">
+              <span v-for="a in housing[h.key].allowances" :key="a.label" class="lp-chip">
+                <strong>{{ a.label }}</strong> {{ a.value }} <span class="lp-dim">s {{ a.clause }}</span>
+              </span>
+            </p>
+          </template>
+
+          <h4 class="lp-h4">Only the proposal can answer</h4>
+          <ul class="lp-housing-flags"><li v-for="f in housing[h.key].flags" :key="f">{{ f }}</li></ul>
+          <p class="lp-note">
+            <NuxtLink v-if="openedCadid" :to="`${h.page}#${openedCadid}`">See it on {{ h.page }}</NuxtLink>
+          </p>
+        </template>
+      </div>
+
       <!-- ── the report's own inputs ───────────────────────────────────────
            /report reads nsw.up_property_d_4 and the nsw graph, then explains
            them. These sections carry the same subjects with nothing explained:
@@ -1142,7 +1253,7 @@
       </div>
       <p v-else-if="inputsError" class="lp-error">{{ inputsError }}</p>
 
-      <div v-for="sec in (inputs?.sections ?? [])" :id="sec.id" :key="sec.id" class="lp-group">
+      <div v-for="sec in reportSections" :id="sec.id" :key="sec.id" class="lp-group">
         <h3 class="lp-h3">
           {{ sec.title }}
           <span class="lp-dim"><code>{{ sec.source }}</code></span>
@@ -1512,7 +1623,7 @@ async function open(cadid: string, msoid: number | null = null) {
     observeSections()
     // deliberately not awaited: the lot dump is the point of the page and should not wait on four
     // planning sweeps, the slowest of which is a few hundred ms
-    void Promise.all([loadPlanning(cadid), loadPattern(cadid), loadCdcTypes(cadid), loadLmrTypes(cadid),
+    void Promise.all([loadPlanning(cadid), loadPattern(cadid), loadCdcTypes(cadid), loadLmrTypes(cadid), loadHousing(cadid),
       loadLepRules(cadid),
       // the report's own path, fetched beside the derived view rather than instead of it
       loadReportInputs(cadid)]).then(() => nextTick()).then(() => {
@@ -1658,6 +1769,38 @@ async function loadLmrTypes(cadid: string) {
   } catch (e: any) {
     lmrTypesError.value = e?.data?.statusMessage || e?.message || 'Could not judge the lot against Chapter 6.'
   }
+}
+
+// Housing SEPP s 72 (build-to-rent) and s 15C (the affordable housing bonus) for this lot - the same
+// /api/housing/at /build-to-rent and /affordable-housing read, so the verdicts match. One fetch for both
+// sections: the bonus counts build-to-rent as one way of being permitted, so the route answers both.
+const housing = ref<any>(null)
+const housingError = ref('')
+
+async function loadHousing(cadid: string) {
+  housing.value = null
+  housingError.value = ''
+  try {
+    housing.value = await $fetch<any>('/api/housing/at', { query: { cadid } })
+  } catch (e: any) {
+    housingError.value = e?.data?.statusMessage || e?.message || 'Could not judge the lot against s 72 and s 15C.'
+  }
+}
+
+const HOUSING_SECTIONS = [
+  { id: 'build-to-rent', key: 'btr', page: '/build-to-rent', title: 'Build-to-rent — Housing SEPP s 72',
+    limbsTitle: 'Section 72(2): any one route is enough',
+    basis: 'Computed from the lot polygon, shrunk 10 cm: zoning, LEP permissibility, TOD areas, the SSD Sites Map, and the LMR verdict for Chapter 6.' },
+  { id: 'affordable-housing', key: 'ahb', page: '/affordable-housing', title: 'Affordable housing bonus — Housing SEPP s 15C',
+    limbsTitle: 'Section 15C(1): all of these',
+    basis: 'Computed from the lot polygon, shrunk 10 cm: permissibility, the Six Cities council list, the station and bus stop walking isochrones, centre zones, the exclusion maps, FSR and height.' },
+] as const
+
+const triWord = (t: boolean | null) => (t === true ? 'yes' : t === false ? 'no' : 'open')
+const TRI_LABEL: Record<string, string> = { yes: 'Eligible', no: 'Not eligible', open: 'Undecided' }
+function housingClauseUrl(clause: string): string {
+  const m = clause.match(/^(\d+[A-Z]?)/)
+  return `https://legislation.nsw.gov.au/view/html/inforce/current/epi-2021-0714${m ? `#sec.${m[1]}` : ''}`
 }
 
 const LMR_STATUS: Record<string, string> = { clear: 'clear', excluded: 'excluded', unknown: 'undecided', gap: 'no data', 'n/a': 'does not apply' }
@@ -2130,6 +2273,10 @@ function fitLot(geometry: any) {
 }
 
 const PAGE_SECTIONS = [{ id: 'build', label: 'The build' }, { id: 'find', label: 'Find a lot' }]
+// "Uses Permitted via SEPP" is drawn under Permissibility; the rest of the report's sections stay in their list
+const SEPP_USES_ID = 'ri-sepp-uses'
+const seppUses = computed(() => (inputs.value?.sections ?? []).find((x: any) => x.id === SEPP_USES_ID) ?? null)
+const reportSections = computed(() => (inputs.value?.sections ?? []).filter((x: any) => x.id !== SEPP_USES_ID))
 function sid(title: string) { return 'g-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') }
 const railTitle = computed(() => (primaryAddress.value || detail.value?.lot?.lot_id || openedCadid.value || 'Lot') as string)
 const lotSections = computed(() => {
@@ -2143,13 +2290,16 @@ const lotSections = computed(() => {
   out.push({ id: 'addresses', label: 'Addresses' })
   for (const p of PLANNING) out.push({ id: p.id, label: p.title })
   out.push({ id: 'permissibility', label: 'Permissibility' })
+  if (seppUses.value) out.push({ id: seppUses.value.id, label: seppUses.value.title })
   out.push({ id: 'lep-rules', label: 'LEP rules for this lot' })
   out.push({ id: 'cdc-eligibility', label: 'CDC eligibility' })
   out.push({ id: 'lmr-eligibility', label: 'LMR eligibility' })
   out.push({ id: 'pattern-book', label: 'Pattern Book' })
+  out.push({ id: 'build-to-rent', label: 'Build-to-rent' })
+  out.push({ id: 'affordable-housing', label: 'Affordable housing bonus' })
   if (inputs.value) {
     out.push({ id: 'report-inputs', label: 'What /report is built from' })
-    for (const sec of inputs.value.sections) out.push({ id: sec.id, label: sec.title })
+    for (const sec of reportSections.value) out.push({ id: sec.id, label: sec.title })
     out.push({ id: 'ri-map', label: 'Lot Map & Dimensions' })
     out.push({ id: 'ri-envelope', label: 'Building envelope (3D)' })
   }
@@ -2725,6 +2875,8 @@ a.lp-pb-clause:hover { text-decoration: underline; }
 .lp-verdict { margin: 0.2rem 0 0.6rem; padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.82rem; border-left: 3px solid; }
 .lp-verdict--yes { background: #f0fdf4; border-color: #16a34a; color: #166534; }
 .lp-verdict--no { background: #fef2f2; border-color: #dc2626; color: #991b1b; }
+.lp-verdict--open { background: #fffbeb; border-color: #d97706; color: #92400e; }
+.lp-housing-flags { margin: 0 0 0.4rem; padding-left: 1.1rem; font-size: 0.78rem; color: #334155; }
 .lp-cdc-scope { margin-bottom: 0.5rem; }
 .lp-cdc-scope-head { margin: 0 0 0.2rem; font-size: 0.78rem; font-weight: 700; color: #334155; }
 .lp-cdc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.15rem; }
