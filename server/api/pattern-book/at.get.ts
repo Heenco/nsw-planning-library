@@ -58,12 +58,20 @@ export interface PatternCheck {
   /** null when `actual` is null - unknown is not the same as failed. */
   pass: boolean | null
   note?: string
+  /**
+   * True when the figure is derived rather than measured, so a failure is a prompt, not an answer.
+   *
+   * Only the falls: gradient x run, taken from the steepest gradient ANYWHERE on the lot across its
+   * whole depth or width. A building platform sits on part of the lot and is cut and filled, so this
+   * reads high - high enough that treating it as an exclusion would rule out buildable lots.
+   */
+  estimate?: boolean
 }
 
 export interface PatternBlockResult {
   block: string
   checks: PatternCheck[]
-  /** true only when every check passed; null when any is unknown. */
+  /** false as soon as one check failed; null only when nothing failed and something is unmeasured. */
   qualifies: boolean | null
   /**
    * Whether THIS block is the one that applies to the lot.
@@ -86,6 +94,26 @@ export interface PatternGate {
   href: string | null
 }
 
+/**
+ * The answer a reader came for, in four states rather than two.
+ *
+ * 'no'       a clause excludes the lot, or a measured dimension misses - settled either way.
+ * 'unlikely' only an ESTIMATED fall misses. A survey can displace it; we should not pretend it cannot.
+ * 'maybe'    nothing we hold rules it out, and something is still open off the title or the council.
+ * 'yes'      clear on every item the instrument and the lot can answer.
+ */
+export type PatternVerdict = 'no' | 'unlikely' | 'maybe' | 'yes'
+
+export interface PatternBottomLine {
+  verdict: PatternVerdict
+  /** One line, in the terms the question was asked in. */
+  headline: string
+  /** The specific items the verdict rests on. */
+  because: string[]
+  /** What nothing we hold can answer - listed even on a 'yes', because it is still owed. */
+  outstanding: string[]
+}
+
 export interface PatternDesignResult {
   key: string
   category: string
@@ -104,6 +132,8 @@ export interface PatternDesignResult {
   /** false when any gate failed - the dimensions then cannot make it eligible. */
   gatesClear: boolean | null
   blocks: PatternBlockResult[]
+  /** The row's finding; the gates and blocks beside it are the evidence for it. */
+  bottomLine: PatternBottomLine
 }
 
 export interface PatternBookAtResponse {
@@ -120,14 +150,14 @@ export interface PatternBookAtResponse {
   }
   designs: PatternDesignResult[]
   summary: {
-    /** Designs the lot clears whichever way the LMR question goes. */
-    qualifiesEitherWay: number
-    /** Designs it clears only inside an LMR area. */
-    onlyInLmr: number
-    /** Designs ruled out on measurements alone, whatever the LMR answer. */
-    ruledOut: number
-    /** Designs that could not be decided because something was not measured. */
-    unknown: number
+    /** Clear on every item the instrument and the lot can answer. */
+    yes: number
+    /** Nothing we hold rules it out; something is still open. */
+    maybe: number
+    /** Only an estimated fall misses - a survey could displace it. */
+    unlikely: number
+    /** A clause or a measured dimension excludes it. */
+    no: number
     total: number
   }
   /** What stopped a full answer, named rather than left as a silent null. */
@@ -137,8 +167,9 @@ export interface PatternBookAtResponse {
 
 const num = (v: any): number | null => (v == null || v === '' ? null : Number(v))
 
-function check(label: string, actual: number | null, required: number, unit: string, ok: (a: number) => boolean, note?: string): PatternCheck {
-  return { label, actual, required, unit, pass: actual == null ? null : ok(actual), note }
+function check(label: string, actual: number | null, required: number, unit: string,
+               ok: (a: number) => boolean, note?: string, estimate?: boolean): PatternCheck {
+  return { label, actual, required, unit, pass: actual == null ? null : ok(actual), note, estimate }
 }
 
 /** Every threshold in one block, against what the lot measured. */
@@ -175,8 +206,9 @@ function evaluateBlock(d: PatternDesign, b: any, lot: any): PatternBlockResult {
     if (limit == null) continue
     // no run measured is not a pass: the fall cannot be computed at all
     const actual = g == null || run == null ? null : Math.round(g * run * 100) / 100
+    // flagged as an estimate: it is the worst gradient on the lot over the FULL run, so it reads high
     checks.push(check(label, actual, Number(limit), 'm', a => a <= Number(limit),
-      run == null ? 'no run measured for this lot, so the fall cannot be computed' : fallNote))
+      run == null ? 'no run measured for this lot, so the fall cannot be computed' : fallNote, true))
   }
   if (d.requiresCornerLot) {
     checks.push({
@@ -185,10 +217,18 @@ function evaluateBlock(d: PatternDesign, b: any, lot: any): PatternBlockResult {
       note: lot.isCorner == null ? 'not measured' : lot.isCorner ? 'is a corner lot' : 'is not a corner lot',
     })
   }
-  const anyUnknown = checks.some(c => c.pass === null)
+  /*
+   * A failure outranks an unknown.
+   *
+   * This answered null whenever ANYTHING was unmeasured, so a lot plainly 100 m2 short of the
+   * minimum came back "cannot be decided" because a corner-lot flag was missing. An unknown only
+   * ever subtracts eligibility - it can never rescue a check that already failed.
+   */
+  const qualifies = checks.some(c => c.pass === false) ? false
+    : checks.some(c => c.pass === null) ? null : true
   // "In an LMR area" / "Outside an LMR area" are the two block names the notebook writes
   const governs = !/LMR area/i.test(b.block) || (/Outside/i.test(b.block) ? !lot.inLmr : lot.inLmr)
-  return { block: b.block, checks, qualifies: anyUnknown ? null : checks.every(c => c.pass), governs }
+  return { block: b.block, checks, qualifies, governs }
 }
 
 /**
@@ -424,6 +464,85 @@ function lowRiseGates(lot: any, blockers: any[], cdcError: string,
   return linked(g)
 }
 
+const fmt = (n: number | null) => (n == null ? '?' : String(Math.round(n * 10) / 10))
+
+/** One check as evidence. Corner lot carries no number, so it reads off its note instead of "? against 1". */
+const fig = (c: PatternCheck) => (c.actual == null
+  ? `${c.label}: ${c.note ?? 'not measured'}`
+  : `${c.label} ${fmt(c.actual)}${c.unit} against ${fmt(c.required)}${c.unit}`)
+
+/**
+ * One check as the reason a design is out, in a sentence.
+ *
+ * Direction matters and the check does not record it, so it is read off `estimate`: the falls are
+ * the only estimated checks and they are the only MAXIMA. Everything else - size, width, corner - is
+ * a floor the lot has to reach.
+ */
+const missPhrase = (c: PatternCheck) => (c.actual == null
+  ? `the lot ${c.note ?? 'misses ' + c.label.toLowerCase()}`
+  : c.estimate
+    ? `the ${c.label.toLowerCase()} works out at ${fmt(c.actual)}${c.unit}, over the ${fmt(c.required)}${c.unit} this design absorbs`
+    : `the ${c.label.toLowerCase()} is ${fmt(c.actual)}${c.unit}, under the ${fmt(c.required)}${c.unit} this design needs`)
+
+/**
+ * One design's gates and dimensions, read down to a single answer.
+ *
+ * THE ORDER IS THE POINT. A definite failure settles the row, whichever side it comes from, and it
+ * is tested BEFORE anything untestable is consulted. The previous reading returned "cannot be
+ * decided" as soon as one gate was untestable - and cl 3BA.6(e), (f) and (h) have no dataset behind
+ * them anywhere in the state, so every low-rise design on every lot came back undecidable no matter
+ * how far the lot missed the numbers. Two red failures and a grey verdict is not a reading anyone
+ * can act on.
+ *
+ * What is untestable is never dropped. It rides along in `outstanding` on every verdict, including
+ * a 'yes', because it is still owed to whoever builds.
+ */
+function readBottomLine(d: Omit<PatternDesignResult, 'bottomLine'>): PatternBottomLine {
+  const gov = d.blocks.filter(b => b.governs)
+  const checks = (gov.length ? gov : d.blocks)[0]?.checks ?? []
+
+  const outstanding = [
+    ...d.gates.filter(g => g.pass === null).map(g => `${g.clause} - ${g.what}: ${g.why}`),
+    ...checks.filter(c => c.pass === null).map(c => `${c.label}: ${c.note ?? 'not measured'}`),
+  ]
+  const owed = outstanding.length
+    ? `${outstanding.length} item${outstanding.length > 1 ? 's' : ''} still to confirm off the title, a survey or the council`
+    : ''
+
+  const failedGates = d.gates.filter(g => g.pass === false)
+  if (failedGates.length) {
+    return { verdict: 'no', headline: `No - ${failedGates[0]!.why}`,
+      because: failedGates.map(g => `${g.clause} - ${g.what}: ${g.why}`), outstanding }
+  }
+  if (d.areaGate === false) {
+    return { verdict: 'no', headline: `No - ${d.areaGateWhy}`, because: [d.areaGateWhy], outstanding }
+  }
+
+  // measured misses exclude; an estimated fall only warns
+  const missed = checks.filter(c => c.pass === false && !c.estimate)
+  if (missed.length) {
+    return { verdict: 'no', headline: `No - ${missPhrase(missed[0]!)}`,
+      because: missed.map(fig), outstanding }
+  }
+  const steep = checks.filter(c => c.pass === false && c.estimate)
+  if (steep.length) {
+    return { verdict: 'unlikely', headline: `Probably not - ${missPhrase(steep[0]!)}`,
+      because: [...steep.map(fig),
+        'the fall is the steepest gradient anywhere on the lot across its full run, so it reads high - '
+        + 'a survey of the building platform can displace this'], outstanding }
+  }
+
+  if (outstanding.length) {
+    return { verdict: 'maybe', headline: `Maybe - the lot fits every number, with ${owed}`,
+      because: checks.map(fig), outstanding }
+  }
+  return { verdict: 'yes', headline: 'Yes - clear on everything the instrument and the lot can answer',
+    because: checks.map(fig), outstanding }
+}
+
+/** Worst last, so the designs a reader can actually use are the ones at the top of the table. */
+const VERDICT_ORDER: Record<string, number> = { yes: 0, maybe: 1, unlikely: 2, no: 3 }
+
 export default defineEventHandler(async (event): Promise<PatternBookAtResponse> => {
   const started = Date.now()
   const cadid = String(getQuery(event).cadid ?? '').trim()
@@ -567,25 +686,12 @@ export default defineEventHandler(async (event): Promise<PatternBookAtResponse> 
       areaGate: gate, areaGateWhy: why, pathway, gates, gatesClear,
       blocks: d.blocks.map(b => evaluateBlock(d, b, lot)),
     }
-  })
+  }).map(d => ({ ...d, bottomLine: readBottomLine(d) }))
+    .sort((a, b) => VERDICT_ORDER[a.bottomLine.verdict]! - VERDICT_ORDER[b.bottomLine.verdict]!
+      || a.category.localeCompare(b.category) || a.designer.localeCompare(b.designer))
 
-  // a design "qualifies either way" only when every block it could fall under passes; one that passes
-  // in an LMR area and fails outside is reported as turning on the branch, not as a pass
-  const verdict = (d: PatternDesignResult) => {
-    // a statutory gate outranks the dimensions: clearing the numbers cannot cure an exclusion
-    if (d.gatesClear === false) return 'ruledOut'
-    if (d.areaGate === false) return 'ruledOut'
-    if (d.gatesClear === null) return 'unknown'
-    // only the block that applies decides it; the other is shown for comparison
-    const gov = d.blocks.filter(b => b.governs)
-    const qs = (gov.length ? gov : d.blocks).map(b => b.qualifies)
-    if (qs.some(q => q === null)) return 'unknown'
-    if (qs.every(q => q === true)) return d.areaGate === true ? 'qualifiesEitherWay' : 'qualifiesEitherWay'
-    if (qs.some(q => q === true)) return 'onlyInLmr'
-    return 'ruledOut'
-  }
-  const tally = { qualifiesEitherWay: 0, onlyInLmr: 0, ruledOut: 0, unknown: 0 }
-  for (const d of designs) tally[verdict(d) as keyof typeof tally]++
+  const tally = { yes: 0, maybe: 0, unlikely: 0, no: 0 }
+  for (const d of designs) tally[d.bottomLine.verdict]++
 
   const caveats: string[] = []
   if (!lot.inLmr) {

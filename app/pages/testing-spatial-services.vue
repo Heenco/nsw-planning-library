@@ -1005,10 +1005,10 @@
         <p v-else-if="!pattern" class="lp-dim">Loading&hellip;</p>
         <template v-else>
           <p class="lp-chips">
-            <span class="lp-chip"><strong>{{ pattern.summary.qualifiesEitherWay }}</strong> qualify either way</span>
-            <span class="lp-chip"><strong>{{ pattern.summary.onlyInLmr }}</strong> only on one branch</span>
-            <span class="lp-chip"><strong>{{ pattern.summary.ruledOut }}</strong> ruled out</span>
-            <span class="lp-chip"><strong>{{ pattern.summary.unknown }}</strong> undecidable</span>
+            <span class="lp-chip lp-v-yes"><strong>{{ pattern.summary.yes }}</strong> can be built</span>
+            <span class="lp-chip lp-v-maybe"><strong>{{ pattern.summary.maybe }}</strong> nothing rules out</span>
+            <span class="lp-chip lp-v-unlikely"><strong>{{ pattern.summary.unlikely }}</strong> probably too steep</span>
+            <span class="lp-chip lp-v-no"><strong>{{ pattern.summary.no }}</strong> ruled out</span>
             <span class="lp-dim">{{ pattern.ms }} ms</span>
           </p>
           <p class="lp-note">
@@ -1025,11 +1025,33 @@
           </ul>
           <div class="lp-scroll">
             <table class="lp-table lp-pb-table">
-              <thead><tr><th>Design</th><th>Pathway</th><th>Needs</th><th>Area gate</th>
-                <th>What stands in front</th><th>Thresholds</th></tr></thead>
+              <thead><tr><th>Design</th><th>Can it be built here?</th><th>Pathway</th><th>Needs</th>
+                <th>Area gate</th><th>What stands in front</th><th>Thresholds</th></tr></thead>
               <tbody>
                 <tr v-for="d in pattern.designs" :key="d.key">
                   <td>{{ d.designer }}<span class="lp-dset-sub">{{ d.key }}</span></td>
+                  <!-- the finding, ahead of the evidence for it. The three columns to the right each
+                       answered a different part of the question and left the reader to combine them,
+                       which is how a row could show two red failures under a grey "undecidable". -->
+                  <td>
+                    <span class="lp-verdict" :class="'lp-v-' + d.bottomLine.verdict">{{
+                      d.bottomLine.verdict === 'yes' ? 'YES'
+                      : d.bottomLine.verdict === 'maybe' ? 'MAYBE'
+                      : d.bottomLine.verdict === 'unlikely' ? 'PROBABLY NOT' : 'NO' }}</span>
+                    <span class="lp-dset-sub">{{ d.bottomLine.headline.replace(/^(No|Probably not|Maybe|Yes) - /, '') }}</span>
+                    <details v-if="d.bottomLine.because.length || d.bottomLine.outstanding.length" class="lp-pb-why">
+                      <summary>why</summary>
+                      <ul>
+                        <li v-for="(b, i) in d.bottomLine.because" :key="'b' + i">{{ b }}</li>
+                      </ul>
+                      <template v-if="d.bottomLine.outstanding.length">
+                        <p class="lp-dset-sub">Still to confirm, whatever the answer above:</p>
+                        <ul class="lp-pb-owed">
+                          <li v-for="(o, i) in d.bottomLine.outstanding" :key="'o' + i">{{ o }}</li>
+                        </ul>
+                      </template>
+                    </details>
+                  </td>
                   <!-- the pathway IS the difference: Part 3BA is complying development and carries the
                        Codes SEPP prerequisites; Chapter 7 is a development application with its own
                        exclusions at s 182, and the Codes SEPP does not reach it -->
@@ -2669,12 +2691,29 @@ body { margin: 0; background: #f8fafb; }
    row sets the widths, so every rule here has to name th as well as td - a td-only rule leaves the
    new column at zero width, which wraps its content one word per line and makes a 1,700px row. */
 .lp-pb-table { table-layout: fixed; width: 100%; }
-.lp-pb-table th:nth-child(1), .lp-pb-table td:nth-child(1) { width: 15%; }
-.lp-pb-table th:nth-child(2), .lp-pb-table td:nth-child(2) { width: 13%; }
+/* under table-layout: fixed the HEADER sets the widths, so every rule has to name th as well as
+   td - naming only td is what once let this table grow to 34,000px tall */
+.lp-pb-table th:nth-child(1), .lp-pb-table td:nth-child(1) { width: 11%; }
+.lp-pb-table th:nth-child(2), .lp-pb-table td:nth-child(2) { width: 21%; }
 .lp-pb-table th:nth-child(3), .lp-pb-table td:nth-child(3) { width:  9%; }
-.lp-pb-table th:nth-child(4), .lp-pb-table td:nth-child(4) { width: 17%; }
-.lp-pb-table th:nth-child(5), .lp-pb-table td:nth-child(5) { width: 20%; }
-.lp-pb-table th:nth-child(6), .lp-pb-table td:nth-child(6) { width: 26%; }
+.lp-pb-table th:nth-child(4), .lp-pb-table td:nth-child(4) { width: 11%; }
+.lp-pb-table th:nth-child(5), .lp-pb-table td:nth-child(5) { width: 12%; }
+.lp-pb-table th:nth-child(6), .lp-pb-table td:nth-child(6) { width: 16%; }
+.lp-pb-table th:nth-child(7), .lp-pb-table td:nth-child(7) { width: 20%; }
+
+/* the verdict has to read at a glance from across the table, so it carries weight and colour */
+.lp-verdict { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;
+  font-weight: 700; letter-spacing: .03em; }
+.lp-v-yes     { background: #dcfce7; color: #14532d; }
+.lp-v-maybe   { background: #e0e7ff; color: #312e81; }
+.lp-v-unlikely{ background: #fef3c7; color: #78350f; }
+.lp-v-no      { background: #fee2e2; color: #7f1d1d; }
+.lp-chip.lp-v-yes, .lp-chip.lp-v-maybe, .lp-chip.lp-v-unlikely, .lp-chip.lp-v-no { border: none; }
+.lp-pb-why { margin-top: 6px; }
+.lp-pb-why summary { cursor: pointer; font-size: 11px; color: #64748b; }
+.lp-pb-why ul { margin: 4px 0 0; padding-left: 16px; font-size: 11px; line-height: 1.45; }
+.lp-pb-why li { margin-bottom: 3px; }
+.lp-pb-owed li { color: #64748b; }
 .lp-pb-table td { overflow-wrap: anywhere; white-space: normal; vertical-align: top; }
 .lp-pb-other { margin-top: 4px; font-size: 11.5px; color: #64748b; }
 /* a clause chip is a link; keep the chip's colours rather than the global link blue */
