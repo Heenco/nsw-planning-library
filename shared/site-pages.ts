@@ -204,11 +204,6 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '03-Employment zone mapping',
   },
   {
-    route: '/lmr', name: 'Low and mid-rise areas', status: 'planned', kind: 'answer',
-    summary: 'Whether a lot is in a low and mid-rise housing area and which standards then apply; shared/lmr-standards.ts already holds the standards for the report.',
-    notebook: '05_lmr',
-  },
-  {
     route: '/das', name: 'Development applications', status: 'planned', kind: 'answer',
     summary: 'The development applications lodged around a lot: what was applied for, what was decided, and when.',
     notebook: '10 - Download DAs',
@@ -235,9 +230,18 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '07 - Pattern book · 20B - Pattern Book Stats',
   },
   {
-    route: '/build-to-rent', name: 'Build to rent', status: 'planned', kind: 'answer',
-    summary: 'Where build-to-rent housing is permitted and on what terms.',
+    route: '/build-to-rent', name: 'Build-to-rent housing', status: 'live', kind: 'map', added: '2026-10-01',
+    summary: 'Housing SEPP s 72 on a map: the zones, TOD areas, LMR land and the WestConnex Dive Site it reaches, and a verdict for any lot you pick - which route lets build-to-rent in, or why none does.',
+    detail: 'Build-to-rent is in no Land Use Table - s 72 permits multi dwelling housing, apartments and shop top housing on the land it lists - so it is derived, not looked up. The zone limbs need no permissibility at all; the Chapter 6 limb reuses the /lmr verdict for the lot rather than a second reading. Beside the map: this lot, the rules clause by clause, and the request as asked against them (the 07B notebook rule too). A site compatibility certificate can admit any lot and has no data, so it is shown but never counted.',
+    reads: ['/api/housing/at', '/api/housing/features', 'shared/build-to-rent.ts', 'shared/housing-evaluate.ts', 'epi.epi_land_zoning', 'nsw.lep_permissibility', 'lmr.sepp_tod_areas', 'lmr.lmr_area'],
     notebook: '07B - Build to Rent',
+  },
+  {
+    route: '/affordable-housing', name: 'Affordable housing bonus', status: 'live', kind: 'map', added: '2026-10-01',
+    summary: 'The in-fill affordable housing bonus (Housing SEPP s 15C) on a map: the walking catchments and centre zones of the location test, the exclusions, and a verdict for any lot - with the FSR and height it would then get.',
+    detail: 'Section 15C is three tests joined by AND - permitted, 10% affordable, and in the right place - and the place test changes at the Six Cities boundary (EP&A Act Schedule 9): an accessible area inside it, 800 m walking of E1/E2/MU1/B1/B2/B4 outside it. The accessible area is the Mapbox walking isochrones of notebook 24, copied into planningai schema access; a lot inside any station or bus stop catchment counts as accessible, and outside the Six Cities a centre zone within 800 m in a straight line is undecided until walking distance is measured. The Sydney Olympic Park exclusion is later than our SEPP copy and marked unread.',
+    reads: ['/api/housing/at', '/api/housing/features', 'shared/affordable-housing.ts', 'shared/housing-evaluate.ts', 'access.iso_train', 'access.iso_bus', 'lmr.sepp_tod_accelerated_precincts', 'epi.epi_state_significant_dev_sites', 'epi.epi_land_application'],
+    notebook: '24 - Accessible Area - Bus & Train Buffers',
   },
   {
     route: '/seifa', name: 'SEIFA', status: 'planned', kind: 'browse',

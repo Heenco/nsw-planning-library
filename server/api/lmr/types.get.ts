@@ -97,8 +97,13 @@ const SHRUNK_LOT = `WITH raw AS MATERIALIZED (SELECT ST_MakeValid(geom) AS g0 FR
 // ── the route ───────────────────────────────────────────────────────────────────────────────────
 
 export default defineEventHandler(async (event): Promise<LmrTypesResponse> => {
-  const started = Date.now()
-  const q = getQuery(event)
+  const cadid = await cadidFromQuery(getQuery(event))
+  setHeader(event, 'cache-control', 'public, max-age=60')
+  return lmrTypesFor(cadid)
+})
+
+/** `?cadid=` as given, or the smallest lot under `?lon=&lat=`. Shared with /api/housing/at. */
+export async function cadidFromQuery(q: Record<string, any>): Promise<string> {
   let cadid = String(q.cadid ?? '').trim()
   const lon = Number(q.lon)
   const lat = Number(q.lat)
@@ -111,8 +116,16 @@ export default defineEventHandler(async (event): Promise<LmrTypesResponse> => {
     cadid = hit.rows[0]?.cadid
     if (!cadid) throw createError({ statusCode: 404, statusMessage: 'No lot at that point' })
   }
-  setHeader(event, 'cache-control', 'public, max-age=60')
+  return String(cadid)
+}
 
+/**
+ * The whole Chapter 6 answer for one lot. Exported so /api/housing/at can ask whether multi dwelling housing,
+ * residential flat buildings or shop top housing are permissible under Chapter 6 (Housing SEPP s 72(2)(a2),
+ * s 15C(1)(a)) with the same reading /lmr gives, rather than a second one.
+ */
+export async function lmrTypesFor(cadid: string): Promise<LmrTypesResponse> {
+  const started = Date.now()
   const criteria = await loadLmrCriteria()
 
   const facts = await nswQuery<any>(`${SHRUNK_LOT}
@@ -190,4 +203,4 @@ export default defineEventHandler(async (event): Promise<LmrTypesResponse> => {
     },
     ms: Date.now() - started,
   }
-})
+}
