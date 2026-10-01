@@ -1052,9 +1052,13 @@
                     <span class="lp-gate" :class="d.gatesClear === true ? 'lp-gate--yes' : d.gatesClear === false ? 'lp-gate--no' : 'lp-gate--open'">
                       {{ d.gatesClear === true ? 'all clear' : d.gatesClear === false ? 'ruled out' : 'not all testable' }}
                     </span>
-                    <span v-for="(g, i) in (d.gates ?? [])" :key="i" class="lp-pb-check"
-                          :class="g.pass === false ? 'lp-pb-check--no' : g.pass === null ? 'lp-pb-check--unk' : ''"
-                          :title="g.what + ' - ' + g.why">{{ g.clause }}</span>
+                    <!-- the clause links into /doc-viewer at the provision itself: both SEPPs are
+                         ingested, so a reader can check the wording rather than take the verdict -->
+                    <component v-for="(g, i) in (d.gates ?? [])" :key="i"
+                               :is="g.href ? 'NuxtLink' : 'span'" :to="g.href || undefined"
+                               class="lp-pb-check lp-pb-clause"
+                               :class="g.pass === false ? 'lp-pb-check--no' : g.pass === null ? 'lp-pb-check--unk' : ''"
+                               :title="g.what + ' - ' + g.why">{{ g.clause }}</component>
                   </td>
                   <td>
                     <!-- only the block that governs; the other numbers are behind the summary below -->
@@ -2667,6 +2671,10 @@ body { margin: 0; background: #f8fafb; }
 .lp-pb-table th:nth-child(6), .lp-pb-table td:nth-child(6) { width: 26%; }
 .lp-pb-table td { overflow-wrap: anywhere; white-space: normal; vertical-align: top; }
 .lp-pb-other { margin-top: 4px; font-size: 11.5px; color: #64748b; }
+/* a clause chip is a link; keep the chip's colours rather than the global link blue */
+.lp-pb-clause { text-decoration: none; }
+a.lp-pb-clause { color: inherit; }
+a.lp-pb-clause:hover { text-decoration: underline; }
 /* .lp-table td is nowrap, which is right for the raw column dumps this page is mostly made of - one
    row per record, scrolled sideways - and wrong for the two prose columns here */
 .lp-verdict { margin: 0.2rem 0 0.6rem; padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.82rem; border-left: 3px solid; }

@@ -82,6 +82,8 @@ export interface PatternGate {
   /** true = clear, false = ruled out, null = we hold nothing that answers it. */
   pass: boolean | null
   why: string
+  /** Into /doc-viewer at the clause itself. Null when the clause cannot be resolved to a section. */
+  href: string | null
 }
 
 export interface PatternDesignResult {
@@ -222,6 +224,88 @@ function areaGate(d: PatternDesign, inTod: boolean, inLmr: boolean, band: string
   }
 }
 
+/*
+ * The slugs /doc-viewer resolves, from public/instruments.json - NOT nsw.document.instrument_slug.
+ * The two differ, and the viewer answers "Unknown doc key" for the database's version. Verified:
+ * the anchors sec.1.17A, sec.1.18, sec.3BA.6 are in exempt-and-complying-2008.md, and sec.182,
+ * sec.183 in housing-sepp-2021.md.
+ */
+const CODES_SEPP = 'exempt-and-complying-2008'
+const HOUSING_SEPP = 'housing-sepp-2021'
+
+/**
+ * A clause string to a /doc-viewer link.
+ *
+ * Both instruments are ingested with local_ids of the shape the clause strings already carry -
+ * "cl 3BA.6(a)" sits in sec.3BA.6, "s 182(1)(e)" in sec.182 - so the section is the part before the
+ * first bracket. A clause naming several ("cl 1.17A, 1.18, 1.19, 1.19A") links to the first, which
+ * is where a reader starts.
+ */
+function clauseHref(clause: string): string | null {
+  const housing = /^s\s/.test(clause)
+  const first = clause.replace(/^(cl|s)\s+/, '').split(',')[0]!.trim()
+  const sec = first.split('(')[0]!.trim()
+  if (!sec) return null
+  const doc = housing ? HOUSING_SEPP : CODES_SEPP
+  return `/doc-viewer?doc=${doc}&anchor=${encodeURIComponent('sec.' + sec)}`
+}
+
+/** Every gate gets its link from its own clause, so the two can never name different provisions. */
+function linked(gates: Omit<PatternGate, 'href'>[]): PatternGate[] {
+  return gates.map(g => ({ ...g, href: clauseHref(g.clause) }))
+}
+
+/**
+ * What each design's `requiredUse` means in the Standard Instrument's vocabulary.
+ *
+ * Two are inferences, and both say so wherever they appear. "manor house" is not one of the 203
+ * terms - the same gap /cdc's manor-houses type has, resolved the same way. The vocabulary carries
+ * no "(terraces)" term at all, and cl 3BA.3(5) describes them as multi dwelling housing (terraces),
+ * so that is what is tested.
+ */
+const USE_TERMS: Record<string, { terms: string[]; inferred?: string }> = {
+  'dual': { terms: ['dual occupancies', 'dual occupancies (attached)', 'dual occupancies (detached)',
+                    'dual occupancy', 'dual occupancy (attached)', 'dual occupancy (detached)'] },
+  'multi dwelling housing': { terms: ['multi dwelling housing'] },
+  'multi dwelling housing (terraces)': {
+    terms: ['multi dwelling housing'],
+    inferred: 'the Standard Instrument has no "(terraces)" term; cl 3BA.3(5) describes them as multi dwelling housing',
+  },
+  'manor house': {
+    terms: ['residential flat buildings', 'multi dwelling housing'],
+    inferred: '"manor house" is not a Standard Instrument term, so either form is accepted',
+  },
+  'residential flat': { terms: ['residential flat buildings'] },
+}
+
+/** cl 1.18(1)(b) and s 183(1)(a) both ask for permissible WITH consent. */
+function permissibilityGate(requiredUse: string, pathway: string, perm: any[]):
+    Omit<PatternGate, 'href'> {
+  const clause = pathway === 'da' ? 's 183(1)(a)' : 'cl 1.18(1)(b)'
+  const spec = USE_TERMS[requiredUse]
+  const what = `${requiredUse} permissible with consent under an EPI applying to the land`
+  if (!spec) {
+    return { clause, what, pass: null, why: `no Standard Instrument term is mapped for "${requiredUse}"` }
+  }
+  const want = new Set(spec.terms.map(x => x.toLowerCase()))
+  const mine = perm.filter(p => want.has(String(p.land_use).toLowerCase()))
+  const caveat = spec.inferred ? ` - ${spec.inferred}` : ''
+  if (!mine.length) {
+    return { clause, what, pass: null,
+             why: `no permissibility recorded for ${spec.terms[0]} in this zone${caveat}` }
+  }
+  const yes = mine.find(p => p.status === 'permitted_with_consent')
+  if (yes) {
+    return { clause, what, pass: true,
+             why: `${yes.land_use} permitted with consent in ${yes.zone} under ${yes.instrument}${caveat}` }
+  }
+  const byUse = new Map<string, string>()
+  for (const m of mine) if (!byUse.has(m.land_use)) byUse.set(m.land_use, m.status)
+  const said = [...byUse].map(([u, s]) => `${u} ${String(s).replace(/_/g, ' ')}`).join('; ')
+  return { clause, what, pass: false,
+           why: `${said} in ${[...new Set(mine.map(m => m.zone))].join(', ')}${caveat}` }
+}
+
 /** The four councils Housing SEPP s 182(1)(e) puts outside Chapter 7 entirely. */
 const S182_EXCLUDED_LGAS = ['BATHURST REGIONAL', 'BLUE MOUNTAINS', 'HAWKESBURY', 'WOLLONDILLY']
 
@@ -245,9 +329,11 @@ const lgaIn = (lga: string | null, list: string[]) =>
  * "complying development" appears once in the whole chapter - inside a borrowed definition of ANEF
  * contour. This is a development application pathway with its own exclusions at s 182.
  */
-function midRiseGates(lot: any): PatternGate[] {
+function midRiseGates(lot: any, requiredUse: string, perm: any[]): PatternGate[] {
   const L = lot.layers
-  const g: PatternGate[] = [
+  const g: Omit<PatternGate, 'href'>[] = [
+    // s 183(1)(a) first: it is the limb the whole chapter turns on, and it was never tested
+    permissibilityGate(requiredUse, 'da', perm),
     { clause: 's 183(1)(b)', what: 'in a TOD area or a low and mid rise housing area',
       pass: lot.inTod || lot.inLmr,
       why: lot.inTod ? 'in a transport oriented development area'
@@ -286,7 +372,7 @@ function midRiseGates(lot: any): PatternGate[] {
       why: L.floodPlanning ? 'in a mapped flood planning area'
         : `${lot.lga} is one of the 23 councils and we hold no flood planning map for it` })
   }
-  return g
+  return linked(g)
 }
 
 /**
@@ -299,9 +385,11 @@ function midRiseGates(lot: any): PatternGate[] {
  * cl 3BA.3(8) disapplies the (7)(a) lot-size floor inside a low and mid rise housing area. That is
  * the only thing the LMR area changes for this pathway.
  */
-function lowRiseGates(lot: any, blockers: any[], cdcError: string): PatternGate[] {
+function lowRiseGates(lot: any, blockers: any[], cdcError: string,
+                      requiredUse: string, perm: any[]): PatternGate[] {
   const L = lot.layers
-  const g: PatternGate[] = [
+  const g: Omit<PatternGate, 'href'>[] = [
+    permissibilityGate(requiredUse, 'cdc', perm),
     { clause: 'cl 1.17A, 1.18, 1.19, 1.19A',
       what: 'clears the general complying development prerequisites',
       pass: cdcError ? null : blockers.length === 0,
@@ -333,7 +421,7 @@ function lowRiseGates(lot: any, blockers: any[], cdcError: string): PatternGate[
     why: lot.inLmr
       ? `disapplied by cl 3BA.3(8): the lot is in the ${lot.lmrBand} band of a low and mid rise housing area`
       : 'the LEP minimum for this use is not read per design here - see the Land Use Table above' })
-  return g
+  return linked(g)
 }
 
 export default defineEventHandler(async (event): Promise<PatternBookAtResponse> => {
@@ -441,11 +529,36 @@ export default defineEventHandler(async (event): Promise<PatternBookAtResponse> 
     cdcError = e?.data?.statusMessage || e?.message || 'the general prerequisite sweep could not be read'
   }
 
+  /*
+   * What the instruments over this lot say about the uses the designs need.
+   *
+   * The same join cl 1.18(1)(b) uses on /cdc, against the SAME zoning polygons the rest of this
+   * route reads, so the two can never disagree about which instrument applies. Fetched once for
+   * every term any design needs, not per design.
+   */
+  const allTerms = [...new Set(Object.values(USE_TERMS).flatMap(x => x.terms))].map(x => x.toLowerCase())
+  const permRows = (await nswQuery<any>(`
+    WITH z AS (
+      SELECT DISTINCT z.epi_name, z.sym_code
+        FROM cadastre.lot l
+        JOIN epi.epi_land_zoning z ON z.geom && l.geom AND ST_Intersects(z.geom, l.geom)
+       WHERE l.cadid = $1 AND z.sym_code IS NOT NULL)
+    SELECT z.epi_name AS instrument, z.sym_code AS zone, p.land_use, p.status
+      FROM z JOIN nsw.lep_permissibility p
+        ON p.epi_name = z.epi_name AND p.zone_code = z.sym_code AND lower(p.land_use) = ANY($2)
+    UNION ALL
+    SELECT s.sepp, z.sym_code, s.land_use, 'permitted_with_consent'
+      FROM z JOIN nsw.sepp_permissible_landuse s
+        ON s.zone = z.sym_code AND lower(s.land_use) = ANY($2)`,
+    [cadid, allTerms])).rows
+
   const designs: PatternDesignResult[] = PATTERN_DESIGNS.map((d) => {
     const { gate, why } = areaGate(d, lot.inTod, lot.inLmr, lot.lmrBand)
     const pathway = (d as any).pathway ?? 'cdc'
     // the gate list IS the pathway difference: Part 3BA is complying development, Chapter 7 is a DA
-    const gates = pathway === 'da' ? midRiseGates(lot) : lowRiseGates(lot, blockers, cdcError)
+    const gates = pathway === 'da'
+      ? midRiseGates(lot, d.requiredUse, permRows)
+      : lowRiseGates(lot, blockers, cdcError, d.requiredUse, permRows)
     const gatesClear = gates.some(x => x.pass === false) ? false
       : gates.some(x => x.pass === null) ? null : true
     return {
@@ -492,7 +605,11 @@ export default defineEventHandler(async (event): Promise<PatternBookAtResponse> 
   }
   if (widthM == null) caveats.push('No width has been measured for this lot, so every width check is unknown.')
   if (lot.isCorner == null) caveats.push('Whether this is a corner lot has not been measured.')
-  caveats.push('The use each design needs is not tested here - check it against the zone\'s Land Use Table above.')
+  // the use IS tested now; this only fires where the zone has no permissibility recorded at all
+  if (!permRows.length) {
+    caveats.push('No permissibility is recorded for this zone, so the use each design needs could '
+      + 'not be tested - check it against the Land Use Table above.')
+  }
 
   return { lot, designs, summary: { ...tally, total: designs.length }, caveats, ms: Date.now() - started }
 })
