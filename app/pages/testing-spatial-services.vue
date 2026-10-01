@@ -1054,11 +1054,17 @@
                     </span>
                     <!-- the clause links into /doc-viewer at the provision itself: both SEPPs are
                          ingested, so a reader can check the wording rather than take the verdict -->
-                    <component v-for="(g, i) in (d.gates ?? [])" :key="i"
-                               :is="g.href ? 'NuxtLink' : 'span'" :to="g.href || undefined"
-                               class="lp-pb-check lp-pb-clause"
-                               :class="g.pass === false ? 'lp-pb-check--no' : g.pass === null ? 'lp-pb-check--unk' : ''"
-                               :title="g.what + ' - ' + g.why">{{ g.clause }}</component>
+                    <!-- Two branches rather than <component :is="'NuxtLink'">: a STRING there does
+                         not resolve to the registered component, so Vue renders a literal <nuxtlink>
+                         element - styled correctly, and not a link at all. -->
+                    <template v-for="(g, i) in (d.gates ?? [])" :key="i">
+                      <NuxtLink v-if="g.href" :to="g.href" class="lp-pb-check lp-pb-clause"
+                                :class="g.pass === false ? 'lp-pb-check--no' : g.pass === null ? 'lp-pb-check--unk' : ''"
+                                :title="g.what + ' - ' + g.why">{{ g.clause }}</NuxtLink>
+                      <span v-else class="lp-pb-check"
+                            :class="g.pass === false ? 'lp-pb-check--no' : g.pass === null ? 'lp-pb-check--unk' : ''"
+                            :title="g.what + ' - ' + g.why">{{ g.clause }}</span>
+                    </template>
                   </td>
                   <td>
                     <!-- only the block that governs; the other numbers are behind the summary below -->
