@@ -867,7 +867,7 @@
          Report. Where a control is banded and the selector was not captured,
          the range is shown rather than a single figure. -->
     <details v-if="topicRuleGroups.length" class="rpt-section">
-      <summary class="rpt-section-title">Key Numerical Rules ({{ numericRuleCount }})</summary>
+      <summary class="rpt-section-title">DCP Rules ({{ numericRuleCount }})</summary>
       <p class="envelope-blurb">
         From the {{ ruleSourceLabel }} control tables for zone {{ p?.zone }},
         grouped by what each control applies to. Controls listed under a land use

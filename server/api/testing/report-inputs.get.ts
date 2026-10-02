@@ -269,7 +269,7 @@ export default defineEventHandler(async (event): Promise<ReportInputsResponse> =
     // ── the graph-backed sections ───────────────────────────────────────────
     const lga = str(p.lga_name)
     /*
-     * Key Numerical Rules: the report's own scope and query (site-rules.ts), run against the report's
+     * DCP Rules (was "Key Numerical Rules"): the report's own scope and query (site-rules.ts), run against the report's
      * own row - PROPERTY_SELECT, not the raw columns above - so each row here is a row the report
      * received. The count in the heading is the report's: rows collapse into one control per
      * topic, datum, unit, clause, comparator and condition, and subdivision rows are left to
@@ -293,7 +293,7 @@ export default defineEventHandler(async (event): Promise<ReportInputsResponse> =
       || String(x.clause).localeCompare(String(y.clause), undefined, { numeric: true })
       || Number(x.value) - Number(y.value))
     sections.push({
-      id: 'ri-rules', title: `Key Numerical Rules (${controls})`, source: 'nsw.rule_effect via site-rules.ts',
+      id: 'ri-rules', title: `DCP Rules (${controls})`, source: 'nsw.rule_effect via site-rules.ts',
       coverage: GRAPH_COVERAGE,
       fields: [],
       rows: {
