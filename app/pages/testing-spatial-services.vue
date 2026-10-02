@@ -1294,13 +1294,6 @@
         <p v-if="sec.note" class="lp-note">{{ sec.note }}</p>
       </div>
 
-      <div v-if="inputs?.lot" id="ri-map" class="lp-group">
-        <h3 class="lp-h3">Lot Map &amp; Dimensions <span class="lp-dim"><code>cadastre.lot</code></span></h3>
-        <p class="lp-basis">The polygon every at-endpoint on this page was tested against.</p>
-        <div ref="riMapEl" class="lp-map" />
-        <p v-if="!mapboxToken" class="lp-dim">No map token is configured, so the lot is not drawn.</p>
-      </div>
-
       <div v-if="inputs?.lot" id="ri-envelope" class="lp-group">
         <h3 class="lp-h3">
           Building envelope (3D)
@@ -1628,7 +1621,6 @@ async function open(cadid: string, msoid: number | null = null) {
       // the report's own path, fetched beside the derived view rather than instead of it
       loadReportInputs(cadid)]).then(() => nextTick()).then(() => {
       observeSections()
-      void drawLot(detail.value?.lotGeom ?? null)
     })
     // The dump is long and sits below the samples; without this a click from
     // near the top of the page looks like nothing happened.
@@ -2226,52 +2218,6 @@ async function loadReportInputs(cadid: string) {
   }
 }
 
-// ── the lot on a map ────────────────────────────────────────────────────────
-const config = useRuntimeConfig()
-const mapboxToken = String((config.public as any).mapboxToken || '')
-const riMapEl = ref<HTMLElement | null>(null)
-let riMap: any = null
-
-async function drawLot(geometry: any) {
-  if (!mapboxToken || !riMapEl.value || !geometry) return
-  const mod = await import('mapbox-gl')
-  const mapboxgl: any = (mod as any).default || mod
-  mapboxgl.accessToken = mapboxToken
-  const data = { type: 'Feature', properties: {}, geometry }
-  if (!riMap) {
-    riMap = new mapboxgl.Map({
-      container: riMapEl.value, style: 'mapbox://styles/mapbox/light-v11',
-      center: [151.1, -33.8], zoom: 15,
-    })
-    riMap.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
-    riMap.on('load', () => {
-      riMap.addSource('ri-lot', { type: 'geojson', data })
-      riMap.addLayer({ id: 'ri-lot-fill', type: 'fill', source: 'ri-lot',
-        paint: { 'fill-color': '#0f172a', 'fill-opacity': 0.08 } })
-      riMap.addLayer({ id: 'ri-lot-line', type: 'line', source: 'ri-lot',
-        paint: { 'line-color': '#0f172a', 'line-width': 2.5 } })
-      fitLot(geometry)
-    })
-    return
-  }
-  ;(riMap.getSource('ri-lot') as any)?.setData(data)
-  fitLot(geometry)
-}
-
-function fitLot(geometry: any) {
-  const box: [number, number, number, number] = [180, 90, -180, -90]
-  const walk = (a: any) => {
-    if (typeof a[0] === 'number') {
-      box[0] = Math.min(box[0], a[0]); box[1] = Math.min(box[1], a[1])
-      box[2] = Math.max(box[2], a[0]); box[3] = Math.max(box[3], a[1])
-      return
-    }
-    for (const b of a) walk(b)
-  }
-  walk(geometry.coordinates)
-  riMap?.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: 50, maxZoom: 18, duration: 500 })
-}
-
 const PAGE_SECTIONS = [{ id: 'build', label: 'The build' }, { id: 'find', label: 'Find a lot' }]
 // "Uses Permitted via SEPP" is drawn under Permissibility; the rest of the report's sections stay in their list
 const SEPP_USES_ID = 'ri-sepp-uses'
@@ -2300,7 +2246,6 @@ const lotSections = computed(() => {
   if (inputs.value) {
     out.push({ id: 'report-inputs', label: 'What /report is built from' })
     for (const sec of reportSections.value) out.push({ id: sec.id, label: sec.title })
-    out.push({ id: 'ri-map', label: 'Lot Map & Dimensions' })
     out.push({ id: 'ri-envelope', label: 'Building envelope (3D)' })
   }
   return out
@@ -2799,7 +2744,6 @@ body { margin: 0; background: #f8fafb; }
 .lp-basis--warn { color: #92400e; }
 .lp-note { margin: 0.4rem 0 0; font-size: 0.75rem; color: #64748b; max-width: 88ch; }
 .lp-note a { color: #2a78d6; }
-.lp-map { height: 340px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
 .lp-table td { border: 1px solid #eef2f7; padding: 0.25rem 0.45rem; text-align: left; white-space: nowrap; }
 /* .lp-table is declared after the section styles above, so a plain `.lp-env td` / `.lp-lep-table td`
    loses to the nowrap on the line above at equal specificity - the prose cells in those tables were
