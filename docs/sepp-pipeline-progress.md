@@ -96,9 +96,28 @@ override 3, non-discretionary 16, consideration 11, prohibition 41, disapplicati
 Finding: clause rows are often empty (s 168) - their words are in subclauses/paragraphs, so step 5 must
 extract at subclause/paragraph level and roll up to the clause's rule.
 
-### 5. Extract Ch 6 rules — `todo`
+### 5. Extract Ch 6 rules — `done` 2026-10-07
 **Done when:** recall gate passes on Ch 6 (every number in operative text claimed or explained);
 s 168's 450 m², 12 m, 0.65:1, 9.5 m, 1 space extracted with spans.
+
+**Result:** `scripts/pipeline/extract.ts` - deterministic, importing the shared readers
+(`findNumberCandidates`, `topicOf`/`datumOf`, `matchLandUses`) so extraction and the recall gate use one
+detector. Ch 6 → **23 held rules, 114 applicability rows, 44 effects**, every rule with a frame
+(`frame_rule_id`). **Recall gate PASS: 37/37 numbers claimed, 0 gating findings; span gate PASS; s 168
+5/5** (lot_size gte 450 sqm, width gte 12 m @front_boundary, parking gte 1/dwelling, fsr lte 0.65,
+height lte 9.5 m). Kinds: 3 permission (s 166, 170, 174 → 5 `permits_use`), 3 matters (s 167, 171, 177 →
+Tree Canopy Guide), 1 disapplication (s 178 → lot_size, width, "meets s 180(2) or (3)"), 16 standard.
+Sub-rules where a subclause narrows its own standards: s 172(2) multi dwelling housing vs (3) terraces;
+s 175(2) RFB vs (3) shop top (storeys lte 6 if height ≤ 22 / 24 m); s 180(2) inner (2.2:1; 22 m RFB,
+24 m shop top) vs (3) outer (1.5:1, 17.5 m). s 169/173: dev_type subdivision, temporal "on or after
+28 February 2025", excludes strata subdivision.
+Findings (non-gating, open in `audit_finding`): 3 `qualitative_requirement` (s 169(3)(c),(e), s 173(3)(c):
+"lawful access and frontage to a public road", "not a battle-axe lot" - need a non-numeric requirement
+effect kind); 1 `comparator_inferred` (s 173(3)(b) "must be 6m wide" read as gte).
+Reader quirks fixed in the extractor, not the readers: zones written "Zone R3 … or R4 …" (second code has
+no "Zone"); `matchLandUses` keeps only the longest match ("multi dwelling housing (terraces)" swallowed
+"multi dwelling housing" in s 171) - read per or/and segment. Parking effects keep their condition ("if
+no EPI or DCP specifies a maximum…") in the span only - the evaluator must read it (step 9).
 
 ### 6. Permissions and overrides — `todo`
 **Done when:** s 166 / 170 / 174 are permission rules; s 8 and s 169(1A) are `prevails_over` edges to
@@ -163,3 +182,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 2 done: 20,712 SEPP sections hashed, all 10 SEPPs match their XML and read current.
 - 2026-10-07 — step 3: Housing SEPP profile + 3 Ch 6 frames written (held), coverage PASS; Q1 resolved ("frames OK").
 - 2026-10-07 — step 4 done: migration 18, 2,650 sections routed, Ch 6 signals all found.
+- 2026-10-07 — step 5 done: 23 Ch 6 rules, 44 effects, recall 37/37, s 168 5/5.
