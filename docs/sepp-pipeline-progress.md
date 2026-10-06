@@ -119,9 +119,23 @@ no "Zone"); `matchLandUses` keeps only the longest match ("multi dwelling housin
 "multi dwelling housing" in s 171) - read per or/and segment. Parking effects keep their condition ("if
 no EPI or DCP specifies a maximum…") in the span only - the evaluator must read it (step 9).
 
-### 6. Permissions and overrides — `todo`
+### 6. Permissions and overrides — `done` 2026-10-07
 **Done when:** s 166 / 170 / 174 are permission rules; s 8 and s 169(1A) are `prevails_over` edges to
 `lep`; the Bambara conflict (s 166 vs Parramatta 6.11(1)) is representable.
+
+**Result:** `scripts/pipeline/edges.ts` turns routed signals into edges owned by their rule. Housing SEPP
+now has **8 edges**: s 8(1) instrument frame `prevails_over` doc_type:lep + doc_type:dcp (step 3);
+s 169(1A) and s 173(1A) `prevails_over` doc_type:lep + doc_type:sepp ("despite the provisions of another
+environmental planning instrument" - a DCP is not an EPI); s 178 `disapplies` doc_type:lep + doc_type:dcp,
+scope {topics: lot_size, width; when: meets s 180(2) or (3)}. s 166 / 170 / 174 are permission rules
+(step 5). **PASS**, and the motivating conflict is representable:
+`Housing SEPP s 166 permits "dual occupancy" (frames 164(1) <- 8(1)) vs Parramatta LEP 2023 cl 6.11(1)
+withholds consent for "dual occupancies" on area_label D (Dual Occupancy Prohibition) -> resolved by s 8(1)
+prevails_over doc_type:lep`.
+Findings for step 9: (1) LEP rules store a "consent must not be granted" clause as kind `standard` with
+`land_use … excludes` + `act=development consent excludes` and no effect - the evaluator must read that
+shape as a prohibition; (2) land-use vocabularies differ (LEP "dual occupancies", readers "dual occupancy")
+- `landUseKey()` in edges.ts normalises plural/singular; the evaluator should use the same function.
 
 ### 7. Defined terms — `todo`
 **Done when:** every term the Ch 6 profile uses has a `scope_layer` row or a `scope_layer_gap` row
@@ -183,3 +197,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 3: Housing SEPP profile + 3 Ch 6 frames written (held), coverage PASS; Q1 resolved ("frames OK").
 - 2026-10-07 — step 4 done: migration 18, 2,650 sections routed, Ch 6 signals all found.
 - 2026-10-07 — step 5 done: 23 Ch 6 rules, 44 effects, recall 37/37, s 168 5/5.
+- 2026-10-07 — step 6 done: 8 edges; s 166 vs Parramatta 6.11(1) resolved by s 8(1) prevails_over.
