@@ -40,10 +40,20 @@
  * polarity 'applies'), confidence 0.90; failing that, a label of the plan that CONTAINS the name, if
  * exactly one map has it ("Nest Transport Oriented Development Precinct" -> "Crows Nest …"), 0.80.
  *
+ * LOTS AND ADDRESSES (added 2026-10-07). Clauses name land by title - "Lot 20, DP 1107551", "Lots 9–14,
+ * DP 4138", "SP 2715" - or by street address, and 347 such values had no ref row anywhere in their plan
+ * (rule_spatial_ref is unique on document + subclause text + value, so the extractor's row lands on one
+ * rule and the rest have none). Step 0 creates one ref per plan for each such value (ref_type lot_dp or
+ * address), every row it adds logged in nsw.rule_spatial_ref_added so the step can be undone. Lot/DP
+ * values resolve against cadastre.lot.lotidstring ("lot/section/DPn", "//SPn" for a strata plan); an
+ * address against derived.lot_address, within the plan's own council - "1 Church Street" exists in
+ * many - after splitting "A and B" and dropping "part of". A heading place name inherits these too
+ * (6.22 Broadcast Way -> "Lots 5 and 6, DP 270714").
+ *
  * CONFIDENCE:
- *   1.00  map_name and label both matched, in one layer
+ *   1.00  map_name and label both matched, in one layer; every lot named was found
  *   0.90  heading place name, inherited from its clause's own map refs
- *   0.80  whole map, or a unique label containing the name, or an address with several lots
+ *   0.80  whole map, a unique label containing the name, an address with several lots, or some of the lots named
  *   null  no match, or matched in several layers — left unresolved rather than picked arbitrarily
  *
  * Usage:  node scripts/resolve-map-refs.mjs [--lep <slug fragment>] [--dry-run]
@@ -79,6 +89,56 @@ const sameMap = (a, b) => { const x = normMap(a), y = normMap(b); return !!x && 
 const GENERIC = new Set(['land', 'the land', 'any land'])
 const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+const DASH = /[\u2010-\u2015]/g
+/** A value that names land by title. */
+const LOT_RE = /(^|[^a-z])(lots?|sp|dp|strata plan)[ .]*[0-9]/i
+
+/**
+ * Every lotidstring a value names. "Lots 10, 11, 12 and 13, DP 260116", "Lot 1, 12–17 and 25–27, DP 270989",
+ * "Lot 7, Section 3, DP 758", "Lot F, DP 441071", "SP 34942", "Lot 0, SP 33837" (a strata plan is one
+ * cadastre lot, "//SPn").
+ */
+function lotIds(value) {
+  const t = String(value).replace(DASH, '-').replace(/\s+/g, ' ')
+  const out = new Set()
+  const re = /\blots?\s+([0-9A-Z][0-9A-Za-z ,&-]*?(?:\s+and\s+[0-9A-Z][0-9A-Za-z-]*)*)\s*,?\s*(?:(?:section|sec\.?)\s*(\d+)\s*,?\s*)?(DP|SP)\s*(\d+)/gi
+  let m
+  while ((m = re.exec(t))) {
+    const [, list, section, plan, num] = m
+    if (plan.toUpperCase() === 'SP') { out.add(`//SP${num}`); continue }
+    for (const raw of list.split(/,|\band\b|&/i).map(x => x.trim()).filter(Boolean)) {
+      const r = raw.match(/^(\d+)\s*-\s*(\d+)$/)
+      if (r && Number(r[2]) - Number(r[1]) < 200) {
+        for (let i = Number(r[1]); i <= Number(r[2]); i++) out.add(`${i}/${section ?? ''}/DP${num}`)
+      } else if (/^[0-9A-Z]{1,6}$/i.test(raw)) out.add(`${raw.toUpperCase()}/${section ?? ''}/DP${num}`)
+    }
+  }
+  for (const sp of t.matchAll(/\b(?:SP|strata plan)\s*(\d+)/gi)) out.add(`//SP${sp[1]}`)
+  return [...out]
+}
+
+const STREET = '(STREET|ROAD|AVENUE|WAY|DRIVE|PARADE|PLACE|LANE|HIGHWAY|TERRACE|CRESCENT|BOULEVARD|BOULEVARDE|CLOSE|COURT|CIRCUIT|GROVE|ESPLANADE|SQUARE|PROMENADE|MALL|ROW|RISE|GLEN|VIEW|PATHWAY|LOOP)'
+/**
+ * The street addresses a value names, as LIKE patterns over derived.lot_address.address ("126 GREVILLE
+ * STREET CHATSWOOD"). "126 Greville Street, Chatswood and part of 25 Millwood Avenue, Chatswood West" is two;
+ * a range "92–96 Victoria Avenue" is tried as written and then by its first number.
+ */
+function addressPatterns(value) {
+  const t = String(value).replace(DASH, '-').replace(/\bpart of\b/gi, ' ').replace(/\s+/g, ' ').toUpperCase()
+  const re = new RegExp(`\\b(\\d+[A-Z]?(?:\\s*-\\s*\\d+[A-Z]?)?)\\s+((?:[A-Z']+\\s+){0,4}?${STREET})\\b(?:\\s*,\\s*([A-Z][A-Z ]{2,30}?))?(?=\\s+AND\\b|,|;|$|\\s*\\()`, 'g')
+  const out = []
+  let m
+  while ((m = re.exec(t))) {
+    const [, num, street, , suburb] = m
+    const n = num.replace(/\s+/g, '')
+    const tail = suburb ? `${street} ${suburb.trim()}%` : `${street}%`
+    const alts = [`${n} ${tail}`]
+    if (n.includes('-')) alts.push(`${n.split('-')[0]} ${tail}`)
+    out.push({ text: `${n} ${street}${suburb ? ', ' + suburb.trim() : ''}`, alts })
+  }
+  return out
+}
+
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL })
   await client.connect()
@@ -101,6 +161,53 @@ async function main() {
     return eq.length ? `(${eq.join(' OR ')})` : 'false'
   }
 
+  // ── step 0: one ref per plan for each value that has none ──────────────────────────────────────
+  // A Lot/DP or address site_ref with no ref of that value in its plan; an area label that names its
+  // map with no ref of that value ON that map (cl 4.3A(1) "Area 1" on the Height of Buildings Map, when
+  // the plan's only "Area 1" ref is the Dual Occupancy Restriction Map's). The new row's clause is the
+  // rule's full clause ("4.3A(1)"), not the subclause text the extractor used, so the unique key on
+  // (document, clause, ref_type, value) does not swallow it.
+  const { rows: missingSites } = await client.query(
+    `SELECT DISTINCT ON (r.document_id, lower(btrim(a.value)), lower(coalesce(a.map_layer, '')))
+            r.document_id, a.rule_id, r.section_id, r.clause, a.value, a.polarity, a.dimension, a.map_layer
+       FROM nsw.rule_applicability a
+       JOIN nsw.rule r ON r.id = a.rule_id
+       JOIN nsw.document d ON d.id = r.document_id
+      WHERE a.value IS NOT NULL
+        AND ($1::text IS NULL OR d.instrument_slug ILIKE '%' || $1 || '%')
+        AND ((a.dimension = 'site_ref'
+              AND NOT EXISTS (SELECT 1 FROM nsw.rule_spatial_ref sr
+                               WHERE sr.document_id = r.document_id AND lower(btrim(sr.value)) = lower(btrim(a.value))))
+          OR (a.dimension = 'area_label' AND a.map_layer IS NOT NULL
+              AND NOT EXISTS (SELECT 1 FROM nsw.rule_spatial_ref sr
+                               WHERE sr.document_id = r.document_id AND lower(btrim(sr.value)) = lower(btrim(a.value))
+                                 AND lower(regexp_replace(coalesce(sr.map_layer, ''), '\\s*map$', '', 'i'))
+                                   = lower(regexp_replace(a.map_layer, '\\s*map$', '', 'i')))))
+      ORDER BY r.document_id, lower(btrim(a.value)), lower(coalesce(a.map_layer, '')), r.clause`, [LEP])
+  const toAdd = missingSites
+    .map(m => ({ ...m, ref_type: m.dimension === 'area_label' ? 'area'
+                               : LOT_RE.test(m.value) && lotIds(m.value).length ? 'lot_dp'
+                               : addressPatterns(m.value).length ? 'address' : null }))
+    .filter(m => m.ref_type)
+  let added = 0
+  if (!DRY && toAdd.length) {
+    await client.query(`CREATE TABLE IF NOT EXISTS nsw.rule_spatial_ref_added (
+      id uuid PRIMARY KEY, added_at timestamptz NOT NULL DEFAULT now(), by_script text NOT NULL)`)
+    for (const m of toAdd) {
+      const r = await client.query(
+        `INSERT INTO nsw.rule_spatial_ref (document_id, rule_id, section_id, clause, ref_type, value, map_layer, polarity)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO NOTHING RETURNING id`,
+        [m.document_id, m.rule_id, m.section_id, m.clause, m.ref_type, m.value,
+         m.ref_type === 'area' ? m.map_layer : null, m.polarity === 'excludes' ? 'excludes' : 'applies'])
+      if (r.rows[0]) {
+        added++
+        await client.query(`INSERT INTO nsw.rule_spatial_ref_added (id, by_script) VALUES ($1, 'resolve-map-refs.mjs')`, [r.rows[0].id])
+      }
+    }
+  }
+  console.log(`step 0: ${toAdd.length} values had no ref in their plan (${toAdd.filter(m => m.ref_type === "area").length} map areas, ${toAdd.filter(m => m.ref_type === "lot_dp").length} Lot/DP, ${toAdd.filter(m => m.ref_type === "address").length} addresses)`
+    + `${DRY ? ' (dry run - none added, so they are not resolved below)' : `; added ${added}`}\n`)
+
   const { rows: refs } = await client.query(
     `SELECT sr.id, sr.document_id, sr.clause, sr.value, sr.map_layer, sr.ref_type, sr.polarity,
             sr.match_confidence, d.instrument_slug, d.lga_name, s.local_id
@@ -115,7 +222,7 @@ async function main() {
   )
   console.log(`${refs.length} refs to resolve${LEP ? ` for ${LEP}` : ''} (unresolved, or left at 0.60)\n`)
 
-  const tally = { exact: 0, wholeMap: 0, inherited: 0, contains: 0, ambiguous: 0, none: 0, noMap: 0, cleared: 0, addrOk: 0, addrMiss: 0 }
+  const tally = { exact: 0, wholeMap: 0, inherited: 0, contains: 0, ambiguous: 0, none: 0, noMap: 0, cleared: 0, addrOk: 0, addrMiss: 0, lotOk: 0, lotMiss: 0 }
   const resolvedNow = new Map() // ref id -> true, for the second pass in a dry run
 
   /** Write a geometry (SQL expression over params) to a ref, or log it in a dry run. */
@@ -135,23 +242,59 @@ async function main() {
     if (!DRY) await client.query(`UPDATE nsw.rule_spatial_ref SET geom = NULL, geom_source = NULL, match_confidence = NULL WHERE id = $1`, [ref.id])
   }
 
-  const withMap = refs.filter(r => r.ref_type === 'address' || r.map_layer)
-  const noMap = refs.filter(r => r.ref_type !== 'address' && !r.map_layer)
+  const TITLE = new Set(['address', 'lot_dp'])
+  const withMap = refs.filter(r => TITLE.has(r.ref_type) || r.map_layer)
+  const noMap = refs.filter(r => !TITLE.has(r.ref_type) && !r.map_layer)
 
   // ── pass 1: addresses and refs that name their map ─────────────────────────────────────────────
   for (const ref of withMap) {
-    // A street address read from a clause heading resolves against the address points, not a map.
-    // "5 Aird Street" is stored without its suburb, so it is matched as a prefix within the council.
-    if (ref.ref_type === 'address') {
-      const q = String(ref.value).replace(/\s+/g, ' ').trim().toUpperCase()
-      const r = await client.query(`SELECT count(*)::int n FROM derived.lot_address a WHERE upper(a.address) LIKE $1 || '%'`, [q])
-      if (!r.rows[0].n) { tally.addrMiss++; console.log(`  no address     cl ${ref.clause}  ${JSON.stringify(ref.value)}`); continue }
-      tally.addrOk++
+    // Land named by title: every lot the value lists, from the cadastre.
+    if (ref.ref_type === 'lot_dp') {
+      const ids = lotIds(ref.value)
+      const r = ids.length
+        ? await client.query(`SELECT count(DISTINCT lotidstring)::int n FROM cadastre.lot WHERE upper(lotidstring) = ANY($1)`, [ids])
+        : { rows: [{ n: 0 }] }
+      if (!r.rows[0].n) {
+        tally.lotMiss++
+        console.log(`  no lot         cl ${ref.clause}  ${JSON.stringify(ref.value)} -> ${ids.join(' ') || 'nothing parsed'}`)
+        await clearWeak(ref)
+        continue
+      }
+      tally.lotOk++
       await write(ref,
-        `SELECT ${toCol('ST_Union(l.geom)')} FROM derived.lot_address a JOIN cadastre.lot l ON l.cadid = a.cadid
-          WHERE upper(a.address) LIKE $4 || '%'`,
-        [q], 'derived.lot_address', r.rows[0].n === 1 ? 1.0 : 0.8,
-        `address        cl ${ref.clause}  ${JSON.stringify(ref.value)} -> ${r.rows[0].n} lots`)
+        `SELECT ${toCol('ST_Union(l.geom)')} FROM cadastre.lot l WHERE upper(l.lotidstring) = ANY($4)`,
+        [ids], 'cadastre.lot (lot/DP)', r.rows[0].n === ids.length ? 1.0 : 0.8,
+        `lot/DP         cl ${ref.clause}  ${JSON.stringify(ref.value)} -> ${r.rows[0].n} of ${ids.length} lots`)
+      continue
+    }
+
+    // A street address resolves against the address points, within the plan's own council - "1 Church
+    // Street" exists in many. "A, Suburb and B, Suburb" is split; a range is also tried by its first number.
+    if (ref.ref_type === 'address') {
+      const parts = addressPatterns(ref.value)
+      const lga = String(ref.lga_name ?? '').toUpperCase()
+      const found = []
+      for (const part of parts) {
+        for (const pat of part.alts) {
+          const r = await client.query(
+            `SELECT array_agg(DISTINCT a.cadid) AS cadids FROM derived.lot_address a
+               JOIN derived.lot_lga g ON g.cadid = a.cadid
+              WHERE upper(a.address) LIKE $1 AND ($2 = '' OR g.lga_name ILIKE '%' || $2 || '%')`, [pat, lga])
+          if (r.rows[0].cadids?.length) { found.push(...r.rows[0].cadids); break }
+        }
+      }
+      if (!found.length) {
+        tally.addrMiss++
+        console.log(`  no address     cl ${ref.clause}  ${JSON.stringify(ref.value)} in ${lga || '?'}`)
+        await clearWeak(ref)
+        continue
+      }
+      tally.addrOk++
+      const cadids = [...new Set(found)]
+      await write(ref,
+        `SELECT ${toCol('ST_Union(l.geom)')} FROM cadastre.lot l WHERE l.cadid = ANY($4)`,
+        [cadids], 'derived.lot_address', cadids.length === 1 ? 1.0 : 0.8,
+        `address        cl ${ref.clause}  ${JSON.stringify(ref.value)} -> ${cadids.length} lots in ${lga}`)
       continue
     }
 
@@ -226,12 +369,13 @@ async function main() {
       const { rows: sib } = await client.query(
         `SELECT sr2.id, sr2.value, sr2.map_layer, sr2.geom IS NOT NULL AS has_geom
            FROM nsw.rule_spatial_ref sr2 JOIN nsw.section s2 ON s2.id = sr2.section_id
-          WHERE sr2.document_id = $1 AND sr2.map_layer IS NOT NULL AND sr2.polarity = 'applies'
+          WHERE sr2.document_id = $1 AND sr2.polarity = 'applies'
+            AND (sr2.map_layer IS NOT NULL OR sr2.ref_type IN ('lot_dp', 'address'))
             AND (s2.local_id = $2 OR s2.local_id LIKE $2 || '-%')`, [ref.document_id, base])
       const ok = sib.filter(s => s.has_geom || resolvedNow.has(s.id))
       if (ok.length) {
         tally.inherited++
-        const names = [...new Set(ok.map(s => `"${s.value}" on ${s.map_layer}`))].join(', ')
+        const names = [...new Set(ok.map(s => `"${s.value}"${s.map_layer ? ` on ${s.map_layer}` : ''}`))].join(', ')
         await write(ref,
           `SELECT ${toCol('ST_Union(sr2.geom)')} FROM nsw.rule_spatial_ref sr2 WHERE sr2.id = ANY($4::uuid[])`,
           [ok.map(s => s.id)], 'inherited: clause map refs', 0.9,
@@ -273,7 +417,7 @@ async function main() {
     [LEP],
   )
   console.log(`\n  exact ${tally.exact}   whole map ${tally.wholeMap}   inherited ${tally.inherited}   contains ${tally.contains}   `
-    + `address ${tally.addrOk}/${tally.addrOk + tally.addrMiss}   ambiguous ${tally.ambiguous}   no match ${tally.none}   `
+    + `address ${tally.addrOk}/${tally.addrOk + tally.addrMiss}   lot/DP ${tally.lotOk}/${tally.lotOk + tally.lotMiss}   ambiguous ${tally.ambiguous}   no match ${tally.none}   `
     + `no map ${tally.noMap}   0.60 cleared ${tally.cleared}`)
   console.log(`  ${DRY ? `${after.g}/${after.n} refs carry geometry before this run; it would resolve ${resolvedNow.size} (dry run — nothing written)`
     : `${after.g}/${after.n} refs now carry geometry`}`)

@@ -368,6 +368,7 @@ export default defineEventHandler(async (event): Promise<LepRulesResponse> => {
   // and it has to stay distinguishable from one tested and found not to cover.
   const spatial = (await nswQuery<any>(
     `SELECT sr.rule_id, sr.value, sr.map_layer, sr.geom IS NOT NULL AS resolved,
+            (SELECT sec.local_id FROM nsw.section sec WHERE sec.id = sr.section_id) AS anchor,
             CASE WHEN sr.geom IS NULL THEN NULL
                  -- the lot goes into whatever SRID the ref was resolved in: the table moved from 4326 to 4283
                  -- (2026-09), and a hard-coded 4326 made every lot fail with "mixed SRID geometries"
@@ -377,9 +378,34 @@ export default defineEventHandler(async (event): Promise<LepRulesResponse> => {
     [doc.id, cadid],
   )).rows
   const spatialByRule = new Map<string, any[]>()
+  const spatialByValue = new Map<string, any[]>()
   for (const s of spatial) {
     if (!spatialByRule.has(s.rule_id)) spatialByRule.set(s.rule_id, [])
     spatialByRule.get(s.rule_id)!.push(s)
+    const v = norm(s.value)
+    if (!spatialByValue.has(v)) spatialByValue.set(v, [])
+    spatialByValue.get(v)!.push(s)
+  }
+  /*
+   * The refs for a label when its own rule has none. rule_spatial_ref is unique on (document, clause,
+   * ref_type, value) and `clause` is only the subclause text - "(2)" - so when two rules both name "Area 1"
+   * under "(2)", the extractor's ref attaches to one of them and the other reads "no spatial ref" (2,860
+   * of the graph's area and site labels, measured 2026-10-07). The land is the same whichever rule carried
+   * it, so: the same label on the same map anywhere in the plan; with no map, the same label in the same
+   * clause (sec.6.20 and its subclauses); and plan-wide only for a label that is not an "Area N" and that
+   * every ref in the plan puts on one map.
+   */
+  const mapKey = (m: unknown) => norm(m).replace(/ map$/, '')
+  const clauseOf = (anchor: unknown) => String(anchor ?? '').split('-')[0]
+  function sharedRefs(v: string, mapLayer: string | null, anchor: string | null): any[] {
+    const same = spatialByValue.get(v) ?? []
+    if (!same.length) return []
+    if (mapLayer) return same.filter(s => s.map_layer && mapKey(s.map_layer) === mapKey(mapLayer))
+    const family = clauseOf(anchor)
+    const inClause = family ? same.filter(s => clauseOf(s.anchor) === family) : []
+    if (inClause.length) return inClause
+    const maps = new Set(same.map(s => mapKey(s.map_layer)))
+    return !/^area\b/.test(v) && maps.size === 1 ? same : []
   }
 
   const appByRule = new Map<string, any[]>()
@@ -486,7 +512,8 @@ export default defineEventHandler(async (event): Promise<LepRulesResponse> => {
                         lotHas: `${sameMap[0]!.map} Map marks this lot "${sameMap[0]!.label}"` })
           continue
         }
-        const refs = (spatialByRule.get(r.id) ?? []).filter(s => norm(s.value) === v)
+        let refs = (spatialByRule.get(r.id) ?? []).filter(s => norm(s.value) === v)
+        if (!refs.length) refs = sharedRefs(v, a.map_layer ?? null, r.anchor ?? null)
         if (!refs.length) missing.push({ dimension: dim, value: val, why: 'no spatial ref for this label' })
         else if (refs.every(s => !s.resolved))
           missing.push({ dimension: dim, value: val,
