@@ -67,11 +67,20 @@ all 10 SEPPs now read `current`; one `ingest_run` per SEPP (`stage_metrics.step 
 Finding: `ingest_run.status` only allows running/success/failed, so drift is recorded as `failed` with
 `stage_metrics.outcome`.
 
-### 3. Housing SEPP profile, Ch 6 frames — `todo`
-`profiles/housing-sepp-2021.yaml`: rank, s 8 prevails, Ch 6 frame (s 164 reach + 13 exclusions), the
+### 3. Housing SEPP profile, Ch 6 frames — `blocked` (awaiting Manni's review, Q1)
+`profiles/housing-sepp-2021.ts`: rank, s 8 prevails, Ch 6 frame (s 164 reach + 13 exclusions), the
 nested LMR-area frame (s 163 for s 167–176), signals, terms. Write frames to `nsw.rule` (role `frame`).
 **Done when:** every Ch 6 operative section is under exactly one frame; Manni has reviewed the frames
 (Open questions).
+
+**Result (2026-10-07):** profile written as a typed TS module (not YAML: no new dependency; same
+pattern as `lmr-criteria.ts`). `scripts/pipeline/frames.ts` wrote 3 frames, all `held`, rank 30:
+`instrument` (s 8(1), `prevails_over` doc_type:lep and doc_type:dcp) → `ch6` (s 164(1): pathway DA +
+17 exclusion conditions (a)–(m), valid from 2025-02-28) → `ch6-lmr-area` (s 163 defined area).
+Coverage **PASS**: 172 sections under ch.6, 0 with no frame, 0 ties; s 162–166 → `ch6` (59 sections),
+s 167–180 → `ch6-lmr-area` (113). Existing 6,856 rules still `published`.
+Findings: `/graph` coverage counts all rules per document, so the Housing SEPP's count shows 3 (held
+frames) - a statistics-only change; `rule_edge.scope` is jsonb.
 
 ### 4. Route sections — `todo`
 **Done when:** every Housing SEPP section has a route; Ch 6 signals found: permission (s 166, 170, 174),
@@ -123,10 +132,23 @@ re-extracts only that section.
 
 ## Open questions
 
-_(none yet)_
+**Q1 (step 3) — review the Chapter 6 frames** in `profiles/housing-sepp-2021.ts`. Reply "frames OK", or
+say what to change. The readings that decide answers:
+1. **s 164 = the whole State less (a)–(m)**, so s 166 (dual occupancies, semi-detached dwellings in R2)
+   reaches R2 land everywhere outside the exclusions — not only the LMR walking catchments. Only s 167–180
+   carry the LMR-area condition (each says "in a low and mid rise housing area").
+2. **s 8(1) is modelled as Housing SEPP `prevails_over` every LEP and DCP** "to the extent of the
+   inconsistency". The evaluator (step 9) will therefore let s 166 displace a local "consent must not be
+   granted" clause such as Parramatta LEP cl 6.11(1) on "D" land. Is that the reading you want the app to
+   give, with a "confirm with council" caveat?
+3. **164(1)(g)** is one condition (flood planning area) that only bites in the 23 listed councils - kept
+   as a note on the frame for now; it becomes an LGA-scoped term in step 7.
+4. **Pathway** for Ch 6 is DA only (s 166/170/174 say "permitted with development consent"); the CDC
+   route to the same dwelling types stays in the Codes SEPP profile later.
 
 ## Log
 
 - 2026-10-07 — design and progress files written. Baseline recorded.
 - 2026-10-07 — step 1 done: migration 17, registry of 55 sources, 10/10 SEPPs current-checked.
 - 2026-10-07 — step 2 done: 20,712 SEPP sections hashed, all 10 SEPPs match their XML and read current.
+- 2026-10-07 — step 3: Housing SEPP profile + 3 Ch 6 frames written (held), coverage PASS; blocked on Q1 (frame review).

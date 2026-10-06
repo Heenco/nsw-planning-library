@@ -113,7 +113,7 @@ Migrations go in `db/` as numbered files, additive only.
 
 ## 4. The instrument profile
 
-`profiles/<instrument>.yaml`, one per instrument, in the repo. It is the only per-instrument input.
+`profiles/<instrument>.ts`, one per instrument, in the repo - a typed module (the YAML below shows the shape; the real file is `profiles/housing-sepp-2021.ts`). It is the only per-instrument input.
 
 ```yaml
 instrument: epi-2021-0714            # Housing SEPP 2021
