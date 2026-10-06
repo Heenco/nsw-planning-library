@@ -317,6 +317,11 @@
                   <p class="ep-hit-meta">
                     <span v-if="r.epiName">{{ shortPlan(r.epiName) }}</span>
                     <span v-if="r.clause" class="ep-dim">{{ r.clause }}</span>
+                    <span v-if="r.area" class="ep-dim">{{ r.area }}</span>
+                  </p>
+                  <!-- an additional control: the dump carries it on the base polygon, not as its own layer -->
+                  <p v-if="r.additional" class="ep-addl" :title="'legis_ref_area / legis_ref_clause on this polygon'">
+                    Additional control{{ r.area ? ` — ${r.area}` : '' }}{{ r.clause ? ` (${r.clause})` : '' }}
                   </p>
                 </li>
               </ul>
@@ -1152,6 +1157,7 @@ onBeforeUnmount(() => {
 .ep-hit-row { padding: 0.2rem 0 0.2rem 0.4rem; }
 .ep-hit-value { margin: 0; font-size: 0.8rem; color: #0f172a; }
 .ep-hit-meta { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; margin: 0; font-size: 0.71rem; color: #64748b; }
+.ep-addl { margin: 0.15rem 0 0; display: inline-block; padding: 0.05rem 0.45rem; border-radius: 999px; background: #f5f3ff; border: 1px solid #ddd6fe; font-size: 0.68rem; font-weight: 600; color: #6d28d9; }
 .ep-chip { margin-left: 0.35rem; padding: 0.02em 0.35em; border-radius: 4px; background: #e0e7ff; color: #4338ca; font-size: 0.68rem; font-weight: 700; }
 .ep-cover { margin-left: 0.35rem; padding: 0.02em 0.35em; border-radius: 4px; background: #f1f5f9; color: #64748b; font-size: 0.68rem; font-weight: 700; }
 .ep-cover--part { background: #fef3c7; color: #92400e; }

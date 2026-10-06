@@ -1684,12 +1684,18 @@ const PLANNING: PlanningBlock[] = [
     key: 'epi', id: 'planning-epi', title: 'Planning layers (/epi)',
     endpoint: '/api/epi/at?cadid=',
     basis: 'Lot polygon, shrunk 10 cm, against the epi schema in PostGIS.', basisKind: 'lot',
-    columns: ['Layer', 'Instrument', 'Class', 'Label', 'Zone', 'Clause', 'Covers'],
+    columns: ['Layer', 'Instrument', 'Class', 'Label', 'Zone', 'Clause', 'Area', 'Additional control', 'Covers'],
     // epi/at's `layers` is the number of DISTINCT epi tables that caught the lot, not the number
     // tested - labelling it "tested" produced "21 caught of 6 tested", which cannot be true
-    summary: d => [{ label: 'features caught', value: d.hits.length }, { label: 'layers', value: d.layers }],
+    summary: d => [
+      { label: 'features caught', value: d.hits.length },
+      { label: 'layers', value: d.layers },
+      // the dump carries additional controls on the base polygon (legis_ref_area / legis_ref_clause)
+      { label: 'additional controls', value: d.hits.filter((h: any) => h.additional).length },
+    ],
     rows: d => d.hits.map((h: any) => [dash(h.layName || h.layer), dash(h.epiName), dash(h.layClass),
-      dash(h.label), dash(h.symCode), dash(h.clause), pct(h.coverPct)]),
+      dash(h.label), dash(h.symCode), dash(h.clause), dash(h.area),
+      h.additional ? [h.area, h.clause].filter(Boolean).join(' · ') : '—', pct(h.coverPct)]),
   },
   {
     key: 'lmr', id: 'planning-lmr', title: 'Low and Mid Rise (/lmr)',

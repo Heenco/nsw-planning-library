@@ -24,6 +24,14 @@
  * The column list is read from the catalogue and cached, because the epi tables share a schema but not
  * exactly: a table missing `lga_name` or `sym_code` contributes NULL rather than failing the union. 01A
  * replaces the whole schema, so the cache is short. The map sheet index is never queried.
+ *
+ * ADDITIONAL CONTROLS. The feature services publish "Additional Controls" as their own layers; the EPI data
+ * dump has no such layers. It carries each control as its own polygon in the base table (zoning, FSR,
+ * height, lot size), stacked on the base polygon, marked by legis_ref_area ("Area 1", "Area A"),
+ * legis_ref_clause ("Clause 4.4A", "Clause 4.4 2C") or only the label ("Area 2" on Parramatta's height
+ * map). Measured 2026-10-06 against the feature-service copies in UrbanPortalDBP: FSR 97%, height 92%,
+ * lot size 87% of their polygons are flagged this way in the dump, land zoning only 17%. A hit is
+ * `additional` when it has an area (the column, or a label starting "Area") or a non-base clause.
  */
 import { nswQuery } from '../../utils/nsw-kg/pool'
 
@@ -36,6 +44,10 @@ export interface EpiHit {
   symCode: string | null
   lgaName: string | null
   clause: string | null
+  /** legis_ref_area: the map's own name for an additional-control area, "Area 1", "Area A". */
+  area: string | null
+  /** An additional control on a zoning, FSR, height or lot size polygon: an area, or a non-base clause. */
+  additional: boolean
   value: string | null
   mapName: string | null
   /** How much of the lot this row covers, 0-100. Null when the test was a point rather than a lot. */
@@ -56,7 +68,21 @@ export interface EpiAtResponse {
 }
 
 const WANTED = ['epi_name', 'lay_name', 'lay_class', 'label', 'sym_code', 'lga_name',
-  'legis_ref_clause', 'legis_ref_value', 'map_name'] as const
+  'legis_ref_clause', 'legis_ref_area', 'legis_ref_value', 'map_name'] as const
+
+/** The clause each core layer is mapped under; any other clause on its polygon is an additional control. */
+const BASE_CLAUSE: Record<string, RegExp> = {
+  epi_land_zoning: /^\s*clause\s*2\.2\s*$/i,
+  epi_floor_space_ratio: /^\s*clause\s*4\.4\s*$/i,
+  epi_height_of_building: /^\s*clause\s*4\.3\s*$/i,
+  epi_lot_size: /^\s*clause\s*4\.1\s*$/i,
+}
+
+/** The dump writes some empty values as the literal string "<Null>". */
+const clean = (v: unknown): string | null => {
+  const s = v == null ? '' : String(v).trim()
+  return s && s !== '<Null>' ? s : null
+}
 
 /** The printed map sheet index. Not a control, and it matches a dozen times on any address. */
 const NOT_A_CONTROL = new Set(['epi_map_tiles'])
@@ -159,7 +185,7 @@ export default defineEventHandler(async (event): Promise<EpiAtResponse> => {
     : nswQuery<LotRow>(
         `SELECT ${LOT_COLUMNS} FROM cadastre.lot
          WHERE geom && $1::geometry AND ST_Intersects(geom, $1::geometry)
-         ORDER BY shape_area NULLS LAST LIMIT 1`, [point])
+         ORDER BY ST_Area(geom) LIMIT 1`, [point])
   ).catch(() => ({ rows: [] as LotRow[] }))
 
   const lot = lotRes.rows[0] ?? null
@@ -171,7 +197,12 @@ export default defineEventHandler(async (event): Promise<EpiAtResponse> => {
   const sql = await unionSql()
   const hits = await nswQuery<any>(sql, [target])
 
-  const rows: EpiHit[] = hits.rows.map(r => ({
+  const rows: EpiHit[] = hits.rows.map((r) => {
+    const clause = clean(r.legis_ref_clause)
+    const base = BASE_CLAUSE[r.layer]
+    // some councils name the area only in the label ("Area 2" on Parramatta's height map, clause 4.3)
+    const area = clean(r.legis_ref_area) ?? (base && /^area\b/i.test(clean(r.label) ?? '') ? clean(r.label) : null)
+    return {
     layer: r.layer,
     epiName: r.epi_name,
     layName: r.lay_name,
@@ -179,11 +210,14 @@ export default defineEventHandler(async (event): Promise<EpiAtResponse> => {
     label: r.label,
     symCode: r.sym_code,
     lgaName: r.lga_name,
-    clause: r.legis_ref_clause,
-    value: r.legis_ref_value,
+    clause,
+    area,
+    additional: Boolean(base && (area || (clause && !base.test(clause)))),
+    value: clean(r.legis_ref_value),
     mapName: r.map_name,
     coverPct: r.cover_pct == null ? null : Math.min(100, Number(r.cover_pct)),
-  }))
+    }
+  })
 
   return {
     lon: havePoint ? lon : null,
