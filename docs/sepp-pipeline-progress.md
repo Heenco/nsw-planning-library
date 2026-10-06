@@ -36,11 +36,22 @@ reads this file first and updates it last.** One step per pass; a step is only t
 
 ## Steps
 
-### 1. Register sources — `todo`
+### 1. Register sources — `done` 2026-10-07
 Seed `nsw.source_registry` for the 10 SEPPs (and the LEPs already loaded) with raw_path, as_at_date,
 content_sha256. Add `last_ingested_sha256`, `last_ingested_at`.
 **Done when:** every SEPP document in `nsw.document` has an enabled registry row whose hash matches the
 file on disk, and a query lists which instruments are newer on disk than in the graph.
+
+**Result:** migration 17 applied (`db/nsw-schema-migration-17-sepp-pipeline.sql`: registry
+`document_id` / `last_ingested_sha256` / `last_ingested_at`; `section.content_sha256`; `rule.publish_state`
+(existing rows `published`) / `valid_from` / `valid_to` / `frame_rule_id`; widened `kind` (+frame, condition),
+`dimension` (+defined_area, lga, proponent, proposal_metric, pathway), `effect_type` (+relative_numeric,
+nondiscretionary_numeric, condition_of_consent)). `scripts/pipeline/registry.ts` upserted 55 sources:
+**10/10 SEPPs PASS** (enabled, linked, hash = file). 45 `due` (pipeline has never recorded a build), 1
+`missing` (sydney-lep XML not on this machine), 9 `unloaded` (DCP registry titles don't match the graph's).
+Findings: `hornsby-dcp-2024`, `randwick-dcp-2025` are in the graph with no registry row;
+`scripts/seed-source-registry.ts` fails on this machine (kgPool wants an SSH key at an old path) — the
+new script replaces it for the pipeline.
 
 ### 2. Load text with section hashes — `todo`
 Add `section.content_sha256`; backfill for the 10 SEPPs; reload Housing SEPP from the registered XML if
@@ -108,3 +119,4 @@ _(none yet)_
 ## Log
 
 - 2026-10-07 — design and progress files written. Baseline recorded.
+- 2026-10-07 — step 1 done: migration 17, registry of 55 sources, 10/10 SEPPs current-checked.
