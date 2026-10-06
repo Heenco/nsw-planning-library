@@ -137,9 +137,25 @@ Findings for step 9: (1) LEP rules store a "consent must not be granted" clause 
 shape as a prohibition; (2) land-use vocabularies differ (LEP "dual occupancies", readers "dual occupancy")
 - `landUseKey()` in edges.ts normalises plural/singular; the evaluator should use the same function.
 
-### 7. Defined terms — `todo`
+### 7. Defined terms — `done` 2026-10-07
 **Done when:** every term the Ch 6 profile uses has a `scope_layer` row or a `scope_layer_gap` row
 (164(1)(f) flood prone land is a known gap).
+
+**Result:** term mappings are data in the profile (`profile.terms`, type `TermMapping`);
+`scripts/pipeline/terms.ts` upserts them into `nsw.scope_layer` and MEASURES each from its source (as
+`seed-scope-layers.mjs` does) rather than trusting it. Migration 19 widens `nsw.scope_layer_gap` to the
+SEPP dimensions (defined_area, map_area, lga). **19 mappings, PASS: 0 used values without a row, 0 mappings
+measuring 0 features.** Registry-backed (lmr.layers): bush fire prone land 269,248; coastal vulnerability
+area 10; coastal wetlands 5,752 (littoral rainforests not in the layer - partial); heritage item 39,217;
+flood planning area 634 (164(1)(g); Clarence Valley only of the 23 councils); ANEF 25 / ANEC 20 = 100
+contours with `lmr_verdict = 'excluded'`; Chapter 5 land 9,562; Schedule 12 800 m 8; Accelerated TOD 8;
+LMR exclusion area 4. Derived: 200 m pipelines 1,849 (gas + oil buffers); the 4 s 164(1)(e) councils via
+`derived.lot_lga` (SEPP "City of Blue Mountains" = lot_lga "BLUE MOUNTAINS"); LMR area / inner / outer
+from the station + town-centre walking catchments (342 / 171 / 171). **One recorded gap:** 164(1)(f)
+flood prone land in the Georges River / Hawkesbury-Nepean catchments (outlines held, flood prone land not).
+Not registered (read natively by the evaluator): zone, land_use, pathway, dev_type, temporal.
+Finding: `lmr.layers.table_name` is sometimes schema-qualified ("lmr.airport_noise") - the first
+measurement read 0 because of it; caught by the 0-features check.
 
 ### 8. Spatial refs for SEPP rules — `todo`
 **Done when:** every Ch 6 map reference resolved or listed as a gap.
@@ -198,3 +214,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 4 done: migration 18, 2,650 sections routed, Ch 6 signals all found.
 - 2026-10-07 — step 5 done: 23 Ch 6 rules, 44 effects, recall 37/37, s 168 5/5.
 - 2026-10-07 — step 6 done: 8 edges; s 166 vs Parramatta 6.11(1) resolved by s 8(1) prevails_over.
+- 2026-10-07 — step 7 done: migration 19, 19 Ch 6 terms registered and measured, 1 recorded gap (164(1)(f)).

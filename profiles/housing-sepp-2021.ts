@@ -45,6 +45,24 @@ export interface Frame {
   note?: string
 }
 
+/**
+ * How the evaluator tests a term (step 7): one nsw.scope_layer row per (dimension, value) the frames and
+ * extracted rules use. source_kind 'registry' borrows an lmr.layers entry's table and filter; 'none' records
+ * a gap rather than leaving the term silently untestable. zone / land_use / pathway / dev_type / temporal
+ * are read natively by the evaluator and are not registered here.
+ */
+export interface TermMapping {
+  dimension: 'land_characteristic' | 'defined_area' | 'map_area' | 'lga'
+  term: string
+  source_kind: 'table' | 'registry' | 'derived' | 'none'
+  source: string | null
+  filter?: string | null
+  test: 'intersects' | 'covers' | 'attribute' | 'derived'
+  column_tested?: string | null
+  kind: 'condition' | 'exclusion' | 'context'
+  note: string
+}
+
 export interface InstrumentProfile {
   instrument: string
   slug: string
@@ -54,7 +72,14 @@ export interface InstrumentProfile {
   frames: Frame[]
   /** Wording the router (step 4) maps to a role. */
   signals: Record<string, string[]>
+  terms: TermMapping[]
 }
+
+const LGA = (term: string, lotLga: string): TermMapping => ({
+  dimension: 'lga', term, source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',
+  filter: `upper(lga_name) = '${lotLga}'`, kind: 'exclusion',
+  note: `s 164(1)(e). The SEPP names the council "${term}"; derived.lot_lga spells it ${lotLga}.`,
+})
 
 // ── s 164(1) exclusions, in order ────────────────────────────────────────────────────────────────────
 const S164 = (para: string, dimension: Dimension, value: string, span: string, term: string | null = null): FrameCondition =>
@@ -146,6 +171,48 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         + 's 176 and s 180(3) the outer area - left to clause extraction, not frames). s 169(1A) and s 173(1A) add '
         + '"despite the provisions of another environmental planning instrument" (step 6).',
     },
+  ],
+  terms: [
+    // ── s 164(1) exclusions ──
+    { dimension: 'land_characteristic', term: 'bush fire prone land', source_kind: 'registry', source: 'lmr.layers:bushfire_prone_land',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(a). RFS bush fire prone land (all categories, incl. buffer).' },
+    { dimension: 'land_characteristic', term: 'coastal vulnerability area', source_kind: 'registry', source: 'lmr.layers:sepp_coastal_vulnerability_areas',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(b). R&H SEPP Ch 2 Coastal Vulnerability Area map (10 polygons).' },
+    { dimension: 'land_characteristic', term: 'coastal wetlands and littoral rainforests area', source_kind: 'registry', source: 'lmr.layers:sepp_coastal_wetlands',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(b). Coastal Wetlands polygons only: littoral rainforests are not in the layer (partial), proximity areas are not part of the term.' },
+    { dimension: 'land_characteristic', term: 'heritage item', source_kind: 'registry', source: 'lmr.layers:epi_heritage_items',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(d). LEP heritage items (epi_heritage, not conservation areas).' },
+    { dimension: 'land_characteristic', term: 'flood prone land in the Georges River or Hawkesbury-Nepean Catchment', source_kind: 'none', source: null,
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(f). GAP: the two catchment outlines are held (lmr.layers biodiversity_and_conservation_*), the flood prone land within them is not.' },
+    { dimension: 'land_characteristic', term: 'flood planning area (s 164(1)(g) councils)', source_kind: 'registry', source: 'lmr.layers:flood_planning',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(g). Only reaches the 23 listed councils; flood planning areas are held for Clarence Valley only, so elsewhere in the 23 the answer is undecided (as /lmr).' },
+    { dimension: 'land_characteristic', term: 'ANEF 25 or ANEC 20 contour', source_kind: 'registry', source: 'lmr.layers:airport_noise',
+      filter: "lmr_verdict = 'excluded'", test: 'intersects', kind: 'exclusion', note: "s 164(1)(h). Contours judged band by band; lmr_verdict 'undetermined' is undecided, not clear." },
+    { dimension: 'land_characteristic', term: 'within 200m of a relevant pipeline', source_kind: 'derived',
+      source: 'lmr.gas_pipelines_buffer_200m + lmr.oil_pipelines_buffer_200m', test: 'derived', kind: 'exclusion',
+      note: 's 164(1)(i). Two buffer layers; T&I SEPP s 2.77 "relevant pipeline" - the national dataset is a superset.' },
+    { dimension: 'defined_area', term: 'land to which Chapter 5 applies', source_kind: 'registry', source: 'lmr.layers:sepp_tod_areas',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(c). Transport Oriented Development Sites Map.' },
+    { dimension: 'defined_area', term: 'within 800m of a Schedule 12 station', source_kind: 'registry', source: 'lmr.layers:deferred_tod_areas',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(k). 800 m straight line from the 8 Schedule 12 stations (the ePlanning Deferred TOD map is empty).' },
+    { dimension: 'map_area', term: 'Accelerated TOD Precinct', source_kind: 'registry', source: 'lmr.layers:sepp_tod_accelerated_precincts',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(l).' },
+    { dimension: 'map_area', term: 'exclusion area', source_kind: 'registry', source: 'lmr.layers:sepp_lmr_exclusion_areas',
+      test: 'intersects', kind: 'exclusion', note: 's 164(1)(m). Low and Mid Rise Housing Exclusion Map.' },
+    LGA('Bathurst Regional', 'BATHURST REGIONAL'),
+    LGA('City of Blue Mountains', 'BLUE MOUNTAINS'),
+    LGA('City of Hawkesbury', 'HAWKESBURY'),
+    LGA('Wollondilly', 'WOLLONDILLY'),
+    // ── s 163 defined areas ──
+    { dimension: 'defined_area', term: 'low and mid rise housing area', source_kind: 'derived',
+      source: 'lmr.station_walking_catchments + lmr.town_centre_walking_catchments', test: 'derived', kind: 'condition',
+      note: 's 163. Within 800 m walking of a Town Centre or Schedule 11 station: either catchment layer, any band.' },
+    { dimension: 'defined_area', term: 'low and mid rise housing inner area', source_kind: 'derived',
+      source: 'lmr.station_walking_catchments + lmr.town_centre_walking_catchments', filter: 'distance_m = 400', test: 'derived', kind: 'condition',
+      note: 's 163. The 400 m walking band.' },
+    { dimension: 'defined_area', term: 'low and mid rise housing outer area', source_kind: 'derived',
+      source: 'lmr.station_walking_catchments + lmr.town_centre_walking_catchments', filter: 'distance_m = 800', test: 'derived', kind: 'condition',
+      note: 's 163. The 800 m band, unless the site is also in the inner area.' },
   ],
   signals: {
     permission: ['is permitted with development consent'],
