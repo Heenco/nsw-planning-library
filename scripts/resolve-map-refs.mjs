@@ -222,7 +222,7 @@ async function main() {
   )
   console.log(`${refs.length} refs to resolve${LEP ? ` for ${LEP}` : ''} (unresolved, or left at 0.60)\n`)
 
-  const tally = { exact: 0, wholeMap: 0, inherited: 0, contains: 0, ambiguous: 0, none: 0, noMap: 0, cleared: 0, addrOk: 0, addrMiss: 0, lotOk: 0, lotMiss: 0 }
+  const tally = { exact: 0, wholeMap: 0, inherited: 0, contains: 0, ambiguous: 0, none: 0, noMap: 0, cleared: 0, addrOk: 0, addrMiss: 0, lotOk: 0, lotMiss: 0, failed: 0 }
   const resolvedNow = new Map() // ref id -> true, for the second pass in a dry run
 
   /** Write a geometry (SQL expression over params) to a ref, or log it in a dry run. */
@@ -230,9 +230,26 @@ async function main() {
     console.log(`  ${note}`)
     resolvedNow.set(ref.id, true)
     if (DRY) return
-    await client.query(
-      `UPDATE nsw.rule_spatial_ref SET geom = (${sql}), geom_source = $2, match_confidence = $3 WHERE id = $1`,
+    const run = s => client.query(
+      `UPDATE nsw.rule_spatial_ref SET geom = (${s}), geom_source = $2, match_confidence = $3 WHERE id = $1`,
       [ref.id, source, conf, ...params])
+    try {
+      await run(sql)
+    } catch (e) {
+      // A whole map can hold an invalid polygon: Sutherland's FSR map (2,696 polygons) raised "unable to
+      // assign free hole to a shell" and ended the first statewide run. Retry with each input made valid,
+      // its polygon parts kept, and the union snapped to a 1e-8 degree grid (about a millimetre).
+      const robust = sql.replace(/ST_Union\((\w+\.geom)\)/g, 'ST_Union(ST_CollectionExtract(ST_MakeValid($1), 3), 1e-8)')
+      try {
+        if (robust === sql || !/GEOS|Topology/i.test(String(e?.message))) throw e
+        await run(robust)
+        console.log('                 (resolved on the valid-geometry retry)')
+      } catch (e2) {
+        tally.failed++
+        resolvedNow.delete(ref.id)
+        console.log(`  FAILED         cl ${ref.clause}  ${JSON.stringify(ref.value)}: ${String(e2?.message ?? e2).slice(0, 160)}`)
+      }
+    }
   }
   /** A 0.60 ref this run could not confirm: its geometry came from the wrong map, so drop it. */
   async function clearWeak(ref) {
@@ -418,7 +435,7 @@ async function main() {
   )
   console.log(`\n  exact ${tally.exact}   whole map ${tally.wholeMap}   inherited ${tally.inherited}   contains ${tally.contains}   `
     + `address ${tally.addrOk}/${tally.addrOk + tally.addrMiss}   lot/DP ${tally.lotOk}/${tally.lotOk + tally.lotMiss}   ambiguous ${tally.ambiguous}   no match ${tally.none}   `
-    + `no map ${tally.noMap}   0.60 cleared ${tally.cleared}`)
+    + `no map ${tally.noMap}   0.60 cleared ${tally.cleared}   failed ${tally.failed}`)
   console.log(`  ${DRY ? `${after.g}/${after.n} refs carry geometry before this run; it would resolve ${resolvedNow.size} (dry run — nothing written)`
     : `${after.g}/${after.n} refs now carry geometry`}`)
   await client.end()
