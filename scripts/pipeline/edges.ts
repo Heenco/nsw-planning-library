@@ -28,9 +28,8 @@ const PROFILE = argv.includes('--profile') ? argv[argv.indexOf('--profile') + 1]
 const CHAPTER = argv.includes('--chapter') ? argv[argv.indexOf('--chapter') + 1] : 'ch.6'
 
 const norm = (s: string | null | undefined) => String(s ?? '').replace(/\s+/g, ' ').trim()
-/** "dual occupancies" and "dual occupancy" are one land use; the LEP rules use the plural, readers the singular. */
-export const landUseKey = (u: string) => norm(u).toLowerCase().replace(/\(([^)]*)\)/g, '($1)')
-  .replace(/ies\b/g, 'y').replace(/(?<![s])s\b/g, '')
+// "dual occupancies" and "dual occupancy" are one land use: the shared key, also used by /api/rules/at
+import { landUseKey } from '../../shared/land-use-key'
 
 async function main() {
   const profile: InstrumentProfile = (await import(`../../profiles/${PROFILE}.ts`)).default

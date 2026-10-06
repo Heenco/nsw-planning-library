@@ -169,12 +169,32 @@ Housing Exclusion Map (s 164(1)(m) → `lmr.layers:sepp_lmr_exclusion_areas`, 4)
 resolver (`resolve-map-refs.mjs`, fixed this week: 1,646 / 2,235 LEP refs) stays the tool for labelled map
 areas when later chapters (e.g. Ch 3 Pt 5 seniors, Ch 2 Div 1 bonus maps) introduce them.
 
-### 9. Lot evaluator across instruments — `todo`
+### 9. Lot evaluator across instruments — `done` 2026-10-07 (local commit; push awaits Q2)
 `/api/rules/at?cadid=&use=` — frames that reach the lot, permissions vs prohibitions with `prevails_over`
 deciding, standards and bonuses, controlling instrument named.
 **Done when:** Bambara returns "dual occupancy: permissible with consent — Housing SEPP s 166, prevails
 over Parramatta LEP 2023 cl 6.11(1) by s 8"; LEP standards (4.1C) apply because the lot is outside the
 LMR area.
+
+**Result:** `server/api/rules/at.get.ts` (`/api/rules/at?cadid=&use=`), generic - it reads frames, edges and
+`scope_layer` as data and names no instrument. Steps: lot (zone by largest share, council, area, frontage) →
+SEPP frames tested condition by condition through `scope_layer` (lot shrunk 10 cm, each table's own
+geometry column + SRID, registry filter AND term filter) → SEPP permissions/standards whose frame chain
+reaches the lot in its zone and defined area → LEP Land Use Table + LEP rules withholding consent (tested
+through the plan's resolved map refs; rows within a dimension OR'd, proposal dimensions reported as
+assumptions) → conflict decided by a `prevails_over` edge on the permission's frame chain.
+**Bambara (100096265), use "dual occupancies" - PASS:** `dual occupancies: permissible with consent — State
+Environmental Planning Policy (Housing) 2021 s 166, prevails over Parramatta Local Environmental Plan 2023 cl
+6.11(1) by s 8(1)`, with the "confirm with the council" caveat. Frames: 8(1) reaches, 164(1) reaches,
+163 (LMR area) does not → no Ch 6 standard applies; **LEP cl 4.1C(2) applies: lot_size gte 600 sqm,
+frontage_width gte 15 m** (assumes a residential proposal). ~2 s.
+Fixes found by running it: `lmr.bushfire_prone_land` stores its geometry in `geometry`, not `geom` (the
+evaluator now reads `geometry_columns`); the registry's own filter was not being applied; LEP rule rows
+within one dimension are alternatives (zones R2/R3/R4) and were being AND'd. **Migration 20**
+(`scope_layer.upper_bound`): a source that is a superset of its term - s 164(1)(f)'s flood prone land is not
+held, but both catchment outlines are, so a lot outside both is clear and a lot inside either is undecided
+(the 164(1)(f) term now tests against the 2 outlines; `scope_layer_gap` lists no Ch 6 gaps).
+`shared/land-use-key.ts` now holds `landUseKey` for both the edges step and the evaluator.
 
 ### 10. Answer keys — `todo`
 `tests/answer-keys/housing-sepp-2021.json` with the §6 lots; harness compares `/api/rules/at` with the
@@ -199,6 +219,11 @@ re-extracts only that section.
 - 17. T&I, R&H (frames and terms)
 
 ## Open questions
+
+**Q2 (step 9, non-blocking) — push `/api/rules/at` to production?** It is a new, additive route behind the
+site password; it reads the `held` SEPP rules (labelled as such in every line) and changes no existing page.
+Per D6 it is committed locally and NOT pushed; later commits stay local too until you answer, since a push
+would carry it. Reply "push rules/at" to publish, or leave it local until step 10's answer keys pass.
 
 **Q1 (step 3) — RESOLVED 2026-10-07: Manni replied "frames OK"; all four readings stand.** Review the Chapter 6 frames in `profiles/housing-sepp-2021.ts`. Reply "frames OK", or
 say what to change. The readings that decide answers:
@@ -225,3 +250,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 6 done: 8 edges; s 166 vs Parramatta 6.11(1) resolved by s 8(1) prevails_over.
 - 2026-10-07 — step 7 done: migration 19, 19 Ch 6 terms registered and measured, 1 recorded gap (164(1)(f)).
 - 2026-10-07 — step 8 done: Ch 6's 3 maps all resolve through the term registry; no spatial refs needed.
+- 2026-10-07 — step 9 done (local): /api/rules/at; Bambara = permissible by Housing SEPP s 166 over Parramatta 6.11(1) via s 8(1). Migration 20. Q2 asks to push.

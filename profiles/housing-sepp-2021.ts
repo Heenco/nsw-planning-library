@@ -61,6 +61,8 @@ export interface TermMapping {
   column_tested?: string | null
   kind: 'condition' | 'exclusion' | 'context'
   note: string
+  /** The source is a superset of the term: no hit = does not hold, a hit = undecided (migration 20). */
+  upper_bound?: boolean
 }
 
 export interface InstrumentProfile {
@@ -182,8 +184,10 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       test: 'intersects', kind: 'exclusion', note: 's 164(1)(b). Coastal Wetlands polygons only: littoral rainforests are not in the layer (partial), proximity areas are not part of the term.' },
     { dimension: 'land_characteristic', term: 'heritage item', source_kind: 'registry', source: 'lmr.layers:epi_heritage_items',
       test: 'intersects', kind: 'exclusion', note: 's 164(1)(d). LEP heritage items (epi_heritage, not conservation areas).' },
-    { dimension: 'land_characteristic', term: 'flood prone land in the Georges River or Hawkesbury-Nepean Catchment', source_kind: 'none', source: null,
-      test: 'intersects', kind: 'exclusion', note: 's 164(1)(f). GAP: the two catchment outlines are held (lmr.layers biodiversity_and_conservation_*), the flood prone land within them is not.' },
+    { dimension: 'land_characteristic', term: 'flood prone land in the Georges River or Hawkesbury-Nepean Catchment', source_kind: 'table',
+      source: 'epi.epi_land_application', test: 'intersects', kind: 'exclusion', upper_bound: true,
+      filter: "epi_name = 'State Environmental Planning Policy (Biodiversity and Conservation) 2021' AND lay_name IN ('Georges River Catchment', 'Hawkesbury Nepean Catchment')",
+      note: 's 164(1)(f). The flood prone land is NOT held; the two catchment outlines are, and are an upper bound: a lot outside both is clear of this exclusion, a lot inside either is undecided.' },
     { dimension: 'land_characteristic', term: 'flood planning area (s 164(1)(g) councils)', source_kind: 'registry', source: 'lmr.layers:flood_planning',
       test: 'intersects', kind: 'exclusion', note: 's 164(1)(g). Only reaches the 23 listed councils; flood planning areas are held for Clarence Valley only, so elsewhere in the 23 the answer is undecided (as /lmr).' },
     { dimension: 'land_characteristic', term: 'ANEF 25 or ANEC 20 contour', source_kind: 'registry', source: 'lmr.layers:airport_noise',
