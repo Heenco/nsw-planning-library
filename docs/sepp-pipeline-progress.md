@@ -157,8 +157,17 @@ Not registered (read natively by the evaluator): zone, land_use, pathway, dev_ty
 Finding: `lmr.layers.table_name` is sometimes schema-qualified ("lmr.airport_noise") - the first
 measurement read 0 because of it; caught by the 0-features check.
 
-### 8. Spatial refs for SEPP rules — `todo`
+### 8. Spatial refs for SEPP rules — `done` 2026-10-07
 **Done when:** every Ch 6 map reference resolved or listed as a gap.
+
+**Result:** Ch 6 names exactly **3 maps**, all resolved through the step 7 registry, none needing
+`rule_spatial_ref`: Town Centres Map (s 163, inside the "low and mid rise housing area" definition →
+`defined_area` via the town-centre walking catchments); Accelerated TOD Precincts Rezoning Areas Map
+(s 164(1)(l) → `map_area` → `lmr.layers:sepp_tod_accelerated_precincts`, 8 features); Low and Mid Rise
+Housing Exclusion Map (s 164(1)(m) → `lmr.layers:sepp_lmr_exclusion_areas`, 4). Ch 6 rules carry no
+`area_label` / `site_ref` values, so `rule_spatial_ref` correctly has 0 Housing SEPP rows. The LEP-side
+resolver (`resolve-map-refs.mjs`, fixed this week: 1,646 / 2,235 LEP refs) stays the tool for labelled map
+areas when later chapters (e.g. Ch 3 Pt 5 seniors, Ch 2 Div 1 bonus maps) introduce them.
 
 ### 9. Lot evaluator across instruments — `todo`
 `/api/rules/at?cadid=&use=` — frames that reach the lot, permissions vs prohibitions with `prevails_over`
@@ -215,3 +224,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 5 done: 23 Ch 6 rules, 44 effects, recall 37/37, s 168 5/5.
 - 2026-10-07 — step 6 done: 8 edges; s 166 vs Parramatta 6.11(1) resolved by s 8(1) prevails_over.
 - 2026-10-07 — step 7 done: migration 19, 19 Ch 6 terms registered and measured, 1 recorded gap (164(1)(f)).
+- 2026-10-07 — step 8 done: Ch 6's 3 maps all resolve through the term registry; no spatial refs needed.
