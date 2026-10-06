@@ -40,12 +40,6 @@ const DRY = argv.includes('--dry')
 const PROFILE = argv.includes('--profile') ? argv[argv.indexOf('--profile') + 1] : 'housing-sepp-2021'
 const CHAPTER = argv.includes('--chapter') ? argv[argv.indexOf('--chapter') + 1] : 'ch.6'
 
-/** Clauses that are not rules: the frame's own source, and a clause that only lists others. */
-const SKIP: Record<string, string> = {
-  'sec.164': 'the chapter frame (scripts/pipeline/frames.ts) - s 164 is where the chapter applies',
-  'sec.165': 'lists which sections are non-discretionary; read as the nondiscretionary signal on each',
-}
-
 const norm = (s: string | null | undefined) => String(s ?? '').replace(/\s+/g, ' ').trim()
 const ZONE_CODE = '(R[1-5]|E[1-5]|MU1|B[1-8]|SP[1-5]|RU[1-6]|C[1-4])'
 /** "Zone R3 Medium Density Residential or R4 High Density Residential": the second code has no "Zone". */
@@ -61,12 +55,16 @@ function usesIn(t: string): string[] {
   for (const seg of t.split(/,| or | and /)) for (const u of (matchLandUses(seg) ?? []) as string[]) if (u !== 'dwelling') out.add(u)
   return [...out]
 }
-/** What a section's own words narrow its standards to: a use ("for the purposes of X", "for X—") or an area. */
-function qualifierOf(t: string): { uses: string[]; area: string | null } {
+/** The first of the profile's defined-area terms (longest first) named in the text. */
+const areaIn = (t: string, areas: string[]) => areas.find(a => t.toLowerCase().includes(a)) ?? null
+/**
+ * What a section's own words narrow its standards to: a use ("for the purposes of X", "for X—") or a defined
+ * area other than the ones the whole clause already applies in.
+ */
+function qualifierOf(t: string, areas: string[], clauseAreas: string[]): { uses: string[]; area: string | null } {
   const m = t.match(/for the purposes of (.+?)(?:—|\bwith a\b|\bif\b|\bunless\b|$)/i) ?? t.match(/^for (?:a building containing )?(.+?)—/i)
-  const area = /low and mid rise housing inner area/i.test(t) ? 'low and mid rise housing inner area'
-    : /low and mid rise housing outer area/i.test(t) ? 'low and mid rise housing outer area' : null
-  return { uses: m ? usesIn(m[1]!) : [], area }
+  const area = areaIn(t, areas)
+  return { uses: m ? usesIn(m[1]!) : [], area: area && !clauseAreas.includes(area) ? area : null }
 }
 const UNIT: Record<string, string> = { sqm: 'sqm', metre: 'm', ratio: 'ratio', storeys: 'storeys', dwellings: 'dwellings' }
 
@@ -120,6 +118,10 @@ async function main() {
     return hits.sort((a, b) => depth(b.id) - depth(a.id))[0]?.id ?? null
   }
 
+  const SKIP = profile.skip ?? {}
+  // the instrument's defined areas come from its term registry, longest first ("... inner area" before "... area")
+  const AREAS = profile.terms.filter(t => t.dimension === 'defined_area').map(t => t.term.toLowerCase())
+    .sort((a, b) => b.length - a.length)
   const clauses = secs.filter(s => s.level === 'clause' && chain(s).some(x => x.local_id === CHAPTER))
   const rules: RuleOut[] = []
   const findings: { kind: string; gating: boolean; clause: string; value: string | null; detail: string }[] = []
@@ -160,9 +162,7 @@ async function main() {
       if (!t) continue
       for (const z of zonesIn(t)) addApplic(base, { dimension: 'zone', value: z.code, polarity: 'applies', span: z.span })
       for (const u of usesIn(t)) addApplic(base, { dimension: 'land_use', value: u, polarity: 'applies', span: t.slice(0, 200) })
-      const area = /low and mid rise housing inner area/i.test(t) ? 'low and mid rise housing inner area'
-        : /low and mid rise housing outer area/i.test(t) ? 'low and mid rise housing outer area'
-        : /low and mid rise housing area/i.test(t) ? 'low and mid rise housing area' : null
+      const area = areaIn(t, AREAS)
       if (area) addApplic(base, { dimension: 'defined_area', value: area, polarity: 'applies', span: area })
       if (/involving subdivision/i.test(t)) addApplic(base, { dimension: 'dev_type', value: 'subdivision', polarity: 'applies', span: 'involving subdivision' })
       const date = t.match(/on or after (\d{1,2} \w+ \d{4})/i)
@@ -192,7 +192,7 @@ async function main() {
         const up = full.slice(0, full.indexOf(c))
         let uses: string[] = [], area: string | null = null, keyAt: any = null
         for (const x of up) {
-          const q = qualifierOf(norm(x.raw_text))
+          const q = qualifierOf(norm(x.raw_text), AREAS, base.applic.filter(a => a.dimension === 'defined_area').map(a => a.value))
           if (!uses.length && q.uses.length) { uses = q.uses; keyAt = keyAt ?? x }
           if (!area && q.area) { area = q.area; keyAt = keyAt ?? x }
         }
@@ -353,11 +353,15 @@ async function main() {
   for (const u of unclaimed) console.log(`    UNCLAIMED ${u.section}: ${u.raw}`)
   console.log(`  findings: ${findings.length} (${findings.filter(f => f.gating).length} gating)`)
   for (const f of findings.filter(f => !f.gating)) console.log(`    ${f.kind} ${f.clause}: ${f.detail.slice(0, 140)}`)
-  const s168 = rules.find(r => r.local_id === 'sec.168')
-  const want = [['lot_size', 450], ['width', 12], ['parking', 1], ['fsr', 0.65], ['height', 9.5]] as const
-  const got = want.filter(([t, v]) => s168?.effects.some(e => e.topic === t && e.value === v && e.span))
-  console.log(`  s 168: ${got.length}/${want.length} expected standards extracted with spans`)
-  console.log(`  ${unclaimed.length === 0 && badSpans.length === 0 && got.length === want.length ? 'PASS' : 'FAIL'}: recall gate + span gate + s 168`)
+  // the profile's spot checks: standards a section must yield
+  let checksPass = true
+  for (const ck of profile.checks?.extract ?? []) {
+    const r = rules.find(x => x.local_id === ck.section)
+    const got = ck.effects.filter(([t, v]) => r?.effects.some(e => e.topic === t && e.value === v && e.span))
+    console.log(`  ${ck.section}: ${got.length}/${ck.effects.length} expected standards extracted with spans`)
+    if (got.length !== ck.effects.length) checksPass = false
+  }
+  console.log(`  ${unclaimed.length === 0 && badSpans.length === 0 && checksPass ? 'PASS' : 'FAIL'}: recall gate + span gate + profile checks`)
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })

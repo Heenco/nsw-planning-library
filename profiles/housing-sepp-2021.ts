@@ -63,6 +63,8 @@ export interface TermMapping {
   note: string
   /** The source is a superset of the term: no hit = does not hold, a hit = undecided (migration 20). */
   upper_bound?: boolean
+  /** A term of the same dimension carved out of this one: holds = source holds AND NOT that term (migration 21). */
+  except_term?: string
 }
 
 export interface InstrumentProfile {
@@ -75,6 +77,18 @@ export interface InstrumentProfile {
   /** Wording the router (step 4) maps to a role. */
   signals: Record<string, string[]>
   terms: TermMapping[]
+  /** Clauses step 5 does not read as rules, with the reason (a frame's own source, a clause that only lists others). */
+  skip?: Record<string, string>
+  /** Each step's "done when" spot checks for this instrument - expectations, never inputs to the rules. */
+  checks?: {
+    /** Step 4: clauses (local ids) each signal must reach, among clauses numbered within `sections`. */
+    route?: { label: string; sections: [number, number]; expect: Record<string, string[]> }
+    /** Step 5: standards a section must yield, as [topic, value]. */
+    extract?: { section: string; effects: [string, number][] }[]
+    /** Step 6: rule keys (suffix) that must carry a prevails_over doc_type:lep edge, and SEPP-vs-LEP conflicts
+     *  that must be resolvable (SEPP permission clause vs an LEP, by instrument_slug prefix). */
+    edges?: { prevailsOverLep: string[]; conflicts: { clause: string; lep: string; label: string }[] }
+  }
 }
 
 const LGA = (term: string, lotLga: string): TermMapping => ({
@@ -216,7 +230,8 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       note: 's 163. The 400 m walking band.' },
     { dimension: 'defined_area', term: 'low and mid rise housing outer area', source_kind: 'derived',
       source: 'lmr.station_walking_catchments + lmr.town_centre_walking_catchments', filter: 'distance_m = 800', test: 'derived', kind: 'condition',
-      note: 's 163. The 800 m band, unless the site is also in the inner area.' },
+      except_term: 'low and mid rise housing inner area',
+      note: 's 163. The 800 m band, unless the site is also in the inner area (the 800 m polygons contain the 400 m ones).' },
   ],
   signals: {
     permission: ['is permitted with development consent'],
@@ -225,6 +240,27 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     consideration: ['the consent authority must consider', 'unless the consent authority has considered'],
     prohibition: ['development consent must not be granted'],
     disapplication: ['does not apply to development that meets'],
+  },
+  skip: {
+    'sec.164': 'the chapter frame (scripts/pipeline/frames.ts) - s 164 is where the chapter applies',
+    'sec.165': 'lists which sections are non-discretionary; read as the nondiscretionary signal on each',
+  },
+  checks: {
+    route: {
+      label: 'Chapter 6', sections: [162, 180],
+      expect: {
+        permission: ['sec.166', 'sec.170', 'sec.174'],
+        override: ['sec.169', 'sec.173'],
+        nondiscretionary_heading: ['sec.168', 'sec.169', 'sec.172', 'sec.173', 'sec.179', 'sec.180'],
+      },
+    },
+    extract: [
+      { section: 'sec.168', effects: [['lot_size', 450], ['width', 12], ['parking', 1], ['fsr', 0.65], ['height', 9.5]] },
+    ],
+    edges: {
+      prevailsOverLep: [':frame:instrument', ':sec.169'],
+      conflicts: [{ clause: '166', lep: 'parramatta', label: 's 166 vs Parramatta 6.11(1) (Bambara)' }],
+    },
   },
 }
 

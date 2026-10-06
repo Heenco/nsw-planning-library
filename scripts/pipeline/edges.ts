@@ -117,24 +117,33 @@ async function main() {
   console.log(`${DRY ? '[dry] ' : ''}${planned.length} edges ${DRY ? 'planned' : 'written'} from ${new Set(planned.map(p => p.rule.rule_key)).size} rules\n`)
   for (const e of edges) console.log(`  ${e.rule_key.padEnd(44)} ${e.edge_type.padEnd(14)} ${e.to_ref.padEnd(14)} ${JSON.stringify(e.scope)}`)
 
-  const s166 = perm.filter(p => p.clause === '166')
-  let bambara = false
-  for (const p of s166) {
-    const chain = await frameChain(p.frame_rule_id)
-    const top = chain.find(f => edges.some(e => e.rule_key === f.rule_key && e.edge_type === 'prevails_over' && e.to_ref === 'doc_type:lep'))
-    const blocks = lepBlocks.filter(b => b.instrument_slug.startsWith('parramatta') && landUseKey(b.land_use) === landUseKey(p.topic))
-    for (const b of blocks) {
-      bambara = !!top
-      console.log(`\n  CONFLICT  Housing SEPP s ${p.clause} permits "${p.topic}" (frames: ${chain.map(f => f.clause).join(' <- ')})`
-        + `\n            vs ${b.instrument_slug} cl ${b.clause} withholds consent for "${b.land_use}" where ${b.where_}`
-        + `\n            resolved by: ${top ? `s ${top.clause} prevails_over doc_type:lep (frame ${top.rule_key})` : 'NOTHING - no prevails edge on the chain'}`)
+  // the profile's spot checks: conflicts with an LEP that must be resolvable, and edges that must exist
+  const ck = profile.checks?.edges ?? { prevailsOverLep: [], conflicts: [] }
+  const results: string[] = []
+  let pass = true
+  for (const cf of ck.conflicts) {
+    let resolved = false
+    for (const p of perm.filter(p => p.clause === cf.clause)) {
+      const chain = await frameChain(p.frame_rule_id)
+      const top = chain.find(f => edges.some(e => e.rule_key === f.rule_key && e.edge_type === 'prevails_over' && e.to_ref === 'doc_type:lep'))
+      const blocks = lepBlocks.filter(b => b.instrument_slug.startsWith(cf.lep) && landUseKey(b.land_use) === landUseKey(p.topic))
+      for (const b of blocks) {
+        resolved = !!top
+        console.log(`\n  CONFLICT  ${profile.label} s ${p.clause} permits "${p.topic}" (frames: ${chain.map(f => f.clause).join(' <- ')})`
+          + `\n            vs ${b.instrument_slug} cl ${b.clause} withholds consent for "${b.land_use}" where ${b.where_}`
+          + `\n            resolved by: ${top ? `s ${top.clause} prevails_over doc_type:lep (frame ${top.rule_key})` : 'NOTHING - no prevails edge on the chain'}`)
+      }
     }
+    if (!resolved) pass = false
+    results.push(`${cf.label} representable ${resolved ? 'yes' : 'NO'}`)
   }
   const overrides = edges.filter(e => e.edge_type === 'prevails_over' && e.to_ref === 'doc_type:lep').map(e => e.rule_key)
-  const s8 = overrides.some(k => k.endsWith(':frame:instrument'))
-  const s169 = overrides.some(k => k.endsWith(':sec.169'))
-  console.log(`\n  ${s8 && s169 && bambara ? 'PASS' : 'FAIL'}: s 8 prevails edge ${s8 ? 'yes' : 'NO'}; s 169(1A) prevails edge ${s169 ? 'yes' : 'NO'}; `
-    + `s 166 vs Parramatta 6.11(1) representable ${bambara ? 'yes' : 'NO'}`)
+  for (const suffix of ck.prevailsOverLep) {
+    const ok = overrides.some(k => k.endsWith(suffix))
+    if (!ok) pass = false
+    results.push(`prevails edge on ${suffix} ${ok ? 'yes' : 'NO'}`)
+  }
+  console.log(`\n  ${pass ? 'PASS' : 'FAIL'}: ${results.join('; ') || 'no profile checks'}`)
   await client.end()
 }
 

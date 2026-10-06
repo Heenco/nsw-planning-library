@@ -60,14 +60,14 @@ async function main() {
   if (!DRY) {
     for (const t of measured) {
       await client.query(
-        `INSERT INTO nsw.scope_layer (dimension, term, title, source_kind, source, filter, test, column_tested, kind, note, features, upper_bound, checked_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now())
+        `INSERT INTO nsw.scope_layer (dimension, term, title, source_kind, source, filter, test, column_tested, kind, note, features, upper_bound, except_term, checked_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, now())
          ON CONFLICT (dimension, term) DO UPDATE SET
            title = EXCLUDED.title, source_kind = EXCLUDED.source_kind, source = EXCLUDED.source, filter = EXCLUDED.filter,
            test = EXCLUDED.test, column_tested = EXCLUDED.column_tested, kind = EXCLUDED.kind, note = EXCLUDED.note,
-           features = EXCLUDED.features, upper_bound = EXCLUDED.upper_bound, checked_at = now()`,
+           features = EXCLUDED.features, upper_bound = EXCLUDED.upper_bound, except_term = EXCLUDED.except_term, checked_at = now()`,
         [t.dimension, t.term, t.term, t.source_kind, t.source, t.filter ?? null, t.test, t.column_tested ?? null,
-         t.kind, `${profile.label}: ${t.note}`, t.features, t.upper_bound ?? false])
+         t.kind, `${profile.label}: ${t.note}`, t.features, t.upper_bound ?? false, t.except_term ?? null])
     }
   }
 

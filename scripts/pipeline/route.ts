@@ -95,23 +95,22 @@ async function main() {
     for (const s of r.signals) byClause.get(key)!.add(s)
   }
   const have = (sig: string) => [...byClause].filter(([, s]) => s.has(sig)).map(([k]) => k)
-  const ch6 = (ids: string[]) => ids.filter(k => { const n = Number(k.match(/^sec\.(\d+)/)?.[1]); return n >= 162 && n <= 180 })
-  const expect: Record<string, string[]> = {
-    permission: ['sec.166', 'sec.170', 'sec.174'],
-    override: ['sec.169', 'sec.173'],
-    nondiscretionary_heading: ['sec.168', 'sec.169', 'sec.172', 'sec.173', 'sec.179', 'sec.180'],
-  }
+  // the profile's spot check: which clauses each signal must reach, within a numbered range of sections
+  const ck = profile.checks?.route
+  const [lo, hi] = ck?.sections ?? [-Infinity, Infinity]
+  const inRange = (ids: string[]) => ids.filter(k => { const n = Number(k.match(/^sec\.(\d+)/)?.[1]); return n >= lo && n <= hi })
+  const expect: Record<string, string[]> = ck?.expect ?? {}
   let pass = unrouted === 0
-  console.log('\n  Chapter 6 signals (rolled up to clause):')
+  console.log(`\n  ${ck?.label ?? 'All'} signals (rolled up to clause):`)
   for (const sig of Object.keys(profile.signals)) {
-    const found = ch6(have(sig))
+    const found = inRange(have(sig))
     const want = expect[sig]
     const missing = want ? want.filter(w => !found.includes(w)) : []
     if (missing.length) pass = false
     console.log(`    ${sig.padEnd(26)} ${found.join(' ') || '-'}${want ? (missing.length ? `   MISSING ${missing.join(' ')}` : '   ok') : ''}`)
   }
   console.log(`\n  whole instrument, clauses with each signal: ${Object.keys(profile.signals).map(s => `${s} ${have(s).length}`).join(', ')}`)
-  console.log(`  ${pass ? 'PASS' : 'FAIL'}: ${unrouted} sections without a route; Ch 6 expected signals ${pass ? 'all found' : 'not all found'}`)
+  console.log(`  ${pass ? 'PASS' : 'FAIL'}: ${unrouted} sections without a route; ${ck?.label ?? 'profile'} expected signals ${pass ? 'all found' : 'not all found'}`)
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })

@@ -196,10 +196,32 @@ held, but both catchment outlines are, so a lot outside both is clear and a lot 
 (the 164(1)(f) term now tests against the 2 outlines; `scope_layer_gap` lists no Ch 6 gaps).
 `shared/land-use-key.ts` now holds `landUseKey` for both the edges step and the evaluator.
 
-### 10. Answer keys — `todo`
+### 10. Answer keys — `done` 2026-10-07 (local commit)
 `tests/answer-keys/housing-sepp-2021.json` with the §6 lots; harness compares `/api/rules/at` with the
 keys and with `/api/lmr/types`.
 **Done when:** 100% agreement or every disagreement explained (including the `lmr` dual-occupancy error).
+
+**Result: 10/10 cases pass; 2 disagreements with the lmr catalogue, both explained with a clause.**
+`tests/answer-keys/housing-sepp-2021.json` (10 cases, 9 lots) + `scripts/pipeline/answer-keys.ts`
+(`--base` for prod, `--record` writes unexplained failures as gating `audit_finding` rows, detail `step10`).
+Cases: Bambara (s 166 over Parramatta 6.11(1), LEP 4.1C 600 m²/15 m); R2 inner dual occ / multi dwelling /
+RFB (s 168, 172(2), 179 values); R2 outer dual occ; R3 inner RFB (s 180(2) 2.2:1 / 22 m, s 175 6 storeys,
+NOT s 180(3)); R3 outer RFB in Willoughby (s 180(3) 1.5:1 / 17.5 m, NOT s 180(2)); R3 outer in Campbelltown
+(164(1)(f) undecided); heritage 164(1)(d) and bush fire 164(1)(a) exclusions.
+Explained lmr disagreements: (1) Bambara - lmr requires the LMR area for dual occupancy, s 166 does not
+(the known lmr error); (2) Campbelltown 153020495 - lot is in the Georges River catchment, 164(1)(f) flood
+prone land is not held, so Ch 6 is undecided; lmr.lot_lmr records nothing undecided and says eligible.
+**Bugs the keys found, fixed:**
+- Outer-area standards applied to inner lots: the 800 m catchment polygons contain the 400 m ones.
+  **Migration 21** `scope_layer.except_term`; the outer-area term excepts the inner-area term, and the
+  evaluator tests it (`termHolds`).
+- An undecided SEPP permission that would prevail over the LEP was reported as the LEP's "prohibited". It is
+  now `permissible: null`, and the wording names the undecided frame condition.
+**De-hardcoding (Manni asked "are we hardcoding the rules?"):** the extractor had the Ch 6 defined-area names
+as regexes and a skip list of s 164/165; steps 4-6 had Housing SEPP expectations in their done-when checks.
+All moved into the profile (`terms` defined_area, `skip`, `checks.route/extract/edges`). Extraction output
+is byte-identical before/after; steps 4-6 still PASS. `scripts/pipeline/*` and `/api/rules/at` now name no
+instrument and no clause outside comments.
 
 ### 11. Coverage and visibility — `todo`
 **Done when:** `/graph` shows SEPP rule coverage; `/testing-spatial-services` has a "SEPPs for this lot"
@@ -220,10 +242,9 @@ re-extracts only that section.
 
 ## Open questions
 
-**Q2 (step 9, non-blocking) — push `/api/rules/at` to production?** It is a new, additive route behind the
-site password; it reads the `held` SEPP rules (labelled as such in every line) and changes no existing page.
-Per D6 it is committed locally and NOT pushed; later commits stay local too until you answer, since a push
-would carry it. Reply "push rules/at" to publish, or leave it local until step 10's answer keys pass.
+**Q2 (step 9) — RESOLVED 2026-10-07: Manni replied "go ahead"; `/api/rules/at` pushed to prod (ac2d0c2).**
+The step 10 fixes to the same route (except_term, undecided verdict) are committed locally; pushing them is
+covered by the same answer only if Manni says so (D6).
 
 **Q1 (step 3) — RESOLVED 2026-10-07: Manni replied "frames OK"; all four readings stand.** Review the Chapter 6 frames in `profiles/housing-sepp-2021.ts`. Reply "frames OK", or
 say what to change. The readings that decide answers:
@@ -251,3 +272,5 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 7 done: migration 19, 19 Ch 6 terms registered and measured, 1 recorded gap (164(1)(f)).
 - 2026-10-07 — step 8 done: Ch 6's 3 maps all resolve through the term registry; no spatial refs needed.
 - 2026-10-07 — step 9 done (local): /api/rules/at; Bambara = permissible by Housing SEPP s 166 over Parramatta 6.11(1) via s 8(1). Migration 20. Q2 asks to push.
+- 2026-10-07 — Q2 resolved: rules/at pushed (ac2d0c2).
+- 2026-10-07 — step 10 done (local): 10/10 answer keys, 2 lmr disagreements explained; migration 21; undecided-verdict fix; pipeline de-hardcoded into the profile.

@@ -1,0 +1,108 @@
+{
+  "instrument": "epi-2021-0714",
+  "note": "Answer keys for the Housing SEPP rule pipeline (docs/sepp-rule-pipeline.md §6, step 10). Each case is a lot and a land use with the answer the instrument gives, the clause it rests on, and what the hand-built lmr catalogue (/api/lmr/types) says. A disagreement with the lmr catalogue is allowed only when `lmrDisagrees` explains it with a clause. Written 2026-10-07.",
+  "cases": [
+    {
+      "name": "Bambara: R2 outside every LMR catchment, on Parramatta's Dual Occupancy Prohibition 'D' land",
+      "cadid": "100096265", "use": "dual occupancies",
+      "expect": {
+        "permissible": true, "controllingClause": "166", "displacedClause": "6.11(1)",
+        "frames": { "8(1)": true, "164(1)": true, "163": false },
+        "seppStandards": [],
+        "lepStandards": [["4.1C(2)", "lot_size", 600], ["4.1C(2)", "frontage_width", 15]]
+      },
+      "lmrType": "dual-occupancy",
+      "lmrDisagrees": "s 166 permits dual occupancies 'on land to which this chapter applies in Zone R2'; s 164 makes that the whole State less (a)-(m) - not only the LMR area. The lmr catalogue requires the LMR area for permissibility (known error, progress file baseline)."
+    },
+    {
+      "name": "R2 inner LMR area - dual occupancy (s 166 + s 168 standards)",
+      "cadid": "100097746", "use": "dual occupancies",
+      "expect": {
+        "permissible": true, "controllingClause": "166",
+        "frames": { "8(1)": true, "164(1)": true, "163": true },
+        "seppStandards": [["168", "lot_size", 450], ["168", "width", 12], ["168", "parking", 1], ["168", "fsr", 0.65], ["168", "height", 9.5]]
+      },
+      "lmrType": "dual-occupancy"
+    },
+    {
+      "name": "R2 inner LMR area - multi dwelling housing (s 170 + s 172(2))",
+      "cadid": "100097746", "use": "multi dwelling housing",
+      "expect": {
+        "permissible": true, "controllingClause": "170",
+        "seppStandards": [["172", "lot_size", 600], ["172", "width", 12], ["172", "parking", 1], ["172", "fsr", 0.7], ["172", "height", 9.5]]
+      },
+      "lmrType": "multi-dwelling-housing"
+    },
+    {
+      "name": "R2 inner LMR area - residential flat buildings (s 174 + s 179)",
+      "cadid": "100097746", "use": "residential flat buildings",
+      "expect": {
+        "permissible": true, "controllingClause": "174",
+        "seppStandards": [["179", "lot_size", 500], ["179", "width", 12], ["179", "parking", 0.5], ["179", "fsr", 0.8], ["179", "height", 9.5]]
+      },
+      "lmrType": "rfb-shop-top-r1-r2"
+    },
+    {
+      "name": "R2 outer LMR area - dual occupancy (s 168 applies in both bands)",
+      "cadid": "100096409", "use": "dual occupancies",
+      "expect": {
+        "permissible": true, "controllingClause": "166",
+        "seppStandards": [["168", "lot_size", 450], ["168", "width", 12], ["168", "fsr", 0.65], ["168", "height", 9.5]]
+      },
+      "lmrType": "dual-occupancy"
+    },
+    {
+      "name": "R3 inner LMR area - residential flat buildings (s 174 + s 180(2) inner + s 175(2))",
+      "cadid": "100100210", "use": "residential flat buildings",
+      "expect": {
+        "permissible": true,
+        "seppStandards": [["180", "fsr", 2.2], ["180", "height", 22], ["175", "storeys", 6]],
+        "seppStandardsAbsent": [["180", "fsr", 1.5], ["180", "height", 17.5]]
+      },
+      "lmrType": "rfb-shop-top-r3-r4"
+    },
+    {
+      "name": "R3 outer LMR area (Willoughby) - residential flat buildings (s 180(3) outer, not s 180(2))",
+      "cadid": "102148504", "use": "residential flat buildings",
+      "expect": {
+        "permissible": true, "controllingClause": "174",
+        "frames": { "164(1)": true, "163": true },
+        "seppStandards": [["180", "fsr", 1.5], ["180", "height", 17.5]],
+        "seppStandardsAbsent": [["180", "fsr", 2.2], ["180", "height", 22]]
+      },
+      "lmrType": "rfb-shop-top-r3-r4"
+    },
+    {
+      "name": "R3 outer LMR area in the Georges River catchment - s 164(1)(f) flood prone land undecided",
+      "cadid": "153020495", "use": "residential flat buildings",
+      "expect": {
+        "permissible": null,
+        "frames": { "164(1)": null, "163": null },
+        "seppStandards": [],
+        "seppStandardsAbsent": [["180", "fsr", 2.2], ["180", "height", 22]]
+      },
+      "lmrType": "rfb-shop-top-r3-r4",
+      "lmrDisagrees": "s 164(1)(f) excludes flood prone land in the Georges River and Hawkesbury-Nepean catchments. The lot is inside the Georges River catchment and flood prone land is not held, so whether Ch 6 reaches it is undecided; lmr.lot_lmr records no exclusion and no undecided item for this lot and says eligible."
+    },
+    {
+      "name": "R2 LMR outer area but a heritage item - excluded by s 164(1)(d)",
+      "cadid": "100097875", "use": "dual occupancies",
+      "expect": {
+        "frames": { "164(1)": false },
+        "seppPermissionApplies": false,
+        "seppStandards": []
+      },
+      "lmrType": "dual-occupancy"
+    },
+    {
+      "name": "R2 LMR inner area but bush fire prone - excluded by s 164(1)(a)",
+      "cadid": "100097765", "use": "residential flat buildings",
+      "expect": {
+        "frames": { "164(1)": false },
+        "seppPermissionApplies": false,
+        "seppStandards": []
+      },
+      "lmrType": "rfb-shop-top-r1-r2"
+    }
+  ]
+}

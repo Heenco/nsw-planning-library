@@ -95,8 +95,22 @@ export default defineEventHandler(async (event) => {
 
   const geo = new Map((await nswQuery<any>(`SELECT f_table_schema || '.' || f_table_name AS t, srid, f_geometry_column AS col FROM geometry_columns`))
     .rows.map(r => [r.t as string, { srid: Number(r.srid), col: String(r.col) }]))
-  const scope = new Map((await nswQuery<any>(`SELECT dimension, lower(term) AS term, source_kind, source, filter, test, note, upper_bound FROM nsw.scope_layer`))
+  const scope = new Map((await nswQuery<any>(`SELECT dimension, lower(term) AS term, source_kind, source, filter, test, note, upper_bound, except_term FROM nsw.scope_layer`))
     .rows.map(r => [`${r.dimension}|${r.term}`, r]))
+  const termCache = new Map<string, { holds: Tri; why: string }>()
+  // a term, tested once per request; an except_term (migration 21) is carved out of it
+  const termHolds = async (k: string): Promise<{ holds: Tri; why: string }> => {
+    if (termCache.has(k)) return termCache.get(k)!
+    const m = scope.get(k)
+    let t = await testTerm(cadid, m, lot.lga, geo)
+    if (m?.except_term && t.holds !== false) {
+      const x = await termHolds(`${m.dimension}|${String(m.except_term).toLowerCase()}`)
+      t = x.holds === true ? { holds: false, why: `${t.why}, but in ${m.except_term}` }
+        : x.holds === null ? { holds: null, why: `${t.why}; ${m.except_term} undecided` } : t
+    }
+    termCache.set(k, t)
+    return t
+  }
 
   // ── 2. SEPP frames ────────────────────────────────────────────────────────────────────────────
   const frameRows = (await nswQuery<any>(
@@ -107,7 +121,6 @@ export default defineEventHandler(async (event) => {
                         FROM nsw.rule_edge e WHERE e.from_rule_id = r.id), '[]') AS edges
        FROM nsw.rule r JOIN nsw.document d ON d.id = r.document_id
       WHERE d.doc_type = 'sepp' AND r.kind = 'frame' AND r.publish_state <> 'retired'`)).rows
-  const termCache = new Map<string, { holds: Tri; why: string }>()
   const frames = new Map<string, any>()
   for (const f of frameRows) {
     const conds: any[] = []
@@ -116,7 +129,7 @@ export default defineEventHandler(async (event) => {
         conds.push({ ...c, holds: null, why: 'a fact about the proposal, not the lot', proposal: true }); continue
       }
       const k = `${c.dimension}|${String(c.value).toLowerCase()}`
-      if (!termCache.has(k)) termCache.set(k, await testTerm(cadid, scope.get(k), lot.lga, geo))
+      await termHolds(k)
       conds.push({ ...c, ...termCache.get(k) })
     }
     frames.set(f.id, { ...f, conds })
@@ -134,6 +147,9 @@ export default defineEventHandler(async (event) => {
     return true
   }
   const chainOf = (id: string | null) => { const out: any[] = []; for (let x = id ? frames.get(id) : null; x; x = x.frame_rule_id ? frames.get(x.frame_rule_id) : null) out.push(x); return out }
+  // the lot conditions left undecided on a rule's frame chain, for the wording
+  const frameWhy = (p: any) => [...frames.values()].filter(f => p.frames.includes(f.clause))
+    .flatMap(f => f.conds.filter((c: any) => !c.proposal && c.holds === null).map((c: any) => `s ${f.clause}: ${c.value}`)).join('; ')
 
   // ── 3. permissions and 6. standards from SEPP rules ───────────────────────────────────────────
   const seppRules = (await nswQuery<any>(
@@ -161,7 +177,7 @@ export default defineEventHandler(async (event) => {
     let inArea: Tri = true
     for (const a of areas) {
       const k = `defined_area|${String(a.value).toLowerCase()}`
-      if (!termCache.has(k)) termCache.set(k, await testTerm(cadid, scope.get(k), lot.lga, geo))
+      await termHolds(k)
       const h = termCache.get(k)!.holds
       if (h === false) { inArea = false; break }
       if (h === null) inArea = null
@@ -256,6 +272,13 @@ export default defineEventHandler(async (event) => {
   const block = lepBlocks.find(b => b.applies === true) ?? null
   const lutPermits = lutStatus === 'permitted_with_consent' || lutStatus === 'permitted_without_consent'
   const prevail = grant?.edges.find((e: any) => e.edge === 'prevails_over' && e.to === 'doc_type:lep') ?? null
+  // an undecided SEPP permission that would prevail over the LEP leaves a local "no" undecided too
+  const openPrevailing = grant ? null : seppPermissions.find(p => p.applies === null
+    && p.edges.some((e: any) => e.edge === 'prevails_over' && e.to === 'doc_type:lep')) ?? null
+  const openWhy = openPrevailing
+    ? `; ${openPrevailing.instrument} s ${openPrevailing.clause} would permit it and prevail, but whether it reaches the lot cannot be decided`
+      + (frameWhy(openPrevailing) ? ` (${frameWhy(openPrevailing)})` : '')
+    : ''
 
   let permissible: Tri
   let wording: string
@@ -279,17 +302,17 @@ export default defineEventHandler(async (event) => {
     controlling = { instrument: grant.instrument, clause: grant.clause }
     wording = `${use}: permissible with consent — ${grant.instrument} s ${grant.clause} (the LEP also permits it in ${zone})`
   } else if (block) {
-    permissible = false
+    permissible = openPrevailing ? null : false
     controlling = { instrument: block.instrument, clause: block.clause }
     wording = `${use}: consent must not be granted — ${block.instrument} cl ${block.clause} (${block.why})`
-      + (grantOpen ? '; a SEPP permission might reach the lot but cannot be decided' : '')
+      + (openWhy || (grantOpen ? '; a SEPP permission might reach the lot but cannot be decided' : ''))
   } else if (lutPermits) {
     permissible = true
     controlling = { instrument: lepDoc?.title ?? lot.epi, clause: 'Land Use Table' }
     wording = `${use}: ${lutStatus!.replace(/_/g, ' ')} in ${zone} under ${lepDoc?.title ?? lot.epi}`
   } else {
-    permissible = lutStatus ? false : null
-    wording = lutStatus ? `${use}: ${lutStatus.replace(/_/g, ' ')} in ${zone}` : `${use}: no Land Use Table row for ${zone}`
+    permissible = lutStatus && !openPrevailing ? false : null
+    wording = (lutStatus ? `${use}: ${lutStatus.replace(/_/g, ' ')} in ${zone}` : `${use}: no Land Use Table row for ${zone}`) + openWhy
   }
   const caveat = displaced.length
     ? 'A SEPP displacing a local clause "to the extent of the inconsistency" is a legal reading - confirm with the council before relying on it.'
