@@ -53,10 +53,19 @@ Findings: `hornsby-dcp-2024`, `randwick-dcp-2025` are in the graph with no regis
 `scripts/seed-source-registry.ts` fails on this machine (kgPool wants an SSH key at an old path) — the
 new script replaces it for the pipeline.
 
-### 2. Load text with section hashes — `todo`
+### 2. Load text with section hashes — `done` 2026-10-07
 Add `section.content_sha256`; backfill for the 10 SEPPs; reload Housing SEPP from the registered XML if
 its hash differs.
 **Done when:** every SEPP section has a hash; Housing SEPP section count and as-at match the XML.
+
+**Result:** `scripts/pipeline/sections.ts` re-parses each registered XML with the stage 0 parser and
+compares section by section (sha256 of normalised heading + text). **All 10 SEPPs MATCH: 20,712 / 20,712
+sections identical** (Housing 2,650, Codes 7,154, T&I 5,567, B&C 1,510, PS 1,363, I&E 780, R&E 621, PP 477,
+R&H 335, SB 255) - no reload needed. Hashes written for all 20,712; registry `last_ingested_sha256` set, so
+all 10 SEPPs now read `current`; one `ingest_run` per SEPP (`stage_metrics.step = 2`). Graph `as_at_date`
+2026-04-06 for all; source XMLs dated 2026-03-22..26 (D1 - still the library copy).
+Finding: `ingest_run.status` only allows running/success/failed, so drift is recorded as `failed` with
+`stage_metrics.outcome`.
 
 ### 3. Housing SEPP profile, Ch 6 frames — `todo`
 `profiles/housing-sepp-2021.yaml`: rank, s 8 prevails, Ch 6 frame (s 164 reach + 13 exclusions), the
@@ -120,3 +129,4 @@ _(none yet)_
 
 - 2026-10-07 — design and progress files written. Baseline recorded.
 - 2026-10-07 — step 1 done: migration 17, registry of 55 sources, 10/10 SEPPs current-checked.
+- 2026-10-07 — step 2 done: 20,712 SEPP sections hashed, all 10 SEPPs match their XML and read current.
