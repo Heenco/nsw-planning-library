@@ -37,7 +37,7 @@ async function testTerm(cadid: string, m: any, lga: string | null, geo: Map<stri
   if (m.source_kind === 'none') return { holds: null, why: `gap: ${m.note ?? 'no dataset'}` }
   if (m.test === 'attribute' && m.source === 'derived.lot_lga') {
     if (!lga) return { holds: null, why: 'council not recorded' }
-    const r = await nswQuery<any>(`SELECT EXISTS (SELECT 1 FROM derived.lot_lga WHERE cadid = $1 AND ${m.filter}) AS h`, [cadid])
+    const r = await nswQuery<any>(`SELECT EXISTS (SELECT 1 FROM derived.lot_lga WHERE cadid = $1 AND (${m.filter})) AS h`, [cadid])
     // an upper bound by council ("both localities lie in Northern Beaches"): outside it = no, inside = undecided
     if (m.upper_bound) return r.rows[0].h ? { holds: null, why: `${lga}: inside the council that holds every instance of the term` }
                                           : { holds: false, why: `${lga}: outside the council that holds every instance of the term` }

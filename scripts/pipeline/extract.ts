@@ -219,6 +219,8 @@ function allNumbers(t: string): any[] {
     if (/\bclass(?:es)?\s+(?:\d+[a-z]?(?:\s*[–-]\s*|\s+(?:or|and)\s+(?:class\s+)?|,\s*))*$/i.test(before)) continue
     if (/\bISBN[\d\s-]*$/.test(before)) continue
     if (/^\d+\)/.test(t.slice(i))) continue
+    // a period named by reference back to where it is set ("The 14-day period referred to in subsection (1)(c) ...")
+    if (/^\d+-day period referred to in\b/i.test(t.slice(i))) continue
     // a date ("on or after 28 February 2025")
     if (/^\d+\s+(January|February|March|April|May|June|July|August|September|October|November|December)\b/.test(t.slice(i))) continue
     out.push({ raw: m[1], value: Number(m[1]), index: i, unit: null, comparator_hint: null, category: 'bare' })
@@ -313,8 +315,17 @@ async function main() {
       // with consent on land on which ...", s 23(1))
       .filter(t => /^this (part|division|chapter) applies to development\b/i.test(t)
         || (f.section === root.local_id && /^development for the purposes of .+? (may be carried out|is permitted)\b/i.test(t)))
-    const uses = [...new Set(texts.flatMap(t => usesIn(t.replace(/\bon land\b.*$/i, ''), groupsFor(root))))]
-    if (uses.length) { frameUses.set(f.id, { uses, span: texts[0]! }); continue }
+    // ... or a listed scope ("This chapter applies to the following— (a) development for the purposes of residential flat
+    // buildings, ... (c) mixed use development with a residential accommodation component that does not include boarding
+    // houses ...", s 144(2)): each item's own use - its head, not what qualifies it
+    const lists = [root, ...secs.filter(s => chain(s).includes(root))]
+      .filter(s => /^this (part|division|chapter) applies to the following—\s*$/i.test(norm(s.raw_text)))
+    const listed = lists.flatMap(l => secs.filter(s => s.parent_id === l.id))
+      .map(s => norm(s.raw_text).replace(/^development for the purposes of /i, '').split(/\s(?:with|that|which|other than|unless|including)\b|,/i)[0]!)
+    const uses = [...new Set([...texts.flatMap(t => usesIn(t.replace(/\bon land\b.*$/i, ''), groupsFor(root))),
+                              ...listed.flatMap(t => usesIn(t, groupsFor(root)))])]
+    const listSpan = lists.length ? norm(lists[0]!.raw_text) : null
+    if (uses.length) { frameUses.set(f.id, { uses, span: texts[0] ?? listSpan! }); continue }
     // ... else from the single permission sentence among the clauses it governs ("Development for the purposes of
     // seniors housing may be carried out with development consent—", s 81); two or more different grants = no guess
     const roots = f.governs.map(g => secs.find(s => s.local_id === g)).filter(Boolean)
@@ -645,18 +656,30 @@ async function main() {
       } else if (kind === 'permission' && scopeRoots.includes(p) && !cands.length) continue
       if (kind === 'matters' || ((p.signals ?? []).includes('consideration') && !cands.length)) {
         const g = t.match(/consider(?:ed)? the (.+?)(?:,| published|$)/i)
-        target.effects.push({ effect_type: 'matter_for_consideration', topic: g ? g[1]!.trim() : 'see clause', comparator: null,
-          value: null, unit: null, value_source: 'clause_text', relative_to: null, measured_from: null, span: t, claims: [] })
+        // a list's heading ("... unless the consent authority has considered the following—") is not itself a matter: its
+        // items are, each in its own words ("(b) the Apartment Design Guide,", s 147(1))
+        if (/—\s*$/.test(tOp) && secs.some(s => s.parent_id === p.id)) continue
+        const listItem = /—\s*$/.test(operativePart(norm(byId.get(p.parent_id)?.raw_text)))
+        const item = listItem ? tOp.replace(/[,.;]\s*(?:and|or)?\s*$/i, '').trim() : ''
+        // a time the matter is bounded by: "any advice received from a design review panel within 14 days after ..."
+        const days = tOp.match(/\bwithin (\d+) days\b/i)
+        target.effects.push({ effect_type: 'matter_for_consideration', topic: g && !/^following—/i.test(g[1]!) ? g[1]!.trim() : item || 'see clause',
+          comparator: days ? 'lte' : null, value: days ? Number(days[1]) : null, unit: days ? 'days' : null, value_source: 'clause_text',
+          relative_to: null, measured_from: null, span: t, claims: days ? [{ section: p.local_id, value: Number(days[1]) }] : [] })
         continue
       }
       if (kind === 'disapplication') {
         if (!(p.signals ?? []).includes('disapplication')) continue
         const ref = t.match(/meets the standards in section ([\d()A-Za-z ,or]+?)—/i)
+        // "A requirement ... specified in a development control plan ... has no effect if the Apartment Design Guide also
+        // specifies a requirement ... in relation to the same matter" (s 149)
+        const dcp = /specified in a development control plan\b.*\bhas no effect if the Apartment Design Guide\b/i.test(t)
         const items = parts.filter(x => chain(x).includes(p) && x !== p).map(x => norm(x.raw_text).replace(/[,.]$/, ''))
         for (const it of items.length ? items : ['see clause']) {
           target.effects.push({ effect_type: 'disapplies', topic: /lot size/i.test(it) ? 'lot_size' : /width/i.test(it) ? 'width' : it,
             comparator: null, value: null, unit: null, value_source: 'clause_text',
-            relative_to: ref ? `meets s ${ref[1]!.trim()}` : null, measured_from: null, span: t, claims: [] })
+            relative_to: ref ? `meets s ${ref[1]!.trim()}` : dcp ? 'a development control plan, where the Apartment Design Guide covers the same matter' : null,
+            measured_from: null, span: t, claims: [] })
         }
         continue
       }
@@ -781,6 +804,11 @@ async function main() {
       const roomCap = tOp.match(/\b(?:not result in|no|not) more than (\d+) bedrooms\b/i)
       if (roomCap) push({ effect_type: 'condition_of_consent', topic: 'bedrooms', comparator: 'lte', value: Number(roomCap[1]), unit: 'bedrooms' },
         [Number(roomCap[1])])
+      // a standard set by a guideline: "the car parking for the building must be equal to, or greater than, the recommended
+      // minimum amount of car parking specified in Part 3J of the Apartment Design Guide" (s 148(2)(a))
+      const byGuide = tOp.match(/^the (.+?) (?:for|of) (?:the|each) [a-z ]+? must be equal to, or (greater|less) than, the (recommended (?:minimum|maximum) [a-z ]+?) specified in (Part [\dA-Z]+ of the [A-Z][\w ]+?)[,.;]?(?: and| or)?$/i)
+      if (byGuide) push({ effect_type: 'relative_numeric', topic: byGuide[1]!.toLowerCase().replace(/\s+/g, '_'), comparator: byGuide[2]!.toLowerCase() === 'greater' ? 'gte' : 'lte',
+        value: null, unit: null, relative_to: `the ${byGuide[3]} in ${byGuide[4]}` }, [])
       // a period to act in: "responses ... received within 21 days after the notice is given"
       const days = tOp.match(/within (\d+) days\b/i)
       if (days) push({ effect_type: 'condition_of_consent', topic: 'response_period_days', comparator: 'lte', value: Number(days[1]), unit: 'days' }, [Number(days[1])])

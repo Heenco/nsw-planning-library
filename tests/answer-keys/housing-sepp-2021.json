@@ -1177,6 +1177,39 @@
         },
         "seppPermissionApplies": true
       }
+    },
+    {
+      "name": "Parramatta MU1 - residential flat buildings: Ch 4 (apartment design) reaches - outside the Kosciuszko Alpine Region; the size thresholds are the proposal's",
+      "cadid": "101984828",
+      "use": "residential flat buildings",
+      "scope": "ch4",
+      "expect": {
+        "frames": {
+          "144(2)": true
+        }
+      }
+    },
+    {
+      "name": "Byron R2 - shop top housing: Ch 4 reaches (the whole State but the Alpine Region, s 143)",
+      "cadid": "104202524",
+      "use": "shop top housing",
+      "scope": "ch4",
+      "expect": {
+        "frames": {
+          "144(2)": true
+        }
+      }
+    },
+    {
+      "name": "Snowy Monaro R1 - Ch 4 undecided: the Alpine Subregion maps (Precincts—Regional Ch 4) are not loaded, s 143",
+      "cadid": "150097216",
+      "use": "residential flat buildings",
+      "scope": "ch4",
+      "expect": {
+        "frames": {
+          "144(2)": null
+        }
+      }
     }
   ],
   "scopes": {
@@ -1190,6 +1223,7 @@
     "ch3-pt1": "^(49|5[0-3])$",
     "ch7": "^18[1-5]$",
     "ch2-rest": "^(1[3-5]A?|2[89]|3[0-9][AB]?|4[0-8][ABC]?|44A)$",
-    "ch3-rest": "^(6[0-6][AB]?|109|11[0-9]|12[0-9]|13[0-9]|14[01][A-T]?)$"
+    "ch3-rest": "^(6[0-6][AB]?|109|11[0-9]|12[0-9]|13[0-9]|14[01][A-T]?)$",
+    "ch4": "^14[2-9]$"
   }
 }

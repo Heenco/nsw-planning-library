@@ -166,7 +166,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
-  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7', 'ch.2-pt.1', 'ch.2-pt.2-div.3', 'ch.2-pt.2-div.4', 'ch.2-pt.2-div.5', 'ch.2-pt.2-div.6', 'ch.2-pt.3', 'ch.3-pt.2', 'ch.3-pt.6', 'ch.3-pt.7', 'ch.3-pt.8', 'ch.3-pt.9', 'ch.3-pt.10', 'ch.3-pt.11', 'ch.3-pt.13', 'ch.3-pt.14'],
+  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7', 'ch.2-pt.1', 'ch.2-pt.2-div.3', 'ch.2-pt.2-div.4', 'ch.2-pt.2-div.5', 'ch.2-pt.2-div.6', 'ch.2-pt.3', 'ch.3-pt.2', 'ch.3-pt.6', 'ch.3-pt.7', 'ch.3-pt.8', 'ch.3-pt.9', 'ch.3-pt.10', 'ch.3-pt.11', 'ch.3-pt.13', 'ch.3-pt.14', 'ch.4'],
   frames: [
     {
       id: 'instrument',
@@ -634,6 +634,28 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       note: 'Existing accommodation re-purposed by a relevant authority / social housing provider; Division 3 (complying development) is read with the Codes SEPP (step 18).',
     },
     {
+      id: 'ch4-rad',
+      title: 'Chapter 4 — design of residential apartment development',
+      parent: 'instrument',
+      clause: '144(2)',
+      section: 'sec.144',
+      governs: ['ch.4'],
+      conditions: [
+        { dimension: 'defined_area', value: 'the Kosciuszko Alpine Region (SEPP (Precincts—Regional) 2021, Chapter 4)', polarity: 'excludes',
+          clause: '143', span: 'other than land to which State Environmental Planning Policy (Precincts—Regional) 2021, Chapter 4 applies' },
+        { dimension: 'proposal_metric', value: 'a new building, a substantial redevelopment or refurbishment, or a conversion', polarity: 'applies',
+          clause: '144(3)(a)', span: 'the development consists of—' },
+        { dimension: 'proposal_metric', value: 'at least 3 storeys (not counting underground car parking storeys)', polarity: 'applies',
+          clause: '144(3)(b)', span: 'the building is at least 3 storeys, not including underground car parking storeys' },
+        { dimension: 'proposal_metric', value: 'at least 4 dwellings', polarity: 'applies', clause: '144(3)(c)',
+          span: 'the building contains at least 4 dwellings' },
+        { dimension: 'proposal_metric', value: 'not only a class 1a or 1b building', polarity: 'applies', clause: '144(5)',
+          span: 'This chapter does not apply to development that involves only a class 1a or 1b building within the meaning of the Building Code of Australia.' },
+      ],
+      note: 'Residential apartment development: RFBs, shop top housing, mixed use with a residential component (s 144(2)); '
+        + 'the size thresholds are the proposal\'s. s 144(6): it may also be development under Ch 2 Pt 2 Div 1, 5, 6, Ch 5 or Ch 6.',
+    },
+    {
       id: 'ch2-bh-ra',
       title: 'Chapter 2, Part 2, Division 3 — boarding houses by relevant authorities',
       parent: 'instrument',
@@ -855,6 +877,12 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       upper_bound: true, test: 'intersects', kind: 'condition',
       note: 's 23(2)(b). Walking distance not measured: 800 m straight line is an upper bound; on the zone itself = yes. '
         + '"or an equivalent land use zone" is not resolved. (No E2, unlike s 15C(3).)' },
+    // ── Ch 4 ──
+    { dimension: 'defined_area', term: 'the Kosciuszko Alpine Region (SEPP (Precincts—Regional) 2021, Chapter 4)', source_kind: 'derived',
+      source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',
+      filter: "(upper(lga_name) IN ('SNOWY MONARO REGIONAL', 'SNOWY VALLEYS') OR lga_name IS NULL)", upper_bound: true, kind: 'exclusion',
+      note: 's 143. The Alpine Subregions (Perisher, Thredbo, Charlotte Pass, Mount Selwyn, ...) lie in Snowy Monaro and Snowy Valleys; '
+        + 'their maps are not loaded, so lots there are undecided and every other lot is outside.' },
     // ── Ch 3 Pt 2, 6-14 ──
     { dimension: 'defined_area', term: 'prescribed area', source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',
       filter: `upper(lga_name) IN (${METRO_CITIES_LGAS.concat(['BALLINA']).map(l => `'${l}'`).join(', ')})`, kind: 'condition',
@@ -927,7 +955,8 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     nondiscretionary_heading: ['Non-discretionary development standards'],
     consideration: ['the consent authority must consider', 'unless the consent authority has considered'],
     prohibition: ['development consent must not be granted'],
-    disapplication: ['does not apply to development that meets', 'do not apply to development to which this chapter applies'],
+    disapplication: ['does not apply to development that meets', 'do not apply to development to which this chapter applies',
+                     'has no effect if the apartment design guide'],
   },
   extraUses: ['residential care facility', 'supportive accommodation', 'non-hosted short-term rental accommodation',
     'hosted short-term rental accommodation', 'short-term rental accommodation', 'manufactured home estate', 'camping ground',
@@ -954,6 +983,10 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     ...Object.fromEntries(['sec.139', 'sec.140', 'sec.141'].map(k => [k, 'Part 11 site compatibility certificate procedure - not a lot rule'])),
     'sec.141O': 'temporary housing general requirements - facts about the existing building and the provider, read with s 141Q',
     'sec.141P': 'temporary housing alterations - by reference to the Codes SEPP Part 8 (step 18)',
+    'sec.143': 'the chapter frame (ch4-rad) - where Chapter 4 applies',
+    'sec.144': 'the chapter frame (ch4-rad) - what residential apartment development is, and its size thresholds (the proposal\'s)',
+    'sec.145': 'procedure - referral of a development application to a design review panel, not a lot rule',
+    'sec.146': 'procedure - referral of a modification application to a design review panel, not a lot rule',
     'sec.13': 'defines very low / low / moderate income households (the Act, s 1.4(1)) - a definition, not a lot rule',
     'sec.33': 'the division frame (ch2-supportive) - s 33 is the land the division applies to',
     'sec.34': 'the division frame (ch2-supportive) - s 34 defines supportive accommodation and what the division applies to',

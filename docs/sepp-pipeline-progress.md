@@ -388,7 +388,7 @@ for development for the purposes of ...") or "development to which section N app
 Side effect (accepted): Ch 6 s 175 / s 176 / s 177 and Part 5 s 85 / 86 / 93 / 94 / 97 now carry their uses (they had none,
 so no question reached them - s 176's 4-storey cap and s 177's Tree Canopy Guide were never shown before).
 
-### 17. The rest of the Housing SEPP — `in progress`
+### 17. The rest of the Housing SEPP — `done` 2026-10-07 (local commits; Q10, Q11 for review)
 Coverage before: 80 / 187 operative clauses. Same structure (profile frames, generic extraction, hand keys).
 - **17a Ch 2:** Pt 2 Div 3 boarding houses by relevant authorities (s 28-32), Div 4 supportive accommodation (s 33-35),
   Div 5 RFBs by social housing providers / public authorities (s 36-41), Div 6 residential development by relevant
@@ -433,7 +433,22 @@ Coverage before: 80 / 187 operative clauses. Same structure (profile frames, gen
   session), s 131 (a consent requirement, not a grant), SCC procedure s 139-141, s 141O-P.
   Gaps (recorded): STRA Area Map (Clarence Valley / Muswellbrook parts of the prescribed area, Byron Excluded Land);
   "the Sydney region" (s 119); forestry areas, NPWS estate, natural wetlands (s 137(2)); Crown reserves / Sch 5-6 (s 122).
-- **17c Ch 4:** design of residential apartment development (s 142-149) — `todo`
+- **17c Ch 4:** design of residential apartment development (s 142-149) — `done` 2026-10-07 (local commit).
+  Frame `ch4-rad` (s 144(2): RFBs, shop top housing, mixed use development - read from the listed scope, each item's
+  head use; s 143: the whole State but the Kosciuszko Alpine Region, Precincts—Regional Ch 4 - an upper bound over
+  Snowy Monaro / Snowy Valleys, whose Alpine Subregion maps are not loaded; s 144(3), (5) size and building-class
+  thresholds are the proposal's). 3 rules (205 in all); coverage **132 / 187 operative clauses**. s 147 matters for
+  consideration (Sch 9 design principles, the ADG, design review panel advice within 14 days); s 148 non-discretionary
+  standards set by the ADG's recommended minimums (car parking Pt 3J, internal area Pt 4D, ceiling heights Pt 4C) as
+  `relative_numeric` with no number of their own; s 149 the ADG displaces DCP controls on eight matters. s 145-146 (design
+  review panel referral) skipped as procedure. **Answer keys 57/57** (3 new); gate green, held.
+  Extractor: a listed frame scope ("This chapter applies to the following—") gives the frame its uses; matters for
+  consideration are each item in its own words, list headings are not matters, a "within N days" bound stays with its
+  matter - which also replaced "see clause" placeholders in s 15, 20, 93, 141J, 141K; "The N-day period referred to in"
+  is a reference. **Evaluator bug fixed:** a `derived.lot_lga` term filter was spliced without parentheses, so a filter
+  with OR matched any lot (`AND (${filter})` now, as the other tests already did).
+  Remaining operative clauses without rules (55) are the skipped ones, each with its reason in the profile: frames'
+  own clauses, procedures (certificates, referrals), definitions-in-effect, complying development (step 18).
 **Done when:** recall PASS on each part; hand keys for each part; earlier keys still pass; readings listed for review.
 
 ### Later
@@ -567,3 +582,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 17 added: the rest of the Housing SEPP (17a Ch 2, 17b Ch 3, 17c Ch 4) ahead of the Codes SEPP; later items renumbered 18-19.
 - 2026-10-07 — 17a done (local): Ch 2 remaining divisions + Pt 3; 170 rules, 99/187 operative clauses, 43/43 keys; migration 23. Q10.
 - 2026-10-07 — 17b done (local): Ch 3 remaining parts; 202 rules, 129/187 operative clauses, 54/54 keys; migration 24. Q11. Step 18 (Codes SEPP) taken by the "airspace" session in worktree C:\w\codes-sepp.
+- 2026-10-07 — 17c done (local): Ch 4; 205 rules, 132/187 operative clauses, 57/57 keys. Step 17 done - the Housing SEPP is complete. Loop stops: 18 is with the "airspace" session, 19 is a "Later" item with no plan yet.
