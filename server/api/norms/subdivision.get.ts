@@ -8,16 +8,16 @@
  *   &erects=dual occupancy                                                           (the same DA also erects it)
  *   &separates=principal dwelling|secondary dwelling
  *
- * For each kind - Torrens, strata, community title - one evaluation of the subdivision norms (Housing SEPP + the lot's
- * LEP, norms/subdivision/) through shared/norms/engine.ts: yes / no / maybe, the clause it rests on, what it depends on
+ * For each kind - Torrens, strata, community title - one evaluation of the subdivision norms from the graph: the clause
+ * reader's norms in nsw.norm (scripts/norms/read-subdivision.ts) for the lot's LEP and for every SEPP whose frames the
+ * graph holds, and - for an LEP clause the reader did not read - the graph's own rules (shared/norms/from-graph.ts).
+ * Through shared/norms/engine.ts: yes / no / maybe, the clause it rests on, what it depends on
  * (grouped by who can answer), and the standards with the lot's own arithmetic. Then the questions only the asker can
  * answer (each with the key the `site` / `purpose` / `erects` parameter takes), and the plan's subdivision clauses not
  * yet encoded - so a yes never hides a clause nobody read.
  */
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import { evaluate } from '#shared/norms/engine'
-import { lotFacts, refHitsFor } from '#shared/norms/facts'
+import { lotFacts, lotTerm, refHitsFor } from '#shared/norms/facts'
 import { graphNorms } from '#shared/norms/from-graph'
 import type { Cond, Norm, Question } from '#shared/norms/schema'
 import { landUseKey } from '#shared/land-use-key'
@@ -44,27 +44,35 @@ export default defineEventHandler(async (event) => {
     if (i > 0) site[part.slice(0, i).trim()] = /^(yes|true|1)$/i.test(part.slice(i + 1).trim())
   }
 
-  // the norms: the Housing SEPP's subdivision clauses + the lot's own LEP - its Standard Instrument 2.6 / 4.1 (read
-  // from its words by scripts/norms/build-subdivision.ts) and everything else from the graph's own rules for that plan
+  // the norms, all from the graph
   const q2 = (sql: string, p?: unknown[]) => nswQuery<any>(sql, p as any[])
-  const dir = join(process.cwd(), 'norms', 'subdivision')
-  const load = (f: string) => JSON.parse(readFileSync(f, 'utf8'))
-  const housing = load(join(dir, 'housing-sepp-2021.json'))
-  const leps = readdirSync(join(dir, 'lep')).filter(f => f.endsWith('.json')).map(f => load(join(dir, 'lep', f)))
-  const sepTerms = (housing.norms as Norm[]).flatMap(n => leaves(n.when)).filter(l => l.fact === 'lot.in').map(l => String(l.value))
   let lot
-  try { lot = await lotFacts(q2, cadid, landUseKey, [...new Set(sepTerms)]) }
+  try { lot = await lotFacts(q2, cadid, landUseKey) }
   catch (e: any) { throw createError({ statusCode: 404, statusMessage: e.message }) }
-  const lep = leps.find(l => l.instrument === lot.epi) ?? null
-  const lepDoc = lot.epi ? (await q2(`SELECT id, instrument_slug FROM nsw.document WHERE title = $1 LIMIT 1`, [lot.epi])).rows[0] : null
-  const fromGraph = lepDoc ? await graphNorms(q2, lepDoc.id, lot.epi!, lepDoc.instrument_slug, {
-    clauseFilter: `heading ~* 'subdivi|lot size' OR local_id IN ('sec.2.6', 'sec.4.1')`, covered: lep?.covered ?? [] }) : { norms: [], gaps: [], refIds: [] }
-  lot.refHits = await refHitsFor(q2, cadid, fromGraph.refIds)
-  const files = [housing, ...(lep ? [lep] : [])]
-  const norms: Norm[] = [...files.flatMap(f => f.norms.map((n: Norm) => ({ ...n, instrument: f.instrument }))), ...fromGraph.norms]
+  // the lot's own LEP, and every SEPP whose frames (where each part applies) the graph holds - a SEPP without them would
+  // reach every lot in the State
+  const docs = (await q2(`SELECT d.id, d.title, d.instrument_slug, d.doc_type FROM nsw.document d
+     WHERE d.title = $1 OR (d.doc_type = 'sepp' AND EXISTS (SELECT 1 FROM nsw.rule f WHERE f.document_id = d.id AND f.kind = 'frame'))`, [lot.epi ?? ''])).rows
+  const read = (await q2(`SELECT n.id, n.section, n.clause, n."when", n."then", n.despite, n.subject_to, n.author, n.review, d.title AS instrument
+      FROM nsw.norm n JOIN nsw.document d ON d.id = n.document_id
+     WHERE n.family = 'subdivision' AND n.valid_to IS NULL AND n.document_id = ANY($1)`, [docs.map(d => d.id)])).rows
+    .map((r: any) => ({ id: r.id, instrument: r.instrument, clause: r.clause, section: r.section, text: '', when: r.when, then: r.then,
+                        despite: r.despite ?? [], subjectTo: r.subject_to ?? [], author: r.author, review: r.review ?? undefined }) as Norm)
+  // an LEP clause the reader did not read: the graph's own rules for it
+  const lepDoc = docs.find(d => d.title === lot!.epi)
+  const readClauses = [...new Set(read.filter(n => n.instrument === lot!.epi).map(n => n.section.replace(/-.*$/, '')))]
+  const fromGraph = lepDoc ? await graphNorms(q2, lepDoc.id, lepDoc.title, lepDoc.instrument_slug, {
+    clauseFilter: `heading ~* 'subdivi|lot size' OR local_id IN ('sec.2.6', 'sec.4.1')`, covered: readClauses }) : { norms: [], gaps: [], refIds: [] }
+  const norms: Norm[] = [...read, ...fromGraph.norms]
+  // the places the norms name, tested against the lot: mapped terms, and the graph's own polygons
+  const all = norms.flatMap(n => leaves(n.when))
+  const termsAsked = [...new Set(all.filter(l => l.fact === 'lot.in').map(l => String(l.value).toLowerCase()))]
+  const tested = await Promise.all(termsAsked.map(t => lotTerm(q2, cadid, t, lot!.lga)))
+  lot.terms = Object.fromEntries(termsAsked.map((t, i) => [t, tested[i]!]))
+  lot.refHits = await refHitsFor(q2, cadid, [...new Set([...fromGraph.refIds, ...all.filter(l => l.fact === 'lot.on_ref').map(l => String(l.value))])])
   const sectionOf = new Map(norms.map(n => [n.id, n.section]))
   const sources = Object.fromEntries((await nswQuery<any>(`SELECT DISTINCT ON (title) title, source_url FROM nsw.document WHERE title = ANY($1) AND source_url IS NOT NULL ORDER BY title, ingested_at DESC`,
-    [[...files.map(f => f.instrument), lot.epi].filter(Boolean)])).rows.map((d: any) => [d.title, d.source_url]))
+    [docs.map(d => d.title)])).rows.map((d: any) => [d.title, d.source_url]))
   const link = (instrument: string, section: string | undefined) => sources[instrument] && section ? `${sources[instrument]}#${section}` : null
 
   const questionFor = (key: string, s: Record<string, boolean>, erects?: string, separates?: string): Question => ({ cadid, site: s,
@@ -85,13 +93,19 @@ export default defineEventHandler(async (event) => {
   // the questions only the asker can answer, across the three kinds - each with the key its parameter takes
   const asks = new Map<string, { key: string; param: 'site' | 'purpose' | 'erects' | 'separates'; label: string; question: string; clauses: string[]; bars: boolean }>()
   const art = (u: unknown) => /(housing|accommodation|development)$/i.test(String(u)) ? String(u) : `${/^[aeiou]/i.test(String(u)) ? 'an' : 'a'} ${u}`
+  // the part of an instrument a building was approved under, named from the graph: '<slug>:ch.3-pt.1' -> its instrument
+  // and the part's own heading
+  const unders = [...new Set(norms.flatMap(n => leaves(n.when)).map(l => l.under).filter(Boolean) as string[])]
+  const partNames = new Map<string, string>()
+  for (const u of unders) {
+    const [slug, local] = u.split(':')
+    const r = (await q2(`SELECT d.title, s.heading FROM nsw.document d LEFT JOIN nsw.section s ON s.document_id = d.id AND s.local_id = $2 WHERE d.instrument_slug = $1`, [slug, local])).rows[0]
+    if (r) partNames.set(u, `${String(r.title).replace('State Environmental Planning Policy', 'the SEPP').replace(/ Local Environmental Plan /, ' LEP ')} - ${local.replace(/\./g, ' ').replace(/-/g, ' ')}${r.heading ? ` (${r.heading})` : ''}`)
+  }
+  const part = (u: string) => partNames.get(u) ?? u
   for (const n of norms) for (const l of leaves(n.when)) {
     let key: string | null = null, param: any = 'site', label = ''
-    // each with a question in plain words; the part of the SEPP a building was approved under is named, not coded
-    const part = (u: string) => u.replace('housing-sepp-2021:ch.3-pt.1', 'the Housing SEPP (secondary dwellings, Ch 3 Pt 1)')
-      .replace('housing-sepp-2021:ch.3-pt.5-div.8', 'the Housing SEPP (seniors housing by a relevant authority, Ch 3 Pt 5 Div 8)')
-      .replace('housing-sepp-2021:ch.3-pt.5', 'the Housing SEPP (seniors housing, Ch 3 Pt 5)').replace('housing-sepp-2021:ch.3-pt.4', 'the Housing SEPP (build-to-rent, Ch 3 Pt 4)').replace('housing-sepp-2021:ch.3-pt.7', 'the Housing SEPP (serviced apartment conversion, Ch 3 Pt 7)')
-      .replace('housing-sepp-2021:ch.2-pt.2-div.1', 'the Housing SEPP (in-fill affordable housing, Ch 2 Pt 2 Div 1)').replace('housing-sepp-2021:ch.7', 'the Housing SEPP Pattern Book (Ch 7)')
+    // each with a question in plain words
     let question = ''
     if (l.fact === 'site.has') { key = l.under ? `${l.value}@${l.under}` : String(l.value); label = l.under ? `${art(l.value)} built under ${part(l.under)}` : art(l.value)
       question = `Is there ${label} on the lot?` }
@@ -141,10 +155,17 @@ export default defineEventHandler(async (event) => {
     return { ...a, changes: changes + changesClean, changesClean }
   }).filter(a => a.changes > 0).sort((x, y) => y.changesClean - x.changesClean || y.changes - x.changes)
   const derived = Object.keys(lot.site).filter(k => lot!.site[k] !== undefined)
-  // what is not read: the Housing SEPP's own list, and every LEP subdivision clause whose graph rules carry no effect
+  // what is not read: statements the clause reader did not recognise (nsw.norm_unchecked) - unless the graph's own rules
+  // supplied that clause - and LEP clauses whose graph rules carry no effect either
+  const graphClauses = new Set(fromGraph.norms.map(n => n.section.replace(/-.*$/, '')))
+  // instruments with a norm in play for this question - another pathway's provisions are not part of this answer
+  const inPlay = new Set<string>([lot.epi ?? ''])
+  for (const k of KINDS) for (const r of evaluate(norms, questionFor(k.key, site, erects0, separates0), lot, landUseKey).norms) if (r.holds !== false) inPlay.add(r.instrument)
+  const unreadRows = (await q2(`SELECT u.section, u.clause, u.why, u.zones, d.title AS instrument FROM nsw.norm_unchecked u JOIN nsw.document d ON d.id = u.document_id
+     WHERE u.family = 'subdivision' AND u.document_id = ANY($1)`, [docs.map(d => d.id)])).rows
   const uncheckedAll = [
-    ...(housing.unchecked ?? []).map((u: any) => ({ ...u, instrument: housing.instrument, url: link(housing.instrument, u.section) })),
-    ...fromGraph.gaps.map(g => ({ clause: g.parts.length ? g.parts.join(', ') : g.clause, section: g.section, instrument: lot!.epi!, url: link(lot!.epi!, g.section), zones: g.zones,
+    ...unreadRows.filter((u: any) => !graphClauses.has(u.section) && inPlay.has(u.instrument)).map((u: any) => ({ clause: u.clause, section: u.section, instrument: u.instrument, url: link(u.instrument, u.section), zones: u.zones, why: u.why })),
+    ...fromGraph.gaps.filter(g => !unreadRows.some((u: any) => u.section === g.section)).map(g => ({ clause: g.parts.length ? g.parts.join(', ') : g.clause, section: g.section, instrument: lot!.epi!, url: link(lot!.epi!, g.section), zones: g.zones,
       why: `${g.heading ?? ''}${g.rules ? ` - in the graph (${g.rules} rule${g.rules === 1 ? '' : 's'}), no effect extracted` : ' - in the graph as text, no rule extracted'}` })),
   ]
   // a clause that says which zones it applies to, and not this lot's zone, cannot change this lot's answer
@@ -163,7 +184,7 @@ export default defineEventHandler(async (event) => {
     ms: Date.now() - started,
     lot: { cadid, lotId: lot.lotId, zone: lot.zone, epi: lot.epi, lga: lot.lga, areaM2: lot.areaM2, frontageM: lot.frontageM,
            lotSizeMinM2: lot.lotSizeMinM2, onLotSizeMap: lot.onLotSizeMap, strata: lot.site[landUseKey('strata scheme')] ?? false },
-    lepCovered: Boolean(lep), purpose: purpose ?? null, lots,
+    lepCovered: Boolean(lepDoc), purpose: purpose ?? null, lots,
     // what the asker has answered, with the question - shown with the answer chosen, never dropped from view
     kinds, asks: ranked, derived, unchecked, notHere, minima,
     answered: [...asks.values()].map((a) => {

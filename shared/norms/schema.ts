@@ -30,10 +30,15 @@ export const FACTS = {
   'proposal.use': { who: 'proposal', values: 'land_use' },
   /** carried out under a named part of an instrument ("development carried out under this chapter", Housing SEPP s 185) */
   'proposal.under': { who: 'proposal', values: 'instrument_part' },
+  /** the approval pathway the provision belongs to; a question is asked for one pathway (default: a development application) */
+  'proposal.pathway': { who: 'proposal', values: ['development_application', 'complying_development', 'exempt_development'] },
   'proposal.proponent': { who: 'proposal', values: ['public authority', 'social housing provider', 'relevant authority', 'Land and Housing Corporation', 'Aboriginal Housing Office'] },
   /** "if the subdivision would result in the principal dwelling and the secondary dwelling being situated on separate lots" */
   'proposal.separates': { who: 'proposal', values: 'land_use_pair' },
   'proposal.resulting_lots': { who: 'proposal', cmp: true },
+  /** a condition on the size of each resulting lot ("unless the size of each of the 2 resulting lots is not less than the
+   *  minimum size shown on the Lot Size Map"): n, or text 'lot_size_map' - tested with the lot's area */
+  'proposal.resulting_lot_size': { who: 'proposal', cmp: true },
   /** the same application also proposes erecting this ("a development application ... for the subdivision of the land
    *  and the erection of a dual occupancy on the land", Housing SEPP s 169(2)(b)) */
   'proposal.also_erects': { who: 'proposal', values: 'land_use' },
@@ -109,7 +114,7 @@ export interface Question {
   cadid: string
   proposal: { kind: 'use' | 'subdivision' | 'works' | 'change_of_use'; subdivision_type?: 'torrens' | 'strata' | 'community';
               use?: string; under?: string; proponent?: string; resulting_lots?: number; separates?: string; floor_area_m2?: number;
-              also_erects?: string }
+              also_erects?: string; pathway?: 'development_application' | 'complying_development' | 'exempt_development' }
   /** site facts the asker states: { 'boarding house': false, 'secondary dwelling@housing-sepp-2021:ch.3-pt.1': false } */
   site?: Record<string, boolean>
 }

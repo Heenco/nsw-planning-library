@@ -130,7 +130,7 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
       const t = norm(s.raw_text)
       if (!t || NOT_ADOPTED.test(t)) return false
       if (s.route) return s.route === 'operative'
-      return !/^The objectives? of this clause (is|are)|^In this clause.*means/i.test(t) && !/^to [a-z]/.test(t)
+      return !/^The objectives? of this clause (is|are)\b|^In this clause\b.*\bmeans\b/i.test(t) && !/^to [a-z]/.test(t)
     })
     const wholeText = own.map(s => norm(s.raw_text)).join(' ')
     if (!operative.length || (own.length && NOT_ADOPTED.test(wholeText))) continue      // nothing left to read, or not adopted
@@ -155,7 +155,10 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
     for (const r of effRules) {
       const ownRows = (r.app as any[]).map(a => ({ ...a, refs: r.refs }))
       const ownDims = new Set(ownRows.map(a => a.d))
-      const when = conditionOf(r, [...ownRows, ...scopeRows.filter(a => !ownDims.has(a.d))])
+      // fail closed: most of the graph's rule fragments are incomplete (scope and effect split, values missing), so a norm
+      // read from them is never decisive on its own - its standards show "if it applies", never "met"
+      const when: Cond = { all: [conditionOf(r, [...ownRows, ...scopeRows.filter(a => !ownDims.has(a.d))]),
+        { fact: 'unparsed', text: "the graph's rule for this clause, its scope as extracted - not checked against the clause's words", span: r.section }] }
       ;(r.eff as any[]).forEach((e, i) => {
         const then = effectOf(e)
         if (!then) return

@@ -77,6 +77,8 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
       case 'proposal.use': return eq(p.use, 'the use proposed')
       case 'proposal.under': return eq(p.under, 'the instrument part it is carried out under')
       case 'proposal.proponent': return eq(p.proponent, 'who carries it out')
+      case 'proposal.pathway': { const have = p.pathway ?? 'development_application'
+        return { ...base, v: have === c.value, why: `asked as ${have.replace(/_/g, ' ')}${have === c.value ? '' : ` - this provision is for ${String(c.value).replace(/_/g, ' ')}`}` } }
       case 'proposal.separates': return eq(p.separates, 'what the subdivision separates')
       case 'proposal.resulting_lots': return p.resulting_lots == null ? { ...base, v: null, why: 'number of lots not stated' }
         : { ...base, v: cmpOf(p.resulting_lots, c.cmp!, c.n!), why: `${p.resulting_lots} lots` }
@@ -100,6 +102,15 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
         return { ...base, v: null, why: `whether the existing ${c.value} was approved ${c.fact === 'site.consent_before' ? 'before' : 'on or after'} ${c.text} is not recorded` }
       }
       case 'proposal.also_erects': return eq(p.also_erects, 'what the same application also erects')
+      case 'proposal.resulting_lot_size': {
+        // each resulting lot at least n (or the Lot Size Map): impossible from the lot's area = no; otherwise the layout
+        // decides = open
+        const min = c.text === 'lot_size_map' ? lot.lotSizeMinM2 : c.n ?? null
+        if (min == null || lot.areaM2 == null) return { ...base, v: null, why: c.text === 'lot_size_map' ? 'the Lot Size Map minimum is not known here' : 'lot area not recorded' }
+        const lots = p.resulting_lots ?? 2
+        return lot.areaM2 / lots < min ? { ...base, v: false, why: `${lots} lots from ${lot.areaM2} m² cannot each be ${min} m²` }
+          : { ...base, v: null, why: `${lots} lots of ${min} m² fit in ${lot.areaM2} m² - the layout decides` }
+      }
       case 'site.approved_or_pending': {
         const said = (q.site ?? {})[`${c.fact}:${c.value}`]
         return said != null ? { ...base, v: said, why: `stated: ${said ? 'yes' : 'no'}` }
