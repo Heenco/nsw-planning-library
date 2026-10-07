@@ -807,6 +807,10 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         + 'extracted yet, so a lot whose only route is Chapter 5 is undecided.',
     },
   ],
+  // Terms are rows of the SHARED nsw.scope_layer, keyed by (dimension, term) and owned by this profile's label (terms.ts
+  // refuses to overwrite another profile's row). Read by other profiles by name - rename or remap only after telling them:
+  //   Codes SEPP (sepp-exempt-and-complying-development-codes-2008) frames read 'heritage item', 'heritage conservation
+  //   area', 'bush fire prone land' and 'area of outstanding biodiversity value'.
   terms: [
     // ── s 164(1) exclusions ──
     { dimension: 'land_characteristic', term: 'bush fire prone land', source_kind: 'registry', source: 'lmr.layers:bushfire_prone_land',
@@ -902,8 +906,9 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     { dimension: 'defined_area', term: 'conservation zone', source_kind: 'table', source: 'epi.epi_land_zoning', filter: "sym_code IN ('C1', 'C2', 'C3', 'C4')",
       test: 'intersects', kind: 'exclusion', note: 's 137(2)(b). The C zones.' },
     { dimension: 'land_characteristic', term: 'forestry area', source_kind: 'none', source: null, test: 'intersects', kind: 'exclusion', note: 's 137(2)(c). Not held.' },
-    { dimension: 'land_characteristic', term: 'land reserved under the National Parks and Wildlife Act 1974', source_kind: 'none', source: null,
-      test: 'intersects', kind: 'exclusion', note: 's 137(2)(d). NPWS estate not held.' },
+    { dimension: 'land_characteristic', term: 'land reserved under the National Parks and Wildlife Act 1974', source_kind: 'table',
+      source: 'esa.npws_estate', test: 'intersects', kind: 'exclusion',
+      note: 's 137(2)(d). The NPWS estate (ePlanning Protection/365, built by 07C) - the same layer as the Codes SEPP\'s "NPWS estate" term.' },
     { dimension: 'land_characteristic', term: 'natural wetland', source_kind: 'none', source: null, test: 'intersects', kind: 'exclusion', note: 's 137(2)(i). Not held.' },
     LGA_TERM('City of Lismore', 'LISMORE', 's 137(1).'),
     { dimension: 'lga', term: 'a s 141E local government area', source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',

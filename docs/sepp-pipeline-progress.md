@@ -432,7 +432,7 @@ Coverage before: 80 / 187 operative clauses. Same structure (profile frames, gen
   Skipped (recorded in the profile): complying development s 64-66, 141R-141T (to step 18 - now with the Codes SEPP
   session), s 131 (a consent requirement, not a grant), SCC procedure s 139-141, s 141O-P.
   Gaps (recorded): STRA Area Map (Clarence Valley / Muswellbrook parts of the prescribed area, Byron Excluded Land);
-  "the Sydney region" (s 119); forestry areas, NPWS estate, natural wetlands (s 137(2)); Crown reserves / Sch 5-6 (s 122).
+  "the Sydney region" (s 119); forestry areas and natural wetlands (s 137(2)) - the NPWS estate IS held (esa.npws_estate, mapped 2026-10-07 after the term collision below); Crown reserves / Sch 5-6 (s 122).
 - **17c Ch 4:** design of residential apartment development (s 142-149) — `done` 2026-10-07 (local commit).
   Frame `ch4-rad` (s 144(2): RFBs, shop top housing, mixed use development - read from the listed scope, each item's
   head use; s 143: the whole State but the Kosciuszko Alpine Region, Precincts—Regional Ch 4 - an upper bound over
@@ -594,3 +594,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — 17b done (local): Ch 3 remaining parts; 202 rules, 129/187 operative clauses, 54/54 keys; migration 24. Q11. Step 18 (Codes SEPP) taken by the "airspace" session in worktree C:\w\codes-sepp.
 - 2026-10-07 — 17c done (local): Ch 4; 205 rules, 132/187 operative clauses, 57/57 keys. Step 17 done - the Housing SEPP is complete. Loop stops: 18 is with the "airspace" session, 19 is a "Later" item with no plan yet.
 - 2026-10-07 — 17d done (local): Ch 1 (s 12A rule, s 8(2) edge); coverage now with rules / left out / unaccounted = 133 / 54 / 0 of 187; 58/58 keys.
+- 2026-10-07 — term collision: the 17d terms run overwrote the Codes SEPP's NPWS estate mapping in the shared nsw.scope_layer (same dimension + term) with a 'none' gap; every Codes SEPP complying answer went undecided until the airspace session renamed its term. Fixed: the Housing term maps to esa.npws_estate (17,637), and terms.ts no longer overwrites a row whose note carries another profile's label (COLLISION, step fails; tested: 53 blocked, 0 written). Cross-profile term readers listed in the profile.

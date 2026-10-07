@@ -57,19 +57,31 @@ async function main() {
   const measured: (TermMapping & { features: number | null })[] = []
   for (const t of profile.terms) measured.push({ ...t, features: await measure(client, t) })
 
+  // nsw.scope_layer is shared by every profile and keyed by (dimension, term): a row another profile registered (its
+  // note carries that profile's label) is never overwritten - the run fails and names it, so the two are named apart
+  // (2026-10-07: this step replaced the Codes SEPP's NPWS estate mapping with a gap, and every complying answer went
+  // undecided)
+  const collisions: string[] = []
   if (!DRY) {
     for (const t of measured) {
-      await client.query(
+      const res = await client.query(
         `INSERT INTO nsw.scope_layer (dimension, term, title, source_kind, source, filter, test, column_tested, kind, note, features, upper_bound, except_term, within_m, lower_bound, checked_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, now())
          ON CONFLICT (dimension, term) DO UPDATE SET
            title = EXCLUDED.title, source_kind = EXCLUDED.source_kind, source = EXCLUDED.source, filter = EXCLUDED.filter,
            test = EXCLUDED.test, column_tested = EXCLUDED.column_tested, kind = EXCLUDED.kind, note = EXCLUDED.note,
-           features = EXCLUDED.features, upper_bound = EXCLUDED.upper_bound, except_term = EXCLUDED.except_term, within_m = EXCLUDED.within_m, lower_bound = EXCLUDED.lower_bound, checked_at = now()`,
+           features = EXCLUDED.features, upper_bound = EXCLUDED.upper_bound, except_term = EXCLUDED.except_term, within_m = EXCLUDED.within_m, lower_bound = EXCLUDED.lower_bound, checked_at = now()
+         WHERE nsw.scope_layer.note IS NULL OR nsw.scope_layer.note LIKE $16`,
         [t.dimension, t.term, t.term, t.source_kind, t.source, t.filter ?? null, t.test, t.column_tested ?? null,
-         t.kind, `${profile.label}: ${t.note}`, t.features, t.upper_bound ?? false, t.except_term ?? null, t.within_m ?? null, t.lower_bound ?? false])
+         t.kind, `${profile.label}: ${t.note}`, t.features, t.upper_bound ?? false, t.except_term ?? null, t.within_m ?? null, t.lower_bound ?? false,
+         `${profile.label}:%`])
+      if (res.rowCount === 0) {
+        const owner = (await client.query(`SELECT split_part(note, ':', 1) AS who FROM nsw.scope_layer WHERE dimension = $1 AND term = $2`, [t.dimension, t.term])).rows[0]?.who
+        collisions.push(`${t.dimension} "${t.term}" belongs to ${owner ?? 'another profile'} - not overwritten`)
+      }
     }
   }
+  for (const c of collisions) console.log(`  COLLISION ${c}`)
 
   // ── coverage: every value this instrument's rules scope by ──────────────────────────────────────
   const used = (await client.query(
@@ -97,7 +109,7 @@ async function main() {
   }
   const empty = measured.filter(t => t.source_kind !== 'none' && !t.features)
   console.log(`\n  recorded gaps (scope_layer_gap): ${gaps.map(g => `${g.term} (${g.rules})`).join('; ') || 'none'}`)
-  console.log(`  ${missing === 0 && empty.length === 0 ? 'PASS' : 'FAIL'}: ${missing} used values with no scope_layer row; ${empty.length} mappings measuring 0 features`)
+  console.log(`  ${missing === 0 && empty.length === 0 && !collisions.length ? 'PASS' : 'FAIL'}: ${missing} used values with no scope_layer row; ${empty.length} mappings measuring 0 features; ${collisions.length} term collisions`)
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })
