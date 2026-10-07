@@ -23,9 +23,13 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
     SELECT p.cadid, p.lotidstring, p.area,
            (SELECT primary_frontage_length_m::float8 FROM derived.lot_frontage f WHERE f.cadid::text = p.cadid::text) AS frontage,
            -- cl 4.1(3A) and its siblings turn on these: a battle-axe lot's access handle is not counted
-           -- in the lot size, and 04D already measures the handle on every lot in the state
-           (SELECT is_battleaxe FROM derived.lot_profile b WHERE b.cadid::text = p.cadid::text) AS is_battleaxe,
-           (SELECT handle_area_sqm::float8 FROM derived.lot_profile b WHERE b.cadid::text = p.cadid::text) AS handle_area,
+           -- in the lot size, and 04D already measures the handle on every lot in the state.
+           -- AGGREGATED, not scalar: derived.lot_profile is one row per ADDRESS, so 298,878 cadids
+           -- have several and a bare subquery raised "more than one row returned by a subquery".
+           -- Both columns are lot geometry, identical across a lot's rows - measured: zero cadids
+           -- disagree on either - so bool_or/max picks the lot's value rather than one address's.
+           (SELECT bool_or(is_battleaxe) FROM derived.lot_profile b WHERE b.cadid::text = p.cadid::text) AS is_battleaxe,
+           (SELECT max(handle_area_sqm)::float8 FROM derived.lot_profile b WHERE b.cadid::text = p.cadid::text) AS handle_area,
            (SELECT upper(lga_name) FROM derived.lot_lga g WHERE g.cadid::text = p.cadid::text) AS lga,
            (SELECT json_build_object('zone', z.sym_code, 'epi', z.epi_name) FROM epi.epi_land_zoning z
              WHERE z.geom && p.pt AND ST_Intersects(z.geom, p.pt) AND z.sym_code IS NOT NULL LIMIT 1) AS zoning
@@ -41,12 +45,36 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
     if (ls) { onLotSizeMap = true; lotSizeMinM2 = /ha/i.test(String(ls.units)) ? Number(ls.lot_size) * 10000 : Number(ls.lot_size) }
     else onLotSizeMap = (await query(`SELECT EXISTS (SELECT 1 FROM epi.epi_lot_size WHERE epi_name = $1) AS e`, [epi])).rows[0].e ? false : null
   }
+  /*
+   * The Land Use Table, from the LEP AND from the SEPPs - not the LEP alone.
+   *
+   * A SEPP can permit a use the LEP prohibits, and that is the whole point of clauses like Housing
+   * SEPP s 169 ("despite the provisions of any other environmental planning instrument"). Reading
+   * only nsw.lep_permissibility answered "prohibited" on land where a SEPP plainly permits the use.
+   *
+   * nsw.sepp_permissible_landuse has no status column: a row IS the permission, and it is always
+   * with consent, so presence maps to permitted_with_consent. It keys on the zone alone - the SEPPs
+   * in it apply State-wide - which is the same join /api/cdc/types and the Pattern Book already run.
+   *
+   * `permits` keeps WHICH instrument said what, because "permitted with consent" is not an answer a
+   * reader can check unless it names the plan it came from.
+   */
   const lut: Record<string, string> = {}
+  const permits: Record<string, { status: string; instrument: string; source: 'lep' | 'sepp' }[]> = {}
+  const note = (k: string, status: string, instrument: string, source: 'lep' | 'sepp') => {
+    permits[k] = [...(permits[k] ?? []), { status, instrument, source }]
+    // a permitted row wins over a prohibited one under the same key ("dual occupancies" vs "(attached)"),
+    // and a SEPP permission wins over an LEP prohibition - it is the later, overriding instrument
+    if (!lut[k] || /^permitted/.test(status)) lut[k] = status
+  }
   if (epi && zone) {
     for (const r of (await query(`SELECT land_use, status FROM nsw.lep_permissibility WHERE epi_name = $1 AND zone_code = $2`, [epi, zone])).rows) {
-      const k = key(r.land_use)
-      // a permitted row wins over a prohibited one under the same key ("dual occupancies" vs "(attached)")
-      if (!lut[k] || /^permitted/.test(r.status)) lut[k] = r.status
+      note(key(r.land_use), r.status, epi, 'lep')
+    }
+  }
+  if (zone) {
+    for (const r of (await query(`SELECT land_use, sepp FROM nsw.sepp_permissible_landuse WHERE zone = $1`, [zone])).rows) {
+      note(key(r.land_use), 'permitted_with_consent', r.sepp, 'sepp')
     }
   }
   const lotId: string | null = row.lotidstring ?? null
@@ -63,7 +91,7 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
            lotSizeMinM2, onLotSizeMap, lut, site: { [key('strata scheme')]: /\/\/SP\d/i.test(String(lotId ?? '')) },
            frontageM: row.frontage == null ? null : Number(row.frontage), terms: tested, refHits, groups: dict ? useGroups(dict, key) : {},
            isBattleaxe: row.is_battleaxe == null ? null : Boolean(row.is_battleaxe),
-           handleAreaM2: row.handle_area == null ? null : Math.round(Number(row.handle_area)) }
+           handleAreaM2: row.handle_area == null ? null : Math.round(Number(row.handle_area)), permits }
 }
 
 /** One nsw.scope_layer term against the lot: true / false / null (a gap, a bound that cannot decide, a failed query). */
