@@ -14,7 +14,7 @@
 export type Polarity = 'applies' | 'excludes'
 export type Dimension =
   | 'zone' | 'land_use' | 'map_area' | 'land_characteristic' | 'defined_area' | 'lga' | 'pathway'
-  | 'proponent' | 'proposal_metric' | 'temporal'
+  | 'proponent' | 'proposal_metric' | 'temporal' | 'permissible_under'
 
 export interface FrameCondition {
   dimension: Dimension
@@ -26,6 +26,8 @@ export interface FrameCondition {
   span: string
   /** The scope_layer term the evaluator tests it with (step 7); null until the term is registered. */
   term?: string | null
+  /** '<group>#<branch>': conditions sharing a group are alternatives, those sharing a branch are ANDed (migration 22). */
+  anyOf?: string
 }
 
 export interface Frame {
@@ -65,6 +67,8 @@ export interface TermMapping {
   upper_bound?: boolean
   /** A term of the same dimension carved out of this one: holds = source holds AND NOT that term (migration 21). */
   except_term?: string
+  /** Holds within this straight-line distance (m) of the source (migration 22); with upper_bound, "within N m walking". */
+  within_m?: number
 }
 
 export interface InstrumentProfile {

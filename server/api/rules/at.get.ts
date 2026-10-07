@@ -54,21 +54,29 @@ async function testTerm(cadid: string, m: any, lga: string | null, geo: Map<stri
     tables = String(m.source).split('+').map((s: string) => ({ table: s.trim(), filter: m.filter ?? null }))
   }
   let any = false
+  const within = m.within_m == null ? null : Number(m.within_m)
   for (const t of tables) {
     if (!/^[a-z_]+\.[a-z_0-9"]+$/i.test(t.table)) return { holds: null, why: `unreadable source ${t.table}` }
     const g = geo.get(t.table.replace(/"/g, '')) ?? { srid: 4283, col: 'geom' }
     const lotX = g.srid === 4283 ? 't.g' : g.srid === 0 ? 'ST_SetSRID(t.g, 0)' : `ST_Transform(t.g, ${g.srid})`
     const gc = `x."${g.col}"`
+    // a distance term (scope_layer.within_m): metres on the ellipsoid for lon/lat sources, the source's own
+    // units otherwise; the bbox is widened generously (1 degree >= 80 km in NSW) so the index still prunes
+    const geographic = [4283, 4326, 7844, 4202].includes(g.srid)
+    const test = within == null ? `${gc} && ${lotX} AND ST_Intersects(${gc}, ${lotX})`
+      : geographic ? `${gc} && ST_Expand(${lotX}, ${within / 80000}) AND ST_DWithin(${gc}::geography, ${lotX}::geography, ${within})`
+        : `${gc} && ST_Expand(${lotX}, ${within}) AND ST_DWithin(${gc}, ${lotX}, ${within})`
     const r = await nswQuery<any>(`${SHRUNK}
-      SELECT EXISTS (SELECT 1 FROM ${t.table} x, t WHERE ${gc} && ${lotX} AND ST_Intersects(${gc}, ${lotX})
+      SELECT EXISTS (SELECT 1 FROM ${t.table} x, t WHERE ${test}
                        ${t.filter ? `AND (${t.filter})` : ''}) AS h`, [cadid]).catch(() => null)
     if (!r) return { holds: null, why: `query failed on ${t.table}` }
     if (r.rows[0].h) any = true
   }
+  const src = `${tables.map(t => t.table).join(' + ')}${within == null ? '' : ` within ${within} m in a straight line`}`
   // an upper-bound source (scope_layer.upper_bound): missing it rules the term out; hitting it decides nothing
-  if (m.upper_bound) return any ? { holds: null, why: `inside ${tables.map(t => t.table).join(' + ')} - the term itself is not held` }
-                                : { holds: false, why: `outside ${tables.map(t => t.table).join(' + ')}, which contains every instance of the term` }
-  return { holds: any, why: tables.map(t => t.table).join(' + ') }
+  if (m.upper_bound) return any ? { holds: null, why: `inside ${src} - the term itself is not held` }
+                                : { holds: false, why: `outside ${src}, which contains every instance of the term` }
+  return { holds: any, why: src }
 }
 
 export default defineEventHandler(async (event) => {
@@ -95,7 +103,7 @@ export default defineEventHandler(async (event) => {
 
   const geo = new Map((await nswQuery<any>(`SELECT f_table_schema || '.' || f_table_name AS t, srid, f_geometry_column AS col FROM geometry_columns`))
     .rows.map(r => [r.t as string, { srid: Number(r.srid), col: String(r.col) }]))
-  const scope = new Map((await nswQuery<any>(`SELECT dimension, lower(term) AS term, source_kind, source, filter, test, note, upper_bound, except_term FROM nsw.scope_layer`))
+  const scope = new Map((await nswQuery<any>(`SELECT dimension, lower(term) AS term, source_kind, source, filter, test, note, upper_bound, except_term, within_m FROM nsw.scope_layer`))
     .rows.map(r => [`${r.dimension}|${r.term}`, r]))
   const termCache = new Map<string, { holds: Tri; why: string }>()
   // a term, tested once per request; an except_term (migration 21) is carved out of it
@@ -114,37 +122,59 @@ export default defineEventHandler(async (event) => {
 
   // ── 2. SEPP frames ────────────────────────────────────────────────────────────────────────────
   const frameRows = (await nswQuery<any>(
-    `SELECT r.id, r.rule_key, r.clause, r.frame_rule_id, r.publish_state, r.notes, d.title AS instrument, d.instrument_slug,
-            coalesce((SELECT json_agg(json_build_object('dimension', a.dimension, 'value', a.value, 'polarity', a.polarity))
+    `SELECT r.id, r.rule_key, r.clause, r.frame_rule_id, r.publish_state, r.notes, r.document_id, d.title AS instrument, d.instrument_slug,
+            coalesce((SELECT json_agg(json_build_object('dimension', a.dimension, 'value', a.value, 'polarity', a.polarity,
+                                                        'alt_group', a.alt_group))
                         FROM nsw.rule_applicability a WHERE a.rule_id = r.id), '[]') AS conditions,
             coalesce((SELECT json_agg(json_build_object('edge', e.edge_type, 'to', e.to_ref, 'span', e.source_span))
                         FROM nsw.rule_edge e WHERE e.from_rule_id = r.id), '[]') AS edges
        FROM nsw.rule r JOIN nsw.document d ON d.id = r.document_id
       WHERE d.doc_type = 'sepp' AND r.kind = 'frame' AND r.publish_state <> 'retired'`)).rows
+  const PROPOSAL_DIMS = ['pathway', 'proponent', 'proposal_metric', 'temporal', 'dev_type']
   const frames = new Map<string, any>()
   for (const f of frameRows) {
     const conds: any[] = []
     for (const c of f.conditions) {
-      if (['pathway', 'proponent', 'proposal_metric', 'temporal', 'dev_type'].includes(c.dimension)) {
+      if (PROPOSAL_DIMS.includes(c.dimension)) {
         conds.push({ ...c, holds: null, why: 'a fact about the proposal, not the lot', proposal: true }); continue
       }
+      // the lot's own zone is read natively, like the rules' zone rows
+      if (c.dimension === 'zone') { conds.push({ ...c, holds: zone ? zone === c.value : null, why: zone ? `zone ${zone}` : 'zone not recorded' }); continue }
+      // a condition on another rule's answer - resolved once the rules are loaded (below)
+      if (c.dimension === 'permissible_under') { conds.push({ ...c, holds: null, why: 'not yet resolved', deferred: true }); continue }
       const k = `${c.dimension}|${String(c.value).toLowerCase()}`
-      await termHolds(k)
-      conds.push({ ...c, ...termCache.get(k) })
+      conds.push({ ...c, ...(await termHolds(k)) })
     }
     frames.set(f.id, { ...f, conds })
   }
+  const and3 = (xs: Tri[]): Tri => (xs.includes(false) ? false : xs.includes(null) ? null : true)
+  const or3 = (xs: Tri[]): Tri => (xs.includes(true) ? true : xs.includes(null) ? null : false)
+  const condValue = (c: any): Tri => (c.holds === null ? null : c.polarity === 'excludes' ? !c.holds : c.holds)
+  /**
+   * A frame reaches the lot when its parent does, every plain condition holds (an exclusion: does not hold), and
+   * every alternative group (rule_applicability.alt_group '<group>#<branch>', migration 22) has a branch whose
+   * conditions all hold. Proposal facts are assumed; a branch made only of proposal facts (s 72(2)(b), a site
+   * compatibility certificate) is listed but cannot decide the group from the lot.
+   */
   const reaches = (id: string | null): Tri => {
     if (!id) return true
     const f = frames.get(id)
     if (!f) return null
     const parent = reaches(f.frame_rule_id)
     if (parent === false) return false
-    const lotConds = f.conds.filter((c: any) => !c.proposal)
-    if (lotConds.some((c: any) => c.polarity === 'excludes' && c.holds === true)) return false
-    if (lotConds.some((c: any) => c.polarity === 'applies' && c.holds === false)) return false
-    if (parent === null || lotConds.some((c: any) => c.holds === null)) return null
-    return true
+    const plain = f.conds.filter((c: any) => !c.proposal && !c.alt_group).map(condValue)
+    const groups = new Map<string, Map<string, any[]>>()
+    for (const c of f.conds.filter((c: any) => c.alt_group)) {
+      const [g, b = ''] = String(c.alt_group).split('#')
+      if (!groups.has(g!)) groups.set(g!, new Map())
+      const br = groups.get(g!)!
+      br.set(b, [...(br.get(b) ?? []), c])
+    }
+    const groupValues = [...groups.values()].map((branches) => {
+      const decidable = [...branches.values()].filter(cs => cs.some(c => !c.proposal))
+      return decidable.length ? or3(decidable.map(cs => and3(cs.filter(c => !c.proposal).map(condValue)))) : null
+    })
+    return and3([parent, ...plain, ...groupValues])
   }
   const chainOf = (id: string | null) => { const out: any[] = []; for (let x = id ? frames.get(id) : null; x; x = x.frame_rule_id ? frames.get(x.frame_rule_id) : null) out.push(x); return out }
   // the lot conditions left undecided on a rule's frame chain, for the wording
@@ -153,7 +183,10 @@ export default defineEventHandler(async (event) => {
 
   // ── 3. permissions and 6. standards from SEPP rules ───────────────────────────────────────────
   const seppRules = (await nswQuery<any>(
-    `SELECT r.id, r.rule_key, r.clause, r.kind, r.role, r.frame_rule_id, r.publish_state, d.title AS instrument,
+    `SELECT r.id, r.rule_key, r.clause, r.kind, r.role, r.frame_rule_id, r.publish_state, r.document_id, d.title AS instrument,
+            (WITH RECURSIVE up AS (SELECT s.id, s.parent_id, s.local_id FROM nsw.section s WHERE s.id = r.section_id
+                                   UNION ALL SELECT p.id, p.parent_id, p.local_id FROM nsw.section p JOIN up ON p.id = up.parent_id)
+              SELECT array_agg(local_id) FROM up) AS ancestors,
             coalesce((SELECT json_agg(json_build_object('dimension', a.dimension, 'value', a.value, 'polarity', a.polarity))
                         FROM nsw.rule_applicability a WHERE a.rule_id = r.id), '[]') AS app,
             coalesce((SELECT json_agg(json_build_object('type', e.effect_type, 'topic', e.topic, 'comparator', e.comparator,
@@ -165,12 +198,8 @@ export default defineEventHandler(async (event) => {
        FROM nsw.rule r JOIN nsw.document d ON d.id = r.document_id
       WHERE d.doc_type = 'sepp' AND r.kind <> 'frame' AND r.publish_state <> 'retired'`)).rows
 
-  const seppPermissions: any[] = []
-  const seppStandards: any[] = []
-  for (const r of seppRules) {
-    const uses = r.app.filter((a: any) => a.dimension === 'land_use' && a.polarity === 'applies').map((a: any) => landUseKey(a.value))
-    const permitsUse = r.eff.some((e: any) => e.type === 'permits_use' && landUseKey(e.topic) === useKey)
-    if (!permitsUse && !uses.includes(useKey)) continue
+  /** Whether one SEPP rule reaches the lot: its frame chain, its zones, its defined areas. */
+  const evalRule = async (r: any) => {
     const zones = r.app.filter((a: any) => a.dimension === 'zone').map((a: any) => a.value)
     const inZone: Tri = !zones.length ? true : !zone ? null : zones.includes(zone)
     const areas = r.app.filter((a: any) => a.dimension === 'defined_area' && a.polarity === 'applies')
@@ -189,19 +218,55 @@ export default defineEventHandler(async (event) => {
     const why = frameReach === false ? `frame ${chain.find((f: any) => reaches(f.id) === false)?.clause ?? ''} does not reach the lot`
       : inZone === false ? `zone ${zone} is not ${zones.join('/')}` : inArea === false ? `not in ${areas.map((a: any) => a.value).join(' / ')}`
       : applies === null ? 'cannot be decided from the data' : 'reaches the lot'
-    const base = { instrument: r.instrument, clause: r.clause, ruleKey: r.rule_key, publishState: r.publish_state, applies, why,
-                   frames: chain.map((f: any) => f.clause) }
-    if (permitsUse) seppPermissions.push({ ...base, edges: [...r.edges, ...chain.flatMap((f: any) => f.edges)] })
-    for (const e of r.eff.filter((e: any) => e.type !== 'permits_use')) seppStandards.push({ ...base, ...e })
+    return { instrument: r.instrument, clause: r.clause, ruleKey: r.rule_key, publishState: r.publish_state, applies, why,
+             frames: chain.map((f: any) => f.clause), chain }
+  }
+  const usesOf = (r: any) => r.app.filter((a: any) => a.dimension === 'land_use' && a.polarity === 'applies').map((a: any) => landUseKey(a.value))
+  const permits = (r: any, key: string) => r.eff.some((e: any) => e.type === 'permits_use' && landUseKey(e.topic) === key)
+  // the lot's whole Land Use Table row set, for the use asked and for conditions naming another use
+  const lutAll = lot.epi && zone ? (await nswQuery<any>(
+    `SELECT land_use, status FROM nsw.lep_permissibility WHERE epi_name = $1 AND zone_code = $2`, [lot.epi, zone])).rows : []
+  const lutFor = (key: string): { holds: Tri; why: string } => {
+    const rows = lutAll.filter(r => landUseKey(r.land_use) === key)
+    if (!lot.epi || !zone) return { holds: null, why: 'zone or plan not recorded' }
+    if (rows.some(r => r.status === 'permitted_with_consent' || r.status === 'permitted_without_consent'))
+      return { holds: true, why: `${rows[0]!.land_use} permitted in ${zone} under ${lot.epi}` }
+    if (!rows.length) return { holds: null, why: `no Land Use Table row for it in ${zone}` }
+    return { holds: false, why: `${rows[0]!.land_use} ${String(rows[0]!.status).replace(/_/g, ' ')} in ${zone} under ${lot.epi}` }
+  }
+  // permissible_under conditions (migration 22): 'lep:<use>' and 'sepp:<section>:<use>' now; 'verdict' after the
+  // verdict. Two passes, so a frame resting on another frame's permission sees it resolved.
+  for (let pass = 0; pass < 2; pass++) {
+    for (const f of frames.values()) {
+      for (const c of f.conds.filter((c: any) => c.deferred && c.value !== 'verdict')) {
+        const v = String(c.value)
+        if (v.startsWith('lep:')) Object.assign(c, lutFor(landUseKey(v.slice(4))))
+        else if (v.startsWith('sepp:')) {
+          const [, sec, use] = v.split(':')
+          const key = landUseKey(use)
+          const rs = seppRules.filter((r: any) => r.document_id === f.document_id && (r.ancestors ?? []).includes(sec) && permits(r, key))
+          if (!rs.length) Object.assign(c, { holds: null, why: `no ${use} permission extracted under ${sec} yet` })
+          else {
+            const vs = await Promise.all(rs.map(evalRule))
+            Object.assign(c, { holds: or3(vs.map(x => x.applies)), why: vs.map(x => `s ${x.clause}: ${x.why}`).join('; ') })
+          }
+        } else Object.assign(c, { holds: null, why: `unknown condition ${v}` })
+      }
+    }
+  }
+
+  // the permissions for the use asked about
+  const seppPermissions: any[] = []
+  for (const r of seppRules.filter((r: any) => permits(r, useKey))) {
+    const b = await evalRule(r)
+    seppPermissions.push({ ...b, chain: undefined, edges: [...r.edges, ...b.chain.flatMap((f: any) => f.edges)] })
   }
 
   // ── 3/4. the LEP: Land Use Table and rules withholding consent ────────────────────────────────
   const lepDoc = (await nswQuery<any>(
     `SELECT id, title FROM nsw.document WHERE doc_type = 'lep' AND (lower(title) = lower($1) OR ($1::text IS NULL AND upper(lga_name) = $2)) LIMIT 1`,
     [lot.epi, lot.lga])).rows[0] ?? null
-  const lut = lot.epi && zone ? (await nswQuery<any>(
-    `SELECT land_use, status FROM nsw.lep_permissibility WHERE epi_name = $1 AND zone_code = $2`, [lot.epi, zone])).rows
-    .filter(r => landUseKey(r.land_use) === useKey) : []
+  const lut = lutAll.filter(r => landUseKey(r.land_use) === useKey)
   const lutStatus: string | null = lut.find(r => r.status === 'permitted_with_consent')?.status
     ?? lut.find(r => r.status === 'permitted_without_consent')?.status ?? lut[0]?.status ?? null
 
@@ -318,12 +383,28 @@ export default defineEventHandler(async (event) => {
     ? 'A SEPP displacing a local clause "to the extent of the inconsistency" is a legal reading - confirm with the council before relying on it.'
     : null
 
+  // a frame conditioned on the verdict itself (s 15C(1)(a): "the development is permitted with consent ...")
+  for (const f of frames.values()) {
+    for (const c of f.conds.filter((c: any) => c.deferred && c.value === 'verdict')) Object.assign(c, { holds: permissible, why: wording })
+  }
+
+  // ── 6. standards for the use, now that every frame condition is resolved ──────────────────────
+  const seppStandards: any[] = []
+  for (const r of seppRules) {
+    if (!usesOf(r).includes(useKey) && !permits(r, useKey)) continue
+    const effs = r.eff.filter((e: any) => e.type !== 'permits_use')
+    if (!effs.length) continue
+    const b = await evalRule(r)
+    for (const e of effs) seppStandards.push({ ...b, chain: undefined, ...e })
+  }
+
   return {
     lot, use, ms: Date.now() - started,
     verdict: { permissible, wording, controlling, displaced, caveat },
     frames: [...frames.values()].map(f => ({
       instrument: f.instrument, ruleKey: f.rule_key, clause: f.clause, publishState: f.publish_state, reaches: reaches(f.id),
-      conditions: f.conds.map((c: any) => ({ dimension: c.dimension, value: c.value, polarity: c.polarity, holds: c.holds, why: c.why })),
+      conditions: f.conds.map((c: any) => ({ dimension: c.dimension, value: c.value, polarity: c.polarity, altGroup: c.alt_group ?? null,
+                                              holds: c.holds, why: c.why })),
     })),
     sepp: { permissions: seppPermissions, standards: seppStandards },
     lep: { document: lepDoc?.title ?? null, landUseTable: lutStatus, withholdsConsent: lepBlocks, standards: lepStandards },

@@ -61,9 +61,9 @@ async function main() {
       await client.query(`DELETE FROM nsw.rule_applicability WHERE rule_id = $1`, [r.id])
       for (const c of f.conditions) {
         await client.query(
-          `INSERT INTO nsw.rule_applicability (rule_id, dimension, value, polarity, source_span)
-           VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`,
-          [r.id, c.dimension, c.value, c.polarity, `${c.clause}: ${c.span}`])
+          `INSERT INTO nsw.rule_applicability (rule_id, dimension, value, polarity, source_span, alt_group)
+           VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING`,
+          [r.id, c.dimension, c.value, c.polarity, `${c.clause}: ${c.span}`, c.anyOf ?? null])
       }
       await client.query(`DELETE FROM nsw.rule_edge WHERE from_rule_id = $1 AND edge_type = 'prevails_over'`, [r.id])
       for (const over of f.prevails?.over ?? []) {

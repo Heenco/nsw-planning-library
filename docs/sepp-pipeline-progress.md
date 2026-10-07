@@ -265,7 +265,7 @@ a changed section that a frame is read from → gating finding (frames are hand-
 text is applied in place by default (Q3 approved; `--keep-sections` to stop); publishing only with `--publish` (Q4: not yet).
 `extract.ts` gained `--clauses`; the profile gained `chapters` (what steps 5-6 extract).
 
-### 13. AI-assisted extraction (hybrid) — `blocked` on Q5 (model choice)
+### 13. AI-assisted extraction (hybrid) — `deferred` (Manni 2026-10-07: "leave it for now"; Q5 parked)
 Patterns stay first; a model is asked only for what they cannot claim, and its output passes the same gates.
 Agreed with Manni 2026-10-07 ("yes" to the hybrid proposal).
 - **13a Fallback extractor** `scripts/pipeline/extract-ai.ts`: input = the clauses step 5 leaves with a finding
@@ -283,8 +283,23 @@ Agreed with Manni 2026-10-07 ("yes" to the hybrid proposal).
 pattern wrong / both acceptable); the 4 open findings are resolved or explained; answer keys still 10/10;
 a second run with nothing changed makes 0 model calls.
 
+### 14. Housing SEPP Ch 2 Pt 2 Div 1 (s 15C bonus) + Ch 3 Pt 4 (s 72 build-to-rent) — `todo`
+Same structure as Ch 6 (patterns, profile, held rules). What these two need that Ch 6 did not - all generic:
+- **14a Frame model** (`done` 2026-10-07 - migration 22, evaluator rewritten around it; Ch 6 keys still 10/10): alternatives (s 72(2) is a list of OR'd limbs; s 15C(1)(c) is two branches of ANDs) -
+  `rule_applicability.alt_group` (migration 22) + evaluator; distance terms (`scope_layer.within_m`, an
+  upper bound for "within 800 m walking"); conditions on another rule's answer (`permissible_under`: the LEP
+  Land Use Table, a SEPP chapter's permissions, or the verdict itself for 15C(1)(a)).
+- **14b Profile:** frames for s 15C (division) and s 72(2) (part), their terms (accessible area = access.iso_*,
+  Six Cities LGAs, relevant zones, Accelerated TOD Precincts, Warrawong / Kanwal / WestConnex Dive sites),
+  signals ("Development consent may be granted for development to which this Part applies").
+- **14c Extraction:** relative bonuses ("plus an additional floor space ratio of up to 30%"), "the lesser of",
+  per-bedroom parking, the 15-year conditions; recall gate PASS.
+- **14d Edges, terms, keys:** answer keys from `/api/housing/at` (46 Macquarie St Parramatta, Warrawong, a
+  non-Six-Cities lot, an Accelerated TOD lot, an R2 lot); run.ts full run green.
+**Done when:** recall PASS on both; answer keys agree with `/api/housing/at` or each disagreement is explained
+with a clause; Ch 6 keys still 10/10; frames listed for Manni's review (Q6, non-blocking - rules stay held).
+
 ### Later
-- 14. Housing SEPP Ch 2 Div 1 + Ch 3 Pt 4 (keys: `/api/housing/at`)
 - 15. Ch 3 Pt 5 seniors, Pt 3 co-living, Ch 2 Div 2 boarding houses (new hand keys)
 - 16. Ch 3 Pt 1 secondary dwellings, Ch 5 TOD, Ch 7 Pattern Book
 - 17. Codes SEPP (key: `cdc` catalogue)
@@ -343,3 +358,5 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 12 done (local): scripts/pipeline/run.ts; full 68 s, noop 5 s, one changed section -> one clause re-extracted. Q3, Q4 asked. Steps 1-12 done.
 - 2026-10-07 — Q3 resolved (section text updated in place by default); Q4 answered: keep held, keep local.
 - 2026-10-07 — step 13 (AI-assisted extraction, hybrid) added at Manni's request; blocked on Q5 (model). Later items renumbered 14-18.
+- 2026-10-07 — step 13 deferred (Manni). Step 14 opened: Ch 2 Pt 2 Div 1 + Ch 3 Pt 4, broken into 14a-14d.
+- 2026-10-07 — 14a done: migration 22 (alt_group, permissible_under, within_m); /api/rules/at evaluates alternatives, native zones, conditions on other rules and on the verdict; Ch 6 10/10.
