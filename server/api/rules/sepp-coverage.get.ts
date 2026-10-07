@@ -22,7 +22,7 @@ export default defineEventHandler(async () => {
        FROM nsw.document d LEFT JOIN nsw.source_registry sr ON sr.document_id = d.id
       WHERE d.doc_type = 'sepp' ORDER BY d.title`)).rows
 
-  const [sections, chapters, rules, effects, edges, terms, findings, runs] = await Promise.all([
+  const [sections, chapters, rules, effects, edges, terms, findings, runs, clauses] = await Promise.all([
     nswQuery<any>(`SELECT document_id AS doc, count(*)::int AS total, count(content_sha256)::int AS hashed,
                           count(route)::int AS routed, count(*) FILTER (WHERE route = 'operative')::int AS operative
                      FROM nsw.section s WHERE document_id IN (SELECT id FROM nsw.document WHERE doc_type = 'sepp')
@@ -83,7 +83,25 @@ export default defineEventHandler(async () => {
                      FROM nsw.ingest_run i JOIN nsw.document d ON d.id = i.document_id
                     WHERE d.doc_type = 'sepp' AND i.stage_metrics ? 'step'
                     ORDER BY i.document_id, i.stage_metrics->>'step', i.started_at DESC`),
+    // clause by clause: a clause is operative when it or a part of it is routed operative (step 4), and covered when
+    // it or a part of it holds a pipeline rule - the figure that moves as each part of a SEPP is extracted
+    nswQuery<any>(`SELECT c.document_id AS doc, count(*)::int AS clauses,
+                          count(*) FILTER (WHERE c.routed)::int AS routed,
+                          count(*) FILTER (WHERE c.op)::int AS operative,
+                          count(*) FILTER (WHERE c.op AND c.ru)::int AS with_rules
+                     FROM (SELECT c.document_id,
+                                  EXISTS (SELECT 1 FROM nsw.section x WHERE x.document_id = c.document_id
+                                            AND (x.id = c.id OR x.local_id LIKE c.local_id || '-%') AND x.route IS NOT NULL) AS routed,
+                                  EXISTS (SELECT 1 FROM nsw.section x WHERE x.document_id = c.document_id
+                                            AND (x.id = c.id OR x.local_id LIKE c.local_id || '-%') AND x.route = 'operative') AS op,
+                                  EXISTS (SELECT 1 FROM nsw.rule r JOIN nsw.section x ON x.id = r.section_id
+                                           WHERE x.document_id = c.document_id AND (x.id = c.id OR x.local_id LIKE c.local_id || '-%')
+                                             AND r.kind <> 'frame' AND r.publish_state <> 'retired') AS ru
+                             FROM nsw.section c JOIN nsw.document d ON d.id = c.document_id
+                            WHERE d.doc_type = 'sepp' AND c.level = 'clause') c
+                    GROUP BY c.document_id`),
   ])
+  const K = byDoc(clauses.rows)
   const S = byDoc(sections.rows), C = byDoc(chapters.rows), R = byDoc(rules.rows), E = byDoc(effects.rows)
   const G = byDoc(edges.rows), T = byDoc(terms.rows), F = byDoc(findings.rows)
   const runsBy = new Map<string, any[]>()
@@ -99,6 +117,8 @@ export default defineEventHandler(async () => {
       title: d.title, slug: d.instrument_slug, asAt: d.as_at_date, source, lastIngestedAt: d.last_ingested_at,
       sections: { total: s.total ?? 0, hashed: s.hashed ?? 0, routed: s.routed ?? 0, operative: s.operative ?? 0 },
       chapters: { unit: c.unit ?? 'chapter', total: c.chapters ?? 0, withRules: c.with_rules ?? 0, covered: c.covered ?? [] },
+      clauses: { total: K.get(k)?.clauses ?? 0, routed: (K.get(k)?.routed ?? 0) > 0, operative: K.get(k)?.operative ?? 0,
+                 withRules: K.get(k)?.with_rules ?? 0 },
       rules: { frames: r.frames ?? 0, held: r.held ?? 0, published: r.published ?? 0, retired: r.retired ?? 0,
                applicability: r.applicability ?? 0, effects: e.effects ?? 0, numeric: e.numeric ?? 0,
                edges: g.edges ?? 0, edgeTypes: Object.keys(g.types ?? {}) },

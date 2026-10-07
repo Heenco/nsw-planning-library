@@ -182,7 +182,7 @@
               <th>SEPP</th>
               <th>Source</th>
               <th class="gm-num">Sections routed</th>
-              <th>Chapters with rules</th>
+              <th>Coverage</th>
               <th class="gm-num">Frames</th>
               <th class="gm-num">Rules</th>
               <th class="gm-num">Values</th>
@@ -206,12 +206,20 @@
                 <template v-else>{{ d.sections.routed.toLocaleString() }} / {{ d.sections.total.toLocaleString() }}</template>
               </td>
               <td>
-                <span class="gm-bar-wrap" :title="d.chapters.covered.join('\n')">
-                  <span class="gm-bar" :class="tone(pct(d.chapters.withRules, d.chapters.total))"
-                        :style="{ width: pct(d.chapters.withRules, d.chapters.total) + '%' }" />
-                  <span class="gm-bar-text">{{ d.chapters.withRules }} / {{ d.chapters.total }} {{ d.chapters.unit }}s</span>
+                <!-- clause by clause: moves as each part of a SEPP is extracted; the chapter count below hides that -->
+                <span class="gm-bar-wrap gm-bar-wrap--wide"
+                      :title="d.clauses.routed ? `${d.clauses.withRules} of ${d.clauses.operative} operative clauses hold a generated rule` : 'not routed yet (step 4) - all clauses counted'">
+                  <span class="gm-bar" :class="tone(pct(d.clauses.withRules, d.clauses.routed ? d.clauses.operative : d.clauses.total))"
+                        :style="{ width: pct(d.clauses.withRules, d.clauses.routed ? d.clauses.operative : d.clauses.total) + '%' }" />
+                  <span class="gm-bar-text">
+                    {{ d.clauses.withRules }} / {{ d.clauses.routed ? d.clauses.operative : d.clauses.total }}
+                    {{ d.clauses.routed ? 'operative clauses' : 'clauses' }}
+                    ({{ pct(d.clauses.withRules, d.clauses.routed ? d.clauses.operative : d.clauses.total) }}%)
+                  </span>
                 </span>
-                <div v-if="d.chapters.covered.length" class="gm-sepp-covered">{{ d.chapters.covered.join(' · ') }}</div>
+                <div class="gm-sepp-covered" :title="d.chapters.covered.join('\n')">
+                  {{ d.chapters.withRules }} / {{ d.chapters.total }} {{ d.chapters.unit }}s<template v-if="d.chapters.covered.length"> · {{ d.chapters.covered.join(' · ') }}</template>
+                </div>
               </td>
               <td class="gm-num" :class="!d.rules.frames ? 'gm-zero' : ''">{{ d.rules.frames }}</td>
               <td class="gm-num" :class="!(d.rules.held + d.rules.published) ? 'gm-zero' : ''"
@@ -247,8 +255,9 @@
         </table>
         <p class="gm-note">
           <strong>Source</strong> compares the library's XML with the copy last ingested (due = changed since).
-          <strong>Chapters with rules</strong> counts the chapters (parts, where a SEPP has none) holding at least one
-          generated rule - the honest coverage figure, since a SEPP with no rules in a chapter cannot answer for it.
+          <strong>Coverage</strong> is clause by clause: operative clauses (step 4's routing) of which at least one part holds a
+          generated rule - it moves as each part of a SEPP is extracted. Below it, the chapters (parts, where a SEPP has
+          none) holding any rule at all; a SEPP not yet routed shows all its clauses.
           <strong>Values</strong> are effects carrying a number; <strong>edges</strong> say which instrument prevails or
           disapplies what. <strong>Place terms</strong> are the defined areas, maps, councils and land characteristics
           the rules test, and whether each maps to a dataset. <strong>Gating</strong> findings hold a SEPP from publishing.
@@ -472,7 +481,8 @@ function flags(d: any): string[] {
 .gm-flag--bad { background: #fee2e2; color: #991b1b; }
 .gm-sepp { margin-top: 36px; }
 .gm-h2 { font-size: 17px; font-weight: 700; margin: 0 0 4px; }
-.gm-sepp-covered { font-size: 10px; color: #64748b; margin-top: 3px; max-width: 220px; }
+.gm-sepp-covered { font-size: 10px; color: #64748b; margin-top: 3px; max-width: 240px; }
+.gm-bar-wrap--wide { width: 200px; }
 .gm-note {
   margin-top: 18px; font-size: 12px; line-height: 1.6; color: #64748b;
   border-top: 1px solid #e5e7eb; padding-top: 12px;
