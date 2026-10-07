@@ -71,13 +71,13 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     route: '/permissibility', name: 'Permissibility', status: 'live', kind: 'answer', added: '2026-09-14',
-    summary: "Any plan's Land Use Table, zone by zone: permitted with and without consent, prohibited, and what a group term covers.",
+    summary: "Any plan\'s Land Use Table, zone by zone: permitted with and without consent, prohibited, and what a group term covers.",
     detail: 'The same component the report uses; plan and zone live in the URL so a zone can be linked to.',
     reads: ['/api/lep-permissibility'], notebook: '01E - LEP Permissibility',
   },
   {
     route: '/design-lab', name: 'Design Lab', status: 'live', kind: 'answer', added: '2026-09-07',
-    summary: "Given a lot's envelope, asks a model for a scheme, turns it into geometry, and measures it against the same controls the envelope was drawn from.",
+    summary: "Given a lot\'s envelope, asks a model for a scheme, turns it into geometry, and measures it against the same controls the envelope was drawn from.",
     detail: 'The measurements are the point: a massing that breaches its own setback is shown as breaching it. Nothing here is advice.',
     reads: ['/api/property/envelope', '/api/design/brief', '/api/design/generate', '/api/design/model'],
   },
@@ -182,7 +182,7 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     route: '/testing-slope', name: 'Testing slope', status: 'live', kind: 'testing', added: '2026-09-18',
-    summary: "The slope build: how many of the 342 slope sheets are done, lots by method, and the trace behind any one lot's slope - every sheet that measured it and the arithmetic that produced the row.",
+    summary: "The slope build: how many of the 342 slope sheets are done, lots by method, and the trace behind any one lot\'s slope - every sheet that measured it and the arithmetic that produced the row.",
     reads: ['/api/lotslope', 'derived.lot_slope', 'derived.lot_slope_part', 'derived.lot_slope_sheet'],
     notebook: '03 - slope calculations - spatial services',
   },
@@ -238,8 +238,8 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     route: '/subdivision', name: 'Subdivision', status: 'building', kind: 'answer',
-    summary: 'Search an address: can the lot be subdivided, and which way - Torrens, strata or community title - each Yes / No / Maybe from the Housing SEPP and the lot's LEP, with the questions that settle a Maybe.',
-    detail: 'The norms trial (docs/norms-trial.md): every clause is a norm with all its conditions, typed by who can answer them (our data, you, the council, or not yet encoded), through one engine. A condition it cannot read makes the answer Maybe - never a confident yes or no. Only questions whose answer changes something are asked, most useful first. Standards come with the lot's arithmetic, LEP standards a SEPP grant displaces are shown as displaced, and every local subdivision clause not yet encoded is listed with a link.',
+    summary: 'Search an address: can the lot be subdivided, and which way - Torrens, strata or community title - each Yes / No / Maybe from the Housing SEPP and the lot\'s LEP, with the questions that settle a Maybe.',
+    detail: 'The norms trial (docs/norms-trial.md): every clause is a norm with all its conditions, typed by who can answer them (our data, you, the council, or not yet encoded), through one engine. A condition it cannot read makes the answer Maybe - never a confident yes or no. Only questions whose answer changes something are asked, most useful first. Standards come with the lot\'s arithmetic, LEP standards a SEPP grant displaces are shown as displaced, and every local subdivision clause not yet encoded is listed with a link.',
     reads: ['/api/norms/subdivision', '/api/lotprofile', 'norms/subdivision/', 'shared/norms/engine.ts', 'nsw.scope_layer', 'epi.epi_lot_size', 'derived.lot_frontage'],
     notebook: '—',
   },

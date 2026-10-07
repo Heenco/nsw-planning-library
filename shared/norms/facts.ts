@@ -22,6 +22,10 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
     WITH p AS (SELECT l.cadid, l.lotidstring, ST_Area(l.geom::geography) AS area, ST_PointOnSurface(l.geom) AS pt FROM cadastre.lot l WHERE l.cadid::text = $1)
     SELECT p.cadid, p.lotidstring, p.area,
            (SELECT primary_frontage_length_m::float8 FROM derived.lot_frontage f WHERE f.cadid::text = p.cadid::text) AS frontage,
+           -- cl 4.1(3A) and its siblings turn on these: a battle-axe lot's access handle is not counted
+           -- in the lot size, and 04D already measures the handle on every lot in the state
+           (SELECT is_battleaxe FROM derived.lot_profile b WHERE b.cadid::text = p.cadid::text) AS is_battleaxe,
+           (SELECT handle_area_sqm::float8 FROM derived.lot_profile b WHERE b.cadid::text = p.cadid::text) AS handle_area,
            (SELECT upper(lga_name) FROM derived.lot_lga g WHERE g.cadid::text = p.cadid::text) AS lga,
            (SELECT json_build_object('zone', z.sym_code, 'epi', z.epi_name) FROM epi.epi_land_zoning z
              WHERE z.geom && p.pt AND ST_Intersects(z.geom, p.pt) AND z.sym_code IS NOT NULL LIMIT 1) AS zoning
@@ -57,7 +61,9 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
                                     WHERE d.title = $1 AND s.level = 'dictionary'`, [epi])).rows[0]?.t : null
   return { cadid, lotId, zone, epi, lga: row.lga ?? null, areaM2: row.area == null ? null : Math.round(Number(row.area)),
            lotSizeMinM2, onLotSizeMap, lut, site: { [key('strata scheme')]: /\/\/SP\d/i.test(String(lotId ?? '')) },
-           frontageM: row.frontage == null ? null : Number(row.frontage), terms: tested, refHits, groups: dict ? useGroups(dict, key) : {} }
+           frontageM: row.frontage == null ? null : Number(row.frontage), terms: tested, refHits, groups: dict ? useGroups(dict, key) : {},
+           isBattleaxe: row.is_battleaxe == null ? null : Boolean(row.is_battleaxe),
+           handleAreaM2: row.handle_area == null ? null : Math.round(Number(row.handle_area)) }
 }
 
 /** One nsw.scope_layer term against the lot: true / false / null (a gap, a bound that cannot decide, a failed query). */

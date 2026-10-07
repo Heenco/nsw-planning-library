@@ -35,7 +35,8 @@ const NOT_ADOPTED = /^\s*[[(]?\s*(not applicable|not adopted|repealed)\s*[\])]?\
 const norm = (t: unknown) => String(t ?? '').replace(/\s+/g, ' ').trim()
 
 export async function graphNorms(query: Query, documentId: string, instrument: string, slug: string,
-  opts: { clauseFilter: string; covered: string[] }): Promise<{ norms: Norm[]; gaps: GraphGap[]; refIds: string[] }> {
+  opts: { clauseFilter: string; covered: string[] }): Promise<{ norms: Norm[]; gaps: GraphGap[]; refIds: string[];
+    handleRule: { clauses: string[]; exceptZones: string[] } | null }> {
   const isCovered = (local: string) => opts.covered.some(c => local === c || local.startsWith(c + '-'))
   const clauses = (await query(`SELECT local_id, heading FROM nsw.section WHERE document_id = $1 AND level = 'clause' AND (${opts.clauseFilter})`, [documentId])).rows
   const sections = (await query(`
@@ -58,6 +59,32 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
      WHERE r.document_id = $1 AND r.publish_state <> 'retired' AND cl.local_id = ANY($2)
      ORDER BY s.local_id`, [documentId, clauses.map(c => c.local_id)])).rows.filter(r => !isCovered(r.section))
 
+  /*
+   * "the area of the access handle is not to be included in calculating the lot size"
+   *
+   * This is not a standard of its own - it is a rule about the ARITHMETIC of every other lot-size
+   * standard in the plan, which is why it kept showing as "not tested here" while the lot sizes
+   * beside it were computed on the gross area including the handle.
+   *
+   * Hornsby cl 4.1(3A) excepts RU1, RU2, RU4 and C3; cl 4.1A(4) and 4.1AA(3A) except nothing. The
+   * carve-out is read from the clause's own child paragraphs, so no council's zone list is written
+   * into the code.
+   */
+  const HANDLE = /access handle\s+(?:is|must)\s+not\s+(?:to\s+)?be\s+(?:included|counted)/i
+  const handleSecs = sections.filter(s => HANDLE.test(norm(s.raw_text)))
+  // the subclause that carries it - "sec.4.1-ssec.3A" is cl 4.1(3A), which is how the row is labelled
+  const clauseLabel = (localId: string) => {
+    const [head, sub2] = String(localId).replace('sec.', '').split('-ssec.')
+    return sub2 ? `${head}(${sub2.split('-')[0]})` : head!
+  }
+  const handleRule = handleSecs.length
+    ? { clauses: [...new Set(handleSecs.map(s => clauseLabel(s.local_id)))],
+        exceptZones: [...new Set(handleSecs.flatMap(h => /\bexcept\b/i.test(norm(h.raw_text))
+          ? sections.filter(s => s.local_id.startsWith(h.local_id + '-'))
+              .flatMap(s => [...norm(s.raw_text).matchAll(/\bZone ([A-Z]{1,2}\d{0,2}[A-Z]?)\b/g)].map(m => m[1]!))
+          : []))] }
+    : null
+
   const refIds: string[] = []
   const leafFor = (r: any, a: { d: string; v: string }): Cond => {
     const v = norm(a.v), lv = v.toLowerCase(), s = r.section
@@ -74,6 +101,14 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
           : /torrens/.test(lv) ? { fact: 'proposal.subdivision_type', value: 'torrens', span: s }
           : { fact: 'unparsed', text: `tenure: ${v}`, span: s }
       case 'land_use': return { any: [{ fact: 'site.has', value: v, span: s }, { fact: 'proposal.use', value: v, span: s }] }
+      /*
+       * A branch condition - "for development in a heritage conservation area" - carried onto the
+       * rules beneath it by scripts/backfill-branch-conditions.ts. The value is an nsw.scope_layer
+       * term, so it resolves through the `lot.in` fact that already exists rather than a new path;
+       * a term with no scope_layer row answers null, which keeps the norm undecided rather than
+       * clear. Without this the four cells of a matrix clause are indistinguishable.
+       */
+      case 'land_characteristic': return { fact: 'lot.in', value: lv, span: s }
       case 'dev_type': return lv === 'residential'
         ? { any: [{ fact: 'site.has', value: 'residential accommodation', span: s }, { fact: 'proposal.use', value: 'residential accommodation', span: s }] }
         : { fact: 'unparsed', text: `development type: ${v}`, span: s }
@@ -162,7 +197,10 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
       ;(r.eff as any[]).forEach((e, i) => {
         const then = effectOf(e)
         if (!then) return
-        const id = `${slug}:graph:${r.section}:${i}`
+        // several rules of one clause point at the SAME section (Hornsby cl 4.1C has four, all on
+        // sec.4.1C), so a section-keyed id collided - byId then returned one norm for every row and
+        // anything keyed by norm id, `despite` included, silently read the wrong one
+        const id = `${slug}:graph:${r.section}:${String(r.id).slice(0, 8)}:${i}`
         idsByClause.set(clauseNo, [...(idsByClause.get(clauseNo) ?? []), id])
         norms.push({ id, instrument, clause: r.clause, section: r.section, text: '', when, then, despite: [],
           author: { by: 'nsw graph (nsw.rule)', at: '' }, review: e.span ? `graph: "${norm(e.span).slice(0, 160)}"` : undefined, _edges: r.edges })
@@ -177,5 +215,5 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
     }
     delete n._edges
   }
-  return { norms, gaps, refIds: [...new Set(refIds)] }
+  return { norms, gaps, refIds: [...new Set(refIds)], handleRule }
 }

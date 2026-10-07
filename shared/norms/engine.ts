@@ -21,6 +21,10 @@ import { FACTS } from './schema'
 export type Tri = boolean | null
 export interface LotFacts {
   cadid: string; lotId: string | null; zone: string | null; epi: string | null; lga: string | null; areaM2: number | null
+  /** Measured by 04D. The handle is land you cannot count toward a minimum lot size. */
+  isBattleaxe?: boolean | null; handleAreaM2?: number | null
+  /** The clause that says so, and the zones it excepts - read from the instrument, never hard-coded. */
+  handleRule?: { clauses: string[]; exceptZones: string[] } | null
   /** the Lot Size Map minimum on the lot; null with onLotSizeMap false = not on the map; onLotSizeMap null = cannot tell */
   lotSizeMinM2: number | null; onLotSizeMap: Tri
   /** Land Use Table: use key -> status */
@@ -216,6 +220,22 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
   // a grant "despite the provisions of another environmental planning instrument" (Housing SEPP s 169(1A)) that holds
   // displaces the LEPs' standards for this development - shown as displaced, never silently dropped
   const overLep = live.filter(r => r.holds === true && 'permit' in r.effect && (byId.get(r.id)!.despite ?? []).includes('doc_type:lep'))
+  /*
+   * The access handle, deducted ONCE for every lot-size standard below.
+   *
+   * cl 4.1(3A): "If a lot is a battle-axe lot or other lot with an access handle, the area of the
+   * access handle must not be included in calculating the lot size, except in [RU1, RU2, RU4, C3]."
+   *
+   * It is a rule about the ARITHMETIC of the other standards, not a standard of its own, which is
+   * why it read "not tested here" while every lot size beside it was computed on the gross area with
+   * the handle included - too generous on exactly the lots the clause is aimed at. 04D measures the
+   * handle on every lot in the state, so this is a lookup, not an estimate.
+   */
+  const handleExcepted = !!(lot.zone && lot.handleRule?.exceptZones.includes(lot.zone))
+  const handleCut = lot.isBattleaxe && lot.handleAreaM2 && lot.handleRule && !handleExcepted ? Math.round(lot.handleAreaM2) : 0
+  const sizeArea = lot.areaM2 == null ? null : lot.areaM2 - handleCut
+  const cutNote = handleCut ? ` (${lot.areaM2} m² less the ${handleCut} m² access handle, cl ${lot.handleRule!.clauses[0]})` : ''
+
   const standards = stds.filter(r => !replaced.has(r.id)).map(r => {
     if (overLep.length && rank(r) === 1) {
       const s0 = (r.effect as Extract<Effect, { require: unknown }>).require
@@ -229,11 +249,17 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
       ? `${s.unit ?? 'a standard'}${s.n != null ? ` ${CMP[s.cmp]} ${s.n}` : ''} (from the graph)`
       : `${s.topic.replace(/_/g, ' ')} ${CMP[s.cmp]} ${min ?? (s.from === 'lot_size_map' ? 'the Lot Size Map minimum' : s.from === 'existing' ? 'the number on the site before the development' : '?')}${s.unit && min != null ? ' ' + s.unit : ''} (${s.kind.replace(/_/g, ' ')})`
     let holds: Tri = null, test = 'not tested here'
-    if (s.topic === 'resulting_lot_size' && min != null && lot.areaM2 != null && (s.cmp === 'gte' || s.cmp === 'gt')) {
+    if (s.topic === 'resulting_lot_size' && min != null && sizeArea != null && (s.cmp === 'gte' || s.cmp === 'gt')) {
       const lots = q.proposal.resulting_lots
-      if (lots) { holds = lot.areaM2 / lots >= min; test = `${lots} lots from ${lot.areaM2} m² average ${Math.round(lot.areaM2 / lots)} m²${holds ? ' - possible; the layout decides' : ` - below ${min} m²`}` }
-      else if (lot.areaM2 < 2 * min) { holds = false; test = `${lot.areaM2} m² cannot make 2 lots of ${min} m² (needs ${2 * min} m²)${lot.areaM2 < min ? `; the lot is itself under ${min} m²` : ''}` }
-      else test = `${lot.areaM2} m² allows up to ${Math.floor(lot.areaM2 / min)} lots of ${min} m² - the layout decides`
+      if (lots) { holds = sizeArea / lots >= min; test = `${lots} lots from ${sizeArea} m²${cutNote} average ${Math.round(sizeArea / lots)} m²${holds ? ' - possible; the layout decides' : ` - below ${min} m²`}` }
+      else if (sizeArea < 2 * min) { holds = false; test = `${sizeArea} m²${cutNote} cannot make 2 lots of ${min} m² (needs ${2 * min} m²)${sizeArea < min ? `; the lot is itself under ${min} m²` : ''}` }
+      else test = `${sizeArea} m²${cutNote} allows up to ${Math.floor(sizeArea / min)} lots of ${min} m² - the layout decides`
+    } else if (lot.handleRule?.clauses.includes(r.clause)) {
+      // the handle clause itself: say what it DID, not "not tested here"
+      test = !lot.isBattleaxe ? 'not a battle-axe lot and no access handle measured - nothing to exclude'
+        : handleExcepted ? `the clause excepts ${lot.handleRule.exceptZones.join(', ')} and the lot is ${lot.zone}, so the handle is counted`
+        : handleCut ? `applied: the ${handleCut} m² access handle is excluded, so every lot size here is tested on ${sizeArea} m², not ${lot.areaM2} m²`
+        : 'a handle is recorded but its area is not measured'
     } else if (s.topic === 'resulting_lot_width' && s.n != null && lot.frontageM != null) {
       // side-by-side lots share the frontage (a battle-axe lot is the other way, and some clauses forbid it)
       const lots = q.proposal.resulting_lots ?? 2
@@ -246,6 +272,35 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
     return { id: r.id, clause: r.clause, standard: label, holds: r.holds === null ? null : holds,
              test: r.holds === null ? `${holds === false ? 'would NOT be met: ' : holds === true ? 'would be met: ' : ''}${test}; applies only if ${r.leaves.filter(l => l.v === null).map(l => l.why).join('; ')}` : test }
   })
+
+  /*
+   * Two rows of the SAME clause must say what separates them.
+   *
+   * Hornsby cl 4.1C(3) is a matrix - attached or detached, inside or outside a heritage conservation
+   * area - so one clause legitimately yields more than one row. Saying only "4.1C >= 700 m2" above
+   * "4.1C >= 800 m2" leaves the reader unable to tell which one is theirs, which reads as a bug even
+   * when both numbers are right. Only the conditions that DIFFER are named; what every row shares is
+   * already implied by the clause.
+   */
+  const condFaces = (c: any, out: string[] = [], neg = false): string[] => {
+    if (!c) return out
+    if (c.all) { for (const x of c.all) condFaces(x, out, neg); return out }
+    if (c.any) { for (const x of c.any) condFaces(x, out, neg); return out }
+    if (c.not) { condFaces(c.not, out, !neg); return out }
+    if (c.fact && c.value) out.push(`${neg ? 'not ' : ''}${String(c.value).replace(/_/g, ' ')}`)
+    return out
+  }
+  const perClause = new Map<string, typeof standards>()
+  for (const s of standards) perClause.set(s.clause, [...(perClause.get(s.clause) ?? []), s])
+  for (const [, g] of perClause) {
+    if (g.length < 2) continue
+    const sets = g.map(s => new Set(condFaces(byId.get(s.id)?.when)))
+    const shared = [...sets[0]!].filter(v => sets.every(x => x.has(v)))
+    g.forEach((s, i) => {
+      const only = [...sets[i]!].filter(v => !shared.includes(v))
+      if (only.length) s.standard = `${s.standard} - ${only.join(', ')}`
+    })
+  }
 
   // once per question asked: a norm reached two ways (an open prohibition that would also defeat the permit) asks once
   const dependsOn = [...new Map(unknowns([...new Set(depends)]).map(d => [`${d.clause}|${d.fact}|${d.why}`, d])).values()]

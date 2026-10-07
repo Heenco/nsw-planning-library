@@ -62,7 +62,9 @@ export default defineEventHandler(async (event) => {
   const lepDoc = docs.find(d => d.title === lot!.epi)
   const readClauses = [...new Set(read.filter(n => n.instrument === lot!.epi).map(n => n.section.replace(/-.*$/, '')))]
   const fromGraph = lepDoc ? await graphNorms(q2, lepDoc.id, lepDoc.title, lepDoc.instrument_slug, {
-    clauseFilter: `heading ~* 'subdivi|lot size' OR local_id IN ('sec.2.6', 'sec.4.1')`, covered: readClauses }) : { norms: [], gaps: [], refIds: [] }
+    clauseFilter: `heading ~* 'subdivi|lot size' OR local_id IN ('sec.2.6', 'sec.4.1')`, covered: readClauses }) : { norms: [], gaps: [], refIds: [], handleRule: null }
+  // the plan's own access-handle rule, so the lot-size arithmetic below can honour it
+  lot.handleRule = fromGraph.handleRule
   const norms: Norm[] = [...read, ...fromGraph.norms]
   // statements the clause reader did not recognise, with where each clause reaches (its scope + its SEPP part's frame)
   const unreadRows = (await q2(`SELECT u.section, u.clause, u.why, u.zones, u."when", d.title AS instrument FROM nsw.norm_unchecked u JOIN nsw.document d ON d.id = u.document_id
