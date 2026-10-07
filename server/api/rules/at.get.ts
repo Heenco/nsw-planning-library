@@ -143,7 +143,7 @@ export default defineEventHandler(async (event) => {
                         FROM nsw.rule_edge e WHERE e.from_rule_id = r.id), '[]') AS edges
        FROM nsw.rule r JOIN nsw.document d ON d.id = r.document_id
       WHERE d.doc_type = 'sepp' AND r.kind = 'frame' AND r.publish_state <> 'retired'`)).rows
-  const PROPOSAL_DIMS = ['pathway', 'proponent', 'proposal_metric', 'temporal', 'dev_type']
+  const PROPOSAL_DIMS = ['pathway', 'proponent', 'proposal_metric', 'temporal', 'dev_type', 'route_condition']
   const frames = new Map<string, any>()
   for (const f of frameRows) {
     const conds: any[] = []
@@ -329,7 +329,16 @@ export default defineEventHandler(async (event) => {
     // s 37; "by or on behalf of a relevant authority", s 29): it is a route for them, not an answer for everyone
     const proponents = b.chain.flatMap((f: any) => f.conds.filter((c: any) => c.dimension === 'proponent' && c.polarity === 'applies').map((c: any) => c.value))
     for (const v of proponents) conditions.push(`carried out by ${v}`)
-    seppPermissions.push({ ...b, chain: undefined, conditional: conditions.length > 0, proponentLimited: proponents.length > 0, conditions,
+    // ... or one for a kind of proposal the question does not assume (migration 24: an existing serviced apartment
+    // building, s 116; a site compatibility certificate, s 138; s 141F(3)'s public authority / approved project)
+    const routes = b.chain.flatMap((f: any) => f.conds.filter((c: any) => c.dimension === 'route_condition' && c.polarity === 'applies').map((c: any) => c.value))
+    conditions.push(...routes)
+    // how the grant permits it, in its own words: "is exempt development" (s 111), "may be carried out without
+    // development consent" (s 135), else with consent
+    const span = String(r.eff.find((e: any) => e.type === 'permits_use' && landUseKey(e.topic) === useKey)?.span ?? '')
+    const pathway = /\bis exempt development\b/i.test(span) ? 'as exempt development (no consent needed)'
+      : /\b(?:without (?:development )?consent|is permitted without consent)\b/i.test(span) ? 'without consent' : 'with consent'
+    seppPermissions.push({ ...b, chain: undefined, conditional: conditions.length > 0, proponentLimited: proponents.length + routes.length > 0, conditions, pathway,
                            edges: [...r.edges, ...b.chain.flatMap((f: any) => f.edges)] })
   }
   // SEPP prohibitions of the use ("must not be carried out on land in Zone R2 ... unless ...", s 23(2))
@@ -442,7 +451,7 @@ export default defineEventHandler(async (event) => {
       if (block) displaced.push({ instrument: block.instrument, clause: block.clause, why: block.why })
       if (!lutPermits && lutStatus) displaced.push({ instrument: lepDoc?.title, clause: 'Land Use Table', why: `${use} ${lutStatus.replace(/_/g, ' ')} in ${zone}` })
       const by = String(prevail.span ?? '').match(/^(\d+[A-Z]?\(\d+[A-Z]?\))/)?.[1] ?? 'its relationship clause'
-      wording = `${use}: permissible with consent — ${grant.instrument} s ${grant.clause}`
+      wording = `${use}: permissible ${grant.pathway} — ${grant.instrument} s ${grant.clause}`
         + (displaced.length ? `, prevails over ${displaced.map(d => `${d.instrument} ${d.clause === 'Land Use Table' ? 'Land Use Table' : 'cl ' + d.clause}`).join(' and ')} by s ${by}` : '')
     } else {
       permissible = null
@@ -457,7 +466,7 @@ export default defineEventHandler(async (event) => {
   } else if (grant) {
     permissible = true
     controlling = { instrument: grant.instrument, clause: grant.clause }
-    wording = `${use}: permissible with consent — ${grant.instrument} s ${grant.clause} (the LEP also permits it in ${zone})`
+    wording = `${use}: permissible ${grant.pathway} — ${grant.instrument} s ${grant.clause} (the LEP also permits it in ${zone})`
   } else if (block) {
     permissible = openPrevailing ? null : false
     controlling = { instrument: block.instrument, clause: block.clause }

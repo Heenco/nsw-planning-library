@@ -15,6 +15,8 @@ export type Polarity = 'applies' | 'excludes'
 export type Dimension =
   | 'zone' | 'land_use' | 'map_area' | 'land_characteristic' | 'defined_area' | 'lga' | 'pathway'
   | 'proponent' | 'proposal_metric' | 'temporal' | 'permissible_under'
+  /** a proposal fact the general question does not assume (migration 24): a grant under it is a route, not an answer */
+  | 'route_condition'
 
 export interface FrameCondition {
   dimension: Dimension
@@ -149,6 +151,8 @@ const SENIORS_ZONES = ['RU5', 'R1', 'R2', 'R3', 'R4', 'E1', 'E2', 'E3', 'MU1', '
 const SP4_LEPS = ['Canada Bay Local Environmental Plan 2013', 'Central Coast Local Environmental Plan 2022', 'Penrith Local Environmental Plan 2010',
   'Pittwater Local Environmental Plan 2014', 'Port Macquarie-Hastings Local Environmental Plan 2011', 'Sutherland Shire Local Environmental Plan 2015',
   'The Hills Local Environmental Plan 2019', 'Warringah Local Environmental Plan 2011']
+/** s 141E table (read from the XML - the stored section text omits the table). */
+const CONSTRUCTION_WORKER_LGAS = ['ARMIDALE REGIONAL', 'BALRANALD', 'CABONNE', 'CARRATHOOL', 'CENTRAL COAST', 'CESSNOCK', 'DUBBO REGIONAL', 'DUNGOG', 'EDWARD RIVER', 'GILGANDRA', 'GLEN INNES SEVERN', 'HAY', 'INVERELL', 'KIAMA', 'LAKE MACQUARIE', 'LIVERPOOL PLAINS', 'MAITLAND', 'MID-WESTERN REGIONAL', 'MURRAY RIVER', 'MURRUMBIDGEE', 'MUSWELLBROOK', 'NARROMINE', 'NEWCASTLE', 'PORT STEPHENS', 'SHELLHARBOUR', 'SINGLETON', 'TAMWORTH REGIONAL', 'TENTERFIELD', 'UPPER HUNTER', 'URALLA', 'WALCHA', 'WARREN', 'WARRUMBUNGLE', 'WENTWORTH', 'WINGECARRIBEE', 'WOLLONGONG']
 /** s 74(2)(d): the three metropolitan cities. */
 const METRO_CITIES_LGAS = [...SIX_CITIES['Eastern Harbour City']!, ...SIX_CITIES['Central River City']!, ...SIX_CITIES['Western Parkland City']!]
 const SIX_CITIES_15C = SIX_CITIES_LGAS.filter(l => l !== 'SHOALHAVEN' && l !== 'PORT STEPHENS')
@@ -162,7 +166,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
-  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7', 'ch.2-pt.1', 'ch.2-pt.2-div.3', 'ch.2-pt.2-div.4', 'ch.2-pt.2-div.5', 'ch.2-pt.2-div.6', 'ch.2-pt.3'],
+  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7', 'ch.2-pt.1', 'ch.2-pt.2-div.3', 'ch.2-pt.2-div.4', 'ch.2-pt.2-div.5', 'ch.2-pt.2-div.6', 'ch.2-pt.3', 'ch.3-pt.2', 'ch.3-pt.6', 'ch.3-pt.7', 'ch.3-pt.8', 'ch.3-pt.9', 'ch.3-pt.10', 'ch.3-pt.11', 'ch.3-pt.13', 'ch.3-pt.14'],
   frames: [
     {
       id: 'instrument',
@@ -475,6 +479,161 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         + 'equivalent land use zone" is not resolved. The proponent is a fact about the proposal.',
     },
     {
+      id: 'ch3-group-homes',
+      title: 'Chapter 3, Part 2 — group homes',
+      parent: 'instrument',
+      clause: '61(1)',
+      section: 'sec.61',
+      governs: ['ch.3-pt.2'],
+      conditions: [
+        // s 60 "prescribed zone": (a) the listed zones, or (b) another zone where dwelling houses or MDH may be carried out
+        ...['R1', 'R2', 'R3', 'R4', 'MU1', 'B4', 'SP1', 'SP2'].map(z => ({ dimension: 'zone' as const, value: z, polarity: 'applies' as const,
+          clause: '60(a)', anyOf: `pz#${z}`, span: 'on land in a prescribed zone' })),
+        { dimension: 'permissible_under', value: 'lep:dwelling house', polarity: 'applies', clause: '60(b)', anyOf: 'pz#dh',
+          span: 'another zone in which development for the purposes of dwelling houses or multi dwelling housing may be carried out with or without consent under an environmental planning instrument' },
+        { dimension: 'permissible_under', value: 'lep:multi dwelling housing', polarity: 'applies', clause: '60(b)', anyOf: 'pz#mdh',
+          span: 'another zone in which development for the purposes of dwelling houses or multi dwelling housing may be carried out with or without consent under an environmental planning instrument' },
+      ],
+      note: 's 61: with consent anywhere in a prescribed zone; without consent for a public authority with no more than 10 bedrooms. '
+        + 's 64-66 (complying development) are read with the Codes SEPP (step 18).',
+    },
+    {
+      id: 'ch3-stra',
+      title: 'Chapter 3, Part 6 — short-term rental accommodation (exempt development)',
+      parent: 'instrument',
+      clause: '111',
+      section: 'sec.111',
+      governs: ['ch.3-pt.6'],
+      conditions: [],
+      note: 'The whole State; the day caps depend on the prescribed area (s 112(3)) and Byron (excluded land). The Clarence Valley '
+        + 'and Muswellbrook mapped parts of the prescribed area, and Byron\'s "Excluded Land", are on the Housing SEPP '
+        + 'Short-term Rental Accommodation Area Map, which is not loaded (Q11).',
+    },
+    {
+      id: 'ch3-serviced-apts',
+      title: 'Chapter 3, Part 7 — conversion of certain serviced apartments',
+      parent: 'instrument',
+      clause: '115(1)',
+      section: 'sec.115',
+      governs: ['ch.3-pt.7'],
+      conditions: [
+        { dimension: 'route_condition', value: 'a building used as serviced apartments, once consented as an RFB or shop top housing', polarity: 'applies',
+          clause: '115(1)', span: 'This Part applies to a building— (a) used for the purposes of serviced apartments' },
+      ],
+      note: 'A route for one kind of building; s 116 also needs RFBs / shop top housing permitted on the land (not modelled on the rule).',
+    },
+    {
+      id: 'ch3-mhe',
+      title: 'Chapter 3, Part 8 — manufactured home estates',
+      parent: 'instrument',
+      clause: '119',
+      section: 'sec.119',
+      governs: ['ch.3-pt.8'],
+      conditions: [
+        { dimension: 'defined_area', value: 'outside the Sydney region, or in the former City of Gosford or Shire of Wyong', polarity: 'applies',
+          clause: '119(1)', span: 'This Part applies to land that is within the City of Gosford or the Shire of Wyong and to all other areas in the State that are outside the Sydney region' },
+        { dimension: 'permissible_under', value: 'lep:caravan park', polarity: 'applies', clause: '122',
+          span: 'on any land on which development for the purposes of a caravan park may be carried out' },
+        { dimension: 'defined_area', value: 'within 18 km of the Siding Spring Observatory', polarity: 'excludes', clause: '119(2)(b)',
+          span: 'land less than 18 kilometres from the Siding Spring Observatory' },
+      ],
+      prevails: { over: ['lep', 'dcp'], clause: '120(1)',
+        span: 'In the event of an inconsistency between this Part and any other environmental planning instrument whether made before or after this Part, this Part prevails to the extent of the inconsistency.' },
+      note: '"the Sydney region" is not resolved (a gap); Schedule 5 land, Schedule 6 categories, national parks and Crown reserves are not held.',
+    },
+    {
+      id: 'ch3-caravan',
+      title: 'Chapter 3, Part 9 — caravan parks',
+      parent: 'instrument',
+      clause: '127',
+      section: 'sec.127',
+      governs: ['ch.3-pt.9'],
+      conditions: [
+        { dimension: 'defined_area', value: 'within 18 km of the Siding Spring Observatory', polarity: 'excludes', clause: '127(2)(b)',
+          span: 'land less than 18 kilometres from the Siding Spring Observatory' },
+      ],
+      prevails: { over: ['lep', 'dcp'], clause: '128(1)',
+        span: 'In the event of an inconsistency between this Part and another environmental planning instrument (whether made before or after this Part) this Part prevails to the extent of the inconsistency.' },
+      note: '(2)(a) land under SEPP (Western Sydney Parklands) 2009 - not resolved.',
+    },
+    {
+      id: 'ch3-temp-emergency',
+      title: 'Chapter 3, Part 10 — temporary emergency accommodation',
+      parent: 'instrument',
+      clause: '135(1)',
+      section: 'sec.135',
+      governs: ['ch.3-pt.10'],
+      conditions: [
+        { dimension: 'proponent', value: 'a public authority', polarity: 'applies', clause: '135(1)(b)', span: 'the development is carried out by or on behalf of a public authority' },
+      ],
+      note: 'Caravan parks / camping grounds without consent for people displaced by a natural disaster, within 5 years of it.',
+    },
+    {
+      id: 'ch3-flood-recovery',
+      title: 'Chapter 3, Part 11 — residential accommodation for flood recovery (Lismore)',
+      parent: 'instrument',
+      clause: '137',
+      section: 'sec.137',
+      governs: ['ch.3-pt.11'],
+      conditions: [
+        { dimension: 'lga', value: 'City of Lismore', polarity: 'applies', clause: '137(1)', span: 'This Part applies to land in the Lismore City local government area' },
+        ...([
+          ['a', 'land_characteristic', 'flood planning area (s 164(1)(g) councils)', 'in a flood planning area'],
+          ['b', 'defined_area', 'conservation zone', 'in a conservation zone'],
+          ['c', 'land_characteristic', 'forestry area', 'in a forestry area'],
+          ['d', 'land_characteristic', 'land reserved under the National Parks and Wildlife Act 1974', 'reserved under the National Parks and Wildlife Act 1974'],
+          ['e', 'land_characteristic', 'coastal wetlands and littoral rainforests area', 'in the coastal wetlands and littoral rainforests area'],
+          ['f', 'land_characteristic', 'coastal vulnerability area', 'in the coastal vulnerability area'],
+          ['g', 'land_characteristic', 'area of outstanding biodiversity value', 'in a declared area of outstanding biodiversity value'],
+          ['h', 'land_characteristic', 'land on the Biodiversity Values Map', 'included on the Biodiversity Values Map'],
+          ['i', 'land_characteristic', 'natural wetland', 'that is a natural wetland'],
+        ] as const).map(([para, dimension, value, span]) => ({ dimension: dimension as Dimension, value, polarity: 'excludes' as const,
+          clause: `137(2)(${para})`, span })),
+        { dimension: 'route_condition', value: 'a site compatibility certificate issued under Part 11', polarity: 'applies', clause: '138(2)(a)',
+          span: 'a site compatibility certificate has been issued for the development under this Part' },
+      ],
+      note: 'A route that needs a site compatibility certificate (applied for by the Northern Rivers Reconstruction Corporation or the NSW '
+        + 'Reconstruction Authority); s 138(3): only for development not otherwise permissible. Forestry areas, NPWS reserves and natural '
+        + 'wetlands are not held.',
+    },
+    {
+      id: 'ch3-construction-workers',
+      title: 'Chapter 3, Part 13 — accommodation for relevant construction workers',
+      parent: 'instrument',
+      clause: '141F(1)',
+      section: 'sec.141F',
+      governs: ['ch.3-pt.13'],
+      conditions: [
+        { dimension: 'lga', value: 'a s 141E local government area', polarity: 'applies', clause: '141E',
+          span: 'on land in a local government area specified in the following table' },
+        // (a) in a residential zone, or (b) another zone except the listed ones - only if the consent authority is
+        // satisfied it is appropriate (a discretion: undecided)
+        ...['R1', 'R2', 'R3', 'R4', 'R5'].map(z => ({ dimension: 'zone' as const, value: z, polarity: 'applies' as const,
+          clause: '141F(1)(a)', anyOf: `cw#${z}`, span: 'in a residential zone' })),
+        { dimension: 'proposal_metric', value: 'the consent authority is satisfied it is appropriate in the circumstances (another zone)',
+          polarity: 'applies', clause: '141F(1)(b)', anyOf: 'cw#other',
+          span: 'in another zone, other than the following zones, but only if the consent authority is satisfied it is appropriate in the circumstances' },
+        ...['RU3', 'RE1', 'RE2', 'C1', 'C2', 'C3', 'C4', 'W1', 'W2', 'W3', 'W4'].map(z => ({ dimension: 'zone' as const, value: z, polarity: 'excludes' as const,
+          clause: '141F(1)(b)', span: z === 'RU3' ? 'Zone RU3 Forestry' : z.startsWith('RE') ? 'a recreation zone' : z.startsWith('C') ? 'a conservation zone' : 'a waterway zone' })),
+        { dimension: 'route_condition', value: 'carried out by a public authority, or related to approved electricity infrastructure / SSD / SSI',
+          polarity: 'applies', clause: '141F(3)', span: 'Subsection (1) does not apply unless the consent authority is satisfied that the development' },
+      ],
+      note: 'The 36 councils of the s 141E table (read from the XML; the section text in the graph omits the table - a parser gap).',
+    },
+    {
+      id: 'ch3-temporary-housing',
+      title: 'Chapter 3, Part 14 — temporary housing',
+      parent: 'instrument',
+      clause: '141Q',
+      section: 'sec.141Q',
+      governs: ['ch.3-pt.14'],
+      conditions: [
+        { dimension: 'proponent', value: 'a relevant authority or social housing provider', polarity: 'applies', clause: '141Q(1)',
+          span: 'carried out by or on behalf of a relevant authority or social housing provider' },
+      ],
+      note: 'Existing accommodation re-purposed by a relevant authority / social housing provider; Division 3 (complying development) is read with the Codes SEPP (step 18).',
+    },
+    {
       id: 'ch2-bh-ra',
       title: 'Chapter 2, Part 2, Division 3 — boarding houses by relevant authorities',
       parent: 'instrument',
@@ -696,6 +855,27 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       upper_bound: true, test: 'intersects', kind: 'condition',
       note: 's 23(2)(b). Walking distance not measured: 800 m straight line is an upper bound; on the zone itself = yes. '
         + '"or an equivalent land use zone" is not resolved. (No E2, unlike s 15C(3).)' },
+    // ── Ch 3 Pt 2, 6-14 ──
+    { dimension: 'defined_area', term: 'prescribed area', source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',
+      filter: `upper(lga_name) IN (${METRO_CITIES_LGAS.concat(['BALLINA']).map(l => `'${l}'`).join(', ')})`, kind: 'condition',
+      note: 's 112(3): the three metropolitan cities + Ballina. The Clarence Valley and Muswellbrook mapped parts are not loaded - lots there read as outside (Q11).' },
+    { dimension: 'defined_area', term: 'Byron Shire local government area other than excluded land', source_kind: 'derived', source: 'derived.lot_lga',
+      test: 'attribute', column_tested: 'lga_name', filter: "upper(lga_name) = 'BYRON'", upper_bound: true, kind: 'condition',
+      note: 's 112(1)(c). Byron\'s "Excluded Land" map is not loaded: outside Byron = no, in Byron = undecided.' },
+    { dimension: 'defined_area', term: 'outside the Sydney region, or in the former City of Gosford or Shire of Wyong', source_kind: 'none', source: null,
+      test: 'intersects', kind: 'condition', note: 's 119(1). "the Sydney region" (a 1993-era definition) is not resolved.' },
+    { dimension: 'defined_area', term: 'within 18 km of the Siding Spring Observatory', source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute',
+      column_tested: 'lga_name', filter: "upper(lga_name) IN ('WARRUMBUNGLE', 'COONAMBLE', 'GILGANDRA')", upper_bound: true, kind: 'exclusion',
+      note: 's 119(2)(b), s 127(2)(b). The observatory sits in Warrumbungle; 18 km reaches no further than its neighbours - an upper bound.' },
+    { dimension: 'defined_area', term: 'conservation zone', source_kind: 'table', source: 'epi.epi_land_zoning', filter: "sym_code IN ('C1', 'C2', 'C3', 'C4')",
+      test: 'intersects', kind: 'exclusion', note: 's 137(2)(b). The C zones.' },
+    { dimension: 'land_characteristic', term: 'forestry area', source_kind: 'none', source: null, test: 'intersects', kind: 'exclusion', note: 's 137(2)(c). Not held.' },
+    { dimension: 'land_characteristic', term: 'land reserved under the National Parks and Wildlife Act 1974', source_kind: 'none', source: null,
+      test: 'intersects', kind: 'exclusion', note: 's 137(2)(d). NPWS estate not held.' },
+    { dimension: 'land_characteristic', term: 'natural wetland', source_kind: 'none', source: null, test: 'intersects', kind: 'exclusion', note: 's 137(2)(i). Not held.' },
+    LGA_TERM('City of Lismore', 'LISMORE', 's 137(1).'),
+    { dimension: 'lga', term: 'a s 141E local government area', source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',
+      filter: `upper(lga_name) IN (${CONSTRUCTION_WORKER_LGAS.map(l => `'${l}'`).join(', ')})`, kind: 'condition', note: 's 141E table.' },
     // ── Ch 2 Pt 2 Div 5 / 6, Pt 3 ──
     { dimension: 'defined_area', term: 'within 800m of a public entrance to a railway station or light rail station', source_kind: 'table',
       source: 'access.iso_train', lower_bound: true, test: 'intersects', kind: 'condition',
@@ -739,7 +919,9 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     permission: ['is permitted with development consent', 'development consent may be granted for development to which this part applies',
                  'may be carried out with consent', 'may be carried out with development consent',
                  'may be carried out by or on behalf of a relevant authority without development consent', 'is permitted without consent',
-                 'may be carried out without consent'],
+                 'may be carried out without consent', 'may be carried out without development consent', 'is exempt development',
+                 'may be carried out—', 'may be carried out only with the development consent',
+                 'development consent may be granted for the change of use'],
     land_prohibition: ['must not be carried out on land in'],
     override: ['despite the provisions of another environmental planning instrument'],
     nondiscretionary_heading: ['Non-discretionary development standards'],
@@ -747,7 +929,9 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     prohibition: ['development consent must not be granted'],
     disapplication: ['does not apply to development that meets', 'do not apply to development to which this chapter applies'],
   },
-  extraUses: ['residential care facility', 'supportive accommodation'],
+  extraUses: ['residential care facility', 'supportive accommodation', 'non-hosted short-term rental accommodation',
+    'hosted short-term rental accommodation', 'short-term rental accommodation', 'manufactured home estate', 'camping ground',
+    'construction workers accommodation', 'temporary housing'],
   // s 15B(1) defines "residential development" "In this division" (Div 1); Div 6 (s 42) uses the term undefined - read with
   // the same list across Chapter 2 (Q10)
   useGroupScopes: { 'residential development': 'ch.2' },
@@ -759,6 +943,17 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     'sec.165': 'lists which sections are non-discretionary; read as the nondiscretionary signal on each',
     'sec.15C': 'the division frame (ch2-infill-ah) - s 15C is where the division applies',
     'sec.28': 'the division frame (ch2-bh-ra) - s 28 is where Division 3 applies (its (2) is the R2 exception the frame holds)',
+        ...Object.fromEntries(['sec.64', 'sec.65', 'sec.66', 'sec.141R', 'sec.141S', 'sec.141T'].map(k => [k,
+      'complying development - read with the Codes SEPP (step 18)'])),
+    'sec.115': 'the part frame (ch3-serviced-apts) - which buildings Part 7 applies to',
+    'sec.119': 'the part frame (ch3-mhe) - s 119 is where Part 8 applies',
+    'sec.127': 'the part frame (ch3-caravan) - s 127 is where Part 9 applies',
+    'sec.131': 'a consent requirement, not a grant - where caravan parks are permitted is for the LEP',
+    'sec.137': 'the part frame (ch3-flood-recovery) - s 137 is where Part 11 applies',
+    'sec.141E': 'the part frame (ch3-construction-workers) - s 141E is where Part 13 applies',
+    ...Object.fromEntries(['sec.139', 'sec.140', 'sec.141'].map(k => [k, 'Part 11 site compatibility certificate procedure - not a lot rule'])),
+    'sec.141O': 'temporary housing general requirements - facts about the existing building and the provider, read with s 141Q',
+    'sec.141P': 'temporary housing alterations - by reference to the Codes SEPP Part 8 (step 18)',
     'sec.13': 'defines very low / low / moderate income households (the Act, s 1.4(1)) - a definition, not a lot rule',
     'sec.33': 'the division frame (ch2-supportive) - s 33 is the land the division applies to',
     'sec.34': 'the division frame (ch2-supportive) - s 34 defines supportive accommodation and what the division applies to',

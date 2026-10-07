@@ -411,15 +411,44 @@ Coverage before: 80 / 187 operative clauses. Same structure (profile frames, gen
 - **17b Ch 3:** Pt 2 group homes (s 60-66B), Pt 6 short-term rental exempt development (s 111-114), Pt 7 serviced
   apartments (s 115-117), Pt 8 manufactured home estates (s 118-125), Pt 9 caravan parks (s 126-133), Pt 10 temporary
   emergency accommodation, Pt 11 flood recovery (s 136-141), Pt 13 construction workers (s 141D-141L), Pt 14 temporary
-  housing (s 141M-141T) — `todo`
+  housing (s 141M-141T) — `done` 2026-10-07 (local commit).
+  Nine part frames (`ch3-group-homes`, `ch3-stra`, `ch3-serviced-apts`, `ch3-mhe`, `ch3-caravan`, `ch3-temp-emergency`,
+  `ch3-flood-recovery`, `ch3-construction-workers`, `ch3-temporary-housing`). 32 new rules (202 in all); coverage
+  **129 / 187 operative clauses** (was 99). Recall PASS on all nine parts; earlier chapters' extraction unchanged except
+  s 67 (co-living no longer "applies to" RFBs / shop top housing - they are its condition, not its use).
+  **Answer keys 54/54** (11 new); gate green, held. The s 141E council table was read from the XML (the stored section
+  text has no tables - a parser gap) into a term over `derived.lot_lga`.
+  New machinery: **migration 24** `route_condition` - a proposal fact the general question does not assume (an existing
+  serviced-apartment building, s 116; a site compatibility certificate, s 138; s 141F(3)'s public authority / approved
+  project); a grant under it is a route, like a proponent-limited one - without it s 116 answered "RFBs permissible" on
+  every lot. **Evaluator:** a grant's pathway is read from its own words - "permissible as exempt development (no consent
+  needed)" (s 111, 112, 141Q), "without consent" (s 135), else "with consent". **Extractor:** exempt works whose purpose
+  names no use (landscaping, repairs, T&I Sch 1 works - s 31, 44A, 63, 108D) are not grants of the frame's use; a use in a
+  grant's condition is not granted (s 141Q "is not in a hospital"); a change of use grants only what it changes TO
+  (s 116); a place the work is in is not its purpose (s 91(2) sprinklers in a residential care facility); extra uses
+  match longest first; a numbered condition headed by an area is its own rule in that area (s 112(1)(b) 180 days in the
+  prescribed area, (c) 60 days in Byron); readers for day caps, consecutive days, year limits and bedroom caps; BCA
+  classes and ISBNs are not quantities; "has the same meaning as" is a definition.
+  Skipped (recorded in the profile): complying development s 64-66, 141R-141T (to step 18 - now with the Codes SEPP
+  session), s 131 (a consent requirement, not a grant), SCC procedure s 139-141, s 141O-P.
+  Gaps (recorded): STRA Area Map (Clarence Valley / Muswellbrook parts of the prescribed area, Byron Excluded Land);
+  "the Sydney region" (s 119); forestry areas, NPWS estate, natural wetlands (s 137(2)); Crown reserves / Sch 5-6 (s 122).
 - **17c Ch 4:** design of residential apartment development (s 142-149) — `todo`
 **Done when:** recall PASS on each part; hand keys for each part; earlier keys still pass; readings listed for review.
 
 ### Later
-- 18. Codes SEPP (key: `cdc` catalogue)
+- 18. Codes SEPP (key: `cdc` catalogue) — in progress in the "airspace" session (worktree C:\w\codes-sepp, branch
+  feat/codes-sepp-pipeline, migrations 30+); not this loop's
 - 19. T&I, R&H (frames and terms)
 
 ## Open questions
+
+**Q11 (step 17b, non-blocking)** — Ch 3 readings: (1) the STRA prescribed area is the three metropolitan cities +
+Ballina; the mapped Clarence Valley / Muswellbrook parts are not loaded, so lots there read as outside (no 180-day cap)
+- worth loading the Housing SEPP STRA Area Map; (2) Siding Spring's 18 km is taken as an upper bound over Warrumbungle,
+Coonamble and Gilgandra; (3) s 141F(1)(b) "another zone ... if the consent authority is satisfied" is read as reaching
+every zone but RU3 / RE / C / W - a discretion shown as yes; (4) a grant under a `route_condition` (s 116, 138, 141F)
+is never the general answer.
 
 **Q10 (step 17a, non-blocking)** — Ch 2 readings: (1) "residential development" in Div 6 (s 42) is read with Div 1's list
 (s 15B(1)), which defines it only "In this division"; (2) "supportive accommodation" is treated as a use; (3) a grant
@@ -537,3 +566,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 16 done (local): Ch 5, Ch 3 Pt 1 (Div 1-2), Ch 7; 149 rules, 80/187 operative clauses, 36/36 keys. Q9.
 - 2026-10-07 — step 17 added: the rest of the Housing SEPP (17a Ch 2, 17b Ch 3, 17c Ch 4) ahead of the Codes SEPP; later items renumbered 18-19.
 - 2026-10-07 — 17a done (local): Ch 2 remaining divisions + Pt 3; 170 rules, 99/187 operative clauses, 43/43 keys; migration 23. Q10.
+- 2026-10-07 — 17b done (local): Ch 3 remaining parts; 202 rules, 129/187 operative clauses, 54/54 keys; migration 24. Q11. Step 18 (Codes SEPP) taken by the "airspace" session in worktree C:\w\codes-sepp.

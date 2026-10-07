@@ -56,11 +56,31 @@ const zonesIn = (t: string) => [...t.matchAll(ZONE)].map(m => ({ code: (m[1] ?? 
  */
 /** Uses the instrument names that the closed vocabulary does not hold (profile.extraUses). */
 let EXTRA_USES: string[] = []
+/** The profile's extra uses a text names, longest first, none inside a longer one found ("non-hosted short-term rental
+ *  accommodation" is not also "hosted short-term rental accommodation"). */
+function extrasIn(seg0: string): string[] {
+  let seg = seg0.toLowerCase()
+  const out: string[] = []
+  for (const u of [...EXTRA_USES].sort((a, b) => b.length - a.length)) {
+    for (const form of [u, u.replace(/y$/, 'ies'), `${u}s`]) {
+      if (!seg.includes(form)) continue
+      if (!out.includes(u)) out.push(u)
+      seg = seg.split(form).join(' ')
+    }
+  }
+  return out
+}
+/** What a grant sentence grants: the words before its verb; for a change of use, only what the use changes TO
+ *  ("change of use ... from serviced apartments to a residential flat building", s 116); and a place the work is in
+ *  is not its purpose ("the installation of a fire sprinkler system in a residential care facility", s 91(2)). */
+const changeTo = (t: string) => t.match(/\bchange of use\b.*?\bfrom\b.+?\bto\b(.+?)(?:\bif\b|—|$)/i)?.[1] ?? null
+const grantPhrase = (t: string) => (changeTo(t) ?? t.replace(/\b(?:may be carried out|is permitted|is exempt development)\b.*$/i, ''))
+  .replace(/\b(?:in|within) (?:an?|the) (?!zone\b)[^,]*$/i, '')
 function usesIn(t: string, groups: UseGroup[] = []): string[] {
   const out = new Set<string>()
   for (const seg of t.split(/,| or | and /)) {
     for (const u of (matchLandUses(seg) ?? []) as string[]) if (u !== 'dwelling') out.add(u)
-    for (const u of EXTRA_USES) if (seg.toLowerCase().includes(u) || seg.toLowerCase().includes(u.replace(/y$/, 'ies'))) out.add(u)
+    for (const u of extrasIn(seg)) out.add(u)
   }
   // a defined group of uses named in the text ("development that includes residential development")
   for (const g of groups) if (t.toLowerCase().includes(g.term)) for (const u of g.uses) out.add(u)
@@ -139,6 +159,8 @@ function topicStrong(text0: string, cand: any): string | null {
   if (/\bcommunal living areas?\b/.test(t)) return cand.unit === 'sqm' || cand.unit === 'metre' ? 'communal_living_area' : 'communal_living_areas'
   if (/\bcommunal open spaces?\b/.test(t)) return 'communal_open_space'
   if (/\bsurface area of the roof\b/.test(t)) return 'rooftop_equipment_area'
+  const surface = t.match(/\bsurface area for an? ([a-z]+)\b/)
+  if (surface) return `${surface[1]}_area`
   if (/\bambulance parking\b/.test(t)) return 'ambulance_parking'
   if (/\bbalcon(y|ies)\b/.test(t)) return 'balcony'
   const read = topicOf([text])
@@ -193,6 +215,9 @@ function allNumbers(t: string): any[] {
     const before = t.slice(Math.max(0, i - 40), i)
     if (/\b(sections?|subsections?|clauses?|schedules?|parts?|chapters?|divisions?|paragraphs?|items?|s|ss|cl|No\.?)\s*(?:[\d()a-z.]+(?:,\s*|\s*[–-]\s*|\s+(?:or|and|to)\s+))*$/i.test(before)) continue
     if (/^(19|20)\d\d$/.test(m[1]!)) continue
+    // a Building Code of Australia class ("class 1b or class 2–9", "a class 1a building") or an ISBN
+    if (/\bclass(?:es)?\s+(?:\d+[a-z]?(?:\s*[–-]\s*|\s+(?:or|and)\s+(?:class\s+)?|,\s*))*$/i.test(before)) continue
+    if (/\bISBN[\d\s-]*$/.test(before)) continue
     if (/^\d+\)/.test(t.slice(i))) continue
     // a date ("on or after 28 February 2025")
     if (/^\d+\s+(January|February|March|April|May|June|July|August|September|October|November|December)\b/.test(t.slice(i))) continue
@@ -203,7 +228,7 @@ function allNumbers(t: string): any[] {
 
 /** The provision without a trailing "Example—" or "Note—", which are not part of it; and nothing of a sentence that
  *  only defines a word for the section ("In this section, a storey does not include ... 1.2m above ground"). */
-const operativePart = (t: string) => /^In this (section|subsection|Division|Part|Chapter)(, [a-z ]+ (does not include|includes|means)\b|\s*—\s*[a-z ]+ means\b)/i.test(t)
+const operativePart = (t: string) => /^In this (section|subsection|Division|Part|Chapter)(, [a-z ]+ (does not include|includes|means)\b|\s*—\s*[a-z -]+ (means|has the same meaning)\b)/i.test(t)
   ? '' : t.replace(/\s(?:Example|Note)s?\s?—[\s\S]*$/, '')
 
 async function main() {
@@ -219,6 +244,12 @@ async function main() {
   // Chapter 5 ...", s 42(1)(a)(i); "the development is permitted with development consent under ...", s 183)
   for (const s of secs) {
     if ((s.signals ?? []).includes('permission') && /^(the development )?is permitted\b/i.test(norm(s.raw_text)))
+      s.signals = s.signals.filter((x: string) => x !== 'permission')
+    // ... nor is exempt work whose purpose names no land use ("Development for the purposes of landscaping and
+    // gardening is exempt development if ...", s 31; "Development for a purpose specified in ... Schedule 1 that is
+    // carried out within the boundaries of an existing group home", s 63): works, not a grant of the frame's use
+    const works = norm(s.raw_text).match(/^development for (?:the purposes? of (.+?)|a purpose specified in .+?)(?= is exempt\b| carried out\b| that is\b| may be\b|,|$)/i)
+    if ((s.signals ?? []).includes('permission') && works && /\bexempt development\b/i.test(norm(s.raw_text)) && !usesIn(works[1] ?? '').length)
       s.signals = s.signals.filter((x: string) => x !== 'permission')
   }
   const byId = new Map(secs.map(s => [s.id as string, s]))
@@ -369,15 +400,23 @@ async function main() {
       if (!t) continue
       if (split && permRoots.some(r => subSet(r).includes(p))) continue
       scopeInto(base, p, t)
+      // under a grant that names its own uses, a use in a condition is not granted ("... is exempt development if—
+      // ... (iv) is not in a hospital", s 141Q; "other than ... Zone RU3 Forestry", s 141F)
+      const root = permRoots.find(r => r !== p && chain(p).includes(r))
+      const rootNames = root && usesIn(norm(root.raw_text).replace(/\b(?:may be carried out|is permitted|is exempt development)\b.*$/i, ''), groups).length
       // "development to which this Part applies": the uses are the frame's, whatever else the sentence names
       // ("... including as part of a mixed use development")
-      const ownUses = /development to which this (part|division|chapter) applies/i.test(t) ? inherited(base.frame)?.uses ?? [] : usesIn(t, groups)
+      const ownUses = rootNames ? [] : /development to which this (part|division|chapter) applies/i.test(t) ? inherited(base.frame)?.uses ?? []
+        : changeTo(t) ? usesIn(changeTo(t)!, groups) : usesIn(t, groups)
       for (const u of ownUses) addApplic(base, { dimension: 'land_use', value: u, polarity: 'applies', span: t.slice(0, 200) })
       // a zone named by group ("on land in a business zone") with no zone code: not resolved - say so
       const grp = t.match(/\bon land in an? ([a-z ]+?) zone\b/i)
       if (grp && !zonesIn(t).length && !zoneGroupsIn(t, p).length) findings.push({ kind: 'unresolved_zone_group', gating: false, clause: p.local_id, value: null,
         detail: `"${grp[0]}" names no zone code and the instrument does not define it - the rule is not narrowed to it` })
-      const area = frameOwned ? null : areaIn(t, AREAS)
+      // an area in a condition's own heading ("(b) for a dwelling located in a prescribed area—... 180 days") narrows
+      // that condition, not the grant (read with the condition, below)
+      const headArea = root && t.includes('—') && areaIn(t.slice(0, t.indexOf('—')), AREAS)
+      const area = frameOwned || headArea ? null : areaIn(t, AREAS)
       if (area) addApplic(base, { dimension: 'defined_area', value: area, polarity: 'applies', span: literalOf(area) })
       if (/involving subdivision/i.test(t)) addApplic(base, { dimension: 'dev_type', value: 'subdivision', polarity: 'applies', span: 'involving subdivision' })
       const date = t.match(/on or after (\d{1,2} \w+ \d{4})/i)
@@ -503,7 +542,20 @@ async function main() {
       // buildings—" - go to their own rule: the nearest use and the nearest area up the chain to the clause,
       // keyed by the deepest section that narrowed it, inheriting the rest of the clause's applicability.
       let target = base
-      if ((cands.length || qualitative) && !scopeSet.has(p)) {
+      // a numbered condition of a grant narrowed by its own heading's area ("for a dwelling located in a prescribed
+      // area—the dwelling is not used ... for more than 180 days", s 112(1)(b)): its own rule, in that area
+      const condArea = scopeSet.has(p) && numericUnderIf(p) && tOp.includes('—') ? areaIn(tOp.slice(0, tOp.indexOf('—')), AREAS) : null
+      if (condArea && cands.length) {
+        const key = `${base.key}:${p.local_id}`
+        let r = out.find(x => x.key === key)
+        if (!r) {
+          r = { ...base, key, local_id: p.local_id, section_id: p.id, kind: 'standard', role: 'conditional_standard', effects: [],
+            applic: [...base.applic.filter(a => a.dimension !== 'defined_area'),
+                     { dimension: 'defined_area', value: condArea, polarity: 'applies' as const, span: literalOf(condArea) }] }
+          out.push(r)
+        }
+        target = r
+      } else if ((cands.length || qualitative) && !scopeSet.has(p)) {
         const full = chain(p)
         const up = full.slice(0, full.indexOf(c))
         // every level may narrow it: s 74(2)(d)(i) is "in the Eastern Harbour City, ..." (d) AND "within an
@@ -580,7 +632,8 @@ async function main() {
       if (kind === 'permission' && scopeRoots.includes(p) && (p.signals ?? []).includes('permission')) {
         // "Development consent may be granted for development to which this Part applies if—": the uses are the
         // ones the clause's scope names
-        const named = ((matchLandUses(t) ?? []) as string[]).filter(u => u !== 'dwelling')
+        const named = changeTo(t) ? usesIn(changeTo(t)!) : [...new Set([...((matchLandUses(t) ?? []) as string[]).filter(u => u !== 'dwelling'),
+          ...extrasIn(grantPhrase(t))])]
         const uses = named.length ? named : /to which this (part|section|division) applies/i.test(t)
           ? base.applic.filter(a => a.dimension === 'land_use').map(a => a.value)
           : /^the (strata )?subdivision of land\b/i.test(t) ? [/strata/i.test(t) ? 'strata subdivision' : 'subdivision'] : []
@@ -712,6 +765,22 @@ async function main() {
         push({ effect_type: 'condition_of_consent', topic: tOp.replace(/[,.;]\s*(and|or)?$/i, ''), comparator: null, value: null,
           value_source: times.map(m => m[0]).join(', ') }, times.map(m => Number(m[1])))
       }
+      // a cap on days in a period: "not used for ... for more than 180 days in a 365-day period"
+      const dayCap = tOp.match(/\bfor more than (\d+) days in an? (\d+)-day period\b/i)
+      if (dayCap) push({ effect_type: 'numeric', topic: `days_per_${dayCap[2]}_day_period`, comparator: 'lte', value: Number(dayCap[1]), unit: 'days' },
+        [Number(dayCap[1]), Number(dayCap[2])])
+      // "a period of 21 consecutive days or more ... must not be counted"
+      const consec = tOp.match(/\b(\d+) consecutive days( or more)?/i)
+      if (consec) push({ effect_type: 'condition_of_consent', topic: tOp.replace(/[,.;]\s*(and|or)?$/i, ''), comparator: consec[2] ? 'gte' : null,
+        value: Number(consec[1]), unit: 'consecutive days', value_source: 'clause_text' }, [Number(consec[1])])
+      // a time limit in years: "within 5 years of the natural disaster occurring", "after the day that is 5 years from ..."
+      const years = tOp.match(/\b(?:within|that is) (\d+) years (?:of|from|after)\b/i)
+      if (years) push({ effect_type: 'condition_of_consent', topic: tOp.replace(/[,.;]\s*(and|or)?$/i, ''), comparator: 'lte',
+        value: Number(years[1]), unit: 'years', value_source: 'clause_text' }, [Number(years[1])])
+      // a cap on rooms: "does not result in more than 10 bedrooms on a site", "no more than 5 bedrooms"
+      const roomCap = tOp.match(/\b(?:not result in|no|not) more than (\d+) bedrooms\b/i)
+      if (roomCap) push({ effect_type: 'condition_of_consent', topic: 'bedrooms', comparator: 'lte', value: Number(roomCap[1]), unit: 'bedrooms' },
+        [Number(roomCap[1])])
       // a period to act in: "responses ... received within 21 days after the notice is given"
       const days = tOp.match(/within (\d+) days\b/i)
       if (days) push({ effect_type: 'condition_of_consent', topic: 'response_period_days', comparator: 'lte', value: Number(days[1]), unit: 'days' }, [Number(days[1])])

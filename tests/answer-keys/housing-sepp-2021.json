@@ -1018,6 +1018,165 @@
           "33": true
         }
       }
+    },
+    {
+      "name": "Randwick R2 - group homes: Pt 2 reaches (R2 is a prescribed zone, s 60(a)); the LEP permits them too",
+      "cadid": "102796197",
+      "use": "group homes",
+      "scope": "ch3-rest",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "Land Use Table",
+        "frames": {
+          "61(1)": true
+        }
+      }
+    },
+    {
+      "name": "Wollongong C2 - group homes: Pt 2 does not reach (C2 is not a prescribed zone and the LEP permits neither dwelling houses nor MDH)",
+      "cadid": "104106866",
+      "use": "group homes",
+      "scope": "ch3-rest",
+      "expect": {
+        "frames": {
+          "61(1)": false
+        }
+      }
+    },
+    {
+      "name": "Randwick R2 - non-hosted STRA is exempt (s 112); Randwick is in the prescribed area: the 180-day cap applies, Byron's 60 does not",
+      "cadid": "102796197",
+      "use": "non-hosted short-term rental accommodation",
+      "scope": "ch3-rest",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "112",
+        "seppStandards": [
+          [
+            "112",
+            "days_per_365_day_period",
+            180
+          ]
+        ],
+        "seppStandardsAbsent": [
+          [
+            "112",
+            "days_per_365_day_period",
+            60
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Orange R1 - non-hosted STRA is exempt (s 112) with no day cap: Orange is outside the prescribed area and Byron",
+      "cadid": "104205610",
+      "use": "non-hosted short-term rental accommodation",
+      "scope": "ch3-rest",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "112",
+        "seppStandardsAbsent": [
+          [
+            "112",
+            "days_per_365_day_period",
+            180
+          ],
+          [
+            "112",
+            "days_per_365_day_period",
+            60
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Byron R2 - non-hosted STRA: the 60-day cap is undecided (Byron's Excluded Land map is not loaded), never asserted",
+      "cadid": "104202524",
+      "use": "non-hosted short-term rental accommodation",
+      "scope": "ch3-rest",
+      "expect": {
+        "permissible": true,
+        "seppStandardsAbsent": [
+          [
+            "112",
+            "days_per_365_day_period",
+            180
+          ],
+          [
+            "112",
+            "days_per_365_day_period",
+            60
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Wollongong R2 - construction workers accommodation: Pt 13 reaches (s 141E table, residential zone); a route only for a public authority or an approved project (s 141F(3))",
+      "cadid": "103967045",
+      "use": "construction workers accommodation",
+      "scope": "ch3-rest",
+      "expect": {
+        "frames": {
+          "141F(1)": true
+        },
+        "seppPermissionApplies": true
+      }
+    },
+    {
+      "name": "Wollongong C2 - construction workers accommodation: a conservation zone is excluded (s 141F(1)(b)(iii))",
+      "cadid": "104106866",
+      "use": "construction workers accommodation",
+      "scope": "ch3-rest",
+      "expect": {
+        "frames": {
+          "141F(1)": false
+        }
+      }
+    },
+    {
+      "name": "Randwick R2 - construction workers accommodation: Randwick is not in the s 141E table",
+      "cadid": "102796197",
+      "use": "construction workers accommodation",
+      "scope": "ch3-rest",
+      "expect": {
+        "frames": {
+          "141F(1)": false
+        }
+      }
+    },
+    {
+      "name": "Lismore R1 on the Biodiversity Values Map - Pt 11 (flood recovery) excluded by s 137(2)(h)",
+      "cadid": "104042885",
+      "use": "residential accommodation",
+      "scope": "ch3-rest",
+      "expect": {
+        "frames": {
+          "137": false
+        }
+      }
+    },
+    {
+      "name": "Lismore R1 off the BV Map - Pt 11 undecided: forestry areas, NPWS reserves and natural wetlands (s 137(2)(c),(d),(i)) are not held",
+      "cadid": "104064598",
+      "use": "residential accommodation",
+      "scope": "ch3-rest",
+      "expect": {
+        "frames": {
+          "137": null
+        }
+      }
+    },
+    {
+      "name": "Orange R1 - temporary housing: s 141Q makes it exempt for a relevant authority / social housing provider - a route for them",
+      "cadid": "104205610",
+      "use": "temporary housing",
+      "scope": "ch3-rest",
+      "expect": {
+        "frames": {
+          "141Q": true
+        },
+        "seppPermissionApplies": true
+      }
     }
   ],
   "scopes": {
@@ -1030,6 +1189,7 @@
     "ch5": "^1(5[2-9]|6[01])$",
     "ch3-pt1": "^(49|5[0-3])$",
     "ch7": "^18[1-5]$",
-    "ch2-rest": "^(1[3-5]A?|2[89]|3[0-9][AB]?|4[0-8][ABC]?|44A)$"
+    "ch2-rest": "^(1[3-5]A?|2[89]|3[0-9][AB]?|4[0-8][ABC]?|44A)$",
+    "ch3-rest": "^(6[0-6][AB]?|109|11[0-9]|12[0-9]|13[0-9]|14[01][A-T]?)$"
   }
 }
