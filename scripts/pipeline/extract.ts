@@ -4,6 +4,9 @@
  *
  *   npx tsx scripts/pipeline/extract.ts --profile housing-sepp-2021 --chapter ch.6         # write (held)
  *   npx tsx scripts/pipeline/extract.ts --profile housing-sepp-2021 --chapter ch.6 --dry
+ *   npx tsx scripts/pipeline/extract.ts --profile housing-sepp-2021 --chapter ch.6 --clauses sec.168,sec.170
+ *     only those clauses: their rules are upserted, retired and re-audited; the rest of the chapter is untouched
+ *     (the orchestrator, step 12, passes the clauses whose sections changed)
  *
  * Deterministic, no model. Reads with the SAME readers the LEP pipeline and the recall verifier use -
  * findNumberCandidates (verifiers/candidates.ts), topicOf / datumOf (lib/dcp-cells.mjs), matchLandUses
@@ -39,6 +42,7 @@ const argv = process.argv.slice(2)
 const DRY = argv.includes('--dry')
 const PROFILE = argv.includes('--profile') ? argv[argv.indexOf('--profile') + 1] : 'housing-sepp-2021'
 const CHAPTER = argv.includes('--chapter') ? argv[argv.indexOf('--chapter') + 1] : 'ch.6'
+const ONLY = argv.includes('--clauses') ? new Set(argv[argv.indexOf('--clauses') + 1]!.split(',').map(s => s.trim()).filter(Boolean)) : null
 
 const norm = (s: string | null | undefined) => String(s ?? '').replace(/\s+/g, ' ').trim()
 const ZONE_CODE = '(R[1-5]|E[1-5]|MU1|B[1-8]|SP[1-5]|RU[1-6]|C[1-4])'
@@ -122,7 +126,8 @@ async function main() {
   // the instrument's defined areas come from its term registry, longest first ("... inner area" before "... area")
   const AREAS = profile.terms.filter(t => t.dimension === 'defined_area').map(t => t.term.toLowerCase())
     .sort((a, b) => b.length - a.length)
-  const clauses = secs.filter(s => s.level === 'clause' && chain(s).some(x => x.local_id === CHAPTER))
+  const clauses = secs.filter(s => s.level === 'clause' && chain(s).some(x => x.local_id === CHAPTER)
+    && (!ONLY || ONLY.has(s.local_id)))
   const rules: RuleOut[] = []
   const findings: { kind: string; gating: boolean; clause: string; value: string | null; detail: string }[] = []
   const candidatesAll: { section: string; clause: string; value: number; raw: string }[] = []
@@ -287,7 +292,8 @@ async function main() {
     await client.query(
       `INSERT INTO nsw.ingest_run (id, document_id, doc_label, status, started_at, stage_metrics)
        VALUES ($1, $2, $3, 'running', now(), $4)`,
-      [runId, doc.id, profile.label, JSON.stringify({ step: 5, script: 'scripts/pipeline/extract.ts', chapter: CHAPTER })])
+      [runId, doc.id, profile.label, JSON.stringify({ step: 5, script: 'scripts/pipeline/extract.ts', chapter: CHAPTER,
+                                                       clauses: ONLY ? [...ONLY] : 'all' })])
     const keys: string[] = []
     for (const r of rules) {
       keys.push(r.key)
@@ -318,13 +324,22 @@ async function main() {
            e.measured_from, e.span, e.condition_metric ?? null, e.condition_hi ?? null, e.condition_unit ?? null])
       }
     }
-    // keys this chapter produced last time and not now are retired, not deleted
+    // keys this run's clauses produced last time and not now are retired, not deleted; with --clauses only
+    // those clauses' keys ('<prefix><clause>' and '<prefix><clause>:<sub>') are in play
+    const prefix = `${profile.instrument}:pipeline:`
+    const scopes = ONLY ? [...ONLY].flatMap(c => [`${prefix}${c}`, `${prefix}${c}:%`]) : [`${prefix}%`]
     await client.query(
       `UPDATE nsw.rule SET publish_state = 'retired', valid_to = current_date
-        WHERE document_id = $1 AND rule_key LIKE $2 AND NOT (rule_key = ANY($3)) AND publish_state <> 'retired'
+        WHERE document_id = $1 AND rule_key LIKE ANY($2) AND NOT (rule_key = ANY($3)) AND publish_state <> 'retired'
           AND section_id IN (SELECT id FROM nsw.section WHERE document_id = $1)`,
-      [doc.id, `${profile.instrument}:pipeline:%`, keys])
-    await client.query(`DELETE FROM nsw.audit_finding WHERE document_id = $1 AND status = 'open' AND detail LIKE 'step5%'`, [doc.id])
+      [doc.id, scopes, keys])
+    if (ONLY) {
+      await client.query(
+        `DELETE FROM nsw.audit_finding WHERE document_id = $1 AND status = 'open' AND detail LIKE 'step5%'
+            AND EXISTS (SELECT 1 FROM unnest($2::text[]) c WHERE clause = c OR clause LIKE c || '-%')`, [doc.id, [...ONLY]])
+    } else {
+      await client.query(`DELETE FROM nsw.audit_finding WHERE document_id = $1 AND status = 'open' AND detail LIKE 'step5%'`, [doc.id])
+    }
     for (const f of findings) {
       await client.query(
         `INSERT INTO nsw.audit_finding (id, document_id, run_id, kind, gating, clause, value, detail, status)
@@ -355,7 +370,7 @@ async function main() {
   for (const f of findings.filter(f => !f.gating)) console.log(`    ${f.kind} ${f.clause}: ${f.detail.slice(0, 140)}`)
   // the profile's spot checks: standards a section must yield
   let checksPass = true
-  for (const ck of profile.checks?.extract ?? []) {
+  for (const ck of (profile.checks?.extract ?? []).filter(x => !ONLY || ONLY.has(x.section))) {
     const r = rules.find(x => x.local_id === ck.section)
     const got = ck.effects.filter(([t, v]) => r?.effects.some(e => e.topic === t && e.value === v && e.span))
     console.log(`  ${ck.section}: ${got.length}/${ck.effects.length} expected standards extracted with spans`)

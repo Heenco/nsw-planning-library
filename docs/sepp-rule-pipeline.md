@@ -186,7 +186,7 @@ is corrected with a clause citation in the same commit.
 ## 7. Running it
 
 ```
-python run_sepp_pipeline.py [--instrument epi-2021-0714] [--force] [--dry]
+npx tsx scripts/pipeline/run.ts [--profile housing-sepp-2021] [--force] [--dry] [--simulate <local_ids>]
 ```
 
 1. For each enabled `source_registry` row, hash the file; skip if unchanged since `last_ingested_sha256`.

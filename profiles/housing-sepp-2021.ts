@@ -8,7 +8,7 @@
  *
  * Hand-written 2026-10-07 from the library copy (public/EPI/SEPP/epi-2021-0714_2026-03-23.xml, amended to
  * 2026 (33)); every span below is quoted verbatim from it. Chapter 6 only so far (decision D4).
- * REVIEW STATUS: awaiting Manni's review (docs/sepp-pipeline-progress.md, step 3).
+ * REVIEW STATUS: frames reviewed - Manni replied "frames OK" 2026-10-07 (docs/sepp-pipeline-progress.md, Q1).
  */
 
 export type Polarity = 'applies' | 'excludes'
@@ -77,6 +77,8 @@ export interface InstrumentProfile {
   /** Wording the router (step 4) maps to a role. */
   signals: Record<string, string[]>
   terms: TermMapping[]
+  /** The chapters (or parts) steps 5-6 extract; the orchestrator (step 12) re-extracts changed clauses inside them. */
+  chapters: string[]
   /** Clauses step 5 does not read as rules, with the reason (a frame's own source, a clause that only lists others). */
   skip?: Record<string, string>
   /** Each step's "done when" spot checks for this instrument - expectations, never inputs to the rules. */
@@ -113,6 +115,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
+  chapters: ['ch.6'],
   frames: [
     {
       id: 'instrument',
