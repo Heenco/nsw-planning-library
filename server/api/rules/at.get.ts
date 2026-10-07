@@ -519,8 +519,16 @@ export default defineEventHandler(async (event) => {
     for (const e of effs) seppStandards.push({ ...b, chain: undefined, ...e })
   }
 
+  // each instrument's legislation.nsw.gov.au page, as ingested: a clause's local_id (sec.166, sec.8-ssec.1) is the
+  // page's own anchor, so the UI can link any clause it shows
+  const titles = [...new Set([...[...frames.values()].map(f => f.instrument), ...seppPermissions.map(p => p.instrument),
+    ...seppProhibitions.map((p: any) => p.instrument), ...seppStandards.map((s: any) => s.instrument), lepDoc?.title].filter(Boolean))]
+  const sources = Object.fromEntries((await nswQuery<any>(
+    `SELECT DISTINCT ON (title) title, source_url FROM nsw.document WHERE title = ANY($1) AND source_url IS NOT NULL ORDER BY title, ingested_at DESC`,
+    [titles])).rows.map((d: any) => [d.title, d.source_url]))
+
   return {
-    lot, use, ms: Date.now() - started,
+    lot, use, ms: Date.now() - started, sources,
     verdict: { permissible, wording,
                controlling: controlling && grant?.conditional && controlling.clause === grant.clause ? { ...controlling, conditions: grant.conditions } : controlling,
                displaced, caveat, alternatives },

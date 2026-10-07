@@ -4,7 +4,8 @@
   not yet what the report reads. What it shows, in order: the verdict and the clause that controls it, the
   SEPP frames (where each instrument / chapter applies) with each condition tested against the lot, the SEPP
   permissions and standards that reach the lot, then the LEP side (Land Use Table, clauses withholding
-  consent, standards for the use).
+  consent, standards for the use). Every clause links to its place on legislation.nsw.gov.au (the version ingested):
+  the graph's section ids are the page's own anchors.
 -->
 <template>
   <div class="sr">
@@ -21,7 +22,8 @@
     <template v-else>
       <p class="sr-verdict" :class="`sr-verdict--${tri(data.verdict.permissible)}`">
         <strong>{{ data.verdict.permissible === true ? 'Permissible' : data.verdict.permissible === false ? 'Not permissible' : 'Undecided' }}</strong>
-        &mdash; {{ data.verdict.wording }}
+        &mdash;
+        <template v-for="(seg, i) in verdictSegments" :key="i"><a v-if="seg.href" :href="seg.href" target="_blank" rel="noopener" class="sr-link">{{ seg.text }}</a><template v-else>{{ seg.text }}</template></template>
       </p>
       <p v-if="data.verdict.caveat" class="sr-note">{{ data.verdict.caveat }}</p>
       <p class="sr-note">
@@ -38,7 +40,7 @@
           <tbody>
             <tr v-for="f in data.frames" :key="f.ruleKey">
               <td>{{ short(f.instrument) }}</td>
-              <td>s {{ f.clause }}</td>
+              <td><a v-if="href(f.instrument, f.clause)" :href="href(f.instrument, f.clause)" target="_blank" rel="noopener" class="sr-link">s {{ f.clause }}</a><template v-else>s {{ f.clause }}</template></td>
               <td><span class="sr-gate" :class="`sr-gate--${tri(f.reaches)}`">{{ word(f.reaches) }}</span></td>
               <td class="sr-wrap">
                 <template v-if="!lotConds(f).length"><span class="sr-dim">no lot condition</span></template>
@@ -65,13 +67,13 @@
           <thead><tr><th>Clause</th><th>What</th><th>Applies</th><th>Why</th></tr></thead>
           <tbody>
             <tr v-for="(p, i) in data.sepp.permissions" :key="'p' + i">
-              <td>s {{ p.clause }}</td>
-              <td>permitted with consent</td>
+              <td><a v-if="href(p.instrument, p.clause)" :href="href(p.instrument, p.clause)" target="_blank" rel="noopener" class="sr-link">s {{ p.clause }}</a><template v-else>s {{ p.clause }}</template></td>
+              <td>permitted {{ p.pathway || 'with consent' }}</td>
               <td><span class="sr-gate" :class="`sr-gate--${tri(p.applies)}`">{{ word(p.applies) }}</span></td>
               <td class="sr-wrap">{{ p.why }}</td>
             </tr>
             <tr v-for="(s, i) in seppNumeric" :key="'s' + i">
-              <td>s {{ s.clause }}</td>
+              <td><a v-if="href(s.instrument, s.clause)" :href="href(s.instrument, s.clause)" target="_blank" rel="noopener" class="sr-link">s {{ s.clause }}</a><template v-else>s {{ s.clause }}</template></td>
               <td>{{ effect(s) }}</td>
               <td><span class="sr-gate" :class="`sr-gate--${tri(s.applies)}`">{{ word(s.applies) }}</span></td>
               <td class="sr-wrap">{{ s.why }}</td>
@@ -82,20 +84,21 @@
 
       <h4 class="sr-h4">{{ data.lep.document || 'LEP' }}</h4>
       <p class="sr-note">
-        Land Use Table: {{ data.lep.landUseTable ? data.lep.landUseTable.replace(/_/g, ' ') : 'no row for this zone' }}
+        <a v-if="href(data.lep.document, 'Land Use Table')" :href="href(data.lep.document, 'Land Use Table')" target="_blank" rel="noopener" class="sr-link">Land Use Table</a><template v-else>Land Use Table</template>:
+        {{ data.lep.landUseTable ? data.lep.landUseTable.replace(/_/g, ' ') : 'no row for this zone' }}
       </p>
       <div v-if="data.lep.withholdsConsent.length || lepNumeric.length" class="sr-scroll">
         <table class="sr-table">
           <thead><tr><th>Clause</th><th>What</th><th>Applies</th><th>Why</th></tr></thead>
           <tbody>
             <tr v-for="(b, i) in data.lep.withholdsConsent" :key="'b' + i">
-              <td>cl {{ b.clause }}</td>
+              <td><a v-if="href(data.lep.document, b.clause)" :href="href(data.lep.document, b.clause)" target="_blank" rel="noopener" class="sr-link">cl {{ b.clause }}</a><template v-else>cl {{ b.clause }}</template></td>
               <td>consent must not be granted</td>
               <td><span class="sr-gate" :class="`sr-gate--${tri(b.applies)}`">{{ word(b.applies) }}</span></td>
               <td class="sr-wrap">{{ b.why }}</td>
             </tr>
             <tr v-for="(s, i) in lepNumeric" :key="'l' + i">
-              <td>cl {{ s.clause }}</td>
+              <td><a v-if="href(data.lep.document, s.clause)" :href="href(data.lep.document, s.clause)" target="_blank" rel="noopener" class="sr-link">cl {{ s.clause }}</a><template v-else>cl {{ s.clause }}</template></td>
               <td>{{ effect(s) }}</td>
               <td><span class="sr-gate" :class="`sr-gate--${tri(s.applies)}`">{{ word(s.applies) }}</span></td>
               <td class="sr-wrap">{{ s.why }}</td>
@@ -149,6 +152,51 @@ function decisive(f: any) {
   if (open.length) return `${open.length} of ${cs.length} undecided: ${open.map((c: any) => c.value).join('; ')}`
   return `all ${cs.length} conditions clear`
 }
+/**
+ * A clause as the page's anchor: "166" -> sec.166, "8(1)" -> sec.8-ssec.1, "15C(1)(a)" -> sec.15C-ssec.1-para1.a,
+ * "6.11(1)" -> sec.6.11-ssec.1, "113(a)" -> sec.113-para1.a. The Land Use Table has no anchor of its own; it closes
+ * Part 2 of every Standard Instrument LEP, so it links there.
+ */
+function anchor(clause: string): string | null {
+  const c = String(clause ?? '').trim()
+  if (/^land use table$/i.test(c)) return 'pt.2'
+  const m = c.match(/^(\d+(?:\.\d+)?[A-Z]*)((?:\([0-9A-Za-z]+\))*)/)
+  if (!m) return null
+  let id = `sec.${m[1]}`
+  let level = 0
+  for (const [, tok] of m[2]!.matchAll(/\(([0-9A-Za-z]+)\)/g)) {
+    if (/^\d/.test(tok!) && level === 0) id += `-ssec.${tok}`
+    else id += `-para${++level}.${tok}`
+  }
+  return id
+}
+const href = (instrument: string | null | undefined, clause: string) => {
+  const base = instrument ? data.value?.sources?.[instrument] : null
+  const a = anchor(clause)
+  return base && a ? `${base}#${a}` : null
+}
+/** The verdict sentence with each "<instrument> s 166", "<instrument> cl 6.11(1)", "<LEP> Land Use Table" and
+ *  "by s 8(1)" (the controlling instrument's own relationship clause) as a link. */
+const verdictSegments = computed(() => {
+  const v = data.value?.verdict
+  const text = String(v?.wording ?? '')
+  const titles = Object.keys(data.value?.sources ?? {}).sort((a, b) => b.length - a.length)
+  if (!titles.length) return [{ text, href: null as string | null }]
+  const esc = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const CL = String.raw`\d+(?:\.\d+)?[A-Z]*(?:\([0-9A-Za-z]+\))*`
+  const re = new RegExp(`(${titles.map(esc).join('|')}) (?:(s|cl) (${CL})|(Land Use Table))|\\bby s (${CL})`, 'g')
+  const out: { text: string; href: string | null }[] = []
+  let at = 0
+  for (const m of text.matchAll(re)) {
+    if (m.index! > at) out.push({ text: text.slice(at, m.index), href: null })
+    const inst = m[1] ?? v?.controlling?.instrument
+    const clause = m[3] ?? (m[4] ? 'Land Use Table' : m[5])
+    out.push({ text: m[0], href: href(inst, clause!) })
+    at = m.index! + m[0].length
+  }
+  if (at < text.length) out.push({ text: text.slice(at), href: null })
+  return out
+})
 const short = (t: string) => String(t ?? '').replace('State Environmental Planning Policy', 'SEPP')
 const seppNumeric = computed(() => (data.value?.sepp.standards ?? []).filter((s: any) => s.value != null))
 const lepNumeric = computed(() => (data.value?.lep.standards ?? []).filter((s: any) => s.value != null))
@@ -181,4 +229,6 @@ const effect = (e: any) => `${String(e.topic ?? '').replace(/_/g, ' ')} ${CMP[e.
 .sr-gate--no { background: #fee2e2; color: #991b1b; }
 .sr-gate--open { background: #fef3c7; color: #92400e; }
 summary { cursor: pointer; }
+.sr-link { color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
+.sr-link:hover { text-decoration-style: solid; }
 </style>
