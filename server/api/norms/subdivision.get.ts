@@ -64,8 +64,11 @@ export default defineEventHandler(async (event) => {
   const fromGraph = lepDoc ? await graphNorms(q2, lepDoc.id, lepDoc.title, lepDoc.instrument_slug, {
     clauseFilter: `heading ~* 'subdivi|lot size' OR local_id IN ('sec.2.6', 'sec.4.1')`, covered: readClauses }) : { norms: [], gaps: [], refIds: [] }
   const norms: Norm[] = [...read, ...fromGraph.norms]
-  // the places the norms name, tested against the lot: mapped terms, and the graph's own polygons
-  const all = norms.flatMap(n => leaves(n.when))
+  // statements the clause reader did not recognise, with where each clause reaches (its scope + its SEPP part's frame)
+  const unreadRows = (await q2(`SELECT u.section, u.clause, u.why, u.zones, u."when", d.title AS instrument FROM nsw.norm_unchecked u JOIN nsw.document d ON d.id = u.document_id
+     WHERE u.family = 'subdivision' AND u.document_id = ANY($1)`, [docs.map(d => d.id)])).rows
+  // the places the norms and those reaches name, tested against the lot: mapped terms, and the graph's own polygons
+  const all = [...norms.map(n => n.when), ...unreadRows.map((u: any) => u.when).filter(Boolean)].flatMap(c => leaves(c as Cond))
   const termsAsked = [...new Set(all.filter(l => l.fact === 'lot.in').map(l => String(l.value).toLowerCase()))]
   const tested = await Promise.all(termsAsked.map(t => lotTerm(q2, cadid, t, lot!.lga)))
   lot.terms = Object.fromEntries(termsAsked.map((t, i) => [t, tested[i]!]))
@@ -161,17 +164,22 @@ export default defineEventHandler(async (event) => {
   // instruments with a norm in play for this question - another pathway's provisions are not part of this answer
   const inPlay = new Set<string>([lot.epi ?? ''])
   for (const k of KINDS) for (const r of evaluate(norms, questionFor(k.key, site, erects0, separates0), lot, landUseKey).norms) if (r.holds !== false) inPlay.add(r.instrument)
-  const unreadRows = (await q2(`SELECT u.section, u.clause, u.why, u.zones, d.title AS instrument FROM nsw.norm_unchecked u JOIN nsw.document d ON d.id = u.document_id
-     WHERE u.family = 'subdivision' AND u.document_id = ANY($1)`, [docs.map(d => d.id)])).rows
   const uncheckedAll = [
-    ...unreadRows.filter((u: any) => !graphClauses.has(u.section) && inPlay.has(u.instrument)).map((u: any) => ({ clause: u.clause, section: u.section, instrument: u.instrument, url: link(u.instrument, u.section), zones: u.zones, why: u.why })),
+    ...unreadRows.filter((u: any) => !graphClauses.has(u.section) && inPlay.has(u.instrument)).map((u: any) => ({ clause: u.clause, section: u.section, instrument: u.instrument, url: link(u.instrument, u.section), zones: u.zones, when: u.when as Cond | null, why: u.why })),
     ...fromGraph.gaps.filter(g => !unreadRows.some((u: any) => u.section === g.section)).map(g => ({ clause: g.parts.length ? g.parts.join(', ') : g.clause, section: g.section, instrument: lot!.epi!, url: link(lot!.epi!, g.section), zones: g.zones,
       why: `${g.heading ?? ''}${g.rules ? ` - in the graph (${g.rules} rule${g.rules === 1 ? '' : 's'}), no effect extracted` : ' - in the graph as text, no rule extracted'}` })),
   ]
-  // a clause that says which zones it applies to, and not this lot's zone, cannot change this lot's answer
-  const reaches = (u: any) => !u.zones || !lot!.zone || u.zones.includes(lot!.zone)
-  const unchecked = uncheckedAll.filter(reaches)
-  const notHere = uncheckedAll.filter(u => !reaches(u))
+  // a clause that cannot reach this lot cannot change its answer: its own scope (zones, mapped places) or its SEPP part's
+  // frame is false here for every kind - tested by the same engine; anything not known keeps it listed (fail closed)
+  const reachesHere = (u: any) => {
+    if (!u.when) return true
+    const probe: Norm = { id: `unread:${u.section}`, instrument: u.instrument, clause: u.clause, section: u.section, text: '', when: u.when,
+                          then: { permit: 'with_consent' }, author: { by: 'unread clause reach', at: '' } }
+    return KINDS.some(k => evaluate([probe], questionFor(k.key, site, erects0, separates0), lot!, landUseKey).norms[0]?.holds !== false)
+  }
+  const reaches = (u: any) => (!u.zones || !lot!.zone || u.zones.includes(lot!.zone)) && reachesHere(u)
+  const unchecked = uncheckedAll.filter(reaches).map(({ when: _w, ...u }) => u)
+  const notHere = uncheckedAll.filter(u => !reaches(u)).map(({ when: _w, ...u }) => u)
 
   // how many lots the area allows under each numeric minimum in play (Torrens)
   const t = kinds.find(k => k.key === 'torrens')!

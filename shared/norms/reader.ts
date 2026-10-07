@@ -37,7 +37,12 @@ export interface ReadContext {
   /** the clause's containers in the instrument, from the graph's section tree: { part: 'ch.3-pt.1', chapter: 'ch.3', ... } */
   container: Record<string, string>
 }
-export interface ClauseRead { norms: Norm[]; family: 'subdivision' | 'other' | 'none'; unread: string[]; zones: string[] | null }
+/**
+ * family: 'subdivision' (read), 'other' (about other development), 'inert' (no rule of its own: not adopted / repealed,
+ * an application or definition provision), 'none'. scope: where the clause reaches (its scope and whole-clause
+ * exclusions) - so a clause left unread can still be ruled out for a lot it cannot reach.
+ */
+export interface ClauseRead { norms: Norm[]; family: 'subdivision' | 'other' | 'inert' | 'none'; unread: string[]; zones: string[] | null; scope: Cond | null }
 
 const norm = (t: unknown) => String(t ?? '').replace(/\s+/g, ' ').trim()
 const operative = (t: unknown) => norm(t).replace(/(^|\s)Notes?(\.|—|:)\s*[\s\S]*$/, '').trim()
@@ -79,11 +84,20 @@ export function readClause(sections: Section[], clauseSec: string, ctx: ReadCont
     }
     let p = ' ' + norm(p0).replace(/[—;:]\s*$/, '') + ' '
     const parts: Cond[] = []
+    // the kinds of subdivision a phrase names - one subdivision is one kind, so several named are alternatives
+    const tenures: string[] = []
     const take = (re: RegExp) => { p = p.replace(re, ' ') }
     const span = norm(p0).replace(/[—;:]\s*$/, '')
     // boilerplate true of every proposal made now, and the clause's own scope reference
     take(/\bthat requires development consent\b/gi); take(/\b(and )?that is carried out after the commencement of this (Plan|Policy)\b/gi)
     take(/\bto which this (clause|subclause|section|Part|Division|Chapter|Plan|Policy) applies\b/gi); take(/\bin relation to (that|the) land\b/gi)
+    // "(whether or not ...)" says what does not matter - no condition
+    take(/\(whether or not [^)]*\)/gi)
+    // land on which a use may lawfully be carried out: the use is permissible on the lot
+    const perm = p.match(/\bon which (?:development )?(?:for the purposes? of )?(?:an? )?([a-z][a-z ()-]*?) may (?:lawfully )?be (?:lawfully )?carried out\b/i)
+    if (perm && ctx.usesIn(perm[1]!).length) { parts.push({ fact: 'lot.permits', value: ctx.usesIn(perm[1]!)[0], span }); take(new RegExp(perm[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')) }
+    // a subdivision for lease purposes (Local Government Act 1919, s 289K) - its own kind, not Torrens / strata / community
+    if (/\bfor lease purposes\b/i.test(p)) { tenures.push('lease'); take(/\bfor lease purposes\b/gi); take(/\bunder section 289K of the Local Government Act 1919\b/gi) }
     if (/\bshown on the Lot Size Map\b/i.test(p) && !/\bminimum\b/i.test(p)) { parts.push({ fact: 'lot.on_map', value: 'lot_size_map', span }); take(/\b(land )?shown on the Lot Size Map\b/gi) }
     // each resulting lot at least N / the Lot Size Map minimum - a condition on the proposal, tested with the lot's area
     const rls = p.match(/\b(?:size|area) of each (?:of the \d+ )?resulting lots? is not less than (the minimum (?:lot )?size shown[^,.]*?Lot Size Map|[\d,.]+ ?(?:m2|square metres))/i)
@@ -124,9 +138,10 @@ export function readClause(sections: Section[], clauseSec: string, ctx: ReadCont
     if (allZones.length) { parts.push(allZones.length === 1 ? { fact: 'lot.zone', value: allZones[0], span } : { any: allZones.map(z => ({ fact: 'lot.zone', value: z, span } as Cond)) })
       take(/\bZones? [A-Z]{1,2}\d{0,2}[A-Z]?\b( [A-Z][a-z]+)*/g); take(/\b[A-Z]{1,2}\d{1,2}[A-Z]?\b( [A-Z][a-z]+)*/g) }
     // tenure
-    if (/\bstrata (plan|subdivision|scheme)|Strata Schemes/i.test(p)) { parts.push({ fact: 'proposal.subdivision_type', value: 'strata', span }); take(/\b(strata plan( of subdivision)?|strata subdivision|strata (plan )?schemes?|Strata Schemes [\w ()]*?Act \d{4})\b/gi) }
-    if (/Community Land Development Act|community title/i.test(p)) { parts.push({ fact: 'proposal.subdivision_type', value: 'community', span }); take(/\b(Community Land Development Act \d{4}|community title( schemes?)?)\b/gi) }
-    if (/\bTorrens title\b/i.test(p)) { parts.push({ fact: 'proposal.subdivision_type', value: 'torrens', span }); take(/\bTorrens title\b/gi) }
+    if (/\bstrata (plan|subdivision|scheme)|Strata Schemes/i.test(p)) { tenures.push('strata'); take(/\b(strata plan( of subdivision)?|strata subdivision|strata (plan )?schemes?|Strata Schemes [\w ()]*?Act \d{4})\b/gi) }
+    if (/Community Land Development Act|community title/i.test(p)) { tenures.push('community'); take(/\b(Community Land Development Act \d{4}|community title( schemes?)?)\b/gi) }
+    if (/\bTorrens title\b/i.test(p)) { tenures.push('torrens'); take(/\bTorrens title\b/gi) }
+    if (tenures.length) { const ls = tenures.map(v => ({ fact: 'proposal.subdivision_type', value: v, span } as Cond)); parts.push(ls.length === 1 ? ls[0]! : { any: ls }) }
     // dates: an existing use approved before / on or after a date
     const before = p.match(/\b(?:granted|approved|erected|commenced)\b[^.]*?\bbefore (\d{1,2} \w+ \d{4})/i), after = p.match(/\bon or after (\d{1,2} \w+ \d{4})/i)
     const usesHere = ctx.usesIn(p)
@@ -177,7 +192,7 @@ export function readClause(sections: Section[], clauseSec: string, ctx: ReadCont
   const despiteOf = (s: string) => {
     const out: string[] = []
     if (/\bany other provision of this (Plan|Policy|instrument)\b/i.test(s)) out.push('instrument:*')
-    if (/\b(the provisions of )?another environmental planning instrument\b/i.test(s)) out.push('doc_type:lep')
+    if (/\b(the provisions of )?(another|any other) environmental planning instrument\b/i.test(s)) out.push('doc_type:lep')
     for (const m of s.matchAll(/\b(?:clauses?|sections?|subclauses?)\s+((?:[\d.]+[A-Z]*(?:\(\w+\))*(?:,\s*|\s+and\s+|\s+or\s+)?)+)/gi))
       for (const c of m[1]!.split(/,\s*|\s+and\s+|\s+or\s+/).map(x => x.trim()).filter(Boolean)) out.push(`clause:${c.replace(/\(.*$/, '')}`)
     return out
@@ -192,6 +207,9 @@ export function readClause(sections: Section[], clauseSec: string, ctx: ReadCont
     if (ex) { const c = withKids(s.local_id, ex[1]!); if (c) exclusions.push({ target: null, cond: c }) }
     const ex2 = t.match(/^(?:Subclause|Clause|Section) \(?([\w.]+)\)? does not apply to (.+)$/i)
     if (ex2) { const c = withKids(s.local_id, ex2[2]!); if (c) exclusions.push({ target: ex2[1]!, cond: c }) }
+    // "This Part does not allow the subdivision of land within a Crown reserve": the clause's permission stops there
+    const na = t.match(/^This (?:Part|Division|Chapter|clause|section) does not (?:allow|permit|authorise) (?:the )?subdivision of (.+?)\.?$/i)
+    if (na) { const c = withKids(s.local_id, na[1]!); if (c) exclusions.push({ target: null, cond: c }) }
   }
 
   // ── statements ─────────────────────────────────────────────────────────────────────────────────
@@ -207,25 +225,62 @@ export function readClause(sections: Section[], clauseSec: string, ctx: ReadCont
   const SUBJ0 = /\b(subdivi\w+|resulting lot|lot resulting|minimum (?:subdivision )?lot size)\b/i
   const scopeIsSubdivision = secs.some(s => /^This (clause|subclause|section) applies\b/i.test(text.get(s.local_id) ?? '') && SUBJ0.test(text.get(s.local_id) ?? ''))
   const SUBJ = { test: (x: string) => SUBJ0.test(x) || (scopeIsSubdivision && /\bdevelopment to which this (section|clause) applies\b/i.test(x)) }
+  // statements that state no rule of their own: aims, definitions, scope (read above), a clause not adopted or repealed,
+  // where a Part / Division applies (the graph's frames hold that), other provisions applied to it, and when consent may
+  // be granted (timing, not a permission)
+  const NOT_A_RULE = [
+    /^(The objectives?|In this (clause|section)|This (clause|subclause|section) (applies|does not apply)|(Subclause|Clause|Section) \(?[\w.]+\)? does not apply)\b/i,
+    /^[[(]?(not applicable|not adopted|repealed)[\])]?\.?$/i,
+    /^This (Part|Division|Subdivision|Chapter|Schedule|Plan|Policy) (also )?(applies|does not apply)\b/i,
+    /^This (Part|Division|Chapter|clause|section) does not (allow|permit|authorise) (the )?subdivision of\b/i,
+    /^[^.]*?\b(sections?|clauses?) [\d.]+[A-Z]*(?:(?:,\s*| and | or )[\d.]+[A-Z]*)* (also )?apply to\b/i,
+    /^(development )?consent for .+? may be granted at any time\b/i,
+  ]
+  let rules = 0
+  // a statement of the clause itself or one of its subclauses, not a paragraph - measured from the clause's own id, which
+  // has dashes of its own in a schedule ('sch.1-sec.13')
+  const top = (id: string) => id.slice(clauseSec.length).split('-').length <= 2
+  // the subject of the last permission - what "such a subdivision" / "such a development consent" refers back to
+  let lastSubj: Cond[] = []
   for (const s of secs) {
     const t0 = text.get(s.local_id) ?? ''
-    if (!t0 || /^(The objectives?|In this (clause|section)|This (clause|subclause|section) (applies|does not apply)|(Subclause|Clause|Section) \(?[\w.]+\)? does not apply)\b/i.test(t0)) continue
+    // "Clause 4.1 does not apply to the subdivision of ... if ...": another clause displaced - a rule, not this clause's scope
+    if (/^(?:Clause|Section)s? \d[\w.]*(?:(?:,\s*| and | or )\d[\w.]*)* does not apply\b/i.test(t0)) {
+      if (top(s.local_id)) { rules++; if (SUBJ.test(t0)) unread.push(label(s.local_id)) }
+      continue
+    }
+    if (!t0 || NOT_A_RULE.some(re => re.test(t0))) continue
+    if (top(s.local_id)) rules++
     // "Despite clauses 4.1, 4.1AA and 4.1A, development consent ...": the lead-in runs to the comma before the statement
     const lead = t0.match(/^Despite (.+?),\s+(?=(?:development|the|a|an|land|consent|each|any|subdivision)\b)/i)
     const despite = lead ? despiteOf(lead[1]!) : []
     const t = lead ? t0.slice(lead[0].length) : t0
     const sp = { fact: 'proposal.kind', value: 'subdivision', span: t0 } as Cond
-    // must not be granted ... [unless ...]
+    // must not be granted ... [if ...] [unless ...]
     const ban = t.match(/^(?:development )?consent must not be granted (?:for|to) (.+?)(?: unless (.*))?$/i)
       ?? t.match(/^(?:a|the) (?:council|consent authority) must not grant (?:a )?(?:development )?consent (?:for|to) (.+?)(?: unless (.*))?$/i)
+      // "A Council must not grant such a development consent unless ...": the consent the clause has just permitted
+      ?? t.match(/^(?:a|the) (?:council|consent authority) must not grant (such (?:a )?(?:development )?consent)(?: unless (.*))?\.?$/i)
     if (ban) {
-      if (!SUBJ.test(ban[1]!)) { family = family === 'none' ? 'other' : family; continue }
+      const such = /^such\b/i.test(ban[1]!)
+      if (!such && !SUBJ.test(ban[1]!)) { family = family === 'none' ? 'other' : family; continue }
       family = 'subdivision'
-      const subj = phrase(ban[1]!.replace(/\bthe subdivision of\b/i, ''), s.local_id)
+      // "such a subdivision if ..." - the subject is the last permission's, the rest a condition
+      const [, subjText, ifText] = ban[1]!.match(/^(.+?)(?: if (.+))?$/i) ?? [, ban[1]!, undefined]
+      const subj = such ? null : phrase(subjText!.replace(/\bthe subdivision of\b/i, ''), s.local_id)
+      const ifc = ifText ? phrase(ifText, s.local_id) : null
       const unlessText = ban[2] ?? (/unless—\s*$/.test(t) ? '' : null)
       const unless = unlessText === null ? null : /—\s*$/.test(t) ? withKids(s.local_id, unlessText || '—') : phrase(unlessText, s.local_id)
-      add(s, { prohibit: true }, [sp, ...(subj ? [subj] : []), ...(unless ? [{ not: unless } as Cond] : [])], despite)
+      add(s, { prohibit: true }, [sp, ...(such ? lastSubj : subj ? [subj] : []), ...(ifc ? [ifc] : []), ...(unless ? [{ not: unless } as Cond] : [])], despite)
       continue
+    }
+    // "Any prohibition or restriction on the subdivision of land imposed by any other environmental planning instrument
+    // ... does not apply to such a subdivision": the clause's permissions apply despite those instruments
+    const over = t.match(/^Any (?:prohibition|restriction)(?: or (?:prohibition|restriction))? on (?:the )?subdivision of land imposed by (.+?) does not apply to\b/i)
+    if (over) {
+      const d = despiteOf(over[1]!)
+      for (const n of norms) if ('permit' in n.then) n.despite = [...new Set([...(n.despite ?? []), ...d])]
+      if (d.length) { family = 'subdivision'; continue }
     }
     // may be granted ... [if ...] / may ... be subdivided ... with consent
     const grant = t.match(/^(?:development )?consent may be granted (?:for|to) (.+?)(?: if(?: (.*))?)?$/i)
@@ -233,14 +288,20 @@ export function readClause(sections: Section[], clauseSec: string, ctx: ReadCont
       // [only] with development consent"
       ?? t.match(/^(.+?) (?:is|are) permitted with (?:development )?consent(?: if(?: (.*))?)?\.?$/i)
       ?? t.match(/^(.+?) may be carried out (?:only )?with (?:development )?consent(?: if(?: (.*))?)?\.?$/i)
-    const subd = /\bmay(?:, with development consent,)? be subdivided\b|\bmay be subdivided, but only with development consent\b/i.test(t)
+    // "X may, with development consent, be subdivided"; "X may be subdivided [for Y][,] [but] only with the development
+    // consent of the council"; "X may be subdivided— only with ..." followed by the ways it may be (its paragraphs)
+    const sm = t.match(/^(.*?)\bmay(?:, with development consent,)? be subdivided\b(—)?(.*)$/i)
+    const subd = !!sm && /\bwith (?:the )?(?:development )?consent\b/i.test(t)
     if (grant || subd) {
-      const subj = grant ? grant[1]! : t.replace(/\bmay(, with development consent,)? be subdivided\b.*$/i, '')
+      // what follows "subdivided" (other than the consent words) still describes the subdivision - kept, never dropped
+      const rest = sm ? sm[3]!.replace(/,?\s*(?:but )?only with (?:the )?(?:development )?consent(?: of the (?:council|consent authority))?\.?/i, '').replace(/^[,\s]+|[,.\s]+$/g, '') : ''
+      const subj = grant ? grant[1]! : `${sm![1]} ${rest}`
       if (grant && !SUBJ.test(subj)) { family = family === 'none' ? 'other' : family; continue }
       family = 'subdivision'
-      const ifc = grant && /\bif—\s*$/.test(t) ? withKids(s.local_id, '—') : grant?.[2] ? phrase(grant[2], s.local_id) : null
+      const ifc = grant && /\bif—\s*$/.test(t) ? withKids(s.local_id, '—') : grant?.[2] ? phrase(grant[2], s.local_id) : sm?.[2] ? withKids(s.local_id, '—') : null
       const sub = phrase(subj.replace(/\bthe subdivision of\b|\bto subdivide\b/gi, ''), s.local_id)
-      add(s, { permit: 'with_consent' }, [sp, ...(sub ? [sub] : []), ...(ifc ? [ifc] : [])], despite)
+      lastSubj = [...(sub ? [sub] : []), ...(ifc ? [ifc] : [])]
+      add(s, { permit: 'with_consent' }, [sp, ...lastSubj], despite)
       continue
     }
     // standards
@@ -264,11 +325,18 @@ export function readClause(sections: Section[], clauseSec: string, ctx: ReadCont
     if (/\baccess handle\b.*\bnot (?:to )?be included\b/i.test(t)) { add(s, { require: { topic: 'graph_standard', cmp: 'eq', unit: 'an access handle is not counted in the lot size', kind: 'condition' } }, [sp], despite); continue }
     // a statement the reader does not recognise - kept as unread (only if it is not a paragraph of something read)
     const parentRead = norms.some(n => s.local_id.startsWith(n.section + '-'))
-    if (!parentRead && s.local_id.split('-').length <= 2 && SUBJ.test(t)) unread.push(label(s.local_id))
+    if (!parentRead && top(s.local_id) && SUBJ.test(t)) unread.push(label(s.local_id))
   }
   // the zones the clause's own scope names (not under a NOT) - so a lot in another zone is told it does not reach it
   const zl = (c: Cond, neg = false): string[] => 'all' in c ? c.all.flatMap(x => zl(x, neg)) : 'any' in c ? c.any.flatMap(x => zl(x, neg))
     : 'not' in c ? zl(c.not, !neg) : c.fact === 'lot.zone' && !neg ? [String(c.value)] : []
   const zones = [...new Set(scope.flatMap(c => zl(c)))]
-  return { norms, family, unread, zones: zones.length ? zones : null }
+  // nothing read and nothing unread: a clause with no rule of its own, or one whose scope is other development
+  // ("This section applies to development for the purposes of residential flat buildings ...")
+  if (!norms.length && !unread.length) {
+    if (!rules && secs.some(s => text.get(s.local_id))) family = 'inert'
+    else if (secs.some(s => { const m = (text.get(s.local_id) ?? '').match(/^This (?:clause|section) applies (?:only )?to development for the purposes? of (.+)$/i); return !!m && !SUBJ0.test(m[1]!) })) family = 'other'
+  }
+  const whole = [...scope, ...exclusions.filter(e => e.target === null).map(e => ({ not: e.cond } as Cond))]
+  return { norms, family, unread, zones: zones.length ? zones : null, scope: whole.length ? (whole.length === 1 ? whole[0]! : { all: whole }) : null }
 }

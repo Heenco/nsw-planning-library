@@ -4,6 +4,7 @@
  *
  *   npx tsx scripts/norms/read-subdivision.ts --dry               # coverage report, nothing written
  *   npx tsx scripts/norms/read-subdivision.ts --dry --show <slug> <clause>
+ *   npx tsx scripts/norms/read-subdivision.ts --dry --inert       # the clauses read as having no rule of their own
  *   npx tsx scripts/norms/read-subdivision.ts                     # write nsw.norm (versioned) + nsw.norm_unchecked
  *
  * Instruments: every LEP, and every SEPP in the graph. A clause is a subdivision clause by its heading ("subdivision",
@@ -19,6 +20,7 @@ import type { Cond, Norm } from '../../shared/norms/schema'
 import { matchLandUses } from '../lib/si-landuse.mjs'
 
 const DRY = process.argv.includes('--dry')
+const INERT = process.argv.includes('--inert')   // list the clauses with no rule of their own
 const SHOW = process.argv.includes('--show') ? process.argv.slice(process.argv.indexOf('--show') + 1, process.argv.indexOf('--show') + 3) : null
 const FAMILY = 'subdivision'
 
@@ -64,7 +66,7 @@ async function main() {
   const terms = new Set<string>((await q(`SELECT lower(term) AS t FROM nsw.scope_layer`)).rows.map(r => r.t))
   const docs = (await q(`SELECT id, title, instrument_slug, doc_type FROM nsw.document WHERE doc_type IN ('lep', 'sepp') ORDER BY doc_type, title`)).rows
   const report: string[] = []
-  const tot = { clauses: 0, read: 0, norms: 0, unparsed: 0, leaves: 0, unread: 0, other: 0 }
+  const tot = { clauses: 0, read: 0, norms: 0, unparsed: 0, leaves: 0, unread: 0, other: 0, inert: 0 }
   for (const d of docs) {
     const secs: (Section & { level: string; id: string; parent_id: string | null })[] = (await q(`SELECT id, parent_id, local_id, raw_text, heading, level, route FROM nsw.section WHERE document_id = $1 ORDER BY sort_order`, [d.id])).rows
     const byId = new Map(secs.map(s => [s.id, s]))
@@ -95,23 +97,28 @@ async function main() {
         FROM chain c JOIN nsw.rule r ON r.id = c.rid JOIN nsw.section s ON s.id = r.section_id LEFT JOIN nsw.rule_applicability a ON a.rule_id = c.fid
        GROUP BY s.local_id`, [d.id])).rows : []
     const out: Norm[] = []
-    const unreadAll: { clause: string; section: string; zones: string[] | null; heading: string | null }[] = []
+    const unreadAll: { clause: string; section: string; zones: string[] | null; heading: string | null; when: Cond | null }[] = []
     let read = 0, other = 0
     for (const cl of clauses) {
       const placesHere = places.filter(p => p.local_id === cl.local_id || p.local_id.startsWith(cl.local_id + '-'))
       const r = readClause(secs, cl.local_id, { instrument: d.title, slug: d.instrument_slug, usesIn, places: placesHere, terms, container: containerOf(cl.local_id) })
       tot.clauses++
       if (r.family === 'other') { other++; continue }
+      // not adopted / repealed, or an application provision: no rule of its own
+      if (r.family === 'inert') { tot.inert++; if (INERT) console.log(`inert  ${d.instrument_slug.slice(0, 40).padEnd(40)} ${cl.local_id.padEnd(10)} ${(cl.heading ?? '').slice(0, 50).padEnd(50)} | ${secs.filter(x => x.local_id === cl.local_id || x.local_id.startsWith(cl.local_id + '-')).map(x => String(x.raw_text ?? '').replace(/\s+/g, ' ').trim()).filter(Boolean)[0]?.slice(0, 110) ?? ''}`); continue }
       if (r.norms.length) read++
       // a SEPP clause's frame: where that part applies
       const f = frames.find(x => x.local_id === cl.local_id || x.local_id.startsWith(cl.local_id + '-'))
       const fc = f ? frameCond(f.conds, terms) : null
+      // where an unread statement of this clause reaches: the clause's own scope and its frame
+      const reach: Cond[] = [r.scope, fc].filter(Boolean) as Cond[]
+      const when = reach.length ? (reach.length === 1 ? reach[0]! : { all: reach }) : null
       for (const n of r.norms) {
         if (fc) n.when = { all: [n.when, fc] }
         out.push(n)
       }
-      for (const u of r.unread) unreadAll.push({ clause: u, section: cl.local_id, zones: r.zones, heading: cl.heading ?? null })
-      if (!r.norms.length && r.family !== 'other') unreadAll.push({ clause: cl.local_id.replace('sec.', ''), section: cl.local_id, zones: r.zones, heading: cl.heading ?? null })
+      for (const u of r.unread) unreadAll.push({ clause: u, section: cl.local_id, zones: r.zones, heading: cl.heading ?? null, when })
+      if (!r.norms.length && r.family !== 'other') unreadAll.push({ clause: cl.local_id.replace('sec.', ''), section: cl.local_id, zones: r.zones, heading: cl.heading ?? null, when })
       if (SHOW && SHOW[0] === d.instrument_slug && `sec.${SHOW[1]}` === cl.local_id) {
         const say = (c: Cond): string => 'all' in c ? `ALL(${c.all.map(say).join(', ')})` : 'any' in c ? `ANY(${c.any.map(say).join(', ')})` : 'not' in c ? `NOT ${say(c.not)}`
           : c.fact === 'unparsed' ? `?«${String(c.text).slice(0, 70)}»` : `${c.fact}${c.value ? '=' + c.value : ''}${c.text && c.fact !== 'lot.on_ref' ? ' ' + c.text : ''}${c.cmp ? ` ${c.cmp} ${c.n}` : ''}`
@@ -140,14 +147,14 @@ async function main() {
       const gone = [...cur.keys()].filter(id => !seen.has(id))
       if (gone.length) await q(`UPDATE nsw.norm SET valid_to = now() WHERE id = ANY($1) AND valid_to IS NULL`, [gone])
       await q(`DELETE FROM nsw.norm_unchecked WHERE family = $1 AND document_id = $2`, [FAMILY, d.id])
-      for (const u of unreadAll) await q(`INSERT INTO nsw.norm_unchecked (family, document_id, section, clause, why, zones) VALUES ($1, $2, $3, $4, $5, $6)
+      for (const u of unreadAll) await q(`INSERT INTO nsw.norm_unchecked (family, document_id, section, clause, why, zones, "when") VALUES ($1, $2, $3, $4, $5, $6, $7)
         ON CONFLICT (family, document_id, section) DO UPDATE SET clause = nsw.norm_unchecked.clause || ', ' || EXCLUDED.clause`,
-        [FAMILY, d.id, u.section, u.clause, u.heading ? `${u.heading} - a statement the clause reader does not recognise` : 'a statement the clause reader does not recognise', u.zones])
+        [FAMILY, d.id, u.section, u.clause, u.heading ? `${u.heading} - a statement the clause reader does not recognise` : 'a statement the clause reader does not recognise', u.zones, u.when ? JSON.stringify(u.when) : null])
       await q('COMMIT')
     }
   }
   if (!SHOW) console.log(report.join('\n'))
-  console.log(`\n${DRY ? '[dry] ' : ''}${tot.clauses} subdivision clauses: ${tot.read} read into ${tot.norms} norms, ${tot.other} about other development, ${tot.unread} statements unread; `
+  console.log(`\n${DRY ? '[dry] ' : ''}${tot.clauses} subdivision clauses: ${tot.read} read into ${tot.norms} norms, ${tot.other} about other development, ${tot.inert} with no rule of their own, ${tot.unread} statements unread; `
     + `${tot.unparsed} of ${tot.leaves} conditions unparsed (${(100 * tot.unparsed / Math.max(1, tot.leaves)).toFixed(0)}%)`)
   await client.end()
 }

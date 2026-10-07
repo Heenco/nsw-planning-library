@@ -25,7 +25,7 @@ export type Who = 'lot' | 'site' | 'proposal' | 'discretion' | 'unparsed'
 export const FACTS = {
   // ── the proposal ──
   'proposal.kind': { who: 'proposal', values: ['use', 'subdivision', 'works', 'change_of_use'] },
-  'proposal.subdivision_type': { who: 'proposal', values: ['torrens', 'strata', 'community'] },
+  'proposal.subdivision_type': { who: 'proposal', values: ['torrens', 'strata', 'community', 'lease'] },
   /** the use the development is for, or the use a resulting lot will have; a Standard Instrument term (or profile extra) */
   'proposal.use': { who: 'proposal', values: 'land_use' },
   /** carried out under a named part of an instrument ("development carried out under this chapter", Housing SEPP s 185) */
@@ -112,7 +112,7 @@ export interface Norm {
 /** The question: a lot, a proposal, and whatever the asker knows about the site. */
 export interface Question {
   cadid: string
-  proposal: { kind: 'use' | 'subdivision' | 'works' | 'change_of_use'; subdivision_type?: 'torrens' | 'strata' | 'community';
+  proposal: { kind: 'use' | 'subdivision' | 'works' | 'change_of_use'; subdivision_type?: 'torrens' | 'strata' | 'community' | 'lease';
               use?: string; under?: string; proponent?: string; resulting_lots?: number; separates?: string; floor_area_m2?: number;
               also_erects?: string; pathway?: 'development_application' | 'complying_development' | 'exempt_development' }
   /** site facts the asker states: { 'boarding house': false, 'secondary dwelling@housing-sepp-2021:ch.3-pt.1': false } */
