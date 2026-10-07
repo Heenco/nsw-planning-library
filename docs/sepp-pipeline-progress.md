@@ -265,14 +265,40 @@ a changed section that a frame is read from → gating finding (frames are hand-
 text is applied in place by default (Q3 approved; `--keep-sections` to stop); publishing only with `--publish` (Q4: not yet).
 `extract.ts` gained `--clauses`; the profile gained `chapters` (what steps 5-6 extract).
 
-### Later (after Ch 6 passes)
-- 13. Housing SEPP Ch 2 Div 1 + Ch 3 Pt 4 (keys: `/api/housing/at`)
-- 14. Ch 3 Pt 5 seniors, Pt 3 co-living, Ch 2 Div 2 boarding houses (new hand keys)
-- 15. Ch 3 Pt 1 secondary dwellings, Ch 5 TOD, Ch 7 Pattern Book
-- 16. Codes SEPP (key: `cdc` catalogue)
-- 17. T&I, R&H (frames and terms)
+### 13. AI-assisted extraction (hybrid) — `blocked` on Q5 (model choice)
+Patterns stay first; a model is asked only for what they cannot claim, and its output passes the same gates.
+Agreed with Manni 2026-10-07 ("yes" to the hybrid proposal).
+- **13a Fallback extractor** `scripts/pipeline/extract-ai.ts`: input = the clauses step 5 leaves with a finding
+  (unclaimed number, qualitative requirement, comparator inferred) or no effect; output = JSON in the step-5
+  shape (applicability rows + effects, each with a verbatim span). Prompt built from the profile (frames, terms,
+  closed land-use vocabulary) - no per-instrument code.
+- **13b Gates (unchanged):** every span a literal substring of the section; every number one
+  `findNumberCandidates` found; land uses from the closed vocabulary; failures become findings, not rules.
+- **13c Determinism:** temperature 0; responses cached by (section content_sha256, prompt hash, model) in a new
+  table, so an unchanged section is never re-asked and a no-change run stays a no-op.
+- **13d Provenance:** `rule.src = 'ai'` + model id in notes / ingest_run; `/graph` shows the AI share per SEPP.
+- **13e Benchmark on Ch 6** (has a pattern baseline + answer keys): run the model on ALL Ch 6 clauses blind,
+  compare with the pattern rules field by field, then on the 4 open findings (s 169(3)(c),(e), 173(3)(b),(c)).
+**Done when:** the benchmark table is in this file (agreement %, every disagreement classed: model wrong /
+pattern wrong / both acceptable); the 4 open findings are resolved or explained; answer keys still 10/10;
+a second run with nothing changed makes 0 model calls.
+
+### Later
+- 14. Housing SEPP Ch 2 Div 1 + Ch 3 Pt 4 (keys: `/api/housing/at`)
+- 15. Ch 3 Pt 5 seniors, Pt 3 co-living, Ch 2 Div 2 boarding houses (new hand keys)
+- 16. Ch 3 Pt 1 secondary dwellings, Ch 5 TOD, Ch 7 Pattern Book
+- 17. Codes SEPP (key: `cdc` catalogue)
+- 18. T&I, R&H (frames and terms)
 
 ## Open questions
+
+**Q5 (step 13, BLOCKING) — which model for the fallback extractor?** Only `DEEPINFRA_API_KEY` is configured.
+1. **DeepSeek-V3 on DeepInfra** (recommended to start) - key in place, already used by part4_graph for LEP clause
+   roles, cheap; JSON mode.
+2. **Claude (Anthropic API)** - strongest at quoting verbatim spans and following a schema; needs an
+   `ANTHROPIC_API_KEY` in `.env`.
+3. **Both on the Ch 6 benchmark**, then pick on the numbers (needs the Anthropic key too).
+Reply with 1, 2 or 3.
 
 **Q4 (step 12) — ANSWERED 2026-10-07: "not yet, keep all locally".** Housing SEPP Ch 6 rules stay `held`; no
 `--publish`, and no push of steps 10-12 to prod until Manni says so.
@@ -316,3 +342,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 11 done (local): /api/rules/sepp-coverage + /api/rules/uses, SEPP table on /graph, "SEPPs for this lot" on /testing-spatial-services.
 - 2026-10-07 — step 12 done (local): scripts/pipeline/run.ts; full 68 s, noop 5 s, one changed section -> one clause re-extracted. Q3, Q4 asked. Steps 1-12 done.
 - 2026-10-07 — Q3 resolved (section text updated in place by default); Q4 answered: keep held, keep local.
+- 2026-10-07 — step 13 (AI-assisted extraction, hybrid) added at Manni's request; blocked on Q5 (model). Later items renumbered 14-18.
