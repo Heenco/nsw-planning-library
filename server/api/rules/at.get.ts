@@ -38,6 +38,9 @@ async function testTerm(cadid: string, m: any, lga: string | null, geo: Map<stri
   if (m.test === 'attribute' && m.source === 'derived.lot_lga') {
     if (!lga) return { holds: null, why: 'council not recorded' }
     const r = await nswQuery<any>(`SELECT EXISTS (SELECT 1 FROM derived.lot_lga WHERE cadid = $1 AND ${m.filter}) AS h`, [cadid])
+    // an upper bound by council ("both localities lie in Northern Beaches"): outside it = no, inside = undecided
+    if (m.upper_bound) return r.rows[0].h ? { holds: null, why: `${lga}: inside the council that holds every instance of the term` }
+                                          : { holds: false, why: `${lga}: outside the council that holds every instance of the term` }
     return { holds: Boolean(r.rows[0].h), why: lga }
   }
   // tables to intersect, with the filter that belongs to each
@@ -220,6 +223,14 @@ export default defineEventHandler(async (event) => {
     for (const a of areas) {
       const h0 = (await termHolds(`defined_area|${String(a.value).toLowerCase()}`)).holds
       // an excluded area ("otherwise—", s 74(2)(d)(ii)) holds when the lot is NOT in it
+      const h = h0 === null ? null : a.polarity === 'excludes' ? !h0 : h0
+      if (h === false) { inArea = false; break }
+      if (h === null) inArea = null
+    }
+    // a condition on the LEP's own table ("in a residential zone where residential flat buildings are not permitted",
+    // s 84(2)(c)) - lutFor is defined below and is in place before any rule is evaluated
+    for (const a of plain.filter((a: any) => a.dimension === 'permissible_under' && String(a.value).startsWith('lep:'))) {
+      const h0 = lutFor(landUseKey(String(a.value).slice(4))).holds
       const h = h0 === null ? null : a.polarity === 'excludes' ? !h0 : h0
       if (h === false) { inArea = false; break }
       if (h === null) inArea = null

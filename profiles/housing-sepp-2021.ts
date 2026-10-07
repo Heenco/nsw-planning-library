@@ -83,6 +83,11 @@ export interface InstrumentProfile {
   terms: TermMapping[]
   /** The chapters (or parts) steps 5-6 extract; the orchestrator (step 12) re-extracts changed clauses inside them. */
   chapters: string[]
+  /** Land uses this instrument names that the closed Land Use Table vocabulary does not hold (Standard Instrument
+   *  dictionary sub-types, e.g. "residential care facility" inside seniors housing). */
+  extraUses?: string[]
+  /** Groups of zones the instrument names without listing them ("in a residential zone"), as read for it. */
+  zoneGroups?: Record<string, string[]>
   /** Clauses step 5 does not read as rules, with the reason (a frame's own source, a clause that only lists others). */
   skip?: Record<string, string>
   /** Each step's "done when" spot checks for this instrument - expectations, never inputs to the rules. */
@@ -130,6 +135,12 @@ const SIX_CITIES_LGAS = Object.values(SIX_CITIES).flat()
 /** s 23(2)(a): the four cities a boarding house in R2 must be in an accessible area in. */
 const FOUR_CITIES_LGAS = [...SIX_CITIES['Eastern Harbour City']!, ...SIX_CITIES['Central River City']!,
   ...SIX_CITIES['Western Parkland City']!, ...SIX_CITIES['Central Coast City']!]
+/** s 79: the zones the seniors housing Part applies in (SP4 only under the listed LEPs - a term of its own). */
+const SENIORS_ZONES = ['RU5', 'R1', 'R2', 'R3', 'R4', 'E1', 'E2', 'E3', 'MU1', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8',
+  'SP1', 'SP2', 'SP5', 'RE2']
+const SP4_LEPS = ['Canada Bay Local Environmental Plan 2013', 'Central Coast Local Environmental Plan 2022', 'Penrith Local Environmental Plan 2010',
+  'Pittwater Local Environmental Plan 2014', 'Port Macquarie-Hastings Local Environmental Plan 2011', 'Sutherland Shire Local Environmental Plan 2015',
+  'The Hills Local Environmental Plan 2019', 'Warringah Local Environmental Plan 2011']
 /** s 74(2)(d): the three metropolitan cities. */
 const METRO_CITIES_LGAS = [...SIX_CITIES['Eastern Harbour City']!, ...SIX_CITIES['Central River City']!, ...SIX_CITIES['Western Parkland City']!]
 const SIX_CITIES_15C = SIX_CITIES_LGAS.filter(l => l !== 'SHOALHAVEN' && l !== 'PORT STEPHENS')
@@ -143,7 +154,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
-  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3'],
+  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5'],
   frames: [
     {
       id: 'instrument',
@@ -303,6 +314,56 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         + 's 152(2) (part of a lot) is how the lot test already reads; (3) amalgamation is a proposal fact.',
     },
     {
+      id: 'ch3-seniors',
+      title: 'Chapter 3, Part 5 — housing for seniors and people with a disability',
+      parent: 'instrument',
+      clause: '79',
+      section: 'sec.79',
+      governs: ['ch.3-pt.5'],
+      conditions: [
+        // s 79 prescribed zones, or (s 81(b)) land where another instrument permits seniors housing
+        ...SENIORS_ZONES.map(z => ({ dimension: 'zone' as const, value: z, polarity: 'applies' as const, clause: '79', anyOf: `land#z-${z}`,
+          span: `Zone ${z}` })),
+        { dimension: 'defined_area', value: 'Zone SP4 Enterprise under the listed local environmental plans', polarity: 'applies', clause: '79(o1)',
+          anyOf: 'land#sp4', span: 'Zone SP4 Enterprise under the following local environmental plans' },
+        { dimension: 'permissible_under', value: 'lep:seniors housing', polarity: 'applies', clause: '81(b)', anyOf: 'land#lep',
+          span: 'on land on which development for the purposes of seniors housing is permitted under another environmental planning instrument' },
+        // s 80: land the Part does not apply to
+        { dimension: 'defined_area', value: 'Warringah LEP 2000 locality B2 (Oxford Falls Valley) or C8 (Belrose North)', polarity: 'excludes',
+          clause: '80(1)(a)', span: 'land to which Warringah Local Environmental Plan 2000 applies that is located within locality B2 (Oxford Falls Valley) or C8 (Belrose North) under the Plan' },
+        { dimension: 'map_area', value: 'land shown cross-hatched on the Bush Fire Evacuation Risk Map', polarity: 'excludes', clause: 'Sch 3',
+          span: 'Land shown cross-hatched on the Bush Fire Evacuation Risk Map' },
+        { dimension: 'land_characteristic', value: 'coastal wetlands and littoral rainforests area', polarity: 'excludes', clause: 'Sch 3',
+          span: 'Land identified as coastal wetlands and littoral rainforests area within the meaning of State Environmental Planning Policy (Resilience and Hazards) 2021, Chapter 2' },
+        { dimension: 'land_characteristic', value: 'coastal vulnerability area', polarity: 'excludes', clause: 'Sch 3',
+          span: 'Land identified as coastal vulnerability area within the meaning of State Environmental Planning Policy (Resilience and Hazards) 2021, Chapter 2' },
+        { dimension: 'land_characteristic', value: 'area of outstanding biodiversity value', polarity: 'excludes', clause: 'Sch 3',
+          span: 'Land declared as an area of outstanding biodiversity value under the Biodiversity Conservation Act 2016, section 3.1' },
+        { dimension: 'land_characteristic', value: 'land on the Biodiversity Values Map', polarity: 'excludes', clause: 'Sch 3',
+          span: 'Land identified on the Map within the meaning of the Biodiversity Conservation Regulation 2017, section 7.3' },
+        { dimension: 'land_characteristic', value: 'land identified in another environmental planning instrument as open space or natural wetland',
+          polarity: 'excludes', clause: 'Sch 3', span: 'Land identified in another environmental planning instrument as follows—' },
+      ],
+      note: 'Where the Part applies: a s 79 zone, or (s 81(b)) land whose LEP permits seniors housing, less s 80 / Schedule 3. '
+        + 'Two Schedule 3 items are not held (the Bush Fire Evacuation Risk Map is not in the ePlanning services; "open space / '
+        + 'natural wetland in another EPI" is not resolved), so the Part is undecided wherever nothing held decides it (Q8). '
+        + 'Coastal wetlands and vulnerability areas are kept as exclusions despite s 80(2)(a) (Q8).',
+    },
+    {
+      id: 'ch3-seniors-ra',
+      title: 'Chapter 3, Part 5, Division 8 — seniors housing by a relevant authority',
+      parent: 'ch3-seniors',
+      clause: '108A',
+      section: 'sec.108A',
+      governs: ['ch.3-pt.5-div.8'],
+      conditions: [
+        { dimension: 'proponent', value: 'a relevant authority', polarity: 'applies', clause: '108B(1)',
+          span: 'by or on behalf of a relevant authority' },
+      ],
+      note: 's 108A(a)/(b) (LEP permits seniors housing, or a prescribed zone) repeat the parent frame\'s land test; "or an '
+        + 'equivalent land use zone" is not resolved. The proponent is a fact about the proposal.',
+    },
+    {
       id: 'ch2-boarding',
       title: 'Chapter 2, Part 2, Division 2 — boarding houses',
       parent: 'instrument',
@@ -416,6 +477,24 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       upper_bound: true, test: 'intersects', kind: 'condition',
       note: 's 23(2)(b). Walking distance not measured: 800 m straight line is an upper bound; on the zone itself = yes. '
         + '"or an equivalent land use zone" is not resolved. (No E2, unlike s 15C(3).)' },
+    // ── Ch 3 Pt 5, seniors housing ──
+    { dimension: 'defined_area', term: 'Zone SP4 Enterprise under the listed local environmental plans', source_kind: 'table',
+      source: 'epi.epi_land_zoning', filter: `sym_code = 'SP4' AND epi_name IN (${SP4_LEPS.map(l => `'${l}'`).join(', ')})`,
+      test: 'intersects', kind: 'condition', note: 's 79(o1).' },
+    { dimension: 'defined_area', term: 'Warringah LEP 2000 locality B2 (Oxford Falls Valley) or C8 (Belrose North)', source_kind: 'derived',
+      source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name', filter: "upper(lga_name) = 'NORTHERN BEACHES'",
+      upper_bound: true, kind: 'exclusion',
+      note: 's 80(1)(a). The localities are not held; both lie in Northern Beaches, so a lot elsewhere is clear and one there is undecided.' },
+    { dimension: 'map_area', term: 'land shown cross-hatched on the Bush Fire Evacuation Risk Map', source_kind: 'none', source: null,
+      test: 'intersects', kind: 'exclusion',
+      note: 'Schedule 3. Not published in the ePlanning map services (checked SEPP_Housing_2021, Hazard, Protection, Principal_Planning_Layers, 2026-10-07).' },
+    { dimension: 'land_characteristic', term: 'area of outstanding biodiversity value', source_kind: 'table', source: 'esa.aobv',
+      test: 'intersects', kind: 'exclusion', note: 'Schedule 3. BC Act s 3.1 declarations (esa.aobv).' },
+    { dimension: 'land_characteristic', term: 'land on the Biodiversity Values Map', source_kind: 'table', source: 'bio_values.biodiversityvalues',
+      test: 'intersects', kind: 'exclusion', note: 'Schedule 3. BC Regulation s 7.3 map (BV Map v19.5, all classes).' },
+    { dimension: 'land_characteristic', term: 'land identified in another environmental planning instrument as open space or natural wetland',
+      source_kind: 'none', source: null, test: 'intersects', kind: 'exclusion',
+      note: 'Schedule 3 (b), (c). Which instruments, and how they identify it, is not resolved.' },
     // ── Ch 3 Pt 4, s 72 ──
     { dimension: 'defined_area', term: 'Transport Oriented Development Area', source_kind: 'registry', source: 'lmr.layers:sepp_tod_areas',
       test: 'intersects', kind: 'condition', note: 's 72(2)(a1). Transport Oriented Development Sites Map (Chapter 5).' },
@@ -424,7 +503,8 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   ],
   signals: {
     permission: ['is permitted with development consent', 'development consent may be granted for development to which this part applies',
-                 'may be carried out with consent'],
+                 'may be carried out with consent', 'may be carried out with development consent',
+                 'may be carried out by or on behalf of a relevant authority without development consent'],
     land_prohibition: ['must not be carried out on land in'],
     override: ['despite the provisions of another environmental planning instrument'],
     nondiscretionary_heading: ['Non-discretionary development standards'],
@@ -432,6 +512,10 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     prohibition: ['development consent must not be granted'],
     disapplication: ['does not apply to development that meets'],
   },
+  extraUses: ['residential care facility'],
+  // the Standard Instrument's Land Use Table groups R1-R5 as "Residential Zones" (Q8: "business zone" is left unresolved -
+  // the B zones were replaced by E/MU zones in 2023 and the SEPP does not say which it means)
+  zoneGroups: { 'residential zone': ['R1', 'R2', 'R3', 'R4', 'R5'] },
   skip: {
     'sec.164': 'the chapter frame (scripts/pipeline/frames.ts) - s 164 is where the chapter applies',
     'sec.165': 'lists which sections are non-discretionary; read as the nondiscretionary signal on each',

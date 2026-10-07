@@ -756,6 +756,55 @@
           "67": false
         }
       }
+    },
+    {
+      "name": "Parramatta R2, part of the lot on the Biodiversity Values Map - Schedule 3 excludes the Part, but Parramatta LEP 2023 permits seniors housing in R2",
+      "cadid": "104088477",
+      "use": "seniors housing",
+      "scope": "ch3-pt5",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "Land Use Table",
+        "frames": {
+          "79": false
+        }
+      }
+    },
+    {
+      "name": "Kiama R2 - seniors housing: the LEP prohibits it; s 81(a) would permit it (s 79 zone) and prevail, but Schedule 3 cannot be decided: undecided",
+      "cadid": "153192342",
+      "use": "seniors housing",
+      "scope": "ch3-pt5",
+      "expect": {
+        "permissible": null,
+        "frames": {
+          "79": null
+        }
+      }
+    },
+    {
+      "name": "The Hills R2 on the Biodiversity Values Map - Schedule 3 excludes the Part (s 80(1)(b)); the LEP prohibits seniors housing",
+      "cadid": "103117176",
+      "use": "seniors housing",
+      "scope": "ch3-pt5",
+      "expect": {
+        "permissible": false,
+        "frames": {
+          "79": false
+        }
+      }
+    },
+    {
+      "name": "Shellharbour RU2 - not a s 79 zone and the LEP prohibits seniors housing, so neither s 81 limb reaches",
+      "cadid": "177493782",
+      "use": "seniors housing",
+      "scope": "ch3-pt5",
+      "expect": {
+        "permissible": false,
+        "frames": {
+          "79": false
+        }
+      }
     }
   ],
   "scopes": {
@@ -763,6 +812,7 @@
     "ch2-div1": "^(15[A-C]?|1[6-9]|2[0-2])$",
     "ch3-pt4": "^7[1-8]$",
     "ch2-div2": "^2[3-7]$",
-    "ch3-pt3": "^(6[7-9]|70)$"
+    "ch3-pt3": "^(6[7-9]|70)$",
+    "ch3-pt5": "^(79|8[0-9]|9[0-7]|10[6-8][A-E]*)$"
   }
 }

@@ -323,7 +323,7 @@ E2, Bambara (RFB and dual occupancy), R2 LMR inner (BTR via Ch 6), Accelerated T
 **Findings (non-gating):** s 76 "business zone" is undefined in the SEPP - not narrowed; Ch 6's 4 qualitative /
 inferred findings stand.
 
-### 15. Ch 2 Pt 2 Div 2 boarding houses, Ch 3 Pt 3 co-living, Ch 3 Pt 5 seniors — `in progress`
+### 15. Ch 2 Pt 2 Div 2 boarding houses, Ch 3 Pt 3 co-living, Ch 3 Pt 5 seniors — `done` 2026-10-07 (local commits; Q7, Q8 await review)
 - **15a boarding houses (s 23-27) + 15b co-living (s 67-70) — `done` 2026-10-07 (local commit).** Frames `ch2-boarding`
   (s 23(1): where the LEP permits boarding houses) and `ch3-coliving` (s 67: where co-living, or RFBs / shop top
   housing under the LEP, Ch 5 or Ch 6, are permitted - OR'd), plus `ch5-tod` (Chapter 5's land application only,
@@ -344,7 +344,22 @@ inferred findings stand.
   (not references, years, ratio second terms, "1 or more of"). Re-run on all five chapters: Ch 6 unchanged (37);
   Div 1 had 8 more numbers (all claimed); 3 real misses fixed (s 68(2)(e) parking, s 25(1)(d) and s 69(1)(c)(i)
   "not more than 12 rooms").
-- **15c seniors housing (Ch 3 Pt 5, s 79-108E, 31 clauses) — `todo`.**
+- **15c seniors housing (Ch 3 Pt 5, s 79-108E) — `done` 2026-10-07 (local commit).** Frames `ch3-seniors` (s 79 zones
+  OR s 81(b) "LEP permits seniors housing", less s 80 / Schedule 3) and `ch3-seniors-ra` (Div 8, relevant authorities).
+  50 new rules (126 in all); recall 76/76. **Answer keys 29/29** - 4 new hand keys: Parramatta R2 (Part excluded by the
+  Biodiversity Values Map, LEP permits it: yes), Kiama R2 (LEP prohibits, s 81 undecided: undecided), The Hills R2 on
+  the BV map (no), Shellharbour RU2 (no).
+  New generic machinery: a frame's uses from the one permission sentence it governs (s 81); instrument-defined uses
+  outside the closed vocabulary (`extraUses`: residential care facility); zone groups (`zoneGroups`: "residential
+  zone" = R1-R5) and "where residential flat buildings are not permitted" as a rule condition on the LEP's table
+  (s 84(2)(c)); height thresholds as conditions ("having a height of more than 9.5m—"); rates ("1 parking space for
+  every 10 beds", "15m2 for every bed"); "3.8m above the maximum permissible building height"; proponent qualifiers
+  ("made by a social housing provider or Landcom" / "if paragraph (j) does not apply"); topic per phrase; counts
+  ("at least 1 private open space"); distance ("within 50km of a 24-hour ..."), times of day and gradients in
+  conditions; section ranges as references; council-level upper bounds for terms.
+  **The Schedule 3 gap (Q8):** two of its items are not held, so the Part is undecided wherever nothing held excludes
+  it - seniors standards never read "applies" today, and where the LEP prohibits seniors housing the verdict is
+  undecided rather than "permitted by s 81".
 **Done when:** recall PASS on all three; hand keys for each part pass; earlier keys still pass; frames listed for
 review (Q7).
 
@@ -354,6 +369,22 @@ review (Q7).
 - 18. T&I, R&H (frames and terms)
 
 ## Open questions
+
+**Q8 (step 15c, non-blocking - but it decides how useful the seniors rules are)** — Schedule 3 and the seniors frames:
+1. **Bush Fire Evacuation Risk Map** (Schedule 3, first item) is not in the ePlanning map services (checked
+   SEPP_Housing_2021, Hazard, Protection, Principal_Planning_Layers). Options: (a) request it from DPHI and load it;
+   (b) leave the Part undecided wherever nothing else decides it (today's behaviour).
+2. **"Land identified in another EPI as open space / natural wetland"** (Schedule 3 (b), (c)): which instruments? Options:
+   (a) read it as non-Standard-Instrument plans only (SREPs / old schemes) and treat SI-zoned lots as clear; (b) leave
+   undecided.
+3. **s 80(2)(a) vs Schedule 3**: s 80(2)(a) says Schedule 3 does not exclude land "only because" it is identified under
+   R&H SEPP Ch 2, yet Schedule 3 itself lists coastal wetlands and coastal vulnerability areas (identified under that
+   Chapter). Kept as exclusions (the specific listing). Agree?
+4. **"residential zone" = R1-R5** (s 84(2)(c)); **"business zone"** (s 76, s 89) left unresolved since the 2023 zone
+   reform replaced B zones with E/MU zones. Agree, or give a reading?
+5. Where the LEP permits seniors housing, the answer is "permissible" by the LEP even when Schedule 3 excludes the
+   Part (the Part's standards then do not apply). Agree?
+Reply with numbers and choices, or "frames OK".
 
 **Q7 (step 15, non-blocking - rules stay held) — review the boarding house / co-living readings** (`ch2-boarding`,
 `ch3-coliving`, `ch5-tod`, and the s 23(2) rule):
@@ -441,3 +472,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — 14a done: migration 22 (alt_group, permissible_under, within_m); /api/rules/at evaluates alternatives, native zones, conditions on other rules and on the verdict; Ch 6 10/10.
 - 2026-10-07 — step 14 done (local): Div 1 + Pt 4 extracted; answer keys 19/19; Q6 asks for the frame review.
 - 2026-10-07 — 15a/15b done (local): boarding houses + co-living, 25/25 keys; recall gate now counts bare numerals. Q7 asks for review. 15c seniors next.
+- 2026-10-07 — 15c done (local): seniors housing, 126 rules, 29/29 keys. Step 15 done. Q8 asks about Schedule 3 gaps and readings.
