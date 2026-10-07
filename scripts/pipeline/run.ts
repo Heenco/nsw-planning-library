@@ -15,7 +15,8 @@
  *   1. source    hash the registered file; due when it differs from source_registry.last_ingested_sha256
  *   2. sections  if due (or simulated): compare the file's sections with the graph's by local_id. Added or
  *                removed sections are a structural change - stage 0 reloads, on purpose - so the run stops.
- *                Changed text is applied only with --update-sections (Q3: it rewrites stage-0 rows, D5).
+ *                Changed text (same local_id) is written to nsw.section in place - Q3, approved by Manni 2026-10-07;
+ *                --keep-sections stops instead.
  *   3. what to run
  *                - the profile or a pipeline script changed since the last completed run (fingerprint), or
  *                  --force: frames, route, terms, extract (each profile chapter), edges - everything
@@ -41,7 +42,7 @@ const opt = (k: string) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : null)
 const DRY = argv.includes('--dry')
 const FORCE = argv.includes('--force')
 const PUBLISH = argv.includes('--publish')
-const UPDATE_SECTIONS = argv.includes('--update-sections')
+const UPDATE_SECTIONS = !argv.includes('--keep-sections')
 const BASE = opt('--base') ?? 'http://localhost:3000'
 const SIMULATE = (opt('--simulate') ?? '').split(',').map(s => s.trim()).filter(Boolean)
 const PROFILES = opt('--profile') ? [opt('--profile')!]
@@ -149,8 +150,8 @@ async function runProfile(client: pg.Client, name: string) {
       return finish('failed', 'stopped: structural change in the source (sections added or removed)', { added: added.slice(0, 20), removed: removed.slice(0, 20) })
     }
     if (textChanged.length && !UPDATE_SECTIONS) {
-      await gatingFinding('section_text_changed', null, `${textChanged.length} sections changed: ${textChanged.slice(0, 10).join(', ')} - rerun with --update-sections (Q3)`)
-      return finish('failed', `stopped: ${textChanged.length} sections changed in the source; updating section text needs --update-sections (Q3)`, { changed: textChanged })
+      await gatingFinding('section_text_changed', null, `${textChanged.length} sections changed: ${textChanged.slice(0, 10).join(', ')} - rerun without --keep-sections to apply`)
+      return finish('failed', `stopped: ${textChanged.length} sections changed in the source and --keep-sections was given`, { changed: textChanged })
     }
     if (textChanged.length && !DRY) {
       for (const k of textChanged) {

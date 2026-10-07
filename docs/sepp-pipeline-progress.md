@@ -249,7 +249,7 @@ publish or hold; writes `ingest_run` and findings.
 re-extracts only that section.
 
 **Result:** `npx tsx scripts/pipeline/run.ts [--profile x] [--dry] [--force] [--simulate <local_ids>] [--base <url>]
-[--update-sections] [--publish]`. Per profile: source hash vs last ingested → section diff (when due or
+[--keep-sections] [--publish]`. Per profile: source hash vs last ingested → section diff (when due or
 simulated) → plan → steps as child processes → rule snapshot diff → answer keys → gate → one `ingest_run`
 (step 12) saying what it decided. The plan reruns everything when the profile, answer keys or a step script
 changed (a fingerprint of those files against the last completed run); otherwise only the clauses holding a
@@ -262,7 +262,7 @@ changed section (`extract.ts --clauses`, new: upserts, retires and re-audits tho
   (vs 23 for a full run); 23 rules unchanged; the 4 open findings on s 169/173 untouched; keys 10/10.
 **Guards:** sections added/removed in the source → stop with a gating finding (stage 0 reloads, on purpose);
 a changed section that a frame is read from → gating finding (frames are hand-written, D3); changed section
-text is applied only with `--update-sections` (Q3); publishing only with `--publish` (Q4).
+text is applied in place by default (Q3 approved; `--keep-sections` to stop); publishing only with `--publish` (Q4: not yet).
 `extract.ts` gained `--clauses`; the profile gained `chapters` (what steps 5-6 extract).
 
 ### Later (after Ch 6 passes)
@@ -274,15 +274,12 @@ text is applied only with `--update-sections` (Q3); publishing only with `--publ
 
 ## Open questions
 
-**Q4 (step 12, non-blocking) — publish the Housing SEPP Ch 6 rules?** Every gate is green (answer keys 10/10,
-0 gating findings). `run.ts --publish` flips the 23 held rules and 3 frames to `published`. Nothing in the app
-reads `publish_state` yet except `/api/rules/at` (which reads held too), so publishing changes no page today;
-it marks them as reviewed. Reply "publish ch6" or leave held.
+**Q4 (step 12) — ANSWERED 2026-10-07: "not yet, keep all locally".** Housing SEPP Ch 6 rules stay `held`; no
+`--publish`, and no push of steps 10-12 to prod until Manni says so.
 
-**Q3 (step 12, non-blocking) — may the orchestrator rewrite changed section text in place?** When a new
-in-force XML changes a section's wording (same local_id), the run stops and asks for `--update-sections`,
-because that UPDATEs stage-0 rows in `nsw.section` (D5). Reply "update sections OK" to make it the default, or
-keep it as a per-run flag.
+**Q3 (step 12) — RESOLVED 2026-10-07: "update ok".** `run.ts` now writes changed section text (same local_id) to
+`nsw.section` in place by default and re-extracts the clauses holding it; `--keep-sections` stops instead.
+Added/removed sections still stop the run (stage 0 reloads, on purpose).
 
 **Q2 (step 9) — RESOLVED 2026-10-07: Manni replied "go ahead"; `/api/rules/at` pushed to prod (ac2d0c2).**
 The step 10 fixes to the same route (except_term, undecided verdict) are committed locally; pushing them is
@@ -318,3 +315,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 10 done (local): 10/10 answer keys, 2 lmr disagreements explained; migration 21; undecided-verdict fix; pipeline de-hardcoded into the profile.
 - 2026-10-07 — step 11 done (local): /api/rules/sepp-coverage + /api/rules/uses, SEPP table on /graph, "SEPPs for this lot" on /testing-spatial-services.
 - 2026-10-07 — step 12 done (local): scripts/pipeline/run.ts; full 68 s, noop 5 s, one changed section -> one clause re-extracted. Q3, Q4 asked. Steps 1-12 done.
+- 2026-10-07 — Q3 resolved (section text updated in place by default); Q4 answered: keep held, keep local.
