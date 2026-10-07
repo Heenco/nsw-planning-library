@@ -323,13 +323,48 @@ E2, Bambara (RFB and dual occupancy), R2 LMR inner (BTR via Ch 6), Accelerated T
 **Findings (non-gating):** s 76 "business zone" is undefined in the SEPP - not narrowed; Ch 6's 4 qualitative /
 inferred findings stand.
 
+### 15. Ch 2 Pt 2 Div 2 boarding houses, Ch 3 Pt 3 co-living, Ch 3 Pt 5 seniors — `in progress`
+- **15a boarding houses (s 23-27) + 15b co-living (s 67-70) — `done` 2026-10-07 (local commit).** Frames `ch2-boarding`
+  (s 23(1): where the LEP permits boarding houses) and `ch3-coliving` (s 67: where co-living, or RFBs / shop top
+  housing under the LEP, Ch 5 or Ch 6, are permitted - OR'd), plus `ch5-tod` (Chapter 5's land application only,
+  s 152(1), so a condition naming Chapter 5 is "no" off TOD land rather than undecided). 37 new rules (76 in all).
+  Recall: Div 2 28/28, Pt 3 25/25. **Answer keys 25/25** - 6 new hand keys (Randwick R2 accessible / not, Newcastle
+  R2 far / near a centre, Lane Cove R4 co-living by s 67, Lane Cove R2 no route).
+  New generic machinery: SEPP **prohibitions** in the evaluator (s 23(2) "must not be carried out on land in Zone R2
+  ... unless (a) ..., or (b) otherwise ..." - a rule with a negated group of exception branches, prevailing over
+  the LEP by s 8(1)); zone qualifiers and "for development on other land" as their complement; room-count and
+  single/other occupancy conditions; "an additional 30% of the maximum permissible FSR"; "a further 2m2 for each
+  room in excess of 6"; comparator nearest the number; a naming parent topic beats a weak own one; zone names are
+  not topics; "In this section, ... does not include / — ... means" is definitional; qualitative conditions of
+  consent ("adequate bathroom ... facilities", "will be in an accessible area") recorded, not dropped - except
+  where the list is the subject ("for the following purposes", s 176(2)); "if ... has at least 3 storeys—" as a
+  condition on the requirement; a frame's permission sentence gives its uses.
+  **Recall-gate blind spot found and closed:** the shared reader counts a number only with a comparator or unit,
+  so "—0.2 parking spaces for each boarding room" was never counted. Step 5 now also counts every bare numeral
+  (not references, years, ratio second terms, "1 or more of"). Re-run on all five chapters: Ch 6 unchanged (37);
+  Div 1 had 8 more numbers (all claimed); 3 real misses fixed (s 68(2)(e) parking, s 25(1)(d) and s 69(1)(c)(i)
+  "not more than 12 rooms").
+- **15c seniors housing (Ch 3 Pt 5, s 79-108E, 31 clauses) — `todo`.**
+**Done when:** recall PASS on all three; hand keys for each part pass; earlier keys still pass; frames listed for
+review (Q7).
+
 ### Later
-- 15. Ch 3 Pt 5 seniors, Pt 3 co-living, Ch 2 Div 2 boarding houses (new hand keys)
 - 16. Ch 3 Pt 1 secondary dwellings, Ch 5 TOD, Ch 7 Pattern Book
 - 17. Codes SEPP (key: `cdc` catalogue)
 - 18. T&I, R&H (frames and terms)
 
 ## Open questions
+
+**Q7 (step 15, non-blocking - rules stay held) — review the boarding house / co-living readings** (`ch2-boarding`,
+`ch3-coliving`, `ch5-tod`, and the s 23(2) rule):
+1. **s 23(2) is a SEPP prohibition that beats the LEP** (by s 8(1)): a boarding house in R2 is prohibited unless (a)
+   in the Eastern Harbour, Central River, Western Parkland or Central Coast City AND in an accessible area, or (b)
+   elsewhere, within 800 m walking of E1/MU1/B1/B2/B4 (straight line upper bound; undecided inside it). "or an
+   equivalent land use zone" is not resolved.
+2. **s 67(b) "permitted"** is read as permitted with or without consent, under the LEP, Chapter 5 or Chapter 6.
+3. **Chapter 5 off TOD land is "no"**, from its s 152(1) land application, before its rules are extracted.
+4. **Parking rates with no comparator** (s 68(2)(e)) are read as minimums (non-gating finding each).
+Reply "frames OK" or say what to change.
 
 **Q6 (step 14, non-blocking - rules stay held) — review the Ch 2 Pt 2 Div 1 and Ch 3 Pt 4 frames** in
 `profiles/housing-sepp-2021.ts` (`ch2-infill-ah`, `ch3-btr`). The readings that decide answers:
@@ -405,3 +440,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 13 deferred (Manni). Step 14 opened: Ch 2 Pt 2 Div 1 + Ch 3 Pt 4, broken into 14a-14d.
 - 2026-10-07 — 14a done: migration 22 (alt_group, permissible_under, within_m); /api/rules/at evaluates alternatives, native zones, conditions on other rules and on the verdict; Ch 6 10/10.
 - 2026-10-07 — step 14 done (local): Div 1 + Pt 4 extracted; answer keys 19/19; Q6 asks for the frame review.
+- 2026-10-07 — 15a/15b done (local): boarding houses + co-living, 25/25 keys; recall gate now counts bare numerals. Q7 asks for review. 15c seniors next.

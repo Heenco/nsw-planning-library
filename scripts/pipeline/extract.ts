@@ -66,6 +66,12 @@ function usesIn(t: string, groups: UseGroup[] = []): string[] {
 interface UseGroup { term: string; uses: string[]; scope: string }
 /** The first of the profile's defined-area terms (longest first) named in the text. */
 const areaIn = (t: string, areas: string[]) => areas.find(a => t.toLowerCase().includes(a)) ?? null
+/** Every defined-area term named in the text, longest first, none inside another found one. */
+const areasIn = (t: string, areas: string[]) => {
+  const out: string[] = []
+  for (const a of areas) if (t.toLowerCase().includes(a) && !out.some(o => o.includes(a))) out.push(a)
+  return out
+}
 /**
  * What a section's own words narrow its standards to: a use ("for the purposes of X", "for X—") or a defined
  * area other than the ones the whole clause already applies in.
@@ -77,7 +83,7 @@ function qualifierOf(t: string, areas: string[], clauseAreas: string[], groups: 
 }
 const UNIT: Record<string, string> = { sqm: 'sqm', metre: 'm', ratio: 'ratio', storeys: 'storeys', dwellings: 'dwellings' }
 
-interface Applic { dimension: string; value: string; polarity: 'applies' | 'excludes'; span: string }
+interface Applic { dimension: string; value: string; polarity: 'applies' | 'excludes'; span: string; alt_group?: string }
 interface Effect {
   effect_type: string; topic: string | null; comparator: string | null; value: number | null; unit: string | null
   value_source: string | null; relative_to: string | null; measured_from: string | null; span: string
@@ -93,21 +99,51 @@ function comparatorOf(text: string): string | null {
   const t = text.toLowerCase()
   if (/\b(minimum|at least|not less than)\b/.test(t)) return 'gte'
   if (/\b(maximum|no more than|not more than|not exceed|up to|or fewer)\b/.test(t)) return 'lte'
+  // "no boarding room will have a gross floor area ... of more than 25m2"
+  if (/\bno\b[^—]*\bmore than\b/.test(t)) return 'lte'
+  // "the boarding house will not have more than 12 boarding rooms", "will not contain more than 12 private rooms"
+  if (/\bnot (have|contain|be) more than\b/.test(t)) return 'lte'
   return null
 }
 
-function topicFor(text: string, cand: any): string | null {
+/** When a sentence holds both a minimum and a maximum ("not more than 25m2 and not less than—"), the comparator
+ *  is the phrase nearest before the number. */
+function comparatorNear(text: string, raw: string): string | null {
+  const t = text.toLowerCase()
+  if (!(/\b(minimum|at least|not less than)\b/.test(t) && /\b(maximum|not more than|no more than|up to)\b/.test(t))) return null
+  const i = t.indexOf(String(raw).toLowerCase())
+  if (i < 0) return null
+  const last = [...t.slice(Math.max(0, i - 60), i).matchAll(/(minimum|at least|not less than|maximum|no more than|not more than|not exceed|up to)/g)].at(-1)?.[1]
+  return !last ? null : /minimum|at least|not less than/.test(last) ? 'gte' : 'lte'
+}
+
+/** A number's topic from words that name it outright ("communal living area", "minimum lot size"). */
+function topicStrong(text0: string, cand: any): string | null {
+  // a zone's name is not a topic ("Zone R2 Low Density Residential—600m2" is a lot size, not a density)
+  const text = text0.replace(/\bZone [A-Z]+\d* (?:[A-Z][a-z]+ ?)+/g, '')
   const t = text.toLowerCase()
   if (cand.unit === 'storeys' || /storeys?/.test(t) && cand.unit === 'storeys') return 'storeys'
   if (cand.unit === 'dwellings' || /\bdwellings?\b/.test(t) && /no more than \d+ dwelling/.test(t)) return 'dwellings'
+  // rooms of a boarding house / co-living housing
+  if (/\b(boarding|private) rooms?\b/.test(t) && /floor area/.test(t)) return 'room_floor_area'
+  if (/\boccupied by more than\b|\bused by no more than \d+ occupants\b/.test(t)) return 'occupants_per_room'
+  if (/\b(not (have|contain) more than|no more than) \d+ (boarding|private) rooms\b/.test(t)) return 'rooms'
+  if (/\bcommunal living areas?\b/.test(t)) return cand.unit === 'sqm' || cand.unit === 'metre' ? 'communal_living_area' : 'communal_living_areas'
+  if (/\bcommunal open spaces?\b/.test(t)) return 'communal_open_space'
   const read = topicOf([text])
   if (read) return read === 'width' ? 'width' : read
   if (/\blandscaped area\b/.test(t)) return 'landscaped_area'
   if (/\bfloor areas?\b/.test(t)) return 'floor_area'
+  return null
+}
+/** ... and from words that only suggest it ("an area of", "wide"), which a naming parent sentence outranks. */
+function topicWeak(text: string): string | null {
+  const t = text.toLowerCase()
   if (/\barea of\b/.test(t)) return 'lot_size'
   if (/\bwide\b/.test(t)) return 'width'
   return null
 }
+const topicFor = (text: string, cand: any): string | null => topicStrong(text, cand) ?? topicWeak(text)
 
 /** A topic narrowed by its own words: "each deep soil zone has minimum dimensions of 3m" is not the zone's share. */
 function refineTopic(topic: string | null, text: string): string | null {
@@ -117,8 +153,33 @@ function refineTopic(topic: string | null, text: string): string | null {
   return topic
 }
 
-/** The provision without a trailing "Example—" or "Note—", which are not part of it. */
-const operativePart = (t: string) => t.replace(/\s(?:Example|Note)s?\s?—[\s\S]*$/, '')
+/**
+ * The shared reader (findNumberCandidates) counts a number only with a comparator or a unit, so "—0.2 parking spaces
+ * for each boarding room" was never counted and the recall gate could not miss it. Every other numeral in operative
+ * text is counted too - except references ("section 39", "subsection (2)", "Schedule 11") and years ("2021").
+ */
+function allNumbers(t: string): any[] {
+  const known = ((findNumberCandidates(t) ?? []) as any[])
+  const out = [...known]
+  // not glued to a capital ("items 4E, 4G and 4K" are references), not a count of things listed ("1 or more of")
+  // ... and not the second term of a ratio ("0.65:1")
+  for (const m of t.matchAll(/(?<![\w.(\/:])(\d+(?:\.\d+)?)(?![\w.]*\))(?![A-Z])(?!\s+or more of\b)/g)) {
+    const i = m.index!
+    if (known.some(k => Math.abs(Number(k.index ?? -1) - i) <= 2 || (k.index == null && Number(k.value) === Number(m[1])))) continue
+    // a reference, or the next number in a list of them ("under section 16, 17 or 18")
+    const before = t.slice(Math.max(0, i - 40), i)
+    if (/\b(sections?|subsections?|clauses?|schedules?|parts?|chapters?|divisions?|paragraphs?|items?|s|ss|cl|No\.?)\s*(?:[\d()a-z.]+(?:,\s*|\s+(?:or|and|to)\s+))*$/i.test(before)) continue
+    if (/^(19|20)\d\d$/.test(m[1]!)) continue
+    if (/^\d+\)/.test(t.slice(i))) continue
+    out.push({ raw: m[1], value: Number(m[1]), index: i, unit: null, comparator_hint: null, category: 'bare' })
+  }
+  return out
+}
+
+/** The provision without a trailing "Example—" or "Note—", which are not part of it; and nothing of a sentence that
+ *  only defines a word for the section ("In this section, a storey does not include ... 1.2m above ground"). */
+const operativePart = (t: string) => /^In this (section|subsection|Division|Part|Chapter)(, [a-z ]+ (does not include|includes|means)\b|\s*—\s*[a-z ]+ means\b)/i.test(t)
+  ? '' : t.replace(/\s(?:Example|Note)s?\s?—[\s\S]*$/, '')
 
 async function main() {
   const profile: InstrumentProfile = (await import(`../../profiles/${PROFILE}.ts`)).default
@@ -159,7 +220,10 @@ async function main() {
     const root = secs.find(s => s.local_id === f.section)
     if (!root) continue
     const texts = [root, ...secs.filter(s => chain(s).includes(root))].map(s => norm(s.raw_text))
-      .filter(t => /^this (part|division|chapter) applies to development\b/i.test(t))
+      // ... or the frame's own permission sentence ("Development for the purposes of boarding houses may be carried out
+      // with consent on land on which ...", s 23(1))
+      .filter(t => /^this (part|division|chapter) applies to development\b/i.test(t)
+        || (f.section === root.local_id && /^development for the purposes of .+? (may be carried out|is permitted)\b/i.test(t)))
     const uses = [...new Set(texts.flatMap(t => usesIn(t.replace(/\bon land\b.*$/i, ''), groupsFor(root))))]
     if (uses.length) frameUses.set(f.id, { uses, span: texts[0]! })
   }
@@ -180,6 +244,7 @@ async function main() {
   const rules: RuleOut[] = []
   const findings: { kind: string; gating: boolean; clause: string; value: string | null; detail: string }[] = []
   const candidatesAll: { section: string; clause: string; value: number; raw: string }[] = []
+  const explained: { section: string; value: number }[] = []
   const skipped: string[] = []
 
   for (const c of clauses) {
@@ -246,6 +311,7 @@ async function main() {
     }
 
     const out: RuleOut[] = [base]
+    const consumed = new Set<string>()
     const effSections = operative.filter(p => !scopeSet.has(p))
     // a permission's scope is read too: its permission sentence for permits_use, and any number under it
     // ("at least 50 dwellings", s 72(3)(a)) as a condition of the grant
@@ -253,31 +319,84 @@ async function main() {
       const t = norm(p.raw_text)
       // an "Example—" or "Note—" is not part of the provision: its numbers are neither read nor counted
       const tOp = operativePart(t)
-      const cands = (findNumberCandidates(tOp) ?? []) as any[]
+      const cands = allNumbers(tOp)
+      if (consumed.has(p.id)) continue
       for (const cd of cands) candidatesAll.push({ section: p.local_id, clause: c.local_id, value: Number(cd.value), raw: cd.raw })
+
+      // A prohibition by place: "Development for the purposes of a boarding house must not be carried out on land in
+      // Zone R2 ... unless— (a) for land in <area>—<requirement>, or (b) otherwise—<requirement>" (s 23(2)). Its own
+      // rule: the use prohibited in the zone, with the exceptions as a negated group of branches ('!unless#a', ...).
+      if ((p.signals ?? []).includes('land_prohibition')) {
+        const head = tOp.split(/\bunless\b/i)[0]!
+        const uses = usesIn(head, groups)
+        const r: RuleOut = { ...base, key: `${base.key}:${p.local_id}`, local_id: p.local_id, section_id: p.id, kind: 'prohibition',
+          role: 'prohibition', effects: [],
+          applic: [...base.applic.filter(a => a.dimension !== 'land_use' && a.dimension !== 'zone'),
+                   ...uses.map(u => ({ dimension: 'land_use', value: u, polarity: 'applies' as const, span: head.slice(0, 200) })),
+                   ...zonesIn(head).map(z => ({ dimension: 'zone', value: z.code, polarity: 'applies' as const, span: z.span }))] }
+        for (const u of uses) r.effects.push({ effect_type: 'prohibits_use', topic: u, comparator: null, value: null, unit: null,
+          value_source: 'sepp_prohibition', relative_to: null, measured_from: null, span: t, claims: [] })
+        const kids = secs.filter(s => s.parent_id === p.id)
+        const heads: string[][] = []
+        kids.forEach((k, i) => {
+          const kt = operativePart(norm(k.raw_text))
+          const cut = kt.indexOf('—')
+          const kh = cut < 0 ? '' : kt.slice(0, cut), req = cut < 0 ? kt : kt.slice(cut + 1)
+          const headAreas = areasIn(kh, AREAS)
+          heads.push(headAreas)
+          const otherwise = /^otherwise\b/i.test(kt)
+          const rows: [string, 'applies' | 'excludes'][] = [
+            ...(otherwise ? heads.slice(0, i).flat().map(a => [a, 'excludes'] as [string, 'excludes']) : headAreas.map(a => [a, 'applies'] as [string, 'applies'])),
+            ...areasIn(req, AREAS).filter(a => !headAreas.includes(a)).map(a => [a, 'applies'] as [string, 'applies'])]
+          for (const [a, pol] of rows) r.applic.push({ dimension: 'defined_area', value: a, polarity: pol, span: literalOf(a), alt_group: `!unless#${String.fromCharCode(97 + i)}` })
+          consumed.add(k.id)
+          // the kids' numbers are counted, and explained when they sit inside a matched term ("within 800m walking ...")
+          for (const cd of allNumbers(kt)) {
+            candidatesAll.push({ section: k.local_id, clause: c.local_id, value: Number(cd.value), raw: cd.raw })
+            if (rows.some(([a]) => literalOf(a).includes(String(cd.raw)))) explained.push({ section: k.local_id, value: Number(cd.value) })
+          }
+        })
+        out.push(r)
+        continue
+      }
+
+      // a condition of consent with no number, in a "consent must not be granted ... unless ... satisfied that—" list
+      // ("adequate bathroom, kitchen and laundry facilities", "will be in an accessible area")
+      const upTexts = chain(p).slice(1, chain(p).indexOf(c) + 1).map(x => operativePart(norm(x.raw_text)))
+      // ... but not when the list is what the bar is about ("must not be granted for development for the following
+      // purposes ... unless ...—  (a) residential flat buildings", s 176(2))
+      const qualitative = !cands.length && role === 'conditional_standard' && !/—\s*$/.test(tOp) && !!tOp
+        && upTexts.some(u => /must not be granted\b[^—]*\bunless\b/i.test(u) && !/\bthe following (purposes|development)\b/i.test(u))
 
       // Standards narrowed by their own words - "(3) ... for the purposes of multi dwelling housing
       // (terraces)—", "(2) ... in a low and mid rise housing inner area—", "(b) for residential flat
       // buildings—" - go to their own rule: the nearest use and the nearest area up the chain to the clause,
       // keyed by the deepest section that narrowed it, inheriting the rest of the clause's applicability.
       let target = base
-      if (cands.length && !scopeSet.has(p)) {
+      if ((cands.length || qualitative) && !scopeSet.has(p)) {
         const full = chain(p)
         const up = full.slice(0, full.indexOf(c))
         // every level may narrow it: s 74(2)(d)(i) is "in the Eastern Harbour City, ..." (d) AND "within an
         // accessible area" (i); "(ii) otherwise—" is the complement of its earlier siblings' areas
         let uses: string[] = [], keyAt: any = null
         const areas: string[] = [], notAreas: string[] = []
+        // a zone in a paragraph's heading ("for development on land in Zone R2 Low Density Residential—600m2"), and
+        // "otherwise—" / "for development on other land—" as the complement of the earlier siblings' heading zones
+        const zonesQ: { code: string; span: string }[] = [], notZones: { code: string; span: string }[] = []
+        const headOf = (s: string) => (s.includes('—') ? s.slice(0, s.indexOf('—')) : '')
         const clauseAreas = base.applic.filter(a => a.dimension === 'defined_area').map(a => a.value)
         for (const x of up) {
           const xt = norm(x.raw_text)
           const q = qualifierOf(xt, AREAS, clauseAreas, groups)
           if (!uses.length && q.uses.length) { uses = q.uses; keyAt = keyAt ?? x }
           if (q.area && !areas.includes(q.area)) { areas.push(q.area); keyAt = keyAt ?? x }
-          if (/^otherwise\b/i.test(xt)) {
+          for (const z of zonesIn(headOf(xt))) if (!zonesQ.some(q => q.code === z.code)) { zonesQ.push(z); keyAt = keyAt ?? x }
+          if (/^(otherwise|for development on other land)\b/i.test(xt)) {
             for (const sib of secs.filter(s => s.parent_id === x.parent_id && s.sort_order < x.sort_order)) {
-              const a = areaIn(norm(sib.raw_text), AREAS)
+              const st = norm(sib.raw_text)
+              const a = areaIn(st, AREAS)
               if (a && !notAreas.includes(a) && !clauseAreas.includes(a)) { notAreas.push(a); keyAt = keyAt ?? x }
+              for (const z of zonesIn(headOf(st))) if (!notZones.some(q => q.code === z.code)) { notZones.push(z); keyAt = keyAt ?? x }
             }
           }
         }
@@ -286,7 +405,10 @@ async function main() {
           let r = out.find(x => x.key === key)
           if (!r) {
             r = { ...base, key, local_id: keyAt.local_id, section_id: keyAt.id, effects: [],
-              applic: [...base.applic.filter(a => !(uses.length && a.dimension === 'land_use') && !(areas.length && a.dimension === 'defined_area')),
+              applic: [...base.applic.filter(a => !(uses.length && a.dimension === 'land_use') && !(areas.length && a.dimension === 'defined_area')
+                                                  && !(zonesQ.length && a.dimension === 'zone')),
+                       ...zonesQ.map(z => ({ dimension: 'zone', value: z.code, polarity: 'applies' as const, span: z.span })),
+                       ...notZones.map(z => ({ dimension: 'zone', value: z.code, polarity: 'excludes' as const, span: z.span })),
                        ...uses.map(u => ({ dimension: 'land_use', value: u, polarity: 'applies' as const, span: norm(keyAt.raw_text).slice(0, 200) })),
                        ...areas.map(a => ({ dimension: 'defined_area', value: a, polarity: 'applies' as const, span: literalOf(a) })),
                        ...notAreas.map(a => ({ dimension: 'defined_area', value: a, polarity: 'excludes' as const, span: literalOf(a) }))] }
@@ -345,6 +467,11 @@ async function main() {
           claims: vals.map(v => ({ section: p.local_id, value: v })) } as Effect)
         for (const v of vals) claimedHere.add(v)
       }
+      // "an additional 30% of the maximum permissible floor space ratio if ... used only for the boarding house"
+      for (const m of tOp.matchAll(/\ban additional (\d+(?:\.\d+)?)% of the maximum permissible (floor space ratio|building height)/gi)) {
+        push({ effect_type: 'relative_numeric', topic: /floor/i.test(m[2]!) ? 'fsr' : 'height', comparator: 'lte', value: Number(m[1]),
+          unit: 'percent', relative_to: `maximum permissible ${m[2]!.toLowerCase()}` }, [Number(m[1])])
+      }
       // a bonus on top of another control: "plus an additional floor space ratio of up to 30%"
       for (const m of tOp.matchAll(/plus an additional (floor space ratio|building height) of up to (\d+(?:\.\d+)?)%/gi)) {
         push({ effect_type: 'relative_numeric', topic: /floor/i.test(m[1]!) ? 'fsr' : 'height', comparator: 'lte', value: Number(m[2]),
@@ -374,24 +501,63 @@ async function main() {
         value_source: sun[3] ? `between ${sun[3]}am and ${sun[4]}pm at mid-winter` : null,
         condition_metric: 'share_of_dwellings', condition_lo: Number(sun[1]), condition_unit: 'percent' },
         [Number(sun[1]), Number(sun[2]), ...(sun[3] ? [Number(sun[3]), Number(sun[4])] : [])])
+      // "at least 3 hours of direct solar access (will be) provided between 9am and 3pm at mid-winter in at least 1
+      // communal living area"
+      const sun2 = tOp.match(/at least (\d+(?:\.\d+)?) hours? of (?:direct )?solar access (?:will be )?(?:provided )?between (\d+)\s*am and (\d+)\s*pm at mid-winter in at least (\d+) ([a-z ]+?)[,.;]?(?: and)?$/i)
+      if (sun2 && !sun) push({ topic: 'solar_access', comparator: 'gte', value: Number(sun2[1]), unit: 'hours',
+        value_source: `between ${sun2[2]}am and ${sun2[3]}pm at mid-winter`,
+        condition_metric: sun2[5]!.trim().replace(/s$/, '').replace(/\s+/g, '_') + 's', condition_lo: Number(sun2[4]), condition_unit: 'count' },
+        [Number(sun2[1]), Number(sun2[2]), Number(sun2[3]), Number(sun2[4])])
+      // a requirement that applies above a size: "if the boarding house has at least 3 storeys—the building will comply
+      // with the minimum building separation distances specified in the Apartment Design Guide"
+      const above = tOp.match(/^if the [a-z -]+? (?:has|contains|will have) at least (\d+) (storeys|dwellings|boarding rooms|private rooms)—\s*(.+?)[,.;]?(?: and| or)?$/i)
+      if (above) {
+        const consider = upTexts.some(u => /\bconsiders? whether\b/i.test(u))
+        push({ effect_type: consider ? 'matter_for_consideration' : 'condition_of_consent', topic: above[3]!, comparator: null, value: null,
+          value_source: 'clause_text', condition_metric: above[2]!.toLowerCase().replace(/\s+/g, '_'), condition_lo: Number(above[1]),
+          condition_unit: above[2]!.toLowerCase() }, [Number(above[1])])
+      }
       // a period a condition must hold for: "for a period of at least 15 years"
       const period = tOp.match(/for a period of at least (\d+) years/i)
       if (period) push({ effect_type: 'condition_of_consent', topic: 'period_years', comparator: 'gte', value: Number(period[1]), unit: 'years' }, [Number(period[1])])
-      // "for each dwelling containing (at least) 2 bedrooms—": the count is a condition of the value, not the value
-      const bed = tOp.match(/containing (at least )?(\d+) bedrooms?/i)
-      const bedCond = bed ? { condition_metric: 'bedrooms', condition_lo: Number(bed[2]), condition_hi: bed[1] ? null : Number(bed[2]), condition_unit: 'bedrooms' } : {}
-      if (bed) claimedHere.add(Number(bed[2]))
-      // "... 115m2 plus 12m2 for each bedroom in addition to 3 bedrooms": an increment per extra bedroom
-      const perExtra = tOp.match(/plus (\d+(?:\.\d+)?)\s*m2 for each (\w+) in addition to (\d+) \w+/i)
+      // "for each dwelling containing (at least) 2 bedrooms—", "for a boarding house containing more than 6 boarding
+      // rooms—": the count is a condition of the value, not the value - read in the paragraph or its heading
+      const ROOMS = /containing (at least |more than )?(\d+) (bedrooms?|boarding rooms?|private rooms?)/i
+      const bedOwn = tOp.match(ROOMS), bed = bedOwn ?? parentT.match(ROOMS)
+      const bedCond = bed ? { condition_metric: bed[3]!.toLowerCase().replace(/s$/, '').replace(/\s+/g, '_') + 's',
+        condition_lo: Number(bed[2]) + (/more than/i.test(bed[1] ?? '') ? 1 : 0),
+        condition_hi: bed[1] ? null : Number(bed[2]), condition_unit: bed[3]!.toLowerCase().replace(/s$/, '') + 's' } : {}
+      if (bedOwn) claimedHere.add(Number(bedOwn[2]))
+      // "for a boarding room intended to be used by a single resident—12m2" / "otherwise—16m2"
+      const SINGLE = /intended to be used by a single (resident|occupant)/i
+      const single = SINGLE.test(tOp)
+      const notSingle = /^otherwise\b/i.test(tOp) && secs.some(s => s.parent_id === p.parent_id && s.sort_order < p.sort_order && SINGLE.test(norm(s.raw_text)))
+      const occCond = single ? { condition_metric: 'occupants', condition_lo: 1, condition_hi: 1, condition_unit: 'occupants' }
+        : notSingle ? { condition_metric: 'occupants', condition_lo: 2, condition_hi: null, condition_unit: 'occupants' } : {}
+      // "... 115m2 plus 12m2 for each bedroom in addition to 3 bedrooms" / "30m2 ... plus at least a further 2m2 for each
+      // boarding room in excess of 6 boarding rooms": an increment per extra room
+      const perExtra = tOp.match(/plus (?:at least )?(?:a further )?(\d+(?:\.\d+)?)\s*m2 for each (\w+(?: room)?) in (?:addition to|excess of) (\d+) \w+/i)
+      // "Development consent must not be granted for the subdivision of a boarding house."
+      const noSub = tOp.match(/^development consent must not be granted for the subdivision of (.+?)(?: into separate lots)?\.?$/i)
+      if (noSub) target.effects.push({ effect_type: 'prohibits_use', topic: 'subdivision', comparator: null, value: null, unit: null,
+        value_source: `of ${noSub[1]}`, relative_to: null, measured_from: null, span: t, claims: [] })
 
       for (const cd of cands.filter(cd => !claimedHere.has(Number(cd.value)))) {
         // the number's topic and comparator from its own words, else from the sentence that introduces it
         // ("(b) a minimum landscaped area that is the lesser of— (i) 35m2 per dwelling")
-        const own = topicFor(tOp, cd)
-        const topic = refineTopic(own ?? topicFor(parentT, cd), tOp)
-        const comparator = comparatorOf(tOp) ?? (own ? null : comparatorOf(parentT)) ?? (/\bmust be\b/i.test(t) ? 'gte' : null)
+        const ownStrong = topicStrong(tOp, cd)
+        const own = ownStrong ?? topicWeak(tOp)
+        const topic = refineTopic(ownStrong ?? topicStrong(parentT, cd) ?? topicWeak(tOp) ?? topicWeak(parentT), tOp)
+        // a parking rate with no comparator anywhere ("—0.2 parking spaces for each private room", s 68(2)(e)) is a
+        // minimum - read as one and recorded
+        const parkingBare = topic === 'parking' && !comparatorOf(tOp) && !comparatorOf(parentT)
+        const comparator = comparatorNear(tOp, cd.raw) ?? comparatorOf(tOp) ?? (own && !/—/.test(tOp) ? null : comparatorOf(parentT))
+          ?? (/\bmust be\b/i.test(t) || parkingBare ? 'gte' : null)
         if (!topic || !comparator) continue
-        if (!/\bmust be\b/i.test(t) || comparatorOf(tOp) || comparatorOf(parentT)) { /* stated comparator */ } else {
+        if (parkingBare) {
+          findings.push({ kind: 'comparator_inferred', gating: false, clause: p.local_id, value: String(cd.value),
+            detail: `"${t}" states no minimum/maximum; a parking rate is read as a minimum (gte)` })
+        } else if (!/\bmust be\b/i.test(t) || comparatorOf(tOp) || comparatorOf(parentT)) { /* stated comparator */ } else {
           findings.push({ kind: 'comparator_inferred', gating: false, clause: p.local_id, value: String(cd.value),
             detail: `"${t}" states no minimum/maximum; read as a minimum (gte)` })
         }
@@ -402,15 +568,28 @@ async function main() {
           topic, comparator, value: Number(cd.value),
           unit: /%/.test(cd.raw ?? '') || cd.unit === 'percent' ? (/site area/i.test(tOp) ? 'percent of site area' : 'percent')
             : /per dwelling/i.test(tOp) && (cd.unit === 'sqm') ? 'sqm per dwelling'
+            : topic === 'parking' && /for each (boarding|private) room/i.test(tOp) ? `spaces per ${/boarding/i.test(tOp) ? 'boarding' : 'private'} room`
             : UNIT[cd.unit] ?? (topic === 'parking' ? 'spaces per dwelling' : cd.unit ?? null),
           value_source: /lesser of/i.test(parentT) ? 'the lesser of the listed amounts' : /greater of/i.test(parentT) ? 'the greater of the listed amounts'
             : parentT.match(/\bfor (dwellings (?:not )?used for [a-z ]+?)—/i)?.[1] ?? null,
           relative_to: increment ? `each ${perExtra![2]} in addition to ${perExtra![3]}` : null,
           measured_from: datum === 'front_boundary' ? 'front_boundary' : null, span: t,
-          ...(bed ? bedCond : {}),
+          ...(bed ? bedCond : {}), ...occCond,
           claims: [{ section: p.local_id, value: Number(cd.value) },
-                   ...(bed ? [{ section: p.local_id, value: Number(bed[2]) }] : []),
+                   ...(bedOwn ? [{ section: p.local_id, value: Number(bedOwn[2]) }] : []),
                    ...(increment ? [{ section: p.local_id, value: Number(perExtra![3]) }] : [])] })
+      }
+      // a number read only as a condition (a heading "containing 6 boarding rooms—") is explained, not unclaimed
+      for (const cd of cands) {
+        const v = Number(cd.value)
+        if (claimedHere.has(v) && !target.effects.some(e => e.claims.some(cl => cl.section === p.local_id && cl.value === v)))
+          explained.push({ section: p.local_id, value: v })
+      }
+      if (qualitative) {
+        const consider = upTexts.some(u => /\bconsiders? whether\b/i.test(u))
+        target.effects.push({ effect_type: consider ? 'matter_for_consideration' : 'condition_of_consent',
+          topic: tOp.replace(/[,.;]\s*(and|or)?$/i, ''), comparator: null, value: null, unit: null, value_source: 'clause_text',
+          relative_to: null, measured_from: null, span: t, claims: [] })
       }
       // a count in a condition of consent that is no planning standard ("owned and controlled by 1 person",
       // "operated by 1 managing agent"): recorded as the condition, with its number
@@ -430,7 +609,8 @@ async function main() {
   }
 
   // ── recall gate ─────────────────────────────────────────────────────────────────────────────────
-  const claimed = new Set(rules.flatMap(r => r.effects.flatMap(e => e.claims.map(cl => `${cl.section}|${cl.value}`))))
+  const claimed = new Set([...rules.flatMap(r => r.effects.flatMap(e => e.claims.map(cl => `${cl.section}|${cl.value}`))),
+                           ...explained.map(x => `${x.section}|${x.value}`)])
   const unclaimed = candidatesAll.filter(cd => !claimed.has(`${cd.section}|${cd.value}`))
   for (const u of unclaimed) findings.push({ kind: 'unclaimed_number', gating: true, clause: u.section, value: String(u.value),
     detail: `"${u.raw}" in an operative section of ${u.clause} is not claimed by any effect` })
@@ -467,8 +647,8 @@ async function main() {
       await client.query(`DELETE FROM nsw.rule_applicability WHERE rule_id = $1`, [row.id])
       await client.query(`DELETE FROM nsw.rule_effect WHERE rule_id = $1`, [row.id])
       for (const a of r.applic) {
-        await client.query(`INSERT INTO nsw.rule_applicability (rule_id, dimension, value, polarity, source_span)
-                            VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`, [row.id, a.dimension, a.value, a.polarity, a.span])
+        await client.query(`INSERT INTO nsw.rule_applicability (rule_id, dimension, value, polarity, source_span, alt_group)
+                            VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING`, [row.id, a.dimension, a.value, a.polarity, a.span, a.alt_group ?? null])
       }
       for (const e of r.effects) {
         await client.query(

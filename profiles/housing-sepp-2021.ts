@@ -127,6 +127,9 @@ const SIX_CITIES: Record<string, string[]> = {
   'Illawarra-Shoalhaven City': ['KIAMA', 'SHELLHARBOUR', 'SHOALHAVEN', 'WOLLONGONG'],
 }
 const SIX_CITIES_LGAS = Object.values(SIX_CITIES).flat()
+/** s 23(2)(a): the four cities a boarding house in R2 must be in an accessible area in. */
+const FOUR_CITIES_LGAS = [...SIX_CITIES['Eastern Harbour City']!, ...SIX_CITIES['Central River City']!,
+  ...SIX_CITIES['Western Parkland City']!, ...SIX_CITIES['Central Coast City']!]
 /** s 74(2)(d): the three metropolitan cities. */
 const METRO_CITIES_LGAS = [...SIX_CITIES['Eastern Harbour City']!, ...SIX_CITIES['Central River City']!, ...SIX_CITIES['Western Parkland City']!]
 const SIX_CITIES_15C = SIX_CITIES_LGAS.filter(l => l !== 'SHOALHAVEN' && l !== 'PORT STEPHENS')
@@ -140,7 +143,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
-  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4'],
+  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3'],
   frames: [
     {
       id: 'instrument',
@@ -284,6 +287,60 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         + 'whose LEP permits them is already in by (a)(i); Chapter 5 is not extracted yet, so (a1) alone is undecided. '
         + '(b) is a fact about the proposal and cannot put the land in or out.',
     },
+    {
+      id: 'ch5-tod',
+      title: 'Chapter 5 — transport oriented development (land application only; rules not extracted yet)',
+      parent: 'instrument',
+      clause: '152(1)',
+      section: 'sec.152',
+      governs: ['ch.5'],
+      conditions: [
+        { dimension: 'defined_area', value: 'Transport Oriented Development Area', polarity: 'applies', clause: '152(1)',
+          span: 'This chapter applies to land in the following local government areas that is in a Transport Oriented Development Area' },
+      ],
+      note: 'Written ahead of Chapter 5\'s extraction (step 17) so that a condition naming Chapter 5 (s 67(b), s 72(2)(a1)) is '
+        + '"no" off TOD land instead of "undecided". The 13 councils listed in s 152(1) are the ones the TOD map covers. '
+        + 's 152(2) (part of a lot) is how the lot test already reads; (3) amalgamation is a proposal fact.',
+    },
+    {
+      id: 'ch2-boarding',
+      title: 'Chapter 2, Part 2, Division 2 — boarding houses',
+      parent: 'instrument',
+      clause: '23(1)',
+      section: 'sec.23-ssec.1',
+      governs: ['ch.2-pt.2-div.2'],
+      conditions: [
+        { dimension: 'permissible_under', value: 'lep:boarding house', polarity: 'applies', clause: '23(1)',
+          span: 'on land on which development for the purposes of boarding houses is permitted with consent under another environmental planning instrument' },
+      ],
+      note: 'The division works only where another instrument already permits boarding houses: it adds standards and, '
+        + 'by s 23(2), a locational prohibition in R2 (extracted as a rule, not a frame condition).',
+    },
+    {
+      id: 'ch3-coliving',
+      title: 'Chapter 3, Part 3 — co-living housing',
+      parent: 'instrument',
+      clause: '67',
+      section: 'sec.67',
+      governs: ['ch.3-pt.3'],
+      conditions: [
+        // "on land in a zone in which— (a) co-living housing is permitted under another EPI, or (b) residential flat
+        // buildings or shop top housing are permitted under Chapter 5, Chapter 6 or another EPI"
+        { dimension: 'permissible_under', value: 'lep:co-living housing', polarity: 'applies', clause: '67(a)', anyOf: 'z#a',
+          span: 'development for the purposes of co-living housing is permitted under another environmental planning instrument' },
+        ...(['residential flat building', 'shop top housing'] as const).flatMap(u => [
+          { dimension: 'permissible_under' as const, value: `lep:${u}`, polarity: 'applies' as const, clause: '67(b)', anyOf: `z#b-lep-${u.split(' ')[0]}`,
+            span: 'development for the purposes of residential flat buildings or shop top housing is permitted under Chapter 5, Chapter 6 or another environmental planning instrument' },
+          { dimension: 'permissible_under' as const, value: `sepp:ch.5:${u}`, polarity: 'applies' as const, clause: '67(b)', anyOf: `z#b-ch5-${u.split(' ')[0]}`,
+            span: 'development for the purposes of residential flat buildings or shop top housing is permitted under Chapter 5, Chapter 6 or another environmental planning instrument' },
+          { dimension: 'permissible_under' as const, value: `sepp:ch.6:${u}`, polarity: 'applies' as const, clause: '67(b)', anyOf: `z#b-ch6-${u.split(' ')[0]}`,
+            span: 'development for the purposes of residential flat buildings or shop top housing is permitted under Chapter 5, Chapter 6 or another environmental planning instrument' },
+        ]),
+      ],
+      note: 'A real widening: co-living is permitted wherever residential flat buildings or shop top housing are, under '
+        + 'the LEP, Chapter 5 or Chapter 6. "permitted" is read as permitted with or without consent. Chapter 5 is not '
+        + 'extracted yet, so a lot whose only route is Chapter 5 is undecided.',
+    },
   ],
   terms: [
     // ── s 164(1) exclusions ──
@@ -349,6 +406,16 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name', kind: 'condition',
       filter: `upper(lga_name) IN (${METRO_CITIES_LGAS.map(l => `'${l}'`).join(', ')})`,
       note: 's 74(2)(d). The three metropolitan cities of the Six Cities Region (EP&A Act Schedule 9).' },
+    // ── Ch 2 Pt 2 Div 2, s 23(2) ──
+    { dimension: 'defined_area', term: 'Eastern Harbour City, Central River City, Western Parkland City or Central Coast City',
+      source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name', kind: 'condition',
+      filter: `upper(lga_name) IN (${FOUR_CITIES_LGAS.map(l => `'${l}'`).join(', ')})`,
+      note: 's 23(2)(a). Four of the Six Cities (EP&A Act Schedule 9).' },
+    { dimension: 'defined_area', term: 'within 800m walking distance of land in Zone E1 Local Centre, Zone MU1 Mixed Use, Zone B1 Neighbourhood Centre, Zone B2 Local Centre or Zone B4 Mixed Use',
+      source_kind: 'table', source: 'epi.epi_land_zoning', filter: "sym_code IN ('E1', 'MU1', 'B1', 'B2', 'B4')", within_m: 800,
+      upper_bound: true, test: 'intersects', kind: 'condition',
+      note: 's 23(2)(b). Walking distance not measured: 800 m straight line is an upper bound; on the zone itself = yes. '
+        + '"or an equivalent land use zone" is not resolved. (No E2, unlike s 15C(3).)' },
     // ── Ch 3 Pt 4, s 72 ──
     { dimension: 'defined_area', term: 'Transport Oriented Development Area', source_kind: 'registry', source: 'lmr.layers:sepp_tod_areas',
       test: 'intersects', kind: 'condition', note: 's 72(2)(a1). Transport Oriented Development Sites Map (Chapter 5).' },
@@ -356,7 +423,9 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       filter: "label = 'WestConnex Dive Site'", test: 'intersects', kind: 'condition', note: 's 72(2)(c). State Significant Development Sites Map.' },
   ],
   signals: {
-    permission: ['is permitted with development consent', 'development consent may be granted for development to which this part applies'],
+    permission: ['is permitted with development consent', 'development consent may be granted for development to which this part applies',
+                 'may be carried out with consent'],
+    land_prohibition: ['must not be carried out on land in'],
     override: ['despite the provisions of another environmental planning instrument'],
     nondiscretionary_heading: ['Non-discretionary development standards'],
     consideration: ['the consent authority must consider', 'unless the consent authority has considered'],

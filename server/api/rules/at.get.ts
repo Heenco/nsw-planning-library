@@ -127,6 +127,9 @@ export default defineEventHandler(async (event) => {
   // ── 2. SEPP frames ────────────────────────────────────────────────────────────────────────────
   const frameRows = (await nswQuery<any>(
     `SELECT r.id, r.rule_key, r.clause, r.frame_rule_id, r.publish_state, r.notes, r.document_id, d.title AS instrument, d.instrument_slug,
+            (WITH RECURSIVE up AS (SELECT s.id, s.parent_id, s.local_id FROM nsw.section s WHERE s.id = r.section_id
+                                   UNION ALL SELECT p.id, p.parent_id, p.local_id FROM nsw.section p JOIN up ON p.id = up.parent_id)
+              SELECT array_agg(local_id) FROM up) AS ancestors,
             coalesce((SELECT json_agg(json_build_object('dimension', a.dimension, 'value', a.value, 'polarity', a.polarity,
                                                         'alt_group', a.alt_group))
                         FROM nsw.rule_applicability a WHERE a.rule_id = r.id), '[]') AS conditions,
@@ -191,11 +194,13 @@ export default defineEventHandler(async (event) => {
             (WITH RECURSIVE up AS (SELECT s.id, s.parent_id, s.local_id FROM nsw.section s WHERE s.id = r.section_id
                                    UNION ALL SELECT p.id, p.parent_id, p.local_id FROM nsw.section p JOIN up ON p.id = up.parent_id)
               SELECT array_agg(local_id) FROM up) AS ancestors,
-            coalesce((SELECT json_agg(json_build_object('dimension', a.dimension, 'value', a.value, 'polarity', a.polarity))
+            coalesce((SELECT json_agg(json_build_object('dimension', a.dimension, 'value', a.value, 'polarity', a.polarity,
+                                                        'alt_group', a.alt_group))
                         FROM nsw.rule_applicability a WHERE a.rule_id = r.id), '[]') AS app,
             coalesce((SELECT json_agg(json_build_object('type', e.effect_type, 'topic', e.topic, 'comparator', e.comparator,
                         'value', e.value, 'unit', e.unit, 'measured_from', e.measured_from, 'condition_metric', e.condition_metric,
-                        'condition_hi', e.condition_hi, 'relative_to', e.relative_to, 'span', e.source_span))
+                        'condition_lo', e.condition_lo, 'condition_hi', e.condition_hi, 'condition_unit', e.condition_unit,
+                        'value_source', e.value_source, 'relative_to', e.relative_to, 'span', e.source_span))
                         FROM nsw.rule_effect e WHERE e.rule_id = r.id), '[]') AS eff,
             coalesce((SELECT json_agg(json_build_object('edge', e.edge_type, 'to', e.to_ref, 'span', e.source_span))
                         FROM nsw.rule_edge e WHERE e.from_rule_id = r.id), '[]') AS edges
@@ -204,9 +209,13 @@ export default defineEventHandler(async (event) => {
 
   /** Whether one SEPP rule reaches the lot: its frame chain, its zones, its defined areas. */
   const evalRule = async (r: any) => {
-    const zones = r.app.filter((a: any) => a.dimension === 'zone').map((a: any) => a.value)
-    const inZone: Tri = !zones.length ? true : !zone ? null : zones.includes(zone)
-    const areas = r.app.filter((a: any) => a.dimension === 'defined_area')
+    const plain = r.app.filter((a: any) => !a.alt_group)
+    // zones named are alternatives; a zone excluded ("for development on other land—") must not be the lot's
+    const zones = plain.filter((a: any) => a.dimension === 'zone' && a.polarity === 'applies').map((a: any) => a.value)
+    const notZones = plain.filter((a: any) => a.dimension === 'zone' && a.polarity === 'excludes').map((a: any) => a.value)
+    const inZone: Tri = !zones.length && !notZones.length ? true : !zone ? null
+      : (!zones.length || zones.includes(zone)) && !notZones.includes(zone)
+    const areas = plain.filter((a: any) => a.dimension === 'defined_area')
     let inArea: Tri = true
     for (const a of areas) {
       const h0 = (await termHolds(`defined_area|${String(a.value).toLowerCase()}`)).holds
@@ -215,13 +224,40 @@ export default defineEventHandler(async (event) => {
       if (h === false) { inArea = false; break }
       if (h === null) inArea = null
     }
+    // alternatives on the rule itself (rule_applicability.alt_group): a group holds when a branch does; a group
+    // named '!...' is an exception ("must not be carried out ... unless— (a) ..., or (b) ...") and holds when NO branch does
+    const groups = new Map<string, Map<string, any[]>>()
+    for (const a of r.app.filter((a: any) => a.alt_group)) {
+      const [g, b = ''] = String(a.alt_group).split('#')
+      if (!groups.has(g!)) groups.set(g!, new Map())
+      groups.get(g!)!.set(b, [...(groups.get(g!)!.get(b) ?? []), a])
+    }
+    const groupNotes: string[] = []
+    const groupVals: Tri[] = []
+    for (const [g, branches] of groups) {
+      const vals: Tri[] = []
+      for (const rows of branches.values()) {
+        const hs: Tri[] = []
+        for (const a of rows) {
+          const h0: Tri = a.dimension === 'zone' ? (zone ? zone === a.value : null)
+            : (await termHolds(`${a.dimension}|${String(a.value).toLowerCase()}`)).holds
+          hs.push(h0 === null ? null : a.polarity === 'excludes' ? !h0 : h0)
+        }
+        vals.push(and3(hs))
+      }
+      const any = or3(vals)
+      const v: Tri = g.startsWith('!') ? (any === null ? null : !any) : any
+      groupVals.push(v)
+      if (g.startsWith('!')) groupNotes.push(any === true ? 'an exception applies' : any === false ? 'no exception applies' : 'whether an exception applies cannot be decided')
+    }
     const frameReach = reaches(r.frame_rule_id)
-    const applies: Tri = [frameReach, inZone, inArea].includes(false) ? false
-      : [frameReach, inZone, inArea].includes(null) ? null : true
+    const applies: Tri = and3([frameReach, inZone, inArea, ...groupVals])
     const chain = chainOf(r.frame_rule_id)
     const why = frameReach === false ? `frame ${chain.find((f: any) => reaches(f.id) === false)?.clause ?? ''} does not reach the lot`
-      : inZone === false ? `zone ${zone} is not ${zones.join('/')}` : inArea === false ? `area test fails: ${areas.map((a: any) => `${a.polarity === 'excludes' ? 'outside' : 'in'} ${a.value}`).join(' and ')}`
-      : applies === null ? 'cannot be decided from the data' : 'reaches the lot'
+      : inZone === false ? `zone ${zone} is ${notZones.includes(zone!) ? 'excluded' : `not ${zones.join('/')}`}` : inArea === false ? `area test fails: ${areas.map((a: any) => `${a.polarity === 'excludes' ? 'outside' : 'in'} ${a.value}`).join(' and ')}`
+      : groupVals.includes(false) ? groupNotes.join('; ') || 'an alternative fails'
+      : applies === null ? `cannot be decided from the data${groupNotes.length ? ` (${groupNotes.join('; ')})` : ''}`
+      : `reaches the lot${groupNotes.length ? ` (${groupNotes.join('; ')})` : ''}`
     return { instrument: r.instrument, clause: r.clause, ruleKey: r.rule_key, publishState: r.publish_state, applies, why,
              frames: chain.map((f: any) => f.clause), chain }
   }
@@ -251,7 +287,12 @@ export default defineEventHandler(async (event) => {
           const under = seppRules.filter((r: any) => r.document_id === f.document_id && (r.ancestors ?? []).includes(sec))
           const rs = under.filter((r: any) => permits(r, key))
           // nothing extracted under that chapter yet = undecided; extracted, but it grants no such use = no
-          if (!under.length) Object.assign(c, { holds: null, why: `${sec} is not extracted yet` })
+          // not extracted yet: still "no" where the chapter's own frame (where it applies) does not reach the lot
+          const chapterFrames = [...frames.values()].filter((x: any) => x.document_id === f.document_id && (x.ancestors ?? []).includes(sec))
+          const chapterReach = chapterFrames.length ? or3(chapterFrames.map((x: any) => reaches(x.id))) : null
+          if (!under.length && chapterReach === false)
+            Object.assign(c, { holds: false, why: `${sec} does not apply to the lot (s ${chapterFrames.map((x: any) => x.clause).join(', ')})` })
+          else if (!under.length) Object.assign(c, { holds: null, why: `${sec} is not extracted yet` })
           else if (!rs.length) Object.assign(c, { holds: false, why: `${sec} grants no ${use} permission` })
           else {
             const vs = await Promise.all(rs.map(evalRule))
@@ -272,6 +313,12 @@ export default defineEventHandler(async (event) => {
       .map((e: any) => `${String(e.topic ?? '').replace(/_/g, ' ')} ${e.comparator === 'gte' ? 'at least' : e.comparator === 'lte' ? 'at most' : ''} ${e.value ?? ''}`.trim())
     seppPermissions.push({ ...b, chain: undefined, conditional: conditions.length > 0, conditions,
                            edges: [...r.edges, ...b.chain.flatMap((f: any) => f.edges)] })
+  }
+  // SEPP prohibitions of the use ("must not be carried out on land in Zone R2 ... unless ...", s 23(2))
+  const seppProhibitions: any[] = []
+  for (const r of seppRules.filter((r: any) => r.eff.some((e: any) => e.type === 'prohibits_use' && landUseKey(e.topic) === useKey))) {
+    const b = await evalRule(r)
+    seppProhibitions.push({ ...b, chain: undefined, edges: [...r.edges, ...b.chain.flatMap((f: any) => f.edges)] })
   }
 
   // ── 3/4. the LEP: Land Use Table and rules withholding consent ────────────────────────────────
@@ -400,6 +447,26 @@ export default defineEventHandler(async (event) => {
     permissible = lutStatus && !openPrevailing ? false : null
     wording = (lutStatus ? `${use}: ${lutStatus.replace(/_/g, ' ')} in ${zone}` : `${use}: no Land Use Table row for ${zone}`) + openWhy
   }
+  // a SEPP prohibition that reaches the lot ends it, over the LEP and over a SEPP grant, where the SEPP prevails
+  // (s 8(1)); one that cannot be decided leaves a "yes" undecided
+  const bar = seppProhibitions.find(p => p.applies === true) ?? null
+  const barOpen = !bar ? seppProhibitions.find(p => p.applies === null) ?? null : null
+  if (bar && permissible !== false) {
+    const prevailsBar = bar.edges.some((e: any) => e.edge === 'prevails_over' && e.to === 'doc_type:lep')
+    if (prevailsBar || !lutPermits) {
+      if (lutPermits) displaced.push({ instrument: lepDoc?.title ?? lot.epi, clause: 'Land Use Table', why: `${use} ${lutStatus!.replace(/_/g, ' ')} in ${zone}` })
+      if (grant) displaced.push({ instrument: grant.instrument, clause: grant.clause, why: 'its permission is limited by the prohibition' })
+      permissible = false
+      controlling = { instrument: bar.instrument, clause: bar.clause }
+      wording = `${use}: must not be carried out here — ${bar.instrument} s ${bar.clause} (${bar.why})`
+    } else {
+      permissible = null
+      wording += `; ${bar.instrument} s ${bar.clause} prohibits it here and no prevails edge decides against the LEP`
+    }
+  } else if (barOpen && permissible === true) {
+    permissible = null
+    wording += `; but ${barOpen.instrument} s ${barOpen.clause} may prohibit it here: ${barOpen.why}`
+  }
   const caveat = displaced.length
     ? 'A SEPP displacing a local clause "to the extent of the inconsistency" is a legal reading - confirm with the council before relying on it.'
     : null
@@ -413,7 +480,7 @@ export default defineEventHandler(async (event) => {
   const seppStandards: any[] = []
   for (const r of seppRules) {
     if (!usesOf(r).includes(useKey) && !permits(r, useKey)) continue
-    const effs = r.eff.filter((e: any) => e.type !== 'permits_use')
+    const effs = r.eff.filter((e: any) => e.type !== 'permits_use' && e.type !== 'prohibits_use')
     if (!effs.length) continue
     const b = await evalRule(r)
     for (const e of effs) seppStandards.push({ ...b, chain: undefined, ...e })
@@ -429,7 +496,7 @@ export default defineEventHandler(async (event) => {
       conditions: f.conds.map((c: any) => ({ dimension: c.dimension, value: c.value, polarity: c.polarity, altGroup: c.alt_group ?? null,
                                               holds: c.holds, why: c.why })),
     })),
-    sepp: { permissions: seppPermissions, standards: seppStandards },
+    sepp: { permissions: seppPermissions, prohibitions: seppProhibitions, standards: seppStandards },
     lep: { document: lepDoc?.title ?? null, landUseTable: lutStatus, withholdsConsent: lepBlocks, standards: lepStandards },
   }
 })

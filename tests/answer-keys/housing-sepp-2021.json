@@ -647,11 +647,122 @@
           }
         }
       ]
+    },
+    {
+      "name": "Randwick R2, accessible area - boarding house: LEP permits it in R2; s 23(2)(a) exception (Eastern Harbour City + accessible area) so s 23(2) does not bite",
+      "cadid": "102796197",
+      "use": "boarding houses",
+      "scope": "ch2-div2",
+      "expect": {
+        "permissible": true,
+        "frames": {
+          "23(1)": true
+        },
+        "seppStandards": [
+          [
+            "25",
+            "lot_size",
+            600
+          ],
+          [
+            "24",
+            "parking",
+            0.2
+          ]
+        ],
+        "seppStandardsAbsent": [
+          [
+            "25",
+            "lot_size",
+            800
+          ],
+          [
+            "24",
+            "parking",
+            0.5
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Randwick R2, no accessible area - boarding house prohibited by s 23(2): (a) fails, (b) is only for land outside the four cities",
+      "cadid": "102797195",
+      "use": "boarding houses",
+      "scope": "ch2-div2",
+      "expect": {
+        "permissible": false,
+        "controllingClause": "23"
+      }
+    },
+    {
+      "name": "Newcastle R2, over 800 m in a straight line from E1/MU1/B1/B2/B4 - boarding house prohibited by s 23(2)(b)",
+      "cadid": "100669605",
+      "use": "boarding houses",
+      "scope": "ch2-div2",
+      "expect": {
+        "permissible": false,
+        "controllingClause": "23"
+      }
+    },
+    {
+      "name": "Newcastle R2, within 400 m in a straight line of a centre zone - s 23(2)(b) walking distance not measured: undecided",
+      "cadid": "100015877",
+      "use": "boarding houses",
+      "scope": "ch2-div2",
+      "expect": {
+        "permissible": null
+      }
+    },
+    {
+      "name": "Lane Cove R4 - co-living: the LEP prohibits it but permits RFBs, so s 67(b) permits it and prevails by s 8(1)",
+      "cadid": "102117297",
+      "use": "co-living housing",
+      "scope": "ch3-pt3",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "67",
+        "frames": {
+          "67": true
+        },
+        "seppStandards": [
+          [
+            "69",
+            "lot_size",
+            800
+          ],
+          [
+            "68",
+            "fsr",
+            10
+          ]
+        ],
+        "seppStandardsAbsent": [
+          [
+            "69",
+            "lot_size",
+            600
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Lane Cove R2 outside the LMR area - co-living: no route (LEP, Chapter 5 (not TOD land) or Chapter 6) permits co-living, RFBs or shop top housing",
+      "cadid": "102116180",
+      "use": "co-living housing",
+      "scope": "ch3-pt3",
+      "expect": {
+        "permissible": false,
+        "frames": {
+          "67": false
+        }
+      }
     }
   ],
   "scopes": {
     "ch6": "^(16[2-9]|17[0-9]|180)$",
     "ch2-div1": "^(15[A-C]?|1[6-9]|2[0-2])$",
-    "ch3-pt4": "^7[1-8]$"
+    "ch3-pt4": "^7[1-8]$",
+    "ch2-div2": "^2[3-7]$",
+    "ch3-pt3": "^(6[7-9]|70)$"
   }
 }
