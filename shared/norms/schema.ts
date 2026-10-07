@@ -34,16 +34,27 @@ export const FACTS = {
   /** "if the subdivision would result in the principal dwelling and the secondary dwelling being situated on separate lots" */
   'proposal.separates': { who: 'proposal', values: 'land_use_pair' },
   'proposal.resulting_lots': { who: 'proposal', cmp: true },
+  /** the same application also proposes erecting this ("a development application ... for the subdivision of the land
+   *  and the erection of a dual occupancy on the land", Housing SEPP s 169(2)(b)) */
+  'proposal.also_erects': { who: 'proposal', values: 'land_use' },
   /** a floor area of the proposal ("the total floor area of the secondary dwelling is no more than 60m2") */
   'proposal.floor_area_m2': { who: 'proposal', cmp: true },
   // ── what is on the lot today ──
   /** an existing use / building on the lot, optionally one carried out under a named instrument part */
   'site.has': { who: 'site', values: 'land_use' },
-  'site.consent_before': { who: 'site', values: 'date' },
+  /** consent for the existing `value` use was granted before the date in `text` (Randwick LEP 4.1D: "before 6 July 2018") */
+  'site.consent_before': { who: 'site', values: 'land_use' },
+  /** a consent in force, or an application not yet determined, for this use on the land (s 141L(b)-(c)) */
+  'site.approved_or_pending': { who: 'site', values: 'land_use' },
+  /** consent for the existing `value` use was granted on or after the date in `text` (s 169(2)(a): "on or after 28 February 2025") */
+  'site.consent_on_or_after': { who: 'site', values: 'land_use' },
   // ── the lot (our data) ──
   'lot.zone': { who: 'lot', values: 'zone_code' },
   'lot.area_m2': { who: 'lot', cmp: true },
   'lot.on_map': { who: 'lot', values: ['lot_size_map'] },
+  /** the lot is in a place the graph's term layer maps (nsw.scope_layer): value = the term, e.g. "low and mid rise housing area" */
+  'lot.in': { who: 'lot', values: 'scope_term' },
+  'lot.frontage_m': { who: 'lot', cmp: true },
   /** the use is permissible on the land under the LEP's Land Use Table (or another named instrument) */
   'lot.permits': { who: 'lot', values: 'land_use' },
   // ── never decided here ──
@@ -64,7 +75,7 @@ export type Effect =
   | { permit: 'with_consent' | 'without_consent' | 'exempt' | 'complying' }
   | { prohibit: true }
   /** a development standard (a breach is varied under LEP cl 4.6, not a prohibition) or a non-discretionary standard */
-  | { require: { topic: 'resulting_lot_size' | 'site_area' | 'floor_area' | 'dwellings_on_land' | 'dwellings_per_resulting_lot' | 'parking';
+  | { require: { topic: 'resulting_lot_size' | 'resulting_lot_width' | 'site_area' | 'floor_area' | 'dwellings_on_land' | 'dwellings_per_resulting_lot' | 'parking' | 'road_frontage' | 'not_battle_axe';
                  cmp: 'lt' | 'lte' | 'eq' | 'gte' | 'gt'; n?: number; from?: 'lot_size_map' | 'existing'; unit?: string;
                  kind: 'development_standard' | 'non_discretionary' | 'condition' } }
 
@@ -91,7 +102,8 @@ export interface Norm {
 export interface Question {
   cadid: string
   proposal: { kind: 'use' | 'subdivision' | 'works' | 'change_of_use'; subdivision_type?: 'torrens' | 'strata' | 'community';
-              use?: string; under?: string; proponent?: string; resulting_lots?: number; separates?: string; floor_area_m2?: number }
+              use?: string; under?: string; proponent?: string; resulting_lots?: number; separates?: string; floor_area_m2?: number;
+              also_erects?: string }
   /** site facts the asker states: { 'boarding house': false, 'secondary dwelling@housing-sepp-2021:ch.3-pt.1': false } */
   site?: Record<string, boolean>
 }

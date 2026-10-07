@@ -1,0 +1,80 @@
+{
+ "instrument": "Sydney Local Environmental Plan (Green Square Town Centre—Stage 2) 2013",
+ "slug": "sydney-local-environmental-plan-green-square-town-centre-stage-2-2013",
+ "unchecked": [
+  {
+   "clause": "4.1",
+   "section": "sec.4.1",
+   "why": "not the Standard Instrument wording"
+  },
+  {
+   "clause": "4.1AA",
+   "section": "sec.4.1AA",
+   "why": "Minimum subdivision lot size for community title schemes"
+  },
+  {
+   "clause": "4.2",
+   "section": "sec.4.2",
+   "why": "Rural subdivision"
+  }
+ ],
+ "norms": [
+  {
+   "id": "sydney-local-environmental-plan-green-square-town-centre-stage-2-2013:2.6(1)",
+   "instrument": "Sydney Local Environmental Plan (Green Square Town Centre—Stage 2) 2013",
+   "clause": "2.6(1)",
+   "section": "sec.2.6-ssec.1",
+   "when": {
+    "fact": "proposal.kind",
+    "value": "subdivision",
+    "span": "may be subdivided, but only with development consent"
+   },
+   "then": {
+    "permit": "with_consent"
+   },
+   "author": {
+    "by": "claude-opus-5-5 (in session)",
+    "at": "2026-10-07"
+   }
+  },
+  {
+   "id": "sydney-local-environmental-plan-green-square-town-centre-stage-2-2013:2.6(2)",
+   "instrument": "Sydney Local Environmental Plan (Green Square Town Centre—Stage 2) 2013",
+   "clause": "2.6(2)",
+   "section": "sec.2.6-ssec.2",
+   "when": {
+    "all": [
+     {
+      "fact": "proposal.kind",
+      "value": "subdivision",
+      "span": "for the subdivision of land"
+     },
+     {
+      "fact": "site.has",
+      "value": "secondary dwelling",
+      "span": "land on which a secondary dwelling is situated"
+     },
+     {
+      "fact": "proposal.separates",
+      "value": "principal dwelling|secondary dwelling",
+      "span": "result in the principal dwelling and the secondary dwelling being situated on separate lots"
+     },
+     {
+      "not": {
+       "fact": "unparsed",
+       "text": "every resulting lot meets the Lot Size Map minimum",
+       "span": "unless the resulting lots are not less than the minimum size shown on the Lot Size Map in relation to that land"
+      }
+     }
+    ]
+   },
+   "then": {
+    "prohibit": true
+   },
+   "author": {
+    "by": "claude-opus-5-5 (in session)",
+    "at": "2026-10-07"
+   }
+  }
+ ]
+}

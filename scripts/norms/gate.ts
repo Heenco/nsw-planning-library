@@ -15,7 +15,7 @@ import { matchLandUses } from '../lib/si-landuse.mjs'
 export const norm = (t: unknown) => String(t ?? '').replace(/\s+/g, ' ').trim()
 
 /** Uses the vocabulary allows beyond the Standard Instrument list: parts of a use, and "any development under <part>". */
-const EXTRA_USES = /^(secondary dwelling|principal dwelling|dwelling|strata scheme|development|\$proposal\.use)$/i
+const EXTRA_USES = /^(secondary dwelling|principal dwelling|dwelling|strata scheme|development|construction workers accommodation|\$proposal\.use)$/i
 
 export function gateNorm(n: any, clauseText: string, contextText: string, ids: Set<string>): { norm: Norm; notes: string[] } {
   const notes: string[] = []
@@ -52,7 +52,7 @@ export function gateNorm(n: any, clauseText: string, contextText: string, ids: S
 }
 
 /** A section's operative words: without its "Note." / "Notes. 1 ... 2 ..." (notes are not part of the provision). */
-export const operative = (t: unknown) => norm(t).replace(/(^|\s)Notes?\.\s[\s\S]*$/, '').trim()
+export const operative = (t: unknown) => norm(t).replace(/(^|\s)Notes?(\.|—|:)\s*[\s\S]*$/, '').trim()
 
 /** Numbers in operative text a norm must use - references, years and dates excepted. */
 export function quantities(t: string): number[] {

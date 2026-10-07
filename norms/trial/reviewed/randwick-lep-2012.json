@@ -155,7 +155,7 @@
         { "fact": "proposal.kind", "value": "subdivision", "span": "the subdivision of a dual occupancy" },
         { "fact": "site.has", "value": "dual occupancy", "span": "a dual occupancy on land in Zone R2 Low Density Residential" },
         { "fact": "lot.zone", "value": "R2", "span": "a dual occupancy on land in Zone R2 Low Density Residential" },
-        { "fact": "site.consent_before", "value": "2018-07-06", "span": "for which development consent was granted before 6 July 2018" },
+        { "fact": "site.consent_before", "value": "dual occupancy", "text": "2018-07-06", "span": "for which development consent was granted before 6 July 2018" },
         { "fact": "unparsed", "text": "meets Codes SEPP cl 6.2 (strata) or 6.4 (Torrens) standards", "span": "if the development meets the standards specified in the following provisions of State Environmental Planning Policy (Exempt and Complying Development Codes) 2008—" }
       ] },
       "then": { "permit": "with_consent" },

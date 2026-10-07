@@ -27,6 +27,10 @@ export interface LotFacts {
   lut: Record<string, string>
   /** our data's own site facts (a strata plan in the lot id), keyed as in Question.site */
   site: Record<string, boolean>
+  /** the primary frontage (m) - lot width in every eligibility test is the frontage (Manni's rule) */
+  frontageM?: number | null
+  /** nsw.scope_layer terms the norms ask about, tested against the lot before evaluation: 'term' -> result */
+  terms?: Record<string, { holds: Tri; why: string }>
 }
 export interface Leaf { fact: FactName; value?: string; under?: string; v: Tri; who: Who; why: string; span: string }
 export interface NormResult {
@@ -38,7 +42,7 @@ export interface Outcome {
   pathway: string | null
   controlling: string[]            // the norm ids the outcome rests on
   dependsOn: { who: Who; fact: string; span: string; clause: string; why: string }[]
-  standards: { id: string; clause: string; standard: string; holds: Tri; test: string }[]
+  standards: { id: string; clause: string; standard: string; holds: Tri; test: string; displacedBy?: string[] }[]
   norms: NormResult[]
 }
 
@@ -78,7 +82,26 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
         if (k in lot.site) return { ...base, v: lot.site[k]!, why: `from the lot record (${lot.lotId})` }
         return { ...base, v: null, why: `whether the lot already has ${c.value}${c.under ? ` built under ${c.under}` : ''} is not recorded` }
       }
-      case 'site.consent_before': return { ...base, v: null, why: `when the existing development was approved is not recorded` }
+      case 'site.consent_before':
+      case 'site.consent_on_or_after': {
+        const k = `${c.fact}:${c.value}:${c.text}`
+        const said = (q.site ?? {})[k]
+        if (said != null) return { ...base, v: said, why: `stated: ${said ? 'yes' : 'no'}` }
+        return { ...base, v: null, why: `whether the existing ${c.value} was approved ${c.fact === 'site.consent_before' ? 'before' : 'on or after'} ${c.text} is not recorded` }
+      }
+      case 'proposal.also_erects': return eq(p.also_erects, 'what the same application also erects')
+      case 'site.approved_or_pending': {
+        const said = (q.site ?? {})[`${c.fact}:${c.value}`]
+        return said != null ? { ...base, v: said, why: `stated: ${said ? 'yes' : 'no'}` }
+          : { ...base, v: null, why: `whether a consent is in force or an application pending for ${c.value} is not recorded` }
+      }
+      case 'lot.in': {
+        const t = lot.terms?.[String(c.value).toLowerCase()]
+        return t ? { ...base, v: t.holds, who: t.holds === null ? 'lot' : 'lot', why: `${c.value}: ${t.why}` }
+          : { ...base, v: null, why: `${c.value}: not tested` }
+      }
+      case 'lot.frontage_m': return lot.frontageM == null ? { ...base, v: null, why: 'frontage not recorded' }
+        : { ...base, v: cmpOf(lot.frontageM, c.cmp!, c.n!), why: `frontage ${lot.frontageM.toFixed(1)} m` }
       case 'lot.zone': return lot.zone == null ? { ...base, who: 'lot', v: null, why: 'zone not recorded' }
         : { ...base, v: lot.zone === String(c.value).toUpperCase(), why: `zone ${lot.zone}` }
       case 'lot.area_m2': return lot.areaM2 == null ? { ...base, v: null, why: 'area not recorded' }
@@ -157,7 +180,16 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
   // which there is a dual occupancy— ... not less than 275m2", Randwick LEP 4.1A(4)); where it is undecided, both show
   const stds = live.filter(r => 'require' in r.effect)
   const replaced = new Set(stds.filter(r => r.holds === true).flatMap(r => byId.get(r.id)!.despite ?? []))
+  // a grant "despite the provisions of another environmental planning instrument" (Housing SEPP s 169(1A)) that holds
+  // displaces the LEPs' standards for this development - shown as displaced, never silently dropped
+  const overLep = live.filter(r => r.holds === true && 'permit' in r.effect && (byId.get(r.id)!.despite ?? []).includes('doc_type:lep'))
   const standards = stds.filter(r => !replaced.has(r.id)).map(r => {
+    if (overLep.length && rank(r) === 1) {
+      const s0 = (r.effect as Extract<Effect, { require: unknown }>).require
+      return { id: r.id, clause: r.clause, standard: `${s0.topic.replace(/_/g, ' ')} (${s0.kind.replace(/_/g, ' ')})`, holds: null as Tri,
+               test: `displaced: ${overLep.map(x => x.clause).join(', ')} applies despite the provisions of another environmental planning instrument`,
+               displacedBy: overLep.map(x => x.id) }
+    }
     const s = (r.effect as Extract<Effect, { require: unknown }>).require
     const min = s.n ?? (s.from === 'lot_size_map' ? lot.lotSizeMinM2 : null)
     const label = `${s.topic.replace(/_/g, ' ')} ${CMP[s.cmp]} ${min ?? (s.from === 'lot_size_map' ? 'the Lot Size Map minimum' : s.from === 'existing' ? 'the number on the site before the development' : '?')}${s.unit && min != null ? ' ' + s.unit : ''} (${s.kind.replace(/_/g, ' ')})`
@@ -167,6 +199,11 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
       if (lots) { holds = lot.areaM2 / lots >= min; test = `${lots} lots from ${lot.areaM2} m² average ${Math.round(lot.areaM2 / lots)} m²${holds ? ' - possible; the layout decides' : ` - below ${min} m²`}` }
       else if (lot.areaM2 < 2 * min) { holds = false; test = `${lot.areaM2} m² cannot make 2 lots of ${min} m² (needs ${2 * min} m²)${lot.areaM2 < min ? `; the lot is itself under ${min} m²` : ''}` }
       else test = `${lot.areaM2} m² allows up to ${Math.floor(lot.areaM2 / min)} lots of ${min} m² - the layout decides`
+    } else if (s.topic === 'resulting_lot_width' && s.n != null && lot.frontageM != null) {
+      // side-by-side lots share the frontage (a battle-axe lot is the other way, and some clauses forbid it)
+      const lots = q.proposal.resulting_lots ?? 2
+      holds = lot.frontageM >= lots * s.n
+      test = `frontage ${lot.frontageM.toFixed(1)} m for ${lots} lots side by side needs ${lots * s.n} m${holds ? '' : ' - not enough'}`
     } else if (s.topic === 'site_area' && s.n != null && lot.areaM2 != null) {
       holds = cmpOf(lot.areaM2, s.cmp, s.n); test = `site ${lot.areaM2} m²`
     }

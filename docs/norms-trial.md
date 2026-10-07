@@ -117,6 +117,55 @@ undecided and can never be dropped.
   instead be a gap in our copy.
 - **The expectations are my reading.** They need a planner's confirmation.
 
+## The subdivision section (2026-10-08)
+
+The section is **Subdivision** in `/testing-spatial-services`, served by `GET /api/norms/subdivision` and built with
+`npx tsx scripts/norms/build-subdivision.ts` into `norms/subdivision/`. For each lot it gives Torrens, strata and
+community title a **Yes / No / Maybe**.
+
+**Housing SEPP.** Every clause that permits or bars subdivision: s 22, 27, 32, 51, 66A, 70, 90, 108E, 117, 141L, 169,
+173 and 185. s 169 and s 173 (Chapter 6 subdivision of dual occupancies and terraces) carry the s 164 exclusions,
+read from the profile's ch6 frame, so the two cannot disagree.
+
+**All 35 LEPs in the graph.** For each, the Standard Instrument 2.6(1), 2.6(2) and 4.1(3)/(4) are read from that
+plan's own words, and the gate checks every quote. A 4.1(4) exclusion the builder does not recognise is kept as
+unparsed. Randwick's 4.1A–4.1D come from the trial review.
+
+**Everything else is "not yet checked".** Every other subdivision clause of the plan (local subclauses of 2.6 and 4.1,
+4.1A…, 4.2, 5.16, 6.x) is listed with a link. A Yes never hides a clause nobody read.
+
+**Only questions that change an answer are asked.** Each question is flipped yes and no, against two baselines: as
+asked, and "clean" (every other barring question answered no). Only those that change an answer class or a standard
+are kept, ranked by how many they change. "None of the barred buildings is on the lot" answers the barring ones in
+one click.
+
+**Standards come with the lot's own arithmetic:**
+
+- lot sizes: "247 m² cannot make 2 lots of 325 m²";
+- widths: "frontage 30.4 m for 2 lots needs 12 m";
+- "if it applies" when the standard is conditional;
+- **displaced** when a grant applies "despite the provisions of another environmental planning instrument" (s 169(1A)
+  displaces LEP 4.1(3)).
+
+A Yes with a development standard not met says "needs a cl 4.6 variation".
+
+**Vocabulary grown from the unparsed leaves:**
+
+- `lot.in` (any nsw.scope_layer term, tested as `/api/rules/at` does);
+- `lot.frontage_m`;
+- `site.consent_on_or_after` / `site.consent_before` (the date in `text`);
+- `site.approved_or_pending` (s 141L(b)-(c));
+- `proposal.also_erects`;
+- resulting-lot width.
+
+**Checked on:**
+
+- 62B Carr St Coogee. Maybe → "none of the barred buildings" + dwelling houses → Yes ×3, 4.1B not met.
+- A Parramatta R2 LMR lot (734 m², 30.4 m). Dual occupancy erected in the same application → Torrens Yes by
+  s 169(1A), its standards met, LEP 4.1(3) displaced. 10 Parramatta local clauses listed as unchecked.
+
+**Not in it yet:** exempt and complying subdivision (Codes SEPP), and the local clauses listed as unchecked.
+
 ## What it would take to go further
 
 1. **Top up DeepInfra.** Then re-run the author on the whole slice, unreviewed, and run the critic. Measure how many

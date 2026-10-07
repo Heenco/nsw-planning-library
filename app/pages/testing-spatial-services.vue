@@ -1243,6 +1243,19 @@
         </p>
         <SeppRulesForLot :cadid="String(openedCadid)" />
       </div>
+      <!-- Subdivision: can this lot be subdivided, and which kind? /api/norms/subdivision - the norms trial
+           (docs/norms-trial.md): lot + proposal + what is on the site, one engine, fail-closed rules. -->
+      <div v-if="openedCadid" id="subdivision" class="lp-group">
+        <h3 class="lp-h3">
+          Subdivision
+          <span class="lp-dim"><code>/api/norms/subdivision</code></span>
+        </h3>
+        <p class="lp-basis lp-basis--lot">
+          Lot. Torrens, strata and community title, each Yes / No / Maybe from the Housing SEPP and this lot's LEP. A Maybe
+          says what it turns on and who can answer it; answer the questions below and it settles.
+        </p>
+        <SubdivisionForLot :cadid="String(openedCadid)" />
+      </div>
 
       <!-- ── the report's own inputs ───────────────────────────────────────
            /report reads nsw.up_property_d_4 and the nsw graph, then explains
