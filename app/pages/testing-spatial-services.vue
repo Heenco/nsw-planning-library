@@ -1229,6 +1229,21 @@
         </template>
       </div>
 
+      <!-- ── SEPPs for this lot ─────────────────────────────────────────────
+           The generated SEPP rule layer (docs/sepp-rule-pipeline.md) asked about this lot and one land use:
+           which SEPP frames reach it, what they permit, and how that meets the LEP. Its rules are held. -->
+      <div v-if="openedCadid" id="sepp-rules" class="lp-group">
+        <h3 class="lp-h3">
+          SEPPs for this lot
+          <span class="lp-dim"><code>/api/rules/at</code></span>
+        </h3>
+        <p class="lp-basis lp-basis--lot">
+          Lot. Each SEPP's own frames (where it applies, its exclusions) are tested against the lot, then its
+          permissions and standards for the use, then the LEP; a SEPP prevails where an edge in the graph says so.
+        </p>
+        <SeppRulesForLot :cadid="String(openedCadid)" />
+      </div>
+
       <!-- ── the report's own inputs ───────────────────────────────────────
            /report reads nsw.up_property_d_4 and the nsw graph, then explains
            them. These sections carry the same subjects with nothing explained:
@@ -2249,6 +2264,7 @@ const lotSections = computed(() => {
   out.push({ id: 'pattern-book', label: 'Pattern Book' })
   out.push({ id: 'build-to-rent', label: 'Build-to-rent' })
   out.push({ id: 'affordable-housing', label: 'Affordable housing bonus' })
+  out.push({ id: 'sepp-rules', label: 'SEPPs for this lot' })
   if (inputs.value) {
     out.push({ id: 'report-inputs', label: 'What /report is built from' })
     for (const sec of reportSections.value) out.push({ id: sec.id, label: sec.title })

@@ -162,6 +162,99 @@
         a missing one does not fail, it quietly removes an ability.
       </p>
     </template>
+
+    <!-- The SEPP rule pipeline (docs/sepp-rule-pipeline.md): a separate rule layer, held until its answer keys
+         pass, so its coverage is measured by chapter - which parts of each SEPP can answer a lot question -
+         rather than by the counts above. -->
+    <section class="gm-sepp">
+      <h2 class="gm-h2">SEPP rule pipeline</h2>
+      <p class="gm-meta">
+        Each SEPP's progress through the generated rule layer. Rules stay <em>held</em> until its answer keys pass;
+        ask one lot on <NuxtLink to="/testing-spatial-services">/testing-spatial-services</NuxtLink> (&ldquo;SEPPs for this lot&rdquo;).
+        <span v-if="sepp" class="gm-na">&middot; {{ sepp.ms }} ms</span>
+      </p>
+      <div v-if="seppError" class="gm-error">{{ seppError }}</div>
+      <div v-else-if="!sepp" class="gm-loading">Reading the rule layer…</div>
+      <div v-else class="gm-scroll">
+        <table class="gm-table">
+          <thead>
+            <tr>
+              <th>SEPP</th>
+              <th>Source</th>
+              <th class="gm-num">Sections routed</th>
+              <th>Chapters with rules</th>
+              <th class="gm-num">Frames</th>
+              <th class="gm-num">Rules</th>
+              <th class="gm-num">Values</th>
+              <th class="gm-num">Edges</th>
+              <th>Place terms</th>
+              <th>Answer keys</th>
+              <th>Open findings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="d in sepp.documents" :key="d.slug">
+              <td><span class="gm-name">{{ seppTitle(d) }}</span></td>
+              <td>
+                <span class="gm-stage" :class="d.source === 'current' ? 'gm-stage--rules' : 'gm-stage--sections'"
+                      :title="d.lastIngestedAt ? `last ingested ${new Date(d.lastIngestedAt).toLocaleString()}` : ''">
+                  {{ d.source }}
+                </span>
+              </td>
+              <td class="gm-num">
+                <span v-if="!d.sections.routed" class="gm-na">0 / {{ d.sections.total.toLocaleString() }}</span>
+                <template v-else>{{ d.sections.routed.toLocaleString() }} / {{ d.sections.total.toLocaleString() }}</template>
+              </td>
+              <td>
+                <span class="gm-bar-wrap" :title="d.chapters.covered.join('\n')">
+                  <span class="gm-bar" :class="tone(pct(d.chapters.withRules, d.chapters.total))"
+                        :style="{ width: pct(d.chapters.withRules, d.chapters.total) + '%' }" />
+                  <span class="gm-bar-text">{{ d.chapters.withRules }} / {{ d.chapters.total }} {{ d.chapters.unit }}s</span>
+                </span>
+                <div v-if="d.chapters.covered.length" class="gm-sepp-covered">{{ d.chapters.covered.join(' · ') }}</div>
+              </td>
+              <td class="gm-num" :class="!d.rules.frames ? 'gm-zero' : ''">{{ d.rules.frames }}</td>
+              <td class="gm-num" :class="!(d.rules.held + d.rules.published) ? 'gm-zero' : ''"
+                  :title="`${d.rules.held} held, ${d.rules.published} published, ${d.rules.retired} retired; ${d.rules.applicability} applicability rows`">
+                {{ d.rules.held + d.rules.published }}
+                <span v-if="d.rules.held" class="gm-lga">{{ d.rules.published ? `${d.rules.held} held` : 'held' }}</span>
+              </td>
+              <td class="gm-num" :title="`${d.rules.effects} effects, ${d.rules.numeric} with a number`">{{ d.rules.numeric }}</td>
+              <td class="gm-num" :title="d.rules.edgeTypes.join(', ')">{{ d.rules.edges }}</td>
+              <td>
+                <span v-if="!d.terms.used" class="gm-na">&mdash;</span>
+                <span v-else class="gm-dim" :class="d.terms.unmapped || d.terms.noDataset ? 'gm-dim--off' : 'gm-dim--on'"
+                      :title="d.terms.gaps.length ? 'Gaps: ' + d.terms.gaps.join('; ') : 'every term maps to a dataset'">
+                  {{ d.terms.used - d.terms.unmapped - d.terms.noDataset }} / {{ d.terms.used }} mapped
+                </span>
+              </td>
+              <td>
+                <span v-if="!d.answerKeys" class="gm-na">none yet</span>
+                <span v-else class="gm-stage" :class="d.answerKeys.status === 'success' ? 'gm-stage--rules' : 'gm-stage--none'"
+                      :title="`${new Date(d.answerKeys.at).toLocaleString()}; ${d.answerKeys.explained} disagreement(s) with a hand-built catalogue explained`">
+                  {{ d.answerKeys.pass }} / {{ d.answerKeys.cases }} pass
+                </span>
+              </td>
+              <td>
+                <div class="gm-flags">
+                  <span v-if="d.findings.gating" class="gm-flag gm-flag--bad">{{ d.findings.gating }} gating</span>
+                  <span v-if="d.findings.other" class="gm-flag">{{ d.findings.other }} to review</span>
+                  <span v-if="!d.findings.gating && !d.findings.other" class="gm-na">&mdash;</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="gm-note">
+          <strong>Source</strong> compares the library's XML with the copy last ingested (due = changed since).
+          <strong>Chapters with rules</strong> counts the chapters (parts, where a SEPP has none) holding at least one
+          generated rule - the honest coverage figure, since a SEPP with no rules in a chapter cannot answer for it.
+          <strong>Values</strong> are effects carrying a number; <strong>edges</strong> say which instrument prevails or
+          disapplies what. <strong>Place terms</strong> are the defined areas, maps, councils and land characteristics
+          the rules test, and whether each maps to a dataset. <strong>Gating</strong> findings hold a SEPP from publishing.
+        </p>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -182,7 +275,21 @@ async function load(refresh = false) {
     loading.value = false
   }
 }
-onMounted(() => load())
+onMounted(() => { load(); loadSepp() })
+
+// the SEPP rule pipeline's own coverage (/api/rules/sepp-coverage)
+const sepp = ref<any>(null)
+const seppError = ref('')
+async function loadSepp() {
+  try {
+    sepp.value = await $fetch('/api/rules/sepp-coverage')
+  } catch (e: any) {
+    seppError.value = e?.message || 'Could not read the SEPP rule layer'
+  }
+}
+const pct = (n: number, of: number) => (of ? Math.round((n / of) * 100) : 0)
+/** "(Housing) 2021" -> "Housing 2021": every SEPP title brackets its subject. */
+const seppTitle = (d: any) => shortTitle(d).replace(/^\((.*?)\)/, '$1')
 
 const grouped = computed(() => {
   const by = new Map<string, any[]>()
@@ -362,6 +469,10 @@ function flags(d: any): string[] {
   font-size: 10px; padding: 2px 6px; border-radius: 4px;
   background: #fef3c7; color: #92400e; white-space: nowrap;
 }
+.gm-flag--bad { background: #fee2e2; color: #991b1b; }
+.gm-sepp { margin-top: 36px; }
+.gm-h2 { font-size: 17px; font-weight: 700; margin: 0 0 4px; }
+.gm-sepp-covered { font-size: 10px; color: #64748b; margin-top: 3px; max-width: 220px; }
 .gm-note {
   margin-top: 18px; font-size: 12px; line-height: 1.6; color: #64748b;
   border-top: 1px solid #e5e7eb; padding-top: 12px;

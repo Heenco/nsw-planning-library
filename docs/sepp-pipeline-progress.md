@@ -223,9 +223,24 @@ All moved into the profile (`terms` defined_area, `skip`, `checks.route/extract/
 is byte-identical before/after; steps 4-6 still PASS. `scripts/pipeline/*` and `/api/rules/at` now name no
 instrument and no clause outside comments.
 
-### 11. Coverage and visibility — `todo`
+### 11. Coverage and visibility — `done` 2026-10-07 (local commit)
 **Done when:** `/graph` shows SEPP rule coverage; `/testing-spatial-services` has a "SEPPs for this lot"
 section reading `/api/rules/at`.
+
+**Result:** both shown in the dev server (Playwright screenshots of each).
+- `/api/rules/sepp-coverage` (~0.5-1 s) - per SEPP: source current/due, sections hashed/routed, chapters (parts
+  where a SEPP has none - the Codes SEPP has 44) holding at least one pipeline rule, frames, rules by
+  publish_state, numeric effects, edges, place terms mapped/unmapped, open findings, latest run per step and the
+  latest answer-key run. `answer-keys.ts --record` now writes an `ingest_run` (step 10) for it.
+- `/graph`: new "SEPP rule pipeline" table under the document table. Today: Housing 1/7 chapters (ch.6),
+  2,650/2,650 sections routed, 3 frames, 23 held rules, 34 values, 8 edges, 19/19 terms mapped, answer keys
+  10/10, 4 findings to review (0 gating); the other 9 SEPPs current, hashed, 0 rules.
+- `/testing-spatial-services`: "SEPPs for this lot" (`app/components/SeppRulesForLot.vue`, nav entry
+  `sepp-rules`): a land-use picker fed by `/api/rules/uses` (the uses the rule layer names - no list in the
+  page), verdict, frames with each condition tested, SEPP permissions/standards, LEP Land Use Table,
+  consent-withholding clauses and standards.
+- Only my two hunks of `testing-spatial-services.vue` were committed; the other session's uncommitted edits to
+  that file were left in the working tree.
 
 ### 12. Orchestration — `todo`
 `run_sepp_pipeline` (script or notebook): hash check → steps 2–8 for what changed → answer keys →
@@ -274,3 +289,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 9 done (local): /api/rules/at; Bambara = permissible by Housing SEPP s 166 over Parramatta 6.11(1) via s 8(1). Migration 20. Q2 asks to push.
 - 2026-10-07 — Q2 resolved: rules/at pushed (ac2d0c2).
 - 2026-10-07 — step 10 done (local): 10/10 answer keys, 2 lmr disagreements explained; migration 21; undecided-verdict fix; pipeline de-hardcoded into the profile.
+- 2026-10-07 — step 11 done (local): /api/rules/sepp-coverage + /api/rules/uses, SEPP table on /graph, "SEPPs for this lot" on /testing-spatial-services.

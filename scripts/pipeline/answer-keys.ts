@@ -99,6 +99,13 @@ async function main() {
     const profile = (await import(`../../profiles/${PROFILE}.ts`)).default
     const doc = (await client.query(`SELECT id FROM nsw.document WHERE instrument_slug = $1`, [profile.slug])).rows[0]
     if (doc) {
+      // the run itself, so /graph can show the latest answer-key result (step 11)
+      await client.query(
+        `INSERT INTO nsw.ingest_run (id, document_id, doc_label, status, started_at, finished_at, stage_metrics)
+         VALUES ($1, $2, $3, $4, now(), now(), $5)`,
+        [randomUUID(), doc.id, profile.label, failed.length ? 'failed' : 'success',
+         JSON.stringify({ step: 10, script: 'scripts/pipeline/answer-keys.ts', base: BASE, cases: results.length,
+                          pass: results.length - failed.length, explained: results.filter(r => r.explained).length })])
       await client.query(`DELETE FROM nsw.audit_finding WHERE document_id = $1 AND status = 'open' AND detail LIKE 'step10%'`, [doc.id])
       for (const f of failed) for (const m of f.fails) {
         await client.query(`INSERT INTO nsw.audit_finding (id, document_id, kind, gating, clause, value, detail, status)
