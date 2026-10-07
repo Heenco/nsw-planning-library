@@ -50,7 +50,9 @@ const PROFILES = opt('--profile') ? [opt('--profile')!]
 
 /** What decides the rules besides the source: the profile and the step scripts. */
 const FINGERPRINT_FILES = (profile: string) => [`profiles/${profile}.ts`, `tests/answer-keys/${profile}.json`,
-  ...['frames', 'route', 'extract', 'edges', 'terms'].map(s => `scripts/pipeline/${s}.ts`), 'shared/land-use-key.ts']
+  ...['frames', 'route', 'extract', 'edges', 'terms'].map(s => `scripts/pipeline/${s}.ts`), 'shared/land-use-key.ts',
+  // the evaluator and the harness decide the answer-key gate, so a change to either reruns it
+  'server/api/rules/at.get.ts', 'scripts/pipeline/answer-keys.ts']
 const sha = (s: string | Buffer) => createHash('sha256').update(s).digest('hex')
 const norm = (s: string | null | undefined) => String(s ?? '').replace(/\s+/g, ' ').trim()
 const sectionHash = (h: string | null | undefined, t: string | null | undefined) => sha(`${norm(h)}\n${norm(t)}`)

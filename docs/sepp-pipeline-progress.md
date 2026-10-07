@@ -388,11 +388,42 @@ for development for the purposes of ...") or "development to which section N app
 Side effect (accepted): Ch 6 s 175 / s 176 / s 177 and Part 5 s 85 / 86 / 93 / 94 / 97 now carry their uses (they had none,
 so no question reached them - s 176's 4-storey cap and s 177's Tree Canopy Guide were never shown before).
 
+### 17. The rest of the Housing SEPP — `in progress`
+Coverage before: 80 / 187 operative clauses. Same structure (profile frames, generic extraction, hand keys).
+- **17a Ch 2:** Pt 2 Div 3 boarding houses by relevant authorities (s 28-32), Div 4 supportive accommodation (s 33-35),
+  Div 5 RFBs by social housing providers / public authorities (s 36-41), Div 6 residential development by relevant
+  authorities (s 42-44A), Pt 3 retention of existing affordable rental housing (s 45-48) — `done` 2026-10-07 (local commit).
+  Frames `ch2-bh-ra` (s 28 + its R2 exception), `ch2-supportive` (s 33: LEP / Ch 5 / Ch 6 routes), `ch2-rfb-shp` (s 36:
+  four cities near a station OR the listed towns, not where the LEP permits RFBs), `ch2-res-ra` (s 42(1)(a): permitted,
+  or LAHC / AHO in an accessible Six Cities relevant residential zone), `ch2-retention` (s 46: four cities, Newcastle,
+  Wollongong; the building test is the proposal's). 21 new rules (170 in all); coverage 99 / 187 operative clauses.
+  Recall PASS on all six units. **Answer keys 43/43** (7 new). New machinery: **migration 23** `scope_layer.lower_bound`
+  (the station walking catchments are wholly inside "within 800m of a station entrance": inside = yes, outside =
+  undecided); `useGroupScopes` (a defined use group read wider than its division); a permission phrase inside a
+  condition ("is permitted with development consent on the land under ...") is not a grant; numbered conditions under
+  an "...if—" scope are read like standards (s 42(1)(b)-(f): "the greater of 11m or ...", 75 dwellings, parking);
+  dates are not numbers; "not exceeding"; height / floor space ratio as last-resort topics. **Evaluator:** a grant only
+  some proponents may use (public authorities, social housing providers, relevant authorities) is listed as a route
+  for them and never decides - or unsettles - the general answer; the harness scopes "SEPP permission applies" to the
+  case's part; the orchestrator's fingerprint now includes the evaluator and the harness.
+  Gaps (recorded): the 32 towns of s 36(1)(b); s 13 (income bands) is a definition; s 39 (certificate procedure), s 47-48
+  (building / market tests, contribution formula) are not lot rules.
+- **17b Ch 3:** Pt 2 group homes (s 60-66B), Pt 6 short-term rental exempt development (s 111-114), Pt 7 serviced
+  apartments (s 115-117), Pt 8 manufactured home estates (s 118-125), Pt 9 caravan parks (s 126-133), Pt 10 temporary
+  emergency accommodation, Pt 11 flood recovery (s 136-141), Pt 13 construction workers (s 141D-141L), Pt 14 temporary
+  housing (s 141M-141T) — `todo`
+- **17c Ch 4:** design of residential apartment development (s 142-149) — `todo`
+**Done when:** recall PASS on each part; hand keys for each part; earlier keys still pass; readings listed for review.
+
 ### Later
-- 17. Codes SEPP (key: `cdc` catalogue)
-- 18. T&I, R&H (frames and terms)
+- 18. Codes SEPP (key: `cdc` catalogue)
+- 19. T&I, R&H (frames and terms)
 
 ## Open questions
+
+**Q10 (step 17a, non-blocking)** — Ch 2 readings: (1) "residential development" in Div 6 (s 42) is read with Div 1's list
+(s 15B(1)), which defines it only "In this division"; (2) "supportive accommodation" is treated as a use; (3) a grant
+limited to a proponent (Div 3, 5, 6, seniors Div 8) is shown as "a route for <proponent>", never as the general answer.
 
 **Q9 (step 16, non-blocking)** — readings in Ch 5 / Ch 3 Pt 1 / Ch 7:
 1. Council- or centre-only zones (s 154(1)(c), s 160(2)(b) Canterbury-Bankstown B2; s 151 Gosford B3) are left out, not modelled.
@@ -504,3 +535,5 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — 15a/15b done (local): boarding houses + co-living, 25/25 keys; recall gate now counts bare numerals. Q7 asks for review. 15c seniors next.
 - 2026-10-07 — 15c done (local): seniors housing, 126 rules, 29/29 keys. Step 15 done. Q8 asks about Schedule 3 gaps and readings.
 - 2026-10-07 — step 16 done (local): Ch 5, Ch 3 Pt 1 (Div 1-2), Ch 7; 149 rules, 80/187 operative clauses, 36/36 keys. Q9.
+- 2026-10-07 — step 17 added: the rest of the Housing SEPP (17a Ch 2, 17b Ch 3, 17c Ch 4) ahead of the Codes SEPP; later items renumbered 18-19.
+- 2026-10-07 — 17a done (local): Ch 2 remaining divisions + Pt 3; 170 rules, 99/187 operative clauses, 43/43 keys; migration 23. Q10.

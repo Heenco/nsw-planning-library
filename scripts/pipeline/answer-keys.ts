@@ -69,7 +69,9 @@ async function main() {
       if (!r.lep.standards.some((s: any) => s.applies === true && String(s.clause).startsWith(clause) && s.topic === topic && close(s.value, value)))
         fails.push(`LEP standard cl ${clause} ${topic} ${value} not applying`)
     }
-    const seppPerm = r.sepp.permissions.some((p: any) => p.applies === true)
+    // a permission in the part of the SEPP the case is about (another part's grant - s 38 for social housing providers -
+    // is not what a Chapter 6 case asks)
+    const seppPerm = r.sepp.permissions.some((p: any) => p.applies === true && inScope(p))
     if ('seppPermissionApplies' in e && seppPerm !== e.seppPermissionApplies) fails.push(`SEPP permission applies ${seppPerm} != ${e.seppPermissionApplies}`)
 
     // the hand-built lmr catalogue: is the use permissible under Chapter 6 on this lot?

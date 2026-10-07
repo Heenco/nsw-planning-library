@@ -69,6 +69,8 @@ export interface TermMapping {
   except_term?: string
   /** Holds within this straight-line distance (m) of the source (migration 22); with upper_bound, "within N m walking". */
   within_m?: number
+  /** The source is a subset of the term: a hit = holds, a miss = undecided (migration 23). */
+  lower_bound?: boolean
 }
 
 export interface InstrumentProfile {
@@ -86,6 +88,8 @@ export interface InstrumentProfile {
   /** Land uses this instrument names that the closed Land Use Table vocabulary does not hold (Standard Instrument
    *  dictionary sub-types, e.g. "residential care facility" inside seniors housing). */
   extraUses?: string[]
+  /** A defined group of uses read wider than the unit that defines it (term -> chapter / part local_id). */
+  useGroupScopes?: Record<string, string>
   /** Groups of zones the instrument names without listing them ("in a residential zone"), as read for it. */
   zoneGroups?: Record<string, string[]>
   /** Clauses step 5 does not read as rules, with the reason (a frame's own source, a clause that only lists others). */
@@ -102,6 +106,10 @@ export interface InstrumentProfile {
   }
 }
 
+const LGA_TERM = (term: string, lotLga: string, note: string): TermMapping => ({
+  dimension: 'lga', term, source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',
+  filter: `upper(lga_name) = '${lotLga}'`, kind: 'condition', note,
+})
 const LGA = (term: string, lotLga: string): TermMapping => ({
   dimension: 'lga', term, source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',
   filter: `upper(lga_name) = '${lotLga}'`, kind: 'exclusion',
@@ -154,7 +162,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
-  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7'],
+  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7', 'ch.2-pt.1', 'ch.2-pt.2-div.3', 'ch.2-pt.2-div.4', 'ch.2-pt.2-div.5', 'ch.2-pt.2-div.6', 'ch.2-pt.3'],
   frames: [
     {
       id: 'instrument',
@@ -467,6 +475,114 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         + 'equivalent land use zone" is not resolved. The proponent is a fact about the proposal.',
     },
     {
+      id: 'ch2-bh-ra',
+      title: 'Chapter 2, Part 2, Division 3 — boarding houses by relevant authorities',
+      parent: 'instrument',
+      clause: '28',
+      section: 'sec.28',
+      governs: ['ch.2-pt.2-div.3'],
+      conditions: [
+        { dimension: 'permissible_under', value: 'lep:boarding house', polarity: 'applies', clause: '28(1)(a)', anyOf: 'land#lep',
+          span: 'on which development for the purposes of boarding houses is permitted with consent under another environmental planning instrument' },
+        { dimension: 'zone', value: 'R2', polarity: 'applies', clause: '28(1)(b)', anyOf: 'land#r2', span: 'in Zone R2 Low Density Residential' },
+        // s 28(2): in R2 only (a) in the four cities and an accessible area, or (b) elsewhere within 800 m walking of a centre zone
+        { dimension: 'zone', value: 'R2', polarity: 'excludes', clause: '28(2)', anyOf: 'r2ok#not-r2', span: 'on land in Zone R2 Low Density Residential' },
+        { dimension: 'zone', value: 'R2', polarity: 'applies', clause: '28(2)(a)', anyOf: 'r2ok#a', span: 'on land in Zone R2 Low Density Residential' },
+        { dimension: 'defined_area', value: 'Eastern Harbour City, Central River City, Western Parkland City or Central Coast City', polarity: 'applies', clause: '28(2)(a)', anyOf: 'r2ok#a',
+          span: 'for land in the Eastern Harbour City, Central River City, Western Parkland City or Central Coast City' },
+        { dimension: 'defined_area', value: 'accessible area', polarity: 'applies', clause: '28(2)(a)', anyOf: 'r2ok#a', span: 'the land is within an accessible area' },
+        { dimension: 'zone', value: 'R2', polarity: 'applies', clause: '28(2)(b)', anyOf: 'r2ok#b', span: 'on land in Zone R2 Low Density Residential' },
+        { dimension: 'defined_area', value: 'Eastern Harbour City, Central River City, Western Parkland City or Central Coast City', polarity: 'excludes', clause: '28(2)(b)', anyOf: 'r2ok#b', span: 'otherwise' },
+        { dimension: 'defined_area', value: 'within 800m walking distance of land in Zone E1 Local Centre, Zone MU1 Mixed Use, Zone B1 Neighbourhood Centre, Zone B2 Local Centre or Zone B4 Mixed Use', polarity: 'applies', clause: '28(2)(b)', anyOf: 'r2ok#b',
+          span: 'all or part of the boarding house is within 800m walking distance of land in Zone E1 Local Centre, Zone MU1 Mixed Use, Zone B1 Neighbourhood Centre, Zone B2 Local Centre or Zone B4 Mixed Use' },
+        { dimension: 'proponent', value: 'a relevant authority', polarity: 'applies', clause: '29(1)', span: 'by or on behalf of a relevant authority' },
+      ],
+      note: 's 28(2) repeats s 23(2)\'s R2 test for the Division itself. "or an equivalent land use zone" not resolved.',
+    },
+    {
+      id: 'ch2-supportive',
+      title: 'Chapter 2, Part 2, Division 4 — supportive accommodation',
+      parent: 'instrument',
+      clause: '33',
+      section: 'sec.34-ssec.1',
+      governs: ['ch.2-pt.2-div.4'],
+      conditions: [
+        { dimension: 'permissible_under', value: 'lep:boarding house', polarity: 'applies', clause: '33(a)', anyOf: 'land#bh',
+          span: 'development for the purposes of boarding houses is permissible under another environmental planning instrument' },
+        { dimension: 'permissible_under', value: 'lep:residential flat building', polarity: 'applies', clause: '33(b)', anyOf: 'land#rfb-lep',
+          span: 'development for the purposes of residential flat buildings is permissible under Chapter 5, Chapter 6 or another environmental planning instrument' },
+        { dimension: 'permissible_under', value: 'sepp:ch.5:residential flat building', polarity: 'applies', clause: '33(b)', anyOf: 'land#rfb-ch5',
+          span: 'development for the purposes of residential flat buildings is permissible under Chapter 5, Chapter 6 or another environmental planning instrument' },
+        { dimension: 'permissible_under', value: 'sepp:ch.6:residential flat building', polarity: 'applies', clause: '33(b)', anyOf: 'land#rfb-ch6',
+          span: 'development for the purposes of residential flat buildings is permissible under Chapter 5, Chapter 6 or another environmental planning instrument' },
+      ],
+      note: 'Supportive accommodation (s 34(2)): the use of an existing RFB or boarding house; s 35 permits it without consent when no building works.',
+    },
+    {
+      id: 'ch2-rfb-shp',
+      title: 'Chapter 2, Part 2, Division 5 — residential flat buildings by social housing providers, public authorities and joint ventures',
+      parent: 'instrument',
+      clause: '36',
+      section: 'sec.37-ssec.1',
+      governs: ['ch.2-pt.2-div.5'],
+      conditions: [
+        { dimension: 'defined_area', value: 'Eastern Harbour City, Central River City, Western Parkland City or Central Coast City', polarity: 'applies', clause: '36(1)(a)', anyOf: 'land#a',
+          span: 'land in the Eastern Harbour City, Central River City, Western Parkland City or Central Coast City' },
+        { dimension: 'defined_area', value: 'within 800m of a public entrance to a railway station or light rail station', polarity: 'applies',
+          clause: '36(1)(a)', anyOf: 'land#a', span: 'within 800m of— (i) a public entrance to a railway station or light rail station' },
+        { dimension: 'defined_area', value: 'in a listed town within 400m of land in Zone E2, MU1, B3 or B4', polarity: 'applies', clause: '36(1)(b)',
+          anyOf: 'land#b', span: 'land in the following towns within 400m of land in Zone E2 Commercial Centre, Zone MU1 Mixed Use, Zone B3 Commercial Core or Zone B4 Mixed Use' },
+        { dimension: 'permissible_under', value: 'lep:residential flat building', polarity: 'excludes', clause: '36(2)',
+          span: 'land on which development for the purposes of residential flat buildings is permitted under another environmental planning instrument' },
+        { dimension: 'proponent', value: 'a public authority or social housing provider (or with a relevant authority)', polarity: 'applies', clause: '37(1)',
+          span: 'by or on behalf of a public authority or social housing provider' },
+      ],
+      note: '(a) walking catchments stand in for 800 m of a station entrance (a lower bound: inside = yes, outside = undecided). '
+        + '(b) the 32 towns are not held (no locality boundaries) - a recorded gap. s 37(2) exclusions are facts about the proposal.',
+    },
+    {
+      id: 'ch2-res-ra',
+      title: 'Chapter 2, Part 2, Division 6 — residential development by relevant authorities',
+      parent: 'instrument',
+      clause: '42(1)',
+      section: 'sec.42-ssec.1',
+      governs: ['ch.2-pt.2-div.6'],
+      conditions: [
+        { dimension: 'permissible_under', value: 'verdict', polarity: 'applies', clause: '42(1)(a)(i)', anyOf: 'a#i',
+          span: 'is permitted with development consent on the land under Chapter 5, Chapter 6 or another environmental planning instrument' },
+        { dimension: 'proponent', value: 'the Land and Housing Corporation or the Aboriginal Housing Office', polarity: 'applies', clause: '42(1)(a)(ii)(A)',
+          anyOf: 'a#ii', span: 'by the Land and Housing Corporation or the Aboriginal Housing Office' },
+        { dimension: 'defined_area', value: 'accessible area', polarity: 'applies', clause: '42(1)(a)(ii)(B)', anyOf: 'a#ii',
+          span: 'on land within an accessible area and within the Six Cities Region' },
+        { dimension: 'lga', value: 'Six Cities Region', polarity: 'applies', clause: '42(1)(a)(ii)(B)', anyOf: 'a#ii',
+          span: 'on land within an accessible area and within the Six Cities Region' },
+        { dimension: 'defined_area', value: 'relevant residential zone (Chapter 5)', polarity: 'applies', clause: '42(1)(a)(ii)(C)', anyOf: 'a#ii',
+          span: 'in a relevant residential zone, within the meaning of Chapter 5' },
+      ],
+      note: '(b)-(f) (height / FSR "not exceeding the greater of", 75 dwellings, parking) are extracted as the Division\'s limits. '
+        + '"residential development" here is read with s 15B(1)\'s list (Q10).',
+    },
+    {
+      id: 'ch2-retention',
+      title: 'Chapter 2, Part 3 — retention of existing affordable rental housing',
+      parent: 'instrument',
+      clause: '46(1)',
+      section: 'sec.46',
+      governs: ['ch.2-pt.3'],
+      conditions: [
+        { dimension: 'defined_area', value: 'Eastern Harbour City, Central River City, Western Parkland City or Central Coast City', polarity: 'applies', clause: '46(1)(a)-(d)', anyOf: 'area#cities',
+          span: 'the Eastern Harbour City, the Central River City, the Western Parkland City, the Central Coast City' },
+        { dimension: 'lga', value: 'City of Newcastle', polarity: 'applies', clause: '46(1)(e)', anyOf: 'area#newcastle',
+          span: 'the City of Newcastle local government area' },
+        { dimension: 'lga', value: 'City of Wollongong', polarity: 'applies', clause: '46(1)(f)', anyOf: 'area#wollongong',
+          span: 'the City of Wollongong local government area' },
+        { dimension: 'proposal_metric', value: 'a low-rental residential building', polarity: 'applies', clause: '46(1)',
+          span: 'This Part applies to a low-rental residential building' },
+      ],
+      note: 'Applies to a building (a fact about it, not the lot). s 46(2) exclusions, s 47(3)-(4) vacancy / rental-yield tests and the s 48 '
+        + 'contribution formula are facts about the building and the application - not extracted as lot rules.',
+    },
+    {
       id: 'ch2-boarding',
       title: 'Chapter 2, Part 2, Division 2 — boarding houses',
       parent: 'instrument',
@@ -580,6 +696,18 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       upper_bound: true, test: 'intersects', kind: 'condition',
       note: 's 23(2)(b). Walking distance not measured: 800 m straight line is an upper bound; on the zone itself = yes. '
         + '"or an equivalent land use zone" is not resolved. (No E2, unlike s 15C(3).)' },
+    // ── Ch 2 Pt 2 Div 5 / 6, Pt 3 ──
+    { dimension: 'defined_area', term: 'within 800m of a public entrance to a railway station or light rail station', source_kind: 'table',
+      source: 'access.iso_train', lower_bound: true, test: 'intersects', kind: 'condition',
+      note: 's 36(1)(a). Entrances are not held; 800 m WALKING catchments of every station are, and lie wholly within 800 m in a straight line (a lower bound).' },
+    { dimension: 'defined_area', term: 'in a listed town within 400m of land in Zone E2, MU1, B3 or B4', source_kind: 'none', source: null,
+      test: 'intersects', kind: 'condition', note: 's 36(1)(b). The 32 towns (Albury ... Wollongong) have no boundaries held.' },
+    { dimension: 'lga', term: 'Six Cities Region', source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name',
+      filter: `upper(lga_name) IN (${SIX_CITIES_LGAS.map(l => `'${l}'`).join(', ')})`, kind: 'condition', note: 's 42(1)(a)(ii)(B). EP&A Act Schedule 9.' },
+    { dimension: 'defined_area', term: 'relevant residential zone (Chapter 5)', source_kind: 'table', source: 'epi.epi_land_zoning',
+      filter: "sym_code IN ('R1', 'R2', 'R3', 'R4')", test: 'intersects', kind: 'condition', note: 's 42(1)(a)(ii)(C), s 151.' },
+    LGA_TERM('City of Newcastle', 'NEWCASTLE', 's 46(1)(e).'),
+    LGA_TERM('City of Wollongong', 'WOLLONGONG', 's 46(1)(f).'),
     // ── Ch 7 ──
     { dimension: 'land_characteristic', term: 'heritage conservation area', source_kind: 'registry', source: 'lmr.layers:epi_heritage_conservation_areas',
       test: 'intersects', kind: 'exclusion', note: 's 182(1)(d). LEP heritage conservation areas.' },
@@ -610,7 +738,8 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   signals: {
     permission: ['is permitted with development consent', 'development consent may be granted for development to which this part applies',
                  'may be carried out with consent', 'may be carried out with development consent',
-                 'may be carried out by or on behalf of a relevant authority without development consent'],
+                 'may be carried out by or on behalf of a relevant authority without development consent', 'is permitted without consent',
+                 'may be carried out without consent'],
     land_prohibition: ['must not be carried out on land in'],
     override: ['despite the provisions of another environmental planning instrument'],
     nondiscretionary_heading: ['Non-discretionary development standards'],
@@ -618,7 +747,10 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     prohibition: ['development consent must not be granted'],
     disapplication: ['does not apply to development that meets', 'do not apply to development to which this chapter applies'],
   },
-  extraUses: ['residential care facility'],
+  extraUses: ['residential care facility', 'supportive accommodation'],
+  // s 15B(1) defines "residential development" "In this division" (Div 1); Div 6 (s 42) uses the term undefined - read with
+  // the same list across Chapter 2 (Q10)
+  useGroupScopes: { 'residential development': 'ch.2' },
   // the Standard Instrument's Land Use Table groups R1-R5 as "Residential Zones" (Q8: "business zone" is left unresolved -
   // the B zones were replaced by E/MU zones in 2023 and the SEPP does not say which it means)
   zoneGroups: { 'residential zone': ['R1', 'R2', 'R3', 'R4', 'R5'] },
@@ -626,6 +758,16 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     'sec.164': 'the chapter frame (scripts/pipeline/frames.ts) - s 164 is where the chapter applies',
     'sec.165': 'lists which sections are non-discretionary; read as the nondiscretionary signal on each',
     'sec.15C': 'the division frame (ch2-infill-ah) - s 15C is where the division applies',
+    'sec.28': 'the division frame (ch2-bh-ra) - s 28 is where Division 3 applies (its (2) is the R2 exception the frame holds)',
+    'sec.13': 'defines very low / low / moderate income households (the Act, s 1.4(1)) - a definition, not a lot rule',
+    'sec.33': 'the division frame (ch2-supportive) - s 33 is the land the division applies to',
+    'sec.34': 'the division frame (ch2-supportive) - s 34 defines supportive accommodation and what the division applies to',
+    'sec.36': 'the division frame (ch2-rfb-shp) - s 36 is the land the division applies to',
+    'sec.37': 'the division frame (ch2-rfb-shp) - s 37 is what development the division applies to',
+    'sec.39': 'site compatibility certificates - the Planning Secretary\'s procedure (7 / 14 days, 5 years), not a lot rule',
+    'sec.46': 'the part frame (ch2-retention) - s 46 is which buildings the Part applies to',
+    'sec.47': 'retention of low-rental buildings: tests on the building and the market (vacancy rate, rental yield) - not lot rules',
+    'sec.48': 'the s 7.32 contribution formula - not a lot rule',
     'sec.50': 'the part frame (ch3-secondary) - s 50 is where Part 1 applies',
     'sec.152': 'the chapter frame (ch5-tod) - s 152 is where Chapter 5 applies (its (3) amalgamation test is a proposal fact)',
     'sec.182': 'the chapter frame (ch7-pattern) - s 182 is where Chapter 7 applies',

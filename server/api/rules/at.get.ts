@@ -80,6 +80,9 @@ async function testTerm(cadid: string, m: any, lga: string | null, geo: Map<stri
     if (r.rows[0].on_it) return { holds: true, why: `on ${t.table} itself (distance 0)` }
   }
   const src = `${tables.map(t => t.table).join(' + ')}${within == null ? '' : ` within ${within} m in a straight line`}`
+  // a lower-bound source (scope_layer.lower_bound, migration 23): hitting it puts the lot in the term; missing it decides nothing
+  if (m.lower_bound) return any ? { holds: true, why: `inside ${src}, which lies wholly within the term` }
+                                : { holds: null, why: `outside ${src} - the term itself is not held` }
   // an upper-bound source (scope_layer.upper_bound): missing it rules the term out; hitting it decides nothing
   if (m.upper_bound) return any ? { holds: null, why: `inside ${src} - the term itself is not held` }
                                 : { holds: false, why: `outside ${src}, which contains every instance of the term` }
@@ -110,7 +113,7 @@ export default defineEventHandler(async (event) => {
 
   const geo = new Map((await nswQuery<any>(`SELECT f_table_schema || '.' || f_table_name AS t, srid, f_geometry_column AS col FROM geometry_columns`))
     .rows.map(r => [r.t as string, { srid: Number(r.srid), col: String(r.col) }]))
-  const scope = new Map((await nswQuery<any>(`SELECT dimension, lower(term) AS term, source_kind, source, filter, test, note, upper_bound, except_term, within_m FROM nsw.scope_layer`))
+  const scope = new Map((await nswQuery<any>(`SELECT dimension, lower(term) AS term, source_kind, source, filter, test, note, upper_bound, lower_bound, except_term, within_m FROM nsw.scope_layer`))
     .rows.map(r => [`${r.dimension}|${r.term}`, r]))
   const termCache = new Map<string, { holds: Tri; why: string }>()
   // a term, tested once per request; an except_term (migration 21) is carved out of it
@@ -322,7 +325,11 @@ export default defineEventHandler(async (event) => {
     // the use only for a proposal that meets them
     const conditions = r.eff.filter((e: any) => e.type !== 'permits_use')
       .map((e: any) => `${String(e.topic ?? '').replace(/_/g, ' ')} ${e.comparator === 'gte' ? 'at least' : e.comparator === 'lte' ? 'at most' : ''} ${e.value ?? ''}`.trim())
-    seppPermissions.push({ ...b, chain: undefined, conditional: conditions.length > 0, conditions,
+    // ... and so is one only some proponents may use ("by or on behalf of a public authority or social housing provider",
+    // s 37; "by or on behalf of a relevant authority", s 29): it is a route for them, not an answer for everyone
+    const proponents = b.chain.flatMap((f: any) => f.conds.filter((c: any) => c.dimension === 'proponent' && c.polarity === 'applies').map((c: any) => c.value))
+    for (const v of proponents) conditions.push(`carried out by ${v}`)
+    seppPermissions.push({ ...b, chain: undefined, conditional: conditions.length > 0, proponentLimited: proponents.length > 0, conditions,
                            edges: [...r.edges, ...b.chain.flatMap((f: any) => f.edges)] })
   }
   // SEPP prohibitions of the use ("must not be carried out on land in Zone R2 ... unless ...", s 23(2))
@@ -403,16 +410,22 @@ export default defineEventHandler(async (event) => {
 
   // ── 5. the verdict ────────────────────────────────────────────────────────────────────────────
   // an unconditional grant controls ahead of one that holds only for some proposals; the others are alternatives
-  const granting = seppPermissions.filter(p => p.applies === true).sort((a, b) => Number(a.conditional) - Number(b.conditional))
+  // a grant only some proponents may use (public authorities, social housing providers) is never the general answer: it
+  // is listed as a route for them
+  const granting = seppPermissions.filter(p => p.applies === true && !p.proponentLimited).sort((a, b) => Number(a.conditional) - Number(b.conditional))
   const grant = granting[0] ?? null
-  const alternatives = granting.slice(1).map(p => ({ instrument: p.instrument, clause: p.clause, conditions: p.conditions }))
-  const grantOpen = !grant && seppPermissions.some(p => p.applies === null)
+  const alternatives = [...granting.slice(1), ...seppPermissions.filter(p => p.applies === true && p.proponentLimited)]
+    .map(p => ({ instrument: p.instrument, clause: p.clause, conditions: p.conditions }))
+  const grantOpen = !grant && seppPermissions.some(p => p.applies === null && !p.conditional)
   const block = lepBlocks.find(b => b.applies === true) ?? null
   const lutPermits = lutStatus === 'permitted_with_consent' || lutStatus === 'permitted_without_consent'
   const prevail = grant?.edges.find((e: any) => e.edge === 'prevails_over' && e.to === 'doc_type:lep') ?? null
   // an undecided SEPP permission that would prevail over the LEP leaves a local "no" undecided too
-  const openPrevailing = grant ? null : seppPermissions.find(p => p.applies === null
+  // (a conditional grant - some proposals, some proponents - does not make the general answer undecided; it is listed)
+  const openPrevailing = grant ? null : seppPermissions.find(p => p.applies === null && !p.conditional
     && p.edges.some((e: any) => e.edge === 'prevails_over' && e.to === 'doc_type:lep')) ?? null
+  for (const p of seppPermissions.filter(p => p.applies === null && p.conditional))
+    alternatives.push({ instrument: p.instrument, clause: p.clause, conditions: [...p.conditions, 'whether it reaches the lot is undecided'] })
   const openWhy = openPrevailing
     ? `; ${openPrevailing.instrument} s ${openPrevailing.clause} would permit it and prevail, but whether it reaches the lot cannot be decided`
       + (frameWhy(openPrevailing) ? ` (${frameWhy(openPrevailing)})` : '')

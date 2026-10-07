@@ -105,7 +105,7 @@ interface RuleOut {
 function comparatorOf(text: string): string | null {
   const t = text.toLowerCase()
   if (/\b(minimum|at least|not less than)\b/.test(t)) return 'gte'
-  if (/\b(maximum|no more than|not more than|not exceed|up to|or fewer)\b/.test(t)) return 'lte'
+  if (/\b(maximum|no more than|not more than|not exceed\w*|up to|or fewer)\b/.test(t)) return 'lte'
   // "no boarding room will have a gross floor area ... of more than 25m2"
   if (/\bno\b[^—]*\bmore than\b/.test(t)) return 'lte'
   // "the boarding house will not have more than 12 boarding rooms", "will not result in a building with a height of
@@ -145,6 +145,9 @@ function topicStrong(text0: string, cand: any): string | null {
   if (read) return read === 'width' ? 'width' : read
   if (/\blandscaped area\b/.test(t)) return 'landscaped_area'
   if (/\bfloor areas?\b/.test(t)) return 'floor_area'
+  // last resort: the control named plainly ("all buildings will have a height not exceeding the greater of—")
+  if (/\bfloor space ratio\b/.test(t)) return 'fsr'
+  if (/\bheight\b/.test(t)) return 'height'
   return null
 }
 /** ... and from words that only suggest it ("an area of", "wide"), which a naming parent sentence outranks. */
@@ -191,6 +194,8 @@ function allNumbers(t: string): any[] {
     if (/\b(sections?|subsections?|clauses?|schedules?|parts?|chapters?|divisions?|paragraphs?|items?|s|ss|cl|No\.?)\s*(?:[\d()a-z.]+(?:,\s*|\s*[–-]\s*|\s+(?:or|and|to)\s+))*$/i.test(before)) continue
     if (/^(19|20)\d\d$/.test(m[1]!)) continue
     if (/^\d+\)/.test(t.slice(i))) continue
+    // a date ("on or after 28 February 2025")
+    if (/^\d+\s+(January|February|March|April|May|June|July|August|September|October|November|December)\b/.test(t.slice(i))) continue
     out.push({ raw: m[1], value: Number(m[1]), index: i, unit: null, comparator_hint: null, category: 'bare' })
   }
   return out
@@ -210,6 +215,12 @@ async function main() {
   const secs = (await client.query(
     `SELECT id, parent_id, local_id, level, heading, raw_text, route, signals, sort_order
        FROM nsw.section WHERE document_id = $1 ORDER BY sort_order`, [doc.id])).rows
+  // a permission phrase that is a condition, not a grant ("(i) is permitted with development consent on the land under
+  // Chapter 5 ...", s 42(1)(a)(i); "the development is permitted with development consent under ...", s 183)
+  for (const s of secs) {
+    if ((s.signals ?? []).includes('permission') && /^(the development )?is permitted\b/i.test(norm(s.raw_text)))
+      s.signals = s.signals.filter((x: string) => x !== 'permission')
+  }
   const byId = new Map(secs.map(s => [s.id as string, s]))
   const chain = (s: any) => { const out: any[] = []; for (let x = s; x; x = x.parent_id ? byId.get(x.parent_id) : null) out.push(x); return out }
   const frames = (await client.query(
@@ -229,7 +240,9 @@ async function main() {
     for (const m of t.matchAll(/([a-z][a-z -]*?) means development for the following purposes—\s*(.+?)(?=\.\s+[a-z][a-z ,()-]* means |$)/gi)) {
       const container = chain(s).find(x => ['division', 'part', 'chapter'].includes(x.level))
       const uses = usesIn(m[2]!)
-      if (container && uses.length) GROUPS.push({ term: m[1]!.trim().toLowerCase(), uses, scope: container.local_id })
+      // the profile may read a group wider than the unit defining it (profile.useGroupScopes)
+      const term = m[1]!.trim().toLowerCase()
+      if (container && uses.length) GROUPS.push({ term, uses, scope: profile.useGroupScopes?.[term] ?? container.local_id })
     }
   }
   const groupsFor = (s: any) => { const up = chain(s).map(x => x.local_id); return GROUPS.filter(g => up.includes(g.scope)) }
@@ -424,10 +437,15 @@ async function main() {
     const out: RuleOut[] = [base, ...permRules]
     const consumed = new Set<string>()
     for (const r of permRules) for (const x of subSet(parts.find(p => p.id === r.section_id))) if (x.id !== r.section_id || !allNumbers(operativePart(norm(x.raw_text))).length) consumed.add(x.id)
-    const effSections = operative.filter(p => !scopeSet.has(p))
+    // a scope sentence ending "if—" lists conditions on the rule; those with a number ("all buildings will have a height
+    // not exceeding the greater of— (i) 11m", s 42(1)(b)-(f)) are read like standards
+    const ifScope = scopeRoots.filter(r => /\bif—\s*$/.test(norm(r.raw_text)))
+    const numericUnderIf = (p: any) => ifScope.some(r => p !== r && chain(p).includes(r))
+      && parts.filter(x => x === p || chain(x).includes(p)).some(x => allNumbers(operativePart(norm(x.raw_text))).length)
+    const effSections = operative.filter(p => !scopeSet.has(p) || numericUnderIf(p))
     // a permission's scope is read too: its permission sentence for permits_use, and any number under it
     // ("at least 50 dwellings", s 72(3)(a)) as a condition of the grant
-    for (const p of [...effSections, ...(kind === 'permission' ? [...scopeSet] : [])]) {
+    for (const p of [...new Set([...effSections, ...(kind === 'permission' ? [...scopeSet] : [])])]) {
       const t = norm(p.raw_text)
       // an "Example—" or "Note—" is not part of the provision: its numbers are neither read nor counted
       const tOp = operativePart(t)
