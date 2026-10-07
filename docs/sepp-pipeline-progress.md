@@ -363,12 +363,42 @@ inferred findings stand.
 **Done when:** recall PASS on all three; hand keys for each part pass; earlier keys still pass; frames listed for
 review (Q7).
 
+### 16. Ch 3 Pt 1 secondary dwellings, Ch 5 TOD, Ch 7 Pattern Book — `done` 2026-10-07 (local commit; Q9 for review)
+**Result:** 149 pipeline rules (23 new). Coverage on /graph (now clause by clause): **80 / 187 operative clauses, 5 / 7
+chapters** (Ch 1 is the s 8 frame; Ch 4 not yet). Recall PASS on all nine extracted parts. **Answer keys 36/36** - 7 new:
+Bayside R2 TOD (RFBs by s 154 over the LEP; 22 m, 2.5:1, 21 m width; BTR now decided by s 72(2)(a1) and agreeing with
+/api/housing/at), Bambara secondary dwelling (60 m2, 450 m2), Hornsby RU1 (Part 1 does not apply), and Chapter 7: a
+clear Parramatta LMR lot (both RFB routes reach), an LMR lot in a conservation area and a bush fire prone one (excluded).
+- **Ch 5 (s 152-161):** the `ch5-tod` frame now carries s 153 (prevails over LEPs / DCPs); s 154's two grants are two rules
+  (RFBs in relevant residential zones + E1; shop top housing in relevant employment zones); s 155 height / FSR, s 156
+  affordable share, s 157 parking per bedroom, s 158 "despite a minimum lot size", s 159 width, s 160, s 161.
+  Conditions elsewhere that name Chapter 5 (s 67(b), s 72(2)(a1)) are now decided from its rules.
+- **Ch 3 Pt 1 (s 49-53):** frame `ch3-secondary` (R1-R5 AND the LEP permits dwelling houses); s 52 grant + 60 m2 cap,
+  s 53 450 m2 for a detached secondary dwelling. **Division 3 (s 54-59, complying development) is parked for step 17**
+  (it is read with the Codes SEPP; skipped with that reason in the profile).
+- **Ch 7 (s 181-185):** frame `ch7-pattern` (s 182: the State less (a)-(l), incl. heritage conservation areas - a new
+  term) with three route frames for s 183(1)-(3) (small/corner-lot RFBs on Ch 5 or LMR land; large-lot RFBs anywhere;
+  corner-lot shop top housing on Ch 5 or LMR land); s 184's seven disapplications of this policy's own sections are
+  `disapplies self:s ...` edges (step 6, not cross-document); s 185 strata subdivision.
+New generic machinery: zone groups read from the instrument's definitions (s 49, s 151), council-conditional zone
+entries left out and reported; several grants in one clause split into one rule each; a paragraph's own use ("for a
+residential flat building ... is 22m") and a numeric heading's listed uses; uses from a consent bar ("must not be granted
+for development for the purposes of ...") or "development to which section N applies"; "N or more bedrooms"; a
+"the development is permitted ..." condition is not a grant; a chapter frame takes its route frames' uses.
+Side effect (accepted): Ch 6 s 175 / s 176 / s 177 and Part 5 s 85 / 86 / 93 / 94 / 97 now carry their uses (they had none,
+so no question reached them - s 176's 4-storey cap and s 177's Tree Canopy Guide were never shown before).
+
 ### Later
-- 16. Ch 3 Pt 1 secondary dwellings, Ch 5 TOD, Ch 7 Pattern Book
 - 17. Codes SEPP (key: `cdc` catalogue)
 - 18. T&I, R&H (frames and terms)
 
 ## Open questions
+
+**Q9 (step 16, non-blocking)** — readings in Ch 5 / Ch 3 Pt 1 / Ch 7:
+1. Council- or centre-only zones (s 154(1)(c), s 160(2)(b) Canterbury-Bankstown B2; s 151 Gosford B3) are left out, not modelled.
+2. Ch 7 s 184 switches off other sections of this policy for Pattern Book development; recorded as edges, but the evaluator
+   does not yet drop those standards (it cannot know a pattern is used - a proposal fact). Show them flagged instead?
+3. Ch 3 Pt 1 Division 3 (secondary dwellings as complying development) is read with the Codes SEPP (step 17).
 
 **Q8 (step 15c, non-blocking - but it decides how useful the seniors rules are)** — Schedule 3 and the seniors frames:
 1. **Bush Fire Evacuation Risk Map** (Schedule 3, first item) is not in the ePlanning map services (checked
@@ -473,3 +503,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 14 done (local): Div 1 + Pt 4 extracted; answer keys 19/19; Q6 asks for the frame review.
 - 2026-10-07 — 15a/15b done (local): boarding houses + co-living, 25/25 keys; recall gate now counts bare numerals. Q7 asks for review. 15c seniors next.
 - 2026-10-07 — 15c done (local): seniors housing, 126 rules, 29/29 keys. Step 15 done. Q8 asks about Schedule 3 gaps and readings.
+- 2026-10-07 — step 16 done (local): Ch 5, Ch 3 Pt 1 (Div 1-2), Ch 7; 149 rules, 80/187 operative clauses, 36/36 keys. Q9.

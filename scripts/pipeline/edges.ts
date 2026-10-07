@@ -48,7 +48,7 @@ async function main() {
     [doc.id, `${profile.instrument}:pipeline:%`])).rows
     .filter(r => r.rule_key.split(':').length === 3 && under(byId.get(secs.find(s => s.local_id === r.local_id)!.id), CHAPTER))
 
-  const planned: { rule: any; edge_type: string; to_ref: string; scope: any; span: string }[] = []
+  const planned: { rule: any; edge_type: string; to_ref: string; scope: any; span: string; internal?: boolean }[] = []
   for (const r of rules) {
     const parts = secs.filter(s => under(s, r.local_id))
     for (const p of parts) {
@@ -68,6 +68,14 @@ async function main() {
         for (const to of tos.filter(Boolean) as string[]) {
           planned.push({ rule: r, edge_type: 'disapplies', to_ref: to, span: t, scope: { topics, when, clause: p.local_id } })
         }
+        // "The following sections of this policy do not apply to development to which this chapter applies— (a)
+        // sections 145–149, (b) section 155(4), ..." (s 184): one edge per provision of the same instrument
+        if (/\bsections? of this policy\b/i.test(t)) {
+          for (const it of items) {
+            planned.push({ rule: r, edge_type: 'disapplies', to_ref: `self:${it.replace(/^sections?\s+/i, 's ')}`, span: t,
+              scope: { provisions: it, when: 'development to which this chapter applies', clause: p.local_id }, internal: true })
+          }
+        }
       }
     }
   }
@@ -79,8 +87,8 @@ async function main() {
     for (const p of planned) {
       await client.query(
         `INSERT INTO nsw.rule_edge (from_rule_id, to_ref, edge_type, authority, scope, source_span, confidence, cross_document)
-         VALUES ($1, $2, $3, 'instrument', $4::jsonb, $5, 1.0, true)`,
-        [p.rule.id, p.to_ref, p.edge_type, JSON.stringify(p.scope), p.span])
+         VALUES ($1, $2, $3, 'instrument', $4::jsonb, $5, 1.0, $6)`,
+        [p.rule.id, p.to_ref, p.edge_type, JSON.stringify(p.scope), p.span, !p.internal])
     }
     void ids
   }

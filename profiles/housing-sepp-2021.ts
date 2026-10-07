@@ -154,7 +154,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
-  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5'],
+  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7'],
   frames: [
     {
       id: 'instrument',
@@ -300,7 +300,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     },
     {
       id: 'ch5-tod',
-      title: 'Chapter 5 — transport oriented development (land application only; rules not extracted yet)',
+      title: 'Chapter 5 — transport oriented development',
       parent: 'instrument',
       clause: '152(1)',
       section: 'sec.152',
@@ -309,9 +309,112 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         { dimension: 'defined_area', value: 'Transport Oriented Development Area', polarity: 'applies', clause: '152(1)',
           span: 'This chapter applies to land in the following local government areas that is in a Transport Oriented Development Area' },
       ],
-      note: 'Written ahead of Chapter 5\'s extraction (step 17) so that a condition naming Chapter 5 (s 67(b), s 72(2)(a1)) is '
-        + '"no" off TOD land instead of "undecided". The 13 councils listed in s 152(1) are the ones the TOD map covers. '
-        + 's 152(2) (part of a lot) is how the lot test already reads; (3) amalgamation is a proposal fact.',
+      prevails: {
+        over: ['lep', 'dcp'], clause: '153',
+        span: 'If there is an inconsistency between this chapter and another provision of this or another environmental planning instrument, '
+          + 'whether made before or after the commencement of this chapter, this chapter prevails to the extent of the inconsistency.',
+      },
+      note: 'The 13 councils listed in s 152(1) are the ones the TOD map covers. s 152(2) (part of a lot) is how the lot test already '
+        + 'reads; (3) amalgamation is a proposal fact; (4) heritage lots lose (2)-(3) only. s 153 prevails over other instruments '
+        + '(and other chapters of this policy - recorded on the edge, not modelled between chapters).',
+    },
+    {
+      id: 'ch7-pattern',
+      title: 'Chapter 7 — Pattern Book development',
+      parent: 'instrument',
+      clause: '182(1)',
+      section: 'sec.182',
+      governs: ['ch.7'],
+      conditions: [
+        ...([
+          ['a', 'land_characteristic', 'bush fire prone land', 'bush fire prone land'],
+          ['b', 'land_characteristic', 'coastal vulnerability area', 'land identified as a coastal vulnerability area or a coastal wetlands and littoral rainforests area'],
+          ['b', 'land_characteristic', 'coastal wetlands and littoral rainforests area', 'land identified as a coastal vulnerability area or a coastal wetlands and littoral rainforests area'],
+          ['c', 'land_characteristic', 'heritage item', 'land that is a local or State heritage item or on which a local or State heritage item is located'],
+          ['d', 'land_characteristic', 'heritage conservation area', 'land that is identified in an environmental planning instrument as being in a heritage conservation area'],
+          ...['Bathurst Regional', 'City of Blue Mountains', 'City of Hawkesbury', 'Wollondilly'].map(l => ['e', 'lga', l, 'the following local government areas']),
+          ['f', 'land_characteristic', 'flood prone land in the Georges River or Hawkesbury-Nepean Catchment', 'flood prone land in the Georges River Catchment and Hawkesbury-Nepean Catchment'],
+          ['g', 'land_characteristic', 'flood planning area (s 164(1)(g) councils)', 'land in a flood planning area in the following local government areas'],
+          ['h', 'land_characteristic', 'ANEF 25 or ANEC 20 contour', 'land in an ANEF contour of 25 or greater or ANEC contour of 20 or greater'],
+          ['i', 'land_characteristic', 'within 200m of a relevant pipeline', 'land within 200m of a relevant pipeline'],
+          ['k', 'defined_area', 'within 800m of a Schedule 12 station', 'land within 800m of a public entrance to a railway, metro or light rail station listed in Schedule 12'],
+          ['l', 'map_area', 'Accelerated TOD Precinct', 'land identified as an "Accelerated TOD Precinct" on the Accelerated Transport Oriented Development Precincts Rezoning Areas Map'],
+        ] as const).map(([para, dimension, value, span]) => ({ dimension: dimension as Dimension, value, polarity: 'excludes' as const,
+          clause: `182(1)(${para})`, span })),
+      ],
+      note: 'The whole State less (a)-(l), the s 164 list less Chapter 5 land and the LMR exclusion map, plus heritage conservation areas. '
+        + '(c) "State heritage item": only LEP items are held (as for s 164(1)(d)). (g) is the same 23 councils as s 164(1)(g).',
+    },
+    {
+      id: 'ch7-small-lot',
+      title: 'Chapter 7, s 183(1) — residential flat buildings by a small-lot or corner-lot pattern',
+      parent: 'ch7-pattern',
+      clause: '183(1)',
+      section: 'sec.183-ssec.1',
+      governs: ['sec.183-ssec.1'],
+      conditions: [
+        { dimension: 'permissible_under', value: 'verdict', polarity: 'applies', clause: '183(1)(a)',
+          span: 'the development is permitted with development consent under an environmental planning instrument that applies to the land' },
+        { dimension: 'defined_area', value: 'land to which Chapter 5 applies', polarity: 'applies', clause: '183(1)(b)(i)', anyOf: 'land#ch5',
+          span: 'land to which Chapter 5 applies' },
+        { dimension: 'defined_area', value: 'low and mid rise housing area', polarity: 'applies', clause: '183(1)(b)(ii)', anyOf: 'land#lmr',
+          span: 'land in a low and mid rise housing area within the meaning of section 163' },
+        { dimension: 'pathway', value: 'a small-lot or corner-lot mid-rise housing pattern', polarity: 'applies', clause: '183(1)(c)',
+          span: 'the development will be carried out in accordance with the development standards, location requirements, technical drawing set and technical information specified in the mid-rise housing pattern' },
+      ],
+      note: 'Residential flat buildings. The patterns: Small lot apartments 01-04, Corner lot apartments 01-02 (a fact about the proposal).',
+    },
+    {
+      id: 'ch7-large-lot',
+      title: 'Chapter 7, s 183(2) — residential flat buildings by a large-lot pattern',
+      parent: 'ch7-pattern',
+      clause: '183(2)',
+      section: 'sec.183-ssec.2',
+      governs: ['sec.183-ssec.2'],
+      conditions: [
+        { dimension: 'permissible_under', value: 'verdict', polarity: 'applies', clause: '183(2)(a)',
+          span: 'the development is permitted with development consent under an environmental planning instrument that applies to the land' },
+        { dimension: 'pathway', value: 'a large-lot mid-rise housing pattern', polarity: 'applies', clause: '183(2)(b)',
+          span: 'the development will be carried out in accordance with the development standards, location requirements, technical drawing set and technical information specified in the mid-rise housing pattern' },
+      ],
+      note: 'Residential flat buildings, anywhere the chapter applies (no land limb). The patterns: Large lot apartments 01-03.',
+    },
+    {
+      id: 'ch7-shop-top',
+      title: 'Chapter 7, s 183(3) — shop top housing by a corner-lot pattern',
+      parent: 'ch7-pattern',
+      clause: '183(3)',
+      section: 'sec.183-ssec.3',
+      governs: ['sec.183-ssec.3'],
+      conditions: [
+        { dimension: 'permissible_under', value: 'verdict', polarity: 'applies', clause: '183(3)(a)',
+          span: 'the development is permitted with development consent under an environmental planning instrument that applies to the land' },
+        { dimension: 'defined_area', value: 'land to which Chapter 5 applies', polarity: 'applies', clause: '183(3)(b)(i)', anyOf: 'land#ch5',
+          span: 'land to which Chapter 5 applies' },
+        { dimension: 'defined_area', value: 'low and mid rise housing area', polarity: 'applies', clause: '183(3)(b)(ii)', anyOf: 'land#lmr',
+          span: 'land in a low and mid rise housing area within the meaning of section 163' },
+        { dimension: 'proposal_metric', value: 'includes commercial premises or health services facilities', polarity: 'applies', clause: '183(3)(c)',
+          span: 'the development will include commercial premises or health services facilities' },
+        { dimension: 'pathway', value: 'a corner-lot mid-rise housing pattern', polarity: 'applies', clause: '183(3)(d)',
+          span: 'the development will be carried out in accordance with the development standards, location requirements, technical drawing set and technical information specified in the mid-rise housing pattern' },
+      ],
+      note: 'Shop top housing. The patterns: Corner lot apartments 01-02.',
+    },
+    {
+      id: 'ch3-secondary',
+      title: 'Chapter 3, Part 1 — secondary dwellings',
+      parent: 'instrument',
+      clause: '50',
+      section: 'sec.50',
+      governs: ['ch.3-pt.1'],
+      conditions: [
+        ...['R1', 'R2', 'R3', 'R4', 'R5'].map(z => ({ dimension: 'zone' as const, value: z, polarity: 'applies' as const, clause: '50',
+          anyOf: `rz#${z}`, span: 'on land in a residential zone' })),
+        { dimension: 'permissible_under', value: 'lep:dwelling house', polarity: 'applies', clause: '50',
+          span: 'if development for the purposes of a dwelling house is permissible on the land under another environmental planning instrument' },
+      ],
+      note: '"residential zone" is defined in s 49 as R1-R5 "or an equivalent land use zone" (not resolved). Division 3 (s 54-59, '
+        + 'complying development) is read with the Codes SEPP (step 17).',
     },
     {
       id: 'ch3-seniors',
@@ -477,6 +580,9 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       upper_bound: true, test: 'intersects', kind: 'condition',
       note: 's 23(2)(b). Walking distance not measured: 800 m straight line is an upper bound; on the zone itself = yes. '
         + '"or an equivalent land use zone" is not resolved. (No E2, unlike s 15C(3).)' },
+    // ── Ch 7 ──
+    { dimension: 'land_characteristic', term: 'heritage conservation area', source_kind: 'registry', source: 'lmr.layers:epi_heritage_conservation_areas',
+      test: 'intersects', kind: 'exclusion', note: 's 182(1)(d). LEP heritage conservation areas.' },
     // ── Ch 3 Pt 5, seniors housing ──
     { dimension: 'defined_area', term: 'Zone SP4 Enterprise under the listed local environmental plans', source_kind: 'table',
       source: 'epi.epi_land_zoning', filter: `sym_code = 'SP4' AND epi_name IN (${SP4_LEPS.map(l => `'${l}'`).join(', ')})`,
@@ -510,7 +616,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     nondiscretionary_heading: ['Non-discretionary development standards'],
     consideration: ['the consent authority must consider', 'unless the consent authority has considered'],
     prohibition: ['development consent must not be granted'],
-    disapplication: ['does not apply to development that meets'],
+    disapplication: ['does not apply to development that meets', 'do not apply to development to which this chapter applies'],
   },
   extraUses: ['residential care facility'],
   // the Standard Instrument's Land Use Table groups R1-R5 as "Residential Zones" (Q8: "business zone" is left unresolved -
@@ -520,6 +626,12 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     'sec.164': 'the chapter frame (scripts/pipeline/frames.ts) - s 164 is where the chapter applies',
     'sec.165': 'lists which sections are non-discretionary; read as the nondiscretionary signal on each',
     'sec.15C': 'the division frame (ch2-infill-ah) - s 15C is where the division applies',
+    'sec.50': 'the part frame (ch3-secondary) - s 50 is where Part 1 applies',
+    'sec.152': 'the chapter frame (ch5-tod) - s 152 is where Chapter 5 applies (its (3) amalgamation test is a proposal fact)',
+    'sec.182': 'the chapter frame (ch7-pattern) - s 182 is where Chapter 7 applies',
+    'sec.183': 'the three route frames (ch7-small-lot, ch7-large-lot, ch7-shop-top) - s 183 is which development the chapter applies to',
+    ...Object.fromEntries(['sec.54', 'sec.55', 'sec.56', 'sec.57', 'sec.58', 'sec.59'].map(k => [k,
+      'Part 1 Division 3 - complying development, read with the Codes SEPP (step 17)'])),
   },
   checks: {
     route: {

@@ -233,6 +233,30 @@ async function main() {
     }
   }
   const groupsFor = (s: any) => { const up = chain(s).map(x => x.local_id); return GROUPS.filter(g => up.includes(g.scope)) }
+
+  // zone groups the instrument defines ("relevant residential zone— (a) means the following— (i) Zone R1 ...", s 151;
+  // "residential zone means the following land use zones ...", s 49) - an entry conditional on a council or a centre
+  // ("for land in the Canterbury-Bankstown local government area—Zone B2") is left out and reported
+  const ZGROUPS: { term: string; codes: string[]; scope: string | null }[] =
+    Object.entries(profile.zoneGroups ?? {}).map(([term, codes]) => ({ term: term.toLowerCase(), codes, scope: null }))
+  // (a dash inside parentheses - "State Environmental Planning Policy (Precincts—Regional) 2021" - is not the heading's dash)
+  const lgaConditional = /for land in (?:the )?(?:[^—(]|\([^)]*\))+?—\s*Zone [A-Z]+\d* (?:[A-Z][a-z]+ ?)+/g
+  for (const s0 of secs.filter(s => s.route === 'definition')) {
+    const t = norm(s0.raw_text)
+    for (const m of t.matchAll(/([a-z][a-z ]*? zone)\s*(?:—\s*\(a\)\s*)?means the following(?: land use zones)?(?: or an equivalent land use zone)?—\s*(.+?)(?=\(b\) includes|\.\s+[A-Za-z][A-Za-z ]+? (?:means|has)\b|$)/gi)) {
+      const container = chain(s0).find(x => ['division', 'part', 'chapter'].includes(x.level))
+      const codes = zonesIn(m[2]!.replace(lgaConditional, '')).map(z => z.code)
+      if (container && codes.length) ZGROUPS.push({ term: m[1]!.trim().toLowerCase(), codes: [...new Set(codes)], scope: container.local_id })
+    }
+  }
+  /** Zone codes for the groups a text names, longest term first, none inside a longer one found. */
+  const zoneGroupsIn = (t: string, at: any) => {
+    const up = chain(at).map(x => x.local_id)
+    const hits: { term: string; codes: string[] }[] = []
+    for (const g of ZGROUPS.filter(g => !g.scope || up.includes(g.scope)).sort((a, b) => b.term.length - a.term.length))
+      if (new RegExp(`\\b${g.term}\\b`, 'i').test(t) && !hits.some(h => h.term.includes(g.term))) hits.push(g)
+    return hits
+  }
   // the uses a frame's own scope sentence names ("This Part applies to development for the purposes of ...",
   // "This division applies to development that includes residential development"); a rule naming no use of
   // its own inherits them from its frame
@@ -255,6 +279,12 @@ async function main() {
       .map(t => ({ t, uses: usesIn(t.replace(/\b(may be carried out|is permitted)\b.*$/i, ''), groupsFor(root)) })).filter(g => g.uses.length)
     const distinct = [...new Set(grants.map(g => g.uses.slice().sort().join('|')))]
     if (distinct.length === 1) frameUses.set(f.id, { uses: grants[0]!.uses, span: grants[0]!.t })
+  }
+  // a chapter frame whose routes are its child frames (Chapter 7: s 183(1)-(3)) takes their uses together - never the
+  // instrument's root frame, which would hand every use to every rule
+  for (const f of profile.frames.filter(f => f.parent && !frameUses.has(f.id))) {
+    const kids = profile.frames.filter(k => k.parent === f.id && frameUses.has(k.id))
+    if (kids.length) frameUses.set(f.id, { uses: [...new Set(kids.flatMap(k => frameUses.get(k.id)!.uses))], span: frameUses.get(kids[0]!.id)!.span })
   }
   const inherited = (frameId: string | null) => {
     for (let id = frameId; id; id = profile.frames.find(f => f.id === id)?.parent ?? null) if (frameUses.has(id)) return frameUses.get(id)!
@@ -309,17 +339,30 @@ async function main() {
     // held on the frame - so only the uses are read here
     const frameOwned = profile.frames.some(f => f.section === c.local_id)
     const groups = groupsFor(c)
+    const scopeInto = (r: RuleOut, p: any, t: string) => {
+      const plainT = t.replace(lgaConditional, '')
+      if (plainT !== t) findings.push({ kind: 'lga_conditional_zone', gating: false, clause: p.local_id, value: null,
+        detail: `"${(t.match(lgaConditional) ?? [''])[0]}" - a zone allowed only in one council or centre is not modelled; left out` })
+      if (!frameOwned) {
+        for (const z of zonesIn(plainT)) addApplic(r, { dimension: 'zone', value: z.code, polarity: 'applies', span: z.span })
+        for (const g of zoneGroupsIn(plainT, p)) for (const code of g.codes) addApplic(r, { dimension: 'zone', value: code, polarity: 'applies', span: literalOf(g.term) })
+      }
+    }
+    const permRoots = scopeRoots.filter(p => (p.signals ?? []).includes('permission'))
+    const split = permRoots.length >= 2
+    const subSet = (root: any) => parts.filter(x => x === root || chain(x).includes(root))
     for (const p of scopeSet) {
       const t = norm(p.raw_text)
       if (!t) continue
-      if (!frameOwned) for (const z of zonesIn(t)) addApplic(base, { dimension: 'zone', value: z.code, polarity: 'applies', span: z.span })
+      if (split && permRoots.some(r => subSet(r).includes(p))) continue
+      scopeInto(base, p, t)
       // "development to which this Part applies": the uses are the frame's, whatever else the sentence names
       // ("... including as part of a mixed use development")
       const ownUses = /development to which this (part|division|chapter) applies/i.test(t) ? inherited(base.frame)?.uses ?? [] : usesIn(t, groups)
       for (const u of ownUses) addApplic(base, { dimension: 'land_use', value: u, polarity: 'applies', span: t.slice(0, 200) })
       // a zone named by group ("on land in a business zone") with no zone code: not resolved - say so
       const grp = t.match(/\bon land in an? ([a-z ]+?) zone\b/i)
-      if (grp && !zonesIn(t).length) findings.push({ kind: 'unresolved_zone_group', gating: false, clause: p.local_id, value: null,
+      if (grp && !zonesIn(t).length && !zoneGroupsIn(t, p).length) findings.push({ kind: 'unresolved_zone_group', gating: false, clause: p.local_id, value: null,
         detail: `"${grp[0]}" names no zone code and the instrument does not define it - the rule is not narrowed to it` })
       const area = frameOwned ? null : areaIn(t, AREAS)
       if (area) addApplic(base, { dimension: 'defined_area', value: area, polarity: 'applies', span: literalOf(area) })
@@ -327,20 +370,60 @@ async function main() {
       const date = t.match(/on or after (\d{1,2} \w+ \d{4})/i)
       if (date) addApplic(base, { dimension: 'temporal', value: `on or after ${date[1]}`, polarity: 'applies', span: date[0] })
     }
+    // several grants in one clause: each its own rule with its own scope
+    const permRules: RuleOut[] = []
+    if (split) {
+      for (const root of permRoots) {
+        const r: RuleOut = { ...base, key: `${base.key}:${root.local_id}`, local_id: root.local_id, section_id: root.id, applic: [], effects: [] }
+        for (const x of subSet(root)) {
+          const xt = norm(x.raw_text)
+          if (!xt) continue
+          scopeInto(r, x, xt)
+          const area = frameOwned ? null : areaIn(xt, AREAS)
+          if (area) addApplic(r, { dimension: 'defined_area', value: area, polarity: 'applies', span: literalOf(area) })
+        }
+        const rt = norm(root.raw_text)
+        // the grant's subject: its uses, or "The strata subdivision of land ... is permitted" (s 185) - which keeps the
+        // frame's uses as the development it is about
+        const sub = /^the (strata )?subdivision of land\b/i.test(rt) ? (/strata/i.test(rt) ? 'strata subdivision' : 'subdivision') : null
+        const granted = sub ? [sub] : usesIn(rt, groups)
+        const about = sub ? inherited(base.frame)?.uses ?? [] : granted
+        for (const u of about) addApplic(r, { dimension: 'land_use', value: u, polarity: 'applies', span: sub ? inherited(base.frame)!.span : rt.slice(0, 200) })
+        for (const u of granted) {
+          r.effects.push({ effect_type: 'permits_use', topic: u, comparator: null, value: null, unit: null, value_source: 'sepp_permission',
+            relative_to: null, measured_from: null, span: rt, claims: [] })
+        }
+        permRules.push(r)
+      }
+    }
     // no use of its own: the frame's ("This division applies to development that includes residential development")
     if (!base.applic.some(a => a.dimension === 'land_use')) {
       const inh = inherited(base.frame)
       for (const u of inh?.uses ?? []) addApplic(base, { dimension: 'land_use', value: u, polarity: 'applies', span: inh!.span })
     }
+    // ... else the uses its own bar names ("Development consent must not be granted to development for the purposes of
+    // residential flat buildings, ... unless", s 159), or those of the section it says it follows ("Development to which
+    // section 156 applies", s 157)
+    if (!base.applic.some(a => a.dimension === 'land_use')) {
+      for (const p of operative) {
+        const t = norm(p.raw_text)
+        const bar = t.match(/^development consent must not be granted (?:to|for) development for the purposes of (.+?)(?: on (?:a lot|land)\b| in a\b| unless\b|,|$)/i)
+        const follows = t.match(/^development to which section (\d+[A-Z]*) applies\b/i)
+        const uses = bar ? usesIn(bar[1]!, groups)
+          : follows ? (rules.find(r => r.local_id === `sec.${follows[1]}`)?.applic.filter(a => a.dimension === 'land_use').map(a => a.value) ?? []) : []
+        for (const u of uses) addApplic(base, { dimension: 'land_use', value: u, polarity: 'applies', span: bar ? t.slice(0, 200) : t })
+      }
+    }
     // exclusions stated anywhere in the clause ("This section does not apply to strata subdivision.")
     for (const p of operative) {
       const t = norm(p.raw_text)
-      const ex = t.match(/^this section does not apply to (.+?)\.?$/i)
+      const ex = t.match(/^this section does not apply to (?!the extent\b)(.+?)\.?$/i)
       if (ex) addApplic(base, { dimension: 'dev_type', value: ex[1]!.replace(/\.$/, ''), polarity: 'excludes', span: t })
     }
 
-    const out: RuleOut[] = [base]
+    const out: RuleOut[] = [base, ...permRules]
     const consumed = new Set<string>()
+    for (const r of permRules) for (const x of subSet(parts.find(p => p.id === r.section_id))) if (x.id !== r.section_id || !allNumbers(operativePart(norm(x.raw_text))).length) consumed.add(x.id)
     const effSections = operative.filter(p => !scopeSet.has(p))
     // a permission's scope is read too: its permission sentence for permits_use, and any number under it
     // ("at least 50 dwellings", s 72(3)(a)) as a condition of the grant
@@ -449,6 +532,12 @@ async function main() {
             }
           }
         }
+        if (!uses.length && !base.applic.some(a => a.dimension === 'land_use')) {
+          const own = usesIn(tOp.split(/\bis\b/)[0]!.replace(/\bwhere [a-z -]+? (?:are|is) not permitted\b/gi, ''), groups)
+          const kids = /—\s*$/.test(tOp) ? secs.filter(s => s.parent_id === p.id).flatMap(k => usesIn(norm(k.raw_text), groups)) : []
+          uses = [...new Set([...own, ...kids])]
+          if (uses.length) keyAt = keyAt ?? p
+        }
         if (keyAt) {
           const key = `${base.key}:${keyAt.local_id}`
           let r = out.find(x => x.key === key)
@@ -475,7 +564,8 @@ async function main() {
         // ones the clause's scope names
         const named = ((matchLandUses(t) ?? []) as string[]).filter(u => u !== 'dwelling')
         const uses = named.length ? named : /to which this (part|section|division) applies/i.test(t)
-          ? base.applic.filter(a => a.dimension === 'land_use').map(a => a.value) : []
+          ? base.applic.filter(a => a.dimension === 'land_use').map(a => a.value)
+          : /^the (strata )?subdivision of land\b/i.test(t) ? [/strata/i.test(t) ? 'strata subdivision' : 'subdivision'] : []
         for (const u of uses) {
           target.effects.push({ effect_type: 'permits_use', topic: u, comparator: null, value: null, unit: null,
             value_source: 'sepp_permission', relative_to: null, measured_from: null, span: t, claims: [] })
@@ -547,6 +637,14 @@ async function main() {
       // a required share of the development: "The minimum affordable housing component, which must be at least 10%"
       const share = tOp.match(/\b(affordable housing component|tenanted component)\b[^.]*?\bat least (\d+(?:\.\d+)?)%/i)
       if (share && !tier) push({ topic: share[1]!.toLowerCase().replace(/\s+/g, '_'), comparator: 'gte', value: Number(share[2]), unit: 'percent' }, [Number(share[2])])
+      // "at least 2% of the gross floor area of the building will be used for affordable housing" (s 156)
+      const ahShare = tOp.match(/\bat least (\d+(?:\.\d+)?)% of the gross floor area\b[^.]*?\bused for affordable housing\b/i)
+      if (ahShare) push({ effect_type: role === 'conditional_standard' ? 'condition_of_consent' : 'numeric', topic: 'affordable_housing_share',
+        comparator: 'gte', value: Number(ahShare[1]), unit: 'percent of gross floor area' }, [Number(ahShare[1])])
+      // "Development consent may be granted ... despite a minimum lot size restriction" (s 158)
+      if (/\bdespite a minimum lot size restriction\b/i.test(tOp))
+        target.effects.push({ effect_type: 'disapplies', topic: 'lot_size', comparator: null, value: null, unit: null, value_source: 'clause_text',
+          relative_to: 'a minimum lot size in another instrument', measured_from: null, span: t, claims: [] })
       // sunlight: "in at least 70% of the dwellings receive at least 3 hours of direct solar access between 9am and 3pm"
       const sun = tOp.match(/at least (\d+(?:\.\d+)?)% of the dwellings receive at least (\d+(?:\.\d+)?) hours? of (?:direct )?solar access(?: between (\d+)\s*am and (\d+)\s*pm)?/i)
       if (sun) push({ topic: 'solar_access', comparator: 'gte', value: Number(sun[2]), unit: 'hours',
@@ -624,11 +722,11 @@ async function main() {
       if (period) push({ effect_type: 'condition_of_consent', topic: 'period_years', comparator: 'gte', value: Number(period[1]), unit: 'years' }, [Number(period[1])])
       // "for each dwelling containing (at least) 2 bedrooms—", "for a boarding house containing more than 6 boarding
       // rooms—": the count is a condition of the value, not the value - read in the paragraph or its heading
-      const ROOMS = /containing (at least |more than )?(\d+) (bedrooms?|boarding rooms?|private rooms?)/i
+      const ROOMS = /containing (at least |more than )?(\d+)( or more)? (bedrooms?|boarding rooms?|private rooms?)/i
       const bedOwn = tOp.match(ROOMS), bed = bedOwn ?? parentT.match(ROOMS)
-      const bedCond = bed ? { condition_metric: bed[3]!.toLowerCase().replace(/s$/, '').replace(/\s+/g, '_') + 's',
+      const bedCond = bed ? { condition_metric: bed[4]!.toLowerCase().replace(/s$/, '').replace(/\s+/g, '_') + 's',
         condition_lo: Number(bed[2]) + (/more than/i.test(bed[1] ?? '') ? 1 : 0),
-        condition_hi: bed[1] ? null : Number(bed[2]), condition_unit: bed[3]!.toLowerCase().replace(/s$/, '') + 's' } : {}
+        condition_hi: bed[1] || bed[3] ? null : Number(bed[2]), condition_unit: bed[4]!.toLowerCase().replace(/s$/, '') + 's' } : {}
       if (bedOwn) claimedHere.add(Number(bedOwn[2]))
       // "for a boarding room intended to be used by a single resident—12m2" / "otherwise—16m2"
       const SINGLE = /intended to be used by a single (resident|occupant)/i

@@ -805,6 +805,139 @@
           "79": false
         }
       }
+    },
+    {
+      "name": "Bayside R2 in a TOD area - RFBs permitted by s 154(1) over the LEP's prohibition (s 153, s 8); s 155 height and FSR, s 159 width; BTR by s 72(2)(a1)",
+      "cadid": "102814100",
+      "use": "residential flat buildings",
+      "scope": "ch5",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "154",
+        "displacedClause": "Land Use Table",
+        "frames": {
+          "152(1)": true,
+          "72(2)": true
+        },
+        "seppStandards": [
+          [
+            "155",
+            "height",
+            22
+          ],
+          [
+            "155",
+            "fsr",
+            2.5
+          ],
+          [
+            "159",
+            "width",
+            21
+          ]
+        ]
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bambara R2 - secondary dwelling: Part 1 applies (R2, dwelling houses permissible under the LEP); s 52 cap 60m2, s 53 site 450m2 (detached)",
+      "cadid": "100096265",
+      "use": "secondary dwellings",
+      "scope": "ch3-pt1",
+      "expect": {
+        "permissible": true,
+        "frames": {
+          "50": true
+        },
+        "seppStandards": [
+          [
+            "52",
+            "floor_area",
+            60
+          ],
+          [
+            "53",
+            "lot_size",
+            450
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Hornsby RU1 - secondary dwelling: not a residential zone, Part 1 does not apply (no Part 1 standards)",
+      "cadid": "100962051",
+      "use": "secondary dwellings",
+      "scope": "ch3-pt1",
+      "expect": {
+        "frames": {
+          "50": false
+        },
+        "seppStandards": []
+      }
+    },
+    {
+      "name": "Parramatta R2 LMR inner area in a heritage conservation area - Chapter 7 excluded by s 182(1)(d) (Chapter 6 does not exclude conservation areas; Chapter 7 does)",
+      "cadid": "100097746",
+      "use": "residential flat buildings",
+      "scope": "ch7",
+      "expect": {
+        "frames": {
+          "182(1)": false
+        }
+      }
+    },
+    {
+      "name": "Inner West R2 LMR inner area in a heritage conservation area - Chapter 7 excluded by s 182(1)(d)",
+      "cadid": "102834419",
+      "use": "residential flat buildings",
+      "scope": "ch7",
+      "expect": {
+        "frames": {
+          "182(1)": false,
+          "183(1)": false
+        }
+      }
+    },
+    {
+      "name": "R2 LMR inner area, bush fire prone - Chapter 7 excluded by s 182(1)(a)",
+      "cadid": "100097765",
+      "use": "residential flat buildings",
+      "scope": "ch7",
+      "expect": {
+        "frames": {
+          "182(1)": false
+        }
+      }
+    },
+    {
+      "name": "Parramatta R2 LMR inner area, clear of every s 182 exclusion - Chapter 7 reaches; the small-lot (LMR area) and large-lot routes reach for an RFB permitted by s 174",
+      "cadid": "103100333",
+      "use": "residential flat buildings",
+      "scope": "ch7",
+      "expect": {
+        "frames": {
+          "182(1)": true,
+          "183(1)": true,
+          "183(2)": true
+        }
+      }
     }
   ],
   "scopes": {
@@ -813,6 +946,9 @@
     "ch3-pt4": "^7[1-8]$",
     "ch2-div2": "^2[3-7]$",
     "ch3-pt3": "^(6[7-9]|70)$",
-    "ch3-pt5": "^(79|8[0-9]|9[0-7]|10[6-8][A-E]*)$"
+    "ch3-pt5": "^(79|8[0-9]|9[0-7]|10[6-8][A-E]*)$",
+    "ch5": "^1(5[2-9]|6[01])$",
+    "ch3-pt1": "^(49|5[0-3])$",
+    "ch7": "^18[1-5]$"
   }
 }
