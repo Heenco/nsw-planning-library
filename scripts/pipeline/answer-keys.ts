@@ -56,8 +56,11 @@ async function main() {
       if (!applying.some((s: any) => s.clause === clause && s.topic === topic && close(s.value, value)))
         fails.push(`SEPP standard s ${clause} ${topic} ${value} not applying`)
     }
-    if (Array.isArray(e.seppStandards) && e.seppStandards.length === 0 && applying.some((s: any) => s.value != null))
-      fails.push(`expected no SEPP numeric standard, got ${applying.filter((s: any) => s.value != null).map((s: any) => `s ${s.clause} ${s.topic}`).join(', ')}`)
+    // "seppStandards: []" = no numeric standard from the part of the SEPP the case is about (keys.scopes[case.scope])
+    const inScope = (s: any) => !c.scope || !keys.scopes?.[c.scope] || new RegExp(keys.scopes[c.scope]).test(String(s.clause))
+    const scoped = applying.filter((s: any) => s.value != null && inScope(s))
+    if (Array.isArray(e.seppStandards) && e.seppStandards.length === 0 && scoped.length)
+      fails.push(`expected no SEPP numeric standard${c.scope ? ` from ${c.scope}` : ''}, got ${scoped.map((s: any) => `s ${s.clause} ${s.topic}`).join(', ')}`)
     for (const [clause, topic, value] of e.seppStandardsAbsent ?? []) {
       if (applying.some((s: any) => s.clause === clause && s.topic === topic && close(s.value, value)))
         fails.push(`SEPP standard s ${clause} ${topic} ${value} applies but must not`)
@@ -80,6 +83,20 @@ async function main() {
       if (lmrPermissible !== seppPerm) {
         if (c.lmrDisagrees) explained = `lmr says ${lmrPermissible}, pipeline says ${seppPerm}: ${c.lmrDisagrees}`
         else fails.push(`lmr catalogue says Ch 6 permissible = ${lmrPermissible}, pipeline says ${seppPerm}`)
+      }
+    }
+    // other hand-built evaluators: { name, endpoint, field: 'btr.eligible', pipeline: { permission: '72' } | { frame: '15C(1)' } }
+    for (const x of c.external ?? []) {
+      const ext = await get(x.endpoint, { cadid: c.cadid })
+      const theirs = String(x.field).split('.').reduce((o: any, k: string) => o?.[k], ext) ?? null
+      const ours = x.pipeline.permission
+        ? (() => { const ps = r.sepp.permissions.filter((p: any) => p.clause === x.pipeline.permission)
+                   return ps.some((p: any) => p.applies === true) ? true : ps.some((p: any) => p.applies === null) ? null : false })()
+        : r.frames.find((f: any) => f.clause === x.pipeline.frame)?.reaches ?? null
+      if (ours !== theirs) {
+        const why = c.externalDisagrees?.[x.name]
+        if (why) explained = `${explained ? explained + ' | ' : ''}${x.name}: ${x.endpoint} says ${theirs}, pipeline says ${ours}: ${why}`
+        else fails.push(`${x.name}: ${x.endpoint} ${x.field} = ${theirs}, pipeline ${JSON.stringify(x.pipeline)} = ${ours}`)
       }
     }
     results.push({ name: `${c.name} [${c.use}]`, pass: fails.length === 0, fails, explained })

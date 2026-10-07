@@ -68,9 +68,13 @@ async function testTerm(cadid: string, m: any, lga: string | null, geo: Map<stri
         : `${gc} && ST_Expand(${lotX}, ${within}) AND ST_DWithin(${gc}, ${lotX}, ${within})`
     const r = await nswQuery<any>(`${SHRUNK}
       SELECT EXISTS (SELECT 1 FROM ${t.table} x, t WHERE ${test}
-                       ${t.filter ? `AND (${t.filter})` : ''}) AS h`, [cadid]).catch(() => null)
+                       ${t.filter ? `AND (${t.filter})` : ''}) AS h,
+             ${within == null ? 'false' : `EXISTS (SELECT 1 FROM ${t.table} x, t WHERE ${gc} && ${lotX} AND ST_Intersects(${gc}, ${lotX})
+                       ${t.filter ? `AND (${t.filter})` : ''})`} AS on_it`, [cadid]).catch(() => null)
     if (!r) return { holds: null, why: `query failed on ${t.table}` }
     if (r.rows[0].h) any = true
+    // on the source itself: within any distance of it, walking or not
+    if (r.rows[0].on_it) return { holds: true, why: `on ${t.table} itself (distance 0)` }
   }
   const src = `${tables.map(t => t.table).join(' + ')}${within == null ? '' : ` within ${within} m in a straight line`}`
   // an upper-bound source (scope_layer.upper_bound): missing it rules the term out; hitting it decides nothing
@@ -202,12 +206,12 @@ export default defineEventHandler(async (event) => {
   const evalRule = async (r: any) => {
     const zones = r.app.filter((a: any) => a.dimension === 'zone').map((a: any) => a.value)
     const inZone: Tri = !zones.length ? true : !zone ? null : zones.includes(zone)
-    const areas = r.app.filter((a: any) => a.dimension === 'defined_area' && a.polarity === 'applies')
+    const areas = r.app.filter((a: any) => a.dimension === 'defined_area')
     let inArea: Tri = true
     for (const a of areas) {
-      const k = `defined_area|${String(a.value).toLowerCase()}`
-      await termHolds(k)
-      const h = termCache.get(k)!.holds
+      const h0 = (await termHolds(`defined_area|${String(a.value).toLowerCase()}`)).holds
+      // an excluded area ("otherwise—", s 74(2)(d)(ii)) holds when the lot is NOT in it
+      const h = h0 === null ? null : a.polarity === 'excludes' ? !h0 : h0
       if (h === false) { inArea = false; break }
       if (h === null) inArea = null
     }
@@ -216,7 +220,7 @@ export default defineEventHandler(async (event) => {
       : [frameReach, inZone, inArea].includes(null) ? null : true
     const chain = chainOf(r.frame_rule_id)
     const why = frameReach === false ? `frame ${chain.find((f: any) => reaches(f.id) === false)?.clause ?? ''} does not reach the lot`
-      : inZone === false ? `zone ${zone} is not ${zones.join('/')}` : inArea === false ? `not in ${areas.map((a: any) => a.value).join(' / ')}`
+      : inZone === false ? `zone ${zone} is not ${zones.join('/')}` : inArea === false ? `area test fails: ${areas.map((a: any) => `${a.polarity === 'excludes' ? 'outside' : 'in'} ${a.value}`).join(' and ')}`
       : applies === null ? 'cannot be decided from the data' : 'reaches the lot'
     return { instrument: r.instrument, clause: r.clause, ruleKey: r.rule_key, publishState: r.publish_state, applies, why,
              frames: chain.map((f: any) => f.clause), chain }
@@ -244,8 +248,11 @@ export default defineEventHandler(async (event) => {
         else if (v.startsWith('sepp:')) {
           const [, sec, use] = v.split(':')
           const key = landUseKey(use)
-          const rs = seppRules.filter((r: any) => r.document_id === f.document_id && (r.ancestors ?? []).includes(sec) && permits(r, key))
-          if (!rs.length) Object.assign(c, { holds: null, why: `no ${use} permission extracted under ${sec} yet` })
+          const under = seppRules.filter((r: any) => r.document_id === f.document_id && (r.ancestors ?? []).includes(sec))
+          const rs = under.filter((r: any) => permits(r, key))
+          // nothing extracted under that chapter yet = undecided; extracted, but it grants no such use = no
+          if (!under.length) Object.assign(c, { holds: null, why: `${sec} is not extracted yet` })
+          else if (!rs.length) Object.assign(c, { holds: false, why: `${sec} grants no ${use} permission` })
           else {
             const vs = await Promise.all(rs.map(evalRule))
             Object.assign(c, { holds: or3(vs.map(x => x.applies)), why: vs.map(x => `s ${x.clause}: ${x.why}`).join('; ') })
@@ -259,7 +266,12 @@ export default defineEventHandler(async (event) => {
   const seppPermissions: any[] = []
   for (const r of seppRules.filter((r: any) => permits(r, useKey))) {
     const b = await evalRule(r)
-    seppPermissions.push({ ...b, chain: undefined, edges: [...r.edges, ...b.chain.flatMap((f: any) => f.edges)] })
+    // a grant carrying conditions of its own ("if ... at least 50 dwellings", s 72(3)) is conditional: it permits
+    // the use only for a proposal that meets them
+    const conditions = r.eff.filter((e: any) => e.type !== 'permits_use')
+      .map((e: any) => `${String(e.topic ?? '').replace(/_/g, ' ')} ${e.comparator === 'gte' ? 'at least' : e.comparator === 'lte' ? 'at most' : ''} ${e.value ?? ''}`.trim())
+    seppPermissions.push({ ...b, chain: undefined, conditional: conditions.length > 0, conditions,
+                           edges: [...r.edges, ...b.chain.flatMap((f: any) => f.edges)] })
   }
 
   // ── 3/4. the LEP: Land Use Table and rules withholding consent ────────────────────────────────
@@ -332,7 +344,10 @@ export default defineEventHandler(async (event) => {
   }
 
   // ── 5. the verdict ────────────────────────────────────────────────────────────────────────────
-  const grant = seppPermissions.find(p => p.applies === true) ?? null
+  // an unconditional grant controls ahead of one that holds only for some proposals; the others are alternatives
+  const granting = seppPermissions.filter(p => p.applies === true).sort((a, b) => Number(a.conditional) - Number(b.conditional))
+  const grant = granting[0] ?? null
+  const alternatives = granting.slice(1).map(p => ({ instrument: p.instrument, clause: p.clause, conditions: p.conditions }))
   const grantOpen = !grant && seppPermissions.some(p => p.applies === null)
   const block = lepBlocks.find(b => b.applies === true) ?? null
   const lutPermits = lutStatus === 'permitted_with_consent' || lutStatus === 'permitted_without_consent'
@@ -362,6 +377,12 @@ export default defineEventHandler(async (event) => {
       permissible = null
       wording = `${use}: ${grant.instrument} s ${grant.clause} permits it and the LEP does not; no prevails edge decides between them`
     }
+  } else if (grant && grant.conditional) {
+    // the LEP permits it outright; a SEPP grant that holds only for some proposals is an alternative, not the answer
+    permissible = true
+    controlling = { instrument: lepDoc?.title ?? lot.epi, clause: 'Land Use Table' }
+    wording = `${use}: ${lutStatus!.replace(/_/g, ' ')} in ${zone} under ${lepDoc?.title ?? lot.epi}`
+    alternatives.unshift({ instrument: grant.instrument, clause: grant.clause, conditions: grant.conditions })
   } else if (grant) {
     permissible = true
     controlling = { instrument: grant.instrument, clause: grant.clause }
@@ -400,7 +421,9 @@ export default defineEventHandler(async (event) => {
 
   return {
     lot, use, ms: Date.now() - started,
-    verdict: { permissible, wording, controlling, displaced, caveat },
+    verdict: { permissible, wording,
+               controlling: controlling && grant?.conditional && controlling.clause === grant.clause ? { ...controlling, conditions: grant.conditions } : controlling,
+               displaced, caveat, alternatives },
     frames: [...frames.values()].map(f => ({
       instrument: f.instrument, ruleKey: f.rule_key, clause: f.clause, publishState: f.publish_state, reaches: reaches(f.id),
       conditions: f.conds.map((c: any) => ({ dimension: c.dimension, value: c.value, polarity: c.polarity, altGroup: c.alt_group ?? null,

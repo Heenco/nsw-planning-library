@@ -283,7 +283,7 @@ Agreed with Manni 2026-10-07 ("yes" to the hybrid proposal).
 pattern wrong / both acceptable); the 4 open findings are resolved or explained; answer keys still 10/10;
 a second run with nothing changed makes 0 model calls.
 
-### 14. Housing SEPP Ch 2 Pt 2 Div 1 (s 15C bonus) + Ch 3 Pt 4 (s 72 build-to-rent) — `todo`
+### 14. Housing SEPP Ch 2 Pt 2 Div 1 (s 15C bonus) + Ch 3 Pt 4 (s 72 build-to-rent) — `done` 2026-10-07 (local commits; frames await review, Q6)
 Same structure as Ch 6 (patterns, profile, held rules). What these two need that Ch 6 did not - all generic:
 - **14a Frame model** (`done` 2026-10-07 - migration 22, evaluator rewritten around it; Ch 6 keys still 10/10): alternatives (s 72(2) is a list of OR'd limbs; s 15C(1)(c) is two branches of ANDs) -
   `rule_applicability.alt_group` (migration 22) + evaluator; distance terms (`scope_layer.within_m`, an
@@ -299,6 +299,30 @@ Same structure as Ch 6 (patterns, profile, held rules). What these two need that
 **Done when:** recall PASS on both; answer keys agree with `/api/housing/at` or each disagreement is explained
 with a clause; Ch 6 keys still 10/10; frames listed for Manni's review (Q6, non-blocking - rules stay held).
 
+**Result (14b-14d):** frames `ch2-infill-ah` (s 15C) and `ch3-btr` (s 72(2)) with 9 new terms; 16 new rules
+(Div 1: s 16-22; Pt 4: s 72-78), 39 pipeline rules in all. Recall: Div 1 31/31 numbers, Pt 4 4/4, Ch 6 37/37 (its
+extraction byte-identical before/after every change). `run.ts` full run green; unchanged rerun = noop.
+**Answer keys 19/19** (10 Ch 6 + 9 new, each checked against `/api/housing/at` as well): Parramatta MU1, Warrawong
+E2, Bambara (RFB and dual occupancy), R2 LMR inner (BTR via Ch 6), Accelerated TOD (bonus excluded), Orange E2
+(outside the Six Cities, on a centre zone), Orange R1 (undecided: straight line within 800 m), Wollongong R2 TOD
+(BTR via the LEP). One disagreement with `/api/housing/at`, explained: Bambara RFB bonus (Q6 reading 1).
+**Generic machinery added (no Housing-specific code):**
+- extractor: defined groups of uses ("residential development means development for the following purposes—")
+  expanded within their division; rules with no use inherit their frame's; "development to which this Part
+  applies" takes the frame's uses; a frame's own clause leaves WHERE to the frame; stacked qualifiers + "otherwise—"
+  as the complement; readers for relative bonuses ("plus an additional FSR of up to 30%"), bonus tiers ("if the
+  affordable housing component is at least 50%—0.5:1"), required shares, solar access, periods, per-bedroom
+  conditions, "the lesser of", per-extra-bedroom increments; Example/Note text not counted; spans keep the
+  text's casing; chapter-scoped retirement (a bug that retired other chapters' rules - found and fixed).
+- evaluator: OR'd alternatives, native zones, conditions on another rule's answer (LEP Land Use Table, a SEPP
+  chapter's permissions - "not extracted" = undecided, "extracted, no such grant" = no - and the verdict itself),
+  distance terms (on the source itself = yes), excluded areas; a conditional grant (s 72: at least 50
+  dwellings) yields to the LEP or an unconditional SEPP grant and is listed as an alternative.
+- answer keys: `scope` per case (which part of the SEPP its "no standards" check is about); `external` checks
+  against other hand-built routes with `externalDisagrees` explanations.
+**Findings (non-gating):** s 76 "business zone" is undefined in the SEPP - not narrowed; Ch 6's 4 qualitative /
+inferred findings stand.
+
 ### Later
 - 15. Ch 3 Pt 5 seniors, Pt 3 co-living, Ch 2 Div 2 boarding houses (new hand keys)
 - 16. Ch 3 Pt 1 secondary dwellings, Ch 5 TOD, Ch 7 Pattern Book
@@ -306,6 +330,26 @@ with a clause; Ch 6 keys still 10/10; frames listed for Manni's review (Q6, non-
 - 18. T&I, R&H (frames and terms)
 
 ## Open questions
+
+**Q6 (step 14, non-blocking - rules stay held) — review the Ch 2 Pt 2 Div 1 and Ch 3 Pt 4 frames** in
+`profiles/housing-sepp-2021.ts` (`ch2-infill-ah`, `ch3-btr`). The readings that decide answers:
+1. **s 15C(1)(a) is read for the use asked**: "the development is permitted with consent". An RFB at Bambara
+   (prohibited) gets no bonus; a dual occupancy there (permitted by s 166) does. `/api/housing/at` asks whether
+   ANY residential development is permitted and says yes for both.
+2. **15C(1)(c)(ii) "within 800m walking distance"**: walking is not measured; outside 800 m in a straight line =
+   no, on a relevant zone itself = yes, otherwise undecided. "an equivalent land use zone" is not resolved.
+3. **Accessible area** = 800 m walking of a station + 400 m walking of a bus stop (your 2026-10-01 decision);
+   ferry wharves not held.
+4. **s 72(2)(a1)** (TOD area where RFBs are permissible) needs Chapter 5, not extracted yet: undecided where it
+   is the only limb that could apply. (a)(i) already covers TOD land whose LEP permits RFBs.
+5. **s 72 is a conditional grant** (at least 50 dwellings under residential tenancy agreements, same lot): where
+   the LEP permits the use, the LEP controls and s 72 is listed as an alternative; where the LEP prohibits it,
+   s 72 controls with its conditions.
+6. **"residential development" includes dwelling houses** (s 15B(1)(c)), so the s 19 standards attach to them
+   when the bonus is used.
+7. **Sydney Olympic Park**: the in-force s 15C(2A) has no Sydney Olympic Park exclusion; `/api/housing/at` carries
+   a "wording not yet read" limb for it, which looks unsupported - worth removing from that route.
+Reply "frames OK" or say what to change.
 
 **Q5 (step 13, BLOCKING) — which model for the fallback extractor?** Only `DEEPINFRA_API_KEY` is configured.
 1. **DeepSeek-V3 on DeepInfra** (recommended to start) - key in place, already used by part4_graph for LEP clause
@@ -360,3 +404,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — step 13 (AI-assisted extraction, hybrid) added at Manni's request; blocked on Q5 (model). Later items renumbered 14-18.
 - 2026-10-07 — step 13 deferred (Manni). Step 14 opened: Ch 2 Pt 2 Div 1 + Ch 3 Pt 4, broken into 14a-14d.
 - 2026-10-07 — 14a done: migration 22 (alt_group, permissible_under, within_m); /api/rules/at evaluates alternatives, native zones, conditions on other rules and on the verdict; Ch 6 10/10.
+- 2026-10-07 — step 14 done (local): Div 1 + Pt 4 extracted; answer keys 19/19; Q6 asks for the frame review.

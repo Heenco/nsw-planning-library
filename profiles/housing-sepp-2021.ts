@@ -114,12 +114,33 @@ const FLOOD_PLANNING_LGAS = [
   'Richmond Valley', 'City of Shoalhaven', 'Singleton', 'Tweed', 'Upper Hunter Shire', 'Walcha',
 ]
 
+// ── the Six Cities Region (EP&A Act Schedule 9, in force 1 Nov 2025), in derived.lot_lga's spelling ──
+// s 15C(1)(c)(i) reads "the Six Cities Region, other than in the City of Shoalhaven or Port Stephens".
+const SIX_CITIES: Record<string, string[]> = {
+  'Eastern Harbour City': ['BAYSIDE', 'BURWOOD', 'CANADA BAY', 'HORNSBY', 'HUNTERS HILL', 'INNER WEST', 'KU-RING-GAI',
+    'LANE COVE', 'MOSMAN', 'NORTH SYDNEY', 'NORTHERN BEACHES', 'RANDWICK', 'RYDE', 'STRATHFIELD', 'SUTHERLAND SHIRE',
+    'SYDNEY', 'WAVERLEY', 'WILLOUGHBY', 'WOOLLAHRA'],
+  'Central River City': ['BLACKTOWN', 'CANTERBURY-BANKSTOWN', 'CUMBERLAND', 'GEORGES RIVER', 'CITY OF PARRAMATTA', 'THE HILLS SHIRE'],
+  'Lower Hunter and Greater Newcastle City': ['CESSNOCK', 'LAKE MACQUARIE', 'MAITLAND', 'NEWCASTLE', 'PORT STEPHENS'],
+  'Western Parkland City': ['BLUE MOUNTAINS', 'CAMDEN', 'CAMPBELLTOWN', 'FAIRFIELD', 'HAWKESBURY', 'LIVERPOOL', 'PENRITH', 'WOLLONDILLY'],
+  'Central Coast City': ['CENTRAL COAST'],
+  'Illawarra-Shoalhaven City': ['KIAMA', 'SHELLHARBOUR', 'SHOALHAVEN', 'WOLLONGONG'],
+}
+const SIX_CITIES_LGAS = Object.values(SIX_CITIES).flat()
+/** s 74(2)(d): the three metropolitan cities. */
+const METRO_CITIES_LGAS = [...SIX_CITIES['Eastern Harbour City']!, ...SIX_CITIES['Central River City']!, ...SIX_CITIES['Western Parkland City']!]
+const SIX_CITIES_15C = SIX_CITIES_LGAS.filter(l => l !== 'SHOALHAVEN' && l !== 'PORT STEPHENS')
+const SIX_CITIES_TERM = 'Six Cities Region, other than the City of Shoalhaven or Port Stephens'
+/** s 15C(3) "relevant zone"; s 72(2)(a)(ia)-(v) build-to-rent zones. */
+const RELEVANT_ZONES_15C = ['E1', 'E2', 'MU1', 'B1', 'B2', 'B4']
+const BTR_ZONES = [['ia', 'E2'], ['ib', 'MU1'], ['ii', 'B3'], ['iii', 'B4'], ['iv', 'B8'], ['v', 'SP5']] as const
+
 export const HOUSING_SEPP_2021: InstrumentProfile = {
   instrument: 'epi-2021-0714',
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
-  chapters: ['ch.6'],
+  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4'],
   frames: [
     {
       id: 'instrument',
@@ -194,6 +215,75 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         + 's 176 and s 180(3) the outer area - left to clause extraction, not frames). s 169(1A) and s 173(1A) add '
         + '"despite the provisions of another environmental planning instrument" (step 6).',
     },
+    {
+      id: 'ch2-infill-ah',
+      title: 'Chapter 2, Part 2, Division 1 — in-fill affordable housing',
+      parent: 'instrument',
+      clause: '15C(1)',
+      section: 'sec.15C',
+      governs: ['ch.2-pt.2-div.1'],
+      conditions: [
+        { dimension: 'permissible_under', value: 'verdict', polarity: 'applies', clause: '15C(1)(a)',
+          span: 'the development is permitted with consent under Chapter 3, Part 4, Chapter 5, Chapter 6 or another environmental planning instrument' },
+        { dimension: 'proposal_metric', value: 'affordable housing component at least 10%', polarity: 'applies', clause: '15C(1)(b)',
+          span: 'the affordable housing component is at least 10%' },
+        // (c) two branches: Six Cities land (less Shoalhaven, Port Stephens) in an accessible area, OR other land
+        // within 800 m walking of a relevant zone
+        { dimension: 'lga', value: SIX_CITIES_TERM, polarity: 'applies', clause: '15C(1)(c)(i)', anyOf: 'c#i',
+          span: 'for development on land in the Six Cities Region, other than in the City of Shoalhaven or Port Stephens local government area' },
+        { dimension: 'defined_area', value: 'accessible area', polarity: 'applies', clause: '15C(1)(c)(i)', anyOf: 'c#i',
+          span: 'in an accessible area' },
+        { dimension: 'lga', value: SIX_CITIES_TERM, polarity: 'excludes', clause: '15C(1)(c)(ii)', anyOf: 'c#ii',
+          span: 'for development on other land' },
+        { dimension: 'defined_area', value: 'within 800m walking distance of land in a relevant zone', polarity: 'applies',
+          clause: '15C(1)(c)(ii)', anyOf: 'c#ii',
+          span: 'within 800m walking distance of land in a relevant zone or an equivalent land use zone' },
+        // (2A) exclusions
+        { dimension: 'map_area', value: 'Accelerated TOD Precinct', polarity: 'excludes', clause: '15C(2A)(a)',
+          span: 'on land identified as an "Accelerated TOD Precinct" on the Accelerated Transport Oriented Development Precincts Rezoning Areas Map' },
+        { dimension: 'map_area', value: 'Warrawong Site', polarity: 'excludes', clause: '15C(2A)(b)',
+          span: 'on land identified as the "Warrawong Site" on the State Significant Development Sites Map' },
+        { dimension: 'map_area', value: 'Kanwal Site', polarity: 'excludes', clause: '15C(2A)(c)',
+          span: 'on land identified as the "Kanwal Site" on the State Significant Development Sites Map' },
+        { dimension: 'pathway', value: 'complying development under the Codes SEPP, Parts 3B and 3BA', polarity: 'excludes', clause: '15C(2A)(d)',
+          span: 'carried out under the Codes SEPP, Parts 3B and 3BA, unless it is being carried out by or on behalf of the New South Wales Land and Housing Corporation' },
+      ],
+      note: 'The division applies to development that includes residential development (s 15B(1)). (a) is read as the '
+        + 'verdict for the use asked about: permitted with consent under any instrument. (c)(ii) "walking distance" '
+        + 'is not measured: 800 m in a straight line is an upper bound (outside it = no; inside it = undecided). '
+        + '"an equivalent land use zone" is not resolved. (2A)(d) is a fact about the proposal.',
+    },
+    {
+      id: 'ch3-btr',
+      title: 'Chapter 3, Part 4 — build-to-rent housing',
+      parent: 'instrument',
+      clause: '72(2)',
+      section: 'sec.72',
+      governs: ['ch.3-pt.4'],
+      conditions: [
+        // (a)-(c) are alternatives: any one limb puts the land in the Part
+        { dimension: 'permissible_under', value: 'lep:residential flat building', polarity: 'applies', clause: '72(2)(a)(i)', anyOf: 'a#i',
+          span: 'a zone in which development for the purposes of residential flat buildings is permissible under another environmental planning instrument' },
+        ...BTR_ZONES.map(([para, z]) => ({ dimension: 'zone' as const, value: z, polarity: 'applies' as const, clause: `72(2)(a)(${para})`,
+          anyOf: `a#${para}`, span: `Zone ${z}` })),
+        { dimension: 'defined_area', value: 'Transport Oriented Development Area', polarity: 'applies', clause: '72(2)(a1)', anyOf: 'a#a1',
+          span: 'in a Transport Oriented Development Area under Chapter 5' },
+        { dimension: 'permissible_under', value: 'sepp:ch.5:residential flat building', polarity: 'applies', clause: '72(2)(a1)', anyOf: 'a#a1',
+          span: 'in which development for the purposes of residential flat buildings is permissible' },
+        ...(['multi dwelling housing', 'residential flat building', 'shop top housing'] as const).map(u => ({
+          dimension: 'permissible_under' as const, value: `sepp:ch.6:${u}`, polarity: 'applies' as const, clause: '72(2)(a2)',
+          anyOf: `a#a2-${u.split(' ')[0]}`,
+          span: 'on which development for the purposes of multi dwelling housing, residential flat buildings or shop top housing is permissible under Chapter 6' })),
+        { dimension: 'pathway', value: 'site compatibility certificate issued under section 39', polarity: 'applies', clause: '72(2)(b)', anyOf: 'a#b',
+          span: 'for which a site compatibility certificate has been issued under section 39' },
+        { dimension: 'map_area', value: 'WestConnex Dive Site', polarity: 'applies', clause: '72(2)(c)', anyOf: 'a#c',
+          span: 'identified as "WestConnex Dive Site" on the State Significant Development Sites Map' },
+      ],
+      note: 'Applies to multi dwelling housing, residential flat buildings or shop top housing (the uses are extracted '
+        + 'from s 72(2)). (a1) is read as a TOD area where Chapter 5 permits residential flat buildings - a TOD lot '
+        + 'whose LEP permits them is already in by (a)(i); Chapter 5 is not extracted yet, so (a1) alone is undecided. '
+        + '(b) is a fact about the proposal and cannot put the land in or out.',
+    },
   ],
   terms: [
     // ── s 164(1) exclusions ──
@@ -239,9 +329,34 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
       source: 'lmr.station_walking_catchments + lmr.town_centre_walking_catchments', filter: 'distance_m = 800', test: 'derived', kind: 'condition',
       except_term: 'low and mid rise housing inner area',
       note: 's 163. The 800 m band, unless the site is also in the inner area (the 800 m polygons contain the 400 m ones).' },
+    // ── Ch 2 Pt 2 Div 1, s 15C ──
+    { dimension: 'lga', term: SIX_CITIES_TERM, source_kind: 'derived', source: 'derived.lot_lga', test: 'attribute',
+      column_tested: 'lga_name', filter: `upper(lga_name) IN (${SIX_CITIES_15C.map(l => `'${l}'`).join(', ')})`, kind: 'condition',
+      note: 's 15C(1)(c). EP&A Act Schedule 9 (in force 1 Nov 2025), less Shoalhaven and Port Stephens.' },
+    { dimension: 'defined_area', term: 'accessible area', source_kind: 'derived', source: 'access.iso_train + access.iso_bus',
+      test: 'derived', kind: 'condition',
+      note: 's 15C(1)(c)(i), s 74(2)(d)(i); s 4 "accessible area". 800 m walking of a station + 400 m walking of a bus '
+        + 'stop; the bus isochrones are taken as decided without the hourly-service test (Manni, 2026-10-01). Ferry wharves not held.' },
+    { dimension: 'defined_area', term: 'within 800m walking distance of land in a relevant zone', source_kind: 'table',
+      source: 'epi.epi_land_zoning', filter: `sym_code IN (${RELEVANT_ZONES_15C.map(z => `'${z}'`).join(', ')})`, within_m: 800,
+      upper_bound: true, test: 'intersects', kind: 'condition',
+      note: 's 15C(1)(c)(ii), (3). Walking distance not measured: 800 m in a straight line of an E1/E2/MU1/B1/B2/B4 polygon is an upper bound.' },
+    { dimension: 'map_area', term: 'Warrawong Site', source_kind: 'table', source: 'epi.epi_state_significant_dev_sites',
+      filter: "label = 'Warrawong Site'", test: 'intersects', kind: 'exclusion', note: 's 15C(2A)(b). State Significant Development Sites Map.' },
+    { dimension: 'map_area', term: 'Kanwal Site', source_kind: 'table', source: 'epi.epi_state_significant_dev_sites',
+      filter: "label = 'Kanwal Site'", test: 'intersects', kind: 'exclusion', note: 's 15C(2A)(c). State Significant Development Sites Map.' },
+    { dimension: 'defined_area', term: 'Eastern Harbour City, Central River City or Western Parkland City', source_kind: 'derived',
+      source: 'derived.lot_lga', test: 'attribute', column_tested: 'lga_name', kind: 'condition',
+      filter: `upper(lga_name) IN (${METRO_CITIES_LGAS.map(l => `'${l}'`).join(', ')})`,
+      note: 's 74(2)(d). The three metropolitan cities of the Six Cities Region (EP&A Act Schedule 9).' },
+    // ── Ch 3 Pt 4, s 72 ──
+    { dimension: 'defined_area', term: 'Transport Oriented Development Area', source_kind: 'registry', source: 'lmr.layers:sepp_tod_areas',
+      test: 'intersects', kind: 'condition', note: 's 72(2)(a1). Transport Oriented Development Sites Map (Chapter 5).' },
+    { dimension: 'map_area', term: 'WestConnex Dive Site', source_kind: 'table', source: 'epi.epi_state_significant_dev_sites',
+      filter: "label = 'WestConnex Dive Site'", test: 'intersects', kind: 'condition', note: 's 72(2)(c). State Significant Development Sites Map.' },
   ],
   signals: {
-    permission: ['is permitted with development consent'],
+    permission: ['is permitted with development consent', 'development consent may be granted for development to which this part applies'],
     override: ['despite the provisions of another environmental planning instrument'],
     nondiscretionary_heading: ['Non-discretionary development standards'],
     consideration: ['the consent authority must consider', 'unless the consent authority has considered'],
@@ -251,6 +366,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   skip: {
     'sec.164': 'the chapter frame (scripts/pipeline/frames.ts) - s 164 is where the chapter applies',
     'sec.165': 'lists which sections are non-discretionary; read as the nondiscretionary signal on each',
+    'sec.15C': 'the division frame (ch2-infill-ah) - s 15C is where the division applies',
   },
   checks: {
     route: {

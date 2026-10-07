@@ -1,108 +1,657 @@
 {
   "instrument": "epi-2021-0714",
-  "note": "Answer keys for the Housing SEPP rule pipeline (docs/sepp-rule-pipeline.md §6, step 10). Each case is a lot and a land use with the answer the instrument gives, the clause it rests on, and what the hand-built lmr catalogue (/api/lmr/types) says. A disagreement with the lmr catalogue is allowed only when `lmrDisagrees` explains it with a clause. Written 2026-10-07.",
+  "note": "Answer keys for the Housing SEPP rule pipeline (docs/sepp-rule-pipeline.md §6, step 10). Each case is a lot and a land use with the answer the instrument gives, the clause it rests on, and what the hand-built lmr catalogue (/api/lmr/types) says. A disagreement with the lmr catalogue is allowed only when `lmrDisagrees` explains it with a clause. Written 2026-10-07. A case's \"scope\" names which part of the SEPP its standard checks are about (seppStandards: [] = none from that part); standards from other parts may also apply (e.g. the s 15C bonus standards for any residential development).",
   "cases": [
     {
       "name": "Bambara: R2 outside every LMR catchment, on Parramatta's Dual Occupancy Prohibition 'D' land",
-      "cadid": "100096265", "use": "dual occupancies",
+      "cadid": "100096265",
+      "use": "dual occupancies",
       "expect": {
-        "permissible": true, "controllingClause": "166", "displacedClause": "6.11(1)",
-        "frames": { "8(1)": true, "164(1)": true, "163": false },
+        "permissible": true,
+        "controllingClause": "166",
+        "displacedClause": "6.11(1)",
+        "frames": {
+          "8(1)": true,
+          "164(1)": true,
+          "163": false
+        },
         "seppStandards": [],
-        "lepStandards": [["4.1C(2)", "lot_size", 600], ["4.1C(2)", "frontage_width", 15]]
+        "lepStandards": [
+          [
+            "4.1C(2)",
+            "lot_size",
+            600
+          ],
+          [
+            "4.1C(2)",
+            "frontage_width",
+            15
+          ]
+        ]
       },
       "lmrType": "dual-occupancy",
-      "lmrDisagrees": "s 166 permits dual occupancies 'on land to which this chapter applies in Zone R2'; s 164 makes that the whole State less (a)-(m) - not only the LMR area. The lmr catalogue requires the LMR area for permissibility (known error, progress file baseline)."
+      "lmrDisagrees": "s 166 permits dual occupancies 'on land to which this chapter applies in Zone R2'; s 164 makes that the whole State less (a)-(m) - not only the LMR area. The lmr catalogue requires the LMR area for permissibility (known error, progress file baseline).",
+      "scope": "ch6"
     },
     {
       "name": "R2 inner LMR area - dual occupancy (s 166 + s 168 standards)",
-      "cadid": "100097746", "use": "dual occupancies",
+      "cadid": "100097746",
+      "use": "dual occupancies",
       "expect": {
-        "permissible": true, "controllingClause": "166",
-        "frames": { "8(1)": true, "164(1)": true, "163": true },
-        "seppStandards": [["168", "lot_size", 450], ["168", "width", 12], ["168", "parking", 1], ["168", "fsr", 0.65], ["168", "height", 9.5]]
+        "permissible": true,
+        "controllingClause": "166",
+        "frames": {
+          "8(1)": true,
+          "164(1)": true,
+          "163": true
+        },
+        "seppStandards": [
+          [
+            "168",
+            "lot_size",
+            450
+          ],
+          [
+            "168",
+            "width",
+            12
+          ],
+          [
+            "168",
+            "parking",
+            1
+          ],
+          [
+            "168",
+            "fsr",
+            0.65
+          ],
+          [
+            "168",
+            "height",
+            9.5
+          ]
+        ]
       },
-      "lmrType": "dual-occupancy"
+      "lmrType": "dual-occupancy",
+      "scope": "ch6"
     },
     {
       "name": "R2 inner LMR area - multi dwelling housing (s 170 + s 172(2))",
-      "cadid": "100097746", "use": "multi dwelling housing",
+      "cadid": "100097746",
+      "use": "multi dwelling housing",
       "expect": {
-        "permissible": true, "controllingClause": "170",
-        "seppStandards": [["172", "lot_size", 600], ["172", "width", 12], ["172", "parking", 1], ["172", "fsr", 0.7], ["172", "height", 9.5]]
+        "permissible": true,
+        "controllingClause": "170",
+        "seppStandards": [
+          [
+            "172",
+            "lot_size",
+            600
+          ],
+          [
+            "172",
+            "width",
+            12
+          ],
+          [
+            "172",
+            "parking",
+            1
+          ],
+          [
+            "172",
+            "fsr",
+            0.7
+          ],
+          [
+            "172",
+            "height",
+            9.5
+          ]
+        ]
       },
-      "lmrType": "multi-dwelling-housing"
+      "lmrType": "multi-dwelling-housing",
+      "scope": "ch6"
     },
     {
       "name": "R2 inner LMR area - residential flat buildings (s 174 + s 179)",
-      "cadid": "100097746", "use": "residential flat buildings",
+      "cadid": "100097746",
+      "use": "residential flat buildings",
       "expect": {
-        "permissible": true, "controllingClause": "174",
-        "seppStandards": [["179", "lot_size", 500], ["179", "width", 12], ["179", "parking", 0.5], ["179", "fsr", 0.8], ["179", "height", 9.5]]
+        "permissible": true,
+        "controllingClause": "174",
+        "seppStandards": [
+          [
+            "179",
+            "lot_size",
+            500
+          ],
+          [
+            "179",
+            "width",
+            12
+          ],
+          [
+            "179",
+            "parking",
+            0.5
+          ],
+          [
+            "179",
+            "fsr",
+            0.8
+          ],
+          [
+            "179",
+            "height",
+            9.5
+          ]
+        ]
       },
-      "lmrType": "rfb-shop-top-r1-r2"
+      "lmrType": "rfb-shop-top-r1-r2",
+      "scope": "ch6"
     },
     {
       "name": "R2 outer LMR area - dual occupancy (s 168 applies in both bands)",
-      "cadid": "100096409", "use": "dual occupancies",
+      "cadid": "100096409",
+      "use": "dual occupancies",
       "expect": {
-        "permissible": true, "controllingClause": "166",
-        "seppStandards": [["168", "lot_size", 450], ["168", "width", 12], ["168", "fsr", 0.65], ["168", "height", 9.5]]
+        "permissible": true,
+        "controllingClause": "166",
+        "seppStandards": [
+          [
+            "168",
+            "lot_size",
+            450
+          ],
+          [
+            "168",
+            "width",
+            12
+          ],
+          [
+            "168",
+            "fsr",
+            0.65
+          ],
+          [
+            "168",
+            "height",
+            9.5
+          ]
+        ]
       },
-      "lmrType": "dual-occupancy"
+      "lmrType": "dual-occupancy",
+      "scope": "ch6"
     },
     {
       "name": "R3 inner LMR area - residential flat buildings (s 174 + s 180(2) inner + s 175(2))",
-      "cadid": "100100210", "use": "residential flat buildings",
+      "cadid": "100100210",
+      "use": "residential flat buildings",
       "expect": {
         "permissible": true,
-        "seppStandards": [["180", "fsr", 2.2], ["180", "height", 22], ["175", "storeys", 6]],
-        "seppStandardsAbsent": [["180", "fsr", 1.5], ["180", "height", 17.5]]
+        "seppStandards": [
+          [
+            "180",
+            "fsr",
+            2.2
+          ],
+          [
+            "180",
+            "height",
+            22
+          ],
+          [
+            "175",
+            "storeys",
+            6
+          ]
+        ],
+        "seppStandardsAbsent": [
+          [
+            "180",
+            "fsr",
+            1.5
+          ],
+          [
+            "180",
+            "height",
+            17.5
+          ]
+        ]
       },
-      "lmrType": "rfb-shop-top-r3-r4"
+      "lmrType": "rfb-shop-top-r3-r4",
+      "scope": "ch6"
     },
     {
       "name": "R3 outer LMR area (Willoughby) - residential flat buildings (s 180(3) outer, not s 180(2))",
-      "cadid": "102148504", "use": "residential flat buildings",
+      "cadid": "102148504",
+      "use": "residential flat buildings",
       "expect": {
-        "permissible": true, "controllingClause": "174",
-        "frames": { "164(1)": true, "163": true },
-        "seppStandards": [["180", "fsr", 1.5], ["180", "height", 17.5]],
-        "seppStandardsAbsent": [["180", "fsr", 2.2], ["180", "height", 22]]
+        "permissible": true,
+        "controllingClause": "174",
+        "frames": {
+          "164(1)": true,
+          "163": true
+        },
+        "seppStandards": [
+          [
+            "180",
+            "fsr",
+            1.5
+          ],
+          [
+            "180",
+            "height",
+            17.5
+          ]
+        ],
+        "seppStandardsAbsent": [
+          [
+            "180",
+            "fsr",
+            2.2
+          ],
+          [
+            "180",
+            "height",
+            22
+          ]
+        ]
       },
-      "lmrType": "rfb-shop-top-r3-r4"
+      "lmrType": "rfb-shop-top-r3-r4",
+      "scope": "ch6"
     },
     {
       "name": "R3 outer LMR area in the Georges River catchment - s 164(1)(f) flood prone land undecided",
-      "cadid": "153020495", "use": "residential flat buildings",
+      "cadid": "153020495",
+      "use": "residential flat buildings",
       "expect": {
         "permissible": null,
-        "frames": { "164(1)": null, "163": null },
+        "frames": {
+          "164(1)": null,
+          "163": null
+        },
         "seppStandards": [],
-        "seppStandardsAbsent": [["180", "fsr", 2.2], ["180", "height", 22]]
+        "seppStandardsAbsent": [
+          [
+            "180",
+            "fsr",
+            2.2
+          ],
+          [
+            "180",
+            "height",
+            22
+          ]
+        ]
       },
       "lmrType": "rfb-shop-top-r3-r4",
-      "lmrDisagrees": "s 164(1)(f) excludes flood prone land in the Georges River and Hawkesbury-Nepean catchments. The lot is inside the Georges River catchment and flood prone land is not held, so whether Ch 6 reaches it is undecided; lmr.lot_lmr records no exclusion and no undecided item for this lot and says eligible."
+      "lmrDisagrees": "s 164(1)(f) excludes flood prone land in the Georges River and Hawkesbury-Nepean catchments. The lot is inside the Georges River catchment and flood prone land is not held, so whether Ch 6 reaches it is undecided; lmr.lot_lmr records no exclusion and no undecided item for this lot and says eligible.",
+      "scope": "ch6"
     },
     {
       "name": "R2 LMR outer area but a heritage item - excluded by s 164(1)(d)",
-      "cadid": "100097875", "use": "dual occupancies",
+      "cadid": "100097875",
+      "use": "dual occupancies",
       "expect": {
-        "frames": { "164(1)": false },
+        "frames": {
+          "164(1)": false
+        },
         "seppPermissionApplies": false,
         "seppStandards": []
       },
-      "lmrType": "dual-occupancy"
+      "lmrType": "dual-occupancy",
+      "scope": "ch6"
     },
     {
       "name": "R2 LMR inner area but bush fire prone - excluded by s 164(1)(a)",
-      "cadid": "100097765", "use": "residential flat buildings",
+      "cadid": "100097765",
+      "use": "residential flat buildings",
       "expect": {
-        "frames": { "164(1)": false },
+        "frames": {
+          "164(1)": false
+        },
         "seppPermissionApplies": false,
         "seppStandards": []
       },
-      "lmrType": "rfb-shop-top-r1-r2"
+      "lmrType": "rfb-shop-top-r1-r2",
+      "scope": "ch6"
+    },
+    {
+      "name": "46 Macquarie St Parramatta, MU1, accessible (Central River City) - BTR by zone, s 15C bonus by (c)(i)",
+      "cadid": "101984828",
+      "use": "residential flat buildings",
+      "scope": "ch3-pt4",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "Land Use Table",
+        "frames": {
+          "72(2)": true,
+          "15C(1)": true
+        },
+        "seppStandards": [
+          [
+            "16",
+            "fsr",
+            30
+          ],
+          [
+            "19",
+            "lot_size",
+            450
+          ],
+          [
+            "74",
+            "parking",
+            0.2
+          ]
+        ],
+        "seppStandardsAbsent": [
+          [
+            "74",
+            "parking",
+            0.5
+          ]
+        ]
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "200-208 Cowper St Warrawong, E2, Wollongong (Illawarra-Shoalhaven, not a metropolitan city) - BTR by zone; s 74(2)(d) parking does not apply",
+      "cadid": "101306849",
+      "use": "shop top housing",
+      "scope": "ch3-pt4",
+      "expect": {
+        "permissible": true,
+        "frames": {
+          "72(2)": true,
+          "15C(1)": true
+        },
+        "seppStandardsAbsent": [
+          [
+            "74",
+            "parking",
+            0.2
+          ],
+          [
+            "74",
+            "parking",
+            0.5
+          ]
+        ]
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bambara, R2, residential flat buildings - no BTR limb reaches; s 15C(1)(a) fails for an RFB",
+      "cadid": "100096265",
+      "use": "residential flat buildings",
+      "scope": "ch2-div1",
+      "expect": {
+        "permissible": false,
+        "frames": {
+          "72(2)": false,
+          "15C(1)": false
+        }
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ],
+      "externalDisagrees": {
+        "affordable housing bonus": "s 15C(1)(a) asks whether THE development is permitted with consent. /api/housing/at answers for any residential development (dual occupancy is, by s 166); the pipeline answers for the use asked - an RFB is prohibited here, so the bonus cannot attach to it. Asked for dual occupancies (next case) both say yes."
+      }
+    },
+    {
+      "name": "Bambara, R2, dual occupancies - s 15C reaches (Six Cities + accessible area); s 19 standards apply",
+      "cadid": "100096265",
+      "use": "dual occupancies",
+      "scope": "ch2-div1",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "166",
+        "frames": {
+          "15C(1)": true
+        },
+        "seppStandards": [
+          [
+            "19",
+            "lot_size",
+            450
+          ],
+          [
+            "16",
+            "fsr",
+            30
+          ]
+        ]
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "R2 LMR inner area (Parramatta) - BTR by s 72(2)(a2), Chapter 6 permits RFBs; s 174 controls, s 72 an alternative",
+      "cadid": "100097746",
+      "use": "residential flat buildings",
+      "scope": "ch3-pt4",
+      "expect": {
+        "permissible": true,
+        "controllingClause": "174",
+        "frames": {
+          "72(2)": true
+        }
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "R4 in an Accelerated TOD Precinct (North Sydney) - s 15C(2A)(a) excludes the bonus; BTR by the LEP",
+      "cadid": "102154197",
+      "use": "residential flat buildings",
+      "scope": "ch2-div1",
+      "expect": {
+        "permissible": true,
+        "frames": {
+          "72(2)": true,
+          "15C(1)": false
+        }
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orange E2 (outside the Six Cities) - s 15C(1)(c)(ii): on a relevant zone itself; BTR by zone",
+      "cadid": "101631360",
+      "use": "shop top housing",
+      "scope": "ch2-div1",
+      "expect": {
+        "permissible": true,
+        "frames": {
+          "72(2)": true,
+          "15C(1)": true
+        }
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orange R1 (outside the Six Cities) - s 15C(1)(c)(ii) undecided: within 800 m straight line of a centre zone, walking not measured",
+      "cadid": "103676482",
+      "use": "residential flat buildings",
+      "scope": "ch2-div1",
+      "expect": {
+        "permissible": true,
+        "frames": {
+          "15C(1)": null
+        }
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wollongong R2 in a TOD area - BTR by s 72(2)(a)(i): Wollongong LEP 2009 permits RFBs in R2",
+      "cadid": "101308538",
+      "use": "residential flat buildings",
+      "scope": "ch3-pt4",
+      "expect": {
+        "permissible": true,
+        "frames": {
+          "72(2)": true
+        }
+      },
+      "external": [
+        {
+          "name": "build-to-rent",
+          "endpoint": "/api/housing/at",
+          "field": "btr.eligible",
+          "pipeline": {
+            "permission": "72"
+          }
+        },
+        {
+          "name": "affordable housing bonus",
+          "endpoint": "/api/housing/at",
+          "field": "ahb.eligible",
+          "pipeline": {
+            "frame": "15C(1)"
+          }
+        }
+      ]
     }
-  ]
+  ],
+  "scopes": {
+    "ch6": "^(16[2-9]|17[0-9]|180)$",
+    "ch2-div1": "^(15[A-C]?|1[6-9]|2[0-2])$",
+    "ch3-pt4": "^7[1-8]$"
+  }
 }
