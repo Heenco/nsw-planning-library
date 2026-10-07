@@ -22,14 +22,14 @@
       <p v-if="!data.lepCovered" class="sd-warn">{{ data.lot.epi || 'This lot\'s LEP' }} is not in the graph yet - only the Housing SEPP's subdivision clauses are tested.</p>
 
       <div class="sd-ask">
-        <label class="sd-label" for="sd-purpose">New lots for</label>
+        <label class="sd-label" for="sd-purpose">What are the new lots for?</label>
         <select id="sd-purpose" v-model="purpose" class="sd-select">
           <option value="">not stated</option>
           <option value="dwelling house">dwelling houses</option>
           <option value="dual occupancy">a dual occupancy (one dwelling per lot)</option>
           <option value="multi dwelling housing (terraces)">terraces (one per lot)</option>
         </select>
-        <label class="sd-label" for="sd-lots">Torrens lots</label>
+        <label class="sd-label" for="sd-lots">How many lots (Torrens)?</label>
         <input id="sd-lots" v-model.number="lots" type="number" min="2" max="20" class="sd-num">
       </div>
 
@@ -91,25 +91,46 @@
         </table>
       </div>
 
+      <!-- the questions: open ones (most useful first), then the answers given - the chosen answer always in view -->
       <div v-if="data.asks.length" class="sd-qs">
         <h4 class="sd-h4">
-          What would settle it <span class="sd-dim">- ranked by how many answers each changes</span>
-          <button v-if="siteAsks.length" type="button" class="sd-btn" :title="siteAsks.map((a: any) => a.label).join('; ')" @click="noneOfThese">None of the barred buildings is on the lot</button>
+          To settle the Maybes <span class="sd-dim">- most useful first; only questions that change an answer are asked</span>
+          <button v-if="siteAsks.length > 1" type="button" class="sd-btn" :title="siteAsks.map((a: any) => a.label).join('; ')" @click="noneOfThese">
+            None of these buildings is on the lot
+          </button>
         </h4>
-        <ul class="sd-list">
+        <ol class="sd-qlist">
           <li v-for="a in data.asks" :key="a.param + a.key" class="sd-q">
-            <span class="sd-seg">
-              <button v-for="v in [true, false, null]" :key="String(v)" type="button" class="sd-segbtn"
-                      :class="{ 'sd-segbtn--on': answers[a.param + '|' + a.key] === v }" @click="answer(a, v)">{{ v === true ? 'Yes' : v === false ? 'No' : '?' }}</button>
+            <span class="sd-choice">
+              <button type="button" class="sd-opt" @click="answer(a, true)">Yes</button>
+              <button type="button" class="sd-opt" @click="answer(a, false)">No</button>
             </span>
-            {{ a.param === 'site' ? 'The lot has ' : '' }}{{ a.label }}
-            <span class="sd-dim">&middot; {{ a.clauses.join(', ') }}</span>
+            <span class="sd-qtext">{{ a.question || a.label }}</span>
+            <span class="sd-dim sd-qref">{{ a.clauses.join(', ') }}</span>
           </li>
-        </ul>
+        </ol>
       </div>
-      <p v-if="Object.keys(answers).length" class="sd-note">
-        <button type="button" class="sd-btn" @click="answers = {}">Clear my answers</button>
-      </p>
+      <div v-if="answeredList.length" class="sd-qs sd-qs--done">
+        <h4 class="sd-h4">
+          Your answers ({{ answeredList.length }})
+          <button type="button" class="sd-btn" @click="answers = {}">Clear all</button>
+        </h4>
+        <ol class="sd-qlist">
+          <li v-for="a in answeredList" :key="a.param + a.key" class="sd-q sd-q--done">
+            <span class="sd-choice">
+              <button type="button" class="sd-opt" :class="{ 'sd-opt--yes': a.value === true }" :aria-pressed="a.value === true" @click="answer(a, true)">
+                <span v-if="a.value === true" aria-hidden="true">&#10003; </span>Yes
+              </button>
+              <button type="button" class="sd-opt" :class="{ 'sd-opt--no': a.value === false }" :aria-pressed="a.value === false" @click="answer(a, false)">
+                <span v-if="a.value === false" aria-hidden="true">&#10003; </span>No
+              </button>
+            </span>
+            <span class="sd-qtext">{{ a.question || a.label }}</span>
+            <button type="button" class="sd-undo" title="Take this answer back" @click="answer(a, null)">change</button>
+            <span class="sd-dim sd-qref">{{ a.clauses.join(', ') }}</span>
+          </li>
+        </ol>
+      </div>
 
       <div v-if="data.unchecked.length" class="sd-unchecked">
         <strong>Not yet checked</strong> ({{ data.unchecked.length }}) - subdivision clauses not yet encoded; any of them could change the answer:
@@ -137,6 +158,13 @@ const answers = ref<Record<string, boolean | null>>({})
 
 const WHO: Record<string, string> = { site: 'tell us', proposal: 'tell us', lot: 'data', discretion: 'council', unparsed: 'not yet encoded' }
 
+/** answered questions: the server's wording, the answer as chosen here (shown at once, before the refetch lands) */
+const answeredList = computed(() => {
+  const seen = new Map<string, any>()
+  for (const a of [...(data.value?.answered ?? []), ...(data.value?.asks ?? [])]) seen.set(`${a.param}|${a.key}`, a)
+  return Object.entries(answers.value).filter(([, v]) => v !== null && v !== undefined)
+    .map(([k, v]) => ({ ...(seen.get(k) ?? { param: k.split('|')[0], key: k.split('|').slice(1).join('|'), label: k.split('|').slice(1).join('|'), clauses: [] }), value: v }))
+})
 // the buildings that bar subdivision - what "none of these is on the lot" answers (not, say, a dwelling house)
 const siteAsks = computed(() => (data.value?.asks ?? []).filter((a: any) => a.param === 'site' && a.bars))
 
@@ -205,12 +233,19 @@ const short = (t: string) => String(t ?? '').replace('State Environmental Planni
 .sd-who--lot { background: #f1f5f9; color: #475569; }
 .sd-who--discretion { background: #ede9fe; color: #5b21b6; }
 .sd-who--unparsed { background: #fef3c7; color: #92400e; }
-.sd-qs { margin-top: 0.4rem; }
-.sd-q { font-size: 0.76rem; display: flex; gap: 0.4rem; align-items: baseline; flex-wrap: wrap; }
-.sd-seg { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; }
-.sd-segbtn { font-size: 0.7rem; padding: 0.05rem 0.45rem; background: #fff; border: 0; border-right: 1px solid #e2e8f0; cursor: pointer; color: #475569; }
-.sd-segbtn:last-child { border-right: 0; }
-.sd-segbtn--on { background: #0f172a; color: #fff; }
+.sd-qs { margin-top: 0.6rem; }
+.sd-qs--done { padding: 0.3rem 0.5rem 0.4rem; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; }
+.sd-qlist { margin: 0; padding-left: 0; list-style: none; }
+.sd-qtext { font-size: 0.8rem; color: #0f172a; }
+.sd-qref { font-size: 0.7rem; }
+.sd-choice { display: inline-flex; gap: 0.25rem; flex: none; }
+.sd-opt { min-width: 3.4rem; font-size: 0.74rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid #94a3b8; background: #fff; color: #334155; cursor: pointer; }
+.sd-opt:hover { border-color: #0f172a; }
+.sd-opt--yes { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+.sd-opt--no { background: #334155; border-color: #334155; color: #fff; }
+.sd-undo { font-size: 0.7rem; border: 0; background: none; color: #2563eb; text-decoration: underline; cursor: pointer; padding: 0; }
+.sd-q { font-size: 0.76rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9; }
+.sd-q:last-child { border-bottom: 0; }
 .sd-btn { font-size: 0.7rem; padding: 0.1rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; cursor: pointer; font-weight: 600; color: #334155; }
 .sd-clauses { margin-right: 0.5rem; }
 .sd-why { margin-top: 0.3rem; color: #475569; }

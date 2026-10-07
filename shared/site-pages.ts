@@ -237,6 +237,13 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '07B - Build to Rent',
   },
   {
+    route: '/subdivision', name: 'Subdivision', status: 'building', kind: 'answer',
+    summary: 'Search an address: can the lot be subdivided, and which way - Torrens, strata or community title - each Yes / No / Maybe from the Housing SEPP and the lot's LEP, with the questions that settle a Maybe.',
+    detail: 'The norms trial (docs/norms-trial.md): every clause is a norm with all its conditions, typed by who can answer them (our data, you, the council, or not yet encoded), through one engine. A condition it cannot read makes the answer Maybe - never a confident yes or no. Only questions whose answer changes something are asked, most useful first. Standards come with the lot's arithmetic, LEP standards a SEPP grant displaces are shown as displaced, and every local subdivision clause not yet encoded is listed with a link.',
+    reads: ['/api/norms/subdivision', '/api/lotprofile', 'norms/subdivision/', 'shared/norms/engine.ts', 'nsw.scope_layer', 'epi.epi_lot_size', 'derived.lot_frontage'],
+    notebook: '—',
+  },
+  {
     route: '/affordable-housing', name: 'Affordable housing bonus', status: 'live', kind: 'map', added: '2026-10-01',
     summary: 'The in-fill affordable housing bonus (Housing SEPP s 15C) on a map: the walking catchments and centre zones of the location test, the exclusions, and a verdict for any lot - with the FSR and height it would then get.',
     detail: 'Section 15C is three tests joined by AND - permitted, 10% affordable, and in the right place - and the place test changes at the Six Cities boundary (EP&A Act Schedule 9): an accessible area inside it, 800 m walking of E1/E2/MU1/B1/B2/B4 outside it. The accessible area is the Mapbox walking isochrones of notebook 24, copied into planningai schema access; a lot inside any station or bus stop catchment counts as accessible, and outside the Six Cities a centre zone within 800 m in a straight line is undecided until walking distance is measured. The Sydney Olympic Park exclusion is later than our SEPP copy and marked unread.',

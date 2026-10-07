@@ -76,18 +76,29 @@ export default defineEventHandler(async (event) => {
   })
 
   // the questions only the asker can answer, across the three kinds - each with the key its parameter takes
-  const asks = new Map<string, { key: string; param: 'site' | 'purpose' | 'erects' | 'separates'; label: string; clauses: string[]; bars: boolean }>()
+  const asks = new Map<string, { key: string; param: 'site' | 'purpose' | 'erects' | 'separates'; label: string; question: string; clauses: string[]; bars: boolean }>()
   const art = (u: unknown) => /(housing|accommodation|development)$/i.test(String(u)) ? String(u) : `${/^[aeiou]/i.test(String(u)) ? 'an' : 'a'} ${u}`
   for (const n of norms) for (const l of leaves(n.when)) {
     let key: string | null = null, param: any = 'site', label = ''
-    if (l.fact === 'site.has') { key = l.under ? `${l.value}@${l.under}` : String(l.value); label = l.under ? `${art(l.value)} built under ${l.under.replace('housing-sepp-2021:', 'Housing SEPP ')}` : art(l.value) }
-    else if (l.fact === 'site.consent_on_or_after' || l.fact === 'site.consent_before') { key = `${l.fact}:${l.value}:${l.text}`; label = `an existing ${l.value} approved ${l.fact === 'site.consent_before' ? 'before' : 'on or after'} ${l.text}` }
-    else if (l.fact === 'site.approved_or_pending') { key = `${l.fact}:${l.value}`; label = `a consent in force, or an application pending, for ${l.value}` }
-    else if (l.fact === 'proposal.also_erects') { key = String(l.value); param = 'erects'; label = `the same application also erects the ${l.value}` }
-    else if (l.fact === 'proposal.separates') { key = String(l.value); param = 'separates'; label = 'the subdivision puts the principal and the secondary dwelling on separate lots' }
+    // each with a question in plain words; the part of the SEPP a building was approved under is named, not coded
+    const part = (u: string) => u.replace('housing-sepp-2021:ch.3-pt.1', 'the Housing SEPP (secondary dwellings, Ch 3 Pt 1)')
+      .replace('housing-sepp-2021:ch.3-pt.5-div.8', 'the Housing SEPP (seniors housing by a relevant authority, Ch 3 Pt 5 Div 8)')
+      .replace('housing-sepp-2021:ch.3-pt.5', 'the Housing SEPP (seniors housing, Ch 3 Pt 5)').replace('housing-sepp-2021:ch.3-pt.7', 'the Housing SEPP (serviced apartment conversion, Ch 3 Pt 7)')
+      .replace('housing-sepp-2021:ch.2-pt.2-div.1', 'the Housing SEPP (in-fill affordable housing, Ch 2 Pt 2 Div 1)').replace('housing-sepp-2021:ch.7', 'the Housing SEPP Pattern Book (Ch 7)')
+    let question = ''
+    if (l.fact === 'site.has') { key = l.under ? `${l.value}@${l.under}` : String(l.value); label = l.under ? `${art(l.value)} built under ${part(l.under)}` : art(l.value)
+      question = `Is there ${label} on the lot?` }
+    else if (l.fact === 'site.consent_on_or_after' || l.fact === 'site.consent_before') { key = `${l.fact}:${l.value}:${l.text}`; label = `an existing ${l.value} approved ${l.fact === 'site.consent_before' ? 'before' : 'on or after'} ${l.text}`
+      question = `Was the ${l.value} on the lot approved ${l.fact === 'site.consent_before' ? 'before' : 'on or after'} ${new Date(String(l.text)).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}?` }
+    else if (l.fact === 'site.approved_or_pending') { key = `${l.fact}:${l.value}`; label = `a consent in force, or an application pending, for ${l.value}`
+      question = `Is there a consent in force, or an application not yet decided, for ${l.value} on the lot?` }
+    else if (l.fact === 'proposal.also_erects') { key = String(l.value); param = 'erects'; label = `the same application also erects the ${l.value}`
+      question = `Will the same application also build the ${l.value}?` }
+    else if (l.fact === 'proposal.separates') { key = String(l.value); param = 'separates'; label = 'the subdivision puts the principal and the secondary dwelling on separate lots'
+      question = 'Will the subdivision put the house and the secondary dwelling on separate lots?' }
     if (!key) continue
     const k = `${param}|${key}`
-    const a = asks.get(k) ?? { key, param, label, clauses: [], bars: false }
+    const a = asks.get(k) ?? { key, param, label, question, clauses: [], bars: false }
     if (!a.clauses.includes(n.clause)) a.clauses.push(n.clause)
     // a bar: the question feeds a prohibition (s 27 "must not be granted for the subdivision of a boarding house") - what
     // "none of these is on the lot" answers; a dwelling house on the lot (4.1B) is not one
@@ -136,7 +147,13 @@ export default defineEventHandler(async (event) => {
     lot: { cadid, lotId: lot.lotId, zone: lot.zone, epi: lot.epi, lga: lot.lga, areaM2: lot.areaM2, frontageM: lot.frontageM,
            lotSizeMinM2: lot.lotSizeMinM2, onLotSizeMap: lot.onLotSizeMap, strata: lot.site[landUseKey('strata scheme')] ?? false },
     lepCovered: Boolean(lep), purpose: purpose ?? null, lots,
-    kinds, asks: ranked, answered: Object.keys(site), derived, unchecked, minima,
+    // what the asker has answered, with the question - shown with the answer chosen, never dropped from view
+    kinds, asks: ranked, derived, unchecked, minima,
+    answered: [...asks.values()].map((a) => {
+      const v = a.param === 'site' ? site[a.key] : a.param === 'erects' ? (erects0 == null ? undefined : erects0 === a.key)
+        : a.param === 'separates' ? (separates0 == null ? undefined : separates0 === a.key) : undefined
+      return v === undefined ? null : { ...a, value: v }
+    }).filter(Boolean),
     sources,
   }
 })
