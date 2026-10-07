@@ -362,7 +362,12 @@ async function main() {
   const skipped: string[] = []
 
   for (const c of clauses) {
-    if (SKIP[c.local_id]) { skipped.push(`${c.local_id}: ${SKIP[c.local_id]}`); continue }
+    // a clause left out on purpose is recorded with its reason, so coverage can tell it from one nobody read
+    if (SKIP[c.local_id]) {
+      skipped.push(`${c.local_id}: ${SKIP[c.local_id]}`)
+      findings.push({ kind: 'clause_skipped', gating: false, clause: c.local_id, value: null, detail: `${c.local_id} left out: ${SKIP[c.local_id]}` })
+      continue
+    }
     const parts = [c, ...secs.filter(s => s.id !== c.id && chain(s).includes(c))]
     const operative = parts.filter(p => p.route === 'operative')
     if (!operative.length) { skipped.push(`${c.local_id}: no operative text (route ${c.route})`); continue }
@@ -804,6 +809,13 @@ async function main() {
       const roomCap = tOp.match(/\b(?:not result in|no|not) more than (\d+) bedrooms\b/i)
       if (roomCap) push({ effect_type: 'condition_of_consent', topic: 'bedrooms', comparator: 'lte', value: Number(roomCap[1]), unit: 'bedrooms' },
         [Number(roomCap[1])])
+      // a cap as a share of another control: "the maximum floor space ratio must not exceed 130% of the maximum permissible
+      // floor space ratio for the development on the land" (s 12A(2))
+      const capOf = tOp.match(/\bmust not exceed (\d+(?:\.\d+)?)% of the maximum permissible (floor space ratio|building height)\b/i)
+      if (capOf) push({ effect_type: 'relative_numeric', topic: /floor/i.test(capOf[2]!) ? 'fsr' : 'height', comparator: 'lte', value: Number(capOf[1]),
+        unit: 'percent', relative_to: `maximum permissible ${capOf[2]!.toLowerCase()}`,
+        value_source: /\bmore than one relevant provision\b/i.test(tOp) ? 'when the additional floor space ratio of more than one relevant provision is used' : null },
+        [Number(capOf[1])])
       // a standard set by a guideline: "the car parking for the building must be equal to, or greater than, the recommended
       // minimum amount of car parking specified in Part 3J of the Apartment Design Guide" (s 148(2)(a))
       const byGuide = tOp.match(/^the (.+?) (?:for|of) (?:the|each) [a-z ]+? must be equal to, or (greater|less) than, the (recommended (?:minimum|maximum) [a-z ]+?) specified in (Part [\dA-Z]+ of the [A-Z][\w ]+?)[,.;]?(?: and| or)?$/i)

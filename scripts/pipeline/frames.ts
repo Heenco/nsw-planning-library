@@ -72,6 +72,17 @@ async function main() {
            VALUES ($1, $2, 'prevails_over', 'instrument', '{"extent": "to the extent of the inconsistency"}'::jsonb, $3, 1.0, true)`,
           [r.id, `doc_type:${over}`, `${f.prevails!.clause}: ${f.prevails!.span}`])
       }
+      // another instrument prevailing over this frame's part ("SEPP (Sustainable Buildings) 2022, Chapter 2 prevails over
+      // this policy, Chapter 4", s 8(2)): an excepts edge to it - shown, not evaluated
+      await client.query(`DELETE FROM nsw.rule_edge WHERE from_rule_id = $1 AND edge_type = 'excepts' AND scope ->> 'kind' = 'yields'`, [r.id])
+      for (const y of f.yields ?? []) {
+        await client.query(
+          `INSERT INTO nsw.rule_edge (from_rule_id, to_ref, edge_type, authority, scope, source_span, confidence, cross_document)
+           VALUES ($1, $2, 'excepts', 'instrument', $3::jsonb, $4, 1.0, true)`,
+          [r.id, `doc:${y.to}${y.part ? '#' + y.part : ''}`,
+           JSON.stringify({ kind: 'yields', meaning: 'that instrument prevails over this part to the extent of an inconsistency', clause: y.clause }),
+           `${y.clause}: ${y.span}`])
+      }
     }
   }
 

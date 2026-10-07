@@ -77,7 +77,7 @@ export default defineEventHandler(async () => {
     nswQuery<any>(`SELECT f.document_id AS doc, count(*) FILTER (WHERE f.gating)::int AS gating,
                           count(*) FILTER (WHERE NOT f.gating)::int AS other
                      FROM nsw.audit_finding f JOIN nsw.document d ON d.id = f.document_id
-                    WHERE d.doc_type = 'sepp' AND f.status = 'open' GROUP BY 1`),
+                    WHERE d.doc_type = 'sepp' AND f.status = 'open' AND f.kind <> 'clause_skipped' GROUP BY 1`),
     nswQuery<any>(`SELECT DISTINCT ON (i.document_id, i.stage_metrics->>'step')
                           i.document_id AS doc, i.stage_metrics->>'step' AS step, i.status, i.started_at, i.stage_metrics AS metrics
                      FROM nsw.ingest_run i JOIN nsw.document d ON d.id = i.document_id
@@ -88,8 +88,13 @@ export default defineEventHandler(async () => {
     nswQuery<any>(`SELECT c.document_id AS doc, count(*)::int AS clauses,
                           count(*) FILTER (WHERE c.routed)::int AS routed,
                           count(*) FILTER (WHERE c.op)::int AS operative,
-                          count(*) FILTER (WHERE c.op AND c.ru)::int AS with_rules
-                     FROM (SELECT c.document_id,
+                          count(*) FILTER (WHERE c.op AND c.ru)::int AS with_rules,
+                          count(*) FILTER (WHERE c.op AND NOT c.ru AND c.skip)::int AS left_out,
+                          coalesce(array_agg(c.local_id ORDER BY c.sort_order) FILTER (WHERE c.op AND NOT c.ru AND NOT c.skip), '{}') AS unaccounted
+                     FROM (SELECT c.document_id, c.local_id, c.sort_order,
+                                  -- left out on purpose: step 5 recorded the reason (profile.skip)
+                                  EXISTS (SELECT 1 FROM nsw.audit_finding f WHERE f.document_id = c.document_id AND f.status = 'open'
+                                            AND f.kind = 'clause_skipped' AND f.clause = c.local_id) AS skip,
                                   EXISTS (SELECT 1 FROM nsw.section x WHERE x.document_id = c.document_id
                                             AND (x.id = c.id OR x.local_id LIKE c.local_id || '-%') AND x.route IS NOT NULL) AS routed,
                                   EXISTS (SELECT 1 FROM nsw.section x WHERE x.document_id = c.document_id
@@ -118,7 +123,7 @@ export default defineEventHandler(async () => {
       sections: { total: s.total ?? 0, hashed: s.hashed ?? 0, routed: s.routed ?? 0, operative: s.operative ?? 0 },
       chapters: { unit: c.unit ?? 'chapter', total: c.chapters ?? 0, withRules: c.with_rules ?? 0, covered: c.covered ?? [] },
       clauses: { total: K.get(k)?.clauses ?? 0, routed: (K.get(k)?.routed ?? 0) > 0, operative: K.get(k)?.operative ?? 0,
-                 withRules: K.get(k)?.with_rules ?? 0 },
+                 withRules: K.get(k)?.with_rules ?? 0, leftOut: K.get(k)?.left_out ?? 0, unaccounted: K.get(k)?.unaccounted ?? [] },
       rules: { frames: r.frames ?? 0, held: r.held ?? 0, published: r.published ?? 0, retired: r.retired ?? 0,
                applicability: r.applicability ?? 0, effects: e.effects ?? 0, numeric: e.numeric ?? 0,
                edges: g.edges ?? 0, edgeTypes: Object.keys(g.types ?? {}) },

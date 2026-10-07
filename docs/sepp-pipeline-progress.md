@@ -451,6 +451,16 @@ Coverage before: 80 / 187 operative clauses. Same structure (profile frames, gen
   own clauses, procedures (certificates, referrals), definitions-in-effect, complying development (step 18).
 **Done when:** recall PASS on each part; hand keys for each part; earlier keys still pass; readings listed for review.
 
+- **17d Ch 1 + honest coverage** — `done` 2026-10-07 (local commit). /graph showed 132 / 187 after 17c: the other 55
+  operative clauses had no rule, and nothing told a deliberate omission from a miss. Chapter 1 had never been planned
+  and held two real provisions: **s 12A** (stacked FSR bonuses capped at 130% of the maximum permissible FSR - a rule,
+  `relative_numeric`) and **s 8(2)** (Sustainable Buildings SEPP Ch 2 prevails over Ch 4 - an `excepts` edge from the
+  ch4-rad frame, from the new frame field `yields`; shown, not evaluated). The other Ch 1 clauses are left out with
+  reasons. Step 5 now records every skipped clause as a non-gating `clause_skipped` finding with its reason (not counted
+  as "to review"); /api/rules/sepp-coverage returns `leftOut` and the `unaccounted` clause list; /graph shows
+  "187 / 187 accounted for · 133 with rules · 54 left out · 0 unaccounted", 7 / 7 chapters. 206 rules, keys **58/58**,
+  gate green, held. *Unaccounted* is the number that must be 0 when a SEPP is done.
+
 ### Later
 - 18. Codes SEPP (key: `cdc` catalogue) — in progress in the "airspace" session (worktree C:\w\codes-sepp, branch
   feat/codes-sepp-pipeline, migrations 30+); not this loop's
@@ -583,3 +593,4 @@ say what to change. The readings that decide answers:
 - 2026-10-07 — 17a done (local): Ch 2 remaining divisions + Pt 3; 170 rules, 99/187 operative clauses, 43/43 keys; migration 23. Q10.
 - 2026-10-07 — 17b done (local): Ch 3 remaining parts; 202 rules, 129/187 operative clauses, 54/54 keys; migration 24. Q11. Step 18 (Codes SEPP) taken by the "airspace" session in worktree C:\w\codes-sepp.
 - 2026-10-07 — 17c done (local): Ch 4; 205 rules, 132/187 operative clauses, 57/57 keys. Step 17 done - the Housing SEPP is complete. Loop stops: 18 is with the "airspace" session, 19 is a "Later" item with no plan yet.
+- 2026-10-07 — 17d done (local): Ch 1 (s 12A rule, s 8(2) edge); coverage now with rules / left out / unaccounted = 133 / 54 / 0 of 187; 58/58 keys.

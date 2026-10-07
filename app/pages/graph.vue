@@ -208,15 +208,28 @@
               <td>
                 <!-- clause by clause: moves as each part of a SEPP is extracted; the chapter count below hides that -->
                 <span class="gm-bar-wrap gm-bar-wrap--wide"
-                      :title="d.clauses.routed ? `${d.clauses.withRules} of ${d.clauses.operative} operative clauses hold a generated rule` : 'not routed yet (step 4) - all clauses counted'">
-                  <span class="gm-bar" :class="tone(pct(d.clauses.withRules, d.clauses.routed ? d.clauses.operative : d.clauses.total))"
-                        :style="{ width: pct(d.clauses.withRules, d.clauses.routed ? d.clauses.operative : d.clauses.total) + '%' }" />
+                      :title="d.clauses.routed
+                        ? `${d.clauses.withRules} of ${d.clauses.operative} operative clauses hold a generated rule; ${d.clauses.leftOut} left out on purpose, each with its reason`
+                          + (d.clauses.unaccounted.length ? `\nUnaccounted: ${d.clauses.unaccounted.map((c: string) => c.replace('sec.', 's ')).join(', ')}` : '')
+                        : 'not routed yet (step 4) - all clauses counted'">
+                  <!-- accounted for = a rule, or a recorded reason for leaving the clause out -->
+                  <span class="gm-bar" :class="tone(pct(d.clauses.withRules + d.clauses.leftOut, d.clauses.routed ? d.clauses.operative : d.clauses.total))"
+                        :style="{ width: pct(d.clauses.withRules + d.clauses.leftOut, d.clauses.routed ? d.clauses.operative : d.clauses.total) + '%' }" />
                   <span class="gm-bar-text">
-                    {{ d.clauses.withRules }} / {{ d.clauses.routed ? d.clauses.operative : d.clauses.total }}
-                    {{ d.clauses.routed ? 'operative clauses' : 'clauses' }}
-                    ({{ pct(d.clauses.withRules, d.clauses.routed ? d.clauses.operative : d.clauses.total) }}%)
+                    <template v-if="d.clauses.routed && (d.clauses.withRules || d.clauses.leftOut)">
+                      {{ d.clauses.withRules + d.clauses.leftOut }} / {{ d.clauses.operative }} accounted for
+                    </template>
+                    <template v-else>
+                      {{ d.clauses.withRules }} / {{ d.clauses.routed ? d.clauses.operative : d.clauses.total }}
+                      {{ d.clauses.routed ? 'operative clauses' : 'clauses' }}
+                      ({{ pct(d.clauses.withRules, d.clauses.routed ? d.clauses.operative : d.clauses.total) }}%)
+                    </template>
                   </span>
                 </span>
+                <div v-if="d.clauses.routed && (d.clauses.withRules || d.clauses.leftOut)" class="gm-sepp-covered">
+                  {{ d.clauses.withRules }} with rules · {{ d.clauses.leftOut }} left out ·
+                  <span :class="d.clauses.unaccounted.length ? 'gm-unacc' : ''">{{ d.clauses.unaccounted.length }} unaccounted</span>
+                </div>
                 <div class="gm-sepp-covered" :title="d.chapters.covered.join('\n')">
                   {{ d.chapters.withRules }} / {{ d.chapters.total }} {{ d.chapters.unit }}s<template v-if="d.chapters.covered.length"> · {{ d.chapters.covered.join(' · ') }}</template>
                 </div>
@@ -255,8 +268,10 @@
         </table>
         <p class="gm-note">
           <strong>Source</strong> compares the library's XML with the copy last ingested (due = changed since).
-          <strong>Coverage</strong> is clause by clause: operative clauses (step 4's routing) of which at least one part holds a
-          generated rule - it moves as each part of a SEPP is extracted. Below it, the chapters (parts, where a SEPP has
+          <strong>Coverage</strong> is clause by clause over the operative clauses (step 4's routing): <em>with rules</em> holds at
+          least one generated rule; <em>left out</em> was skipped on purpose with a recorded reason (a frame's own clause, a
+          procedure, complying development for the Codes SEPP); <em>unaccounted</em> is neither - the number that should be 0
+          when a SEPP is done (hover for the clauses). Below it, the chapters (parts, where a SEPP has
           none) holding any rule at all; a SEPP not yet routed shows all its clauses.
           <strong>Values</strong> are effects carrying a number; <strong>edges</strong> say which instrument prevails or
           disapplies what. <strong>Place terms</strong> are the defined areas, maps, councils and land characteristics
@@ -462,6 +477,8 @@ function flags(d: any): string[] {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   font-size: 10px; font-weight: 600; color: #0f172a;
 }
+.gm-bar-text { gap: 0.25em; white-space: nowrap; }
+.gm-unacc { color: #b91c1c; font-weight: 800; }
 
 .gm-scroll { overflow-x: auto; }
 .gm-dims { display: flex; flex-wrap: wrap; gap: 3px; min-width: 130px; }

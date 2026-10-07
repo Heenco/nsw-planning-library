@@ -45,6 +45,8 @@ export interface Frame {
   conditions: FrameCondition[]
   /** Instruments this frame prevails over, with the clause that says so. */
   prevails?: { over: ('lep' | 'dcp')[]; clause: string; span: string }
+  /** another instrument that prevails over this frame's part (s 8(2)): recorded as an `excepts` edge, shown, not evaluated */
+  yields?: { to: string; part?: string; clause: string; span: string }[]
   validFrom?: string
   note?: string
 }
@@ -166,7 +168,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
   slug: 'state-environmental-planning-policy-housing-2021',
   label: 'housing-sepp',
   rank: 30,
-  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7', 'ch.2-pt.1', 'ch.2-pt.2-div.3', 'ch.2-pt.2-div.4', 'ch.2-pt.2-div.5', 'ch.2-pt.2-div.6', 'ch.2-pt.3', 'ch.3-pt.2', 'ch.3-pt.6', 'ch.3-pt.7', 'ch.3-pt.8', 'ch.3-pt.9', 'ch.3-pt.10', 'ch.3-pt.11', 'ch.3-pt.13', 'ch.3-pt.14', 'ch.4'],
+  chapters: ['ch.6', 'ch.2-pt.2-div.1', 'ch.3-pt.4', 'ch.2-pt.2-div.2', 'ch.3-pt.3', 'ch.3-pt.5', 'ch.5', 'ch.3-pt.1', 'ch.7', 'ch.2-pt.1', 'ch.2-pt.2-div.3', 'ch.2-pt.2-div.4', 'ch.2-pt.2-div.5', 'ch.2-pt.2-div.6', 'ch.2-pt.3', 'ch.3-pt.2', 'ch.3-pt.6', 'ch.3-pt.7', 'ch.3-pt.8', 'ch.3-pt.9', 'ch.3-pt.10', 'ch.3-pt.11', 'ch.3-pt.13', 'ch.3-pt.14', 'ch.4', 'ch.1'],
   frames: [
     {
       id: 'instrument',
@@ -183,7 +185,7 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
           + 'environmental planning instrument, whether made before or after the commencement of this Policy, this '
           + 'Policy prevails to the extent of the inconsistency.',
       },
-      note: 's 8(2): the Sustainable Buildings SEPP Ch 2 prevails over this Policy\'s Ch 4 - not relevant to Ch 6.',
+      note: 's 8(2): the Sustainable Buildings SEPP Ch 2 prevails over this Policy\'s Ch 4 - held on the ch4-rad frame.',
     },
     {
       id: 'ch6',
@@ -652,6 +654,8 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
         { dimension: 'proposal_metric', value: 'not only a class 1a or 1b building', polarity: 'applies', clause: '144(5)',
           span: 'This chapter does not apply to development that involves only a class 1a or 1b building within the meaning of the Building Code of Australia.' },
       ],
+      yields: [{ to: 'state-environmental-planning-policy-sustainable-buildings-2022', part: 'ch.2', clause: '8(2)',
+        span: 'State Environmental Planning Policy (Sustainable Buildings) 2022, Chapter 2 prevails over this policy, Chapter 4, to the extent of an inconsistency.' }],
       note: 'Residential apartment development: RFBs, shop top housing, mixed use with a residential component (s 144(2)); '
         + 'the size thresholds are the proposal\'s. s 144(6): it may also be development under Ch 2 Pt 2 Div 1, 5, 6, Ch 5 or Ch 6.',
     },
@@ -987,6 +991,14 @@ export const HOUSING_SEPP_2021: InstrumentProfile = {
     'sec.144': 'the chapter frame (ch4-rad) - what residential apartment development is, and its size thresholds (the proposal\'s)',
     'sec.145': 'procedure - referral of a development application to a design review panel, not a lot rule',
     'sec.146': 'procedure - referral of a modification application to a design review panel, not a lot rule',
+    // Chapter 1 (Preliminary): only s 12A is a rule
+    'sec.1': 'the name of the Policy', 'sec.2': 'commencement', 'sec.10': 'repeals', 'sec.11': 'maps - what the Policy\'s maps are',
+    'sec.12': 'transferred provisions - a drafting note, not a rule',
+    'sec.3': 'principles of the Policy - aims, not a lot rule',
+    'sec.6': 'what "permitted without consent" means in this Policy - a definition in effect, read as each grant\'s pathway',
+    'sec.7': 'the whole State - the instrument frame',
+    'sec.8': 'the instrument frame (s 8(1) prevails over LEPs / DCPs) and the ch4-rad frame\'s yields (s 8(2))',
+    'sec.9': 'suspension of covenants and agreements inconsistent with the Policy - about private instruments, not a lot rule',
     'sec.13': 'defines very low / low / moderate income households (the Act, s 1.4(1)) - a definition, not a lot rule',
     'sec.33': 'the division frame (ch2-supportive) - s 33 is the land the division applies to',
     'sec.34': 'the division frame (ch2-supportive) - s 34 defines supportive accommodation and what the division applies to',

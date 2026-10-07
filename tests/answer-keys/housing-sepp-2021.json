@@ -1210,6 +1210,21 @@
           "144(2)": null
         }
       }
+    },
+    {
+      "name": "Randwick R2 - boarding houses: s 12A caps stacked floor space bonuses at 130% of the maximum permissible FSR",
+      "cadid": "102796197",
+      "use": "boarding houses",
+      "scope": "ch1",
+      "expect": {
+        "seppStandards": [
+          [
+            "12A",
+            "fsr",
+            130
+          ]
+        ]
+      }
     }
   ],
   "scopes": {
@@ -1224,6 +1239,7 @@
     "ch7": "^18[1-5]$",
     "ch2-rest": "^(1[3-5]A?|2[89]|3[0-9][AB]?|4[0-8][ABC]?|44A)$",
     "ch3-rest": "^(6[0-6][AB]?|109|11[0-9]|12[0-9]|13[0-9]|14[01][A-T]?)$",
-    "ch4": "^14[2-9]$"
+    "ch4": "^14[2-9]$",
+    "ch1": "^12A$"
   }
 }
