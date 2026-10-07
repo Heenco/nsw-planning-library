@@ -1,0 +1,488 @@
+{
+  "instrument": "State Environmental Planning Policy (Housing) 2021",
+  "model": "deepseek-ai/DeepSeek-V4-Pro",
+  "gate": [
+    "housing-sepp-2021:50: zone \"residential\" is not a zone code - kept as unparsed",
+    "housing-sepp-2021:52(1): span not in the clause: \"development for the purposes of a secondary dwelling\" - kept as unparsed",
+    "housing-sepp-2021:52(1): span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:52(1): span not in the clause: \"development for the purposes of a dwelling house is permissible on the land unde\" - kept as unparsed",
+    "housing-sepp-2021:52(2): span not in the clause: \"development for the purposes of a secondary dwelling\" - kept as unparsed",
+    "housing-sepp-2021:52(2): span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:52(2): span not in the clause: \"development for the purposes of a dwelling house is permissible on the land unde\" - kept as unparsed",
+    "housing-sepp-2021:52(2): span not in the clause: \"the total floor area of the secondary dwelling is no more than 60m2\" - kept as unparsed",
+    "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-a: span not in the clause: \"development for the purposes of a dwelling house is permissible on the land\" - kept as unparsed",
+    "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+    "housing-sepp-2021:53-2-b: span not in the clause: \"development for the purposes of a dwelling house is permissible on the land\" - kept as unparsed",
+    "housing-sepp-2021:185-1: span not in the clause: \"\" - kept as unparsed",
+    "housing-sepp-2021:185-1: span not in the clause: \"\" - kept as unparsed",
+    "housing-sepp-2021:185-1: span not in the clause: \"\" - kept as unparsed",
+    "housing-sepp-2021:185-2: span not in the clause: \"\" - kept as unparsed",
+    "housing-sepp-2021:185-2: span not in the clause: \"\" - kept as unparsed",
+    "housing-sepp-2021:185-2: span not in the clause: \"\" - kept as unparsed",
+    "housing-sepp-2021:185-2: span not in the clause: \"\" - kept as unparsed"
+  ],
+  "norms": [
+    {
+      "id": "housing-sepp-2021:50",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "50",
+      "section": "sec.50",
+      "text": "This Part applies to development for the purposes of a secondary dwelling on land in a residential zone if development for the purposes of a dwelling house is permissible on the land under another environmental planning instrument.",
+      "when": {
+        "all": [
+          {
+            "fact": "proposal.kind",
+            "value": "use",
+            "text": "development for the purposes of a secondary dwelling",
+            "span": "development for the purposes of a secondary dwelling"
+          },
+          {
+            "fact": "unparsed",
+            "text": "land in a residential zone",
+            "span": "land in a residential zone"
+          },
+          {
+            "fact": "lot.permits",
+            "value": "dwelling house",
+            "text": "development for the purposes of a dwelling house is permissible on the land under another environmental planning instrument",
+            "span": "development for the purposes of a dwelling house is permissible on the land under another environmental planning instrument"
+          }
+        ]
+      },
+      "then": {
+        "permit": "with_consent"
+      },
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:02.786Z"
+      },
+      "gate": [
+        "housing-sepp-2021:50: zone \"residential\" is not a zone code - kept as unparsed"
+      ]
+    },
+    {
+      "id": "housing-sepp-2021:51",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "51",
+      "section": "51",
+      "text": "Development consent must not be granted for the subdivision of a lot on which development has been carried out under this Part.",
+      "when": {
+        "all": [
+          {
+            "fact": "proposal.kind",
+            "value": "subdivision",
+            "text": "subdivision",
+            "span": "subdivision"
+          },
+          {
+            "fact": "site.has",
+            "value": "secondary dwelling",
+            "under": "housing-sepp-2021:ch.3-pt.1",
+            "text": "development has been carried out under this Part",
+            "span": "development has been carried out under this Part"
+          }
+        ]
+      },
+      "then": {
+        "prohibit": true
+      },
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:05.274Z"
+      }
+    },
+    {
+      "id": "housing-sepp-2021:52(1)",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "52(1)",
+      "section": "housing-sepp-2021:ch.3-pt.1",
+      "text": " Development to which this Part applies may be carried out with consent. Development consent must not be granted for development to which this Part applies unless— no dwellings, other than the principal dwelling and the secondary dwelling, will be located on the land, and the total floor area of the principal dwelling and the secondary dwelling is no more than the maximum floor area permitted for a dwelling house on the land under another environmental planning instrument, and the total floor area of the secondary dwelling is— no more than 60m2, or if a greater floor area is permitted for a secondary dwelling on the land under another environmental planning instrument—the greater floor area.",
+      "when": {
+        "all": [
+          {
+            "fact": "unparsed",
+            "text": "development for the purposes of a secondary dwelling",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "development for the purposes of a dwelling house is permissible on the land under another environmental planning instrument",
+            "span": ""
+          }
+        ]
+      },
+      "then": {
+        "permit": "with_consent"
+      },
+      "despite": [],
+      "subjectTo": [],
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:10.529Z"
+      },
+      "gate": [
+        "housing-sepp-2021:52(1): span not in the clause: \"development for the purposes of a secondary dwelling\" - kept as unparsed",
+        "housing-sepp-2021:52(1): span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:52(1): span not in the clause: \"development for the purposes of a dwelling house is permissible on the land unde\" - kept as unparsed"
+      ]
+    },
+    {
+      "id": "housing-sepp-2021:52(2)",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "52(2)",
+      "section": "housing-sepp-2021:ch.3-pt.1",
+      "text": " Development to which this Part applies may be carried out with consent. Development consent must not be granted for development to which this Part applies unless— no dwellings, other than the principal dwelling and the secondary dwelling, will be located on the land, and the total floor area of the principal dwelling and the secondary dwelling is no more than the maximum floor area permitted for a dwelling house on the land under another environmental planning instrument, and the total floor area of the secondary dwelling is— no more than 60m2, or if a greater floor area is permitted for a secondary dwelling on the land under another environmental planning instrument—the greater floor area.",
+      "when": {
+        "all": [
+          {
+            "fact": "unparsed",
+            "text": "development for the purposes of a secondary dwelling",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "development for the purposes of a dwelling house is permissible on the land under another environmental planning instrument",
+            "span": ""
+          },
+          {
+            "not": {
+              "all": [
+                {
+                  "fact": "unparsed",
+                  "text": "no dwellings, other than the principal dwelling and the secondary dwelling, will be located on the land",
+                  "span": "no dwellings, other than the principal dwelling and the secondary dwelling, will be located on the land"
+                },
+                {
+                  "fact": "unparsed",
+                  "text": "the total floor area of the principal dwelling and the secondary dwelling is no more than the maximum floor area permitted for a dwelling house on the land under another environmental planning instrument",
+                  "span": "the total floor area of the principal dwelling and the secondary dwelling is no more than the maximum floor area permitted for a dwelling house on the land under another environmental planning instrument"
+                },
+                {
+                  "any": [
+                    {
+                      "fact": "unparsed",
+                      "text": "the total floor area of the secondary dwelling is no more than 60m2",
+                      "span": ""
+                    },
+                    {
+                      "fact": "unparsed",
+                      "text": "if a greater floor area is permitted for a secondary dwelling on the land under another environmental planning instrument—the greater floor area",
+                      "span": "if a greater floor area is permitted for a secondary dwelling on the land under another environmental planning instrument—the greater floor area"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+        "prohibit": true
+      },
+      "despite": [],
+      "subjectTo": [],
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:10.531Z"
+      },
+      "gate": [
+        "housing-sepp-2021:52(2): span not in the clause: \"development for the purposes of a secondary dwelling\" - kept as unparsed",
+        "housing-sepp-2021:52(2): span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:52(2): span not in the clause: \"development for the purposes of a dwelling house is permissible on the land unde\" - kept as unparsed",
+        "housing-sepp-2021:52(2): span not in the clause: \"the total floor area of the secondary dwelling is no more than 60m2\" - kept as unparsed"
+      ]
+    },
+    {
+      "id": "housing-sepp-2021:53-2-a",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "53(2)(a)",
+      "section": "housing-sepp-2021:ch.3-pt.1",
+      "text": " The object of this section is to identify development standards for particular matters relating to development for the purposes of a secondary dwelling that, if complied with, prevent the consent authority from requiring more onerous standards for the matters. Note— See the Act, section 4.15(3), which does not prevent development consent being granted if a non-discretionary development standard is not complied with. The following are non-discretionary development standards in relation to the carrying out of development to which this Part applies— for a detached secondary dwelling—a minimum site area of 450m2, the number of parking spaces provided on the site is the same as the number of parking spaces provided on the site immediately before the development is carried out.",
+      "when": {
+        "all": [
+          {
+            "fact": "proposal.kind",
+            "value": "use",
+            "text": "development for the purposes of a secondary dwelling",
+            "span": "development for the purposes of a secondary dwelling"
+          },
+          {
+            "fact": "proposal.use",
+            "value": "secondary dwelling",
+            "text": "secondary dwelling",
+            "span": "secondary dwelling"
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "development for the purposes of a dwelling house is permissible on the land",
+            "span": ""
+          },
+          {
+            "fact": "proposal.separates",
+            "value": "principal dwelling|secondary dwelling",
+            "text": "detached secondary dwelling",
+            "span": "detached secondary dwelling"
+          }
+        ]
+      },
+      "then": {
+        "require": {
+          "topic": "site_area",
+          "cmp": "gte",
+          "n": 450,
+          "unit": "m2",
+          "kind": "non_discretionary"
+        }
+      },
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:16.131Z"
+      },
+      "gate": [
+        "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-a: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-a: span not in the clause: \"development for the purposes of a dwelling house is permissible on the land\" - kept as unparsed"
+      ]
+    },
+    {
+      "id": "housing-sepp-2021:53-2-b",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "53(2)(b)",
+      "section": "housing-sepp-2021:ch.3-pt.1",
+      "text": " The object of this section is to identify development standards for particular matters relating to development for the purposes of a secondary dwelling that, if complied with, prevent the consent authority from requiring more onerous standards for the matters. Note— See the Act, section 4.15(3), which does not prevent development consent being granted if a non-discretionary development standard is not complied with. The following are non-discretionary development standards in relation to the carrying out of development to which this Part applies— for a detached secondary dwelling—a minimum site area of 450m2, the number of parking spaces provided on the site is the same as the number of parking spaces provided on the site immediately before the development is carried out.",
+      "when": {
+        "all": [
+          {
+            "fact": "proposal.kind",
+            "value": "use",
+            "text": "development for the purposes of a secondary dwelling",
+            "span": "development for the purposes of a secondary dwelling"
+          },
+          {
+            "fact": "proposal.use",
+            "value": "secondary dwelling",
+            "text": "secondary dwelling",
+            "span": "secondary dwelling"
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "residential zone",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "development for the purposes of a dwelling house is permissible on the land",
+            "span": ""
+          }
+        ]
+      },
+      "then": {
+        "require": {
+          "topic": "parking",
+          "cmp": "eq",
+          "n": 0,
+          "kind": "non_discretionary",
+          "text": "the number of parking spaces provided on the site is the same as the number of parking spaces provided on the site immediately before the development is carried out",
+          "span": "the number of parking spaces provided on the site is the same as the number of parking spaces provided on the site immediately before the development is carried out"
+        }
+      },
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:16.133Z"
+      },
+      "gate": [
+        "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-b: span not in the clause: \"residential zone\" - kept as unparsed",
+        "housing-sepp-2021:53-2-b: span not in the clause: \"development for the purposes of a dwelling house is permissible on the land\" - kept as unparsed"
+      ]
+    },
+    {
+      "id": "housing-sepp-2021:27",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "27",
+      "section": "27",
+      "text": "Development consent must not be granted for the subdivision of a boarding house.",
+      "when": {
+        "all": [
+          {
+            "fact": "proposal.kind",
+            "value": "subdivision",
+            "text": "subdivision",
+            "span": "subdivision"
+          },
+          {
+            "fact": "site.has",
+            "value": "boarding house",
+            "text": "of a boarding house",
+            "span": "of a boarding house"
+          }
+        ]
+      },
+      "then": {
+        "prohibit": true
+      },
+      "despite": [],
+      "subjectTo": [],
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:18.290Z"
+      }
+    },
+    {
+      "id": "housing-sepp-2021:185-1",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "185(1)",
+      "section": "housing-sepp-2021:ch.7",
+      "text": " The strata subdivision of land on which development has been carried out under this chapter is permitted with development consent. The strata subdivision of land on which development will be carried out under this chapter is permitted with development consent if a single development application proposes— the carrying out of development to which this chapter applies on the land, and the strata subdivision of the land.",
+      "when": {
+        "all": [
+          {
+            "fact": "unparsed",
+            "text": "",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "",
+            "span": ""
+          }
+        ]
+      },
+      "then": {
+        "permit": "with_consent"
+      },
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:22.020Z"
+      },
+      "gate": [
+        "housing-sepp-2021:185-1: span not in the clause: \"\" - kept as unparsed",
+        "housing-sepp-2021:185-1: span not in the clause: \"\" - kept as unparsed",
+        "housing-sepp-2021:185-1: span not in the clause: \"\" - kept as unparsed"
+      ]
+    },
+    {
+      "id": "housing-sepp-2021:185-2",
+      "instrument": "State Environmental Planning Policy (Housing) 2021",
+      "clause": "185(2)",
+      "section": "housing-sepp-2021:ch.7",
+      "text": " The strata subdivision of land on which development has been carried out under this chapter is permitted with development consent. The strata subdivision of land on which development will be carried out under this chapter is permitted with development consent if a single development application proposes— the carrying out of development to which this chapter applies on the land, and the strata subdivision of the land.",
+      "when": {
+        "all": [
+          {
+            "fact": "unparsed",
+            "text": "",
+            "span": ""
+          },
+          {
+            "fact": "unparsed",
+            "text": "",
+            "span": ""
+          },
+          {
+            "all": [
+              {
+                "fact": "unparsed",
+                "text": "",
+                "span": ""
+              },
+              {
+                "fact": "unparsed",
+                "text": "",
+                "span": ""
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "permit": "with_consent"
+      },
+      "author": {
+        "by": "deepseek-ai/DeepSeek-V4-Pro",
+        "at": "2026-10-07T12:25:22.020Z"
+      },
+      "gate": [
+        "housing-sepp-2021:185-2: span not in the clause: \"\" - kept as unparsed",
+        "housing-sepp-2021:185-2: span not in the clause: \"\" - kept as unparsed",
+        "housing-sepp-2021:185-2: span not in the clause: \"\" - kept as unparsed",
+        "housing-sepp-2021:185-2: span not in the clause: \"\" - kept as unparsed"
+      ]
+    }
+  ]
+}

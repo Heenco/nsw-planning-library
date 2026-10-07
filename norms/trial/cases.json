@@ -1,0 +1,199 @@
+{
+  "note": "Trial answer keys for the norms engine. Expectations are my reading of the instruments (claude-opus-5-5, 2026-10-07) - to be confirmed by a planner. 'old' records what /api/rules/at answered for the nearest question, for comparison.",
+  "cases": [
+    {
+      "name": "62B Carr St Coogee (R3, 247 m²) - Torrens subdivision into 2 lots, nothing stated about the site",
+      "question": {
+        "cadid": "102325171",
+        "proposal": {
+          "kind": "subdivision",
+          "subdivision_type": "torrens",
+          "resulting_lots": 2
+        }
+      },
+      "expect": {
+        "outcome": "conditional",
+        "controlling": [
+          "randwick-lep-2012:2.6(1)"
+        ],
+        "dependsOnClauses": [
+          "51",
+          "27",
+          "2.6(2)"
+        ],
+        "standards": {
+          "randwick-lep-2012:4.1B(2)": null
+        }
+      },
+      "why": "2.6(1) permits subdivision with consent. s 51, s 27 and 2.6(2) prohibit it only if the lot already has a SEPP secondary dwelling / a boarding house / a secondary dwelling being split off - unknown, so asked. 4.1B's 325 m² applies only if a lot is used or proposed for a dwelling house - unknown.",
+      "old": "subdivision: NOT permissible - Housing SEPP s 51 (reaches the lot)"
+    },
+    {
+      "name": "62B Carr St - Torrens into 2 lots for dwelling houses; no secondary dwelling or boarding house on the lot",
+      "question": {
+        "cadid": "102325171",
+        "proposal": {
+          "kind": "subdivision",
+          "subdivision_type": "torrens",
+          "resulting_lots": 2,
+          "use": "dwelling house"
+        },
+        "site": {
+          "secondary dwelling@housing-sepp-2021:ch.3-pt.1": false,
+          "secondary dwelling": false,
+          "boarding house": false
+        }
+      },
+      "expect": {
+        "outcome": "permissible",
+        "pathway": "with_consent",
+        "controlling": [
+          "randwick-lep-2012:2.6(1)"
+        ],
+        "standards": {
+          "randwick-lep-2012:4.1B(2)": false
+        }
+      },
+      "why": "Permissible with consent (2.6(1)); but 4.1B(2) needs each lot >= 325 m² and 247 m² cannot make two - a development standard, so a cl 4.6 variation, not a prohibition. 4.1(3) does not reach: the lot is not on the Lot Size Map in our copy."
+    },
+    {
+      "name": "62B Carr St - strata subdivision; no secondary dwelling or boarding house",
+      "question": {
+        "cadid": "102325171",
+        "proposal": {
+          "kind": "subdivision",
+          "subdivision_type": "strata"
+        },
+        "site": {
+          "secondary dwelling@housing-sepp-2021:ch.3-pt.1": false,
+          "secondary dwelling": false,
+          "boarding house": false
+        }
+      },
+      "expect": {
+        "outcome": "permissible",
+        "pathway": "with_consent",
+        "controlling": [
+          "randwick-lep-2012:2.6(1)"
+        ],
+        "notStandards": [
+          "randwick-lep-2012:4.1(3)"
+        ]
+      },
+      "why": "2.6(1). 4.1 does not apply to strata (4.1(4)(a)). s 185 is only for Chapter 7 pattern-book development - it shows as undecided, never as the reason.",
+      "old": "strata subdivision: permissible with consent - Housing SEPP s 185 (read as a general grant)"
+    },
+    {
+      "name": "62B Carr St - Torrens subdivision when the lot has a boarding house",
+      "question": {
+        "cadid": "102325171",
+        "proposal": {
+          "kind": "subdivision",
+          "subdivision_type": "torrens",
+          "resulting_lots": 2
+        },
+        "site": {
+          "boarding house": true
+        }
+      },
+      "expect": {
+        "outcome": "prohibited",
+        "controlling": [
+          "housing-sepp-2021:27"
+        ]
+      },
+      "why": "s 27: consent must not be granted for the subdivision of a boarding house; a SEPP prevails over the LEP's 2.6(1)."
+    },
+    {
+      "name": "62B Carr St - a secondary dwelling (the LEP prohibits them in R3; the Housing SEPP permits them where dwelling houses are permissible)",
+      "question": {
+        "cadid": "102325171",
+        "proposal": {
+          "kind": "use",
+          "use": "secondary dwelling"
+        }
+      },
+      "expect": {
+        "outcome": "conditional",
+        "controlling": [
+          "housing-sepp-2021:52(1)"
+        ],
+        "dependsOnClauses": [
+          "52(2)"
+        ]
+      },
+      "why": "s 52(1) (R3 is a residential zone; dwelling houses permitted) prevails over the LEP's prohibition; s 52(2)'s conditions (no other dwellings, floor area) decide. 53(2)(a)'s 450 m² applies only if detached - the lot is 247 m²."
+    },
+    {
+      "name": "62B Carr St - a 50 m² secondary dwelling",
+      "question": {
+        "cadid": "102325171",
+        "proposal": {
+          "kind": "use",
+          "use": "secondary dwelling",
+          "floor_area_m2": 50
+        }
+      },
+      "expect": {
+        "outcome": "conditional",
+        "controlling": [
+          "housing-sepp-2021:52(1)"
+        ],
+        "dependsOnClauses": [
+          "52(2)"
+        ]
+      },
+      "why": "Still conditional: the two other s 52(2) conditions are proposal facts the vocabulary cannot hold yet (unparsed) - fail closed, never assumed."
+    },
+    {
+      "name": "Randwick R2, 461 m² - dual occupancy: 4.1C(2) needs a lot of at least 550 m²",
+      "question": {
+        "cadid": "100113742",
+        "proposal": {
+          "kind": "use",
+          "use": "dual occupancy"
+        }
+      },
+      "expect": {
+        "outcome": "prohibited",
+        "controlling": [
+          "randwick-lep-2012:4.1C(2)"
+        ]
+      },
+      "why": "4.1C(2): consent must not be granted for dual occupancies in R2 unless the lot is at least 550 m². (Housing SEPP Ch 6 s 166 - LMR dual occupancies - is outside the trial slice.)"
+    },
+    {
+      "name": "Randwick R2, 737 m² - dual occupancy: the Land Use Table splits it (attached permitted, detached prohibited)",
+      "question": {
+        "cadid": "102796197",
+        "proposal": {
+          "kind": "use",
+          "use": "dual occupancy"
+        }
+      },
+      "expect": {
+        "outcome": "conditional"
+      },
+      "why": "The R2 table row is 'mixed'. Which form is proposed is the asker's fact; the engine must ask, not say no.",
+      "old": "dual occupancy at this lot: see /api/rules/at"
+    },
+    {
+      "name": "Randwick R2, 737 m² - attached dual occupancy",
+      "question": {
+        "cadid": "102796197",
+        "proposal": {
+          "kind": "use",
+          "use": "dual occupancy (attached)"
+        }
+      },
+      "expect": {
+        "outcome": "permissible",
+        "pathway": "with_consent",
+        "controlling": [
+          "randwick-lep-2012:lut-permit"
+        ]
+      },
+      "why": "Land Use Table: dual occupancies (attached) permitted with consent in R2; 737 m² meets 4.1C."
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "instrument": "State Environmental Planning Policy (Housing) 2021",
+  "slug": "housing-sepp-2021",
+  "context": { "sec.51": ["sec.50"], "sec.52": ["sec.49", "sec.50"], "sec.53": ["sec.49", "sec.50"] },
+  "norms": [
+    {
+      "id": "housing-sepp-2021:51", "clause": "51", "section": "sec.51",
+      "when": { "all": [
+        { "fact": "proposal.kind", "value": "subdivision", "span": "the subdivision of a lot" },
+        { "fact": "site.has", "value": "secondary dwelling", "under": "housing-sepp-2021:ch.3-pt.1", "span": "a lot on which development has been carried out under this Part" }
+      ] },
+      "then": { "prohibit": true },
+      "author": { "by": "deepseek-ai/DeepSeek-V4-Pro", "at": "2026-10-07", "reviewed": "claude-opus-5-5 (in session) 2026-10-07: accepted as drafted, spans added" }
+    },
+    {
+      "id": "housing-sepp-2021:52(1)", "clause": "52(1)", "section": "sec.52-ssec.1",
+      "when": { "all": [
+        { "fact": "proposal.kind", "value": "use", "span": "development for the purposes of a secondary dwelling" },
+        { "fact": "proposal.use", "value": "secondary dwelling", "span": "development for the purposes of a secondary dwelling" },
+        { "any": [
+          { "fact": "lot.zone", "value": "R1", "span": "on land in a residential zone" },
+          { "fact": "lot.zone", "value": "R2", "span": "on land in a residential zone" },
+          { "fact": "lot.zone", "value": "R3", "span": "on land in a residential zone" },
+          { "fact": "lot.zone", "value": "R4", "span": "on land in a residential zone" },
+          { "fact": "lot.zone", "value": "R5", "span": "on land in a residential zone" }
+        ] },
+        { "fact": "lot.permits", "value": "dwelling house", "span": "if development for the purposes of a dwelling house is permissible on the land under another environmental planning instrument" }
+      ] },
+      "then": { "permit": "with_consent" },
+      "author": { "by": "deepseek-ai/DeepSeek-V4-Pro", "at": "2026-10-07", "reviewed": "claude-opus-5-5 (in session) 2026-10-07" },
+      "review": "Draft had every s 50 condition unparsed (its spans quoted s 50, which the first gate did not accept, and 'residential zone' had no zone codes). Rewritten with s 49's R1-R5 and s 50's dwelling-house test. 'Equivalent land use zone' (s 49) is not modelled."
+    },
+    {
+      "id": "housing-sepp-2021:52(2)", "clause": "52(2)", "section": "sec.52-ssec.2",
+      "when": { "all": [
+        { "fact": "proposal.kind", "value": "use", "span": "development for the purposes of a secondary dwelling" },
+        { "fact": "proposal.use", "value": "secondary dwelling", "span": "development for the purposes of a secondary dwelling" },
+        { "not": { "all": [
+          { "fact": "unparsed", "text": "no dwellings, other than the principal dwelling and the secondary dwelling, will be located on the land", "span": "no dwellings, other than the principal dwelling and the secondary dwelling, will be located on the land" },
+          { "fact": "unparsed", "text": "the total floor area of the principal and secondary dwelling is within the maximum floor area for a dwelling house under another EPI", "span": "the total floor area of the principal dwelling and the secondary dwelling is no more than the maximum floor area permitted for a dwelling house on the land under another environmental planning instrument" },
+          { "any": [
+            { "fact": "proposal.floor_area_m2", "cmp": "lte", "n": 60, "span": "no more than 60m2" },
+            { "fact": "unparsed", "text": "a greater floor area permitted for a secondary dwelling under another EPI", "span": "if a greater floor area is permitted for a secondary dwelling on the land under another environmental planning instrument" }
+          ] }
+        ] } }
+      ] },
+      "then": { "prohibit": true },
+      "author": { "by": "deepseek-ai/DeepSeek-V4-Pro", "at": "2026-10-07", "reviewed": "claude-opus-5-5 (in session) 2026-10-07" },
+      "review": "Structure kept from the draft (prohibit unless all three); 60m2 now a proposal.floor_area_m2 leaf. The other two stay unparsed: the vocabulary has no 'other dwellings on the land' or 'maximum floor area under another EPI' facts yet."
+    },
+    {
+      "id": "housing-sepp-2021:53(2)(a)", "clause": "53(2)(a)", "section": "sec.53-ssec.2-para1.a",
+      "when": { "all": [
+        { "fact": "proposal.kind", "value": "use", "span": "development for the purposes of a secondary dwelling" },
+        { "fact": "proposal.use", "value": "secondary dwelling", "span": "development for the purposes of a secondary dwelling" },
+        { "fact": "unparsed", "text": "the secondary dwelling is detached", "span": "for a detached secondary dwelling" }
+      ] },
+      "then": { "require": { "topic": "site_area", "cmp": "gte", "n": 450, "unit": "m²", "kind": "non_discretionary" } },
+      "author": { "by": "deepseek-ai/DeepSeek-V4-Pro", "at": "2026-10-07", "reviewed": "claude-opus-5-5 (in session) 2026-10-07" },
+      "review": "CORRECTED: the draft added a condition the clause does not have (proposal.separates principal|secondary dwelling) and dropped 'detached'. 'Detached' is kept as unparsed until the vocabulary has a building-form fact."
+    },
+    {
+      "id": "housing-sepp-2021:53(2)(b)", "clause": "53(2)(b)", "section": "sec.53-ssec.2-para1.b",
+      "when": { "all": [
+        { "fact": "proposal.kind", "value": "use", "span": "development for the purposes of a secondary dwelling" },
+        { "fact": "proposal.use", "value": "secondary dwelling", "span": "development for the purposes of a secondary dwelling" }
+      ] },
+      "then": { "require": { "topic": "parking", "cmp": "eq", "from": "existing", "unit": "spaces", "kind": "non_discretionary" } },
+      "author": { "by": "deepseek-ai/DeepSeek-V4-Pro", "at": "2026-10-07", "reviewed": "claude-opus-5-5 (in session) 2026-10-07" },
+      "review": "CORRECTED: the draft read 'the same as the number ... immediately before' as parking = 0. It is the existing number (from: existing)."
+    },
+    {
+      "id": "housing-sepp-2021:27", "clause": "27", "section": "sec.27",
+      "when": { "all": [
+        { "fact": "proposal.kind", "value": "subdivision", "span": "the subdivision of a boarding house" },
+        { "fact": "site.has", "value": "boarding house", "span": "the subdivision of a boarding house" }
+      ] },
+      "then": { "prohibit": true },
+      "author": { "by": "deepseek-ai/DeepSeek-V4-Pro", "at": "2026-10-07", "reviewed": "claude-opus-5-5 (in session) 2026-10-07: accepted, spans added" },
+      "review": "Read as any boarding house on the lot. Whether s 27 reaches only boarding houses developed under Div 2 is a question for review (it sits in Div 2)."
+    },
+    {
+      "id": "housing-sepp-2021:185(1)", "clause": "185(1)", "section": "sec.185-ssec.1",
+      "when": { "all": [
+        { "fact": "proposal.kind", "value": "subdivision", "span": "The strata subdivision of land" },
+        { "fact": "proposal.subdivision_type", "value": "strata", "span": "The strata subdivision of land" },
+        { "fact": "site.has", "value": "development", "under": "housing-sepp-2021:ch.7", "span": "land on which development has been carried out under this chapter" }
+      ] },
+      "then": { "permit": "with_consent" },
+      "author": { "by": "deepseek-ai/DeepSeek-V4-Pro", "at": "2026-10-07", "reviewed": "claude-opus-5-5 (in session) 2026-10-07" },
+      "review": "CORRECTED: the draft had no spans and invented 'a secondary dwelling under Chapter 7' (the gate turned it all into unparsed). It is any development carried out under Chapter 7 (a pattern book design)."
+    },
+    {
+      "id": "housing-sepp-2021:185(2)", "clause": "185(2)", "section": "sec.185-ssec.2",
+      "when": { "all": [
+        { "fact": "proposal.kind", "value": "subdivision", "span": "The strata subdivision of land" },
+        { "fact": "proposal.subdivision_type", "value": "strata", "span": "The strata subdivision of land" },
+        { "fact": "proposal.under", "value": "housing-sepp-2021:ch.7", "span": "land on which development will be carried out under this chapter" },
+        { "fact": "unparsed", "text": "a single development application proposes both the Chapter 7 development and the strata subdivision", "span": "if a single development application proposes—" }
+      ] },
+      "then": { "permit": "with_consent" },
+      "author": { "by": "deepseek-ai/DeepSeek-V4-Pro", "at": "2026-10-07", "reviewed": "claude-opus-5-5 (in session) 2026-10-07" },
+      "review": "CORRECTED as 185(1); the single-application condition stays unparsed."
+    }
+  ]
+}
