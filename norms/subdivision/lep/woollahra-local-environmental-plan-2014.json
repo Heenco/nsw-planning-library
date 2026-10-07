@@ -1,36 +1,15 @@
 {
  "instrument": "Woollahra Local Environmental Plan 2014",
  "slug": "woollahra-local-environmental-plan-2014",
- "unchecked": [
-  {
-   "clause": "4.1(3A)",
-   "section": "sec.4.1-ssec.3A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum lot sizes for dual occupancies, manor houses, multi dwelling housing and residential flat buildings"
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Exceptions to minimum subdivision lot sizes for certain residential development",
-   "zones": [
-    "R3"
-   ]
-  },
-  {
-   "clause": "6.5",
-   "section": "sec.6.5",
-   "why": "Particular dual occupancy subdivisions must not be approved"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "woollahra-local-environmental-plan-2014:2.6(1)",

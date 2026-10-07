@@ -1,84 +1,15 @@
 {
  "instrument": "Hornsby Local Environmental Plan 2013",
  "slug": "hornsby-local-environmental-plan-2013",
- "unchecked": [
-  {
-   "clause": "4.1(3A)",
-   "section": "sec.4.1-ssec.3A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum subdivision lot size for strata plan schemes in certain zones",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU4",
-    "RU5",
-    "R2",
-    "SP3",
-    "C2",
-    "C3",
-    "C4"
-   ]
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Minimum lot size for certain split zone lots",
-   "zones": [
-    "C2",
-    "C3"
-   ]
-  },
-  {
-   "clause": "4.1C",
-   "section": "sec.4.1C",
-   "why": "Minimum lot size for dual occupancies in Zone R2",
-   "zones": [
-    "R2"
-   ]
-  },
-  {
-   "clause": "4.1D",
-   "section": "sec.4.1D",
-   "why": "Minimum subdivision lot size for dual occupancies in Zone R2",
-   "zones": [
-    "R2"
-   ]
-  },
-  {
-   "clause": "4.2",
-   "section": "sec.4.2",
-   "why": "Rural subdivision",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU3",
-    "RU4",
-    "RU6"
-   ]
-  },
-  {
-   "clause": "5.16",
-   "section": "sec.5.16",
-   "why": "Subdivision of, or dwellings on, land in certain rural, residential or conservation zones",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU4",
-    "C2",
-    "C3",
-    "C4"
-   ]
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "hornsby-local-environmental-plan-2013:2.6(1)",

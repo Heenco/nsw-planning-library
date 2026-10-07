@@ -1,13 +1,11 @@
 {
  "instrument": "Sydney Local Environmental Plan (Harold Park) 2011",
  "slug": "sydney-local-environmental-plan-harold-park-2011",
- "unchecked": [
-  {
-   "clause": "4.1",
-   "section": "sec.4.1",
-   "why": "not the Standard Instrument wording"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "sydney-local-environmental-plan-harold-park-2011:2.6(1)",

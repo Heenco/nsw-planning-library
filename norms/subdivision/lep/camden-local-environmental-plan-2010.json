@@ -1,77 +1,15 @@
 {
  "instrument": "Camden Local Environmental Plan 2010",
  "slug": "camden-local-environmental-plan-2010",
- "unchecked": [
-  {
-   "clause": "4.1E",
-   "section": "sec.4.1E",
-   "why": "Minimum lot sizes and special provisions for multi dwelling housing",
-   "zones": [
-    "R1",
-    "R3",
-    "MU1"
-   ]
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Exceptions to minimum lot sizes for certain residential development use"
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Exception to minimum lot sizes for certain land at Lakeside Urban Release Area",
-   "zones": [
-    "C2",
-    "RE2"
-   ]
-  },
-  {
-   "clause": "4.1C",
-   "section": "sec.4.1C",
-   "why": "Exception to minimum lot size for El Caballo Blanco/Gledswood",
-   "zones": [
-    "SP3",
-    "RE2"
-   ]
-  },
-  {
-   "clause": "4.1D",
-   "section": "sec.4.1D",
-   "why": "Minimum lot sizes and special provisions for dual occupancies",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU4",
-    "R1",
-    "R2",
-    "R3",
-    "R5"
-   ]
-  },
-  {
-   "clause": "4.2",
-   "section": "sec.4.2",
-   "why": "Rural subdivision",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU3",
-    "RU4",
-    "RU6"
-   ]
-  },
-  {
-   "clause": "7.5",
-   "section": "sec.7.5",
-   "why": "Minimum lot size for particular secondary dwellings"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "camden-local-environmental-plan-2010:2.6(1)",

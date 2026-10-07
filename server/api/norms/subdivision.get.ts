@@ -17,7 +17,8 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { evaluate } from '#shared/norms/engine'
-import { lotFacts } from '#shared/norms/facts'
+import { lotFacts, refHitsFor } from '#shared/norms/facts'
+import { graphNorms } from '#shared/norms/from-graph'
 import type { Cond, Norm, Question } from '#shared/norms/schema'
 import { landUseKey } from '#shared/land-use-key'
 import { nswQuery } from '../../utils/nsw-kg/pool'
@@ -43,21 +44,27 @@ export default defineEventHandler(async (event) => {
     if (i > 0) site[part.slice(0, i).trim()] = /^(yes|true|1)$/i.test(part.slice(i + 1).trim())
   }
 
-  // the norms: Housing SEPP's subdivision clauses + the lot's own LEP (found once the lot's plan is known)
+  // the norms: the Housing SEPP's subdivision clauses + the lot's own LEP - its Standard Instrument 2.6 / 4.1 (read
+  // from its words by scripts/norms/build-subdivision.ts) and everything else from the graph's own rules for that plan
+  const q2 = (sql: string, p?: unknown[]) => nswQuery<any>(sql, p as any[])
   const dir = join(process.cwd(), 'norms', 'subdivision')
   const load = (f: string) => JSON.parse(readFileSync(f, 'utf8'))
   const housing = load(join(dir, 'housing-sepp-2021.json'))
   const leps = readdirSync(join(dir, 'lep')).filter(f => f.endsWith('.json')).map(f => load(join(dir, 'lep', f)))
-  const allTerms = [...housing.norms, ...leps.flatMap(l => l.norms)].flatMap((n: Norm) => leaves(n.when)).filter(l => l.fact === 'lot.in').map(l => String(l.value))
+  const sepTerms = (housing.norms as Norm[]).flatMap(n => leaves(n.when)).filter(l => l.fact === 'lot.in').map(l => String(l.value))
   let lot
-  try { lot = await lotFacts((sql, p) => nswQuery<any>(sql, p as any[]), cadid, landUseKey, [...new Set(allTerms)]) }
+  try { lot = await lotFacts(q2, cadid, landUseKey, [...new Set(sepTerms)]) }
   catch (e: any) { throw createError({ statusCode: 404, statusMessage: e.message }) }
   const lep = leps.find(l => l.instrument === lot.epi) ?? null
+  const lepDoc = lot.epi ? (await q2(`SELECT id, instrument_slug FROM nsw.document WHERE title = $1 LIMIT 1`, [lot.epi])).rows[0] : null
+  const fromGraph = lepDoc ? await graphNorms(q2, lepDoc.id, lot.epi!, lepDoc.instrument_slug, {
+    clauseFilter: `heading ~* 'subdivi|lot size' OR local_id IN ('sec.2.6', 'sec.4.1')`, covered: lep?.covered ?? [] }) : { norms: [], gaps: [], refIds: [] }
+  lot.refHits = await refHitsFor(q2, cadid, fromGraph.refIds)
   const files = [housing, ...(lep ? [lep] : [])]
-  const norms: Norm[] = files.flatMap(f => f.norms.map((n: Norm) => ({ ...n, instrument: f.instrument })))
+  const norms: Norm[] = [...files.flatMap(f => f.norms.map((n: Norm) => ({ ...n, instrument: f.instrument }))), ...fromGraph.norms]
   const sectionOf = new Map(norms.map(n => [n.id, n.section]))
   const sources = Object.fromEntries((await nswQuery<any>(`SELECT DISTINCT ON (title) title, source_url FROM nsw.document WHERE title = ANY($1) AND source_url IS NOT NULL ORDER BY title, ingested_at DESC`,
-    [files.map(f => f.instrument)])).rows.map((d: any) => [d.title, d.source_url]))
+    [[...files.map(f => f.instrument), lot.epi].filter(Boolean)])).rows.map((d: any) => [d.title, d.source_url]))
   const link = (instrument: string, section: string | undefined) => sources[instrument] && section ? `${sources[instrument]}#${section}` : null
 
   const questionFor = (key: string, s: Record<string, boolean>, erects?: string, separates?: string): Question => ({ cadid, site: s,
@@ -134,7 +141,12 @@ export default defineEventHandler(async (event) => {
     return { ...a, changes: changes + changesClean, changesClean }
   }).filter(a => a.changes > 0).sort((x, y) => y.changesClean - x.changesClean || y.changes - x.changes)
   const derived = Object.keys(lot.site).filter(k => lot!.site[k] !== undefined)
-  const uncheckedAll = files.flatMap(f => (f.unchecked ?? []).map((u: any) => ({ ...u, instrument: f.instrument, url: link(f.instrument, u.section) })))
+  // what is not read: the Housing SEPP's own list, and every LEP subdivision clause whose graph rules carry no effect
+  const uncheckedAll = [
+    ...(housing.unchecked ?? []).map((u: any) => ({ ...u, instrument: housing.instrument, url: link(housing.instrument, u.section) })),
+    ...fromGraph.gaps.map(g => ({ clause: g.parts.length ? g.parts.join(', ') : g.clause, section: g.section, instrument: lot!.epi!, url: link(lot!.epi!, g.section), zones: g.zones,
+      why: `${g.heading ?? ''}${g.rules ? ` - in the graph (${g.rules} rule${g.rules === 1 ? '' : 's'}), no effect extracted` : ' - in the graph as text, no rule extracted'}` })),
+  ]
   // a clause that says which zones it applies to, and not this lot's zone, cannot change this lot's answer
   const reaches = (u: any) => !u.zones || !lot!.zone || u.zones.includes(lot!.zone)
   const unchecked = uncheckedAll.filter(reaches)

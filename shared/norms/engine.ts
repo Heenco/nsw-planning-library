@@ -31,6 +31,10 @@ export interface LotFacts {
   frontageM?: number | null
   /** nsw.scope_layer terms the norms ask about, tested against the lot before evaluation: 'term' -> result */
   terms?: Record<string, { holds: Tri; why: string }>
+  /** graph place polygons (nsw.rule_spatial_ref id) the lot is in: id -> true / false */
+  refHits?: Record<string, boolean>
+  /** land use groups as the plan's own Dictionary defines them: group key -> member keys */
+  groups?: Record<string, string[]>
 }
 export interface Leaf { fact: FactName; value?: string; under?: string; v: Tri; who: Who; why: string; span: string }
 export interface NormResult {
@@ -62,9 +66,11 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
     const who = FACTS[c.fact].who as Who
     const base = { fact: c.fact, value: c.value, under: c.under, who, span: c.span }
     const p = q.proposal
+    // a use and the group the plan's Dictionary puts it in: "dwelling house" is "residential accommodation"
+    const isA = (u: string, v: string) => key(u) === key(v) || (lot.groups?.[key(v)] ?? []).includes(key(u))
     const eq = (have: string | undefined, label: string): Leaf => have == null
       ? { ...base, v: null, why: `${label} not stated` }
-      : { ...base, v: key(have) === key(String(c.value)), why: `${label}: ${have}` }
+      : { ...base, v: c.fact === 'proposal.use' ? isA(have, String(c.value)) : key(have) === key(String(c.value)), why: `${label}: ${have}` }
     switch (c.fact) {
       case 'proposal.kind': return { ...base, v: p.kind === c.value, why: `the proposal is ${p.kind.replace(/_/g, ' ')}` }
       case 'proposal.subdivision_type': return eq(p.subdivision_type, 'subdivision type')
@@ -79,6 +85,10 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
       case 'site.has': {
         const k = siteKey(String(c.value), c.under)
         if (k in asked) return { ...base, v: asked[k]!, why: `stated: ${asked[k] ? '' : 'no '}${c.value}${c.under ? ` under ${c.under}` : ''}` }
+        // a group ("residential accommodation"): any member stated present is enough
+        const members = c.under ? [] : (lot.groups?.[key(String(c.value))] ?? [])
+        const said = members.find(m => asked[m] === true)
+        if (said) return { ...base, v: true, why: `stated: ${said} (${c.value})` }
         if (k in lot.site) return { ...base, v: lot.site[k]!, why: `from the lot record (${lot.lotId})` }
         return { ...base, v: null, why: `whether the lot already has ${c.value}${c.under ? ` built under ${c.under}` : ''} is not recorded` }
       }
@@ -99,6 +109,11 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
         const t = lot.terms?.[String(c.value).toLowerCase()]
         return t ? { ...base, v: t.holds, who: t.holds === null ? 'lot' : 'lot', why: `${c.value}: ${t.why}` }
           : { ...base, v: null, why: `${c.value}: not tested` }
+      }
+      case 'lot.on_ref': {
+        const h = lot.refHits?.[String(c.value)]
+        return h == null ? { ...base, v: null, why: `${c.text ?? 'a place'}: not tested` }
+          : { ...base, v: h, why: `${h ? 'in' : 'not in'} ${c.text ?? 'the place'} (graph polygon)` }
       }
       case 'lot.frontage_m': return lot.frontageM == null ? { ...base, v: null, why: 'frontage not recorded' }
         : { ...base, v: cmpOf(lot.frontageM, c.cmp!, c.n!), why: `frontage ${lot.frontageM.toFixed(1)} m` }
@@ -138,11 +153,16 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
   const live = results.filter(r => r.holds !== false)
   const byId = new Map(norms.map(n => [n.id, n]))
   const rank = (r: NormResult) => /State Environmental Planning Policy/.test(r.instrument) ? 2 : 1
+  // a "despite" entry names a norm, every norm of the instrument ('instrument:*'), or every norm of a clause of it
+  // ('clause:4.1' - 4.1, 4.1(3), ... however they were read)
+  const hits = (d: string, from: Norm, y: { id: string; instrument: string; clause: string }) => d === y.id
+    || (d === 'instrument:*' && from.instrument === y.instrument)
+    || (d.startsWith('clause:') && from.instrument === y.instrument && (y.clause === d.slice(7) || y.clause.startsWith(d.slice(7) + '(')))
   const defeats = (x: NormResult, y: NormResult) => {
     const nx = byId.get(x.id)!, ny = byId.get(y.id)!
-    if (nx.despite?.some(d => d === y.id || (d === 'instrument:*' && nx.instrument === ny.instrument))) return true
+    if (nx.despite?.some(d => hits(d, nx, ny))) return true
     if (ny.subjectTo?.includes(x.id)) return true
-    if (ny.despite?.some(d => d === x.id || (d === 'instrument:*' && nx.instrument === ny.instrument))) return false
+    if (ny.despite?.some(d => hits(d, ny, nx))) return false
     return rank(x) > rank(y)
   }
   const permits = live.filter(r => 'permit' in r.effect)
@@ -179,7 +199,9 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
   // a standard "despite" another replaces it where it holds ("Despite subclause (3), if the subdivision is of a lot on
   // which there is a dual occupancy— ... not less than 275m2", Randwick LEP 4.1A(4)); where it is undecided, both show
   const stds = live.filter(r => 'require' in r.effect)
-  const replaced = new Set(stds.filter(r => r.holds === true).flatMap(r => byId.get(r.id)!.despite ?? []))
+  // a norm that holds and applies "despite" others (a standard or a grant) replaces their standards
+  const replacers = live.filter(r => r.holds === true && ('require' in r.effect || 'permit' in r.effect)).map(r => byId.get(r.id)!)
+  const replaced = new Set(stds.filter(s => replacers.some(n => n.id !== s.id && (n.despite ?? []).some(d => hits(d, n, s)))).map(s => s.id))
   // a grant "despite the provisions of another environmental planning instrument" (Housing SEPP s 169(1A)) that holds
   // displaces the LEPs' standards for this development - shown as displaced, never silently dropped
   const overLep = live.filter(r => r.holds === true && 'permit' in r.effect && (byId.get(r.id)!.despite ?? []).includes('doc_type:lep'))
@@ -192,7 +214,9 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
     }
     const s = (r.effect as Extract<Effect, { require: unknown }>).require
     const min = s.n ?? (s.from === 'lot_size_map' ? lot.lotSizeMinM2 : null)
-    const label = `${s.topic.replace(/_/g, ' ')} ${CMP[s.cmp]} ${min ?? (s.from === 'lot_size_map' ? 'the Lot Size Map minimum' : s.from === 'existing' ? 'the number on the site before the development' : '?')}${s.unit && min != null ? ' ' + s.unit : ''} (${s.kind.replace(/_/g, ' ')})`
+    const label = s.topic === 'graph_standard'
+      ? `${s.unit ?? 'a standard'}${s.n != null ? ` ${CMP[s.cmp]} ${s.n}` : ''} (from the graph)`
+      : `${s.topic.replace(/_/g, ' ')} ${CMP[s.cmp]} ${min ?? (s.from === 'lot_size_map' ? 'the Lot Size Map minimum' : s.from === 'existing' ? 'the number on the site before the development' : '?')}${s.unit && min != null ? ' ' + s.unit : ''} (${s.kind.replace(/_/g, ' ')})`
     let holds: Tri = null, test = 'not tested here'
     if (s.topic === 'resulting_lot_size' && min != null && lot.areaM2 != null && (s.cmp === 'gte' || s.cmp === 'gt')) {
       const lots = q.proposal.resulting_lots

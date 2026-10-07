@@ -1,113 +1,15 @@
 {
  "instrument": "Campbelltown Local Environmental Plan 2015",
  "slug": "campbelltown-local-environmental-plan-2015",
- "unchecked": [
-  {
-   "clause": "4.1(4C)",
-   "section": "sec.4.1-ssec.4C",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1(4A)",
-   "section": "sec.4.1-ssec.4A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1(4B)",
-   "section": "sec.4.1-ssec.4B",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Minimum subdivision lot sizes for dual occupancies in certain zones"
-  },
-  {
-   "clause": "4.1C",
-   "section": "sec.4.1C",
-   "why": "Minimum qualifying site area and lot size for certain residential and centre-based child care facility development in residential zones"
-  },
-  {
-   "clause": "4.1D",
-   "section": "sec.4.1D",
-   "why": "Minimum lot sizes for certain land uses in certain conservation zones",
-   "zones": [
-    "C3",
-    "C4"
-   ]
-  },
-  {
-   "clause": "4.1F",
-   "section": "sec.4.1F",
-   "why": "Exception to minimum lot sizes for certain land in Glenfield",
-   "zones": [
-    "RU2"
-   ]
-  },
-  {
-   "clause": "4.1G",
-   "section": "sec.4.1G",
-   "why": "Exception to minimum subdivision lot sizes for certain residential development in Maryfields Urban Release Area",
-   "zones": [
-    "R3"
-   ]
-  },
-  {
-   "clause": "4.1H",
-   "section": "sec.4.1H",
-   "why": "Exception to minimum lot sizes for certain land in Mount Gilead Urban Release Area",
-   "zones": [
-    "R2"
-   ]
-  },
-  {
-   "clause": "4.1I",
-   "section": "sec.4.1I",
-   "why": "Minimum lot size for certain residential accommodation in Mount Gilead Urban Release Area"
-  },
-  {
-   "clause": "4.1J",
-   "section": "sec.4.1J",
-   "why": "Minimum lot sizes for certain land in Menangle Park Urban Release Area"
-  },
-  {
-   "clause": "4.2",
-   "section": "sec.4.2",
-   "why": "Rural subdivision",
-   "zones": [
-    "RU4",
-    "RU6",
-    "RU1",
-    "RU2",
-    "RU3"
-   ]
-  },
-  {
-   "clause": "4.2C",
-   "section": "sec.4.2C",
-   "why": "Exceptions to minimum subdivision lot sizes for certain land in Zones RU2 and C3"
-  },
-  {
-   "clause": "4.2D",
-   "section": "sec.4.2D",
-   "why": "Exceptions to minimum subdivision lot sizes for certain land in Zone C4"
-  },
-  {
-   "clause": "4.2E",
-   "section": "sec.4.2E",
-   "why": "Subdivision of land in Zone C3"
-  },
-  {
-   "clause": "7.33",
-   "section": "sec.7.33",
-   "why": "Subdivision of land at Raby Road, Kearns"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "campbelltown-local-environmental-plan-2015:2.6(1)",

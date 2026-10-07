@@ -1,38 +1,15 @@
 {
  "instrument": "Willoughby Local Environmental Plan 2012",
  "slug": "willoughby-local-environmental-plan-2012",
- "unchecked": [
-  {
-   "clause": "4.1(3A)",
-   "section": "sec.4.1-ssec.3A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum subdivision lot size for strata plan schemes in Zone E2"
-  },
-  {
-   "clause": "4.1C",
-   "section": "sec.4.1C",
-   "why": "Minimum subdivision lot size for dual occupancies"
-  },
-  {
-   "clause": "6.10",
-   "section": "sec.6.10",
-   "why": "Minimum lot sizes for certain residential accommodation"
-  },
-  {
-   "clause": "6.16",
-   "section": "sec.6.16",
-   "why": "Minimum lot sizes for commercial and mixed use development in Chatswood CBD"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "willoughby-local-environmental-plan-2012:2.6(1)",

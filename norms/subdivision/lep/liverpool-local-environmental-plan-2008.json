@@ -1,77 +1,15 @@
 {
  "instrument": "Liverpool Local Environmental Plan 2008",
  "slug": "liverpool-local-environmental-plan-2008",
- "unchecked": [
-  {
-   "clause": "4.1(4A)",
-   "section": "sec.4.1-ssec.4A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1AB",
-   "section": "sec.4.1AB",
-   "why": "Minimum lot size for dual occupancies in Zone R2",
-   "zones": [
-    "R2"
-   ]
-  },
-  {
-   "clause": "4.1AC",
-   "section": "sec.4.1AC",
-   "why": "Minimum subdivision lot size for dual occupancies in Zone R2",
-   "zones": [
-    "R2"
-   ]
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Strata subdivisions in certain rural and conservation zones"
-  },
-  {
-   "clause": "4.2",
-   "section": "sec.4.2",
-   "why": "Rural subdivision",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU3",
-    "RU4",
-    "RU6"
-   ]
-  },
-  {
-   "clause": "5.16",
-   "section": "sec.5.16",
-   "why": "Subdivision of, or dwellings on, land in certain rural, residential or conservation zones",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU3",
-    "RU4",
-    "RU6",
-    "R5",
-    "C2",
-    "C3",
-    "C4"
-   ]
-  },
-  {
-   "clause": "7.10",
-   "section": "sec.7.10",
-   "why": "Minimum lot size for dual occupancies in rural zones"
-  },
-  {
-   "clause": "7.10A",
-   "section": "sec.7.10A",
-   "why": "Minimum lot size for dual occupancies (detached) in Zone R5"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "liverpool-local-environmental-plan-2008:2.6(1)",

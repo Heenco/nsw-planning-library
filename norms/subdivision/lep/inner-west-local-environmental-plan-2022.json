@@ -1,18 +1,15 @@
 {
  "instrument": "Inner West Local Environmental Plan 2022",
  "slug": "inner-west-local-environmental-plan-2022",
- "unchecked": [
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Exceptions to minimum subdivision lot size for certain residential development"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "inner-west-local-environmental-plan-2022:2.6(1)",

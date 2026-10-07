@@ -1,34 +1,15 @@
 {
  "instrument": "Strathfield Local Environmental Plan 2012",
  "slug": "strathfield-local-environmental-plan-2012",
- "unchecked": [
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum lot sizes for dual occupancies, multi dwelling housing and residential flat buildings"
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Minimum lot size for dual occupancies in Zone R2",
-   "zones": [
-    "R2"
-   ]
-  },
-  {
-   "clause": "4.1C",
-   "section": "sec.4.1C",
-   "why": "Minimum subdivision lot size for dual occupancies in Zone R2",
-   "zones": [
-    "R2"
-   ]
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "strathfield-local-environmental-plan-2012:2.6(1)",

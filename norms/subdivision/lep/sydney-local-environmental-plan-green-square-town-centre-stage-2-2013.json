@@ -1,18 +1,11 @@
 {
  "instrument": "Sydney Local Environmental Plan (Green Square Town Centre—Stage 2) 2013",
  "slug": "sydney-local-environmental-plan-green-square-town-centre-stage-2-2013",
- "unchecked": [
-  {
-   "clause": "4.1",
-   "section": "sec.4.1",
-   "why": "not the Standard Instrument wording"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "sydney-local-environmental-plan-green-square-town-centre-stage-2-2013:2.6(1)",

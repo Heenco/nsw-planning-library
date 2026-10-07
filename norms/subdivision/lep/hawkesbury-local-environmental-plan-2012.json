@@ -1,120 +1,15 @@
 {
  "instrument": "Hawkesbury Local Environmental Plan 2012",
  "slug": "hawkesbury-local-environmental-plan-2012",
- "unchecked": [
-  {
-   "clause": "4.1(3A)",
-   "section": "sec.4.1-ssec.3A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum subdivision lot size for strata plan schemes in certain rural, residential and conservation zones",
-   "zones": [
-    "RU5",
-    "R1",
-    "R2",
-    "R5",
-    "C3",
-    "C4",
-    "R3",
-    "RU2",
-    "RU4",
-    "RU1"
-   ]
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Additional requirements for subdivision in certain rural, residential and conservation zones",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU4",
-    "RU5",
-    "R5",
-    "C3",
-    "C4"
-   ]
-  },
-  {
-   "clause": "4.1C",
-   "section": "sec.4.1C",
-   "why": "Exceptions to minimum subdivision lot size for rural and large lot residential zones",
-   "zones": [
-    "RU1",
-    "RU4",
-    "R5"
-   ]
-  },
-  {
-   "clause": "4.1D",
-   "section": "sec.4.1D",
-   "why": "Exceptions to minimum subdivision lot size for certain land"
-  },
-  {
-   "clause": "4.1E",
-   "section": "sec.4.1E",
-   "why": "Subdivision in Grose Wold and Grose Vale"
-  },
-  {
-   "clause": "4.1F",
-   "section": "sec.4.1F",
-   "why": "Exceptions to minimum subdivision lot size for certain land in North Richmond"
-  },
-  {
-   "clause": "4.1G",
-   "section": "sec.4.1G",
-   "why": "Restriction on the number of lots created by subdivision of certain land"
-  },
-  {
-   "clause": "4.2",
-   "section": "sec.4.2",
-   "why": "Rural subdivision",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU3",
-    "RU4",
-    "RU6"
-   ]
-  },
-  {
-   "clause": "4.2A",
-   "section": "sec.4.2A",
-   "why": "Residential development and subdivision prohibited on certain land",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU4",
-    "RU5",
-    "R5",
-    "C3",
-    "C4"
-   ]
-  },
-  {
-   "clause": "4.2B",
-   "section": "sec.4.2B",
-   "why": "Additional requirements for subdivisions in certain flood planning areas"
-  },
-  {
-   "clause": "6.9",
-   "section": "sec.6.9",
-   "why": "Additional requirements for subdividing in Pitt Town Heritage Area"
-  },
-  {
-   "clause": "6.17",
-   "section": "sec.6.17",
-   "why": "Community title subdivision of land at Vincents Road, Kurrajong"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "hawkesbury-local-environmental-plan-2012:2.6(1)",

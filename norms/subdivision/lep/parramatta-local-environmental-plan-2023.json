@@ -1,60 +1,15 @@
 {
  "instrument": "Parramatta Local Environmental Plan 2023",
  "slug": "parramatta-local-environmental-plan-2023",
- "unchecked": [
-  {
-   "clause": "4.1(3A)",
-   "section": "sec.4.1-ssec.3A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1(3B)",
-   "section": "sec.4.1-ssec.3B",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum subdivision lot size for strata plan schemes in Zone R2",
-   "zones": [
-    "R2"
-   ]
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Exceptions to minimum subdivision lot sizes for attached dwellings",
-   "zones": [
-    "R3",
-    "R4"
-   ]
-  },
-  {
-   "clause": "4.1C",
-   "section": "sec.4.1C",
-   "why": "Minimum subdivision lot size for dual occupancies and manor houses"
-  },
-  {
-   "clause": "5.16",
-   "section": "sec.5.16",
-   "why": "Subdivision of, or dwellings on, land in certain rural, residential or conservation zones"
-  },
-  {
-   "clause": "6.18",
-   "section": "sec.6.18",
-   "why": "Subdivisions for dual occupancies on certain land at Parramatta"
-  },
-  {
-   "clause": "6.19",
-   "section": "sec.6.19",
-   "why": "Subdivisions for dual occupancies prohibited on certain land"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "parramatta-local-environmental-plan-2023:2.6(1)",

@@ -1,53 +1,15 @@
 {
  "instrument": "Sutherland Shire Local Environmental Plan 2015",
  "slug": "sutherland-shire-local-environmental-plan-2015",
- "unchecked": [
-  {
-   "clause": "4.1(3A)",
-   "section": "sec.4.1-ssec.3A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1(3B)",
-   "section": "sec.4.1-ssec.3B",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1(3C)",
-   "section": "sec.4.1-ssec.3C",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1(4A)",
-   "section": "sec.4.1-ssec.4A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum subdivision requirements in certain residential and conservation zones"
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Minimum lot sizes for strata subdivisions of dual occupancies in certain conservation zones"
-  },
-  {
-   "clause": "4.1D",
-   "section": "sec.4.1D",
-   "why": "Subdivision of land in Kurnell Village"
-  },
-  {
-   "clause": "4.1E",
-   "section": "sec.4.1E",
-   "why": "Minimum lot sizes for dual occupancies, manor houses and multi dwelling housing"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "sutherland-shire-local-environmental-plan-2015:2.6(1)",

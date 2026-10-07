@@ -13,10 +13,11 @@
  * Takes the query function, so the API route (nswQuery) and the scripts (a pg client) share it.
  */
 import type { LotFacts } from './engine'
+import { useGroups } from './groups'
 
 type Query = (sql: string, params?: unknown[]) => Promise<{ rows: any[] }>
 
-export async function lotFacts(query: Query, cadid: string, key: (u: string) => string, terms: string[] = []): Promise<LotFacts> {
+export async function lotFacts(query: Query, cadid: string, key: (u: string) => string, terms: string[] = [], refIds: string[] = []): Promise<LotFacts> {
   const row = (await query(`
     WITH p AS (SELECT l.cadid, l.lotidstring, ST_Area(l.geom::geography) AS area, ST_PointOnSurface(l.geom) AS pt FROM cadastre.lot l WHERE l.cadid::text = $1)
     SELECT p.cadid, p.lotidstring, p.area,
@@ -49,9 +50,14 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
   const uniq = [...new Set(terms.map(x => x.toLowerCase()))]
   const results = await Promise.all(uniq.map(t => lotTerm(query, cadid, t, row.lga ?? null)))
   uniq.forEach((t, i) => { tested[t] = results[i]! })
+  // the graph's place polygons the norms name: is the lot's point on surface in each?
+  const refHits = await refHitsFor(query, cadid, refIds)
+  // land use groups from the plan's own Dictionary in the graph
+  const dict = epi ? (await query(`SELECT string_agg(s.raw_text, ' ') AS t FROM nsw.section s JOIN nsw.document d ON d.id = s.document_id
+                                    WHERE d.title = $1 AND s.level = 'dictionary'`, [epi])).rows[0]?.t : null
   return { cadid, lotId, zone, epi, lga: row.lga ?? null, areaM2: row.area == null ? null : Math.round(Number(row.area)),
            lotSizeMinM2, onLotSizeMap, lut, site: { [key('strata scheme')]: /\/\/SP\d/i.test(String(lotId ?? '')) },
-           frontageM: row.frontage == null ? null : Number(row.frontage), terms: tested }
+           frontageM: row.frontage == null ? null : Number(row.frontage), terms: tested, refHits, groups: dict ? useGroups(dict, key) : {} }
 }
 
 /** One nsw.scope_layer term against the lot: true / false / null (a gap, a bound that cannot decide, a failed query). */
@@ -88,4 +94,14 @@ export async function lotTerm(query: Query, cadid: string, term: string, lga: st
   if (m.lower_bound) return any ? { holds: true, why: `inside ${src}` } : { holds: null, why: `outside ${src} - the term itself not held` }
   if (m.upper_bound) return any ? { holds: null, why: `inside ${src} - the term itself not held` } : { holds: false, why: `outside ${src}` }
   return { holds: any, why: src }
+}
+
+/** The graph's place polygons (nsw.rule_spatial_ref ids) the lot's point on surface falls in: id -> true / false. */
+export async function refHitsFor(query: Query, cadid: string, refIds: string[]): Promise<Record<string, boolean>> {
+  const out: Record<string, boolean> = {}
+  if (!refIds.length) return out
+  for (const r of (await query(`SELECT sr.id::text AS id, ST_Intersects(sr.geom, ST_Transform(ST_PointOnSurface(l.geom), ST_SRID(sr.geom))) AS h
+                                  FROM nsw.rule_spatial_ref sr, cadastre.lot l WHERE l.cadid::text = $1 AND sr.id::text = ANY($2) AND sr.geom IS NOT NULL`,
+                                [cadid, refIds])).rows) out[r.id] = Boolean(r.h)
+  return out
 }

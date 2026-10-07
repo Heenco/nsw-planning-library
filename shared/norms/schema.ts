@@ -55,6 +55,8 @@ export const FACTS = {
   /** the lot is in a place the graph's term layer maps (nsw.scope_layer): value = the term, e.g. "low and mid rise housing area" */
   'lot.in': { who: 'lot', values: 'scope_term' },
   'lot.frontage_m': { who: 'lot', cmp: true },
+  /** the lot against one of the graph's own place polygons (nsw.rule_spatial_ref id) - a map area a rule names */
+  'lot.on_ref': { who: 'lot', values: 'graph_ref' },
   /** the use is permissible on the land under the LEP's Land Use Table (or another named instrument) */
   'lot.permits': { who: 'lot', values: 'land_use' },
   // ── never decided here ──
@@ -77,7 +79,9 @@ export type Effect =
   /** a development standard (a breach is varied under LEP cl 4.6, not a prohibition) or a non-discretionary standard */
   | { require: { topic: 'resulting_lot_size' | 'resulting_lot_width' | 'site_area' | 'floor_area' | 'dwellings_on_land' | 'dwellings_per_resulting_lot' | 'parking' | 'road_frontage' | 'not_battle_axe'
                  /** a matter the consent authority must consider - never a yes or a no (Housing SEPP s 78) */
-                 | 'matter_for_consideration';
+                 | 'matter_for_consideration'
+                 /** a standard read from the graph that the engine has no test for - shown with the graph's own words */
+                 | 'graph_standard';
                  cmp: 'lt' | 'lte' | 'eq' | 'gte' | 'gt'; n?: number; from?: 'lot_size_map' | 'existing'; unit?: string;
                  kind: 'development_standard' | 'non_discretionary' | 'condition' } }
 

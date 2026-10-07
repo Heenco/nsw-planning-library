@@ -1,38 +1,15 @@
 {
  "instrument": "Canada Bay Local Environmental Plan 2013",
  "slug": "canada-bay-local-environmental-plan-2013",
- "unchecked": [
-  {
-   "clause": "4.1(3A)",
-   "section": "sec.4.1-ssec.3A",
-   "why": "a local subclause"
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1AB",
-   "section": "sec.4.1AB",
-   "why": "Minimum lot sizes for multi dwelling housing (terraces)",
-   "zones": [
-    "R1",
-    "R3",
-    "R4"
-   ]
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum lot sizes for certain dwellings"
-  },
-  {
-   "clause": "7.20",
-   "section": "sec.7.20",
-   "why": "Minimum lot size for shop top housing in Station Gateway East Character Area"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "canada-bay-local-environmental-plan-2013:2.6(1)",

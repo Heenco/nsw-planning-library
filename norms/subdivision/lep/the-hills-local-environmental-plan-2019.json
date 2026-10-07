@@ -1,70 +1,15 @@
 {
  "instrument": "The Hills Local Environmental Plan 2019",
  "slug": "the-hills-local-environmental-plan-2019",
- "unchecked": [
-  {
-   "clause": "5.16",
-   "section": "sec.5.16",
-   "why": "Subdivision of, or dwellings on, land in certain rural, residential or conservation zones",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU3",
-    "RU4",
-    "RU6",
-    "R5",
-    "C2",
-    "C3",
-    "C4"
-   ]
-  },
-  {
-   "clause": "9.1",
-   "section": "sec.9.1",
-   "why": "Minimum lot sizes for residential flat buildings and shop top housing"
-  },
-  {
-   "clause": "4.1B",
-   "section": "sec.4.1B",
-   "why": "Exceptions to minimum lot sizes for certain residential development",
-   "zones": [
-    "R3",
-    "R4"
-   ]
-  },
-  {
-   "clause": "4.1AA",
-   "section": "sec.4.1AA",
-   "why": "Minimum subdivision lot size for community title schemes"
-  },
-  {
-   "clause": "4.1A",
-   "section": "sec.4.1A",
-   "why": "Minimum lot sizes for dual occupancies, dwelling houses, manor houses, multi dwelling housing and residential flat buildings"
-  },
-  {
-   "clause": "4.1C",
-   "section": "sec.4.1C",
-   "why": "Subdivision of dual occupancies"
-  },
-  {
-   "clause": "4.2",
-   "section": "sec.4.2",
-   "why": "Rural subdivision",
-   "zones": [
-    "RU1",
-    "RU2",
-    "RU3",
-    "RU4",
-    "RU6"
-   ]
-  },
-  {
-   "clause": "8.2",
-   "section": "sec.8.2",
-   "why": "Minimum lot sizes for residential flat buildings and shop top housing"
-  }
+ "covered": [
+  "sec.2.6-ssec.1",
+  "sec.2.6-ssec.2",
+  "sec.4.1-ssec.1",
+  "sec.4.1-ssec.2",
+  "sec.4.1-ssec.3",
+  "sec.4.1-ssec.4"
  ],
+ "unchecked": [],
  "norms": [
   {
    "id": "the-hills-local-environmental-plan-2019:2.6(1)",

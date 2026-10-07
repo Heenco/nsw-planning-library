@@ -133,8 +133,6 @@ async function main() {
   findings += write(`${OUT}/housing-sepp-2021.json`, H, hs, housing, hSecs, hContext, hUnchecked)
 
   // ── every LEP ────────────────────────────────────────────────────────────────────────────────
-  const reviewedR = JSON.parse(readFileSync('norms/trial/reviewed/randwick-lep-2012.json', 'utf8')).norms
-    .filter((n: any) => /:4\.1[A-D]/.test(n.id))
   const docs = (await q(`SELECT id, title, instrument_slug FROM nsw.document WHERE doc_type = 'lep' ORDER BY title`)).rows
   const summary: string[] = []
   for (const d of docs) {
@@ -148,7 +146,6 @@ async function main() {
     // 2.6(1)
     const s261 = find('sec.2.6', /may be subdivided, but only with development consent/i)
     if (s261) ns.push({ id: `${slug}:2.6(1)`, clause: '2.6(1)', section: 'sec.2.6-ssec.1', when: SUB(s261), then: { permit: 'with_consent' }, author: AUTHOR })
-    else unchecked.push({ clause: '2.6', section: 'sec.2.6', why: 'not the Standard Instrument wording' })
     // 2.6(2)
     const a = find('sec.2.6', /for the subdivision of land on which a secondary dwelling is situated/i)
     const b = find('sec.2.6', /result in the principal dwelling and the secondary dwelling being situated on separate lots/i)
@@ -157,9 +154,6 @@ async function main() {
       when: { all: [SUB('for the subdivision of land'), L('site.has', 'land on which a secondary dwelling is situated', { value: 'secondary dwelling' }),
         L('proposal.separates', b, { value: 'principal dwelling|secondary dwelling' }),
         { not: L('unparsed', c, { text: 'every resulting lot meets the Lot Size Map minimum' }) }] } })
-    else if (under('sec.2.6').some(s => /-ssec\.2$/.test(s.local_id))) unchecked.push({ clause: '2.6(2)', section: 'sec.2.6-ssec.2', why: 'not the Standard Instrument wording' })
-    for (const s of under('sec.2.6').filter(s => /-ssec\.(\d+[A-Z]?)$/.test(s.local_id) && !/-ssec\.[12]$/.test(s.local_id)))
-      unchecked.push({ clause: `2.6(${s.local_id.split('ssec.')[1]})`, section: s.local_id, why: 'a local subclause' })
     // 4.1(3) + 4.1(4)
     const s413 = find('sec.4.1', /The size of any lot resulting from a subdivision of land to which this clause applies is not to be less than the minimum size shown on the Lot Size Map in relation to that land/i)
     if (s413) {
@@ -177,41 +171,23 @@ async function main() {
       ns.push({ id: `${slug}:4.1(3)`, clause: '4.1(3)', section: 'sec.4.1-ssec.3', author: AUTHOR,
         when: { all: [SUB(appl), L('lot.on_map', find('sec.4.1', /shown on the Lot Size Map/i)!, { value: 'lot_size_map' }), ...excl] },
         then: { require: { topic: 'resulting_lot_size', cmp: 'gte', from: 'lot_size_map', unit: 'm²', kind: 'development_standard' } } })
-    } else if (under('sec.4.1').length) unchecked.push({ clause: '4.1', section: 'sec.4.1', why: 'not the Standard Instrument wording' })
-    if (s413) for (const s of under('sec.4.1').filter(s => /-ssec\.(\d+[A-Z]?)$/.test(s.local_id) && !/-ssec\.[1-4]$/.test(s.local_id)))
-      unchecked.push({ clause: `4.1(${s.local_id.split('ssec.')[1]})`, section: s.local_id, why: 'a local subclause' })
-    // reviewed local clauses (Randwick, from the trial) - ids moved onto this plan's slug
-    const reviewed = /^Randwick Local Environmental Plan 2012$/.test(d.title)
-      ? reviewedR.map((n: any) => JSON.parse(JSON.stringify(n).replaceAll('randwick-lep-2012:', `${slug}:`))) : []
-    ns.push(...reviewed)
-    const done = new Set(reviewed.map((n: any) => n.section.replace(/-.*$/, '')))
-    // every other subdivision clause: unchecked - unless the plan did not adopt it ("[Not applicable]", repealed)
-    for (const s of secs.filter(s => s.level === 'clause' && /^sec\.[\d.]+[A-Z]*$/.test(s.local_id) && !['sec.2.6', 'sec.4.1'].includes(s.local_id)
-      && /subdivi|lot size/i.test(s.heading ?? '') && !done.has(s.local_id) && s.route !== 'definition')) {
-      const body = text(s.local_id)
-      if (/^\s*\[?(not applicable|repealed)\]?\.?\s*$/i.test(body) || !body.trim()) continue
-      unchecked.push({ clause: s.local_id.replace('sec.', ''), section: s.local_id, why: s.heading })
     }
-    // ... and where each unchecked clause says it applies: the zones of its "This clause applies to ..." sentence (with
-    // that sentence's own paragraphs), so a lot in another zone is told the clause does not reach it. No such sentence =
-    // no scope read, and the clause stays listed for every lot.
-    for (const u of unchecked) {
-      const own = under(u.section)
-      const scope = own.find(s => /^This (clause|subclause) applies (only )?to\b/i.test(norm(s.raw_text)))
-      if (!scope) continue
-      const words = [scope, ...own.filter(s => s.local_id.startsWith(scope.local_id + '-'))].map(s => operative(s.raw_text)).join(' ')
-      const zones = [...new Set([...words.matchAll(/\bZone ([A-Z]{1,2}\d{0,2}[A-Z]?)\b/g)].map(m => m[1]!))]
-      if (zones.length && !/\b(other than|except|does not apply)\b/i.test(words)) (u as any).zones = zones
-    }
-    findings += write(`${OUT}/lep/${slug}.json`, d.title, slug, ns, secs, {}, unchecked)
-    summary.push(`${d.title}: ${ns.length} norms, ${unchecked.length} unchecked`)
+    // everything else - local clauses, local subclauses, a 2.6 / 4.1 not in Standard Instrument words - is read from the
+    // graph's own rules at request time (shared/norms/from-graph.ts), which also reports what it cannot read
+    // the sections each Standard Instrument norm read, so the graph's rules in them are not read twice
+    const covered = [...new Set([
+      ...(s261 ? ['sec.2.6-ssec.1'] : []), ...(a && b && c ? ['sec.2.6-ssec.2'] : []),
+      ...(s413 ? under('sec.4.1').filter(s => /^sec\.4\.1-ssec\.[1-4]$/.test(s.local_id)).map(s => s.local_id) : []),
+    ])]
+    findings += write(`${OUT}/lep/${slug}.json`, d.title, slug, ns, secs, {}, unchecked, covered)
+    summary.push(`${d.title}: ${ns.length} Standard Instrument norms; reads ${covered.join(', ') || 'nothing'}`)
   }
   console.log(summary.join('\n'))
   console.log(`\n${findings ? 'FAIL' : 'PASS'}: ${findings} gate findings`)
   await client.end()
 
   function write(file: string, instrument: string, slug: string, raw: any[], secs: any[], context: Record<string, string[]>,
-                 unchecked: { clause: string; section: string; why: string }[]): number {
+                 unchecked: { clause: string; section: string; why: string }[], covered: string[] = []): number {
     const under = (root: string) => secs.filter((s: any) => s.local_id === root || s.local_id.startsWith(root + '-'))
     const ids = new Set(raw.map(n => n.id).concat(['doc_type:lep']))
     const out: Norm[] = []
@@ -230,12 +206,13 @@ async function main() {
     for (const n of out) byClause.set(n.section.replace(/-.*$/, ''), [...(byClause.get(n.section.replace(/-.*$/, '')) ?? []), n])
     // ... over the sections the norms were read from (a clause's other subclauses are listed as unchecked, not passed)
     const unread = (sid: string) => unchecked.some(u => sid === u.section || sid.startsWith(u.section + '-'))
+      || (covered.length > 0 && !covered.some(c => sid === c || sid.startsWith(c + '-')))
     for (const [clause, ns] of byClause) {
       const used = new Set(numbersIn(ns).concat([2025, 28]))  // "28 February 2025" is a date the leaves carry as text
       const qs = quantities(under(clause).filter((s: any) => s.route !== 'objective' && !unread(s.local_id)).map((s: any) => operative(s.raw_text)).join(' '))
       for (const v of [...new Set(qs)].filter(v => !used.has(v))) { console.log(`  GATE ${slug} ${clause}: the number ${v} is used by no norm`); f++ }
     }
-    writeFileSync(file, JSON.stringify({ instrument, slug, unchecked, norms: out.map(n => ({ ...n, text: undefined })) }, null, 1))
+    writeFileSync(file, JSON.stringify({ instrument, slug, covered, unchecked, norms: out.map(n => ({ ...n, text: undefined })) }, null, 1))
     return f
   }
 }
