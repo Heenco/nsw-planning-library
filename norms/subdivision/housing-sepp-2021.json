@@ -1,23 +1,7 @@
 {
  "instrument": "State Environmental Planning Policy (Housing) 2021",
  "slug": "housing-sepp-2021",
- "unchecked": [
-  {
-   "clause": "78",
-   "section": "sec.78",
-   "why": "a matter for consideration (the Apartment Design Guide), not a bar"
-  },
-  {
-   "clause": "124",
-   "section": "sec.124",
-   "why": "manufactured home estates - lease / community subdivision under the Local Government Act"
-  },
-  {
-   "clause": "132",
-   "section": "sec.132",
-   "why": "caravan parks - subdivision for lease purposes"
-  }
- ],
+ "unchecked": [],
  "norms": [
   {
    "id": "housing-sepp-2021:22",
@@ -2493,6 +2477,132 @@
      "kind": "non_discretionary"
     }
    },
+   "author": {
+    "by": "claude-opus-5-5 (in session)",
+    "at": "2026-10-07"
+   }
+  },
+  {
+   "id": "housing-sepp-2021:78",
+   "instrument": "State Environmental Planning Policy (Housing) 2021",
+   "clause": "78",
+   "section": "sec.78",
+   "when": {
+    "all": [
+     {
+      "fact": "proposal.kind",
+      "value": "subdivision",
+      "span": "development involving the subdivision of a residential flat building"
+     },
+     {
+      "fact": "site.has",
+      "value": "residential flat building",
+      "under": "housing-sepp-2021:ch.3-pt.4",
+      "span": "a residential flat building for which consent has been granted under this Part"
+     }
+    ]
+   },
+   "then": {
+    "require": {
+     "topic": "matter_for_consideration",
+     "cmp": "eq",
+     "kind": "condition",
+     "unit": "the relevant provisions of the Apartment Design Guide"
+    }
+   },
+   "author": {
+    "by": "claude-opus-5-5 (in session)",
+    "at": "2026-10-07"
+   }
+  },
+  {
+   "id": "housing-sepp-2021:124(1)",
+   "instrument": "State Environmental Planning Policy (Housing) 2021",
+   "clause": "124(1)",
+   "section": "sec.124-ssec.1",
+   "when": {
+    "all": [
+     {
+      "fact": "proposal.kind",
+      "value": "subdivision",
+      "span": "may be subdivided— only with the development consent of the council"
+     },
+     {
+      "fact": "site.has",
+      "value": "manufactured home estate",
+      "span": "Land on which development for the purposes of a manufactured home estate may be lawfully carried out"
+     },
+     {
+      "any": [
+       {
+        "fact": "proposal.subdivision_type",
+        "value": "community",
+        "span": "under the Community Land Development Act 1989"
+       },
+       {
+        "fact": "unparsed",
+        "text": "a subdivision for lease purposes",
+        "span": "under section 289K of the Local Government Act 1919 for lease purposes"
+       }
+      ]
+     },
+     {
+      "not": {
+       "fact": "unparsed",
+       "text": "a lot contravenes the Manufactured Home Estates Transitional Regulation 1993",
+       "span": "if any of the lots intended to be created by the proposed subdivision would contravene a requirement of the Local Government (Manufactured Home Estates) Transitional Regulation 1993"
+      }
+     },
+     {
+      "not": {
+       "fact": "unparsed",
+       "text": "the land is within a Crown reserve",
+       "span": "This Part does not allow the subdivision of land within a Crown reserve."
+      }
+     }
+    ]
+   },
+   "then": {
+    "permit": "with_consent"
+   },
+   "despite": [
+    "doc_type:lep"
+   ],
+   "author": {
+    "by": "claude-opus-5-5 (in session)",
+    "at": "2026-10-07"
+   }
+  },
+  {
+   "id": "housing-sepp-2021:132(1)",
+   "instrument": "State Environmental Planning Policy (Housing) 2021",
+   "clause": "132(1)",
+   "section": "sec.132-ssec.1",
+   "when": {
+    "all": [
+     {
+      "fact": "proposal.kind",
+      "value": "subdivision",
+      "span": "Land may be subdivided for lease purposes"
+     },
+     {
+      "fact": "site.has",
+      "value": "caravan park",
+      "span": "Land may be subdivided for lease purposes"
+     },
+     {
+      "fact": "unparsed",
+      "text": "a subdivision for lease purposes",
+      "span": "for lease purposes under section 289K of the Local Government Act 1919"
+     }
+    ]
+   },
+   "then": {
+    "permit": "with_consent"
+   },
+   "despite": [
+    "doc_type:lep"
+   ],
    "author": {
     "by": "claude-opus-5-5 (in session)",
     "at": "2026-10-07"

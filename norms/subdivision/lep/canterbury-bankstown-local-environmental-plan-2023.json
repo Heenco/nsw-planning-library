@@ -30,12 +30,24 @@
   {
    "clause": "4.1C",
    "section": "sec.4.1C",
-   "why": "Minimum lot sizes for dwelling houses on battle-axe lots in certain residential zones"
+   "why": "Minimum lot sizes for dwelling houses on battle-axe lots in certain residential zones",
+   "zones": [
+    "R2",
+    "R3",
+    "R4"
+   ]
   },
   {
    "clause": "4.2",
    "section": "sec.4.2",
-   "why": "Rural subdivision"
+   "why": "Rural subdivision",
+   "zones": [
+    "RU1",
+    "RU2",
+    "RU3",
+    "RU4",
+    "RU6"
+   ]
   },
   {
    "clause": "5.16",

@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
     // each with a question in plain words; the part of the SEPP a building was approved under is named, not coded
     const part = (u: string) => u.replace('housing-sepp-2021:ch.3-pt.1', 'the Housing SEPP (secondary dwellings, Ch 3 Pt 1)')
       .replace('housing-sepp-2021:ch.3-pt.5-div.8', 'the Housing SEPP (seniors housing by a relevant authority, Ch 3 Pt 5 Div 8)')
-      .replace('housing-sepp-2021:ch.3-pt.5', 'the Housing SEPP (seniors housing, Ch 3 Pt 5)').replace('housing-sepp-2021:ch.3-pt.7', 'the Housing SEPP (serviced apartment conversion, Ch 3 Pt 7)')
+      .replace('housing-sepp-2021:ch.3-pt.5', 'the Housing SEPP (seniors housing, Ch 3 Pt 5)').replace('housing-sepp-2021:ch.3-pt.4', 'the Housing SEPP (build-to-rent, Ch 3 Pt 4)').replace('housing-sepp-2021:ch.3-pt.7', 'the Housing SEPP (serviced apartment conversion, Ch 3 Pt 7)')
       .replace('housing-sepp-2021:ch.2-pt.2-div.1', 'the Housing SEPP (in-fill affordable housing, Ch 2 Pt 2 Div 1)').replace('housing-sepp-2021:ch.7', 'the Housing SEPP Pattern Book (Ch 7)')
     let question = ''
     if (l.fact === 'site.has') { key = l.under ? `${l.value}@${l.under}` : String(l.value); label = l.under ? `${art(l.value)} built under ${part(l.under)}` : art(l.value)
@@ -111,7 +111,8 @@ export default defineEventHandler(async (event) => {
   const sig = (s: Record<string, boolean>, erects?: string, separates?: string) => KINDS.map(({ key }) => {
     const o = evaluate(norms, questionFor(key, s, erects, separates), lot!, landUseKey)
     const cls = o.outcome === 'permissible' ? 'yes' : o.outcome === 'conditional' ? 'maybe' : 'no'
-    return `${cls}|${o.standards.map(x => `${x.id}:${x.holds}`).join(',')}`
+    // a matter for consideration (s 78) never decides anything - it does not make a question worth asking
+    return `${cls}|${o.standards.filter(x => !/matter for consideration/.test(x.standard)).map(x => `${x.id}:${x.holds}`).join(',')}`
   })
   const open = [...asks.values()].filter(a => a.param === 'site' && !(a.key in site))
   // two baselines: as asked, and "clean" - every other open site question answered no (what "none of these" gives); a
@@ -133,7 +134,11 @@ export default defineEventHandler(async (event) => {
     return { ...a, changes: changes + changesClean, changesClean }
   }).filter(a => a.changes > 0).sort((x, y) => y.changesClean - x.changesClean || y.changes - x.changes)
   const derived = Object.keys(lot.site).filter(k => lot!.site[k] !== undefined)
-  const unchecked = files.flatMap(f => (f.unchecked ?? []).map((u: any) => ({ ...u, instrument: f.instrument, url: link(f.instrument, u.section) })))
+  const uncheckedAll = files.flatMap(f => (f.unchecked ?? []).map((u: any) => ({ ...u, instrument: f.instrument, url: link(f.instrument, u.section) })))
+  // a clause that says which zones it applies to, and not this lot's zone, cannot change this lot's answer
+  const reaches = (u: any) => !u.zones || !lot!.zone || u.zones.includes(lot!.zone)
+  const unchecked = uncheckedAll.filter(reaches)
+  const notHere = uncheckedAll.filter(u => !reaches(u))
 
   // how many lots the area allows under each numeric minimum in play (Torrens)
   const t = kinds.find(k => k.key === 'torrens')!
@@ -148,7 +153,7 @@ export default defineEventHandler(async (event) => {
            lotSizeMinM2: lot.lotSizeMinM2, onLotSizeMap: lot.onLotSizeMap, strata: lot.site[landUseKey('strata scheme')] ?? false },
     lepCovered: Boolean(lep), purpose: purpose ?? null, lots,
     // what the asker has answered, with the question - shown with the answer chosen, never dropped from view
-    kinds, asks: ranked, derived, unchecked, minima,
+    kinds, asks: ranked, derived, unchecked, notHere, minima,
     answered: [...asks.values()].map((a) => {
       const v = a.param === 'site' ? site[a.key] : a.param === 'erects' ? (erects0 == null ? undefined : erects0 === a.key)
         : a.param === 'separates' ? (separates0 == null ? undefined : separates0 === a.key) : undefined

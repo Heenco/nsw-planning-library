@@ -133,11 +133,18 @@
       </div>
 
       <div v-if="data.unchecked.length" class="sd-unchecked">
-        <strong>Not yet checked</strong> ({{ data.unchecked.length }}) - subdivision clauses not yet encoded; any of them could change the answer:
+        <strong>Not yet checked</strong> ({{ data.unchecked.length }}) - subdivision clauses of this plan that could apply to this lot but are not yet encoded; any of them could change the answer:
         <template v-for="(u, i) in data.unchecked" :key="u.instrument + u.clause"><span v-if="i"> · </span>
           <a v-if="u.url" :href="u.url" target="_blank" rel="noopener" class="sd-link">{{ short(u.instrument) }} {{ u.clause }}</a><template v-else>{{ u.clause }}</template>
           <span class="sd-dim"> ({{ u.why }})</span></template>
       </div>
+      <p v-else class="sd-note">Every subdivision clause that could apply to this lot is encoded.</p>
+      <details v-if="data.notHere?.length" class="sd-nothere">
+        <summary>{{ data.notHere.length }} more subdivision {{ data.notHere.length === 1 ? 'clause does' : 'clauses do' }} not apply to zone {{ data.lot.zone }}</summary>
+        <template v-for="(u, i) in data.notHere" :key="u.instrument + u.clause"><span v-if="i"> · </span>
+          <a v-if="u.url" :href="u.url" target="_blank" rel="noopener" class="sd-link">{{ short(u.instrument) }} {{ u.clause }}</a>
+          <span class="sd-dim"> ({{ u.why }}; applies to {{ u.zones.join(', ') }})</span></template>
+      </details>
       <p class="sd-note sd-dim">
         Trial (docs/norms-trial.md): Housing SEPP subdivision clauses + the Standard Instrument 2.6 / 4.1 of {{ data.lepCovered ? 'this' : 'each' }} LEP,
         read from its own words. Exempt and complying subdivision (Codes SEPP) is not included yet.
@@ -250,6 +257,8 @@ const short = (t: string) => String(t ?? '').replace('State Environmental Planni
 .sd-clauses { margin-right: 0.5rem; }
 .sd-why { margin-top: 0.3rem; color: #475569; }
 .sd-caveat { margin-top: 0.25rem; font-size: 0.68rem; font-weight: 700; color: #991b1b; max-width: 9rem; }
+.sd-nothere { margin-top: 0.35rem; font-size: 0.72rem; color: #64748b; }
+.sd-nothere summary { cursor: pointer; }
 .sd-unchecked { margin-top: 0.6rem; padding: 0.4rem 0.55rem; border-radius: 6px; background: #f8fafc; border: 1px dashed #cbd5e1; font-size: 0.74rem; color: #334155; }
 .sd-link { color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
 </style>

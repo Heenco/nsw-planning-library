@@ -105,15 +105,31 @@ async function main() {
     std('173(3)(c)', 'sec.173-ssec.3-para1.c', lmr173, { topic: 'road_frontage', cmp: 'eq', kind: 'non_discretionary' }),
     std('173(3)(d)', 'sec.173-ssec.3-para1.d', lmr173, { topic: 'resulting_lot_size', cmp: 'gte', n: 165, unit: 'm²', kind: 'non_discretionary' }),
   ]
+  housing.push(
+    // s 78: a matter for consideration on the subdivision of an RFB consented under Pt 4 (build-to-rent) - shown, never decides
+    std('78', 'sec.78', { all: [SUB('development involving the subdivision of a residential flat building'),
+      L('site.has', 'a residential flat building for which consent has been granted under this Part', { value: 'residential flat building', under: `${hs}:ch.3-pt.4` })] },
+      { topic: 'matter_for_consideration', cmp: 'eq', kind: 'condition', unit: 'the relevant provisions of the Apartment Design Guide' }),
+    // s 124: manufactured home estate land - community title (or a lease subdivision, not in the vocabulary) with consent,
+    // despite any other instrument's prohibition (124(3)); 124(2) and (4) as the conditions they are
+    grant('124(1)', 'sec.124-ssec.1', { all: [SUB('may be subdivided— only with the development consent of the council'),
+      L('site.has', 'Land on which development for the purposes of a manufactured home estate may be lawfully carried out', { value: 'manufactured home estate' }),
+      { any: [L('proposal.subdivision_type', 'under the Community Land Development Act 1989', { value: 'community' }),
+              L('unparsed', 'under section 289K of the Local Government Act 1919 for lease purposes', { text: 'a subdivision for lease purposes' })] },
+      { not: L('unparsed', 'if any of the lots intended to be created by the proposed subdivision would contravene a requirement of the Local Government (Manufactured Home Estates) Transitional Regulation 1993', { text: 'a lot contravenes the Manufactured Home Estates Transitional Regulation 1993' }) },
+      { not: L('unparsed', 'This Part does not allow the subdivision of land within a Crown reserve.', { text: 'the land is within a Crown reserve' }) }] },
+      { despite: ['doc_type:lep'] }),
+    // s 132: caravan parks - a subdivision for lease purposes only (not a Torrens, strata or community subdivision)
+    grant('132(1)', 'sec.132-ssec.1', { all: [SUB('Land may be subdivided for lease purposes'),
+      L('site.has', 'Land may be subdivided for lease purposes', { value: 'caravan park' }),
+      L('unparsed', 'for lease purposes under section 289K of the Local Government Act 1919', { text: 'a subdivision for lease purposes' })] },
+      { despite: ['doc_type:lep'] }),
+  )
   // s 185 from the trial's reviewed norms
   const trialH = JSON.parse(readFileSync('norms/trial/reviewed/housing-sepp-2021.json', 'utf8'))
   housing.push(...trialH.norms.filter((n: any) => /^housing-sepp-2021:185/.test(n.id)))
   const hContext: Record<string, string[]> = { 'sec.169': ['sec.164', 'sec.163'], 'sec.173': ['sec.164', 'sec.163'], 'sec.90': ['sec.90'] }
-  const hUnchecked = [
-    { clause: '78', section: 'sec.78', why: 'a matter for consideration (the Apartment Design Guide), not a bar' },
-    { clause: '124', section: 'sec.124', why: 'manufactured home estates - lease / community subdivision under the Local Government Act' },
-    { clause: '132', section: 'sec.132', why: 'caravan parks - subdivision for lease purposes' },
-  ]
+  const hUnchecked: any[] = []
   findings += write(`${OUT}/housing-sepp-2021.json`, H, hs, housing, hSecs, hContext, hUnchecked)
 
   // ── every LEP ────────────────────────────────────────────────────────────────────────────────
@@ -169,10 +185,24 @@ async function main() {
       ? reviewedR.map((n: any) => JSON.parse(JSON.stringify(n).replaceAll('randwick-lep-2012:', `${slug}:`))) : []
     ns.push(...reviewed)
     const done = new Set(reviewed.map((n: any) => n.section.replace(/-.*$/, '')))
-    // every other subdivision clause: unchecked
+    // every other subdivision clause: unchecked - unless the plan did not adopt it ("[Not applicable]", repealed)
     for (const s of secs.filter(s => s.level === 'clause' && /^sec\.[\d.]+[A-Z]*$/.test(s.local_id) && !['sec.2.6', 'sec.4.1'].includes(s.local_id)
-      && /subdivi|lot size/i.test(s.heading ?? '') && !done.has(s.local_id) && s.route !== 'definition'))
+      && /subdivi|lot size/i.test(s.heading ?? '') && !done.has(s.local_id) && s.route !== 'definition')) {
+      const body = text(s.local_id)
+      if (/^\s*\[?(not applicable|repealed)\]?\.?\s*$/i.test(body) || !body.trim()) continue
       unchecked.push({ clause: s.local_id.replace('sec.', ''), section: s.local_id, why: s.heading })
+    }
+    // ... and where each unchecked clause says it applies: the zones of its "This clause applies to ..." sentence (with
+    // that sentence's own paragraphs), so a lot in another zone is told the clause does not reach it. No such sentence =
+    // no scope read, and the clause stays listed for every lot.
+    for (const u of unchecked) {
+      const own = under(u.section)
+      const scope = own.find(s => /^This (clause|subclause) applies (only )?to\b/i.test(norm(s.raw_text)))
+      if (!scope) continue
+      const words = [scope, ...own.filter(s => s.local_id.startsWith(scope.local_id + '-'))].map(s => operative(s.raw_text)).join(' ')
+      const zones = [...new Set([...words.matchAll(/\bZone ([A-Z]{1,2}\d{0,2}[A-Z]?)\b/g)].map(m => m[1]!))]
+      if (zones.length && !/\b(other than|except|does not apply)\b/i.test(words)) (u as any).zones = zones
+    }
     findings += write(`${OUT}/lep/${slug}.json`, d.title, slug, ns, secs, {}, unchecked)
     summary.push(`${d.title}: ${ns.length} norms, ${unchecked.length} unchecked`)
   }

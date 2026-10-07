@@ -8,11 +8,6 @@
    "why": "a local subclause"
   },
   {
-   "clause": "5.16",
-   "section": "sec.5.16",
-   "why": "Subdivision of, or dwellings on, land in certain rural, residential or conservation zones"
-  },
-  {
    "clause": "4.1AA",
    "section": "sec.4.1AA",
    "why": "Minimum subdivision lot size for community title schemes"
@@ -20,17 +15,17 @@
   {
    "clause": "4.1AB",
    "section": "sec.4.1AB",
-   "why": "Minimum lot sizes for multi dwelling housing (terraces)"
+   "why": "Minimum lot sizes for multi dwelling housing (terraces)",
+   "zones": [
+    "R1",
+    "R3",
+    "R4"
+   ]
   },
   {
    "clause": "4.1A",
    "section": "sec.4.1A",
    "why": "Minimum lot sizes for certain dwellings"
-  },
-  {
-   "clause": "4.2",
-   "section": "sec.4.2",
-   "why": "Rural subdivision"
   },
   {
    "clause": "7.20",

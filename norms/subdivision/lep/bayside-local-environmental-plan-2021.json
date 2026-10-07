@@ -25,7 +25,14 @@
   {
    "clause": "4.2",
    "section": "sec.4.2",
-   "why": "Rural subdivision"
+   "why": "Rural subdivision",
+   "zones": [
+    "RU1",
+    "RU2",
+    "RU3",
+    "RU4",
+    "RU6"
+   ]
   },
   {
    "clause": "5.16",

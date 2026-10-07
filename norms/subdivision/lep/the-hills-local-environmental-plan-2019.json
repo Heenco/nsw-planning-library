@@ -5,7 +5,18 @@
   {
    "clause": "5.16",
    "section": "sec.5.16",
-   "why": "Subdivision of, or dwellings on, land in certain rural, residential or conservation zones"
+   "why": "Subdivision of, or dwellings on, land in certain rural, residential or conservation zones",
+   "zones": [
+    "RU1",
+    "RU2",
+    "RU3",
+    "RU4",
+    "RU6",
+    "R5",
+    "C2",
+    "C3",
+    "C4"
+   ]
   },
   {
    "clause": "9.1",
@@ -15,7 +26,11 @@
   {
    "clause": "4.1B",
    "section": "sec.4.1B",
-   "why": "Exceptions to minimum lot sizes for certain residential development"
+   "why": "Exceptions to minimum lot sizes for certain residential development",
+   "zones": [
+    "R3",
+    "R4"
+   ]
   },
   {
    "clause": "4.1AA",
@@ -35,7 +50,14 @@
   {
    "clause": "4.2",
    "section": "sec.4.2",
-   "why": "Rural subdivision"
+   "why": "Rural subdivision",
+   "zones": [
+    "RU1",
+    "RU2",
+    "RU3",
+    "RU4",
+    "RU6"
+   ]
   },
   {
    "clause": "8.2",

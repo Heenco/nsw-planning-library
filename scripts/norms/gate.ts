@@ -15,7 +15,7 @@ import { matchLandUses } from '../lib/si-landuse.mjs'
 export const norm = (t: unknown) => String(t ?? '').replace(/\s+/g, ' ').trim()
 
 /** Uses the vocabulary allows beyond the Standard Instrument list: parts of a use, and "any development under <part>". */
-const EXTRA_USES = /^(secondary dwelling|principal dwelling|dwelling|strata scheme|development|construction workers accommodation|\$proposal\.use)$/i
+const EXTRA_USES = /^(secondary dwelling|principal dwelling|dwelling|strata scheme|development|construction workers accommodation|manufactured home estate|\$proposal\.use)$/i
 
 export function gateNorm(n: any, clauseText: string, contextText: string, ids: Set<string>): { norm: Norm; notes: string[] } {
   const notes: string[] = []

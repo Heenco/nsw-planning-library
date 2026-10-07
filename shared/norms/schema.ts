@@ -75,7 +75,9 @@ export type Effect =
   | { permit: 'with_consent' | 'without_consent' | 'exempt' | 'complying' }
   | { prohibit: true }
   /** a development standard (a breach is varied under LEP cl 4.6, not a prohibition) or a non-discretionary standard */
-  | { require: { topic: 'resulting_lot_size' | 'resulting_lot_width' | 'site_area' | 'floor_area' | 'dwellings_on_land' | 'dwellings_per_resulting_lot' | 'parking' | 'road_frontage' | 'not_battle_axe';
+  | { require: { topic: 'resulting_lot_size' | 'resulting_lot_width' | 'site_area' | 'floor_area' | 'dwellings_on_land' | 'dwellings_per_resulting_lot' | 'parking' | 'road_frontage' | 'not_battle_axe'
+                 /** a matter the consent authority must consider - never a yes or a no (Housing SEPP s 78) */
+                 | 'matter_for_consideration';
                  cmp: 'lt' | 'lte' | 'eq' | 'gte' | 'gt'; n?: number; from?: 'lot_size_map' | 'existing'; unit?: string;
                  kind: 'development_standard' | 'non_discretionary' | 'condition' } }
 
