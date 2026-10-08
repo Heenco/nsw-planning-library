@@ -83,11 +83,13 @@ export type Effect =
   | { prohibit: true }
   /** a development standard (a breach is varied under LEP cl 4.6, not a prohibition) or a non-discretionary standard */
   | { require: { topic: 'resulting_lot_size' | 'resulting_lot_width' | 'site_area' | 'floor_area' | 'dwellings_on_land' | 'dwellings_per_resulting_lot' | 'parking' | 'road_frontage' | 'not_battle_axe'
+                 /** cl 4.3 and 4.4 - the controls a LAND USE question turns on, where subdivision turns on lot size */
+                 | 'building_height' | 'floor_space_ratio'
                  /** a matter the consent authority must consider - never a yes or a no (Housing SEPP s 78) */
                  | 'matter_for_consideration'
                  /** a standard read from the graph that the engine has no test for - shown with the graph's own words */
                  | 'graph_standard';
-                 cmp: 'lt' | 'lte' | 'eq' | 'gte' | 'gt'; n?: number; from?: 'lot_size_map' | 'existing'; unit?: string;
+                 cmp: 'lt' | 'lte' | 'eq' | 'gte' | 'gt'; n?: number; from?: 'lot_size_map' | 'height_map' | 'fsr_map' | 'existing'; unit?: string;
                  kind: 'development_standard' | 'non_discretionary' | 'condition' } }
 
 export interface Norm {

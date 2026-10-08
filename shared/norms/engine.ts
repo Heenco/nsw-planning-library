@@ -21,6 +21,8 @@ import { FACTS } from './schema'
 export type Tri = boolean | null
 export interface LotFacts {
   cadid: string; lotId: string | null; zone: string | null; epi: string | null; lga: string | null; areaM2: number | null
+  /** The lot's own panel on the Height of Building and Floor Space Ratio maps. */
+  heightMaxM?: number | null; fsrMax?: number | null
   /** Measured by 04D. The handle is land you cannot count toward a minimum lot size. */
   isBattleaxe?: boolean | null; handleAreaM2?: number | null
   /** The clause that says so, and the zones it excepts - read from the instrument, never hard-coded. */
@@ -29,6 +31,8 @@ export interface LotFacts {
   lotSizeMinM2: number | null; onLotSizeMap: Tri
   /** Land Use Table: use key -> status */
   lut: Record<string, string>
+  /** Which instrument said what about each use - the LEP and the SEPPs, kept apart so an answer can be checked. */
+  permits?: Record<string, { status: string; instrument: string; source: 'lep' | 'sepp' }[]>
   /** our data's own site facts (a strata plan in the lot id), keyed as in Question.site */
   site: Record<string, boolean>
   /** the primary frontage (m) - lot width in every eligibility test is the frontage (Manni's rule) */
@@ -150,6 +154,17 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
           const kinds = Object.entries(lot.lut).filter(([k]) => k.startsWith(key(use) + ' (')).map(([k, v]) => `${k.slice(key(use).length + 1)} ${v.replace(/_/g, ' ')}`)
           return { ...base, who: 'proposal', v: null, why: `${use} in ${lot.zone} depends on its form: ${kinds.join('; ') || 'mixed'}` }
         }
+        /*
+         * Only a SEPP permits it, and that SEPP's zone table does not carry where its chapter
+         * reaches. Undecided, not permitted - the alternative is answering "permitted" on a
+         * heritage-listed lot the chapter excludes.
+         */
+        if (s === 'permitted_if_sepp_applies') {
+          const by = (lot.permits?.[key(use)] ?? []).filter(x => x.source === 'sepp').map(x => x.instrument)
+          return { ...base, v: null,
+            why: `${lot.epi ?? 'the LEP'} prohibits ${use} in ${lot.zone}; ${by.join(', ') || 'a SEPP'} permits it `
+               + 'where that chapter applies to the land - which is not tested here' }
+        }
         return s == null ? { ...base, v: null, why: `no Land Use Table row for ${c.value} in ${lot.zone}` }
           : { ...base, v: /^permitted/.test(s), why: `${c.value} ${s.replace(/_/g, ' ')} in ${lot.zone}` }
       }
@@ -244,10 +259,16 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
                displacedBy: overLep.map(x => x.id) }
     }
     const s = (r.effect as Extract<Effect, { require: unknown }>).require
-    const min = s.n ?? (s.from === 'lot_size_map' ? lot.lotSizeMinM2 : null)
+    // a standard that points at a map takes its number from the lot's own panel on that map
+    const min = s.n ?? (s.from === 'lot_size_map' ? lot.lotSizeMinM2
+      : s.from === 'height_map' ? lot.heightMaxM ?? null : s.from === 'fsr_map' ? lot.fsrMax ?? null : null)
     const label = s.topic === 'graph_standard'
       ? `${s.unit ?? 'a standard'}${s.n != null ? ` ${CMP[s.cmp]} ${s.n}` : ''} (from the graph)`
-      : `${s.topic.replace(/_/g, ' ')} ${CMP[s.cmp]} ${min ?? (s.from === 'lot_size_map' ? 'the Lot Size Map minimum' : s.from === 'existing' ? 'the number on the site before the development' : '?')}${s.unit && min != null ? ' ' + s.unit : ''} (${s.kind.replace(/_/g, ' ')})`
+      : `${s.topic.replace(/_/g, ' ')} ${CMP[s.cmp]} ${min ?? (s.from === 'lot_size_map' ? 'the Lot Size Map minimum'
+          : s.from === 'height_map' ? 'the Height of Building Map maximum' : s.from === 'fsr_map' ? 'the Floor Space Ratio Map maximum'
+          : s.from === 'existing' ? 'the number on the site before the development' : '?')}${
+          // ":1" is a suffix, not a unit, so it takes no space: "1:1", not "1 :1"
+          s.unit && min != null ? (s.unit === ':1' ? s.unit : ' ' + s.unit) : ''} (${s.kind.replace(/_/g, ' ')})`
     let holds: Tri = null, test = 'not tested here'
     if (s.topic === 'resulting_lot_size' && min != null && sizeArea != null && (s.cmp === 'gte' || s.cmp === 'gt')) {
       const lots = q.proposal.resulting_lots
@@ -265,6 +286,22 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
       const lots = q.proposal.resulting_lots ?? 2
       holds = lot.frontageM >= lots * s.n
       test = `frontage ${lot.frontageM.toFixed(1)} m for ${lots} lots side by side needs ${lots * s.n} m${holds ? '' : ' - not enough'}`
+    } else if (s.topic === 'building_height' || s.topic === 'floor_space_ratio') {
+      /*
+       * A land-use question proposes no building, so there is nothing to pass or fail against a
+       * height or an FSR. What IS worth saying is the control itself: the panel the lot sits on.
+       * Reported, never scored - holds stays null, because "8.5 m applies here" is a fact about the
+       * land and not an answer about a development nobody has described yet.
+       */
+      const height = s.topic === 'building_height'
+      const got = height ? lot.heightMaxM : lot.fsrMax
+      const map = height ? 'Height of Building Map' : 'Floor Space Ratio Map'
+      const shown = got == null ? null : height ? `${got} m` : `${got}:1`
+      const stated = s.n != null ? (height ? `${s.n} m` : `${s.n}:1`) : null
+      test = shown
+        ? `the ${map} shows ${shown} for this lot${stated && Number(s.n) !== Number(got) ? ` - the clause states ${stated}, so the map governs` : ''}`
+        : stated ? `the clause states ${stated}; no ${map} panel covers this lot`
+          : `no ${map} panel covers this lot`
     } else if (s.topic === 'site_area' && s.n != null && lot.areaM2 != null) {
       holds = cmpOf(lot.areaM2, s.cmp, s.n); test = `site ${lot.areaM2} m²`
     }

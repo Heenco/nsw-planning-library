@@ -30,6 +30,12 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
            -- disagree on either - so bool_or/max picks the lot's value rather than one address's.
            (SELECT bool_or(is_battleaxe) FROM derived.lot_profile b WHERE b.cadid::text = p.cadid::text) AS is_battleaxe,
            (SELECT max(handle_area_sqm)::float8 FROM derived.lot_profile b WHERE b.cadid::text = p.cadid::text) AS handle_area,
+           -- the lot's own panel on the Height of Building and Floor Space Ratio maps: what cl 4.3
+           -- and 4.4 actually bind to, read the same way the Lot Size Map already is
+           (SELECT h.max_b_h::float8 FROM epi.epi_height_of_building h
+             WHERE h.geom && p.pt AND ST_Intersects(h.geom, p.pt) ORDER BY h.max_b_h LIMIT 1) AS height_max,
+           (SELECT f.fsr::float8 FROM epi.epi_floor_space_ratio f
+             WHERE f.geom && p.pt AND ST_Intersects(f.geom, p.pt) ORDER BY f.fsr LIMIT 1) AS fsr_max,
            (SELECT upper(lga_name) FROM derived.lot_lga g WHERE g.cadid::text = p.cadid::text) AS lga,
            (SELECT json_build_object('zone', z.sym_code, 'epi', z.epi_name) FROM epi.epi_land_zoning z
              WHERE z.geom && p.pt AND ST_Intersects(z.geom, p.pt) AND z.sym_code IS NOT NULL LIMIT 1) AS zoning
@@ -63,9 +69,6 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
   const permits: Record<string, { status: string; instrument: string; source: 'lep' | 'sepp' }[]> = {}
   const note = (k: string, status: string, instrument: string, source: 'lep' | 'sepp') => {
     permits[k] = [...(permits[k] ?? []), { status, instrument, source }]
-    // a permitted row wins over a prohibited one under the same key ("dual occupancies" vs "(attached)"),
-    // and a SEPP permission wins over an LEP prohibition - it is the later, overriding instrument
-    if (!lut[k] || /^permitted/.test(status)) lut[k] = status
   }
   if (epi && zone) {
     for (const r of (await query(`SELECT land_use, status FROM nsw.lep_permissibility WHERE epi_name = $1 AND zone_code = $2`, [epi, zone])).rows) {
@@ -76,6 +79,29 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
     for (const r of (await query(`SELECT land_use, sepp FROM nsw.sepp_permissible_landuse WHERE zone = $1`, [zone])).rows) {
       note(key(r.land_use), 'permitted_with_consent', r.sepp, 'sepp')
     }
+  }
+  /*
+   * Resolving the two sources - FAIL CLOSED where only the SEPP permits.
+   *
+   * nsw.sepp_permissible_landuse is keyed by ZONE ALONE, but the permission behind those rows is
+   * not. Housing SEPP s 166 permits the use "on land to which this chapter applies" in Zone R2, and
+   * Chapter 6 does not apply to a heritage item, bush fire prone land, a flood planning area, land
+   * within 800 m of a Schedule 12 station, and more. Letting a SEPP row beat an LEP prohibition
+   * outright said "dual occupancy permitted" on a heritage-listed R2 lot, which is fail-open and
+   * wrong.
+   *
+   * So a SEPP-only permission is its own status. It is not a yes and not a no: it is a yes IF that
+   * chapter reaches this land, which is a question the frame in the graph can answer and this
+   * lookup cannot. Where the LEP itself permits, nothing is in doubt and the answer stays certain.
+   */
+  for (const [k, rows] of Object.entries(permits)) {
+    const lep = rows.filter(r => r.source === 'lep')
+    const lepYes = lep.find(r => /^permitted/.test(r.status))
+    if (lepYes) { lut[k] = lepYes.status; continue }
+    // the Land Use Table splits the use by form; which form is proposed still decides
+    if (lep.some(r => r.status === 'mixed')) { lut[k] = 'mixed'; continue }
+    if (rows.some(r => r.source === 'sepp')) { lut[k] = 'permitted_if_sepp_applies'; continue }
+    lut[k] = lep[0]?.status ?? 'prohibited'
   }
   const lotId: string | null = row.lotidstring ?? null
   const tested: Record<string, { holds: boolean | null; why: string }> = {}
@@ -91,7 +117,9 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
            lotSizeMinM2, onLotSizeMap, lut, site: { [key('strata scheme')]: /\/\/SP\d/i.test(String(lotId ?? '')) },
            frontageM: row.frontage == null ? null : Number(row.frontage), terms: tested, refHits, groups: dict ? useGroups(dict, key) : {},
            isBattleaxe: row.is_battleaxe == null ? null : Boolean(row.is_battleaxe),
-           handleAreaM2: row.handle_area == null ? null : Math.round(Number(row.handle_area)), permits }
+           handleAreaM2: row.handle_area == null ? null : Math.round(Number(row.handle_area)), permits,
+           heightMaxM: row.height_max == null ? null : Number(row.height_max),
+           fsrMax: row.fsr_max == null ? null : Number(row.fsr_max) }
 }
 
 /** One nsw.scope_layer term against the lot: true / false / null (a gap, a bound that cannot decide, a failed query). */

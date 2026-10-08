@@ -35,7 +35,7 @@ const NOT_ADOPTED = /^\s*[[(]?\s*(not applicable|not adopted|repealed)\s*[\])]?\
 const norm = (t: unknown) => String(t ?? '').replace(/\s+/g, ' ').trim()
 
 export async function graphNorms(query: Query, documentId: string, instrument: string, slug: string,
-  opts: { clauseFilter: string; covered: string[] }): Promise<{ norms: Norm[]; gaps: GraphGap[]; refIds: string[];
+  opts: { clauseFilter: string; covered: string[]; assumeKind?: 'subdivision' | null }): Promise<{ norms: Norm[]; gaps: GraphGap[]; refIds: string[];
     handleRule: { clauses: string[]; exceptZones: string[] } | null }> {
   const isCovered = (local: string) => opts.covered.some(c => local === c || local.startsWith(c + '-'))
   const clauses = (await query(`SELECT local_id, heading FROM nsw.section WHERE document_id = $1 AND level = 'clause' AND (${opts.clauseFilter})`, [documentId])).rows
@@ -70,7 +70,7 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
    * carve-out is read from the clause's own child paragraphs, so no council's zone list is written
    * into the code.
    */
-  const HANDLE = /access handle\s+(?:is|must)\s+not\s+(?:to\s+)?be\s+(?:included|counted)/i
+  const HANDLE = /access handle\s+(?:is|must)\s+not\s+(?:to\s+)?(?:be\s+)?(?:included|counted)/i
   const handleSecs = sections.filter(s => HANDLE.test(norm(s.raw_text)))
   // the subclause that carries it - "sec.4.1-ssec.3A" is cl 4.1(3A), which is how the row is labelled
   const clauseLabel = (localId: string) => {
@@ -138,8 +138,16 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
       const one: Cond = ls.length === 1 ? ls[0]! : { any: ls }
       parts.push(p === 'excludes' ? { not: one } : one)
     }
-    // the clause was chosen as a subdivision clause: if no row says the act, it is about subdivision
-    if (!rows.some(a => a.d === 'act')) parts.unshift({ fact: 'proposal.kind', value: 'subdivision', span: r.section })
+    /*
+     * What kind of proposal the clause is about, when its own rules do not say.
+     *
+     * This used to be hard-wired to 'subdivision' because /api/norms/subdivision was the only
+     * caller and it picks subdivision clauses. Asked a LAND USE question, that assumption made
+     * every graph norm false, so /api/norms/use came back with zero standards on every lot. The
+     * caller names the kind it selected clauses for, or passes null to assume nothing.
+     */
+    const assume = opts.assumeKind === undefined ? 'subdivision' : opts.assumeKind
+    if (assume && !rows.some(a => a.d === 'act')) parts.unshift({ fact: 'proposal.kind', value: assume, span: r.section })
     return parts.length === 1 ? parts[0]! : { all: parts }
   }
   const effectOf = (e: any): Effect | null => {
@@ -147,6 +155,10 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
     const t = String(e.topic ?? '')
     const cmp = (['lt', 'lte', 'eq', 'gte', 'gt'].includes(e.cmp) ? e.cmp : 'gte') as any
     const n = e.value == null ? undefined : Number(e.value) * (/^ha$|hectare/i.test(String(e.unit ?? '')) ? 10000 : 1)
+    // cl 4.3 / 4.4: the control is whatever the lot's own map panel says, so a number in the clause
+    // and a map reference are the same standard read two ways
+    if (t === 'height') return { require: { topic: 'building_height', cmp: 'lte', ...(e.unit === 'map' ? { from: 'height_map' as const } : n != null ? { n } : {}), unit: 'm', kind: 'development_standard' } }
+    if (t === 'fsr') return { require: { topic: 'floor_space_ratio', cmp: 'lte', ...(e.unit === 'map' ? { from: 'fsr_map' as const } : n != null ? { n } : {}), unit: ':1', kind: 'development_standard' } }
     if (t === 'lot_size' && e.unit === 'map') return { require: { topic: 'resulting_lot_size', cmp: 'gte', from: 'lot_size_map', unit: 'm²', kind: 'development_standard' } }
     if (t === 'lot_size' && n != null && (cmp === 'gte' || cmp === 'gt')) return { require: { topic: 'resulting_lot_size', cmp, n, unit: 'm²', kind: 'development_standard' } }
     if ((t === 'frontage_width' || t === 'width') && n != null) return { require: { topic: 'resulting_lot_width', cmp, n, unit: 'm', kind: 'development_standard' } }
