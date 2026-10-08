@@ -86,14 +86,17 @@ export default defineEventHandler(async (event) => {
    */
   const wordsFor = (u: typeof USES[number]) =>
     [...new Set(u.terms.map(x => x.replace(/\s*\([^)]*\)\s*$/, '').replace(/ies$/, 'y').replace(/s$/, '')))]
-  // 4.3 height and 4.4 floor space ratio bind development generally; 4.1 is the minimum SUBDIVISION
-  // lot size and says so in its heading, so it is not a standard on carrying out a use
-  const GENERAL = ['sec.4.3', 'sec.4.4']
-  // ONE pass over the plan for all nine, not one each: graphNorms re-reads every section and rule of
-  // the LEP on each call, so nine calls was nine full scans per request - slow enough to be killing
-  // the dev worker. The clauses are selected once and handed to the use they name afterwards.
+  /*
+   * THE WHOLE LEP, not a shortlist of clauses.
+   *
+   * This read 4.3, 4.4 and clauses whose heading named the use, which missed every local provision
+   * in Part 6 and 7 - exactly where a council puts the controls that bite. The filter is now the
+   * plan itself; a clause is handed to the use its HEADING names, and a clause naming no use binds
+   * development generally and goes to every tab. One pass for all nine: graphNorms re-reads every
+   * section and rule of the plan on each call, so nine calls was nine full scans per request.
+   */
   const allWords = [...new Set(USES.flatMap(wordsFor))]
-  const unionFilter = `local_id IN ('sec.4.3', 'sec.4.4') OR heading ~* '${allWords.map(esc).join('|').replace(/'/g, "''")}'`
+  const unionFilter = 'TRUE'
 
   const sources = Object.fromEntries((await q2(
     `SELECT DISTINCT ON (title) title, source_url FROM nsw.document WHERE source_url IS NOT NULL ORDER BY title, ingested_at DESC`)).rows
@@ -122,6 +125,157 @@ export default defineEventHandler(async (event) => {
     lot.refHits = { ...(lot.refHits ?? {}), ...(await refHitsFor(q2, cadid, graph.refIds)) }
   }
 
+  /*
+   * ── THE SEPPs' OWN PERMISSIONS, GATED BY WHERE THEIR CHAPTER REACHES ─────────────────────────
+   *
+   * This used to read nsw.sepp_permissible_landuse, a flat zone table with no idea where a chapter
+   * applies - which is why a heritage-listed R2 lot came back "dual occupancy permitted". The graph
+   * holds the real thing: s 166 permits a dual occupancy in R2, and Chapter 6 reaches that land only
+   * if s 164(1) and s 163 are satisfied - not a heritage item, not bush fire prone, not a flood
+   * planning area, not within 800 m of a Schedule 12 station, in a low and mid rise housing area,
+   * and more. All 17 of those exclusions resolve through nsw.scope_layer.
+   *
+   * WHICH FRAMES BIND WHICH PERMISSION. A frame gates a permission when its part or division
+   * contains that permission, or when it sits in a part that contains NO permission of its own -
+   * an application part, like Chapter 6 Part 1 (s 163, s 164), whose frames gate the whole chapter.
+   * That is read from the structure, not hard-coded: it binds ch6-pt.1 to s 166 without binding
+   * Chapter 3's per-division frames to each other.
+   */
+  const ancestry = `
+    WITH RECURSIVE seed AS (
+      SELECT r.id AS rule_id, r.clause, r.kind, r.rule_key, r.section_id, d.title AS instrument
+        FROM nsw.rule r JOIN nsw.document d ON d.id = r.document_id
+       WHERE d.doc_type = 'sepp' AND r.kind = ANY($1) AND r.section_id IS NOT NULL
+         -- the Codes SEPP grants COMPLYING development, a different pathway from the development
+         -- consent this page asks about, and it is 160 of the 192 permission rules in the graph.
+         -- /cdc answers that question; mixing the two put "3BA.3" beside "s 166" as if they were
+         -- alternatives for the same proposal.
+         AND d.title NOT ILIKE '%Exempt and Complying%'),
+    up AS (
+      SELECT z.rule_id, s.id, s.parent_id, s.local_id, s.level FROM seed z JOIN nsw.section s ON s.id = z.section_id
+      UNION ALL
+      SELECT u.rule_id, s.id, s.parent_id, s.local_id, s.level FROM up u JOIN nsw.section s ON s.id = u.parent_id)
+    SELECT z.rule_id, z.clause, z.kind, z.rule_key, z.instrument, s.local_id AS section,
+           (SELECT array_agg(lower(a.value)) FROM nsw.rule_applicability a
+             WHERE a.rule_id = z.rule_id AND a.dimension = 'land_use' AND a.polarity = 'applies') AS land_uses,
+           (SELECT local_id FROM up WHERE up.rule_id = z.rule_id AND up.level = 'chapter' LIMIT 1) AS chapter,
+           (SELECT local_id FROM up WHERE up.rule_id = z.rule_id AND up.level = 'part' LIMIT 1) AS part,
+           (SELECT coalesce(heading, '') FROM nsw.section x
+             WHERE x.local_id = (SELECT local_id FROM up WHERE up.rule_id = z.rule_id AND up.level = 'part' LIMIT 1)
+               AND x.document_id = (SELECT document_id FROM nsw.rule WHERE id = z.rule_id)) AS part_heading,
+           (SELECT local_id FROM up WHERE up.rule_id = z.rule_id AND up.level = 'division' LIMIT 1) AS division
+      FROM seed z JOIN nsw.section s ON s.id = z.section_id`
+  const seppRules = (await q2(ancestry, [['permission', 'frame']])).rows
+  const perms = seppRules.filter((r: any) => r.kind === 'permission')
+  const frames = seppRules.filter((r: any) => r.kind === 'frame')
+  /*
+   * Which frames gate which permission, read off the instrument's own structure.
+   *
+   * A frame binds when its part or division contains the permission, or when it sits in the
+   * chapter's APPLICATION part - Chapter 6 Part 1 is headed "Preliminary" and holds s 163 and
+   * s 164, which gate the whole chapter including s 166 two parts away.
+   *
+   * The heading is the test, not "a part with no permissions in it": Chapter 3's parts are all
+   * housing types ("Secondary dwellings", "Build-to-rent housing"), and that earlier guess bound
+   * nine unrelated frames to s 72.
+   */
+  const APPLICATION_PART = /^(preliminary|application|interpretation)\b/i
+  const framesFor = (p: any) => frames.filter((f: any) => f.chapter && f.chapter === p.chapter
+    && (f.part === p.part || (f.division && f.division === p.division) || APPLICATION_PART.test(f.part_heading ?? '')))
+
+  /*
+   * Only the rules these nine uses actually reach.
+   *
+   * Every place a rule names costs a spatial query against the lot, and the SEPPs hold permissions
+   * for every housing type in the State. Testing all of them was dozens of intersections per
+   * request - enough to kill the Nitro worker. The permissions that name one of our nine, plus the
+   * frames that gate them, is a handful.
+   */
+  const wantedUses = new Set(USES.flatMap(u => u.terms).map(x => x.toLowerCase().replace(/ies$/, 'y').replace(/s$/, '')))
+  const stem = (x: string) => String(x).toLowerCase().replace(/ies$/, 'y').replace(/s$/, '')
+  const livePerms = perms.filter((p: any) => (p.land_uses ?? []).some((x: string) => wantedUses.has(stem(x))))
+  const liveRules = [...new Map([...livePerms, ...livePerms.flatMap(framesFor)].map((r: any) => [r.rule_id, r])).values()]
+
+  const appByRule = new Map<string, { dimension: string; value: string; polarity: string }[]>()
+  if (liveRules.length) {
+    for (const a of (await q2(
+      `SELECT rule_id, dimension, value, polarity FROM nsw.rule_applicability WHERE rule_id = ANY($1)`,
+      [liveRules.map((r: any) => r.rule_id)])).rows) {
+      appByRule.set(a.rule_id, [...(appByRule.get(a.rule_id) ?? []), a])
+    }
+  }
+
+  /**
+   * Applicability rows to a LIST of named conditions, one per dimension+polarity.
+   *
+   * Named and separate because the reason matters as much as the verdict. Evaluating the frame as
+   * one lump and then listing the leaves that came back false reported the OPPOSITE of the truth:
+   * an exclusion is wrapped in `not`, so its leaf reading false means the exclusion did not catch
+   * the lot - a pass. Chapter 6 failing on a heritage item was being reported as failing on all
+   * seventeen of its exclusions at once.
+   */
+  const condParts = (rows: { dimension: string; value: string; polarity: string }[], span: string) => {
+    const groups = new Map<string, typeof rows>()
+    for (const a of rows) {
+      if (a.dimension === 'land_use') continue
+      groups.set(`${a.dimension}|${a.polarity}`, [...(groups.get(`${a.dimension}|${a.polarity}`) ?? []), a])
+    }
+    return [...groups.values()].map((g) => {
+      const { dimension: d, polarity } = g[0]!
+      const ls: Cond[] = g.map((a) => {
+        if (d === 'zone') return { fact: 'lot.zone', value: a.value, span } as Cond
+        if (d === 'pathway') return { fact: 'proposal.pathway', value: a.value, span } as Cond
+        if (['land_characteristic', 'defined_area', 'map_area', 'site_ref', 'tenure', 'lga'].includes(d))
+          return { fact: 'lot.in', value: a.value, span } as Cond
+        return { fact: 'unparsed', text: `${d.replace(/_/g, ' ')}: ${a.value}`, span } as Cond
+      })
+      /*
+       * An EXCLUDES group splits, an APPLIES group does not.
+       *
+       * "not (A or B or C)" is the same as "not A and not B and not C", so each exclusion can be
+       * reported on its own - and must be, or Chapter 6 failing on a heritage item reads as failing
+       * on all eight of its land exclusions at once. An APPLIES group is genuinely alternatives
+       * (zone R2 or R3), so it stays one condition.
+       */
+      if (polarity === 'excludes') {
+        return g.map((a, i) => ({ label: `not ${a.value}`, cond: { not: ls[i]! } as Cond }))
+      }
+      const one: Cond = ls.length === 1 ? ls[0]! : { any: ls }
+      return [{ label: g.map(a => a.value).join(' or '), cond: one }]
+    }).flat()
+  }
+
+  /** The same rows as one condition, for the overall verdict. */
+  const condOf = (rows: { dimension: string; value: string; polarity: string }[], span: string): Cond => {
+    const groups = new Map<string, typeof rows>()
+    for (const a of rows) {
+      if (a.dimension === 'land_use') continue      // that is the question, not a condition on it
+      groups.set(`${a.dimension}|${a.polarity}`, [...(groups.get(`${a.dimension}|${a.polarity}`) ?? []), a])
+    }
+    const parts: Cond[] = []
+    for (const [, g] of groups) {
+      const { dimension: d, polarity } = g[0]!
+      const ls: Cond[] = g.map((a) => {
+        if (d === 'zone') return { fact: 'lot.zone', value: a.value, span } as Cond
+        if (d === 'pathway') return { fact: 'proposal.pathway', value: a.value, span } as Cond
+        // every place dimension resolves through nsw.scope_layer, which lot.in reads
+        if (['land_characteristic', 'defined_area', 'map_area', 'site_ref', 'tenure', 'lga'].includes(d))
+          return { fact: 'lot.in', value: a.value, span } as Cond
+        return { fact: 'unparsed', text: `${d.replace(/_/g, ' ')}: ${a.value}`, span } as Cond
+      })
+      const one: Cond = ls.length === 1 ? ls[0]! : { any: ls }
+      parts.push(polarity === 'excludes' ? { not: one } : one)
+    }
+    return parts.length ? (parts.length === 1 ? parts[0]! : { all: parts }) : { fact: 'unparsed', text: 'no scope recorded', span }
+  }
+
+  // the places every SEPP permission and frame names, tested against the lot once
+  const seppTerms = [...new Set(liveRules.flatMap((r: any) => (appByRule.get(r.rule_id) ?? [])
+    .filter(a => ['land_characteristic', 'defined_area', 'map_area', 'site_ref', 'tenure', 'lga'].includes(a.dimension))
+    .map(a => String(a.value).toLowerCase())))]
+  const seppTested = await Promise.all(seppTerms.map(x => lotTerm(q2, cadid, x, lot!.lga)))
+  lot.terms = { ...(lot.terms ?? {}), ...Object.fromEntries(seppTerms.map((x, i) => [x, seppTested[i]!])) }
+
   const tabs = []
   for (const u of USES) {
     // ── the grant: the Land Use Table, both instruments ───────────────────────────────────────
@@ -130,30 +284,66 @@ export default defineEventHandler(async (event) => {
     const permits = lepSaid.filter(s => /^permitted/.test(s.status))
     const prohibits = lepSaid.filter(s => s.status === 'prohibited')
     const mixed = lepSaid.filter(s => s.status === 'mixed')
-    const seppOnly = !permits.length && said.some(s => s.source === 'sepp')
+
+    // ── the SEPP side: its own permission clauses, each gated by its chapter's frames ──────────
+    const want = new Set(u.terms.map(stem))
+    const matched = livePerms.filter((p: any) => (p.land_uses ?? []).some((x: string) => want.has(stem(x))))
+    // a permission with NO applicability recorded says nothing about this lot either way; counting
+    // it as undecided turned a clear prohibition into a MAYBE on the strength of a missing row
+    const unscoped = matched.filter((p: any) => !(appByRule.get(p.rule_id) ?? []).some(a => a.dimension !== 'land_use'))
+    const mine = matched.filter((p: any) => !unscoped.includes(p))
+    const seppSaid = [...new Map(mine.map((p: any) => {
+      const gates = framesFor(p)
+      const parts = [
+        ...condParts(appByRule.get(p.rule_id) ?? [], p.section).map(x => ({ ...x, from: `s ${p.clause}` })),
+        ...gates.flatMap((f: any) => condParts(appByRule.get(f.rule_id) ?? [], f.section).map(x => ({ ...x, from: `s ${f.clause}` }))),
+      ]
+      const ask = { cadid, site, proposal: { kind: 'use', use: u.terms[0], pathway: 'development_application' } } as Question
+      const probe = (c: Cond) => evaluate([{ id: 'x', instrument: p.instrument, clause: p.clause, section: p.section,
+        text: '', when: c, then: { permit: 'with_consent' }, author: { by: '', at: '' } } as Norm], ask, lot!, landUseKey).norms[0]!
+      // each gate on its own, so the reason names the one that actually bit
+      const scored = parts.map(x => ({ ...x, v: probe(x.cond).holds }))
+      const r = probe({ all: parts.map(x => x.cond) })
+      const failed = scored.filter(x => x.v === false).map(x => `${x.label} (${x.from})`)
+      const openLeaves = scored.filter(x => x.v === null).map(x => `${x.label} (${x.from})`)
+      return [`${p.instrument}|${p.clause}`, {
+        instrument: p.instrument, clause: p.clause, chapter: p.chapter, section: p.section,
+        landUse: (p.land_uses ?? []).filter((x: string) => want.has(stem(x))).join(', '), holds: r.holds,
+        gates: gates.map((f: any) => f.clause), why: r.holds === true ? 'every gate in the chapter is met here'
+          : r.holds === false ? failed.join('; ') : openLeaves.join('; '),
+        url: link(p.instrument, p.section),
+      }]
+    })).values()]
+
     /*
-     * A SEPP-only permission is a MAYBE, not a yes.
+     * The answer, LEP and SEPPs together.
      *
-     * nsw.sepp_permissible_landuse is keyed by ZONE ALONE, but Housing SEPP s 166 permits the use
-     * "on land to which this chapter applies", and Chapter 6 excludes heritage items, bush fire
-     * prone land, flood planning areas, land within 800 m of a Schedule 12 station and more.
-     * Calling that a yes said "dual occupancy permitted" on a heritage-listed R2 lot. Whether the
-     * chapter reaches this land is a separate test the zone table cannot answer.
+     * The LEP permitting is certain. Otherwise a SEPP permission counts only if its chapter
+     * actually reaches this land - which is now tested rather than assumed, so a heritage-listed
+     * R2 lot gets a no from Chapter 6 instead of the flat zone table's yes.
      */
-    const answer = permits.length ? 'yes' : seppOnly || mixed.length ? 'maybe' : prohibits.length ? 'no' : 'unknown'
-    const because = said.length
-      ? [...new Map(said.map(s => [`${s.instrument}|${s.status}|${s.term}`,
+    const seppYes = seppSaid.filter((s: any) => s.holds === true)
+    const seppOpen = seppSaid.filter((s: any) => s.holds === null)
+    const answer = permits.length || seppYes.length ? 'yes'
+      : seppOpen.length || mixed.length ? 'maybe'
+      : prohibits.length || seppSaid.length ? 'no' : 'unknown'
+    const because = [...new Map(lepSaid.map(s => [`${s.instrument}|${s.status}|${s.term}`,
           { instrument: s.instrument, source: s.source, status: s.status, term: s.term,
             url: sources[s.instrument] ?? null }])).values()]
-      : []
 
     // ── the standards that come with it ───────────────────────────────────────────────────────
     let standards: any[] = [], gaps: any[] = [], dependsOn: any[] = []
     if (lepDoc && graph) {
       const words = wordsFor(u)
+      /*
+       * Whose clause is this? A heading that names A use names WHOSE control it is - "Height of
+       * buildings for dual occupancies" is not a control on a farm building. A heading that names
+       * no use at all binds development generally, so it belongs to every tab.
+       */
       const mine = (section: string) => {
         const h = headings.get(clauseOf(section)) ?? ''
-        return GENERAL.includes(clauseOf(section)) || words.some(w => h.includes(w.toLowerCase()))
+        if (words.some(w => h.includes(w.toLowerCase()))) return true
+        return !allWords.some(w => h.includes(w.toLowerCase()))
       }
       const norms = graph.norms.filter(n => mine(n.section))
       const question: Question = { cadid, site, proposal: { kind: 'use', use: u.terms[0] } }
@@ -167,12 +357,25 @@ export default defineEventHandler(async (event) => {
     }
 
     tabs.push({ key: u.key, label: u.label, terms: u.terms, inferred: u.inferred ?? null, needs: u.needs,
-                answer, because, standards, dependsOn, gaps })
+                answer, because, sepp: seppSaid, standards, dependsOn, gaps,
+                seppUnscoped: unscoped.map((p: any) => ({ instrument: p.instrument, clause: p.clause, section: p.section })) })
   }
+
+  /*
+   * Every zone the lot touches, not just the one under its point on surface.
+   *
+   * lotFacts reads a single zone, so a split-zoned lot is answered on half of itself - this one is
+   * R2 and R3, and the Land Use Table was read as R2 alone. The answers below still rest on that
+   * one zone; this is here so the page can say so rather than let it pass unseen.
+   */
+  const zones = (await q2(`
+    SELECT DISTINCT z.sym_code FROM epi.epi_land_zoning z, cadastre.lot l
+     WHERE l.cadid::text = $1 AND z.geom && l.geom AND ST_Intersects(z.geom, l.geom) AND z.sym_code IS NOT NULL
+     ORDER BY z.sym_code`, [cadid])).rows.map((r: any) => r.sym_code)
 
   return {
     ms: Date.now() - started,
-    lot: { cadid, lotId: lot.lotId, zone: lot.zone, epi: lot.epi, lga: lot.lga, areaM2: lot.areaM2,
+    lot: { cadid, lotId: lot.lotId, zone: lot.zone, zones, epi: lot.epi, lga: lot.lga, areaM2: lot.areaM2,
            frontageM: lot.frontageM, lotSizeMinM2: lot.lotSizeMinM2,
            isBattleaxe: lot.isBattleaxe ?? null, handleAreaM2: lot.handleAreaM2 ?? null },
     tabs, sources,

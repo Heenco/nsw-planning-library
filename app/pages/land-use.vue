@@ -66,6 +66,12 @@
           <template v-if="data.lot.isBattleaxe">&middot; battle-axe, {{ data.lot.handleAreaM2 }} m² handle</template>
           <span class="lu-dim"> &middot; {{ data.ms }} ms</span>
         </p>
+        <!-- lotFacts reads ONE zone, so a split-zoned lot is answered on half of itself -->
+        <p v-if="(data.lot.zones || []).length > 1" class="lu-warn">
+          This lot is in <b>{{ data.lot.zones.join(' and ') }}</b>, and every answer below is read on
+          <b>{{ data.lot.zone }}</b> alone - the zone under the lot's centre. A use prohibited in {{ data.lot.zone }} may
+          be permitted in the rest of the lot.
+        </p>
 
         <!-- one tab per land use; the count beside each is how many standards came with it -->
         <nav class="lu-tabs" role="tablist">
@@ -101,6 +107,31 @@
           <p v-else class="lu-dim">
             No row for this use in the zone's Land Use Table, in either the LEP or a SEPP. That is not the same as
             prohibited - it means the term is outside the vocabulary we hold for this plan.
+          </p>
+
+          <h3 class="lu-h3">Where a SEPP permits it <span class="lu-dim">and whether its chapter reaches this lot</span></h3>
+          <table v-if="current.sepp?.length" class="lu-table">
+            <thead><tr><th>Clause</th><th>Chapter</th><th>Gated by</th><th>Reaches this lot?</th></tr></thead>
+            <tbody>
+              <tr v-for="(s, i) in current.sepp" :key="i">
+                <td>
+                  <a v-if="s.url" :href="s.url" target="_blank" rel="noopener">s {{ s.clause }}</a>
+                  <span v-else>s {{ s.clause }}</span>
+                  <span class="lu-dset-sub">{{ s.instrument.replace('State Environmental Planning Policy', 'SEPP') }}</span>
+                </td>
+                <td>{{ (s.chapter || '').replace('ch.', 'Ch ') || '-' }}</td>
+                <td><code>{{ s.gates.length ? s.gates.map((g: string) => 's ' + g).join(', ') : 'no frame' }}</code></td>
+                <td :class="s.holds === true ? 'lu-st--yes' : s.holds === false ? 'lu-st--no' : 'lu-dim'">
+                  <b>{{ s.holds === true ? 'yes' : s.holds === false ? 'no' : 'cannot tell' }}</b> &middot; {{ s.why }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p v-else class="lu-dim">No SEPP in the graph grants this use by its own clause.</p>
+          <p v-if="current.seppUnscoped?.length" class="lu-dim lu-hint">
+            {{ current.seppUnscoped.length }} further SEPP permission(s) name this use but record no scope at all, so
+            they say nothing about this lot either way:
+            {{ current.seppUnscoped.map((x: any) => 's ' + x.clause).join(', ') }}.
           </p>
 
           <h3 class="lu-h3">Standards <span class="lu-dim">if the use is carried out</span></h3>
@@ -289,5 +320,7 @@ watch(() => route.query.cadid, (v) => { if (v && String(v) !== cadid.value) { ca
 .lu-st--yes { color: #15803d; } .lu-st--no { color: #b91c1c; } .lu-st--maybe { color: #b45309; }
 .lu-gaps { margin-top: 16px; font-size: 13px; }
 .lu-gaps summary { cursor: pointer; color: #64748b; }
+.lu-warn { background: #fef3c7; border-left: 3px solid #d97706; padding: 8px 12px; margin: 0 0 14px; font-size: 13px; }
+.lu-dset-sub { display: block; font-size: 11px; color: #64748b; }
 .lu-needs { margin-top: 18px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; }
 </style>
