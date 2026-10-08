@@ -1,7 +1,7 @@
 /**
  * Give each rule the branch conditions that are ACTUALLY above it, and take away the ones that are not.
  *
- *   npx tsx scripts/backfill-branch-conditions.ts [--doc "Hornsby Local%"] [--clause 4.1C] [--dry] [--no-prune]
+ *   npx tsx scripts/backfill-branch-conditions.ts [--doc "Hornsby Local%"] [--clause 4.1C] [--dry] [--prune]
  *
  * A clause written as a matrix yields several rules, one per cell, and which cell applies to a lot
  * is decided by branch labels in the clause's own paragraph tree. Extraction read the LEAVES, where
@@ -52,7 +52,18 @@ const { Client } = require('pg')
 const argv = process.argv.slice(2)
 const flag = (n: string) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : undefined }
 const DRY = argv.includes('--dry')
-const PRUNE = !argv.includes('--no-prune')
+/*
+ * PRUNING IS OFF UNLESS ASKED FOR, because it has been wrong twice and right once.
+ *
+ * Georges River cl 4.1A(2) it corrupted outright. Housing SEPP cl 69 it would have stripped
+ * zone=R2 from "for development on land in Zone R2 Low Density Residential-600m2", where R2 is
+ * precisely the condition the number depends on - the sibling branch names the same zone, so the
+ * "belongs to another branch" test cannot tell them apart.
+ *
+ * Adding a missing condition leaves a rule no worse than it was. Removing one can delete the only
+ * thing bounding a number, so it now needs --prune and a reading of every line it prints.
+ */
+const PRUNE = argv.includes('--prune')
 const DOC = flag('--doc') ?? '%'
 const CLAUSE = flag('--clause')
 
@@ -115,7 +126,19 @@ async function main() {
   const db = new Client({ connectionString: url })
   await db.connect()
 
-  // ── 1. the collisions: same clause, topic and comparator, same scope, different numbers ───────
+  /*
+   * ── 1. EVERY clause whose rules carry a number ───────────────────────────────────────────────
+   *
+   * This used to take only the COLLISIONS - same clause, topic and scope, different values - on the
+   * theory that a collision is what a lost branch condition looks like. It is one of the things it
+   * looks like. Penrith cl 4.1B is the other: "(a) for a battle-axe lot - a width of at least 15m
+   * ... (b) otherwise - a width of at least 15m" is the same number on both branches, so nothing
+   * collides and the battle-axe condition was dropped in silence.
+   *
+   * The leaf matching below is the real filter: a rule is only touched when every number it carries
+   * resolves to exactly one leaf, and all those leaves sit under the same branch. A clause with no
+   * branch labels is skipped before any of this.
+   */
   const groups = (await db.query(`
     WITH sig AS (
       SELECT r.id, r.document_id, r.clause, r.section_id, e.value::text AS value,
@@ -127,18 +150,11 @@ async function main() {
         JOIN nsw.document d ON d.id = r.document_id
         JOIN nsw.rule_effect e ON e.rule_id = r.id
        WHERE e.value IS NOT NULL AND d.title LIKE $1 AND ($2::text IS NULL OR r.clause = $2)
-         -- ONE EFFECT PER RULE, or this corrupts data.
-         -- Applicability hangs off the RULE, so a rule carrying two numbers cannot be given two
-         -- different scopes. Georges River cl 4.1A(2) is ONE rule with both 300 and 430 on it:
-         -- pruning for the 300 branch and then for the 430 branch left it with neither branch's
-         -- conditions and both branches' numbers. 754 rules are shaped this way. They need
-         -- splitting into one rule per effect first, which is its own piece of work.
-         AND (SELECT count(*) FROM nsw.rule_effect e2 WHERE e2.rule_id = r.id AND e2.value IS NOT NULL) = 1)
+         )
     SELECT document_id, clause,
            json_agg(json_build_object('rule_id', id, 'value', value, 'section_id', section_id)) AS rules
       FROM sig
      GROUP BY document_id, clause, topic, comparator, app
-    HAVING count(DISTINCT value) > 1
      ORDER BY clause`, [DOC, CLAUSE ?? null])).rows
 
   const multi = (await db.query(`
@@ -147,7 +163,8 @@ async function main() {
        AND (SELECT count(*) FROM nsw.rule_effect e2 WHERE e2.rule_id = r.id AND e2.value IS NOT NULL) > 1`,
     [DOC, CLAUSE ?? null])).rows[0].n
   console.log(`${groups.length} colliding group(s)${CLAUSE ? ` for clause ${CLAUSE}` : ''}`)
-  if (multi) console.log(`${multi} rule(s) skipped: two or more numbers on one rule, so scope cannot be split per number`)
+  // no longer skipped wholesale - a rule with several numbers is fine when they share a branch
+  if (multi) console.log(`${multi} rule(s) carry more than one number; those whose numbers come from different branches are reported below`)
   console.log()
   let added = 0, pruned = 0
   const unmapped = new Map<string, number>()
@@ -175,7 +192,15 @@ async function main() {
     if (!labels.length) continue
 
     const parentOf = (localId: string) => ancestorsOf(localId).slice(-1)[0]?.local_id ?? base
-    const condOf = (label: any): Cond[] | null => {
+    /*
+     * `record` is only true for a label that actually sits ABOVE a number we matched.
+     *
+     * Without it the unmapped list filled with every list-introducing sentence in the plan - "each
+     * tent or marquee must have the following number of exits-" and 900 more - none of which is a
+     * branch condition and none of which was ever going to be used. A backlog has to be the things
+     * that would change an answer, or nobody can work through it.
+     */
+    const condOf = (label: any, record = false): Cond[] | null => {
       const t = norm(label.raw_text)
       const direct = readLabel(t)
       if (direct) return direct
@@ -187,33 +212,61 @@ async function main() {
           if (sc) return sc.map(c => ({ ...c, polarity: c.polarity === 'applies' ? 'excludes' : 'applies' }))
         }
       }
-      const key = `${shortDoc} ${g.clause}: ${t.slice(0, 95)}`
-      unmapped.set(key, (unmapped.get(key) ?? 0) + 1)
+      if (record) {
+        const key = `${shortDoc} ${g.clause}: ${t.slice(0, 95)}`
+        unmapped.set(key, (unmapped.get(key) ?? 0) + 1)
+      }
       return null
     }
 
+    /*
+     * A rule appears once per number it carries, so collapse to one entry per RULE first.
+     *
+     * A rule holding several numbers is only a problem when those numbers come from DIFFERENT
+     * branches - then one rule would need two scopes and nothing can be done with it. Where they
+     * all come from the same leaf, or from leaves under the same branch, the rule is fine:
+     *   conjunctive  Penrith cl 4.1B(1)(a) "a width of at least 15m AND an area of at least 650m2"
+     *   banded       one rule, several bands, the condition already on the effect
+     *   alternatives Randwick cl 5.4 "25% ... or 400 square metres, whichever is the lesser"
+     * Of 754 multi-number rules, 112 are banded and 382 span topics; only 297 are several values of
+     * one topic. Refusing all 754 was far too blunt.
+     */
+    const byRule = new Map<string, { rule_id: string; values: number[] }>()
     for (const r of g.rules) {
+      const e = byRule.get(r.rule_id) ?? { rule_id: r.rule_id, values: [] }
+      e.values.push(Number(r.value)); byRule.set(r.rule_id, e)
+    }
+
+    for (const r of [...byRule.values()]) {
       const own = (await db.query(
         `SELECT dimension, value, polarity FROM nsw.rule_applicability WHERE rule_id = $1`, [r.rule_id])).rows
       // the qualifier the rule already carries separates two leaves stating the SAME number
       const quals = own.filter((a: any) => a.dimension === 'land_use')
         .map((a: any) => /\(([^)]+)\)/.exec(String(a.value))?.[1]?.toLowerCase()).filter(Boolean) as string[]
-      const want = Number(r.value)
-      const leaves = tree.filter(s => {
+      const leafFor = (want: number) => tree.filter(s => {
         const t = norm(s.raw_text)
         const m = NUMBER.exec(t)
         if (!m || Number(m[1]!.replace(/,/g, '')) !== want) return false
         return !quals.length || quals.some(q => t.toLowerCase().includes(`(${q})`))
       })
-      if (leaves.length !== 1) {
-        unmatched.push(`${shortDoc} ${g.clause} value ${r.value}: ${leaves.length} leaves matched`)
+      const hits = r.values.map(leafFor)
+      if (hits.some(h => h.length !== 1)) {
+        unmatched.push(`${shortDoc} ${g.clause} ${r.values.join('/')}: ${hits.map(h => h.length).join('/')} leaves matched`)
         continue
       }
+      const paths = [...new Set(hits.map(h => h[0]!.local_id))]
+      // every number under the same branch? then the branch's conditions are the rule's conditions
+      const branchOf = (localId: string) => ancestorsOf(localId).map(x => x.local_id).join('>')
+      if (new Set(paths.map(branchOf)).size > 1) {
+        unmatched.push(`${shortDoc} ${g.clause} ${r.values.join('/')}: numbers come from different branches - needs splitting first`)
+        continue
+      }
+      const leaves = [hits[0]![0]!]
 
       // ── 2. what IS above this leaf, and what belongs to a sibling branch instead ───────────────
       const ancestorIds = new Set(ancestorsOf(leaves[0]!.local_id).map(a => a.local_id))
       const mine: Cond[] = []
-      for (const anc of labels.filter(l => ancestorIds.has(l.local_id))) mine.push(...(condOf(anc) ?? []))
+      for (const anc of labels.filter(l => ancestorIds.has(l.local_id))) mine.push(...(condOf(anc, true) ?? []))
       const theirs: Cond[] = []
       for (const l of labels) {
         if (ancestorIds.has(l.local_id)) continue
@@ -222,7 +275,7 @@ async function main() {
 
       for (const c of mine) {
         if (own.some((o: any) => same(o as Cond, c))) continue
-        console.log(`  + ${shortDoc} ${g.clause} ${String(r.value).padStart(6)}  ${c.dimension}=${c.value} (${c.polarity})`)
+        console.log(`  + ${shortDoc} ${g.clause} ${r.values.join('/').padStart(6)}  ${c.dimension}=${c.value} (${c.polarity})`)
         if (!DRY) await db.query(`
           INSERT INTO nsw.rule_applicability (rule_id, dimension, value, polarity, source_span)
           SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT 1 FROM nsw.rule_applicability
@@ -233,7 +286,7 @@ async function main() {
       if (!PRUNE) continue
       for (const c of theirs) {
         if (!own.some((o: any) => same(o as Cond, c))) continue
-        console.log(`  - ${shortDoc} ${g.clause} ${String(r.value).padStart(6)}  ${c.dimension}=${c.value} (${c.polarity})  belongs to another branch`)
+        console.log(`  - ${shortDoc} ${g.clause} ${r.values.join('/').padStart(6)}  ${c.dimension}=${c.value} (${c.polarity})  belongs to another branch`)
         if (!DRY) await db.query(
           `DELETE FROM nsw.rule_applicability WHERE rule_id = $1 AND dimension = $2 AND value = $3 AND polarity = $4`,
           [r.rule_id, c.dimension, c.value, c.polarity])

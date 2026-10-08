@@ -69,7 +69,13 @@ def main() -> int:
                 FROM nsw.section x
                WHERE x.document_id = r.document_id
                  AND (x.local_id = s.local_id OR x.local_id LIKE s.local_id || '-%%'
-                      OR s.local_id LIKE x.local_id || '-%%')) AS txt
+                      OR s.local_id LIKE x.local_id || '-%%')
+                 -- THE OBJECTIVES ARE NOT CONDITIONS. Randwick cl 4.3 and Canada Bay cl 4.4 both
+                 -- mention a heritage item only in "the objectives of this clause are ...", two
+                 -- subclauses away from the number, and both were flagged as having lost it.
+                 AND x.local_id NOT LIKE '%%-ssec.1-para%%'
+                 AND coalesce(x.raw_text,'') !~* '^\s*(the )?objectives? of this clause'
+                 AND coalesce(x.raw_text,'') !~* '^\s*to [a-z]') AS txt
         FROM nsw.rule r
         JOIN nsw.document d ON d.id = r.document_id AND d.doc_type IN ('lep','sepp') AND d.title LIKE %s
         JOIN nsw.section s ON s.id = r.section_id
