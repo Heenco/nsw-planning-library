@@ -182,9 +182,21 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
     const wholeText = own.map(s => norm(s.raw_text)).join(' ')
     if (!operative.length || (own.length && NOT_ADOPTED.test(wholeText))) continue      // nothing left to read, or not adopted
     const scopeRows = rs.filter(r => !(r.eff as any[]).some(e => effectOf(e))).flatMap(r => (r.app as any[]).map(a => ({ ...a, refs: r.refs })))
+    /*
+     * A PROHIBITION IS A RULE EVEN WITHOUT A NUMBER.
+     *
+     * This read only rules carrying a numeric effect, which is 12% of what 08C writes - 3,905 of
+     * its 4,417 rules carry no number at all. Parramatta cl 6.11 is two of them: "consent must not
+     * be granted ... on land identified as D on the Dual Occupancy Prohibition Map", scope and
+     * polygon both captured, and silently dropped here because there was no number to read.
+     *
+     * A rule whose kind says it bans or grants something needs no number to be worth evaluating;
+     * its scope is the whole content. The engine has had `prohibit` and `permit` all along.
+     */
+    const decisive = rs.filter(r => r.kind === 'prohibition' || r.kind === 'permission')
     const effRules = rs.filter(r => (r.eff as any[]).some(e => effectOf(e)))
     const clauseNo = cl.local_id.replace('sec.', '')
-    if (!effRules.length) {
+    if (!effRules.length && !decisive.length) {
       // zones the graph's own scope rows name; else the clause's "This clause applies to ..." sentence
       let zones: string[] | null = [...new Set(scopeRows.filter(a => a.d === 'zone' && a.p === 'applies').map(a => String(a.v)))]
       if (!zones.length) {
@@ -199,6 +211,18 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
                         .filter(Boolean).map(x => `${clauseNo}(${x})`))] : [] })
       continue
     }
+    // the bans and grants first: scope is their whole content, so they need no effect loop
+    for (const r of decisive) {
+      const ownRows = (r.app as any[]).map(a => ({ ...a, refs: r.refs }))
+      const ownDims = new Set(ownRows.map(a => a.d))
+      const when: Cond = conditionOf(r, [...ownRows, ...scopeRows.filter(a => !ownDims.has(a.d))])
+      const id = `${slug}:graph:${r.section}:${String(r.id).slice(0, 8)}:kind`
+      idsByClause.set(clauseNo, [...(idsByClause.get(clauseNo) ?? []), id])
+      norms.push({ id, instrument, clause: r.clause, section: r.section, text: '', when,
+        then: r.kind === 'prohibition' ? { prohibit: true } : { permit: 'with_consent' },
+        despite: [], author: { by: `nsw graph (nsw.rule, kind=${r.kind})`, at: '' }, _edges: r.edges })
+    }
+
     for (const r of effRules) {
       const ownRows = (r.app as any[]).map(a => ({ ...a, refs: r.refs }))
       const ownDims = new Set(ownRows.map(a => a.d))
