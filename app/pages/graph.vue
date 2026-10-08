@@ -106,7 +106,7 @@
               </td>
               <td class="gm-num">{{ d.db.sections.toLocaleString() }}</td>
               <td class="gm-num" :class="!d.db.propositions ? 'gm-zero' : ''">{{ d.db.propositions.toLocaleString() }}</td>
-              <td class="gm-num" :class="!d.db.rules ? 'gm-zero' : ''">{{ d.db.rules.toLocaleString() }}</td>
+              <td class="gm-num" :class="!d.db.rules ? 'gm-zero' : ''">{{ d.db.rules.toLocaleString() }}<span v-if="d.db.rulesRetired" class="gm-retired" :title="d.db.rulesRetired + ' rules superseded by a later extraction run and ignored by the readers'">&minus;{{ d.db.rulesRetired }}</span></td>
               <td class="gm-num">
                 <span v-if="!d.db.rules" class="gm-na">&mdash;</span>
                 <span v-else class="gm-bar-wrap">
@@ -504,4 +504,5 @@ function flags(d: any): string[] {
   margin-top: 18px; font-size: 12px; line-height: 1.6; color: #64748b;
   border-top: 1px solid #e5e7eb; padding-top: 12px;
 }
+.gm-retired { margin-left: 5px; font-size: 10px; color: #94a3b8; }
 </style>

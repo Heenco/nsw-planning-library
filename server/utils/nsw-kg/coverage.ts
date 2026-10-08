@@ -39,6 +39,8 @@ export interface DocCoverage {
     chars: number
     propositions: number
     rules: number
+    /** Superseded by a later run and ignored by the readers - shown, not silently dropped. */
+    rulesRetired: number
     effects: number
     spatialRefs: number
     tables: number
@@ -133,48 +135,51 @@ export async function getGraphCoverage(client: pg.PoolClient): Promise<DocCovera
            (SELECT coalesce(sum(length(coalesce(s.raw_text, ''))), 0)
               FROM nsw.section s WHERE s.document_id = d.id) AS chars,
            (SELECT count(*) FROM nsw.proposition p WHERE p.document_id = d.id) AS propositions,
-           (SELECT count(*) FROM nsw.rule r WHERE r.document_id = d.id) AS rules,
+           (SELECT count(*) FROM nsw.rule r WHERE r.document_id = d.id AND r.publish_state <> 'retired') AS rules,
+           -- superseded by a later extraction run, and ignored by shared/norms/from-graph.ts. Counted
+           -- separately rather than left in "rules", where it read as coverage the readers cannot see.
+           (SELECT count(*) FROM nsw.rule r WHERE r.document_id = d.id AND r.publish_state = 'retired') AS rules_retired,
            (SELECT count(*) FROM nsw.rule_effect e JOIN nsw.rule r ON r.id = e.rule_id
-             WHERE r.document_id = d.id) AS effects,
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired') AS effects,
            (SELECT count(*) FROM nsw.rule_spatial_ref sr WHERE sr.document_id = d.id) AS spatial_refs,
            (SELECT count(*) FROM nsw.section_table st JOIN nsw.section s ON s.id = st.section_id
              WHERE s.document_id = d.id) AS tables,
            (SELECT count(*) FROM nsw.section s
              WHERE s.document_id = d.id AND coalesce(s.raw_text, '') = '') AS empty_sections,
            (SELECT count(*) FROM nsw.rule_effect e JOIN nsw.rule r ON r.id = e.rule_id
-             WHERE r.document_id = d.id AND e.comparator IS NULL AND e.value IS NOT NULL) AS effects_no_bound,
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired' AND e.comparator IS NULL AND e.value IS NOT NULL) AS effects_no_bound,
            (SELECT count(*) FROM nsw.rule_effect e JOIN nsw.rule r ON r.id = e.rule_id
-             WHERE r.document_id = d.id AND e.topic = 'unspecified') AS effects_unspecified,
-           (SELECT count(*) FROM nsw.rule r WHERE r.document_id = d.id
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired' AND e.topic = 'unspecified') AS effects_unspecified,
+           (SELECT count(*) FROM nsw.rule r WHERE r.document_id = d.id AND r.publish_state <> 'retired'
               AND NOT EXISTS (SELECT 1 FROM nsw.rule_applicability a WHERE a.rule_id = r.id)) AS rules_no_app,
            -- Reachability. The scopable count mirrors the join in property-report's
            -- siteRules query, so this counts what that query could match rather
            -- than what merely exists.
            (SELECT count(DISTINCT r.id) FROM nsw.rule r
               JOIN nsw.rule_applicability a ON a.rule_id = r.id
-             WHERE r.document_id = d.id
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired'
                AND a.dimension IN ('land_use', 'dev_type')) AS scopable,
            (SELECT count(DISTINCT r.id) FROM nsw.rule r
               JOIN nsw.rule_applicability a ON a.rule_id = r.id
-             WHERE r.document_id = d.id AND a.dimension = 'zone') AS dim_zone,
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired' AND a.dimension = 'zone') AS dim_zone,
            (SELECT count(DISTINCT r.id) FROM nsw.rule r
               JOIN nsw.rule_applicability a ON a.rule_id = r.id
-             WHERE r.document_id = d.id AND a.dimension = 'act') AS dim_act,
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired' AND a.dimension = 'act') AS dim_act,
            (SELECT count(DISTINCT r.id) FROM nsw.rule r
               JOIN nsw.rule_applicability a ON a.rule_id = r.id
-             WHERE r.document_id = d.id AND a.dimension = 'land_use') AS dim_land_use,
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired' AND a.dimension = 'land_use') AS dim_land_use,
            (SELECT count(DISTINCT r.id) FROM nsw.rule r
               JOIN nsw.rule_applicability a ON a.rule_id = r.id
-             WHERE r.document_id = d.id AND a.dimension = 'dev_type') AS dim_dev_type,
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired' AND a.dimension = 'dev_type') AS dim_dev_type,
            (SELECT count(*) FROM nsw.rule_spatial_ref sr
              WHERE sr.document_id = d.id AND sr.geom IS NOT NULL) AS spatial_resolved,
            (SELECT count(*) FROM nsw.rule_effect e JOIN nsw.rule r ON r.id = e.rule_id
-             WHERE r.document_id = d.id AND e.condition_metric = 'lot_size') AS lot_size_banded,
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired' AND e.condition_metric = 'lot_size') AS lot_size_banded,
            -- A unit that contradicts its topic. Kept in step with
            -- shared/dcp-scope.ts TOPIC_UNITS, which is what the report reads to
            -- badge a control "check clause".
            (SELECT count(*) FROM nsw.rule_effect e JOIN nsw.rule r ON r.id = e.rule_id
-             WHERE r.document_id = d.id AND e.unit IS NOT NULL
+             WHERE r.document_id = d.id AND r.publish_state <> 'retired' AND e.unit IS NOT NULL
                AND ((e.topic IN ('setback', 'width', 'height') AND e.unit <> 'metre')
                  OR (e.topic = 'fsr' AND e.unit <> 'ratio')
                  OR (e.topic = 'site_coverage' AND e.unit <> 'percent')
@@ -191,6 +196,7 @@ export async function getGraphCoverage(client: pg.PoolClient): Promise<DocCovera
       chars: Number(d.chars),
       propositions: Number(d.propositions),
       rules: Number(d.rules),
+      rulesRetired: Number(d.rules_retired ?? 0),
       effects: Number(d.effects),
       spatialRefs: Number(d.spatial_refs),
       tables: Number(d.tables),
