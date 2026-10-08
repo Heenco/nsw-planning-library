@@ -36,12 +36,19 @@ export interface PlanningGap {
 
 export const MEASURED_AT = '2026-10-08'
 
+/**
+ * The two plans the extraction work is being proved on. Every figure marked "H/R" below is measured
+ * against these and nothing else - deliberately, because a reader tuned on 35 plans at once is
+ * tuned on none of them. The mechanism goes into 08C so it scales; the proof stays narrow.
+ */
+export const PROVING_ON = ['Hornsby Local Environmental Plan 2013', 'Randwick Local Environmental Plan 2012']
+
 export const PLANNING_GAPS: PlanningGap[] = [
   // ── representation: what a rule can even say ────────────────────────────────────────────────
   {
     id: 'one-door',
     title: 'Only rules carrying a number reach the engine',
-    area: 'representation', status: 'open', effort: 'M',
+    area: 'representation', status: 'partial', effort: 'M',
     what: 'from-graph turns a rule into a norm only when it has a numeric effect, so every prohibition, '
         + 'permission, additional use and disapplication is invisible to the verdict.',
     evidence: [
@@ -51,7 +58,11 @@ export const PLANNING_GAPS: PlanningGap[] = [
       'The engine already has permit / prohibit / require and defeat resolution. Nothing needs inventing.',
     ],
     impact: 'A lot where a local clause takes the use away still reads as permitted. Parramatta cl 6.11 is the case.',
-    where: ['shared/norms/from-graph.ts', 'shared/norms/engine.ts'],
+    resolution: 'Both ends fixed for the two proving plans. 08C classifies the kind from the clause verb instead of '
+              + 'writing everything as a standard, and from-graph builds a norm from a decisive kind with no number '
+              + 'needed. H/R: 43 and 52 rules now carry prohibition or permission, where both had zero. Still open '
+              + 'for the other 33 plans, which have not been re-run.',
+    where: ['shared/norms/from-graph.ts', 'shared/norms/engine.ts', '08C write cell'],
   },
   {
     id: 'modifier-rules',
@@ -123,6 +134,8 @@ export const PLANNING_GAPS: PlanningGap[] = [
     evidence: [
       '3,083 of 5,426 prose rules carrying a number (57%) sit in a group with identical clause, topic and scope but a different value.',
       '795 colliding groups across 22 documents.',
+      'FIXED AT SOURCE for the two proving plans: 08C now has a matrix reader, so cl 4.1C and cl 4.1D extract all '
+        + 'four cells each with the right condition and qualifier, without the backfill.',
       'A collision is only ONE of the shapes a lost branch condition takes. Penrith cl 4.1B puts the SAME number '
         + 'on both branches - "(a) for a battle-axe lot - a width of at least 15m ... (b) otherwise - a width of at '
         + 'least 15m" - so nothing collided and the battle-axe condition was dropped in silence.',
@@ -141,7 +154,7 @@ export const PLANNING_GAPS: PlanningGap[] = [
   {
     id: 'multi-effect',
     title: 'One rule can carry several numbers, so it cannot carry several scopes',
-    area: 'extraction', status: 'open', effort: 'M',
+    area: 'extraction', status: 'partial', effort: 'M',
     what: 'Applicability hangs off the rule, so a rule whose numbers come from DIFFERENT branches would need two '
         + 'scopes. Most multi-number rules are not that shape, which the first count missed.',
     evidence: [
@@ -189,8 +202,8 @@ export const PLANNING_GAPS: PlanningGap[] = [
     area: 'extraction', status: 'open', effort: 'S',
     what: 'Schedule 1 permits a use on a named Lot/DP. The rules exist; the site reference does not.',
     evidence: [
-      '26 rules of kind additional_use.',
-      'ZERO of them carry a site_ref applicability.',
+      '26 rules of kind additional_use corpus-wide; H/R: 14 Hornsby and 12 Randwick.',
+      'ZERO of them carry a site_ref applicability, in either plan or anywhere else.',
       'part4_graph already extracts APUs keyed by Lot/DP and address (apu_extract.py).',
     ],
     impact: 'A grant we hold can never flip a prohibition, because nothing ties it to the land it names.',
@@ -204,11 +217,41 @@ export const PLANNING_GAPS: PlanningGap[] = [
         + 'it; the LEP side does not.',
     evidence: [
       'SEPP effects with a source span: 3,491 of 3,491 (100%).',
-      'LEP effects with a source span: 766 of 911 (84%).',
+      'LEP effects with a source span: 766 of 911 (84%). H/R: 3 Hornsby and 7 Randwick effects have none.',
       '145 LEP numbers are unverifiable, and those rules are src=ai.',
     ],
     impact: 'A number nobody can trace is a number nobody can rule out as invented.',
     where: ['nsw.rule_effect.source_span'],
+  },
+
+  {
+    id: 'unresolved-map-refs',
+    title: 'A map reference is extracted but no polygon is attached to it',
+    area: 'extraction', status: 'open', effort: 'M',
+    what: 'The map reader finds "land identified as D on the Dual Occupancy Prohibition Map" and records the '
+        + 'reference. Most of those references never get the geometry that would let a lot be tested against them.',
+    evidence: [
+      'H/R: Hornsby 45 of 52 spatial refs carry no geometry; Randwick 65 of 130.',
+      'A reference without geometry evaluates to "no polygon in the graph" - the norm reads as undecided forever.',
+      'The clauses this hits are the ones that turn on a map, which is 854 clauses corpus-wide and the single '
+        + 'largest construction in NSW planning.',
+    ],
+    impact: 'The biggest class of control in the plans is extracted and then cannot be tested against a lot.',
+    where: ['nsw.rule_spatial_ref', '08C map-reference reader'],
+  },
+  {
+    id: 'rules-without-scope',
+    title: 'A rule with no scope cannot be matched to any lot',
+    area: 'extraction', status: 'open', effort: 'M',
+    what: 'The other half of a usable rule. A standard with no applicability either reaches every lot or none, and '
+        + 'neither is what the clause says.',
+    evidence: [
+      'H/R: 28 Hornsby and 23 Randwick live rules carry no applicability row at all.',
+      'Of those, 2 and 8 CARRY A NUMBER - a standard with no scope reads as applying everywhere.',
+      "08C's own gate reports this separately as no_scope: 25 findings in Hornsby, 19 in Randwick.",
+    ],
+    impact: 'The numbered ones are actively wrong, not merely unreachable.',
+    where: ['nsw.rule_applicability', '08C applicability agent'],
   },
 
   // ── lot data: the facts the clauses ask for ─────────────────────────────────────────────────
