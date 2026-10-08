@@ -78,7 +78,7 @@
           <button v-for="t in data.tabs" :key="t.key" type="button" role="tab" class="lu-tab"
                   :class="[{ 'lu-tab--on': t.key === tab }, 'lu-tab--' + t.answer]"
                   :aria-selected="t.key === tab" @click="tab = t.key">
-            <span class="lu-dot" :class="'lu-dot--' + t.answer" />{{ t.label }}
+            <span class="lu-dot" :class="'lu-dot--' + t.answer" />{{ t.label }}<span v-if="!t.settled" class="lu-tab-warn" title="a clause naming this use was not read">!</span>
           </button>
         </nav>
 
@@ -88,6 +88,21 @@
             <span class="lu-verdict-txt">{{ summary(current) }}</span>
           </div>
 
+          <!-- a verdict must never be readable as complete while a clause naming this use is unread -->
+          <div v-if="!current.settled" class="lu-unread">
+            <b>Not settled.</b> {{ current.unread.length }} clause{{ current.unread.length === 1 ? '' : 's' }} in
+            {{ data.lot.epi }} name{{ current.unread.length === 1 ? 's' : '' }} this use and produced no rule the
+            engine could act on, so the answer above does not account for {{ current.unread.length === 1 ? 'it' : 'them' }}.
+            <ul>
+              <li v-for="(x, i) in current.unread" :key="i">
+                <span v-if="x.bars" class="lu-bars">may prohibit</span>
+                <a v-if="x.url" :href="x.url" target="_blank" rel="noopener">cl {{ x.clause }}</a>
+                <span v-else>cl {{ x.clause }}</span>
+                {{ x.heading }}
+                <span v-if="x.hasPolygon" class="lu-dim">&middot; its map polygon is held, so it is testable once read</span>
+              </li>
+            </ul>
+          </div>
           <p v-if="current.inferred" class="lu-inferred"><b>Inferred.</b> {{ current.inferred }}</p>
 
           <h3 class="lu-h3">What the instruments say</h3>
@@ -320,6 +335,11 @@ watch(() => route.query.cadid, (v) => { if (v && String(v) !== cadid.value) { ca
 .lu-st--yes { color: #15803d; } .lu-st--no { color: #b91c1c; } .lu-st--maybe { color: #b45309; }
 .lu-gaps { margin-top: 16px; font-size: 13px; }
 .lu-gaps summary { cursor: pointer; color: #64748b; }
+.lu-unread { background: #fff7ed; border-left: 3px solid #ea580c; padding: 10px 12px; margin: 10px 0 14px; font-size: 13px; }
+.lu-unread ul { margin: 6px 0 0; padding-left: 18px; }
+.lu-unread li { margin-bottom: 3px; }
+.lu-bars { background: #fee2e2; color: #7f1d1d; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-right: 5px; }
+.lu-tab-warn { color: #ea580c; font-weight: 700; margin-left: 5px; }
 .lu-warn { background: #fef3c7; border-left: 3px solid #d97706; padding: 8px 12px; margin: 0 0 14px; font-size: 13px; }
 .lu-dset-sub { display: block; font-size: 11px; color: #64748b; }
 .lu-needs { margin-top: 18px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; }

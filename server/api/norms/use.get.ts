@@ -263,6 +263,36 @@ export default defineEventHandler(async (event) => {
   const seppTested = await Promise.all(seppTerms.map(x => lotTerm(q2, cadid, x, lot!.lga)))
   lot.terms = { ...(lot.terms ?? {}), ...Object.fromEntries(seppTerms.map((x, i) => [x, seppTested[i]!])) }
 
+  /*
+   * ── THE COVERAGE GATE ───────────────────────────────────────────────────────────────────────
+   *
+   * A verdict must not be able to hide a clause nobody read.
+   *
+   * from-graph turns a rule into a norm only when it carries a NUMBER, so 24% of the 6,147 LEP and
+   * SEPP rules reach the engine and the rest are invisible to the answer. Parramatta cl 6.11
+   * ("dual occupancies prohibited on land identified D on the Dual Occupancy Prohibition Map") is
+   * two rules with scope, no number, and a polygon in the graph that does intersect 58 Bambara
+   * Crescent - and the page said YES. Nothing on it hinted a prohibition had gone unread.
+   *
+   * So every clause whose rules name a use but produced no norm is collected here, and the ones
+   * that name THIS use are carried onto the verdict. The answer is still the answer; it just can
+   * no longer be read as complete when it is not.
+   */
+  const unreadRows = lepDoc ? (await q2(`
+    SELECT cl.local_id AS section, cl.heading, r.clause, r.kind,
+           (SELECT string_agg(DISTINCT a.value || '|' || a.polarity, ' ; ')
+              FROM nsw.rule_applicability a
+             WHERE a.rule_id = r.id AND a.dimension = 'land_use') AS uses,
+           EXISTS (SELECT 1 FROM nsw.rule_spatial_ref sr WHERE sr.rule_id = r.id AND sr.geom IS NOT NULL) AS has_polygon
+      FROM nsw.rule r
+      JOIN nsw.section s ON s.id = r.section_id
+      JOIN nsw.section cl ON cl.document_id = r.document_id AND cl.level = 'clause'
+                         AND (s.local_id = cl.local_id OR s.local_id LIKE cl.local_id || '-%')
+     WHERE r.document_id = $1
+       AND NOT EXISTS (SELECT 1 FROM nsw.rule_effect e WHERE e.rule_id = r.id AND e.value IS NOT NULL)
+       AND EXISTS (SELECT 1 FROM nsw.rule_applicability a WHERE a.rule_id = r.id AND a.dimension = 'land_use')`,
+    [lepDoc.id])).rows : []
+
   const tabs = []
   for (const u of USES) {
     // ── the grant: the Land Use Table, both instruments ───────────────────────────────────────
@@ -328,7 +358,7 @@ export default defineEventHandler(async (event) => {
             url: sources[s.instrument] ?? null }])).values()]
 
     // ── the standards that come with it ───────────────────────────────────────────────────────
-    let standards: any[] = [], gaps: any[] = [], dependsOn: any[] = []
+    let standards: any[] = [], gaps: any[] = [], dependsOn: any[] = [], unread: any[] = []
     if (lepDoc && graph) {
       const words = wordsFor(u)
       /*
@@ -350,10 +380,26 @@ export default defineEventHandler(async (event) => {
       const g = { gaps: graph.gaps.filter(x => mine(x.section)) }
       gaps = g.gaps.map(x => ({ clause: x.parts.length ? x.parts.join(', ') : x.clause, section: x.section,
         heading: x.heading, url: link(lepDoc.title, x.section) }))
+      /*
+       * The clauses that name THIS use and produced nothing. A rule that excludes the use is a
+       * probable prohibition and is called out as such; one with a polygon of its own can be
+       * tested the moment it is read, so the gap is extraction, not data.
+       */
+      const bore = new Set(standards.map((s: any) => s.clause))
+      unread = unreadRows
+        .filter((x: any) => mine(x.section) && !bore.has(x.clause)
+          && String(x.uses ?? '').toLowerCase().split(' ; ').some((v: string) => want.has(stem(v.split('|')[0]!))))
+        .map((x: any) => ({
+          clause: x.clause, section: x.section, heading: x.heading, kind: x.kind,
+          bars: x.kind === 'prohibition' || String(x.uses ?? '').toLowerCase().includes('|excludes'),
+          hasPolygon: x.has_polygon, url: link(lepDoc.title, x.section),
+        }))
     }
 
     tabs.push({ key: u.key, label: u.label, terms: u.terms, inferred: u.inferred ?? null, needs: u.needs,
-                answer, because, sepp: seppSaid, standards, dependsOn, gaps,
+                answer, because, sepp: seppSaid, standards, dependsOn, gaps, unread,
+                // the verdict cannot be read as settled while a clause naming this use is unread
+                settled: unread.length === 0,
                 seppUnscoped: unscoped.map((p: any) => ({ instrument: p.instrument, clause: p.clause, section: p.section })) })
   }
 
