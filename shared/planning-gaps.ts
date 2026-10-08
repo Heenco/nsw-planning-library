@@ -134,15 +134,19 @@ export const PLANNING_GAPS: PlanningGap[] = [
     id: 'multi-effect',
     title: 'One rule can carry several numbers, so it cannot carry several scopes',
     area: 'extraction', status: 'open', effort: 'M',
-    what: 'Applicability hangs off the rule. A rule holding both 300 and 430 cannot be given the two different '
-        + 'scopes those numbers need, so the branch-condition pass has to skip it.',
+    what: 'Applicability hangs off the rule, so a rule whose numbers come from DIFFERENT branches would need two '
+        + 'scopes. Most multi-number rules are not that shape, which the first count missed.',
     evidence: [
-      '754 rules carry more than one numeric effect.',
-      'Georges River cl 4.1A(2) is one rule with both 300 m2 and 430 m2; pruning for one branch wiped the other.',
-      'The backfill now refuses these rather than corrupting them.',
+      'Of 754 rules carrying more than one number: 112 carry a condition band on the effect itself, 382 span more '
+        + 'than one topic (a width AND an area - conjunctive and correct), and 297 are several values of one topic.',
+      'Only the last shape can conflate branches, and then only when the numbers come from different leaves. '
+        + 'Penrith cl 4.1B(1)(a) is "a width of at least 15m AND an area of at least 650m2" from one leaf - fine.',
+      'The backfill decides per rule now: every number must resolve to exactly one leaf, and all those leaves must '
+        + 'sit under the same branch.',
+      'Georges River cl 4.1A(2) remains the real case - 300 m2 from branch (a) and 430 m2 from branch (b), one rule.',
     ],
-    impact: 'Blocks the branch-condition work entirely, which is 795 groups.',
-    where: ['nsw.rule', 'nsw.rule_effect'],
+    impact: 'Narrower than it looked: it blocks the branch pass only for rules that genuinely straddle two branches.',
+    where: ['nsw.rule', 'nsw.rule_effect', 'scripts/backfill-branch-conditions.ts'],
   },
   {
     id: 'map-references',
