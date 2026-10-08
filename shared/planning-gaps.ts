@@ -123,12 +123,20 @@ export const PLANNING_GAPS: PlanningGap[] = [
     evidence: [
       '3,083 of 5,426 prose rules carrying a number (57%) sit in a group with identical clause, topic and scope but a different value.',
       '795 colliding groups across 22 documents.',
-      'Hornsby cl 4.1C and 4.1D are fixed; a dry run over everything else adds and removes nothing.',
+      'A collision is only ONE of the shapes a lost branch condition takes. Penrith cl 4.1B puts the SAME number '
+        + 'on both branches - "(a) for a battle-axe lot - a width of at least 15m ... (b) otherwise - a width of at '
+        + 'least 15m" - so nothing collided and the battle-axe condition was dropped in silence.',
+      'Hornsby cl 4.1C and 4.1D applied, plus 5 Codes SEPP conditions.',
     ],
-    impact: 'The page shows four contradictory numbers for one clause and cannot say which is yours.',
-    blockedBy: ['multi-effect'],
+    impact: 'The page shows contradictory numbers for one clause and cannot say which is yours - or, worse, shows one '
+          + 'number as if it were unconditional.',
     where: ['scripts/backfill-branch-conditions.ts'],
-    resolution: 'Hornsby 4.1C and 4.1D applied. The rest waits on one number per rule.',
+    resolution: 'The blanket multi-number guard is gone and the trigger now covers every clause with branch labels, '
+              + 'not only the collisions. The ceiling is now leaf matching: 1,564 rules cannot be tied to exactly one '
+              + 'leaf, which is re-extraction work rather than backfill work - Penrith cl 4.1B is the example, where '
+              + 'the number 15 matches three leaves and the 650 m2 and 12 m figures were never captured at all. '
+              + 'PRUNING IS OFF BY DEFAULT: wrong twice (Georges River, and Housing SEPP cl 69 where it would have '
+              + 'stripped the zone the number depends on) against a yield of 5 additions.',
   },
   {
     id: 'multi-effect',
