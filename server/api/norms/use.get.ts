@@ -404,20 +404,30 @@ export default defineEventHandler(async (event) => {
   }
 
   /*
-   * Every zone the lot touches, not just the one under its point on surface.
+   * Every zone the lot is GENUINELY in, not every zone that touches its boundary.
    *
-   * lotFacts reads a single zone, so a split-zoned lot is answered on half of itself - this one is
-   * R2 and R3, and the Land Use Table was read as R2 alone. The answers below still rest on that
-   * one zone; this is here so the page can say so rather than let it pass unseen.
+   * lotFacts reads one zone, so a split-zoned lot is answered on part of itself - worth saying. But
+   * a raw ST_Intersects calls almost every lot split, because the neighbouring zone shares the
+   * boundary line: 58 Bambara Crescent came back "R2 and C2" when C2 overlaps it by 0.0 m2. The
+   * 10 cm inner buffer /api/cdc/at and /api/lmr/types already use is what separates a real split
+   * from a touch, and the share is carried so a 2% slice reads differently from a half-and-half lot.
    */
   const zones = (await q2(`
-    SELECT DISTINCT z.sym_code FROM epi.epi_land_zoning z, cadastre.lot l
-     WHERE l.cadid::text = $1 AND z.geom && l.geom AND ST_Intersects(z.geom, l.geom) AND z.sym_code IS NOT NULL
-     ORDER BY z.sym_code`, [cadid])).rows.map((r: any) => r.sym_code)
+    WITH l AS (SELECT geom,
+                      CASE WHEN ST_Area(geom::geography) > 40 THEN ST_Buffer(geom, -0.000001) ELSE geom END AS g,
+                      ST_Area(geom::geography) AS a
+                 FROM cadastre.lot WHERE cadid::text = $1)
+    SELECT z.sym_code, round((100 * ST_Area(ST_Intersection(z.geom, l.geom)::geography) / l.a)::numeric, 1) AS pct
+      FROM l JOIN epi.epi_land_zoning z ON z.geom && l.g AND ST_Intersects(z.geom, l.g)
+     WHERE z.sym_code IS NOT NULL
+     GROUP BY z.sym_code, z.geom, l.geom, l.a
+     HAVING ST_Area(ST_Intersection(z.geom, l.geom)::geography) > 1
+     ORDER BY 2 DESC`, [cadid])).rows.map((r: any) => ({ zone: r.sym_code, pct: Number(r.pct) }))
 
   return {
     ms: Date.now() - started,
-    lot: { cadid, lotId: lot.lotId, zone: lot.zone, zones, epi: lot.epi, lga: lot.lga, areaM2: lot.areaM2,
+    lot: { cadid, lotId: lot.lotId, zone: lot.zone, zones: zones.map((z: any) => z.zone), zoneShares: zones,
+           epi: lot.epi, lga: lot.lga, areaM2: lot.areaM2,
            frontageM: lot.frontageM, lotSizeMinM2: lot.lotSizeMinM2,
            isBattleaxe: lot.isBattleaxe ?? null, handleAreaM2: lot.handleAreaM2 ?? null },
     tabs, sources,

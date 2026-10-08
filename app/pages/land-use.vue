@@ -66,11 +66,13 @@
           <template v-if="data.lot.isBattleaxe">&middot; battle-axe, {{ data.lot.handleAreaM2 }} m² handle</template>
           <span class="lu-dim"> &middot; {{ data.ms }} ms</span>
         </p>
-        <!-- lotFacts reads ONE zone, so a split-zoned lot is answered on half of itself -->
+        <!-- a real split, not a neighbouring zone sharing the boundary line: the share is measured
+             against the lot shrunk 10 cm, so a 0 m2 touch no longer reads as a split -->
         <p v-if="(data.lot.zones || []).length > 1" class="lu-warn">
-          This lot is in <b>{{ data.lot.zones.join(' and ') }}</b>, and every answer below is read on
-          <b>{{ data.lot.zone }}</b> alone - the zone under the lot's centre. A use prohibited in {{ data.lot.zone }} may
-          be permitted in the rest of the lot.
+          This lot is genuinely split:
+          <b>{{ (data.lot.zoneShares || []).map((z: any) => `${z.zone} ${z.pct}%`).join(' and ') }}</b>.
+          Every answer below is read on <b>{{ data.lot.zone }}</b> alone - the zone under the lot's centre - so a use
+          prohibited in {{ data.lot.zone }} may be permitted across the rest of it.
         </p>
 
         <!-- one tab per land use; the count beside each is how many standards came with it -->

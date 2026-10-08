@@ -237,6 +237,20 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '07B - Build to Rent',
   },
   {
+    route: '/gaps', name: 'Gaps', status: 'live', kind: 'reference', added: '2026-10-08',
+    summary: 'What the rule pipeline does not cover yet, each with the measurement behind it - a worklist, not a wishlist.',
+    detail: 'Every entry carries a number taken from planningai, so its size can be argued with rather than guessed at: 1,499 of 6,147 LEP and SEPP rules carry a number and so reach the engine; 854 clauses turn on a map and half produce no rule; 754 rules carry more than one number, which blocks the branch-condition work. The closed ones stay on the page so progress is visible and nobody re-finds a fixed bug.',
+    reads: ['shared/planning-gaps.ts', 'nsw.rule', 'nsw.rule_effect', 'nsw.rule_applicability', 'nsw.section'],
+    notebook: '—',
+  },
+  {
+    route: '/land-use', name: 'Land use', status: 'building', kind: 'answer', added: '2026-10-08',
+    summary: 'Search an address: can each of the nine land uses the CDC codes and the Pattern Book turn on be carried out here - from the lot\'s LEP and every SEPP chapter that reaches it.',
+    detail: 'One tab per use. The LEP Land Use Table is the grant where it permits; otherwise each SEPP permission clause is read and each is gated by its chapter frames, so Housing SEPP s 166 only counts where Chapter 6 actually reaches the land - not a flat zone table. Standards come from the whole plan, with the access handle deducted where cl 4.1(3A) says so. A verdict is marked not settled when a clause naming that use produced no rule, and a clause that bars the use is flagged, so a yes can never hide an unread prohibition.',
+    reads: ['/api/norms/use', '/api/lotprofile', 'shared/norms/engine.ts', 'shared/norms/from-graph.ts', 'nsw.rule', 'nsw.scope_layer', 'nsw.lep_permissibility'],
+    notebook: '—',
+  },
+  {
     route: '/subdivision', name: 'Subdivision', status: 'building', kind: 'answer',
     summary: 'Search an address: can the lot be subdivided, and which way - Torrens, strata or community title - each Yes / No / Maybe from the Housing SEPP and the lot\'s LEP, with the questions that settle a Maybe.',
     detail: 'The norms trial (docs/norms-trial.md): every clause is a norm with all its conditions, typed by who can answer them (our data, you, the council, or not yet encoded), through one engine. A condition it cannot read makes the answer Maybe - never a confident yes or no. Only questions whose answer changes something are asked, most useful first. Standards come with the lot\'s arithmetic, LEP standards a SEPP grant displaces are shown as displaced, and every local subdivision clause not yet encoded is listed with a link.',
