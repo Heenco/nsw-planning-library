@@ -86,20 +86,33 @@ export const PLANNING_GAPS: PlanningGap[] = [
 
   // ── extraction: what the reader gets off the page ───────────────────────────────────────────
   {
-    id: 'unless-polarity',
-    title: 'Exception clauses may be stored inverted',
-    area: 'extraction', status: 'open', effort: 'M',
-    what: 'Parramatta cl 6.11(2) prohibits detached dual occupancy UNLESS the land has a heritage item, 2 street '
-        + 'frontages, is a corner lot or is in South Parramatta. It is stored as scope = those four, use excluded - '
-        + 'which reads as prohibited ON that land, the opposite.',
+    id: 'lost-scope',
+    title: 'A rule states a number while dropping the condition that bounds it',
+    area: 'extraction', status: 'partial', effort: 'M',
+    what: 'Where a clause confines its standard to a place or a characteristic and the rule does not carry it, the '
+        + 'standard is recorded as binding everywhere. Audited rather than assumed; a candidate list now exists.',
     evidence: [
-      '"unless": 392 clauses, 83% carry no number, 24% produce no rule at all.',
-      '"except / other than": 293 clauses, 58% produce no rule.',
-      '"only if": 43 clauses, 67% produce no rule.',
-      'Not yet counted: how many of the rules that DID extract have the polarity backwards.',
+      'AUDITED 2026-10-08 with scripts/audit-lost-scope.py, which screens every rule carrying a number '
+        + 'against the nsw.scope_layer terms its own clause names.',
+      '1,498 rules carry a number outside the Land Use Table. 25 hold every term their clause names; '
+        + '1,136 name no testable term; 331 name one and hold none.',
+      'CONFIRMED by hand: Housing SEPP s 159 stores "width >= 21 m, land_use = residential flat building" '
+        + 'for a clause that reads "... on a lot in a Transport Oriented Development Area, unless the lot is '
+        + 'at least 21m". The TOD Area is gone and two of the three land uses with it, so a 21 m minimum is '
+        + 'recorded as binding every residential flat building in the State.',
+      'Of the 331, 314 are the Codes SEPP alone - one instrument whose standards clauses sit under general '
+        + 'requirements that mention heritage, so most are probably noise and need their own pass. The other '
+        + '17 are in the LEPs and the Housing SEPP and are few enough to read one by one.',
+      'The screen took three passes to be worth reading: keying on "unless" flagged Randwick cl 5.4, where the '
+        + 'land_use scope IS the condition; matching across the whole clause flagged a height rule for a Note '
+        + 'two subclauses away; and an exact term match called Inner West cl 6.20(3) lost when it holds '
+        + '"Haberfield Heritage Conservation", which is the same condition stated more precisely.',
     ],
-    impact: 'A wrong condition is worse than a missing one: a missing one still shows as "if it applies", a wrong one quietly answers.',
-    where: ['scripts/backfill-branch-conditions.ts (the same class of problem)'],
+    impact: 'A lost condition is the worst kind of defect here: the rule still produces a number, so the page answers '
+          + 'confidently and wrongly, rather than saying it does not know.',
+    resolution: 'Audited. 17 candidates outside the Codes SEPP to read one by one; the 314 Codes SEPP hits need a '
+              + 'separate pass. Nothing fixed yet - the audit reports and changes nothing.',
+    where: ['scripts/audit-lost-scope.py', 'nsw.rule_applicability'],
   },
   {
     id: 'branch-conditions',
