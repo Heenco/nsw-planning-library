@@ -225,10 +225,20 @@ export default defineEventHandler(async (event) => {
       const ls: Cond[] = g.map((a) => {
         if (d === 'zone') return { fact: 'lot.zone', value: a.value, span } as Cond
         if (d === 'pathway') return { fact: 'proposal.pathway', value: a.value, span } as Cond
+        /*
+         * "permissible_under: lep:dwelling house" - Housing SEPP s 50 reaches land in R1-R5 on
+         * which a DWELLING HOUSE is permissible under the LEP. That is the Land Use Table again,
+         * which the lot can answer. Left unparsed it made every secondary dwelling a MAYBE, even
+         * where the LEP plainly permits a dwelling house.
+         */
+        if (d === 'permissible_under' && /^lep:/i.test(a.value))
+          return { fact: 'lot.permits', value: a.value.replace(/^lep:/i, '').trim(), span } as Cond
         if (['land_characteristic', 'defined_area', 'map_area', 'site_ref', 'tenure', 'lga'].includes(d))
           return { fact: 'lot.in', value: a.value, span } as Cond
         return { fact: 'unparsed', text: `${d.replace(/_/g, ' ')}: ${a.value}`, span } as Cond
       })
+      const pretty = (v: string) => (d === 'permissible_under' && /^lep:/i.test(v)
+        ? `${v.replace(/^lep:/i, '').trim()} permissible under the LEP` : v)
       /*
        * An EXCLUDES group splits, an APPLIES group does not.
        *
@@ -238,36 +248,13 @@ export default defineEventHandler(async (event) => {
        * (zone R2 or R3), so it stays one condition.
        */
       if (polarity === 'excludes') {
-        return g.map((a, i) => ({ label: `not ${a.value}`, cond: { not: ls[i]! } as Cond }))
+        return g.map((a, i) => ({ label: `not ${pretty(a.value)}`, cond: { not: ls[i]! } as Cond }))
       }
       const one: Cond = ls.length === 1 ? ls[0]! : { any: ls }
-      return [{ label: g.map(a => a.value).join(' or '), cond: one }]
+      return [{ label: g.map(a => pretty(a.value)).join(' or '), cond: one }]
     }).flat()
   }
 
-  /** The same rows as one condition, for the overall verdict. */
-  const condOf = (rows: { dimension: string; value: string; polarity: string }[], span: string): Cond => {
-    const groups = new Map<string, typeof rows>()
-    for (const a of rows) {
-      if (a.dimension === 'land_use') continue      // that is the question, not a condition on it
-      groups.set(`${a.dimension}|${a.polarity}`, [...(groups.get(`${a.dimension}|${a.polarity}`) ?? []), a])
-    }
-    const parts: Cond[] = []
-    for (const [, g] of groups) {
-      const { dimension: d, polarity } = g[0]!
-      const ls: Cond[] = g.map((a) => {
-        if (d === 'zone') return { fact: 'lot.zone', value: a.value, span } as Cond
-        if (d === 'pathway') return { fact: 'proposal.pathway', value: a.value, span } as Cond
-        // every place dimension resolves through nsw.scope_layer, which lot.in reads
-        if (['land_characteristic', 'defined_area', 'map_area', 'site_ref', 'tenure', 'lga'].includes(d))
-          return { fact: 'lot.in', value: a.value, span } as Cond
-        return { fact: 'unparsed', text: `${d.replace(/_/g, ' ')}: ${a.value}`, span } as Cond
-      })
-      const one: Cond = ls.length === 1 ? ls[0]! : { any: ls }
-      parts.push(polarity === 'excludes' ? { not: one } : one)
-    }
-    return parts.length ? (parts.length === 1 ? parts[0]! : { all: parts }) : { fact: 'unparsed', text: 'no scope recorded', span }
-  }
 
   // the places every SEPP permission and frame names, tested against the lot once
   const seppTerms = [...new Set(liveRules.flatMap((r: any) => (appByRule.get(r.rule_id) ?? [])
@@ -288,9 +275,18 @@ export default defineEventHandler(async (event) => {
     // ── the SEPP side: its own permission clauses, each gated by its chapter's frames ──────────
     const want = new Set(u.terms.map(stem))
     const matched = livePerms.filter((p: any) => (p.land_uses ?? []).some((x: string) => want.has(stem(x))))
-    // a permission with NO applicability recorded says nothing about this lot either way; counting
-    // it as undecided turned a clear prohibition into a MAYBE on the strength of a missing row
-    const unscoped = matched.filter((p: any) => !(appByRule.get(p.rule_id) ?? []).some(a => a.dimension !== 'land_use'))
+    /*
+     * Truly unscoped means the permission AND its frames say nothing about where they reach.
+     *
+     * Most permissions carry only their land use and take their scope from the frame above them:
+     * Housing SEPP s 52 is "Development to which this Part applies may be carried out with
+     * consent" and one land_use row, with all six of its conditions on frame s 50. Testing the
+     * permission's own rows alone discarded it, and a secondary dwelling came back NO on a
+     * Parramatta R2 lot whose LEP prohibits it and whose SEPP plainly permits it.
+     */
+    const scoped = (p: any) => [p, ...framesFor(p)]
+      .some((r: any) => (appByRule.get(r.rule_id) ?? []).some(a => a.dimension !== 'land_use'))
+    const unscoped = matched.filter((p: any) => !scoped(p))
     const mine = matched.filter((p: any) => !unscoped.includes(p))
     const seppSaid = [...new Map(mine.map((p: any) => {
       const gates = framesFor(p)
