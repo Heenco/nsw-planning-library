@@ -57,7 +57,12 @@ def definitions(xml_path):
                 break
             if started:
                 parts.append(norm(' '.join(child.itertext())))
-        out.append({'xml_id': did, 'scope': did.split('-def.')[0], 'term': term, 'text': norm(' '.join(parts))})
+        text = norm(' '.join(parts))
+        # a defterm inside a note is usually a pointer ("Dual occupancies (attached) are a type of dual occupancy -see the
+        # definition of that term"), not a definition; it is one only when the note itself defines the word
+        in_note = '-note' in did or any(a.tag == 'note' for a in d.iterancestors())
+        defines = re.match(r'^(the term )?' + re.escape(term) + r'\s*(,|\s)\s*(means|includes|also includes|has the same meaning|does not include|is)\b', text, re.I)             or re.match(r'^(However|In this)\b', text)
+        out.append({'xml_id': did, 'scope': did.split('-def.')[0], 'term': term, 'text': text, 'note_only': bool(in_note and not defines)})
     return out
 
 def main():
@@ -74,7 +79,7 @@ def main():
         cur.execute("SELECT id, local_id, path, container, sort FROM rag.provision WHERE document_id = %s AND kind <> 'term'", (doc,))
         by_local = {r[1]: r for r in cur.fetchall()}
         defs = definitions(path)
-        kept, out_of_scope, seen = [], 0, set()
+        kept, out_of_scope, seen, notes = [], 0, set(), {'pointer': 0}
         for i, d in enumerate(defs):
             # a definition inside a note ('dict-note-oc.17', 'sec.2.6-ssec.2-note') is scoped by the nearest provision we hold
             scope = d['scope']
@@ -87,11 +92,15 @@ def main():
             if d['xml_id'] in seen:
                 continue
             seen.add(d['xml_id'])
+            if d['note_only']:
+                # its text is already the tail of the definition it follows (that definition runs to the next defterm)
+                notes['pointer'] += 1
+                continue
             pid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"rag:{doc}:{d['xml_id']}"))
             kept.append({'id': pid, 'document_id': str(doc), 'parent_id': str(parent[0]), 'local_id': d['xml_id'], 'kind': 'term',
                          'heading': d['term'], 'own_text': d['text'], 'ordinal': i, 'path': list(parent[2] or []) + [parent[1]],
                          'container': parent[3], 'sort': parent[4], 'planwide': scope in planwide})
-        report[title] = {'defterms': len(defs), 'kept': len(kept), 'planwide': sum(k['planwide'] for k in kept), 'out_of_scope': out_of_scope,
+        report[title] = {'defterms': len(defs), 'kept': len(kept), 'planwide': sum(k['planwide'] for k in kept), 'out_of_scope': out_of_scope, 'notes': notes,
                          'empty_text': sum(1 for k in kept if len(k['own_text']) < len(k['heading']) + 5)}
         if DRY:
             continue

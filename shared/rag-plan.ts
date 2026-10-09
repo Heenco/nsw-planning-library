@@ -119,10 +119,15 @@ export const RAG_PHASES: PlanPhase[] = [
   {
     id: 'P3', title: 'Index', goal: 'Retrieval units that never lose their stem, searchable by meaning and by exact legal tokens.',
     steps: [
-      { id: 'P3.1', title: 'Chunks with deterministic headers', status: 'todo', doneWhen: 'one chunk per provision (data tables excluded, served as facts); header = instrument > part > clause > stem path with roles' },
-      { id: 'P3.2', title: 'Keyword index with a legal tokenizer', status: 'todo', doneWhen: '"4.1A", "R2", "Area 1", "Sch 5" survive as single tokens' },
-      { id: 'P3.3', title: 'Embeddings: plain / structural / contextual', status: 'todo', doneWhen: 'every chunk embedded in all three variants with bge-en-icl' },
-      { id: 'P3.4', title: 'Model-written context per chunk (R2)', status: 'todo', doneWhen: 'every chunk has a 50-100 token context written with its whole clause and part in view' },
+      { id: 'P3.1', title: 'Chunks with deterministic headers', status: 'done', doneWhen: 'one chunk per provision (data tables excluded, served as facts); header = instrument > part > clause > stem path with roles',
+        result: '795 chunks, ~108k tokens: 271 whole clauses (a clause is split into subclauses only past 4,000 chars - 3 were), 2 stems, 30 control-table rows ("Land use: ...; Zone: ...; Lot size: ...; Maximum floor space ratio: 0.6:1", row-spanned cells filled down), 492 definitions. 583 register rows (Sch 4, Sch 5) left as data. Two structural gaps found and fixed on the way: the Land Use Table had lost its zones (the XML clausegroup level - now provisions of kind group, 01b-groups.py), and 115 dictionary notes ("X are a type of Y") had been read as definitions of Y.',
+        where: ['scripts/rag/01b-groups.py', 'scripts/rag/03-chunks.ts'] },
+      { id: 'P3.2', title: 'Keyword index with a legal tokenizer', status: 'done', doneWhen: '"4.1A", "R2", "Area 1", "Sch 5" survive as single tokens',
+        result: 'shared/rag/bm25.ts: clause numbers with and without their subclause (cl_4.1a, cl_4.1a(4)(a)), zones (zone_r2), area_1, sch_5, part_4, ratios (0.65:1) and measures in one unit (450m2, 9.5m, 25pct). In-memory BM25 over the chunks; the same tokenizer reads the question.', where: ['shared/rag/bm25.ts'] },
+      { id: 'P3.3', title: 'Embeddings: plain / structural / contextual', status: 'done', doneWhen: 'every chunk embedded in all three variants with bge-en-icl',
+        result: '2,385 embeddings (795 x plain, structural, contextual), ~330k tokens, under $0.01.', where: ['scripts/rag/05-embed.ts'] },
+      { id: 'P3.4', title: 'Model-written context per chunk (R2)', status: 'done', doneWhen: 'every chunk has a 50-100 token context written with its whole clause and part in view',
+        result: '795 contexts by Llama 3.3 70B with Anthropic’s prompt, the chunk’s Part (up to 40k chars around it) as the document; a definition’s document is the entry plus the headers of the provisions that use it. $0.39. Kept free of relations on purpose, so R2 and R3 are measured apart.', where: ['scripts/rag/04-context.ts'] },
     ],
   },
   {
