@@ -76,6 +76,17 @@ async function main() {
   const claims: Claim[] = []
   const add = (c: Claim) => claims.push(c)
 
+  /** a date a frame turns on: "development consent was granted ... on or after 28 February 2025" -> date:consent>=2025-02-28;
+   *  "a development application made on or after <date> for the subdivision ... and the erection of ..." -> combined_da>=<date> */
+  const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+  const iso = (d: string) => { const m = d.match(/(\d{1,2}) (\w+) (\d{4})/); if (!m) return null; const mo = MONTHS.indexOf(m[2]!.toLowerCase()); return mo < 0 ? null : `${m[3]}-${String(mo + 1).padStart(2, '0')}-${m[1]!.padStart(2, '0')}` }
+  function datesOf(t: string): string[] {
+    const out: string[] = []
+    for (const m of t.matchAll(/development consent was granted[^.;]*?\b(on or after|before|after)\s+(\d{1,2} \w+ \d{4})/gi)) { const d = iso(m[2]!); if (d) out.push(`consent${/before/i.test(m[1]!) ? '<' : '>='}${d}`) }
+    for (const m of t.matchAll(/development application (?:was )?(?:made|lodged) (on or after|before)\s+(\d{1,2} \w+ \d{4})/gi)) { const d = iso(m[2]!); if (d) out.push(`combined_da${/before/i.test(m[1]!) ? '<' : '>='}${d}`) }
+    return out
+  }
+
   // defined terms: those that list zones expand to zone codes ("residential zone"); the rest are scope terms
   const terms = provs.filter(p => p.kind === 'term')
   const zoneTerms = new Map<string, string[]>()
@@ -91,6 +102,15 @@ async function main() {
     // land a map marks ("shown as Area 1 on the Key Sites Map", "identified as "Y1" or "Y2" on the ... Map") and land
     // named by its lot ("Lot 1, DP 433534")
     for (const m of phrase.matchAll(/\b(?:shown|identified|marked) as (.+?) on the ([A-Z][\w ]*? Map)/g)) tms.push(`mapped:${norm(m[1]).replace(/[“”"]/g, '')} on the ${m[2]}`)
+    // title type: a community title subdivision is "under the Community Land Development Act"; a strata one is "by the
+    // registration of a strata plan" / "for a strata plan scheme"; "but does not apply to ..." excludes it
+    const notPart = phrase.match(/\bbut does not apply to (.+)$/i)?.[1] ?? ''
+    const own = notPart ? phrase.slice(0, phrase.length - notPart.length) : phrase
+    if (/Community Land Development Act/i.test(own)) tms.push('tenure:community')
+    if (/strata plan|strata scheme/i.test(own)) tms.push('tenure:strata')
+    if (/strata/i.test(notPart)) tms.push('!tenure:strata')
+    if (/Community Land Development/i.test(notPart)) tms.push('!tenure:community')
+    tms.push(...datesOf(phrase))
     for (const m of phrase.matchAll(/\bLot (\w+),?\s*(?:Section (\w+),?\s*)?DP\s*(\d+)/g)) tms.push(`lot:${m[1]}/${m[2] ?? ''}/DP${m[3]}`)
     return { zones: [...new Set(zones)], terms: tms, requires }
   }
@@ -116,10 +136,25 @@ async function main() {
     const usesM = phrase.match(/^development (?:for the purposes of|involving subdivision for the purposes of) (.+?)(?=\s+(?:on land|in a |in the following|in Zone|if |on a lot|$))/i)
     const s = scopeOf(phrase)
     const condZones = conds.flatMap(zoneCodes)
+    // "This section applies only if- (a) ... on or after <date>, or (b) ..." - the dates in the list are alternatives
+    const condDates = conds.flatMap(c => datesOf(c))
+    const dateTerm = condDates.length ? [`date:${condDates.join('|')}`] : []
     add({ provision_id: f.to_provision, kind: 'frame', unit_provision: f.from_provision, uses: usesM ? usesOf(usesM[1]!) : [],
-      zones: [...new Set([...s.zones, ...(/following zones/i.test(phrase) ? condZones : [])])], terms: [...s.terms, ...(/subdivision/i.test(phrase) ? ['proposal:subdivision'] : [])],
+      zones: [...new Set([...s.zones, ...(/following zones/i.test(phrase) ? condZones : [])])], terms: [...s.terms.filter(x => !/^(consent|combined_da)/.test(x)), ...s.terms.filter(x => /^(consent|combined_da)/.test(x)).map(x => `date:${x}`), ...dateTerm, ...(/subdivision/i.test(phrase) ? ['proposal:subdivision'] : [])],
       requires: s.requires, excludes: /other than the following/i.test(phrase) ? conds.map(c => norm(c).replace(/[,.;]+$/, '')).filter(Boolean) : [],
       source: 'text', reader: 'frame', span: phrase.slice(0, 300) })
+  }
+
+  // ── disapplications: "This section does not apply to strata subdivision", "This clause does not apply in relation to
+  //    the subdivision of any land- (a) by the registration of a strata plan ..., (b) ... under the Community Land
+  //    Development Act" -> a frame on the unit that excludes those title types ─────────────────────────
+  const dis = (await q(`SELECT from_provision, to_provision FROM rag.relation WHERE kind = 'disapplies' AND to_provision IS NOT NULL`)).rows
+  for (const d of dis) {
+    const from = byId.get(d.from_provision); if (!from) continue
+    const text = norm([from.own_text, ...(kids.get(from.id) ?? []).map(k => k.own_text)].join(' '))
+    const tail = text.match(/(?:does|do) not apply\b(.*)$/i)?.[1] ?? ''
+    const ex = [...(/strata/i.test(tail) ? ['!tenure:strata'] : []), ...(/Community Land Development/i.test(tail) ? ['!tenure:community'] : [])]
+    if (ex.length) add({ provision_id: from.id, kind: 'frame', unit_provision: d.to_provision, terms: ex, source: 'text', reader: 'disapplication', span: text.slice(0, 300) })
   }
 
   // ── permissions, consent bars, standards: sentence readers over every provision ─────────────────────
@@ -190,8 +225,10 @@ async function main() {
     m = t.match(/(?:is not to exceed|is not to be less than|must not exceed|must not be less than)\s+the\s+(maximum height|floor space ratio|minimum size|maximum floor space ratio)[^.]*?shown (?:for the land )?on the ([A-Z][\w ]+? Map)/i)
     if (m && !/^Despite/i.test(t)) {
       const topic = /height/i.test(m[2]!) ? 'height' : /floor space/i.test(m[2]!) ? 'fsr' : /lot size/i.test(m[2]!) ? 'lot_size' : topicOf(m[1]!)
+      const own = t.replace(/\(other than[^)]*\)/gi, '')
       if (topic) add({ provision_id: p.id, kind: 'standard', topic, comparator: topic === 'lot_size' ? 'min' : 'max', value_source: `map:${m[2]}`, unit_provision: cl?.id ?? null,
-        terms: /subdivision/i.test(t) ? ['proposal:subdivision'] : [], source: 'text', reader: 'map rule', span: t.slice(0, 300) })
+        terms: [...(/subdivision/i.test(t) ? ['proposal:subdivision'] : []), ...(/strata plan|strata scheme/i.test(own) ? ['tenure:strata'] : []), ...(/Community Land Development Act/i.test(own) ? ['tenure:community'] : [])],
+        source: 'text', reader: 'map rule', span: t.slice(0, 300) })
       continue
     }
     // "the maximum height of a dwelling house or semi-detached dwelling on land in Zone R3 ... is 9.5 metres"
@@ -199,6 +236,16 @@ async function main() {
     if (m) {
       add({ provision_id: p.id, kind: 'standard', topic: topicOf(m[2]!), comparator: m[1]!.toLowerCase() === 'maximum' ? 'max' : 'min', value: Number(m[5]), unit: /:1/.test(m[6]!) ? 'ratio' : /m2/.test(m[6]!) ? 'm2' : 'm',
         uses: usesOf(m[3]!), zones: zoneCodes(m[4]!), value_source: 'text', unit_provision: cl?.id ?? null, source: 'text', reader: 'standard sentence', span: t.slice(0, 300) })
+      continue
+    }
+    // "The minimum subdivision lot size for any lot resulting from the subdivision of a lot in Zone R3 ... that is being used
+    // ... for the purpose of a dwelling house ... is 325 square metres."
+    m = t.match(/^The (minimum|maximum) (.{3,80}?) for (.+?) is (\d[\d,]*(?:\.\d+)?)\s*(square metres|m2|metres|m\b|:1)/i)
+    if (m && topicOf(m[2]!)) {
+      const forUses = [...m[3]!.matchAll(/for the purposes? of (?:an? )?(.+?)(?= or for | that |,|$)/gi)].flatMap(x => usesOf(x[1]!)).filter(u => !/other than/.test(u))
+      add({ provision_id: p.id, kind: 'standard', topic: topicOf(m[2]!), comparator: m[1]!.toLowerCase() === 'maximum' ? 'max' : 'min', value: Number(m[4]!.replace(/,/g, '')),
+        unit: /:1/.test(m[5]!) ? 'ratio' : /square|m2/i.test(m[5]!) ? 'm2' : 'm', uses: forUses, zones: zoneCodes(m[3]!), value_source: 'text', unit_provision: cl?.id ?? null,
+        terms: /subdivision/i.test(t) ? ['proposal:subdivision'] : [], source: 'text', reader: 'standard sentence', span: t.slice(0, 300) })
       continue
     }
     // a figure with a topic in a leaf ("a maximum floor space ratio of 0.65:1", "for a detached secondary dwelling-a minimum site area of 450m2")
@@ -209,8 +256,12 @@ async function main() {
     const conditionList = /\b(if|unless|where|only if)\s*[—-]\s*$/i.test(stem) || /\bapplies (only )?to\b[^—]*[—-]\s*$/i.test(stem)
     if (f && topic && f.comparator && p.kind === 'paragraph' && t.length < 260 && !/^(if|where|in the case)\b/i.test(t) && !conditionList) {
       const forUse = t.match(/^for (?:an? )?(.+?)\s*[—-]/)
-      add({ provision_id: p.id, kind: 'standard', topic, comparator: f.comparator, value: f.value, unit: f.unit, uses: forUse ? usesOf(forUse[1]!.replace(/^detached /, '')) : [],
-        terms: [...(forUse && /detached/i.test(forUse[1]!) ? ['detached'] : []), ...(/resulting lot|subdivision/i.test(t) || /subdivision/i.test(cl?.heading ?? '') ? ['proposal:subdivision'] : [])],
+      // the stem can name the use: "if the subdivision is of a lot on which there is a dual occupancy-"
+      const stemUse = stem.match(/\bon which there is an? (.+?)\s*[—-]\s*$/i)?.[1] ?? stem.match(/\bfor the purposes of (.+?)\s*[—-]\s*$/i)?.[1]
+      // and the title type, from the leaf, its stem or the clause's own words ("for a strata plan scheme")
+      const tenure = [...(/strata plan|strata scheme/i.test(`${t} ${stem}`) ? ['tenure:strata'] : []), ...(/Community Land Development Act/i.test(`${t} ${stem}`) ? ['tenure:community'] : [])]
+      add({ provision_id: p.id, kind: 'standard', topic, comparator: f.comparator, value: f.value, unit: f.unit, uses: forUse ? usesOf(forUse[1]!.replace(/^detached /, '')) : stemUse ? usesOf(stemUse) : [],
+        terms: [...tenure, ...(forUse && /detached/i.test(forUse[1]!) ? ['detached'] : []), ...(/resulting lot|subdivision/i.test(`${t} ${stem}`) || /subdivision/i.test(cl?.heading ?? '') ? ['proposal:subdivision'] : [])],
         non_discretionary: ndStem(p), value_source: 'text', unit_provision: cl?.id ?? null, source: 'text', reader: 'standard leaf', span: t.slice(0, 300) })
     }
   }
@@ -234,6 +285,16 @@ async function main() {
         uses: useCell ? usesOf(useCell.v) : [], zones: zoneCell ? zoneCodes(zoneCell.v.replace(/^(?=[A-Z]{1,2}\d)/, 'Zone ')) : [], band: bandCell ? bandOf(bandCell.v) : null,
         value_source: 'table', unit_provision: clauseOf(holder)?.id ?? null, source: 'text', reader: 'table row', span: vals.map(v => `${v.cap}: ${v.v}`).join('; ') })
     }
+  }
+
+  // an exception "Despite subclause (3), ..." is about what (3) is about: its standards take (3)'s title-type terms
+  const despite = (await q(`SELECT from_provision, to_provision FROM rag.relation WHERE kind = 'despite' AND to_provision IS NOT NULL`)).rows
+  const under = (id: string, root: string) => { for (let x = byId.get(id); x; x = x.parent_id ? byId.get(x.parent_id) : undefined) if (x.id === root) return true; return false }
+  for (const d of despite) {
+    const from = byId.get(d.from_provision), to = byId.get(d.to_provision); if (!from || !to || from.document_id !== to.document_id || clauseOf(from)?.id !== clauseOf(to)?.id) continue
+    const inherited = [...new Set(claims.filter(c => c.kind === 'standard' && under(c.provision_id, to.id)).flatMap(c => (c.terms ?? []).filter(t => t.startsWith('tenure:'))))]
+    if (!inherited.length) continue
+    for (const c of claims) if (c.kind === 'standard' && under(c.provision_id, from.id)) c.terms = [...new Set([...(c.terms ?? []), ...inherited])]
   }
 
   // a claim inside an exempt or complying development code binds only on that pathway, never a development application

@@ -77,7 +77,7 @@ async function main() {
   for (const a of answers) {
     const ans = a.answer?.unparsed ? null : a.answer
     const s = score(C, a.expected, ans)
-    for (const k of [a.variant, `${a.variant}|${a.set_name}`, ...(a.set_name === 'grid' ? [`${a.variant}|${a.qclause}`] : [])]) {
+    for (const k of [a.variant, `${a.variant}|${a.set_name}`, `${a.variant}|ground:${a.expected?.status}`, ...(a.set_name === 'grid' ? [`${a.variant}|${a.qclause}`] : [])]) {
       bump(k, 'answers'); bump(k, 'cost', Number(a.cost_usd ?? 0)); bump(k, 'latency', Number(a.latency_ms ?? 0))
       if (!ans) bump(k, 'unparsed')
       const c = a.checks ?? {}
@@ -91,7 +91,7 @@ async function main() {
   for (const e of engine) {
     const ans = e.verdict === 'not_answered' || e.verdict === 'error' ? null : { verdict: e.verdict, value: null, controlling: (e.controlling ?? []).map((c: string) => `Randwick LEP 2012 cl ${c}`) }
     const s = score(C, e.expected, ans)
-    for (const k of ['P', `P|${e.set_name}`, ...(e.set_name === 'grid' ? [`P|${e.qclause}`] : [])]) {
+    for (const k of ['P', `P|${e.set_name}`, `P|ground:${e.expected?.status}`, ...(e.set_name === 'grid' ? [`P|${e.qclause}`] : [])]) {
       bump(k, 'answers'); if (!ans) bump(k, 'not_answered')
       if (s) { bump(k, 'scored'); if (s.correct) bump(k, 'correct'); if (s.confidently_wrong) bump(k, 'confidently_wrong'); if (s.abstained) bump(k, 'abstained') }
       else if (e.expected?.status !== 'none' && !ans) bump(k, 'abstained_unanswered')
@@ -108,7 +108,7 @@ async function main() {
   }]))
   console.log('stability (same decision on a repeat):', Object.entries(stability).map(([k, s]) => `${k} ${pct(s.same, s.pairs)}% of ${s.pairs}`).join(', '))
   console.log('side     answers scored  acc  conf.wrong  abstain  ctrl  cites  quotes  fig  overr  $/ans    s')
-  for (const k of ['P', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4u', 'R4']) {
+  for (const k of ['P', 'D', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4u', 'R4']) {
     const s = summary[k]; if (!s) continue
     console.log(k.padEnd(8), String(s.answers).padStart(7), String(s.scored).padStart(6), `${s.accuracy}%`.padStart(5), `${s.confidently_wrong}%`.padStart(10), `${s.abstained}%`.padStart(8),
       `${s.controlling ?? '-'}%`.padStart(5), `${s.cites_resolved ?? '-'}%`.padStart(6), `${s.quotes_verbatim ?? '-'}%`.padStart(7), `${s.figure_in_cited ?? '-'}%`.padStart(5), String(s.unaddressed_overrides_per_answer ?? '-').padStart(6), String(s.cost_per_answer ?? '-').padStart(8), String(s.latency_s ?? '-').padStart(5))

@@ -145,7 +145,8 @@ async function main() {
     'Rapid Planning Report: 275 m2 applies to all three title types', { status: 'draft', kind: 'subdivision', verdict: 'no', controlling: ['housing:s169(3)(d)', 'randwick:4.1A(4)(a)', 'randwick:4.1(3)'], claim_is: 'wrong',
       note: 'strata 275 (s 169(4) excludes strata); Torrens and community 225 when s 169(2) holds, else the LEP minimum' })
   P('PC3', `What is the minimum lot size for a dual occupancy on ${where(HOLDEN)}?`, 'RPR: 550 m2 (LEP 4.1C) and 450 m2 (SEPP s 168)',
-    { status: 'draft', values: { 'Randwick LEP 4.1C(2)': 550, 'Housing SEPP s 168(2)(a), non-discretionary': 450 }, unit: 'm2', controlling: ['randwick:4.1C(2)', 'housing:s168(2)(a)'], claim_is: 'right' })
+    { status: 'draft', value: 450, unit: 'm2', controlling: ['housing:s168(2)(a)'], displaced: ['randwick:4.1C(2)'], claim_is: 'partly right',
+      note: 'both figures exist, but in a low and mid rise housing area the non-discretionary 450 m2 displaces the more onerous 550 m2 (EP&A Act s 4.15(3)); PropCode lists both without saying which binds' })
   P('PC4', `Is a dual occupancy (attached) permissible on ${where(HOLDEN)}?`, 'RPR: yes, LEP and Housing SEPP s 166',
     { status: 'draft', kind: 'permissibility', verdict: 'permissible', controlling: ['randwick:Land Use Table R2', 'housing:s166'], claim_is: 'right' })
   P('PC5', `For a secondary dwelling on ${where(HOLDEN)}, what is the cap on the total floor area of the principal and secondary dwellings, as a floor space ratio?`,

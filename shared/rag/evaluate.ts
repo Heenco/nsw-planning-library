@@ -19,7 +19,12 @@ import { resolve, type Claim as RClaim, type Rel, type Prov, type Resolution } f
 
 export type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
 /** pathway: a development application (the default) or a complying / exempt development certificate */
-export interface Ask { kind: 'permissibility' | 'standard'; use: string; topic?: string; proposal?: 'development' | 'subdivision'; detached?: boolean | null; pathway?: 'da' | 'complying' | 'exempt' }
+export interface Ask { kind: 'permissibility' | 'standard' | 'subdivision'; use: string; topic?: string; proposal?: 'development' | 'subdivision'; detached?: boolean | null; pathway?: 'da' | 'complying' | 'exempt'
+  /** subdivision: how many lots, which title, when the consent for the development on the lot was granted, and whether the
+   *  subdivision comes from one application with that development */
+  lots?: number; tenure?: 'torrens' | 'strata' | 'community' | null; consentDate?: string | null; combinedDa?: boolean | null
+  /** answer from one instrument only ("Under Randwick LEP 2012, ...") */
+  only?: 'lep' | 'sepp' }
 interface C { id: string; provision_id: string; kind: string; consent: string | null; uses: string[]; zones: string[]; terms: string[]; excludes: string[]; requires: any[]
   topic: string | null; comparator: string | null; value: number | null; unit: string | null; value_source: string | null; band: any; non_discretionary: boolean; unit_provision: string | null; span: string | null; reader: string }
 interface PV { id: string; local_id: string; document_id: string; doc_kind: string; path: string[]; parent_id: string | null; heading: string | null }
@@ -28,7 +33,7 @@ export interface Engine { claims: C[]; provs: Map<string, PV>; rels: Rel[]; prov
 export interface Tested { claim: C; holds: boolean | null; why: string[]; notChecked: string[]; subs: Result[] }
 export interface Limit { label: string; text: string; status: 'met' | 'not met' | 'depends' | 'applies'; detail: string; subs: Result[] }
 export interface Result { ask: Ask; answer: { effect: string; value?: number | null; unit?: string | null; expr?: string } | null; verdict: string; ruling: Resolution | null
-  tested: Tested[]; limits: Limit[]; notChecked: string[] }
+  tested: Tested[]; limits: Limit[]; notChecked: string[]; note?: string }
 
 /** scope terms and frame exclusions the lot facts can answer; anything else is unknown (terms) or not checked (exclusions) */
 const FACTS: [RegExp, (l: any) => boolean | null][] = [
@@ -71,7 +76,8 @@ const useMatch = (claimUse: string, asked: string) => {
   return a === c || a.startsWith(c + ' (') || c.startsWith(a + ' (')
 }
 
-export function evaluate(E: Engine, ask: Ask, lot: any, depth = 0): Result {
+export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
+  const E: Engine = ask.only ? { ...E0, claims: E0.claims.filter(c => E0.provs.get(c.provision_id)?.doc_kind === ask.only) } : E0
   const ancestors = (id: string | null): string[] => { const out: string[] = []; for (let x = id ? E.provs.get(id) : undefined; x; x = x.parent_id ? E.provs.get(x.parent_id) : undefined) out.push(x.id); return out }
   const framesFor = (c: C) => {
     const units = new Set([...ancestors(c.provision_id), ...ancestors(c.unit_provision)])
@@ -86,6 +92,17 @@ export function evaluate(E: Engine, ask: Ask, lot: any, depth = 0): Result {
     for (const t of c.terms) {
       if (t === 'proposal:subdivision') and(proposal === 'subdivision', 'a subdivision')
       else if (t.startsWith('pathway:')) and((ask.pathway ?? 'da') === t.slice(8), `${t.slice(8)} development pathway`)
+      else if (t.startsWith('tenure:')) and(ask.tenure ? ask.tenure === t.slice(7) : proposal === 'subdivision' ? null : false, `a ${t.slice(7)} title subdivision`)
+      else if (t.startsWith('!tenure:')) and(ask.tenure ? ask.tenure !== t.slice(8) : proposal === 'subdivision' ? null : true, `not a ${t.slice(8)} title subdivision`)
+      else if (t.startsWith('date:')) {
+        // alternatives: any one that holds is enough
+        const alts = t.slice(5).split('|').map(a => {
+          const m = a.match(/^(consent|combined_da)(>=|<)(\d{4}-\d\d-\d\d)$/); if (!m) return null
+          if (m[1] === 'consent') return ask.consentDate ? (m[2] === '>=' ? ask.consentDate >= m[3]! : ask.consentDate < m[3]!) : null
+          return ask.combinedDa == null ? null : ask.combinedDa && (m[2] === '>=' ? (ask.consentDate ?? '9999') >= m[3]! : true)
+        })
+        and(alts.includes(true) ? true : alts.every(a => a === false) ? false : null, `${t.slice(5).replace(/\|/g, ' or ')}`)
+      }
       else if (t.startsWith('lot:')) and(String(lot.lot ?? '').toUpperCase() === t.slice(4).toUpperCase(), `the named lot ${t.slice(4)}`)
       // a mapped area whose map no dataset holds: listed as not checked, and taken as not reaching the lot
       else if (t.startsWith('mapped:')) { notChecked.push(`${t.slice(7)} (map not held)`); and(false, `in ${t.slice(7)} (map not held - not checked)`) }
@@ -113,8 +130,14 @@ export function evaluate(E: Engine, ask: Ask, lot: any, depth = 0): Result {
     return h
   }
   const test = (c: C): Tested => { const why: string[] = [], notChecked: string[] = [], subs: Result[] = []; const holds = scope(c, why, notChecked, subs, false); return { claim: c, holds, why, notChecked, subs } }
-  /** a claim with no use of its own speaks for the uses of its frames ("development to which this Part applies") */
-  const aboutUse = (c: C) => c.uses.length ? c.uses.some(u => useMatch(u, ask.use)) : framesFor(c).some(f => f.uses.some(u => useMatch(u, ask.use)))
+  /** a claim with no use of its own speaks for the uses of its frames ("development to which this Part applies").
+   *  A permission or prohibition of a narrower kind still answers the broader question (it is reported as "only as ...");
+   *  a standard on a narrower kind (terraces) does not bind the broader use (multi dwelling housing). */
+  const covers = (claimUse: string) => { const a = landUseKey(ask.use), c = landUseKey(claimUse); return a === c || a.startsWith(c + ' (') }
+  const aboutUse = (c: C) => {
+    const m = c.kind === 'standard' || c.kind === 'condition' ? covers : (u: string) => useMatch(u, ask.use)
+    return c.uses.length ? c.uses.some(m) : framesFor(c).some(f => f.uses.some(m))
+  }
 
   const mapValue = (src: string | null) => /Height/i.test(src ?? '') ? lot.height_map_m : /Floor Space/i.test(src ?? '') ? lot.fsr_map : /Lot Size/i.test(src ?? '') ? lot.lot_size_map_m2 : null
   const toR = (t: Tested, effect: 'value' | 'permit' | 'prohibit', value?: number | null): RClaim => ({ id: t.claim.id, provision: t.claim.provision_id, effect, value: value ?? null, unit: t.claim.unit,
@@ -124,9 +147,21 @@ export function evaluate(E: Engine, ask: Ask, lot: any, depth = 0): Result {
   if (ask.kind === 'permissibility') {
     const tested = E.claims.filter(c => (c.kind === 'permit' || c.kind === 'prohibit') && aboutUse(c)).map(test)
     tested.forEach(t => t.notChecked.forEach(n => notChecked.add(n)))
-    const ruling = resolve(tested.map(t => toR(t, t.claim.kind as any)), E.rels, E.provMap)
+    let ruling = resolve(tested.map(t => toR(t, t.claim.kind as any)), E.rels, E.provMap)
+    // asked about a use whose kinds the table splits ("dual occupancies (attached)" permitted, "(detached)" prohibited):
+    // the answer is yes for the permitted kinds - said, not left as a conflict
+    let only: string[] = []
+    if (ruling.verdict === 'maybe' && !ruling.branches?.length) {
+      const live = tested.filter(t => t.holds !== false)
+      const narrower = (t: Tested) => t.claim.uses.length > 0 && t.claim.uses.every(u => landUseKey(u) !== landUseKey(ask.use))
+      if (live.length && live.every(narrower) && live.some(t => t.claim.kind === 'permit')) {
+        only = [...new Set(live.filter(t => t.claim.kind === 'permit').flatMap(t => t.claim.uses))]
+        ruling = { ...ruling, verdict: 'decided', answer: { effect: 'permit', claims: live.filter(t => t.claim.kind === 'permit').map(t => t.claim.id) }, unresolved: [] }
+      }
+    }
     const eff = ruling.answer?.effect
     const verdict = ruling.verdict === 'decided' ? (eff === 'permit' ? 'permitted' : 'prohibited') : ruling.verdict === 'maybe' ? 'maybe' : 'none'
+    const note = only.length ? `only as ${only.join(' or ')} - other kinds of ${ask.use} are prohibited here` : undefined
     const limits: Limit[] = []
     if (verdict === 'permitted' || verdict === 'maybe') {
       const winners = tested.filter(t => t.holds !== false && t.claim.kind === 'permit' && (ruling.answer?.claims ?? tested.map(x => x.claim.id)).includes(t.claim.id))
@@ -183,25 +218,73 @@ export function evaluate(E: Engine, ask: Ask, lot: any, depth = 0): Result {
             if (limits.some(l => l.text === 'resolved:lot_size')) continue
             const sub = evaluate(E, { kind: 'standard', use: ask.use, topic: 'lot_size', proposal: 'development', pathway: ask.pathway }, lot, depth + 1)
             const min = sub.answer?.value != null ? Number(sub.answer.value) : v
-            const ok = Number(lot.area_m2) >= min
+            let ok = Number(lot.area_m2) >= min
             const ndWins = sub.tested.some(x => sub.ruling?.answer?.claims?.includes(x.claim.id) && x.claim.non_discretionary)
-            status = ok ? 'met' : ndWins ? 'depends' : 'not met'
             const won = sub.tested.filter(x => sub.ruling?.answer?.claims?.includes(x.claim.id)).map(x => E.label(x.claim.provision_id))
-            detail = `at least ${min} m² (${won.join(', ') || E.label(c.provision_id)})${sub.ruling?.trace.length ? `; ${sub.ruling.trace.map(s => `${s.winner} displaces ${s.loser}`).join('; ')}` : ''} - this lot has ${lot.area_m2} m²${ok ? ''
-              : ndWins ? '; not met, so the non-discretionary standard gives no protection and the LEP minimum is back in play' : '; consent cannot be granted unless the standard is varied under cl 4.6'}`
-            limits.push({ label: 'Minimum lot size', text: 'resolved:lot_size', status, detail, subs: [sub] })
+            detail = `at least ${min} m² (${won.join(', ') || E.label(c.provision_id)})${sub.ruling?.trace.length ? `; ${sub.ruling.trace.map(s => `${s.winner} displaces ${s.loser}`).join('; ')}` : ''} - this lot has ${lot.area_m2} m²`
+            if (!ok && ndWins) {
+              // the safe harbour is not met: it gives no protection, and what it displaced binds again
+              const E2: Engine = { ...E, claims: E.claims.filter(x => !x.non_discretionary) }
+              const back = evaluate(E2, { kind: 'standard', use: ask.use, topic: 'lot_size', proposal: 'development', pathway: ask.pathway }, lot, depth + 1)
+              const min2 = back.answer?.value != null ? Number(back.answer.value) : null
+              ok = min2 == null || Number(lot.area_m2) >= min2
+              detail += `; not met, so the non-discretionary standard gives no protection and ${min2 == null ? 'no other minimum applies' : `${back.tested.filter(x => back.ruling?.answer?.claims?.includes(x.claim.id)).map(x => E.label(x.claim.provision_id)).join(', ')} (${min2} m²) binds again`}`
+              subs.push(back)
+            }
+            status = ok ? 'met' : 'not met'
+            if (!ok) detail += '; consent cannot be granted unless the standard is varied under cl 4.6'
+            limits.push({ label: 'Minimum lot size', text: 'resolved:lot_size', status, detail, subs: [sub, ...subs] })
             continue
           }
         }
         limits.push({ label: E.label(c.provision_id).replace(/\((a|i)\)$/, ''), text: c.band?.of ? `group:${c.band.of}` : (c.span ?? ''), status, detail: `${c.topic?.replace('_', ' ')}: ${detail}${c.non_discretionary ? ' (non-discretionary standard)' : ''}`, subs })
       }
     }
-    return { ask, answer: ruling.answer, verdict, ruling, tested, limits, notChecked: [...notChecked] }
+    return { ask, answer: ruling.answer, verdict, ruling, tested, limits, notChecked: [...notChecked], note }
+  }
+
+  // a subdivision: the minimum lot size is a ruling (it may turn on a date nobody gave - then each case is answered),
+  // and each resulting lot is checked against it
+  if (ask.kind === 'subdivision') {
+    const lots = ask.lots ?? 2, each = lot.area_m2 != null ? Number(lot.area_m2) / lots : null
+    const min = evaluate(E, { ...ask, kind: 'standard', topic: 'lot_size', proposal: 'subdivision' }, lot, depth + 1)
+    // the binding minimum, given the claims that won: a non-discretionary minimum protects only if every standard in its
+    // set is met (area and width per lot); otherwise what it displaced binds again - and with nothing else, nothing does
+    const fallback = () => { const E2: Engine = { ...E, claims: E.claims.filter(x => !x.non_discretionary) }
+      const r2 = evaluate(E2, { ...ask, kind: 'standard', topic: 'lot_size', proposal: 'subdivision' }, lot, depth + 1); return r2.answer?.value != null ? Number(r2.answer.value) : null }
+    const can = (v: number | null | undefined, ids: string[] = []) => {
+      if (each == null) return null
+      if (v == null) return true                                            // no minimum binds
+      const nd = min.tested.filter(t => ids.includes(t.claim.id) && t.claim.non_discretionary)
+      if (!nd.length) return each >= v
+      const set = E.claims.filter(c => c.non_discretionary && c.terms.includes('proposal:subdivision') && nd.some(t => t.claim.unit_provision === c.unit_provision))
+      const width = set.find(c => c.topic === 'lot_width' && c.value != null)
+      const met = each >= v && (!width || (lot.frontage_m != null ? Number(lot.frontage_m) / lots >= Number(width.value) : false)) && !lot.battle_axe
+      if (met) return true
+      const v2 = fallback(); return v2 == null ? true : each >= v2
+    }
+    let verdict: string, answer: Result['answer']
+    if (min.verdict === 'maybe' && min.ruling?.branches?.length) {
+      const outs = min.ruling.branches.map(b => can(b.answer?.value as number, b.answer?.claims ?? []))
+      verdict = outs.every(o => o === true) ? 'yes' : outs.every(o => o === false) ? 'no' : 'maybe'
+      answer = { effect: 'value', value: null, expr: min.ruling.branches.map(b => `${b.answer?.value ?? 'no minimum'} m² if ${b.if}`).join('; ') }
+    } else {
+      const v = min.answer?.value != null ? Number(min.answer.value) : null
+      const c = v == null ? (min.verdict === 'none' ? true : null) : can(v, min.ruling?.answer?.claims ?? [])
+      verdict = c === true ? 'yes' : c === false ? 'no' : 'maybe'
+      answer = { effect: 'value', value: v, unit: 'm2' }
+    }
+    return { ask, answer, verdict, ruling: min.ruling, tested: min.tested,
+      limits: [{ label: 'Each resulting lot', text: 'resolved:lot_size', status: verdict === 'yes' ? 'met' : verdict === 'no' ? 'not met' : 'depends', detail: `about ${each != null ? Math.round(each) : '?'} m² from ${lot.area_m2} m² in ${lots} lots`, subs: [min] }],
+      notChecked: min.notChecked }
   }
 
   // a figure: the standards on this topic that reach this lot and use
   const topic = ask.topic!
-  const direct = E.claims.filter(c => c.kind === 'standard' && c.topic === topic && (aboutUse(c) || (!c.uses.length && !framesFor(c).some(f => f.uses.length))) && !(c.terms.includes('proposal:subdivision') && ask.proposal !== 'subdivision'))
+  // a subdivision's minimum is a standard on the resulting lots; a development's lot size is a standard on the site.
+  // Each question reads only its own kind.
+  const ofProposal = (c: C) => ask.proposal === 'subdivision' && topic === 'lot_size' ? c.terms.includes('proposal:subdivision') : !c.terms.includes('proposal:subdivision')
+  const direct = E.claims.filter(c => c.kind === 'standard' && c.topic === topic && (aboutUse(c) || (!c.uses.length && !framesFor(c).some(f => f.uses.length))) && ofProposal(c))
   const tested = direct.map(test).map(t => ({ ...t, value: t.claim.value_source?.startsWith('map:') ? mapValue(t.claim.value_source) : t.claim.value }))
   tested.forEach(t => t.notChecked.forEach(n => notChecked.add(n)))
   const live = tested.filter(t => t.holds !== false && t.value != null)
@@ -239,7 +322,7 @@ export function writeAnswer(E: Engine, r: Result, lot: any): string {
     : x.answer.expr ?? `${x.answer.value} ${unitOf(x.answer.unit)}`.trim()
   const where = `${lot.address ?? lot.lot} (${lot.area_m2} m2, Zone ${lot.zone})`
   if (r.ask.kind === 'permissibility') {
-    L.push(`${r.ask.use[0]!.toUpperCase()}${r.ask.use.slice(1)} on ${where}: ${r.verdict === 'permitted' ? `permissible ${r.answer && r.tested.find(t => t.claim.id === r.ruling?.answer?.claims?.[0])?.claim.consent === 'without' ? 'without' : 'with'} consent` : r.verdict === 'prohibited' ? 'prohibited' : r.verdict === 'maybe' ? 'it depends - see below' : 'no rule found'}.`)
+    L.push(`${r.ask.use[0]!.toUpperCase()}${r.ask.use.slice(1)} on ${where}: ${r.verdict === 'permitted' ? `permissible ${r.answer && r.tested.find(t => t.claim.id === r.ruling?.answer?.claims?.[0])?.claim.consent === 'without' ? 'without' : 'with'} consent` : r.verdict === 'prohibited' ? 'prohibited' : r.verdict === 'maybe' ? 'it depends - see below' : 'no rule found'}${r.note ? ` (${r.note})` : ''}.`)
     for (const t of r.tested.filter(t => t.holds !== false)) {
       const c = t.claim
       // name the use when the claim is about a narrower one than asked ("dual occupancies (attached)" for "dual occupancy")
