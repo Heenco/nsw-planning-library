@@ -244,6 +244,13 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '—',
   },
   {
+    route: '/rag', name: 'RAG pilot', status: 'building', kind: 'reference', added: '2026-10-09',
+    summary: 'A second pilot: a structure-aware, navigating RAG over Randwick LEP 2012 and the Housing SEPP parts that reach its lots, compared question by question with the deterministic engine.',
+    detail: 'The plan phase by phase with each step\'s done-when check, beside live counts from schema rag: the frozen corpus (the CDC pilot\'s stems, leaves and table cells), the relations - every override and prevail form as data - the index, the question bank and the answers. The model finds and explains; a deterministic resolver decides precedence and writes down why.',
+    reads: ['shared/rag-plan.ts', '/api/rag/status', 'rag.*'],
+    notebook: '—',
+  },
+  {
     route: '/land-use', name: 'Land use', status: 'building', kind: 'answer', added: '2026-10-08',
     summary: 'Search an address: can each of the nine land uses the CDC codes and the Pattern Book turn on be carried out here - from the lot\'s LEP and every SEPP chapter that reaches it.',
     detail: 'One tab per use. The LEP Land Use Table is the grant where it permits; otherwise each SEPP permission clause is read and each is gated by its chapter frames, so Housing SEPP s 166 only counts where Chapter 6 actually reaches the land - not a flat zone table. Standards come from the whole plan, with the access handle deducted where cl 4.1(3A) says so. A verdict is marked not settled when a clause naming that use produced no rule, and a clause that bars the use is flagged, so a yes can never hide an unread prohibition.',
