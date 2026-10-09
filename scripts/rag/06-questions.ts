@@ -21,9 +21,7 @@
 import 'dotenv/config'
 import pg from 'pg'
 import { createHash } from 'node:crypto'
-import { lotFacts } from '../../shared/norms/facts'
-import { lotTermInterior } from '../../shared/rag/lot-terms'
-import { landUseKey } from '../../shared/land-use-key'
+import { ragLotFacts } from '../../shared/rag/lot-facts'
 import { shortName } from '../../shared/rag/refs'
 import { docLabel } from '../../shared/rag/retrieve'
 
@@ -40,41 +38,11 @@ async function main() {
   // the plan as the generated questions name it ("Randwick LEP 2012"), and its council as lmr.lot_lmr records it
   const PLAN_LABEL = docLabel(LEP.title), LGA = shortName(LEP.title).replace(/ LEP$/, '').toUpperCase()
 
-  // ── lot facts, frozen ───────────────────────────────────────────────────────────────────────────
+  // ── lot facts, frozen (the recipe is shared/rag/lot-facts.ts, which live endpoints use too) ─────────
   const factCache = new Map<string, any>()
   const facts = async (cadid: string) => {
-    if (factCache.has(cadid)) return factCache.get(cadid)
-    const f: any = await lotFacts(q as any, cadid, landUseKey)
-    const lmr = (await q(`SELECT band, class, measured_from, excluded_by, eligible_types FROM lmr.lot_lmr WHERE cadid::text = $1`, [cadid])).rows[0]
-    const addr = (await q(`SELECT formatted_address FROM derived.lot_profile WHERE cadid::text = $1 ORDER BY is_primary_address DESC NULLS LAST, address_confidence DESC NULLS LAST LIMIT 1`, [cadid])).rows[0]
-    // the mapped land the lot is in, from the map references the existing resolver (scripts/resolve-map-refs.mjs) turned
-    // into polygons in nsw.rule_spatial_ref: map, label and the share of the lot inside (a part of a lot is "maybe")
-    // Where two refs give one (map, label) different polygons, the plan's own epi layer wins: "Area 1 on the Key Sites
-    // Map" came back both from epi.epi_key_sites (Young Street, Randwick - right) and from dpie_ppl_6 (Matraville - wrong).
-    const mapped = (await q(`
-      WITH refs AS (
-        SELECT regexp_replace(r.map_layer, ' Map$', '') AS map, r.value AS label, r.geom, (r.geom_source LIKE 'epi.%') AS own,
-               bool_or(r.geom_source LIKE 'epi.%') OVER (PARTITION BY regexp_replace(r.map_layer, ' Map$', ''), r.value) AS has_own
-          FROM nsw.rule_spatial_ref r JOIN rag.instrument i ON i.kind = 'lep' AND r.document_id = i.document_id WHERE r.geom IS NOT NULL)
-      SELECT DISTINCT ON (refs.map, refs.label) refs.map, refs.label,
-             round((ST_Area(ST_Intersection(refs.geom, ST_Transform(l.geom, ST_SRID(refs.geom)))) / nullif(ST_Area(ST_Transform(l.geom, ST_SRID(refs.geom))), 0))::numeric, 2)::float8 AS share
-        FROM refs, cadastre.lot l
-       WHERE l.cadid::text = $1 AND (refs.own OR NOT refs.has_own) AND ST_Intersects(refs.geom, ST_Transform(l.geom, ST_SRID(refs.geom)))
-       ORDER BY refs.map, refs.label, 3 DESC`, [cadid]).catch(() => ({ rows: [] as any[] }))).rows.filter((m: any) => m.share > 0.01)
-    // every registered term the graph's claims are bound to (rag.claim_binding, scripts/rag/02d-bindings.ts), tested on the
-    // lot with the registry the app's term resolver reads (shared/rag/lot-terms.ts over nsw.scope_layer; interiors must overlap): holds yes / no / unknown
-    const boundTerms = (await q(`SELECT DISTINCT unnest(scope_terms) t FROM rag.claim_binding WHERE status = 'bound'`).catch(() => ({ rows: [] as any[] }))).rows
-      .map(r => String(r.t)).filter(t => !/^(lga:|map:|!?zone:|zoneclass:|area>=|lot$)/.test(t))
-    const terms: Record<string, { holds: boolean | null; why: string }> = {}
-    for (const t of boundTerms) terms[t] = await lotTermInterior(q as any, cadid, t, f.lga ?? null).catch(e => ({ holds: null, why: `query failed: ${String(e).slice(0, 80)}` }))
-    const heritage = (await q(`SELECT string_agg(DISTINCT h.lay_class, ', ') c FROM epi.epi_heritage h, cadastre.lot l
-                                WHERE l.cadid::text = $1 AND h.geom && l.geom AND ST_Intersects(h.geom, ST_PointOnSurface(l.geom))`, [cadid])).rows[0]?.c ?? null
-    const out = {
-      cadid, lot: f.lotId, address: addr?.formatted_address ?? null, lga: f.lga, zone: f.zone, epi: f.epi, area_m2: f.areaM2, frontage_m: f.frontageM ?? null,
-      battle_axe: f.isBattleaxe ?? null, fsr_map: f.fsrMax ?? null, height_map_m: f.heightMaxM ?? null, lot_size_map_m2: f.lotSizeMinM2, heritage, mapped, terms,
-      low_mid_rise_area: lmr ? { band: lmr.band, class: lmr.class, from: lmr.measured_from, excluded_by: lmr.excluded_by } : { band: null, note: 'not within a low and mid rise housing area' },
-    }
-    factCache.set(cadid, out); return out
+    if (!factCache.has(cadid)) factCache.set(cadid, await ragLotFacts(q as any, cadid))
+    return factCache.get(cadid)
   }
   const where = (l: any) => `${l.address ?? 'lot ' + l.lot} (lot ${l.lot}, ${l.area_m2} m2, Zone ${l.zone})`
 
