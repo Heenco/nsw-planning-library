@@ -355,26 +355,16 @@ async function main() {
   }
   const isStandard = (p: P) => statesFigure(textOf(p)) && (topics.get(p.id) ?? []).some(t => STANDARD_TOPICS.has(t))
 
-  // Randwick's development standards: the CDC pilot's propositions - modality require, with a value or a map - so a
-  // figure that is a condition ("if the site area is at least 1,000m2") is not mistaken for a standard. The pilot run is
-  // stamped on this stage's run row, since pilot.proposition changes per run.
-  const PILOT_TOPIC: Record<string, string> = { fsr: 'fsr', height: 'height', lot_size: 'lot_size', frontage_width: 'lot_width',
-    floor_area: 'floor_area', dwellings: 'dwellings_per_lot', rate: 'parking' }
+  // the LEP's development standards: the rag engine's own claims (rag.claim kind standard, scripts/rag/02c-claims.ts) -
+  // read from the text, no pilot table. 02c reads the frames this stage writes, so the order is 02 -> 02c -> 02 again;
+  // on a first run (no claims yet) the standard-based edges are skipped and the second pass writes them.
   const pilotStd = (await q(`
-    SELECT p.node_id, n.local_id, p.topic, p.comparator, p.value, p.unit, p.run_id,
-           coalesce(array_agg(DISTINCT sc.value) FILTER (WHERE sc.dimension = 'land_use'), '{}') AS uses,
-           coalesce(array_agg(DISTINCT sc.value) FILTER (WHERE sc.dimension = 'zone'), '{}') AS zones
-      FROM pilot.proposition p JOIN pilot.node n ON n.id = p.node_id LEFT JOIN pilot.scope sc ON sc.proposition_id = p.id
-     WHERE n.document_id = $1 AND p.modality = 'require' AND (p.value IS NOT NULL OR p.unit = 'map')
-     GROUP BY p.id, p.node_id, n.local_id, p.topic, p.comparator, p.value, p.unit, p.run_id`, [RANDWICK])).rows
-  // the pilot is rebuilt in place, and between its stages a document has no propositions: then the frozen copy is read
-  // (rag.pilot_standard, refreshed below whenever the pilot has rows), and with neither this stage refuses to write
-  const pilotLive = pilotStd.length > 0
-  if (!pilotLive) {
-    pilotStd.push(...(await q(`SELECT local_id, topic, comparator, value::float8 AS value, unit, uses, zones, pilot_run AS run_id FROM rag.pilot_standard WHERE document_id = $1`, [RANDWICK])).rows)
-    console.log(`pilot.proposition has no Randwick standards (a rebuild in progress?) - using the frozen copy: ${pilotStd.length} rows`)
-    if (!pilotStd.length && !DRY) throw new Error('no pilot standards, live or frozen - refusing to write relations without displaces_standard / may_vary / more_specific_than')
-  }
+    SELECT p.local_id, c.topic, c.comparator, c.value::float8 AS value, CASE WHEN c.value_source LIKE 'map:%' THEN 'map' ELSE c.unit END AS unit, c.uses, c.zones, null::uuid AS run_id
+      FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id
+     WHERE c.kind = 'standard' AND p.document_id = $1`, [RANDWICK]).catch(() => ({ rows: [] as any[] }))).rows
+  const pilotLive = false
+  if (!pilotStd.length) console.log('no rag.claim standards yet - run 02c-claims.ts, then this stage again, for displaces_standard / may_vary / more_specific_than')
+  const PILOT_TOPIC: Record<string, string> = {}
   // joined on the legislation anchor, not the node id: the pilot re-mints node ids on every rebuild
   const inCode = (p: P) => !!up(p, x => /exempt development|complying development/i.test(x.heading ?? ''))
   const isSubdivision = (p: P) => (topicsOf('', `${clauseOf(p)?.heading ?? ''}`)).includes('subdivision') || /\bsubdivi/i.test(textOf(clauseOf(p) ?? p).slice(0, 200))

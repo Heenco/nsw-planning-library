@@ -8,11 +8,13 @@
  * kept as code so a correction to a reading is made once and re-applied to every lot it touches.
  *
  * Readings (Randwick LEP 2012 and Housing SEPP 2021 text as held in rag.provision):
- *   - Ch 6 reaches a lot only inside a low and mid rise housing area and not excluded by s 164 (lot_lmr class 'in').
- *   - R2 permits "Dual occupancies (attached)" (Land Use Table); 4.1C(2) bars dual occupancies in R2 under 550 m2.
- *     Inside an LMR area s 166 permits dual occupancies in R2 and s 8 prevails over 4.1C(2) to the extent of the
- *     inconsistency; s 168(2)(a)'s 450 m2 is non-discretionary. Under 450 m2 neither the LEP nor s 168 supports it, so
- *     the draft is "maybe" with the reason.
+ *   - Ch 6 applies to the whole State other than the s 164 exclusions (a heritage item among them). Its permissions for
+ *     dual occupancies (s 166, R2) need no low and mid rise housing area; s 168's standards and s 170 (multi dwelling
+ *     housing) do. [Corrected 2026-10-09: an earlier draft said Ch 6 reaches only LMR areas.]
+ *   - Dual occupancy in R2: the use is permitted (s 166, and the R2 table for attached). 4.1C(2)'s 550 m2 is a
+ *     development standard, not a prohibition of the use, so s 8 does not simply override it: it governs unless the
+ *     non-discretionary s 168(2)(a) 450 m2 displaces it - inside an LMR area, on a lot of at least 450 m2. Otherwise a
+ *     lot under 550 m2 needs a cl 4.6 variation: the draft says no, and says why.
  *   - Secondary dwellings: s 50 + s 52(1) wherever a dwelling house is permissible (R2 and R3 both permit them).
  *   - Multi dwelling housing: R3 permits it; R2 only through s 170 inside an LMR area.
  *   - FSR for a dual occupancy (attached): 4.4A(2) rows for R2 (550-600: 0.65, >=600: 0.6), else the map; inside an LMR
@@ -36,10 +38,16 @@ export function draft(kind: string, lot: any): any | null {
     case 'g_dual':
       if (zone === 'R3') return R({ verdict: 'yes', controlling: ['randwick:Land Use Table R3'], trace: ['R3 item 3 permits "Dual occupancies" with consent'] })
       if (zone !== 'R2') return null
-      if (lmr && area >= 450) return R({ verdict: 'yes', controlling: ['housing:s166'], displaced: area < 550 ? ['randwick:4.1C(2)'] : [], trace: ['s 166: permitted with consent in R2 on land to which Ch 6 applies', area < 550 ? 's 8: prevails over 4.1C(2) (550 m2) to the extent of the inconsistency; s 168(2)(a) 450 m2 non-discretionary is met' : 'lot clears 4.1C(2) 550 m2 as well'] })
-      if (lmr) return R({ verdict: 'maybe', controlling: ['housing:s166', 'randwick:4.1C(2)'], unknowns: ['whether s 166 prevails over 4.1C(2) on a lot under the 450 m2 safe harbour of s 168(2)(a)'], trace: ['s 166 permits; 4.1C(2) bars under 550 m2; the lot misses s 168(2)(a) 450 m2 as well'] })
-      return area >= 550 ? R({ verdict: 'yes', controlling: ['randwick:Land Use Table R2', 'randwick:4.1C(2)'], trace: ['R2 permits dual occupancies (attached)', 'lot >= 550 m2 (4.1C(2))', 'outside an LMR area: Ch 6 does not reach the lot'] })
-        : R({ verdict: 'no', controlling: ['randwick:4.1C(2)'], trace: ['4.1C(2): consent must not be granted for a dual occupancy in R2 under 550 m2', 'outside an LMR area (or excluded): s 166 does not reach the lot'] })
+    {
+      const ch6 = lot.low_mid_rise_area?.class !== 'excluded' && !/item/i.test(lot.heritage ?? '')
+      const use = ch6 ? 's 166: dual occupancies permitted with consent in R2 (Ch 6 applies state-wide, less s 164)' : 'R2 table permits dual occupancies (attached); Ch 6 excluded here (s 164)'
+      const ctrl = ch6 ? 'housing:s166' : 'randwick:Land Use Table R2'
+      if (area >= 550) return R({ verdict: 'yes', controlling: [ctrl], trace: [use, 'lot clears 4.1C(2) 550 m2'] })
+      if (lmr && area >= 450) return R({ verdict: 'yes', controlling: [ctrl, 'housing:s168(2)(a)'], displaced: ['randwick:4.1C(2)'],
+        trace: [use, '4.1C(2) 550 m2 is a development standard', 's 168(2)(a) 450 m2, non-discretionary in an LMR area, is met: the more onerous 550 m2 cannot be required (s 4.15(3))'] })
+      return R({ verdict: 'no', controlling: ['randwick:4.1C(2)'], note: 'unless the 550 m2 standard is varied under cl 4.6',
+        trace: [use, `4.1C(2): consent must not be granted under 550 m2 - a development standard`, lmr ? 'the lot misses s 168(2)(a) 450 m2 too, so nothing displaces it' : 'outside an LMR area s 168(2)(a) does not apply, so nothing displaces it'] })
+    }
     case 'g_secondary':
       return ['R2', 'R3'].includes(zone) ? R({ verdict: 'yes', controlling: ['housing:s52(1)'], trace: [`${zone} permits dwelling houses, so Ch 3 Pt 1 applies (s 50)`, 's 52(1): with consent, subject to s 52(2)', `the LEP ${zone} table does not list secondary dwellings`] }) : null
     case 'g_mdh':

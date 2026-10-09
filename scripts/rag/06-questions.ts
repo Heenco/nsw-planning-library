@@ -121,7 +121,7 @@ async function main() {
   H('H10', HOLDEN, 'standard', `What is the maximum building height for a dual occupancy on ${where(HOLDEN)}?`,
     { status: 'draft', value: 9.5, unit: 'm', controlling: ['randwick:4.3(2)', 'housing:s168(2)(e)'], note: 'the map and s 168(2)(e) agree' }, ['propcode'], 'dual occupancies')
   H('H11', CARR, 'permissibility', `Is a dual occupancy permissible on ${where(CARR)}?`,
-    { status: 'draft', verdict: 'permissible', controlling: ['randwick:Land Use Table R3'], not_controlling: ['randwick:4.1C(2)', 'housing:s168'], note: '4.1C is R2 only; the lot is not in a low and mid rise housing area, so Ch 6 does not reach it' },
+    { status: 'draft', verdict: 'permissible', controlling: ['randwick:Land Use Table R3'], not_controlling: ['randwick:4.1C(2)', 'housing:s168'], note: '4.1C and s 166 are R2 only; R3 permits dual occupancies in its own table; s 168 needs a low and mid rise housing area, which this lot is not in' },
     ['lep_only'], 'dual occupancies')
   H('H12', null, 'precedence', `If Randwick LEP 2012 and the Housing SEPP 2021 are inconsistent, which prevails?`,
     { status: 'draft', verdict: 'Housing SEPP', controlling: ['housing:s8(1)', 'randwick:1.9(1)'], note: 'Housing SEPP s 8(1) unless otherwise specified; LEP 1.9(1) and EP&A Act s 3.28' }, ['precedence', 'no_lot'])
@@ -129,8 +129,8 @@ async function main() {
     { status: 'draft', value: 0.65, unit: 'ratio', controlling: ['randwick:4.4A(2)'], displaced: ['randwick:4.4(2)'], trace: ['4.4A(2) table: dwelling houses, R2, 275-300 m2: 0.65:1', '4.4A(4): 4.4(2) does not apply to a dwelling house in these zones'] },
     ['precedence', 'no_lot', 'lep_only'], 'dwelling houses')
   H('H14', MID, 'permissibility', `Is a dual occupancy permissible on ${where(MID)}?`,
-    { status: 'draft', verdict: 'permissible', controlling: ['housing:s166'], displaced: ['randwick:4.1C(2)'],
-      trace: ['4.1C(2): consent must not be granted for a dual occupancy in R2 on a lot under 550 m2', 'Housing SEPP s 166: dual occupancies permitted with consent in R2 on land to which Ch 6 applies; s 168(2)(a) 450 m2 non-discretionary; s 8 prevails over the LEP to the extent of the inconsistency'],
+    { status: 'draft', verdict: 'permissible', controlling: ['housing:s166', 'housing:s168(2)(a)'], displaced: ['randwick:4.1C(2)'],
+      trace: ['Housing SEPP s 166: dual occupancies permitted with consent in R2 (Ch 6 applies state-wide, less s 164)', '4.1C(2): consent must not be granted under 550 m2 - a development standard', 's 168(2)(a) 450 m2, non-discretionary inside an LMR area, is met: the more onerous 550 m2 cannot be required (EP&A Act s 4.15(3))'],
       note: 'the case the LEP-only engine answers "prohibited"' }, ['precedence', 'sepp_override', 'non_discretionary'], 'dual occupancies')
   H('H15', MID, 'subdivision', `Development consent for a dual occupancy on ${where(MID)} was granted on 3 April 2025. Can the land be subdivided (Torrens title) into 2 lots, one dwelling on each?`,
     { status: 'draft', verdict: 'yes', controlling: ['housing:s169(3)(d)'], displaced: ['randwick:4.1(3)'], note: `two lots of about ${Math.round(MID.area_m2 / 2)} m2: under the 275 m2 Lot Size Map, over s 169(3)(d)'s 225 m2 - the date decides`, trace: ['s 169(2)(a) holds', 's 169(1A) despite another EPI', 's 169(3)(d) 225 m2'] },
