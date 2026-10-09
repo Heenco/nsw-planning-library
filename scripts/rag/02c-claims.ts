@@ -55,13 +55,56 @@ function figureOf(t: string): { comparator: string | null; value: number; unit: 
   return { comparator, value: Number(m[1]!.replace(/,/g, '')), unit }
 }
 /** "dual occupancies or semi-detached dwellings", "a secondary dwelling", "multi dwelling housing or attached dwellings" */
-const usesOf = (phrase: string) => norm(phrase).replace(/^(a|an|the)\s+/i, '').split(/,\s*|\s+or\s+|\s+and\s+/)
-  .map(u => u.replace(/^(a|an|the)\s+/i, '').trim()).filter(u => u && u.length < 60 && !/\bzone\b|\bland\b/i.test(u)).map(landUseKey)
+/**
+ * Land described by its lots: "Lot 1, DP 219220", "Lots 1798 and 1799, DP 822244", "Lots 4684–4686, DP 752015",
+ * "Lot 1, Section 2, DP 719", "Part of Lot 7020, DP 1058523", "SP 2004". Returns lot ids as cadastre writes them
+ * (lot/section/DPnnn); a part of a lot is marked "~" (only part of it is the described land); a strata plan is "SP2004".
+ */
+function lotsIn(text: string): string[] {
+  const out: string[] = []
+  const t = text.replace(/[–—]/g, '-')
+  for (const m of t.matchAll(/\b(Part of )?Lots? ((?:[\w]+(?:-[\w]+)?)(?:(?:,\s*|\s+and\s+)[\w]+(?:-[\w]+)?)*),?\s*(?:Section (\w+),?\s*)?D\.?P\.?\s*(\d+)/gi)) {
+    const nums: string[] = []
+    for (const tok of m[2]!.split(/,\s*|\s+and\s+/)) {
+      const r = tok.match(/^(\d+)-(\d+)$/)
+      if (r && Number(r[2]) - Number(r[1]) < 200) for (let n = Number(r[1]); n <= Number(r[2]); n++) nums.push(String(n))
+      else if (tok && !/^section$/i.test(tok)) nums.push(tok)
+    }
+    for (const n of nums) out.push(`${m[1] ? '~' : ''}${n}/${m[3] ?? ''}/DP${m[4]}`)
+  }
+  for (const m of t.matchAll(/\bSP\s*(\d+)/g)) out.push(`SP${m[1]}`)
+  return [...new Set(out)]
+}
+
+/** the Standard Instrument land uses (the resolved Land Use Tables' vocabulary), longest first - loaded in main() */
+let VOCAB: string[] = []
+/**
+ * "an animal boarding or training establishment, a stock and sale yard, a veterinary hospital and a function centre" ->
+ * the land uses it names. Known terms are matched whole first (so "or" / "and" inside a term - "animal boarding or
+ * training establishment", "food and drink premises" - do not split it); what is left is split on commas / and / or.
+ */
+const usesOf = (phrase: string) => {
+  let rest = ` ${landUseKey(norm(phrase).replace(/\b(a|an|the)\s+/gi, ' '))} `
+  const found: string[] = []
+  for (const v of VOCAB) {
+    const re = new RegExp(`(^|[\\s,;(])${v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[\\s,;)])`)
+    if (re.test(rest)) { found.push(v); rest = rest.replace(re, '$1 ') }
+  }
+  const left = rest.split(/,\s*|\s+or\s+|\s+and\s+/).map(u => u.trim()).filter(u => u && u.length > 2 && u.length < 60 && !/\bzone\b|\bland\b|related to|^(other|such)\b/.test(u))
+  const words = left.filter(u => !/^(and|or|a|an|the)$/.test(u))
+  return [...found, ...(found.length ? words.filter(u => u.split(' ').length <= 4 && !/\b(of|on|at|in|with|to)\b/.test(u)) : words)]
+}
 
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const insts = (await q(`SELECT document_id, title, kind FROM rag.instrument`)).rows
+  // the Land Use Tables' uses and every term the instruments define ("multi dwelling housing (terraces)" is defined in the
+  // Housing SEPP, not in any Land Use Table) - matched longest first, so a qualified term is never cut at its bracket
+  VOCAB = [...new Set([
+    ...(await q(`SELECT DISTINCT land_use FROM nsw.lep_permissibility`)).rows.map(r => landUseKey(r.land_use)),
+    ...(await q(`SELECT DISTINCT heading FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL`)).rows.map(r => landUseKey(r.heading)),
+  ])].filter(v => v.length > 3 && v.split(' ').length <= 6).sort((a, b) => b.length - a.length)
   const provs: P[] = (await q(`SELECT id, document_id, parent_id, local_id, kind, heading, coalesce(own_text, '') own_text, sort, ordinal, coalesce(path, '{}') path FROM rag.provision`)).rows
   const byId = new Map(provs.map(p => [p.id, p]))
   const local = (doc: string, id: string) => provs.find(p => p.document_id === doc && p.local_id === id) ?? null
@@ -97,7 +140,7 @@ async function main() {
     const zones = zoneCodes(phrase), tms: string[] = [], requires: any[] = []
     for (const [term, z] of zoneTerms) if (new RegExp(`\\bin an? ${term}\\b`, 'i').test(phrase)) zones.push(...z)
     for (const term of scopeTerms) if (new RegExp(`\\b(in|on|within) an? ${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(phrase)) tms.push(term)
-    for (const m of phrase.matchAll(/\bif development for the purposes of (.+?) is permissible on the land under another environmental planning instrument/gi))
+    for (const m of phrase.matchAll(/\bif development for the purposes? of (.+?) is permissible on the land under another environmental planning instrument/gi))
       requires.push({ permissible: usesOf(m[1]!)[0] })
     // land a map marks ("shown as Area 1 on the Key Sites Map", "identified as "Y1" or "Y2" on the ... Map") and land
     // named by its lot ("Lot 1, DP 433534")
@@ -111,7 +154,8 @@ async function main() {
     if (/strata/i.test(notPart)) tms.push('!tenure:strata')
     if (/Community Land Development/i.test(notPart)) tms.push('!tenure:community')
     tms.push(...datesOf(phrase))
-    for (const m of phrase.matchAll(/\bLot (\w+),?\s*(?:Section (\w+),?\s*)?DP\s*(\d+)/g)) tms.push(`lot:${m[1]}/${m[2] ?? ''}/DP${m[3]}`)
+    const lots = lotsIn(phrase)
+    if (lots.length) tms.push(`lots:${lots.join('|')}`)
     return { zones: [...new Set(zones)], terms: tms, requires }
   }
 
@@ -133,8 +177,12 @@ async function main() {
   const frames = (await q(`SELECT from_provision, to_provision, scope FROM rag.relation WHERE kind = 'applies_only_if' AND to_provision IS NOT NULL`)).rows
   for (const f of frames) {
     const phrase = norm(f.scope?.phrase), conds: string[] = f.scope?.conditions ?? []
-    const usesM = phrase.match(/^development (?:for the purposes of|involving subdivision for the purposes of) (.+?)(?=\s+(?:on land|in a |in the following|in Zone|if |on a lot|$))/i)
+    const usesM = phrase.match(/^development (?:for the purposes? of|involving subdivision for the purposes? of) (.+?)(?=\s+(?:on land|in a |in the following|in Zone|if |on a lot|$))/i)
     const s = scopeOf(phrase)
+    // the land a frame describes may run into its list items and a table of lots ("land at the following-")
+    const deep = (id: string): string[] => (kids.get(id) ?? []).flatMap(k => [k.own_text, ...deep(k.id)])
+    const allLots = lotsIn([phrase, ...conds, ...deep(f.to_provision)].join(' ; '))
+    if (allLots.length) s.terms = [...s.terms.filter(x => !x.startsWith('lots:')), `lots:${allLots.join('|')}`]
     const condZones = conds.flatMap(zoneCodes)
     // "This section applies only if- (a) ... on or after <date>, or (b) ..." - the dates in the list are alternatives
     const condDates = conds.flatMap(c => datesOf(c))
@@ -165,7 +213,7 @@ async function main() {
     const ndStem = (x: P | null): boolean => !!x && (/non-discretionary development standards/i.test(x.own_text) || (x.parent_id ? ndStem(byId.get(x.parent_id)!) : false))
 
     // permissions
-    let m = t.match(/^Development for the purposes of (.+?) is permitted with(out)? (?:development )?consent(.*)$/i)
+    let m = t.match(/^Development for the purposes? of (.+?) is permitted with(out)? (?:development )?consent(.*)$/i)
     if (m) {
       const s = scopeOf(m[3]!), unitM = m[3]!.match(/on land to which this (chapter|Part|Division|section|clause) applies/i)
       add({ provision_id: p.id, kind: 'permit', consent: m[2] ? 'without' : 'with', uses: usesOf(m[1]!), zones: s.zones, terms: s.terms, requires: s.requires,
@@ -175,6 +223,27 @@ async function main() {
     m = t.match(/^Development to which this (chapter|Part|Division|section|clause) applies may be carried out with(out)? (?:development )?consent/i)
     if (m) { add({ provision_id: p.id, kind: 'permit', consent: m[2] ? 'without' : 'with', unit_provision: unitOf(m[1]!, p)?.id ?? null, source: 'text', reader: 'permission', span: t.slice(0, 300) }); continue }
 
+    // a discretionary figure: "The consent authority may approve development with a floor space ratio of up to 1.3:1 ...
+    // but only if the consent authority is satisfied that-" / "may grant development consent ... with a building height
+    // that exceeds the maximum height shown for the land ... by up to 6 metres" - it depends on the consent authority
+    m = t.match(/\bmay (?:approve|grant)[^.]*?\bwith an? (floor space ratio|building height|height)\b[^.]*?\b(?:of up to|exceeds? (?:the maximum [a-z ]+? shown for the land[^.]*?)?by up to)\s*([\d.]+)\s*(:1|metres|m\b)/i)
+    if (m) {
+      const topic = /floor space/i.test(m[1]!) ? 'fsr' : 'height', bump = /exceeds?/i.test(m[0])
+      const mapM = t.match(/shown for the land[^.]*?on the ([A-Z][\w ]+? Map)/)
+      const why = norm([t.replace(/^.*?\b(only if|if)\b/i, '$1'), ...(kids.get(p.id) ?? []).map(k => k.own_text)].join(' ')).slice(0, 200)
+      add({ provision_id: p.id, kind: 'standard', topic, comparator: 'max', value: bump ? null : Number(m[2]), unit: topic === 'fsr' ? 'ratio' : 'm',
+        value_source: bump ? `map:${topic === 'height' ? 'Height of Buildings Map' : 'Floor Space Ratio Map'}` : 'text', band: bump ? { add: Number(m[2]), relative: mapM?.[1] ?? null } : null,
+        terms: [`discretion:${why}`], unit_provision: cl?.id ?? null, source: 'text', reader: 'discretionary standard', span: t.slice(0, 300) })
+      continue
+    }
+    // "Development consent under subclause (2) must only be granted in relation to buildings with a frontage to ..." -
+    // a limitation on the permission it names (or on the clause's permissions)
+    m = t.match(/^Development consent (?:under subclause \((\w+)\) )?(?:must|may) only be granted (.+)$/i)
+    if (m) {
+      const target = m[1] && cl ? provs.find(x => x.document_id === p.document_id && x.local_id === `${cl.local_id}-ssec.${m![1]}`) : null
+      add({ provision_id: p.id, kind: 'condition', unit_provision: target?.id ?? cl?.id ?? null, source: 'text', reader: 'condition', span: t.slice(0, 300) })
+      continue
+    }
     // "Development consent must not be granted for development on land to which this clause applies unless the consent
     // authority is satisfied that at least 50% of the gross floor area of ... will be used for ..." - a standard on the
     // unit, its figure possibly a share of another quantity
@@ -188,7 +257,7 @@ async function main() {
       }
     }
     // consent bars: a figure is a standard, a list is a set of conditions
-    m = t.match(/^Development consent must not be granted (?:to|for) (?:the )?(?:development (?:to which this (chapter|Part|Division|section|clause) applies|for the purposes of (.+?)(?= on | unless|,|$))|(subdivision)[^,]*?)(.*?)(?:unless\b(.*))?$/i)
+    m = t.match(/^Development consent must not be granted (?:to|for) (?:the )?(?:development (?:to which this (chapter|Part|Division|section|clause) applies|for the purposes? of (.+?)(?= on | unless|,|$))|(subdivision)[^,]*?)(.*?)(?:unless\b(.*))?$/i)
     if (m) {
       const uses = m[2] ? usesOf(m[2]) : [], s = scopeOf(`${m[4] ?? ''}`), unit = m[1] ? unitOf(m[1], p)?.id ?? null : null
       const tail = norm(m[5] ?? ''), kidsOf = kids.get(p.id) ?? []
@@ -213,7 +282,7 @@ async function main() {
 
     // "If development for the purposes of X is permitted under this Plan, the total floor area ... must not exceed
     // [whichever of the following is the greater-] ..." - a standard on X, its figure in the stem or in each leaf
-    m = t.match(/^If development for the purposes of (.+?) is permitted under this (?:Plan|Policy)((?: on land[^,]*)?),\s*(.+)$/i)
+    m = t.match(/^If development for the purposes? of (.+?) is permitted under this (?:Plan|Policy)((?: on land[^,]*)?),\s*(.+)$/i)
     if (m) {
       const uses = usesOf(m[1]!), where = m[2] ?? '', body = m[3]!, topic = topicOf(body), pick = body.match(/whichever (?:of the following )?is the (greater|lesser)/i)?.[1]?.toLowerCase()
       // "on land other than land in a rural zone": the zones of that defined term are excluded
@@ -285,12 +354,18 @@ async function main() {
     const stem = norm(p.parent_id ? byId.get(p.parent_id)?.own_text : '')
     const conditionList = /\b(if|unless|where|only if)\s*[—-]\s*$/i.test(stem) || /\bapplies (only )?to\b[^—]*[—-]\s*$/i.test(stem)
     if (f && topic && f.comparator && p.kind === 'paragraph' && t.length < 260 && !/^(if|where|in the case)\b/i.test(t) && !conditionList) {
-      const forUse = t.match(/^for (?:an? )?(.+?)\s*[—-]/)
+      // "for a detached secondary dwelling-" names a use only when the words are a known land use; "for a lot with an area
+      // of at least 450m2 but not more than 900m2-" is a band on the lot, and "for a battle-axe lot-" is neither
+      const forM = t.match(/^for (?:an? )?(.+?)\s*[—-]/)
+      const forKnown = forM ? usesOf(forM[1]!.replace(/^detached /, '')).filter(u => VOCAB.includes(u)) : []
+      const forUse = forKnown.length ? forM : null
+      const lotBand = forM?.[1]?.match(/^lot with an area of (at least|more than) ([\d,.]+)\s*m2(?: but (not more than|less than) ([\d,.]+)\s*m2)?/i)
       // the stem can name the use: "if the subdivision is of a lot on which there is a dual occupancy-"
-      const stemUse = stem.match(/\bon which there is an? (.+?)\s*[—-]\s*$/i)?.[1] ?? stem.match(/\bfor the purposes of (.+?)\s*[—-]\s*$/i)?.[1]
+      const stemUse = stem.match(/\bon which there is an? (.+?)\s*[—-]\s*$/i)?.[1] ?? stem.match(/\bfor the purposes? of (.+?)\s*[—-]\s*$/i)?.[1]
       // and the title type, from the leaf, its stem or the clause's own words ("for a strata plan scheme")
       const tenure = [...(/strata plan|strata scheme/i.test(`${t} ${stem}`) ? ['tenure:strata'] : []), ...(/Community Land Development Act/i.test(`${t} ${stem}`) ? ['tenure:community'] : [])]
-      add({ provision_id: p.id, kind: 'standard', topic, comparator: f.comparator, value: f.value, unit: f.unit, uses: forUse ? usesOf(forUse[1]!.replace(/^detached /, '')) : stemUse ? usesOf(stemUse) : [],
+      add({ provision_id: p.id, kind: 'standard', topic, comparator: f.comparator, value: f.value, unit: f.unit, uses: forUse ? forKnown : stemUse ? usesOf(stemUse) : [],
+        band: lotBand ? { metric: 'lot_size', lo: Number(lotBand[2]!.replace(/,/g, '')), lo_incl: /at least/i.test(lotBand[1]!), hi: lotBand[4] ? Number(lotBand[4].replace(/,/g, '')) : null, hi_incl: /not more/i.test(lotBand[3] ?? '') } : null,
         terms: [...tenure, ...(forUse && /detached/i.test(forUse[1]!) ? ['detached'] : []), ...(/resulting lot|subdivision/i.test(`${t} ${stem}`) || /subdivision/i.test(cl?.heading ?? '') ? ['proposal:subdivision'] : [])],
         non_discretionary: ndStem(p), value_source: 'text', unit_provision: cl?.id ?? null, source: 'text', reader: 'standard leaf', span: t.slice(0, 300) })
     }

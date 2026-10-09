@@ -346,6 +346,19 @@ async function main() {
     }
   }
 
+  // ── a clause that operates a Schedule ("Development on particular land that is described or referred to in Schedule 1
+  //    may be carried out ...", with "This clause has effect despite anything to the contrary in the Land Use Table or
+  //    other provision of this Plan") gives each item of that Schedule its override ───────────────────────
+  for (const p of provs) {
+    const m = textOf(p).match(/\bdescribed or referred to in Schedule (\w+)\b/i); if (!m) continue
+    const op = clauseOf(p); if (!op) continue
+    const sch = local(p.document_id, `sch.${m[1]}`); if (!sch) continue
+    const inOp = (x: P) => x.local_id === op.local_id || x.local_id.startsWith(op.local_id + '-')
+    const wide = rels.filter(r => r.kind === 'despite' && !r.to_provision && r.to_document && inOp(byId.get(r.from_provision)!))
+    for (const item of (kids.get(sch.id) ?? []).filter(k => k.kind === 'clause'))
+      for (const r of wide) add({ ...r, from_provision: item.id, span: `${r.span ?? ''} (through ${op.local_id})`.trim(), reader: 'overrides', basis: 'text', status: 'proposed' })
+  }
+
   // ── topics ────────────────────────────────────────────────────────────────────────────────────
   const topics = new Map<string, string[]>()
   for (const p of provs) {
@@ -429,6 +442,14 @@ async function main() {
       }
     }
   }
+
+  // ── a figure the consent authority may allow on particular land ("may approve ... a floor space ratio of up to
+  //    1.3:1 on the land to which this clause applies") is an exception to the general map rule on that topic ─────
+  const discretionary = (await q(`SELECT c.provision_id, c.topic, p.document_id FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id WHERE c.reader = 'discretionary standard'`).catch(() => ({ rows: [] as any[] }))).rows
+  const mapRules = (await q(`SELECT c.provision_id, c.topic, p.document_id FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id WHERE c.reader = 'map rule'`).catch(() => ({ rows: [] as any[] }))).rows
+  for (const d of discretionary) for (const m of mapRules.filter(m => m.topic === d.topic && m.document_id === d.document_id))
+    add({ kind: 'more_specific_than', from_provision: d.provision_id, to_provision: m.provision_id, basis: 'interpretive', reader: 'specificity', status: 'proposed', confidence: 0.6,
+      span: 'a figure the consent authority may allow on particular land, over the general map figure', scope: { topic: d.topic } })
 
   // ── dedupe ────────────────────────────────────────────────────────────────────────────────────
   const uniq = new Map<string, Rel>()

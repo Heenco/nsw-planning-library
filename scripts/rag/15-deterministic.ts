@@ -12,7 +12,7 @@
  */
 import 'dotenv/config'
 import pg from 'pg'
-import { loadEngine, evaluate, writeAnswer, type Ask, type Result, type Engine } from '../../shared/rag/evaluate'
+import { loadEngine, evaluate, writeAnswer, explain, type Ask, type Result, type Engine } from '../../shared/rag/evaluate'
 import { loadCorpus } from '../../shared/rag/retrieve'
 import { checks } from '../../shared/rag/answer'
 import { landUseKey } from '../../shared/land-use-key'
@@ -64,9 +64,12 @@ async function main() {
     const t0 = Date.now()
     const { ask, mode, lot } = askOf(x)
     let answer: any = { verdict: null, value: null, unit: null, values_if: [], controlling: [], quotes: [], unknowns: [], reasoning: '' }
+    // the full reasoning as data (shared/rag/evaluate.ts explain): what /rag shows, clause by clause
+    const explained: any[] = [], cited: string[] = []
     if (mode === 'precedence') {
       const rule = E.rels.find(r => r.kind === 'inconsistency_rule'), sub = E.rels.find(r => r.kind === 'subject_to' && /SEPP that prevails/i.test(r.to_ref ?? ''))
       answer.controlling = [rule && E.label(rule.from_provision), sub && E.label(sub.from_provision)].filter(Boolean)
+      cited.push(...[rule?.from_provision, sub?.from_provision].filter(Boolean) as string[])
       answer.reasoning = rule ? `${E.label(rule.from_provision)}: the Policy prevails over another environmental planning instrument to the extent of an inconsistency${sub ? `; ${E.label(sub.from_provision)} makes the Plan subject to a SEPP that prevails` : ''}.` : 'no instrument rule held'
     } else if (mode === 'extraction') {
       // the clause's own standards, read from the claims on it
@@ -82,6 +85,7 @@ async function main() {
         answer.controlling = [E.label(term?.id ?? std?.provision_id ?? '') || x.clause].filter(Boolean)
         answer.reasoning = term ? `part of a definition: "${term.own_text.slice(0, 160)}" - not a development standard` : std ? `a development standard: ${E.label(std.provision_id)}` : `the figure ${fig} is in neither a definition nor a standard of ${x.clause}`
         answer.kind_of_figure = term ? 'definition' : std ? 'standard' : null
+        cited.push(...[term?.id, std?.provision_id].filter(Boolean) as string[])
       } else if (/which areas|which map/i.test(x.text)) {
         // the clause's frame: the mapped land it applies to
         const frames = E.claims.filter(c => c.kind === 'frame' && c.unit_provision && E.provs.get(c.provision_id)?.doc_kind === 'lep' && under(c.provision_id))
@@ -89,8 +93,10 @@ async function main() {
         answer.controlling = frames.map(f => E.label(f.provision_id))
         answer.reasoning = areas.length ? `applies to land identified as ${areas.join('; ')}` : `no mapped area read for ${x.clause}`
         answer.areas = areas
+        cited.push(...frames.map(f => f.provision_id))
       } else {
         const c = cs.find(c => c.value != null) ?? cs[0]
+        if (c) cited.push(c.provision_id)
         if (c) { answer = { ...answer, value: c.value, unit: c.unit, controlling: [E.label(c.provision_id)], reasoning: `${E.label(c.provision_id)}: ${c.topic} ${c.comparator ?? ''} ${c.value ?? c.value_source ?? ''} ${c.unit ?? ''}${c.band?.metric ? ` where ${c.band.metric} ${c.band.lo != null ? `> ${c.band.lo}` : ''}${c.band.hi != null ? ` and < ${c.band.hi}` : ''}` : ''}${c.band?.relative ? ` of ${c.band.relative}` : ''} (${cs.length} standard claim(s) on the clause)` } }
         else answer.reasoning = `no standard claim on ${x.clause}`
       }
@@ -98,6 +104,7 @@ async function main() {
       // the same subdivision under each title type: is the minimum the same for all?
       const per = mode.slice(15).split(',').map(tn => {
         const r = evaluate(E, { ...ask, tenure: tn as any }, lot)
+        explained.push({ case: tn, ...explain(E, r) })
         const min = r.limits[0]?.subs[0]
         const v = r.answer?.value ?? null, expr = r.answer?.expr ?? null
         return { tn, v, expr, by: min ? label(min) : [], branches: (min?.ruling?.branches ?? []).map(b => ({ if: b.if, value: Number(b.answer?.value) })) }
@@ -109,6 +116,7 @@ async function main() {
       answer.values_if = per.filter(p => p.v != null).map(p => ({ if: p.tn, value: Number(p.v) }))
     } else if (ask && lot) {
       const r = evaluate(E, ask, lot)
+      if (mode !== 'floor-area-by-reference') explained.push(explain(E, r))
       const text = writeAnswer(E, r, lot)
       if (mode === 'permissibility') {
         // a permitted use whose binding (not non-discretionary) minimum lot size this lot fails cannot get consent as of right
@@ -126,6 +134,7 @@ async function main() {
       } else if (mode === 'floor-area-by-reference') {
         // "the total floor area of the principal and secondary dwellings" is set by a cross-reference in the use's permission
         const perm = evaluate(E, { kind: 'permissibility', use: ask.use, only: ask.only }, lot)
+        explained.push(explain(E, perm))
         const ref = perm.limits.flatMap(l => l.subs).find(s => s.ask.topic === 'floor_area' && s.ask.use !== ask.use)
         const fsr = ref?.limits[0]?.subs[0] ?? (ref ? null : evaluate(E, ask, lot))
         answer.value = fsr?.answer?.value ?? null; answer.unit = 'ratio'; answer.controlling = fsr ? label(fsr) : []
@@ -139,7 +148,7 @@ async function main() {
     } else answer.reasoning = `not answered: ${mode}${lot ? '' : ' (no lot facts)'}`
     const k = `${x.set_name}:${answer.verdict ?? (answer.value != null ? 'value' : answer.controlling.length ? 'cited' : 'none')}`; tally[k] = (tally[k] ?? 0) + 1
     await q(`INSERT INTO rag.answer (run_id, question_id, variant, model, retrieved, answer, checks, trace, latency_ms, tokens_in, tokens_out, cost_usd)
-             VALUES ($1, $2, 'D', 'deterministic', '[]', $3, $4, $5, $6, 0, 0, 0)`, [run, x.id, JSON.stringify(answer), JSON.stringify(checks(C, answer)), JSON.stringify({ mode, ask }), Date.now() - t0])
+             VALUES ($1, $2, 'D', 'deterministic', '[]', $3, $4, $5, $6, 0, 0, 0)`, [run, x.id, JSON.stringify(answer), JSON.stringify(checks(C, answer)), JSON.stringify({ mode, ask, explain: explained, cited }), Date.now() - t0])
     if (SHOW) console.log(`\n### ${x.set_name} ${x.clause}: ${x.text}\n${answer.reasoning}`)
   }
   await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ answers: questions.length, tally })])

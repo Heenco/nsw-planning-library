@@ -103,11 +103,36 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
         })
         and(alts.includes(true) ? true : alts.every(a => a === false) ? false : null, `${t.slice(5).replace(/\|/g, ' or ')}`)
       }
-      else if (t.startsWith('lot:')) and(String(lot.lot ?? '').toUpperCase() === t.slice(4).toUpperCase(), `the named lot ${t.slice(4)}`)
-      // a mapped area whose map no dataset holds: listed as not checked, and taken as not reaching the lot
-      else if (t.startsWith('mapped:')) { notChecked.push(`${t.slice(7)} (map not held)`); and(false, `in ${t.slice(7)} (map not held - not checked)`) }
+      else if (t.startsWith('lots:') || t.startsWith('mapped:')) continue        // the land described: tested together below
+      // a figure the consent authority may allow if it is satisfied: never assumed either way - the answer splits on it
+      else if (t.startsWith('discretion:')) and(null, `the consent authority is satisfied (${t.slice(11, 120)})`)
       else if (t === 'detached') and(ask.detached ?? null, 'detached')
       else { const f = fact(t, lot); and(f === undefined ? null : f, t) }
+    }
+    // the land a claim describes - by its lots and / or by a mapped area - is one place said two ways: in it if either
+    // description says so. A lot only partly covered ("Part of Lot 7020", or a map polygon over part of the lot) is
+    // "maybe" unless a map says the lot is (almost) wholly inside.
+    const where = c.terms.filter(t => t.startsWith('lots:') || t.startsWith('mapped:'))
+    if (where.length) {
+      const results: (boolean | null)[] = []; const said: string[] = []
+      for (const t of where) {
+        if (t.startsWith('lots:')) {
+          const ids = t.slice(5).split('|'), me = String(lot.lot ?? '').toUpperCase()
+          const whole = ids.filter(i => !i.startsWith('~')).map(i => i.toUpperCase()), part = ids.filter(i => i.startsWith('~')).map(i => i.slice(1).toUpperCase())
+          const sp = whole.filter(i => i.startsWith('SP')).some(i => me.endsWith(`//${i}`))
+          const r = whole.includes(me) || sp ? true : part.includes(me) ? null : false
+          results.push(r); said.push(`lot ${lot.lot} ${r === true ? 'is' : r === null ? 'is partly' : 'is not'} in the lots described`)
+        } else {
+          const m = t.slice(7).match(/^(.+) on the (.+?)(?: Map)?$/); if (!m) continue
+          const labels = m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()), map = m[2]!.toLowerCase()
+          if (!Array.isArray(lot.mapped)) { notChecked.push(`${t.slice(7)} (map not held)`); results.push(false); said.push(`${t.slice(7)}: map not held - not checked`); continue }
+          const hit = lot.mapped.filter((x: any) => String(x.map).toLowerCase() === map && labels.includes(String(x.label).toLowerCase()))
+          const share = Math.max(0, ...hit.map((x: any) => Number(x.share)))
+          const r = share >= 0.9 ? true : share > 0.05 ? null : false
+          results.push(r); said.push(`${t.slice(7)}: ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'not inside'}`)
+        }
+      }
+      and(results.includes(true) ? true : results.every(r => r === false) ? false : null, said.join('; '))
     }
     for (const ex of c.excludes) {
       if (ex.startsWith('zone:')) { const name = ex.slice(5); and(!new RegExp(name.replace(/ zone$/, ''), 'i').test(E.zoneNames.get(String(lot.zone)) ?? ''), `not in a ${name}`); continue }
@@ -289,7 +314,10 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   // Each question reads only its own kind.
   const ofProposal = (c: C) => ask.proposal === 'subdivision' && topic === 'lot_size' ? c.terms.includes('proposal:subdivision') : !c.terms.includes('proposal:subdivision')
   const direct = E.claims.filter(c => c.kind === 'standard' && c.topic === topic && (aboutUse(c) || (!c.uses.length && !framesFor(c).some(f => f.uses.length))) && ofProposal(c))
-  const tested = direct.map(test).map(t => ({ ...t, value: t.claim.value_source?.startsWith('map:') ? mapValue(t.claim.value_source) : t.claim.value }))
+  // a map figure, or the map figure plus what a clause lets it exceed by ("by up to 6 metres")
+  const valueOf = (c: C) => { const base = c.value_source?.startsWith('map:') ? mapValue(c.value_source) : c.value
+    return c.band?.add != null ? (base != null ? Number(base) + Number(c.band.add) : null) : base }
+  const tested = direct.map(test).map(t => ({ ...t, value: valueOf(t.claim) }))
   tested.forEach(t => t.notChecked.forEach(n => notChecked.add(n)))
   const live = tested.filter(t => t.holds !== false && t.value != null)
   // floor area with no floor-area standard: the floor space ratio times the site area
@@ -314,6 +342,36 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   const ruling = resolve(rclaims, E.rels, E.provMap)
   const answer = ruling.answer ? { ...ruling.answer, ...(expr ? { expr } : {}) } : null
   return { ask, answer, verdict: ruling.verdict, ruling, tested, limits: [], notChecked: [...notChecked] }
+}
+
+/**
+ * The whole result as data for the page: every claim tested (applies yes / no / unknown, and why), the precedence steps,
+ * the case split, the limits and the sub-questions behind them - each step carrying the provision it rests on, so the
+ * page can show the clause's words and link to it.
+ */
+export interface Explained {
+  ask: Ask; verdict: string; answer: Result['answer']; note?: string; notChecked: string[]
+  claims: { provision_id: string; label: string; kind: string; uses: string[]; zones: string[]; value: number | null; unit: string | null; topic: string | null; non_discretionary: boolean; holds: boolean | null; why: string[]; won: boolean; subs: Explained[] }[]
+  steps: { rule: string; winner: string; winner_id: string | null; loser: string; loser_id: string | null; why: string; relation: string; basis: string; status: string }[]
+  branches: { if: string; answer: string | null; steps: Explained['steps'] }[]
+  limits: { label: string; provision_id: string | null; detail: string; status: string; text: string; subs: Explained[] }[]
+}
+export function explain(E: Engine, r: Result, depth = 0): Explained {
+  const idOf = (label: string) => r.tested.find(t => E.label(t.claim.provision_id) === label || t.claim.id === label)?.claim.provision_id
+    ?? [...E.provs.values()].find(p => E.label(p.id) === label)?.id ?? null
+  const steps = (tr: NonNullable<Result['ruling']>['trace']) => tr.map(s => ({ rule: s.rule, winner: s.winner, winner_id: idOf(s.winner), loser: s.loser, loser_id: idOf(s.loser), why: s.why, relation: s.by, basis: s.basis, status: s.status }))
+  const won = new Set(r.ruling?.answer?.claims ?? [])
+  const fig = (a: any) => a == null ? null : a.effect === 'value' ? `${a.value ?? ''}${a.unit ? ` ${a.unit}` : ''}`.trim() || null : a.effect
+  return {
+    ask: r.ask, verdict: r.verdict, answer: r.answer, note: r.note, notChecked: [...new Set(r.notChecked)],
+    claims: r.tested.map(t => ({ provision_id: t.claim.provision_id, label: E.label(t.claim.provision_id), kind: t.claim.kind, uses: t.claim.uses, zones: t.claim.zones,
+      value: (t as any).value ?? t.claim.value, unit: t.claim.unit, topic: t.claim.topic, non_discretionary: t.claim.non_discretionary, holds: t.holds, why: t.why, won: won.has(t.claim.id),
+      subs: depth < 3 ? t.subs.map(s => explain(E, s, depth + 1)) : [] })),
+    steps: steps(r.ruling?.trace ?? []),
+    branches: (r.ruling?.branches ?? []).map(b => ({ if: b.if, answer: fig(b.answer), steps: steps(b.trace) })),
+    limits: r.limits.map(l => ({ label: l.label, provision_id: idOf(l.label), detail: l.detail, status: l.status, text: l.text.startsWith('resolved:') || l.text.startsWith('group:') ? '' : l.text,
+      subs: depth < 3 ? l.subs.map(s => explain(E, s, depth + 1)) : [] })),
+  }
 }
 
 /** the answer in sentences - every clause and figure in it comes from the result */
@@ -351,7 +409,10 @@ export function writeAnswer(E: Engine, r: Result, lot: any): string {
     const what = r.ask.kind === 'subdivision' ? `${r.ask.tenure ?? ''} subdivision into ${r.ask.lots ?? 2} lots - minimum lot size`.trim() : (r.ask.topic ?? '').replace('_', ' ')
     L.push(`${what[0]?.toUpperCase() ?? ''}${what.slice(1)} for ${r.ask.use} on ${where}: ${fmt(r)}${r.ask.kind === 'subdivision' ? ` - ${r.verdict === 'yes' ? 'each lot clears it' : r.verdict === 'no' ? 'the lots do not clear it' : 'depends'}` : r.verdict === 'maybe' ? ' (depends)' : ''}.`)
     for (const s of r.ruling?.trace ?? []) L.push(`- ${s.winner} prevails over ${s.loser}: ${s.why}.`)
-    for (const t of r.tested.filter(t => t.holds !== false)) L.push(`- ${E.label(t.claim.provision_id)}: ${(t as any).value ?? ''} ${t.claim.unit ?? ''}${t.claim.non_discretionary ? ' (non-discretionary)' : ''}`)
+    // the answer split on a fact nobody gave: each case with its figure and the rule that decides it
+    const br = r.ruling?.branches ?? (r.ask.kind === 'subdivision' ? r.limits[0]?.subs[0]?.ruling?.branches : undefined) ?? []
+    for (const b of br) L.push(`- if ${b.if.replace(/frame [^[]*\[|\]|: unknown/g, '').trim()}: ${b.answer?.value != null ? `${b.answer.value}${r.ask.topic === 'fsr' ? ':1' : ` ${unitOf(b.answer.unit) || (r.ask.topic === 'height' ? 'm' : '')}`}` : 'no limit'}${b.trace.length ? ` (${b.trace.map(s => `${s.winner} over ${s.loser}`).join('; ')})` : ''}`)
+    for (const t of r.tested.filter(t => t.holds !== false)) L.push(`- ${E.label(t.claim.provision_id)}: ${(t as any).value ?? ''} ${t.claim.unit ?? ''}${t.claim.non_discretionary ? ' (non-discretionary)' : ''}${t.holds == null ? ` - only if ${t.why.filter(w => /unknown/.test(w)).map(w => w.replace(/: unknown$/, '')).join('; ').slice(0, 140)}` : ''}`)
   }
   if (r.notChecked.length) L.push(`Not checked (no data held): ${[...new Set(r.notChecked)].slice(0, 8).join('; ')}${r.notChecked.length > 8 ? '; ...' : ''}.`)
   return L.join('\n')

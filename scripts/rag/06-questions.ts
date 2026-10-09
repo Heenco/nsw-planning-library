@@ -41,11 +41,25 @@ async function main() {
     const f: any = await lotFacts(q as any, cadid, landUseKey)
     const lmr = (await q(`SELECT band, class, measured_from, excluded_by, eligible_types FROM lmr.lot_lmr WHERE cadid::text = $1`, [cadid])).rows[0]
     const addr = (await q(`SELECT formatted_address FROM derived.lot_profile WHERE cadid::text = $1 ORDER BY is_primary_address DESC NULLS LAST, address_confidence DESC NULLS LAST LIMIT 1`, [cadid])).rows[0]
+    // the mapped land the lot is in, from the map references the existing resolver (scripts/resolve-map-refs.mjs) turned
+    // into polygons in nsw.rule_spatial_ref: map, label and the share of the lot inside (a part of a lot is "maybe")
+    // Where two refs give one (map, label) different polygons, the plan's own epi layer wins: "Area 1 on the Key Sites
+    // Map" came back both from epi.epi_key_sites (Young Street, Randwick - right) and from dpie_ppl_6 (Matraville - wrong).
+    const mapped = (await q(`
+      WITH refs AS (
+        SELECT regexp_replace(r.map_layer, ' Map$', '') AS map, r.value AS label, r.geom, (r.geom_source LIKE 'epi.%') AS own,
+               bool_or(r.geom_source LIKE 'epi.%') OVER (PARTITION BY regexp_replace(r.map_layer, ' Map$', ''), r.value) AS has_own
+          FROM nsw.rule_spatial_ref r JOIN rag.instrument i ON i.kind = 'lep' AND r.document_id = i.document_id WHERE r.geom IS NOT NULL)
+      SELECT DISTINCT ON (refs.map, refs.label) refs.map, refs.label,
+             round((ST_Area(ST_Intersection(refs.geom, ST_Transform(l.geom, ST_SRID(refs.geom)))) / nullif(ST_Area(ST_Transform(l.geom, ST_SRID(refs.geom))), 0))::numeric, 2)::float8 AS share
+        FROM refs, cadastre.lot l
+       WHERE l.cadid::text = $1 AND (refs.own OR NOT refs.has_own) AND ST_Intersects(refs.geom, ST_Transform(l.geom, ST_SRID(refs.geom)))
+       ORDER BY refs.map, refs.label, 3 DESC`, [cadid]).catch(() => ({ rows: [] as any[] }))).rows.filter((m: any) => m.share > 0.01)
     const heritage = (await q(`SELECT string_agg(DISTINCT h.lay_class, ', ') c FROM epi.epi_heritage h, cadastre.lot l
                                 WHERE l.cadid::text = $1 AND h.geom && l.geom AND ST_Intersects(h.geom, ST_PointOnSurface(l.geom))`, [cadid])).rows[0]?.c ?? null
     const out = {
       cadid, lot: f.lotId, address: addr?.formatted_address ?? null, lga: f.lga, zone: f.zone, epi: f.epi, area_m2: f.areaM2, frontage_m: f.frontageM ?? null,
-      battle_axe: f.isBattleaxe ?? null, fsr_map: f.fsrMax ?? null, height_map_m: f.heightMaxM ?? null, lot_size_map_m2: f.lotSizeMinM2, heritage,
+      battle_axe: f.isBattleaxe ?? null, fsr_map: f.fsrMax ?? null, height_map_m: f.heightMaxM ?? null, lot_size_map_m2: f.lotSizeMinM2, heritage, mapped,
       low_mid_rise_area: lmr ? { band: lmr.band, class: lmr.class, from: lmr.measured_from, excluded_by: lmr.excluded_by } : { band: null, note: 'not within a low and mid rise housing area' },
     }
     factCache.set(cadid, out); return out
@@ -153,6 +167,21 @@ async function main() {
     'CDC report: 325.6 m2 (the map 0.5:1)', { status: 'draft', value: 0.6, unit: 'ratio', controlling: ['randwick:4.4A(2)', 'housing:s52(2)(b)'], claim_is: 'wrong', note: 'about 388 m2 on 645.7 m2' })
   P('PC6', `What floor space ratio applies to a dual occupancy (attached) on ${where(HOLDEN)}: the LEP's 0.6:1 or the Housing SEPP's 0.65:1?`, 'RPR: 0.65:1, the SEPP beats the LEP 0.6:1',
     { status: 'draft', value: 0.65, unit: 'ratio', controlling: ['housing:s168(2)(d)'], claim_is: 'right' })
+
+  // ── additional permitted uses (Schedule 1 through cl 2.5) and local controls on mapped land ───────────
+  const LOC = async (id: string, cadid: string, kind: string, use: string, text: (l: any) => string, expected: any, tags: string[]) => {
+    const l = await facts(cadid); qs.push({ set_name: 'local', clause: id, cadid, kind, use_term: use, text: text(l), expected: { status: 'draft', ...expected }, tags, lot: l })
+  }
+  await LOC('L1', '103770654', 'permissibility', 'function centres', l => `Is a function centre permissible on ${where(l)}?`,
+    { verdict: 'yes', controlling: ['randwick:Sch 1 s 2'], trace: ['RE1 table: function centres prohibited (catch-all)', 'Sch 1 item 2: a function centre related to Wylies Baths permitted with consent on Lots 1798 and 1799, DP 822244', 'cl 2.5(2): despite the Land Use Table'] }, ['apu'])
+  await LOC('L2', '161784773', 'permissibility', 'food and drink premises', l => `Is development for the purposes of food and drink premises permissible on ${where(l)}?`,
+    { verdict: 'yes', controlling: ['randwick:Sch 1 s 5'], trace: ['SP2 table: prohibited', 'Sch 1 item 5 permits food and drink premises on Lot 21, DP 1134767', 'item 5(3): only for buildings with a frontage to St Pauls Street'] }, ['apu', 'condition'])
+  await LOC('L3', '100113681', 'permissibility', 'registered clubs', l => `Is a registered club permissible on ${where(l)}?`,
+    { verdict: 'maybe', controlling: ['randwick:Sch 1 s 7'], note: 'Sch 1 item 7 covers "Part of Lot 7020, DP 1058523" only and no APU map shows which part: depends where on the lot (rule agreed with Manni 2026-10-09)' }, ['apu', 'part_lot'])
+  await LOC('L4', '186430962', 'standard', 'dwelling houses', l => `What is the maximum floor space ratio on ${where(l)}?`,
+    { verdict: 'maybe', values: { 'otherwise': 0.5, 'cl 6.16(3) satisfied': 1.3 }, unit: 'ratio', controlling: ['randwick:4.4(2)', 'randwick:6.16(3)'], note: 'Key Sites Map Area 1 (Young Street, Randwick): the 0.5:1 map figure, or up to 1.3:1 if the consent authority is satisfied about the recreation land (6.16(3))' }, ['local_control', 'discretion'])
+  await LOC('L5', '182478603', 'standard', 'dwelling houses', l => `What is the maximum building height on ${where(l)}?`,
+    { verdict: 'maybe', values: { 'otherwise': 24, 'cl 6.21(7) satisfied': 30 }, unit: 'm', controlling: ['randwick:4.3(2)', 'randwick:6.21(7)'], note: 'Y1 on the Alternative Building Heights Map: up to 6 m above the 24 m map height for a competitive design winner with design excellence' }, ['local_control', 'discretion'])
 
   // ── grid: lots chosen by rule ───────────────────────────────────────────────────────────────────
   const BANDS: [number, number][] = [[250, 300], [300, 450], [450, 550], [550, 600], [600, 900]]
