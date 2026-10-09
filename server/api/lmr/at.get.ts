@@ -144,13 +144,16 @@ async function buildLotSql() {
     const [schema, rel] = String(r.table_name).split('.')
     // the catalogue's filter is the same predicate the tile build uses to cut this layer out
     const where = r.filter && r.half === 'sepp' ? ` AND (${r.filter})` : ''
+    // one row per label of the layer, each with its own cover: a lot in ANEF 20-25, 25-30 and 30-35 is three rows,
+    // not the alphabetically first label carrying the cover of all three (the policy excludes some bands, not others)
     parts.push(`SELECT '${r.key}'::text AS key,
-        ${name ? `(array_agg(DISTINCT c."${name}"::text) FILTER (WHERE c."${name}" IS NOT NULL))[1]` : 'NULL::text'} AS label,
+        ${name ? `c."${name}"::text` : 'NULL::text'} AS label,
         ${cls ? `(array_agg(DISTINCT c."${cls}"::text) FILTER (WHERE c."${cls}" IS NOT NULL))[1]` : 'NULL::text'} AS lay_class,
         ${inst ? `(array_agg(DISTINCT c."${inst}"::text) FILTER (WHERE c."${inst}" IS NOT NULL))[1]` : 'NULL::text'} AS instrument,
         100 * ST_Area(ST_Transform(${caught}, 3308)) / NULLIF(max(t.area_m2), 0) AS cover_pct
       FROM "${schema}"."${rel}" c, t
-      WHERE c."${t.gcol}" && ${g} AND ST_Intersects(c."${t.gcol}", ${g})${where}`)
+      WHERE c."${t.gcol}" && ${g} AND ST_Intersects(c."${t.gcol}", ${g})${where}
+      GROUP BY 2`)
     meta.set(r.key, r)
   }
 
