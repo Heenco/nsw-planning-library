@@ -124,8 +124,12 @@ function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resol
       pairs: for (const a of live) for (const b of live) {
         if (a === b || !conflicting(a, b)) continue
         const hit = test(a, b)
-        // a displaced standard loses only where it is more onerous than the non-discretionary one
-        if (hit && hit.rel?.kind === 'displaces_standard' && !more(b, a)) continue
+        // a non-discretionary standard is a safe harbour, not a cap: it displaces only a MORE onerous standard, and where
+        // the other standard is less onerous (an R3 map of 0.75:1 against 0.65:1) that one still permits more and governs
+        if (hit && hit.rel?.kind === 'displaces_standard' && !more(b, a)) {
+          eliminate(a, b, rule, hit.rel, 'a non-discretionary standard limits what may be required, not what may be permitted: the less onerous standard governs (EP&A Act s 4.15(3))')
+          changed = true; break pairs
+        }
         if (hit) { eliminate(b, a, rule, hit.rel, hit.why); changed = true; break pairs }
       }
     }

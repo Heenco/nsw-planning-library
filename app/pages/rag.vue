@@ -102,6 +102,83 @@
       </ClientOnly>
     </section>
 
+    <!-- results -->
+    <section class="rg-section" id="results">
+      <h2 class="rg-h2">Results</h2>
+      <ClientOnly>
+      <template v-if="status">
+        <template v-if="status.score">
+          <h3 class="rg-h3">Scores · {{ when(status.score.at) }} · against key and draft answers</h3>
+          <div class="rg-scroll">
+          <table class="rg-table">
+            <thead><tr><th>Side</th><th class="n">Answers</th><th class="n">Scored</th><th class="n">Correct</th><th class="n">Confidently wrong</th><th class="n">Abstained</th>
+              <th class="n">Cites right clause</th><th class="n">Cites resolve</th><th class="n">Quotes verbatim</th><th class="n">Figure in cited clause</th><th class="n">Unaddressed overrides</th><th class="n">$ / answer</th><th class="n">s</th></tr></thead>
+            <tbody>
+              <tr v-for="k in SIDES.filter(k => status.score.summary[k])" :key="k">
+                <td><strong>{{ k }}</strong> <span class="rg-muted">{{ sideName(k) }}</span></td>
+                <td class="n">{{ status.score.summary[k].answers }}</td><td class="n">{{ status.score.summary[k].scored }}</td>
+                <td class="n">{{ p(status.score.summary[k].accuracy) }}</td>
+                <td class="n" :class="{ 'rg-bad': (status.score.summary[k].confidently_wrong ?? 0) >= 20 }">{{ p(status.score.summary[k].confidently_wrong) }}</td>
+                <td class="n">{{ p(status.score.summary[k].abstained) }}</td><td class="n">{{ p(status.score.summary[k].controlling) }}</td>
+                <td class="n">{{ p(status.score.summary[k].cites_resolved) }}</td><td class="n">{{ p(status.score.summary[k].quotes_verbatim) }}</td>
+                <td class="n">{{ p(status.score.summary[k].figure_in_cited) }}</td><td class="n">{{ status.score.summary[k].unaddressed_overrides_per_answer ?? '—' }}</td>
+                <td class="n">{{ status.score.summary[k].cost_per_answer ?? '—' }}</td><td class="n">{{ status.score.summary[k].latency_s ?? '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="rg-muted">P is the deterministic engine (LEP pilot); it answers permissibility and subdivision only - questions it does not answer are not scored for it. By set:</p>
+          <div class="rg-scroll">
+          <table class="rg-table">
+            <thead><tr><th>Set</th><th v-for="k in SIDES" :key="k" class="n">{{ k }}</th></tr></thead>
+            <tbody>
+              <tr v-for="s in SETS" :key="s">
+                <td>{{ s }}</td>
+                <td v-for="k in SIDES" :key="k" class="n rg-small">
+                  <template v-if="status.score.summary[k + '|' + s]?.scored">{{ p(status.score.summary[k + '|' + s].accuracy) }} <span class="rg-muted">/ {{ p(status.score.summary[k + '|' + s].confidently_wrong) }} cw</span></template>
+                  <template v-else>—</template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </template>
+        <p v-else class="rg-muted">No scores yet - scripts/rag/12-score.ts.</p>
+
+        <div class="rg-cols">
+          <div v-if="status.retrieval">
+            <h3 class="rg-h3">Retrieval recall · gold clause in the first k</h3>
+            <table class="rg-table">
+              <thead><tr><th>Variant</th><th class="n">n</th><th class="n">any@3</th><th class="n">any@8</th><th class="n">all@3</th><th class="n">all@8</th></tr></thead>
+              <tbody><tr v-for="(r, v) in status.retrieval.summary" :key="v">
+                <td><strong>{{ v }}</strong></td><td class="n">{{ r.n }}</td><td class="n">{{ p100(r['any@3']) }}</td><td class="n">{{ p100(r['any@8']) }}</td><td class="n">{{ p100(r['all@3']) }}</td><td class="n">{{ p100(r['all@8']) }}</td>
+              </tr></tbody>
+            </table>
+            <p class="rg-muted">R2 most often misses: {{ status.retrieval.misses.join(', ') }}</p>
+          </div>
+          <div v-if="status.resolver">
+            <h3 class="rg-h3">Resolver precedence keys · {{ status.resolver.pass }} / {{ status.resolver.pass + status.resolver.fail }} pass</h3>
+            <ul class="rg-list">
+              <li v-for="c in status.resolver.cases" :key="c.id"><strong :class="c.pass ? 'rg-good' : 'rg-bad'">{{ c.id }}</strong> {{ c.verdict }}: {{ JSON.stringify(c.got) }}
+                <span v-if="c.trace.length" class="rg-muted"> · {{ c.trace.join(' · ') }}</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <template v-if="status.queue?.length">
+          <h3 class="rg-h3">Adjudication queue · drafts for Manni to confirm or correct ({{ status.queue.length }} shown)</h3>
+          <article v-for="(a, i) in status.queue" :key="i" class="rg-step">
+            <div class="rg-step-head"><span class="rg-tag">{{ a.set_name }} {{ a.clause }}</span> <span class="rg-small">{{ a.text }}</span></div>
+            <p class="rg-done"><span class="rg-k">Proposed</span>{{ ruling(a.expected) }}
+              <span v-if="a.wrong_sides?.length" class="rg-bad"> · disagree: {{ a.wrong_sides.join(', ') }}</span></p>
+            <p v-if="a.expected?.trace?.length" class="rg-done rg-small"><span class="rg-k">Why</span>{{ a.expected.trace.join(' → ') }}</p>
+            <details v-if="a.quote" class="rg-small"><summary>controlling words</summary><p class="rg-quote">{{ a.quote }}</p></details>
+          </article>
+        </template>
+      </template>
+      </ClientOnly>
+    </section>
+
     <!-- plan -->
     <section v-for="p in RAG_PHASES" :id="p.id" :key="p.id" class="rg-section">
       <h2 class="rg-h2"><span class="rg-pid">{{ p.id }}</span> {{ p.title }}</h2>
@@ -168,6 +245,20 @@ const sum = (rows: any[] | undefined, k: string) => (rows ?? []).reduce((a, r) =
 const when = (iso: string) => new Date(iso).toLocaleString('en-AU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 const took = (a: string, b: string) => { const s = (new Date(b).getTime() - new Date(a).getTime()) / 1000; return s < 90 ? `${s.toFixed(1)} s` : `${(s / 60).toFixed(1)} min` }
 const short = (o: unknown) => { const t = o ? JSON.stringify(o) : ''; return t.length > 160 ? t.slice(0, 157) + '…' : t }
+const SIDES = ['P', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4']
+const SETS = ['pilot_key', 'hard_case', 'propcode', 'grid']
+const SIDE_NAMES: Record<string, string> = { P: 'engine', R0: 'plain', R1: 'headers', R2: 'contextual', R3: '+ relations', L0: 'long context', R4: 'agent + resolver' }
+const sideName = (k: string) => SIDE_NAMES[k] ?? ''
+const p = (n: unknown) => n == null ? '—' : `${n}%`
+const p100 = (n: unknown) => n == null ? '—' : `${Math.round(Number(n) * 100)}%`
+/** a proposed answer in one line: the verdict or figure, the case split, the controlling clauses */
+const ruling = (e: any) => {
+  if (!e) return '—'
+  const head = e.values ? Object.entries(e.values).map(([k, v]) => `${v} ${e.unit ?? ''} if ${k}`).join('; ')
+    : e.values_if?.length ? e.values_if.map((x: any) => `${x.value} if ${x.if}`).join('; ')
+    : [e.verdict, e.value != null ? `${e.value} ${e.unit ?? ''}` : null].filter(Boolean).join(' · ')
+  return `${head || '—'}${e.controlling?.length ? ` - ${e.controlling.join(', ')}` : ''} (${e.status})`
+}
 </script>
 
 <style scoped>
@@ -227,4 +318,8 @@ const short = (o: unknown) => { const t = o ? JSON.stringify(o) : ''; return t.l
 .rg-k { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .03em; margin-right: 4px; }
 .rg-where { margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 5px; }
 .rg-where code { font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #475569; }
+.rg-scroll { overflow-x: auto; }
+.rg-good { color: #15803d; }
+.rg-bad { color: #b91c1c; }
+.rg-quote { white-space: pre-wrap; background: #f8fafc; border-left: 3px solid #cbd5e1; padding: 6px 10px; margin: 6px 0 0; }
 </style>

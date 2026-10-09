@@ -1,0 +1,75 @@
+/**
+ * RAG pilot, Phase 6.2 / 6.3 - answer the question bank with every variant, check every answer.
+ *
+ *   npx tsx scripts/rag/10-answer.ts --variants R0,R1,R2,R3,L0,R4 [--sets hard_case,propcode] [--limit 5] [--repeat 3] [--concurrency 6]
+ *
+ *   R0-R3  retrieve 8 chunks (R3: + up to 8 by relation expansion), one call
+ *   L0     the whole corpus in the prompt, no retrieval - Anthropic's advice for a corpus under ~200k tokens; definitions
+ *          are cut to their first sentence to fit Llama's 128k window, and that is recorded
+ *   R4     the navigating agent with the resolver as a tool
+ * Every answer stores what was retrieved, the parsed answer, the checks (shared/rag/answer.ts), tokens, cost and latency.
+ * Re-running adds rows (a new rag.run); --repeat measures stability.
+ */
+import 'dotenv/config'
+import pg from 'pg'
+import { chat, embed, pool, MODELS } from '../../shared/rag/deepinfra'
+import { loadCorpus, search, expand, queryVec } from '../../shared/rag/retrieve'
+import { SYSTEM, showChunk, userPrompt, parseAnswer, checks } from '../../shared/rag/answer'
+import { runAgent } from '../../shared/rag/agent'
+
+const arg = (k: string, d: string) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1]! : d }
+const VARIANTS = arg('--variants', 'R0,R1,R2,R3,L0,R4').split(',')
+const SETS = arg('--sets', '').split(',').filter(Boolean)
+const LIMIT = Number(arg('--limit', '0')) || Infinity
+const REPEAT = Number(arg('--repeat', '1'))
+const CONC = Number(arg('--concurrency', '6'))
+
+async function main() {
+  const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
+  const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
+  const C = await loadCorpus(q)
+  const questions = (await q(`SELECT id, set_name, clause, kind, text, lot_facts FROM rag.question ${SETS.length ? 'WHERE set_name = ANY($1)' : ''} ORDER BY set_name, clause, cadid`, SETS.length ? [SETS] : [])).rows.slice(0, LIMIT)
+
+  // L0: the operative text, in instrument order, definitions cut to their first sentence
+  const ordered = [...C.chunks].sort((a, b) => a.document_id.localeCompare(b.document_id) || a.header.localeCompare(b.header))
+  const l0 = ordered.map(c => c.role === 'definition' ? `### ${c.header}\n${c.body.split(/(?<=\.)\s/)[0]}` : `### ${c.header}\n${c.body}`).join('\n\n')
+  console.log('questions', questions.length, 'variants', VARIANTS.join(','), 'x', REPEAT, '| L0 context ~', Math.round(l0.length / 4), 'tokens')
+
+  const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('answer', $1) RETURNING id`, [JSON.stringify({ variants: VARIANTS, sets: SETS, repeat: REPEAT, model: MODELS.answer, k: 8, l0_definitions: 'first sentence' })])).rows[0].id
+  // --resume: skip (question, variant) pairs that already have an answer from this model
+  const done0 = process.argv.includes('--resume')
+    ? new Set((await q(`SELECT question_id || '|' || variant k FROM rag.answer WHERE model = $1`, [MODELS.answer])).rows.map(r => r.k)) : new Set<string>()
+  const jobs = questions.flatMap(x => VARIANTS.flatMap(v => Array.from({ length: REPEAT }, (_, r) => ({ x, v, r })))).filter(j => !done0.has(`${j.x.id}|${j.v}`))
+  let done = 0, cost = 0, failed = 0
+  await pool(jobs, CONC, async ({ x, v }) => {
+    const t0 = Date.now()
+    try {
+      let answer, raw = '', retrieved: any[] = [], trace: any = null, tin = 0, tout = 0, c = 0
+      if (v === 'R4') {
+        const r = await runAgent(C, x.text, x.lot_facts)
+        answer = r.answer; raw = r.raw; trace = r.trace; tin = r.tokens_in; tout = r.tokens_out; c = r.cost_usd
+      } else {
+        let context: string
+        if (v === 'L0') context = l0
+        else {
+          const hits = search(C, v, x.text, await queryVec(x.text, embed), 8)
+          const extra = v === 'R3' ? expand(C, hits.map(h => h.chunk), 8) : []
+          retrieved = [...hits.map(h => ({ chunk: h.chunk.id, header: h.chunk.header, why: 'search' })), ...extra.map(e => ({ chunk: e.chunk.id, header: e.chunk.header, why: e.why }))]
+          context = [...hits.map(h => showChunk(h.chunk, v)), ...extra.map(e => showChunk(e.chunk, v, e.why))].join('\n\n')
+        }
+        const r = await chat({ messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: userPrompt(x.text, x.lot_facts, context) }], maxTokens: 1200, json: true })
+        answer = parseAnswer(r.content); raw = r.content; tin = r.tokens_in; tout = r.tokens_out; c = r.cost_usd
+      }
+      cost += c
+      await q(`INSERT INTO rag.answer (run_id, question_id, variant, model, retrieved, answer, checks, trace, latency_ms, tokens_in, tokens_out, cost_usd)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        [run, x.id, v, MODELS.answer, JSON.stringify(retrieved), JSON.stringify(answer ?? { unparsed: raw.slice(0, 2000) }), JSON.stringify(answer ? checks(C, answer) : { unparsed: true }),
+         JSON.stringify(trace), Date.now() - t0, tin, tout, c])
+    } catch (e) { failed++; console.error('fail', v, x.text.slice(0, 60), String(e).slice(0, 200)) }
+    if (++done % 25 === 0) console.log(done, '/', jobs.length, `$${cost.toFixed(3)}`)
+  })
+  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ answers: done - failed, failed, cost_usd: +cost.toFixed(4) })])
+  console.log({ run, answers: done - failed, failed, cost_usd: +cost.toFixed(4) })
+  await client.end()
+}
+main().catch(e => { console.error(e); process.exit(1) })

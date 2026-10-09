@@ -39,6 +39,15 @@ const CASES: { id: string; question: string; expect: { verdict: string; value?: 
   { id: 'H13', question: 'dwelling house, 290 m2, R2, FSR map 0.5', expect: { verdict: 'decided', value: 0.65 }, claims: [
     { doc: 'lep', local: 'sec.4.4-ssec.2', effect: 'value', value: 0.5, unit: ':1', comparator: 'max', holds: true, label: 'LEP 4.4(2) FSR map 0.5:1' },
     { doc: 'lep', local: 'sec.4.4A-ssec.2#t1r4c4', effect: 'value', value: 0.65, unit: ':1', comparator: 'max', holds: true, label: 'LEP 4.4A(2) dwelling house, R2, 275-300 m2: 0.65:1' } ] },
+  { id: 'H16', question: '26 Houston Rd: maximum FSR, dual occupancy (attached), 537 m2, R3, LMR outer band, FSR map 0.75', expect: { verdict: 'decided', value: 0.75 }, claims: [
+    { doc: 'lep', local: 'sec.4.4-ssec.2', effect: 'value', value: 0.75, unit: ':1', comparator: 'max', holds: true, label: 'LEP 4.4(2) FSR map 0.75:1' },
+    { doc: 'sepp', local: 'sec.168-ssec.2-para1.d', effect: 'value', value: 0.65, unit: ':1', comparator: 'max', holds: true, label: 'Housing SEPP s 168(2)(d) 0.65:1' } ] },
+  { id: 'H17', question: '53 Harbourne Rd: maximum height, dual occupancy, R3, LMR inner band, height map 12 m', expect: { verdict: 'decided', value: 12 }, claims: [
+    { doc: 'lep', local: 'sec.4.3-ssec.2', effect: 'value', value: 12, unit: 'm', comparator: 'max', holds: true, label: 'LEP 4.3(2) Height of Buildings Map 12 m' },
+    { doc: 'sepp', local: 'sec.168-ssec.2-para1.e', effect: 'value', value: 9.5, unit: 'm', comparator: 'max', holds: true, label: 'Housing SEPP s 168(2)(e) 9.5 m' } ] },
+  { id: 'H18', question: '53 Harbourne Rd: maximum height, dwelling house, R3, height map 12 m', expect: { verdict: 'decided', value: 9.5 }, claims: [
+    { doc: 'lep', local: 'sec.4.3-ssec.2', effect: 'value', value: 12, unit: 'm', comparator: 'max', holds: true, label: 'LEP 4.3(2) Height of Buildings Map 12 m' },
+    { doc: 'lep', local: 'sec.4.3-ssec.2A', effect: 'value', value: 9.5, unit: 'm', comparator: 'max', holds: true, label: 'LEP 4.3(2A) dwelling house in R3: 9.5 m' } ] },
   { id: 'H14', question: '28 Eastern Av: dual occupancy, 510 m2, R2, LMR outer band', expect: { verdict: 'decided', effect: 'permit' }, claims: [
     { doc: 'lep', local: 'sec.4.1C-ssec.2', effect: 'prohibit', holds: true, label: 'LEP 4.1C(2): no dual occupancy in R2 under 550 m2' },
     { doc: 'sepp', local: 'sec.166', effect: 'permit', holds: true, label: 'Housing SEPP s 166' } ] },

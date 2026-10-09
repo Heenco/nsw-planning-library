@@ -33,8 +33,20 @@ export default defineEventHandler(async () => {
     q(`SELECT variant, model, count(*)::int AS n, round(avg(latency_ms))::int AS avg_ms, round(sum(cost_usd)::numeric, 4) AS cost
          FROM rag.answer GROUP BY 1, 2 ORDER BY 1`),
     q(`SELECT status, count(*)::int AS n FROM rag.adjudication GROUP BY 1`),
-    q(`SELECT id, stage, started_at, finished_at, counts, notes FROM rag.run ORDER BY started_at DESC LIMIT 12`),
+    q(`SELECT id, stage, started_at, finished_at, left(counts::text, 2000)::jsonb AS counts, notes FROM rag.run
+        WHERE stage NOT IN ('retrieval', 'resolver_check', 'score') ORDER BY started_at DESC LIMIT 12`),
   ])
+  // the latest measurement of each kind: retrieval recall, the resolver's precedence keys, the scores
+  const latest = async (stage: string) => (await q(`SELECT started_at, counts FROM rag.run WHERE stage = $1 ORDER BY started_at DESC LIMIT 1`, [stage]))[0] ?? null
+  const [retrieval, resolver, score] = await Promise.all([latest('retrieval'), latest('resolver_check'), latest('score')])
+  const queue = await q(`SELECT q.set_name, q.clause, q.text, q.expected, a.note, left(a.quote, 600) AS quote, a.status, a.proposed->'wrong_sides' AS wrong_sides
+                           FROM rag.adjudication a JOIN rag.question q ON q.id = a.question_id
+                          ORDER BY jsonb_array_length(coalesce(a.proposed->'wrong_sides', '[]')) DESC, q.set_name, q.clause LIMIT 60`)
   return { ms: Date.now() - started, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
-    engine: engine[0] ?? { n: 0, runs: 0 }, answers, adjudications, runs }
+    engine: engine[0] ?? { n: 0, runs: 0 }, answers, adjudications, runs,
+    retrieval: retrieval && { at: retrieval.started_at, summary: retrieval.counts?.summary ?? {}, misses: retrieval.counts?.r2_misses ?? [] },
+    resolver: resolver && { at: resolver.started_at, pass: resolver.counts?.pass ?? 0, fail: resolver.counts?.fail ?? 0,
+      cases: (resolver.counts?.cases ?? []).map((c: any) => ({ id: c.id, pass: c.pass, verdict: c.verdict, got: c.got, want: c.want, trace: (c.trace ?? []).map((s: any) => `${s.rule}: ${s.winner} > ${s.loser}`) })) },
+    score: score && { at: score.started_at, summary: score.counts?.summary ?? {}, queue: score.counts?.adjudication_queue ?? 0 },
+    queue }
 })
