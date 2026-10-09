@@ -148,9 +148,12 @@ export const RAG_PHASES: PlanPhase[] = [
   {
     id: 'P5', title: 'The resolver', goal: 'The referee: several rules answer one question; fixed precedence decides, and writes down why.',
     steps: [
-      { id: 'P5.1', title: 'Conflict sets', status: 'todo', doneWhen: 'claims that hold (or may) grouped by subject + topic with incompatible effects' },
-      { id: 'P5.2', title: 'Ordered resolution with a trace', status: 'todo', doneWhen: 'explicit relations > instrument and statutory rules > non-discretionary limits > specific over general (interpretive) > version; unresolved = "maybe: conflict"' },
-      { id: 'P5.3', title: 'Precedence keys pass', status: 'todo', doneWhen: 'FSR 0.65:1 at 32 Holden St with the 3-step trace; Torrens 225 or 275 by the s 169(2) date; strata 275' },
+      { id: 'P5.1', title: 'Conflict sets', status: 'done', doneWhen: 'claims that hold (or may) grouped by subject + topic with incompatible effects',
+        result: 'Claims (a provision, its effect - a figure with max/min, permit, prohibit - and whether it holds: true, false or unknown with the condition named) conflict when their effects differ. loadRelations fetches every override edge touching the claims or their ancestors, plus the instrument-level rules.', where: ['shared/rag/resolver.ts'] },
+      { id: 'P5.2', title: 'Ordered resolution with a trace', status: 'done', doneWhen: 'explicit relations > instrument and statutory rules > non-discretionary limits > specific over general (interpretive) > version; unresolved = "maybe: conflict"',
+        result: 'Pure TypeScript, no model and no database: explicit (despite, prevails, subject to, displaces_standard - only where the displaced standard is more onerous) > instrument (Housing SEPP s 8, LEP 1.9) > specific (more_specific_than, reported as interpretive) > otherwise maybe - conflict. An unknown condition is decided both ways; if the answers differ the verdict is maybe, with the answer and trace on each side. A despite-another-instrument edge, said once in its own subclause, covers its whole clause.', where: ['shared/rag/resolver.ts'] },
+      { id: 'P5.3', title: 'Precedence keys pass', status: 'done', doneWhen: 'FSR 0.65:1 at 32 Holden St with the 3-step trace; Torrens 225 or 275 by the s 169(2) date; strata 275',
+        result: '9 / 9 precedence keys pass: 32 Holden St FSR 0.65:1 (s 168(2)(d) displaces 4.4A 0.6 and the 0.5 map), Torrens 225 or 275 by the s 169(2) date (maybe when unknown, both branches traced), strata 275, secondary dwelling and multi dwelling housing permitted by the SEPP over the R2 table (s 8), 4.4A over the map for a 290 m2 dwelling house (interpretive), and s 166 over 4.1C(2) at 28 Eastern Av - the case the LEP-only engine answers prohibited.', where: ['scripts/rag/08-resolver-check.ts'] },
     ],
   },
   {
