@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS rag.instrument (
   title        text NOT NULL,
   slug         text NOT NULL,
   kind         text NOT NULL,                       -- 'lep' | 'sepp'
-  rank         int  NOT NULL,                       -- statutory default for the resolver: higher prevails (EP&A Act s 3.28)
+  rank         int  NOT NULL,                       -- statutory fallback, higher prevails (EP&A Act s 3.28): dcp 10 / lep 20 / sepp 30, the CDC pilot's scale
   scope        text[],                              -- container local_ids in scope (chapters / parts / schedules); NULL = whole
   source_url   text,
   snapshot_run uuid REFERENCES rag.run(id)

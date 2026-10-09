@@ -124,7 +124,8 @@ async function main() {
   await q(`DELETE FROM rag.chunk WHERE provision_id IN (SELECT id FROM rag.provision WHERE document_id = ANY($1))`, [[R.id, H.id]])
   await q(`DELETE FROM rag.relation WHERE from_provision IN (SELECT id FROM rag.provision WHERE document_id = ANY($1)) OR to_provision IN (SELECT id FROM rag.provision WHERE document_id = ANY($1))`, [[R.id, H.id]])
   await q(`DELETE FROM rag.provision WHERE document_id = ANY($1)`, [[R.id, H.id]])
-  for (const [d, kind, rank, scope] of [[R, 'lep', 10, null], [H, 'sepp', 20, HOUSING_SCOPE]] as const)
+  // EP&A Act s 3.28 fallback ranks, on the CDC pilot's scale (dcp 10 / lep 20 / sepp 30) so one resolver serves both
+  for (const [d, kind, rank, scope] of [[R, 'lep', 20, null], [H, 'sepp', 30, HOUSING_SCOPE]] as const)
     await q(`INSERT INTO rag.instrument (document_id, title, slug, kind, rank, scope, source_url, snapshot_run) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
              ON CONFLICT (document_id) DO UPDATE SET title = EXCLUDED.title, slug = EXCLUDED.slug, kind = EXCLUDED.kind, rank = EXCLUDED.rank,
                scope = EXCLUDED.scope, source_url = EXCLUDED.source_url, snapshot_run = EXCLUDED.snapshot_run`,
