@@ -184,6 +184,105 @@
       </ClientOnly>
     </section>
 
+    <!-- questions: every answer and how it was reached -->
+    <section class="rg-section" id="questions">
+      <h2 class="rg-h2">Questions <span class="rg-muted">· every side's answer and how it was reached, clause by clause</span></h2>
+      <p class="rg-muted">
+        <strong>D</strong> the rag engine with no model (claims read from the text → tested on the lot → resolver) ·
+        <strong>P</strong> the CDC session's engine (LEP pilot only) · <strong>R3 / L0 / R4</strong> Llama 3.3 writing the answer from retrieved text.
+        Expected answers are marked by who wrote them: <em>key</em> (the pilot's keys and Manni's rulings) or <em>draft</em> (Claude's, not yet ruled on).
+      </p>
+      <ClientOnly>
+        <div class="qb-bar">
+          <button v-for="s in QSETS" :key="s.id" type="button" class="qb-chip" :class="{ 'qb-chip--on': qset === s.id }" @click="qset = s.id">{{ s.label }}</button>
+          <input v-model="qsearch" class="qb-search" placeholder="search question or address">
+        </div>
+        <p v-if="!qlist" class="rg-muted">Loading questions…</p>
+        <div v-else class="qb-list">
+          <div v-for="x in shownQs" :key="x.id" class="qb-item" :class="{ 'qb-item--open': openQ === x.id }">
+            <button type="button" class="qb-row" @click="toggleQ(x.id)">
+              <span class="rg-tag">{{ x.set_name }} {{ x.clause }}</span>
+              <span class="qb-text">{{ x.text }}</span>
+              <span class="qb-sides">
+                <span class="qb-exp" :title="'expected (' + x.status + ')'">exp {{ short2(x.e_verdict, x.e_value, x.e_values) }}<em>{{ x.status === 'key' ? ' key' : x.status === 'draft' ? ' draft' : '' }}</em></span>
+                <span v-for="k in ['D', 'P', 'R3', 'L0', 'R4']" :key="k" class="qb-side" :title="k"><b>{{ k }}</b> {{ x.sides[k] ? short2(x.sides[k].verdict, x.sides[k].value) : '–' }}</span>
+              </span>
+            </button>
+            <div v-if="openQ === x.id" class="qb-detail">
+              <p v-if="!qdetail[x.id]" class="rg-muted">Loading…</p>
+              <template v-else>
+                <p v-if="qdetail[x.id].question.lot_facts" class="qb-facts">
+                  <b>Lot:</b> {{ factLine(qdetail[x.id].question.lot_facts) }}
+                </p>
+                <div class="qb-box qb-box--exp">
+                  <p class="qb-h">Expected <span class="rg-muted">({{ qdetail[x.id].question.expected?.status }}{{ qdetail[x.id].question.expected?.source ? ' - ' + qdetail[x.id].question.expected.source : qdetail[x.id].question.expected?.status === 'draft' ? ' - Claude, not yet ruled on' : '' }})</span></p>
+                  <p>{{ ruling(qdetail[x.id].question.expected) }}</p>
+                  <p v-if="qdetail[x.id].question.expected?.trace?.length" class="rg-small">{{ qdetail[x.id].question.expected.trace.join(' → ') }}</p>
+                  <p v-if="qdetail[x.id].question.expected?.note" class="rg-small">{{ qdetail[x.id].question.expected.note }}</p>
+                </div>
+
+                <div v-for="a in qdetail[x.id].answers.filter((a: any) => a.variant === 'D')" :key="'D'" class="qb-box">
+                  <p class="qb-h">D · rag engine, no model</p>
+                  <template v-if="a.trace?.explain?.length">
+                    <div v-for="(ex, i) in a.trace.explain" :key="i">
+                      <p v-if="ex.case" class="rt-k">{{ ex.case }} title</p>
+                      <RagTrace :ex="ex" :provisions="qdetail[x.id].provisions" />
+                    </div>
+                  </template>
+                  <template v-else>
+                    <p>{{ a.answer?.reasoning }}</p>
+                    <p v-if="a.trace?.cited?.length" class="rg-small">from: <RagClause v-for="c in a.trace.cited" :key="c" :id="c" :p="qdetail[x.id].provisions[c]" fallback="?" /></p>
+                  </template>
+                </div>
+
+                <div class="qb-box">
+                  <p class="qb-h">P · CDC engine (LEP pilot)</p>
+                  <template v-if="qdetail[x.id].engine">
+                    <p><b>{{ qdetail[x.id].engine.verdict }}</b>
+                      <template v-if="qdetail[x.id].engine.controlling?.length"> by
+                        <template v-for="c in qdetail[x.id].engine.controlling" :key="c">
+                          <RagClause v-if="qdetail[x.id].refs['Randwick LEP cl ' + c]" :id="qdetail[x.id].refs['Randwick LEP cl ' + c]" :p="qdetail[x.id].provisions[qdetail[x.id].refs['Randwick LEP cl ' + c]]" :fallback="c" />
+                          <span v-else class="rg-tag">{{ c === 'LUT' ? 'Land Use Table' : c }}</span>
+                        </template>
+                      </template>
+                    </p>
+                    <p class="rg-small">How: scripts/norms/pilot-key.ts reads the pilot's propositions for Randwick LEP only (the Housing SEPP is not loaded) and evaluates them on the lot.</p>
+                  </template>
+                  <p v-else class="rg-muted">not run on this question</p>
+                </div>
+
+                <div v-for="a in qdetail[x.id].answers.filter((a: any) => a.variant !== 'D' && a.variant !== 'R4u')" :key="a.variant" class="qb-box">
+                  <p class="qb-h">{{ a.variant }} · {{ SIDE_NAMES[a.variant] }} <span class="rg-muted">({{ a.model }}, {{ Math.round((a.latency_ms ?? 0) / 1000) }} s, ${{ Number(a.cost_usd ?? 0).toFixed(4) }})</span></p>
+                  <p><b>{{ a.answer?.verdict ?? '' }} {{ a.answer?.value ?? '' }}{{ a.answer?.unit ? ' ' + a.answer.unit : '' }}</b>
+                    <template v-if="a.answer?.values_if?.length"> · {{ a.answer.values_if.map((v: any) => v.value + ' if ' + v.if).join('; ') }}</template></p>
+                  <p class="rg-small">{{ a.answer?.reasoning }}</p>
+                  <p v-if="a.answer?.controlling?.length" class="rg-small">cites:
+                    <template v-for="c in a.answer.controlling" :key="c">
+                      <RagClause v-if="qdetail[x.id].refs[c]" :id="qdetail[x.id].refs[c]" :p="qdetail[x.id].provisions[qdetail[x.id].refs[c]]" :fallback="c" />
+                      <span v-else class="qb-bad">{{ c }} (no such provision)</span>{{ ' ' }}
+                    </template>
+                  </p>
+                  <p v-if="a.checks && !a.checks.unparsed" class="rg-small">
+                    checks: citations resolve {{ a.checks.cites_resolved }}/{{ a.checks.cites }} ·
+                    quotes verbatim {{ a.checks.quotes_verbatim_cited }}/{{ a.checks.quotes }} ·
+                    figure in cited clause: <span :class="a.checks.figure_in_cited === false ? 'qb-bad' : ''">{{ a.checks.figure_in_cited == null ? 'n/a' : a.checks.figure_in_cited ? 'yes' : 'NO' }}</span>
+                    <template v-if="a.checks.unaddressed_overrides?.length"> · overrides not addressed: <span class="qb-bad">{{ a.checks.unaddressed_overrides.join('; ') }}</span></template>
+                  </p>
+                  <details v-if="a.retrieved?.length" class="rg-small">
+                    <summary>retrieved {{ a.retrieved.length }} chunks</summary>
+                    <ul class="rg-list"><li v-for="(r, i) in a.retrieved" :key="i">
+                      <RagClause v-if="r.provision_id" :id="r.provision_id" :p="qdetail[x.id].provisions[r.provision_id]" :fallback="r.header" /> <span class="rg-muted">{{ r.why }}</span>
+                    </li></ul>
+                  </details>
+                </div>
+              </template>
+            </div>
+          </div>
+          <p v-if="!shownQs.length" class="rg-muted">No question matches.</p>
+        </div>
+      </ClientOnly>
+    </section>
+
     <!-- plan -->
     <section v-for="p in RAG_PHASES" :id="p.id" :key="p.id" class="rg-section">
       <h2 class="rg-h2"><span class="rg-pid">{{ p.id }}</span> {{ p.title }}</h2>
@@ -251,6 +350,26 @@ const when = (iso: string) => new Date(iso).toLocaleString('en-AU', { day: 'nume
 const took = (a: string, b: string) => { const s = (new Date(b).getTime() - new Date(a).getTime()) / 1000; return s < 90 ? `${s.toFixed(1)} s` : `${(s / 60).toFixed(1)} min` }
 const short = (o: unknown) => { const t = o ? JSON.stringify(o) : ''; return t.length > 160 ? t.slice(0, 157) + '…' : t }
 const showAll = ref(false)
+
+// the question browser: the list once, each question's full answer on demand
+const QSETS = [{ id: 'all', label: 'All' }, { id: 'hard_case', label: 'Hard cases' }, { id: 'local', label: 'Additional uses & local controls' },
+  { id: 'propcode', label: 'PropCode claims' }, { id: 'pilot_key', label: 'Pilot keys' }, { id: 'grid', label: 'Grid' }]
+const qset = ref('all'), qsearch = ref(''), openQ = ref<string | null>(null)
+const qdetail = reactive<Record<string, any>>({})
+const { data: qlist } = useFetch<any[]>('/api/rag/questions', { server: false, lazy: true })
+const shownQs = computed(() => (qlist.value ?? []).filter((x: any) => (qset.value === 'all' || x.set_name === qset.value)
+  && (!qsearch.value || x.text.toLowerCase().includes(qsearch.value.toLowerCase()))))
+const toggleQ = async (id: string) => {
+  openQ.value = openQ.value === id ? null : id
+  if (openQ.value && !qdetail[id]) qdetail[id] = await $fetch('/api/rag/question', { query: { id } })
+}
+const short2 = (v: unknown, val?: unknown, vals?: any) => vals ? Object.values(vals).join(' / ') : v ? String(v).replace('permissible', 'yes').replace('prohibited', 'no').replace('not_answered', '–').replace('conditional', 'yes*') : val != null ? String(val) : '–'
+const factLine = (l: any) => [l.address, l.lot, l.area_m2 != null ? `${l.area_m2} m²` : null, l.zone ? `Zone ${l.zone}` : null,
+  l.frontage_m != null ? `frontage ${l.frontage_m} m` : null, l.fsr_map != null ? `FSR map ${l.fsr_map}:1` : null, l.height_map_m != null ? `height map ${l.height_map_m} m` : null,
+  l.low_mid_rise_area?.band ? `LMR ${l.low_mid_rise_area.band} (${l.low_mid_rise_area.class})` : 'not in an LMR area', l.heritage ? `heritage: ${l.heritage}` : null,
+  // a whole-map reference ("land" on the Floor Space Ratio Map) says nothing about the lot - only named areas are shown
+  ...(l.mapped ?? []).filter((m: any) => !/^(land|the land)$/i.test(m.label) && m.label.toLowerCase() !== String(m.map).toLowerCase())
+    .map((m: any) => `${m.label} on the ${m.map} Map (${Math.round(m.share * 100)}%)`)].filter(Boolean).join(' · ')
 const SIDES = ['P', 'D', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4u', 'R4']
 // the sets, then the grid by question (dual occupancy, secondary dwelling, multi dwelling housing, FSR, height, subdivision)
 const SETS = ['ground:key', 'ground:draft', 'pilot_key', 'hard_case', 'propcode', 'grid', 'g_dual', 'g_secondary', 'g_mdh', 'g_fsr', 'g_height', 'g_subdiv']
@@ -326,6 +445,27 @@ const ruling = (e: any) => {
 .rg-where { margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 5px; }
 .rg-where code { font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #475569; }
 .rg-scroll { overflow-x: auto; }
+.qb-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+.qb-chip { font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid #e2e8f0; background: #fff; color: #334155; cursor: pointer; }
+.qb-chip--on { background: #0f172a; color: #fff; border-color: #0f172a; }
+.qb-search { flex: 1 1 200px; min-width: 0; font-size: 12px; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+.qb-list { border-top: 1px solid #e2e8f0; }
+.qb-item { border-bottom: 1px solid #f1f5f9; }
+.qb-item--open { background: #fcfcfd; }
+.qb-row { width: 100%; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: start; text-align: left; padding: 7px 4px; border: 0; background: none; cursor: pointer; font: inherit; color: inherit; }
+.qb-row:hover { background: #f8fafc; }
+.qb-text { font-size: 13px; overflow-wrap: anywhere; }
+.qb-sides { grid-column: 2; display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: #475569; }
+.qb-side b, .qb-exp { color: #0f172a; }
+.qb-exp em { color: #64748b; font-style: normal; }
+.qb-detail { padding: 4px 6px 12px; }
+.qb-facts { font-size: 12px; color: #334155; margin: 4px 0 8px; overflow-wrap: anywhere; }
+.qb-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; margin: 8px 0; background: #fff; overflow-wrap: anywhere; }
+.qb-box--exp { background: #fffbeb; border-color: #fde68a; }
+.qb-box p { margin: 3px 0; }
+.qb-h { font-weight: 700; font-size: 13px; }
+.qb-bad { color: #b91c1c; }
+@media (max-width: 760px) { .qb-row { grid-template-columns: 1fr; } .qb-sides { grid-column: 1; } }
 @media (max-width: 760px) { .rg-table { display: block; overflow-x: auto; } }
 .rg-list li, .rg-step, .rg-done { overflow-wrap: anywhere; }
 .rg-more { font-size: 12px; padding: 5px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #334155; cursor: pointer; }
