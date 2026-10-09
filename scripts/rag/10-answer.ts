@@ -14,7 +14,7 @@ import 'dotenv/config'
 import pg from 'pg'
 import { chat, embed, pool, MODELS } from '../../shared/rag/deepinfra'
 import { loadCorpus, search, expand, queryVec } from '../../shared/rag/retrieve'
-import { SYSTEM, showChunk, userPrompt, parseAnswer, checks } from '../../shared/rag/answer'
+import { systemPrompt, showChunk, userPrompt, parseAnswer, checks } from '../../shared/rag/answer'
 import { runAgent } from '../../shared/rag/agent'
 
 const arg = (k: string, d: string) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1]! : d }
@@ -62,7 +62,7 @@ async function main() {
           retrieved = [...hits.map(h => ({ chunk: h.chunk.id, header: h.chunk.header, why: 'search' })), ...extra.map(e => ({ chunk: e.chunk.id, header: e.chunk.header, why: e.why }))]
           context = [...hits.map(h => showChunk(h.chunk, v)), ...extra.map(e => showChunk(e.chunk, v, e.why))].join('\n\n')
         }
-        const r = await chat({ messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: userPrompt(x.text, x.lot_facts, context) }], maxTokens: 1200, json: true })
+        const r = await chat({ messages: [{ role: 'system', content: systemPrompt(C.insts) }, { role: 'user', content: userPrompt(x.text, x.lot_facts, context) }], maxTokens: 1200, json: true })
         answer = parseAnswer(r.content); raw = r.content; tin = r.tokens_in; tout = r.tokens_out; c = r.cost_usd
       }
       cost += c

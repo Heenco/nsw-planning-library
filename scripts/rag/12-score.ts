@@ -15,7 +15,7 @@
  */
 import 'dotenv/config'
 import pg from 'pg'
-import { loadCorpus, provisionOf, clauseKey, subtreeText, type Corpus } from '../../shared/rag/retrieve'
+import { loadCorpus, provisionOf, keyedProvision, clauseKey, subtreeText, type Corpus } from '../../shared/rag/retrieve'
 
 const arg = (k: string) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : null }
 const yn = (v: unknown): 'yes' | 'no' | 'maybe' | null => {
@@ -30,7 +30,7 @@ const close = (a: number, b: number) => Math.abs(a - b) <= Math.max(0.005, Math.
 function clausesOf(C: Corpus, refs: string[], keyed = false): Set<string> {
   const out = new Set<string>()
   for (const r of refs ?? []) {
-    const id = keyed ? (() => { const [i, rest] = r.split(':') as [string, string]; return provisionOf(C, `${i === 'housing' ? 'Housing SEPP' : 'Randwick LEP'} ${rest}`, i === 'housing' ? 'sepp' : 'lep') })() : provisionOf(C, r)
+    const id = keyed ? keyedProvision(C, r) : provisionOf(C, r)
     const p = id ? C.provs.get(id) : null
     if (p) out.add(`${p.document_id}|${clauseKey(p.local_id, p.path)}`)
   }
@@ -123,7 +123,7 @@ async function main() {
     if (x.expected?.status === 'key' && !wrong.length) continue
     if (x.expected?.status === 'none' && !Object.keys(sides).length) continue
     const ctrl = (x.expected?.controlling ?? [])[0] as string | undefined
-    const pid = ctrl ? (() => { const [i, rest] = ctrl.split(':') as [string, string]; return provisionOf(C, `${i === 'housing' ? 'Housing SEPP' : 'Randwick LEP'} ${rest}`, i === 'housing' ? 'sepp' : 'lep') })() : null
+    const pid = ctrl ? keyedProvision(C, ctrl) : null
     queue.push({ question_id: x.id, proposed: { expected: x.expected, wrong_sides: wrong, sides }, quote: pid ? subtreeText(C, pid).slice(0, 1500) : null, source_provision: pid,
       note: x.expected?.status === 'draft' ? `Claude draft; ${wrong.length} side(s) disagree: ${wrong.join(', ') || 'none'}` : x.expected?.status === 'key' ? `key; ${wrong.join(', ')} disagree - is the key right?` : 'no key' })
   }

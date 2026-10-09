@@ -9,16 +9,20 @@
  *                    disapplies / more_specific_than), the frame that limits it (applies_only_if) and the instrument rule
  */
 import { Bm25 } from './bm25'
+import { instrumentOf, shortName, type Inst } from './refs'
 
 export type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
-export interface Chunk { id: string; provision_id: string; role: string; header: string; body: string; llm_context: string | null; local_id: string; document_id: string; doc_kind: string; path: string[]; clause: string }
+export interface Chunk { id: string; provision_id: string; role: string; header: string; body: string; llm_context: string | null; local_id: string; document_id: string; doc_kind: string; doc_title: string; path: string[]; clause: string }
 export interface Corpus {
   chunks: Chunk[]; byId: Map<string, Chunk>; byProvision: Map<string, Chunk[]>; byClause: Map<string, Chunk[]>
   vec: Record<string, Map<string, Float32Array>>; bm25: Record<string, Bm25>
   rels: { kind: string; from: string; to: string | null; to_document: string | null; to_ref: string | null; status: string; basis: string; span: string | null }[]
   provs: Map<string, { id: string; local_id: string; document_id: string; doc_kind: string; path: string[]; parent_id: string | null; own_text: string }>
-  docs: Record<string, string>   // kind -> document_id
+  insts: Inst[]
 }
+
+/** "Housing SEPP 2021", "Randwick LEP 2012" */
+export const docLabel = (title: string) => `${shortName(title)} ${title.match(/\d{4}$/)?.[0] ?? ''}`.trim()
 
 /** the top-level unit a provision belongs to - "sec.4.4A", "sec.168", "sch.1-sec.7", a Land Use Table zone group */
 export const clauseKey = (local: string, path: string[] = []) => {
@@ -31,7 +35,7 @@ const vecOf = (s: string) => Float32Array.from(JSON.parse(s) as number[])
 const cos = (a: Float32Array, b: Float32Array) => { let d = 0, x = 0, y = 0; for (let i = 0; i < a.length; i++) { d += a[i]! * b[i]!; x += a[i]! * a[i]!; y += b[i]! * b[i]! } return d / Math.sqrt(x * y) }
 
 export async function loadCorpus(q: Query, model = 'BAAI/bge-en-icl'): Promise<Corpus> {
-  const chunks: Chunk[] = (await q(`SELECT c.id, c.provision_id, c.role, c.header, c.body, c.llm_context, p.local_id, p.document_id, i.kind doc_kind, coalesce(p.path, '{}') path
+  const chunks: Chunk[] = (await q(`SELECT c.id, c.provision_id, c.role, c.header, c.body, c.llm_context, p.local_id, p.document_id, i.kind doc_kind, i.title doc_title, coalesce(p.path, '{}') path
                                       FROM rag.chunk c JOIN rag.provision p ON p.id = c.provision_id JOIN rag.instrument i ON i.document_id = p.document_id`)).rows
     .map(c => ({ ...c, clause: clauseKey(c.local_id, c.path) }))
   const byId = new Map(chunks.map(c => [c.id, c]))
@@ -50,8 +54,8 @@ export async function loadCorpus(q: Query, model = 'BAAI/bge-en-icl'): Promise<C
   const rels = (await q(`SELECT kind, from_provision "from", to_provision "to", to_document, to_ref, status, basis, span FROM rag.relation WHERE kind NOT IN ('part_of', 'next', 'refers_to')`)).rows
   const provs = new Map((await q(`SELECT p.id, p.local_id, p.document_id, i.kind doc_kind, coalesce(p.path, '{}') path, p.parent_id, coalesce(p.own_text, '') own_text
                                     FROM rag.provision p JOIN rag.instrument i USING (document_id)`)).rows.map(r => [r.id, r]))
-  const docs = Object.fromEntries((await q(`SELECT kind, document_id FROM rag.instrument`)).rows.map(r => [r.kind, r.document_id]))
-  return { chunks, byId, byProvision, byClause, vec, bm25, rels, provs, docs }
+  const insts: Inst[] = (await q(`SELECT document_id, kind, title FROM rag.instrument`)).rows
+  return { chunks, byId, byProvision, byClause, vec, bm25, rels, provs, insts }
 }
 
 export const VARIANT_INDEX: Record<string, 'plain' | 'structural' | 'contextual'> = { R0: 'plain', R1: 'structural', R2: 'contextual', R3: 'contextual', R4: 'contextual' }
@@ -96,11 +100,12 @@ export function expand(C: Corpus, hits: Chunk[], limit = 8): { chunk: Chunk; why
 
 /** "Randwick LEP 2012 cl 4.4A(2)", "s 168(2)(d)", "Housing SEPP section 169(3)(d)", "Land Use Table, Zone R2" -> a provision */
 export function provisionOf(C: Corpus, ref: string, hint?: 'lep' | 'sepp'): string | null {
+  // the instrument: named in the citation, else the hint, else by how it numbers ("s 168" is a section, "cl 4.4A" a clause)
+  const inst = instrumentOf(ref, C.insts, hint ?? (/\bs(ection)?\.?\s*\d{2,3}\b/i.test(ref) && !/\d\.\d/.test(ref) ? 'sepp' : 'lep'))
+  if (!inst) return null
   // the instrument's name and year are not the clause: "Housing SEPP 2021 s 168(2)(e)" is s 168, not s 2021
-  const raw = ref
-  ref = ref.replace(/\((Housing)\)/i, '$1').replace(/\b(19|20)\d{2}\b/g, ' ')
-  const kind = /housing|sepp|policy/i.test(raw) ? 'sepp' : /randwick|lep|plan\b/i.test(ref) ? 'lep' : (hint ?? (/\bs(ection)?\.?\s*\d{2,3}\b/i.test(ref) && !/\d\.\d/.test(ref) ? 'sepp' : 'lep'))
-  const doc = C.docs[kind]
+  ref = ref.replace(/\(([A-Za-z][A-Za-z ,&-]{3,})\)/g, ' $1 ').replace(/\b(19|20)\d{2}\b/g, ' ')
+  const kind = inst.kind, doc = inst.document_id
   const byLocal = (local: string) => [...C.provs.values()].find(p => p.document_id === doc && p.local_id === local)?.id ?? null
   const zone = ref.match(/Land Use Table.*?\b(R\d|RE\d|B\d|E\d|SP\d|C\d|MU\d|IN\d|RU\d|W\d)\b/i) ?? ref.match(/\bZone\s+(R\d|RE\d|B\d|E\d|SP\d|C\d|MU\d|IN\d|RU\d|W\d)\b.*Land Use Table/i)
   if (zone && kind === 'lep') return byLocal(`pt-cg1.Zone_${zone[1]!.toUpperCase()}`)
@@ -115,6 +120,9 @@ export function provisionOf(C: Corpus, ref: string, hint?: 'lep' | 'sepp'): stri
   for (const id of ids.reverse()) { const hit = byLocal(id); if (hit) return hit }
   return null
 }
+
+/** an answer-key citation "<instrument word>:<clause>" ("housing:s 168(2)(d)", "lep:cl 4.4") -> a provision */
+export const keyedProvision = (C: Corpus, key: string) => { const i = key.indexOf(':'); return i < 0 ? provisionOf(C, key) : provisionOf(C, `${key.slice(0, i)} ${key.slice(i + 1)}`) }
 
 /** the words of a provision and everything under it - what a quote or a figure must be found in */
 export function subtreeText(C: Corpus, provId: string): string {

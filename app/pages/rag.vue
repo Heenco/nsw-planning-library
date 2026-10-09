@@ -102,6 +102,62 @@
       </ClientOnly>
     </section>
 
+    <!-- spatial resolution: what the graph can test on a lot (build), and what each answer could and could not check (per lot) -->
+    <section class="rg-section" id="spatial">
+      <h2 class="rg-h2">Spatial resolution <span class="rg-muted">· resolved when the graph is built, then on each lot - and said plainly where it cannot be</span></h2>
+      <ClientOnly>
+      <template v-if="status?.bindings">
+        <h3 class="rg-h3">1 · Building the graph: every condition a claim depends on, and how it will be tested</h3>
+        <p class="rg-muted">From <code>rag.claim_binding</code> (scripts/rag/02d-bindings.ts). A condition is bound to the layers registered in
+          <code>nsw.scope_layer</code> (the ones /testing-spatial-services and /cdc-map read), to a council list, or to the polygons
+          of a map the clause names. Anything that is not bound is listed here, and on a lot it is answered <em>maybe</em>, never assumed.</p>
+        <div class="rg-cards">
+          <div v-for="s in BIND_ORDER.filter(s => bindCount(s))" :key="s" class="rg-card" :class="{ 'rg-card--warn': !BIND_OK.includes(s) }">
+            <div class="rg-card-n">{{ bindCount(s) }}</div><div class="rg-card-l">{{ BIND_LABEL[s] }}</div>
+          </div>
+        </div>
+        <details v-for="s in BIND_ORDER.filter(s => bindCount(s))" :key="'d' + s" class="rg-bind" :open="!BIND_OK.includes(s)">
+          <summary><strong>{{ BIND_LABEL[s] }}</strong> · {{ bindCount(s) }} <span class="rg-muted">- {{ BIND_MEANS[s] }}</span></summary>
+          <table class="rg-table">
+            <thead><tr><th>Clause</th><th>Condition</th><th>Tested against</th></tr></thead>
+            <tbody>
+              <tr v-for="(b, i) in status.bindings.filter((b: any) => b.status === s)" :key="i">
+                <td class="rg-small"><a v-if="b.url" :href="b.url" target="_blank" rel="noopener">{{ b.label }}</a><span v-else>{{ b.label }}</span>
+                  <span class="rg-muted"> · {{ b.claim_kind }} {{ b.part }}</span></td>
+                <td class="rg-small">{{ b.text }}</td>
+                <td class="rg-small">
+                  <code v-for="t in (b.scope_terms ?? [])" :key="t" class="rg-term">{{ t }}</code>
+                  <span v-if="b.sources?.length" class="rg-muted"> {{ b.sources.join(', ') }}</span>
+                  <span v-if="b.assume_absent" class="rg-muted"> (no dataset: treated as absent, said in the answer)</span>
+                  <span v-if="b.note" class="rg-muted"> {{ b.note }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+
+        <h3 class="rg-h3">2 · Deciding on each lot</h3>
+        <template v-if="status.lotChecks">
+          <p class="rg-muted">
+            Of side D's {{ status.lotChecks.answers }} answers, {{ status.lotChecks.with_checked }} tested at least one condition against lot data and
+            <strong>{{ status.lotChecks.with_unchecked }}</strong> rest on a condition no data could settle - those say so in their trace
+            ("Could not check") and the answer is <em>maybe</em> on that point, not assumed.</p>
+          <div class="rg-cols2">
+            <div>
+              <p class="rg-k">Could not check · questions affected</p>
+              <ul class="rg-list"><li v-for="(c, i) in status.lotChecks.unchecked" :key="i">{{ c.text }} <span class="rg-muted">- {{ c.how }} · {{ c.n }}</span></li></ul>
+              <p v-if="!status.lotChecks.unchecked.length" class="rg-muted">None.</p>
+            </div>
+            <div>
+              <p class="rg-k">Checked against data · yes / no across answers</p>
+              <ul class="rg-list"><li v-for="(c, i) in status.lotChecks.checked.slice(0, 25)" :key="i">{{ c.text }} <span class="rg-muted">· {{ c.yes }} yes / {{ c.no }} no</span></li></ul>
+            </div>
+          </div>
+        </template>
+      </template>
+      </ClientOnly>
+    </section>
+
     <!-- results -->
     <section class="rg-section" id="results">
       <h2 class="rg-h2">Results</h2>
@@ -331,6 +387,22 @@ import { RAG_DECISIONS, RAG_METRICS, RAG_OPEN, RAG_PHASES, RAG_SCOPE, RAG_UPDATE
 useHead({ title: 'RAG pilot · Planning Library' })
 
 const { data: status, pending, error } = await useFetch<any>('/api/rag/status', { server: false, lazy: true })
+// rag.claim_binding statuses, in the order the page shows them
+const BIND_ORDER = ['bound', 'items', 'no_data', 'no_polygon', 'no_match', 'unscoped', 'proposal_fact', 'discretion']
+const BIND_OK = ['bound', 'items', 'proposal_fact', 'discretion']
+const BIND_LABEL: Record<string, string> = { bound: 'bound to data', items: 'list frames, read item by item', no_data: 'no dataset held', no_polygon: 'map without polygons', no_match: 'no layer matched',
+  unscoped: 'condition not read', proposal_fact: 'a fact about the proposal', discretion: 'the consent authority decides' }
+const BIND_MEANS: Record<string, string> = {
+  bound: 'tested on every lot against the layers named',
+  items: 'a frame whose condition is a list: each item is bound on its own row (above / below), combined any / all as the list says - unknown when the list does not say',
+  no_data: 'the term is known but no dataset holds it; on a lot it is "could not check" unless the registry says it is absent everywhere',
+  no_polygon: 'the clause names an area on a map whose polygons are not held; on a lot it is "could not check"',
+  no_match: 'no registered layer or list answers it; on a lot it is "could not check"',
+  unscoped: 'a frame ("land to which ... applies") whose condition was not read into terms; on a lot it is "could not check"',
+  proposal_fact: 'answered from the question (date, tenure, number of lots), not from a map',
+  discretion: 'a matter for the consent authority: the answer splits on it',
+}
+const bindCount = (s: string) => (status.value?.bindings ?? []).filter((b: any) => b.status === s).length
 
 const steps = RAG_PHASES.flatMap(p => p.steps)
 const stepCount = {
@@ -429,6 +501,13 @@ const ruling = (e: any) => {
 .rg-tag { font-size: 11px; color: #475569; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; }
 .rg-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 @media (max-width: 760px) { .rg-cols { grid-template-columns: 1fr; } }
+.rg-cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 760px) { .rg-cols2 { grid-template-columns: 1fr; } }
+.rg-card--warn { border-color: #fcd34d; background: #fffbeb; }
+.rg-bind { margin: 8px 0; }
+.rg-bind summary { cursor: pointer; font-size: 13px; }
+.rg-bind .rg-table { margin-top: 6px; }
+.rg-term { font-size: 11px; background: #f1f5f9; padding: 0 4px; border-radius: 3px; margin-right: 4px; }
 .rg-list { margin: 0; padding-left: 18px; font-size: 13px; }
 .rg-list li { margin-bottom: 3px; }
 

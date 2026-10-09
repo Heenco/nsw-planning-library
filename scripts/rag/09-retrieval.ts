@@ -11,14 +11,14 @@
 import 'dotenv/config'
 import pg from 'pg'
 import { embed } from '../../shared/rag/deepinfra'
-import { loadCorpus, search, expand, provisionOf, clauseKey, queryVec, type Corpus } from '../../shared/rag/retrieve'
+import { loadCorpus, search, expand, keyedProvision, clauseKey, queryVec, type Corpus } from '../../shared/rag/retrieve'
+import { shortName } from '../../shared/rag/refs'
 
 export function goldOf(C: Corpus, expected: any): string[] {
   const refs: string[] = [...(expected?.controlling ?? []), ...(expected?.displaced ?? [])]
   const out = new Set<string>()
   for (const r of refs) {
-    const [inst, rest] = r.split(':') as [string, string]
-    const id = provisionOf(C, `${inst === 'housing' ? 'Housing SEPP' : 'Randwick LEP'} ${rest}`, inst === 'housing' ? 'sepp' : 'lep')
+    const id = keyedProvision(C, r)
     const p = id ? C.provs.get(id) : null
     if (p) out.add(`${p.document_id}|${clauseKey(p.local_id, p.path)}`)
   }
@@ -61,7 +61,7 @@ async function main() {
   // what R2 most often misses, by clause
   const miss: Record<string, number> = {}
   for (const r of rows.filter(r => r.v === 'R2')) for (const m of r.missing) miss[m] = (miss[m] ?? 0) + 1
-  const named = Object.entries(miss).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, n]) => `${k.split('|')[0] === C.docs.sepp ? 'Housing ' : 'LEP '}${k.split('|')[1]} x${n}`)
+  const named = Object.entries(miss).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, n]) => `${shortName(C.insts.find(i => i.document_id === k.split('|')[0])?.title ?? '?')} ${k.split('|')[1]} x${n}`)
   console.log('R2 misses (k=8):', named.join(', '))
   await q(`INSERT INTO rag.run (stage, config, counts, finished_at) VALUES ('retrieval', $1, $2, now())`, [JSON.stringify({ k: K, fusion: 'rrf60' }), JSON.stringify({ summary, r2_misses: named, rows })])
   await client.end()

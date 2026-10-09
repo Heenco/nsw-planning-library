@@ -37,7 +37,8 @@
           <RagClause :id="s.winner_id" :p="s.winner_id ? provisions[s.winner_id] : null" :fallback="s.winner" />
           <span class="rt-over">prevails over</span>
           <RagClause :id="s.loser_id" :p="s.loser_id ? provisions[s.loser_id] : null" :fallback="s.loser" />
-          <span class="rt-why1">- {{ s.why }}<span v-if="s.basis === 'interpretive'" class="rt-tag rt-tag--soft">interpretive, proposed</span></span>
+          <span class="rt-why1">- {{ s.why }}<template v-if="s.relation_id && s.relation_id !== s.winner_id">, as stated in <RagClause :id="s.relation_id" :p="provisions[s.relation_id]" :fallback="s.relation" /></template></span>
+          <span v-if="s.basis === 'interpretive' && s.status !== 'verified'" class="rt-tag rt-tag--warn" title="This step rests on a reading the text does not state in words (e.g. that one clause is more specific than another). It has not been verified.">interpretive reading - not verified</span>
         </li>
       </ul>
     </template>
@@ -47,7 +48,7 @@
       <ul class="rt-list">
         <li v-for="(b, i) in ex.branches" :key="'b' + i">
           <strong>{{ b.answer ?? 'no limit' }}</strong> if {{ cleanIf(b.if) }}
-          <span v-for="(s, j) in b.steps" :key="j" class="rt-why1"> - <RagClause :id="s.winner_id" :p="s.winner_id ? provisions[s.winner_id] : null" :fallback="s.winner" /> over {{ s.loser }}</span>
+          <span v-for="(s, j) in b.steps" :key="j" class="rt-why1"> - <RagClause :id="s.winner_id" :p="s.winner_id ? provisions[s.winner_id] : null" :fallback="s.winner" /> over <RagClause :id="s.loser_id" :p="s.loser_id ? provisions[s.loser_id] : null" :fallback="s.loser" /></span>
         </li>
       </ul>
     </template>
@@ -81,7 +82,23 @@
       </ul>
     </details>
 
-    <p v-if="ex.notChecked?.length" class="rt-nc">Not checked (no data held): {{ ex.notChecked.join('; ') }}</p>
+    <template v-if="depth === 0 && checked.length">
+      <p class="rt-k">Checked against data for this lot</p>
+      <ul class="rt-list">
+        <li v-for="(c, i) in checked" :key="'ck' + i">
+          <span class="rt-mark" :class="c.result === true ? 'rt-st--met' : c.result === false ? '' : 'rt-st--depends'">{{ c.result === true ? '✓' : c.result === false ? '✗' : '?' }}</span>
+          {{ c.text }} <span class="rt-why1">- {{ c.how }}</span>
+        </li>
+      </ul>
+    </template>
+    <template v-if="depth === 0 && (couldNot.length || ex.notChecked?.length)">
+      <p class="rt-k rt-k--warn">Could not check - the answer does not assume these</p>
+      <ul class="rt-list">
+        <li v-for="(c, i) in couldNot" :key="'cn' + i"><span class="rt-mark rt-st--depends">?</span>{{ c.text }} <span class="rt-why1">- {{ c.how }}</span></li>
+        <li v-for="(t, i) in ncOnly" :key="'nc' + i"><span class="rt-mark rt-st--depends">?</span>{{ t }}</li>
+      </ul>
+    </template>
+    <p v-if="depth === 0 && ex.asAt?.length" class="rt-nc">Law as at: {{ ex.asAt.map((a: any) => `${a.instrument} ${a.date ?? '(date not recorded)'}`).join('; ') }} - amendments after that date are not read.</p>
   </div>
 </template>
 
@@ -89,6 +106,10 @@
 const props = withDefaults(defineProps<{ ex: any; provisions: Record<string, any>; depth?: number }>(), { depth: 0 })
 const applied = computed(() => (props.ex.claims ?? []).filter((c: any) => c.holds !== false))
 const notApplied = computed(() => (props.ex.claims ?? []).filter((c: any) => c.holds === false))
+// the conditions tested against spatial / lot data, and the ones no data could settle (shared/rag/evaluate.ts Check)
+const checked = computed(() => (props.ex.checks ?? []).filter((c: any) => c.could))
+const couldNot = computed(() => (props.ex.checks ?? []).filter((c: any) => !c.could))
+const ncOnly = computed(() => (props.ex.notChecked ?? []).filter((t: string) => !couldNot.value.some((c: any) => t.includes(c.text))))
 const unit = (u: string | null, topic?: string | null) => topic === 'fsr' || u === 'ratio' ? ':1' : u === 'm2' ? ' m²' : u ? ` ${u}` : ''
 const answerText = (ex: any) => {
   const a = ex.answer
@@ -133,6 +154,8 @@ const cleanIf = (s: string) => s.replace(/frame [^[]*\[|\]|: unknown/g, '').repl
 .rt-why1 { color: #475569; font-size: 12px; margin-left: 4px; }
 .rt-tag { font-size: 10px; font-weight: 700; background: #dcfce7; color: #14532d; padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
 .rt-tag--soft { background: #f1f5f9; color: #475569; }
+.rt-tag--warn { background: #fef3c7; color: #92400e; }
+.rt-k--warn { color: #b45309; }
 .rt-quote { display: block; margin: 2px 0 0 22px; color: #475569; font-size: 12px; }
 .rt-subq { margin: 4px 0 4px 22px; }
 .rt-subq summary, .rt-more summary { cursor: pointer; color: #475569; font-size: 12px; }

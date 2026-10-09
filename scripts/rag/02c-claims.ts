@@ -189,7 +189,11 @@ async function main() {
     const dateTerm = condDates.length ? [`date:${condDates.join('|')}`] : []
     add({ provision_id: f.to_provision, kind: 'frame', unit_provision: f.from_provision, uses: usesM ? usesOf(usesM[1]!) : [],
       zones: [...new Set([...s.zones, ...(/following zones/i.test(phrase) ? condZones : [])])], terms: [...s.terms.filter(x => !/^(consent|combined_da)/.test(x)), ...s.terms.filter(x => /^(consent|combined_da)/.test(x)).map(x => `date:${x}`), ...dateTerm, ...(/subdivision/i.test(phrase) ? ['proposal:subdivision'] : [])],
-      requires: s.requires, excludes: /other than the following/i.test(phrase) ? conds.map(c => norm(c).replace(/[,.;]+$/, '')).filter(Boolean) : [],
+      // "the whole of the State, other than the following- (a) bush fire prone land, ... (e) the following local government
+      // areas- (i) Bathurst Regional, ..." - each item whole, a nested list kept with it
+      requires: s.requires, excludes: /other than the following/i.test(phrase)
+        ? (kids.get(f.to_provision) ?? []).map(k => norm([k.own_text, ...(/[—-]\s*$/.test(norm(k.own_text)) ? (kids.get(k.id) ?? []).map(g => g.own_text) : [])].join(' ')).replace(/[,.;]+$/, '')).filter(x => x.length > 2)
+        : [],
       source: 'text', reader: 'frame', span: phrase.slice(0, 300) })
   }
 

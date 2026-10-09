@@ -12,9 +12,13 @@
  *
  * Order of precedence (each step only decides between claims that still conflict):
  *   1 explicit      the text says so: despite, prevails over, subject to, displaces_standard (s 4.15(3)), disapplies
- *   2 instrument    an instrument-level rule: Housing SEPP s 8 inconsistency, LEP 1.9 / EP&A Act s 3.28 subject-to
+ *   2 instrument    an instrument-level rule: Housing SEPP s 8 inconsistency, LEP 1.9 / EP&A Act s 3.28 subject-to -
+ *                   only where the two cannot both be obeyed: a permission against a prohibition, or a maximum below a
+ *                   minimum. Two maxima (or two minima) are not inconsistent: both bind
  *   3 specific      more_specific_than (interpretive; status 'proposed' is reported as such in the trace)
- *   4 conflict      nothing decides: "maybe - conflict", never a guess
+ *   4 cumulative    two standards of the same kind from different instruments, nothing above deciding: both apply, so
+ *                   the more onerous is the one that binds
+ *   5 conflict      nothing decides: "maybe - conflict", never a guess
  */
 
 export type Tri = boolean | null
@@ -31,7 +35,9 @@ export interface Claim {
 }
 export interface Rel { kind: string; from_provision: string; to_provision: string | null; to_document: string | null; to_ref: string | null; status: string; basis: string; span?: string | null }
 export interface Prov { id: string; local_id: string; path: string[]; document_id: string; doc_kind: 'lep' | 'sepp' | string }
-export interface Step { rule: string; winner: string; loser: string; by: string; basis: string; status: string; why: string }
+/** winner_provision / loser_provision: the provisions themselves (labels repeat); by_provision: the one that states the relation */
+export interface Step { rule: string; winner: string; loser: string; by: string; basis: string; status: string; why: string
+  winner_provision?: string; loser_provision?: string; by_provision?: string | null }
 export interface Resolution {
   verdict: 'decided' | 'maybe' | 'none'
   answer: { effect: Claim['effect']; value?: number | null; unit?: string | null; claims: string[] } | null
@@ -83,7 +89,8 @@ function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resol
   const sameDoc = (a: Claim, b: Claim) => P(a)?.document_id === P(b)?.document_id
   const eliminate = (loser: Claim, winner: Claim, rule: string, r: Rel | null, why: string) => {
     live = live.filter(x => x.id !== loser.id)
-    trace.push({ rule, winner: label(winner), loser: label(loser), by: r ? `${r.kind}${r.span ? ` "${r.span.slice(0, 80)}"` : ''}` : rule, basis: r?.basis ?? 'rule', status: r?.status ?? 'rule', why })
+    trace.push({ rule, winner: label(winner), loser: label(loser), by: r ? `${r.kind}${r.span ? ` "${r.span.slice(0, 80)}"` : ''}` : rule, basis: r?.basis ?? 'rule', status: r?.status ?? 'rule', why,
+      winner_provision: winner.provision, loser_provision: loser.provision, by_provision: r?.from_provision ?? null })
   }
   const more = (a: Claim, b: Claim) => a.effect === 'value' && b.effect === 'value' && a.comparator && a.value != null && b.value != null
     ? (a.comparator === 'max' ? a.value < b.value : a.value > b.value) : true   // a is more onerous than b
@@ -105,9 +112,12 @@ function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resol
     for (const r of relations) if (r.kind === 'subject_to' && covers(r.from_provision, b) && covers(r.to_provision, a)) return { rel: r, why: 'the other provision is subject to this one' }
     return null
   }
+  /** can a and b not both be obeyed: permit vs prohibit, or a maximum below a minimum */
+  const inconsistent = (a: Claim, b: Claim) => a.effect !== 'value' || b.effect !== 'value' ? a.effect !== b.effect
+    : a.comparator !== b.comparator && a.value != null && b.value != null && (a.comparator === 'max' ? a.value < b.value : b.value < a.value)
   // 2 instrument: a SEPP prevails over an LEP to the extent of the inconsistency (Housing SEPP s 8; LEP 1.9 / s 3.28)
   const instrument: Test = (a, b) => {
-    if (P(a)?.doc_kind !== 'sepp' || P(b)?.doc_kind !== 'lep') return null
+    if (P(a)?.doc_kind !== 'sepp' || P(b)?.doc_kind !== 'lep' || !inconsistent(a, b)) return null
     const rule = relations.find(r => r.kind === 'inconsistency_rule' && provs.get(r.from_provision)?.document_id === P(a)?.document_id)
       ?? relations.find(r => r.kind === 'subject_to' && /SEPP that prevails/i.test(r.to_ref ?? '') && provs.get(r.from_provision)?.document_id === P(b)?.document_id)
     return rule ? { rel: rule, why: 'a SEPP prevails over the LEP to the extent of the inconsistency' } : null
@@ -117,8 +127,11 @@ function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resol
     const r = relations.find(r => r.kind === 'more_specific_than' && covers(r.from_provision, a) && covers(r.to_provision, b))
     return r ? { rel: r, why: 'the more specific provision governs the general one' } : null
   }
+  // 4 cumulative: two maxima or two minima from different instruments - both can be met, so both bind
+  const cumulative: Test = (a, b) => a.effect === 'value' && b.effect === 'value' && a.comparator && a.comparator === b.comparator && !sameDoc(a, b) && more(a, b)
+    ? { rel: null, why: `both apply - neither instrument displaces the other and they are not inconsistent - so the more onerous ${a.comparator === 'max' ? 'maximum' : 'minimum'} binds` } : null
 
-  for (const [rule, test] of [['explicit', explicit], ['instrument', instrument], ['specific', specific]] as [string, Test][]) {
+  for (const [rule, test] of [['explicit', explicit], ['instrument', instrument], ['specific', specific], ['cumulative', cumulative]] as [string, Test][]) {
     let changed = true
     while (changed) {
       changed = false

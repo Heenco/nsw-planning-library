@@ -22,7 +22,10 @@ import 'dotenv/config'
 import pg from 'pg'
 import { createHash } from 'node:crypto'
 import { lotFacts } from '../../shared/norms/facts'
+import { lotTermInterior } from '../../shared/rag/lot-terms'
 import { landUseKey } from '../../shared/land-use-key'
+import { shortName } from '../../shared/rag/refs'
+import { docLabel } from '../../shared/rag/retrieve'
 
 const DRY = process.argv.includes('--dry')
 const uuidOf = (s: string) => { const h = createHash('md5').update(s).digest('hex'); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}` }
@@ -32,7 +35,10 @@ interface Q { id?: string; set_name: string; cadid?: string | null; clause?: str
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
-  const RANDWICK = (await q(`SELECT document_id FROM rag.instrument WHERE kind = 'lep'`)).rows[0].document_id as string
+  const LEP = (await q(`SELECT document_id, title FROM rag.instrument WHERE kind = 'lep'`)).rows[0]
+  const RANDWICK = LEP.document_id as string
+  // the plan as the generated questions name it ("Randwick LEP 2012"), and its council as lmr.lot_lmr records it
+  const PLAN_LABEL = docLabel(LEP.title), LGA = shortName(LEP.title).replace(/ LEP$/, '').toUpperCase()
 
   // ── lot facts, frozen ───────────────────────────────────────────────────────────────────────────
   const factCache = new Map<string, any>()
@@ -55,11 +61,17 @@ async function main() {
         FROM refs, cadastre.lot l
        WHERE l.cadid::text = $1 AND (refs.own OR NOT refs.has_own) AND ST_Intersects(refs.geom, ST_Transform(l.geom, ST_SRID(refs.geom)))
        ORDER BY refs.map, refs.label, 3 DESC`, [cadid]).catch(() => ({ rows: [] as any[] }))).rows.filter((m: any) => m.share > 0.01)
+    // every registered term the graph's claims are bound to (rag.claim_binding, scripts/rag/02d-bindings.ts), tested on the
+    // lot with the registry the app's term resolver reads (shared/rag/lot-terms.ts over nsw.scope_layer; interiors must overlap): holds yes / no / unknown
+    const boundTerms = (await q(`SELECT DISTINCT unnest(scope_terms) t FROM rag.claim_binding WHERE status = 'bound'`).catch(() => ({ rows: [] as any[] }))).rows
+      .map(r => String(r.t)).filter(t => !/^(lga:|map:|!?zone:|zoneclass:|area>=|lot$)/.test(t))
+    const terms: Record<string, { holds: boolean | null; why: string }> = {}
+    for (const t of boundTerms) terms[t] = await lotTermInterior(q as any, cadid, t, f.lga ?? null).catch(e => ({ holds: null, why: `query failed: ${String(e).slice(0, 80)}` }))
     const heritage = (await q(`SELECT string_agg(DISTINCT h.lay_class, ', ') c FROM epi.epi_heritage h, cadastre.lot l
                                 WHERE l.cadid::text = $1 AND h.geom && l.geom AND ST_Intersects(h.geom, ST_PointOnSurface(l.geom))`, [cadid])).rows[0]?.c ?? null
     const out = {
       cadid, lot: f.lotId, address: addr?.formatted_address ?? null, lga: f.lga, zone: f.zone, epi: f.epi, area_m2: f.areaM2, frontage_m: f.frontageM ?? null,
-      battle_axe: f.isBattleaxe ?? null, fsr_map: f.fsrMax ?? null, height_map_m: f.heightMaxM ?? null, lot_size_map_m2: f.lotSizeMinM2, heritage, mapped,
+      battle_axe: f.isBattleaxe ?? null, fsr_map: f.fsrMax ?? null, height_map_m: f.heightMaxM ?? null, lot_size_map_m2: f.lotSizeMinM2, heritage, mapped, terms,
       low_mid_rise_area: lmr ? { band: lmr.band, class: lmr.class, from: lmr.measured_from, excluded_by: lmr.excluded_by } : { band: null, note: 'not within a low and mid rise housing area' },
     }
     factCache.set(cadid, out); return out
@@ -75,19 +87,19 @@ async function main() {
       const l = await facts(k.cadid)
       const subdiv = e.proposal === 'subdivision'
       const text = subdiv
-        ? `Under Randwick LEP 2012, can ${where(l)} be subdivided into ${e.lots ?? 2} lots?`
-        : e.standard ? `Under Randwick LEP 2012, what is the maximum ${/^4\.3/.test(k.clause) ? 'building height' : 'floor space ratio'} for ${e.use} on ${where(l)}?`
-        : `Under Randwick LEP 2012, is development for the purposes of ${e.use} permissible on ${where(l)}?`
+        ? `Under ${PLAN_LABEL}, can ${where(l)} be subdivided into ${e.lots ?? 2} lots?`
+        : e.standard ? `Under ${PLAN_LABEL}, what is the maximum ${/^4\.3/.test(k.clause) ? 'building height' : 'floor space ratio'} for ${e.use} on ${where(l)}?`
+        : `Under ${PLAN_LABEL}, is development for the purposes of ${e.use} permissible on ${where(l)}?`
       const std = String(e.standard ?? '').match(/^([\w.()]+)=(?:n:)?([\w.]+)$/)
       qs.push({ set_name: 'pilot_key', cadid: k.cadid, clause: k.clause, kind: subdiv ? 'subdivision' : e.standard ? 'standard' : 'permissibility', use_term: e.use ?? null, text, key_ref: k.id, tags: ['lep_only'],
         expected: { status: 'key', source: 'pilot.key', verdict: e.verdict ?? (subdiv && std ? (std[2] === 'true' ? 'yes' : 'no') : null),
           value: std && !['true', 'false'].includes(std[2]!) ? Number(std[2]) : null, controlling: [e.by ?? (std ? std[1] : null)].filter(Boolean).map((c: string) => `randwick:${c}`),
           not_controlling: e.not_by ? [`randwick:${e.not_by}`] : [], note: k.note, raw: e }, lot: l })
     } else {
-      const text = e.modality === 'defines' ? `Under Randwick LEP 2012 clause ${k.clause}, is the 1,000 m2 figure a development standard or part of a definition?`
-        : e.rows ? `What does the table in Randwick LEP 2012 clause ${k.clause} set, and how many rows does it have?`
-        : e.scope ? `Which areas on which map does Randwick LEP 2012 clause ${k.clause} apply to?`
-        : `What development standard does Randwick LEP 2012 clause ${k.clause} set? Give the figure, unit and what it applies to.`
+      const text = e.modality === 'defines' ? `Under ${PLAN_LABEL} clause ${k.clause}, is the 1,000 m2 figure a development standard or part of a definition?`
+        : e.rows ? `What does the table in ${PLAN_LABEL} clause ${k.clause} set, and how many rows does it have?`
+        : e.scope ? `Which areas on which map does ${PLAN_LABEL} clause ${k.clause} apply to?`
+        : `What development standard does ${PLAN_LABEL} clause ${k.clause} set? Give the figure, unit and what it applies to.`
       qs.push({ set_name: 'pilot_key', clause: k.clause, kind: 'extraction', text, key_ref: k.id, tags: ['lep_only', 'no_lot'],
         expected: { status: 'key', source: 'pilot.key', value: e.value ?? null, unit: e.unit ?? null, zone: e.zone ?? null, topic: e.topic ?? null, controlling: [`randwick:${k.clause}`], note: k.note, raw: e } })
     }
@@ -96,7 +108,7 @@ async function main() {
   // ── hard cases ──────────────────────────────────────────────────────────────────────────────────
   const HOLDEN = await facts('102790727'), CARR = await facts('102325171')
   // a lot where s 169's date decides: R2, inside an LMR area, 450-549 m2 (two lots of 225-274 m2)
-  const midCad = (await q(`SELECT cadid::text FROM lmr.lot_lmr WHERE lga = 'RANDWICK' AND zones = '{R2}' AND class = 'in' AND lot_id NOT LIKE '%SP%'
+  const midCad = (await q(`SELECT cadid::text FROM lmr.lot_lmr WHERE lga = '${LGA}' AND zones = '{R2}' AND class = 'in' AND lot_id NOT LIKE '%SP%'
                             AND area_m2 >= 470 AND area_m2 < 540 ORDER BY cadid LIMIT 1`)).rows[0].cadid
   const MID = await facts(midCad)
   const H = (id: string, l: any, kind: string, text: string, expected: any, tags: string[] = [], use: string | null = null) =>
@@ -187,7 +199,7 @@ async function main() {
   const BANDS: [number, number][] = [[250, 300], [300, 450], [450, 550], [550, 600], [600, 900]]
   const gridLots: string[] = []
   for (const zone of ['R2', 'R3']) for (const [lo, hi] of zone === 'R2' ? BANDS : [[200, 450], [450, 900]] as [number, number][]) {
-    const r = (await q(`SELECT cadid::text FROM lmr.lot_lmr WHERE lga = 'RANDWICK' AND zones = $1 AND class = 'in' AND lot_id NOT LIKE '%SP%' AND area_m2 >= $2 AND area_m2 < $3
+    const r = (await q(`SELECT cadid::text FROM lmr.lot_lmr WHERE lga = '${LGA}' AND zones = $1 AND class = 'in' AND lot_id NOT LIKE '%SP%' AND area_m2 >= $2 AND area_m2 < $3
                          AND cadid::text NOT IN ('102790727', $4) ORDER BY cadid LIMIT 1`, [[zone], lo, hi, midCad])).rows[0]
     if (r) gridLots.push(r.cadid)
   }
@@ -195,13 +207,13 @@ async function main() {
   for (const [zone, lo, hi] of [['R2', 300, 600], ['R2', 600, 900], ['R3', 200, 450], ['R3', 450, 900]] as [string, number, number][]) {
     const r = (await q(`SELECT l.cadid::text FROM cadastre.lot l JOIN derived.lot_lga g ON g.cadid = l.cadid
                           JOIN LATERAL (SELECT z.sym_code FROM epi.epi_land_zoning z WHERE z.geom && ST_PointOnSurface(l.geom) AND ST_Intersects(z.geom, ST_PointOnSurface(l.geom)) LIMIT 1) z ON true
-                         WHERE upper(g.lga_name) = 'RANDWICK' AND l.lotidstring NOT LIKE '%SP%' AND trim(z.sym_code) = $1
+                         WHERE upper(g.lga_name) = '${LGA}' AND l.lotidstring NOT LIKE '%SP%' AND trim(z.sym_code) = $1
                            AND ST_Area(l.geom::geography) BETWEEN $2 AND $3 AND NOT EXISTS (SELECT 1 FROM lmr.lot_lmr m WHERE m.cadid = l.cadid)
                            AND l.cadid::text <> '102325171'
                          ORDER BY l.cadid LIMIT 1`, [zone, lo, hi])).rows[0]
     if (r) gridLots.push(r.cadid)
   }
-  const exc = (await q(`SELECT cadid::text FROM lmr.lot_lmr WHERE lga = 'RANDWICK' AND zones = '{R2}' AND class = 'excluded' AND lot_id NOT LIKE '%SP%' AND area_m2 BETWEEN 450 AND 900 ORDER BY cadid LIMIT 1`)).rows[0]
+  const exc = (await q(`SELECT cadid::text FROM lmr.lot_lmr WHERE lga = '${LGA}' AND zones = '{R2}' AND class = 'excluded' AND lot_id NOT LIKE '%SP%' AND area_m2 BETWEEN 450 AND 900 ORDER BY cadid LIMIT 1`)).rows[0]
   if (exc) gridLots.push(exc.cadid)
   gridLots.push('102790727', '102325171', midCad)
   const GRID: [string, string, string | null, (l: any) => string][] = [

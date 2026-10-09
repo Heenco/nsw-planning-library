@@ -69,8 +69,9 @@ async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const insts = (await q(`SELECT document_id, title, kind FROM rag.instrument`)).rows
-  const docOf = (re: RegExp) => insts.find(i => re.test(i.title))!.document_id as string
-  const RANDWICK = docOf(/Randwick/), HOUSING = docOf(/Housing/)
+  // the instruments by kind, never by name: every LEP and every SEPP in the corpus
+  const LEPS: string[] = insts.filter(i => i.kind === 'lep').map(i => i.document_id), SEPPS: string[] = insts.filter(i => i.kind === 'sepp').map(i => i.document_id)
+  const titleOf = (doc: string) => insts.find(i => i.document_id === doc)?.title ?? doc
   const provs: P[] = (await q(`SELECT id, document_id, parent_id, local_id, kind, heading, coalesce(own_text, '') own_text, sort, ordinal FROM rag.provision`)).rows
   const byId = new Map(provs.map(p => [p.id, p]))
   const byLocal = new Map(provs.map(p => [`${p.document_id}|${p.local_id}`, p]))
@@ -146,12 +147,14 @@ async function main() {
     }
     for (const m of t.matchAll(/\bSchedule\s+(\d+[A-Z]?)\b/g)) out.push({ to: local(p.document_id, `sch.${m[1]}`), doc: p.document_id, ref: `Schedule ${m[1]}` })
     for (const m of t.matchAll(/\bChapter\s+(\d+[A-Z]?)(?:,\s*Part\s+(\d+[A-Z]?))?/g)) {
-      if (/State Environmental Planning Policy \([^)]+\) \d{4},?\s*$/.test(t.slice(Math.max(0, m.index! - 80), m.index!)) && p.document_id !== HOUSING) { out.push({ ref: m[0] }); continue }
+      // "State Environmental Planning Policy (X) 2021, Chapter 6": that SEPP if we hold it, else an outside reference
+      const named = t.slice(Math.max(0, m.index! - 80), m.index!).match(/State Environmental Planning Policy \(([^)]+)\) \d{4},?\s*$/)
+      const doc = named ? insts.find(i => i.kind === 'sepp' && i.title.includes(`(${named[1]})`))?.document_id : p.document_id
+      if (!doc) { out.push({ ref: m[0] }); continue }
       const id = m[2] ? `ch.${m[1]}-pt.${m[2]}` : `ch.${m[1]}`
-      const doc = p.document_id === HOUSING || /Housing\)/.test(t) ? HOUSING : p.document_id
       out.push({ to: local(doc, id), doc, ref: m[0] })
     }
-    if (p.document_id === RANDWICK) for (const m of t.matchAll(/\bPart\s+(\d+[A-Z]?)\b(?!\s+of\s+the)/g)) out.push({ to: local(RANDWICK, `pt.${m[1]}`), doc: RANDWICK, ref: `Part ${m[1]}` })
+    if (LEPS.includes(p.document_id)) for (const m of t.matchAll(/\bPart\s+(\d+[A-Z]?)\b(?!\s+of\s+the)/g)) out.push({ to: local(p.document_id, `pt.${m[1]}`), doc: p.document_id, ref: `Part ${m[1]}` })
     return out
   }
 
@@ -180,26 +183,31 @@ async function main() {
   const termStats = { terms: 0, edges: 0, ubiquitous: [] as string[], unused: 0 }
   const terms = provs.filter(p => p.kind === 'term')
   const textProvs = provs.filter(p => TEXT_KINDS.has(p.kind) && p.kind !== 'term' && textOf(p))
-  const housingDefines = new Set(terms.filter(t => t.document_id === HOUSING).map(t => (t.heading ?? '').toLowerCase()))
-  const s4_2 = local(HOUSING, 'sec.4-ssec.2')
+  // a SEPP whose own words give its undefined terms "the same meaning as in the standard instrument" (Housing SEPP s 4(2))
+  // takes the LEP's plan-wide terms - except in the schedules those words name ("other than in Schedule 1 or 2")
+  const siRules = provs.filter(p => SEPPS.includes(p.document_id) && /same meaning as in the standard instrument/i.test(textOf(p)))
+    .map(p => ({ p, except: [...textOf(p).matchAll(/other than in Schedules? (\w+(?:(?:,\s*|\s+or\s+|\s+and\s+)\w+)*)/gi)].flatMap(m => m[1]!.split(/,\s*|\s+or\s+|\s+and\s+/)) }))
+  const seppDefines = new Map(SEPPS.map(d => [d, new Set(terms.filter(t => t.document_id === d).map(t => (t.heading ?? '').toLowerCase()))]))
   for (const t of terms) {
     termStats.terms++
     const term = norm(t.heading); if (term.length < 3) continue
     const parent = t.parent_id ? byId.get(t.parent_id)! : null
-    const planwide = !parent || ['dictionary'].includes(parent.kind) || ['dict', 'sch.10'].includes(parent.local_id)
+    // plan-wide: a term of the instrument's Dictionary (by its kind or its heading), not of one clause
+    const planwide = !parent || parent.kind === 'dictionary' || /^dictionary$/i.test(norm(parent.heading))
     const scopeRoot = planwide ? null : (clauseOf(parent!) ?? parent)
     const inScope = (x: P) => x.document_id === t.document_id && (!scopeRoot || x.local_id === scopeRoot.local_id || x.local_id.startsWith(scopeRoot.local_id + '-'))
     const plural = term.endsWith('y') ? term.slice(0, -1) + 'ies' : term + 's'
     const re = new RegExp(String.raw`(^|[^\w])(${esc(term)}|${esc(plural)})([^\w]|$)`, /^[a-z]/.test(term) ? 'i' : '')
     const hits = textProvs.filter(x => inScope(x) && re.test(textOf(x)))
-    // the LEP's plan-wide terms reach the SEPP through Housing SEPP s 4(2), where the SEPP does not define the word itself
-    const viaS4 = planwide && t.document_id === RANDWICK && !housingDefines.has(term.toLowerCase())
-      ? textProvs.filter(x => x.document_id === HOUSING && !/^sch\.(1|2)(-|$)/.test(x.local_id) && re.test(textOf(x))) : []
+    // the LEP's plan-wide terms reach each SEPP whose rule says so, where that SEPP does not define the word itself
+    const viaS4 = planwide && LEPS.includes(t.document_id)
+      ? siRules.filter(r => !seppDefines.get(r.p.document_id)?.has(term.toLowerCase())).flatMap(r => textProvs
+        .filter(x => x.document_id === r.p.document_id && !r.except.some(n => x.local_id === `sch.${n}` || x.local_id.startsWith(`sch.${n}-`)) && re.test(textOf(x))).map(x => ({ x, r }))) : []
     if (!hits.length && !viaS4.length) { termStats.unused++; continue }
     if (hits.length + viaS4.length > UBIQUITOUS) { termStats.ubiquitous.push(`${term} (${hits.length + viaS4.length})`); continue }
     for (const x of hits) { add({ kind: 'defines', from_provision: t.id, to_provision: x.id, basis: 'text', reader: 'definitions', span: term, status: 'verified' }); termStats.edges++ }
-    for (const x of viaS4) { add({ kind: 'defines', from_provision: t.id, to_provision: x.id, basis: 'statute', authority_provision: s4_2?.id ?? null, reader: 'definitions',
-      span: term, scope: { via: 'Housing SEPP s 4(2): same meaning as in the standard instrument', proxy: 'Randwick LEP 2012 Dictionary' } }); termStats.edges++ }
+    for (const { x, r } of viaS4) { add({ kind: 'defines', from_provision: t.id, to_provision: x.id, basis: 'statute', authority_provision: r.p.id, reader: 'definitions',
+      span: term, scope: { via: `${titleOf(r.p.document_id)} ${r.p.local_id}: same meaning as in the standard instrument`, proxy: `${titleOf(t.document_id)} Dictionary` } }); termStats.edges++ }
   }
 
   // ── overrides ─────────────────────────────────────────────────────────────────────────────────
@@ -372,22 +380,22 @@ async function main() {
   // read from the text, no pilot table. 02c reads the frames this stage writes, so the order is 02 -> 02c -> 02 again;
   // on a first run (no claims yet) the standard-based edges are skipped and the second pass writes them.
   const pilotStd = (await q(`
-    SELECT p.local_id, c.topic, c.comparator, c.value::float8 AS value, CASE WHEN c.value_source LIKE 'map:%' THEN 'map' ELSE c.unit END AS unit, c.uses, c.zones, null::uuid AS run_id
+    SELECT p.document_id, p.local_id, c.topic, c.comparator, c.value::float8 AS value, CASE WHEN c.value_source LIKE 'map:%' THEN 'map' ELSE c.unit END AS unit, c.uses, c.zones, null::uuid AS run_id
       FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id
-     WHERE c.kind = 'standard' AND p.document_id = $1`, [RANDWICK]).catch(() => ({ rows: [] as any[] }))).rows
+     WHERE c.kind = 'standard' AND p.document_id = ANY($1::uuid[])`, [LEPS]).catch(() => ({ rows: [] as any[] }))).rows
   const pilotLive = false
   if (!pilotStd.length) console.log('no rag.claim standards yet - run 02c-claims.ts, then this stage again, for displaces_standard / may_vary / more_specific_than')
   const PILOT_TOPIC: Record<string, string> = {}
   // joined on the legislation anchor, not the node id: the pilot re-mints node ids on every rebuild
   const inCode = (p: P) => !!up(p, x => /exempt development|complying development/i.test(x.heading ?? ''))
   const isSubdivision = (p: P) => (topicsOf('', `${clauseOf(p)?.heading ?? ''}`)).includes('subdivision') || /\bsubdivi/i.test(textOf(clauseOf(p) ?? p).slice(0, 200))
-  const lepStd = pilotStd.map(r => ({ ...r, prov: local(RANDWICK, r.local_id) ?? undefined, topic: PILOT_TOPIC[r.topic] ?? r.topic }))
+  const lepStd = pilotStd.map(r => ({ ...r, prov: local(r.document_id, r.local_id) ?? undefined, topic: PILOT_TOPIC[r.topic] ?? r.topic }))
     .filter(r => r.prov && STANDARD_TOPICS.has(r.topic) && !inCode(r.prov)
       && [...topicsOf(unconditioned(textOf(r.prov)), ''), ...topicsOf('', clauseOf(r.prov)?.heading ?? '')].includes(r.topic))
   const pilotRun = [...new Set(pilotStd.map(r => r.run_id))]
 
   // ── statute: non-discretionary standards (EP&A Act s 4.15(3)) ─────────────────────────────────
-  const ndStems = provs.filter(p => p.document_id === HOUSING && /non-discretionary development standards/i.test(textOf(p)) && (kids.get(p.id) ?? []).length)
+  const ndStems = provs.filter(p => SEPPS.includes(p.document_id) && /non-discretionary development standards/i.test(textOf(p)) && (kids.get(p.id) ?? []).length)
   for (const stem of ndStems) {
     const cl = clauseOf(stem)
     const sectionText = [cl?.heading ?? '', ...provs.filter(x => cl && x.local_id.startsWith(cl.local_id + '-')).map(textOf)].join(' ')
@@ -407,19 +415,22 @@ async function main() {
   }
 
   // ── statute: cl 4.6 - every development standard may be varied, except what 4.6(8) excludes ───
-  const c46 = local(RANDWICK, 'sec.4.6')
+  // (the Standard Instrument numbers this clause 4.6 in every LEP)
+  for (const lep of LEPS) {
+  const c46 = local(lep, 'sec.4.6')
   if (c46) {
-    const excl = provs.filter(x => x.local_id.startsWith('sec.4.6-ssec.8')).flatMap(x => refsIn(textOf(x), x)).map(r => r.to).filter(Boolean) as P[]
+    const excl = provs.filter(x => x.document_id === lep && x.local_id.startsWith('sec.4.6-ssec.8')).flatMap(x => refsIn(textOf(x), x)).map(r => r.to).filter(Boolean) as P[]
     const exclRoots = new Set(excl.map(e => e.local_id))
-    const excluded = (x: P) => [...exclRoots].some(r => x.local_id === r || x.local_id.startsWith(r + '-'))
-      || (x.document_id === HOUSING && /^sch\.1(-|$)/.test(x.local_id))            // 4.6(8)(a): a standard for complying development
-    const housingStd = provs.filter(x => x.document_id === HOUSING && x.kind !== 'term' && isStandard(x))
-    const targets46 = [...new Map([...lepStd.map(r => r.prov!), ...housingStd].map(x => [x.id, x])).values()]
+    const excluded = (x: P) => (x.document_id === lep && [...exclRoots].some(r => x.local_id === r || x.local_id.startsWith(r + '-')))
+      || inCode(x)                                                                  // 4.6(8)(a): a standard for complying development
+    const seppStd = provs.filter(x => SEPPS.includes(x.document_id) && x.kind !== 'term' && isStandard(x))
+    const targets46 = [...new Map([...lepStd.filter(r => r.document_id === lep).map(r => r.prov!), ...seppStd].map(x => [x.id, x])).values()]
     for (const x of targets46) {
       if (excluded(x)) continue
-      add({ kind: 'may_vary', from_provision: c46.id, to_provision: x.id, basis: 'statute', reader: 'statute', authority_provision: local(RANDWICK, 'sec.4.6-ssec.2')?.id ?? c46.id,
+      add({ kind: 'may_vary', from_provision: c46.id, to_provision: x.id, basis: 'statute', reader: 'statute', authority_provision: local(lep, 'sec.4.6-ssec.2')?.id ?? c46.id,
         span: 'this or any other environmental planning instrument', scope: { excluded_by_4_6_8: [...exclRoots], limit: '4.6(6): subdivision in rural, R5 and C zones' }, confidence: 0.7 })
     }
+  }
   }
 
   // ── interpretive: specific over general (proposed - shown for confirmation) ───────────────────
@@ -428,7 +439,7 @@ async function main() {
   const despiteFrom = new Set(rels.filter(r => r.kind === 'despite').flatMap(r => [r.from_provision, r.authority_provision ?? r.from_provision]))
   const MAPS: Record<string, RegExp> = { fsr: /Floor Space Ratio Map/, height: /Height of Buildings Map/, lot_size: /Lot Size Map/ }
   for (const [topic, map] of Object.entries(MAPS)) {
-    for (const doc of [RANDWICK]) {
+    for (const doc of LEPS) {
       // the general standard is the map rule itself - not a provision that is already an exception to it ("Despite clause 4.4, ...")
       const general = provs.filter(p => p.document_id === doc && p.kind !== 'term' && map.test(textOf(p)) && /shown for the land|shown on the/.test(textOf(p)) && (topics.get(p.id) ?? []).includes(topic)
         && !despiteFrom.has(p.id) && mapStd.has(p.id))
@@ -479,13 +490,6 @@ async function main() {
   await q('BEGIN')
   const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('relations', $1) RETURNING id`, [JSON.stringify({ ubiquitous_cap: UBIQUITOUS, pilot_proposition_runs: pilotRun, pilot_source: pilotLive ? 'live' : 'frozen', lep_standards: lepStd.length })])).rows[0].id
   await q(`DELETE FROM rag.relation WHERE reader <> 'manual'`)
-  if (pilotLive) {
-    await q(`DELETE FROM rag.pilot_standard WHERE document_id = $1`, [RANDWICK])
-    await q(`INSERT INTO rag.pilot_standard (document_id, local_id, topic, comparator, value, unit, uses, zones, pilot_run, frozen_run)
-             SELECT $2, local_id, topic, comparator, value, unit, uses, zones, run_id, $3
-               FROM jsonb_to_recordset($1::jsonb) AS x(local_id text, topic text, comparator text, value numeric, unit text, uses text[], zones text[], run_id uuid)`,
-      [JSON.stringify(pilotStd), RANDWICK, run])
-  }
   await q(`DELETE FROM rag.unread`)
   for (let i = 0; i < final.length; i += 3000) {
     const batch = final.slice(i, i + 3000).map(r => ({ ...r, scope: r.scope ?? null, run_id: run }))

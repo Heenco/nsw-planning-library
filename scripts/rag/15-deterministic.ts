@@ -6,14 +6,15 @@
  *   npx tsx scripts/rag/15-deterministic.ts --show     # print each answer's text
  *
  * The question is read by its structure, the same way for every question - its kind and use (rag.question), and in its
- * words: the topic ("floor space ratio", "height", "minimum lot size"), "Under Randwick LEP 2012" (answer from the LEP
- * alone), the title type, a consent date, a separate application, the number of lots, and for a question with no lot
+ * words: the topic ("floor space ratio", "height", "minimum lot size"), "Under <an instrument>, ..." (answer from that
+ * instrument alone), the title type, a consent date, a separate application, the number of lots, and for a question with no lot
  * the facts it states ("a 290 m2 lot in Zone R2 where the Floor Space Ratio Map shows 0.5:1").
  */
 import 'dotenv/config'
 import pg from 'pg'
 import { loadEngine, evaluate, writeAnswer, explain, type Ask, type Result, type Engine } from '../../shared/rag/evaluate'
 import { loadCorpus } from '../../shared/rag/retrieve'
+import { instrumentOf, type Inst } from '../../shared/rag/refs'
 import { checks } from '../../shared/rag/answer'
 import { landUseKey } from '../../shared/land-use-key'
 
@@ -23,15 +24,19 @@ const isoOf = (t: string) => { const m = t.match(/(\d{1,2}) (january|february|ma
 
 /** the land uses the claims know, longest first: a question names its use in these words */
 let VOCAB: string[] = []
+let INSTS: Inst[] = []
 function askOf(q: any): { ask: Ask | null; mode: string; lot: any } {
   const t: string = q.text
   const keyText = landUseKey(t)
   const use = q.use_term ? landUseKey(q.use_term) : VOCAB.find(u => new RegExp(`(^|[^a-z])${u.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z]|$)`).test(keyText)) ?? 'dwelling house'
-  const only = /^under randwick lep 2012/i.test(t) ? 'lep' as const : undefined
+  const under = t.match(/^under ([^,]+),/i)?.[1]
+  const only = under ? instrumentOf(under, INSTS)?.document_id : undefined
   let lot = q.lot_facts
   if (!lot) {   // a lot-free question states its facts
     const area = t.match(/(\d[\d,.]*)\s*m2 lot/i)?.[1], zone = t.match(/Zone (R\d|[A-Z]{1,2}\d)/)?.[1], fsr = t.match(/Floor Space Ratio Map shows ([\d.]+):1/i)?.[1]
-    lot = area || zone ? { address: 'a lot', lot: null, area_m2: area ? Number(area.replace(/,/g, '')) : null, zone, fsr_map: fsr ? Number(fsr) : null } : null
+    // a hypothetical lot is exactly what the question states: on no mapped area it does not name (said in the answer)
+    lot = area || zone ? { address: 'a hypothetical lot', lot: null, area_m2: area ? Number(area.replace(/,/g, '')) : null, zone, fsr_map: fsr ? Number(fsr) : null, mapped: [], terms: {},
+      assumed: 'the question states all the facts: the lot is on no mapped area it does not name' } : null
   }
   if (q.kind === 'precedence') return { ask: null, mode: 'precedence', lot }
   if (q.kind === 'extraction') return { ask: null, mode: 'extraction', lot }
@@ -54,6 +59,7 @@ async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const E = await loadEngine(q), C = await loadCorpus(q)
+  INSTS = C.insts
   VOCAB = [...new Set(E.claims.flatMap(c => c.uses))].filter(u => u.length > 3).sort((a, b) => b.length - a.length)
   const questions = (await q(`SELECT id, set_name, clause, kind, use_term, text, lot_facts FROM rag.question ORDER BY set_name, clause, cadid`)).rows
   const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('answer', $1) RETURNING id`, [JSON.stringify({ variants: ['D'], model: 'deterministic', claims: E.claims.length })])).rows[0].id

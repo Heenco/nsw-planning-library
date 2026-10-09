@@ -14,13 +14,15 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 
 const run = promisify(execFile)
-const PLAN = 'Randwick Local Environmental Plan 2012'
 
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
-  const RANDWICK = (await q(`SELECT document_id FROM rag.instrument WHERE kind = 'lep'`)).rows[0].document_id
-  const pilotRun = (await q(`SELECT id FROM pilot.run WHERE document_id = $1 AND stage = 'propositions' ORDER BY started_at DESC LIMIT 1`, [RANDWICK])).rows[0]?.id ?? null
+  // the pilot runs on one plan: the corpus's LEP (with more than one, the plan each question's lot falls under is needed - not built)
+  const leps = (await q(`SELECT document_id, title FROM rag.instrument WHERE kind = 'lep'`)).rows
+  if (leps.length !== 1) throw new Error(`the pilot runs on one plan; the corpus holds ${leps.length} LEPs`)
+  const PLAN: string = leps[0].title
+  const pilotRun = (await q(`SELECT id FROM pilot.run WHERE document_id = $1 AND stage = 'propositions' ORDER BY started_at DESC LIMIT 1`, [leps[0].document_id])).rows[0]?.id ?? null
   const questions = (await q(`SELECT id, set_name, cadid, kind, use_term, text FROM rag.question ORDER BY set_name, clause`)).rows
   const stage = (await q(`INSERT INTO rag.run (stage, config) VALUES ('engine', $1) RETURNING id`, [JSON.stringify({ plan: PLAN, pilot_run: pilotRun })])).rows[0].id
   await q(`DELETE FROM rag.engine_answer`)

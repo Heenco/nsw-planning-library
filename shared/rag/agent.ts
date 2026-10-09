@@ -8,24 +8,30 @@
 import { chat, MODELS, type ChatMessage } from './deepinfra'
 import { search, provisionOf, clauseKey, queryVec, type Corpus, type Chunk } from './retrieve'
 import { resolve, type Claim, type Rel, type Prov } from './resolver'
-import { SYSTEM, parseAnswer, type Answer } from './answer'
+import { systemPrompt, parseAnswer, type Answer } from './answer'
+import { shortName, type Inst } from './refs'
 import { embed } from './deepinfra'
 
 const fn = (name: string, description: string, properties: Record<string, any>, required: string[]) => ({ type: 'function', function: { name, description, parameters: { type: 'object', properties, required } } })
-export const TOOLS = [
-  fn('search', 'Hybrid search over the LEP and the Housing SEPP. Returns the best matching provisions with their place in the instrument.', { query: { type: 'string' } }, ['query']),
-  fn('open', 'Read a whole clause or section, e.g. "Randwick LEP 2012 cl 4.1A" or "Housing SEPP s 169".', { ref: { type: 'string' } }, ['ref']),
+/** the tools, worded for the instruments in the corpus */
+export const toolsFor = (insts: Inst[]) => {
+  const names = insts.map(i => shortName(i.title)), lep = insts.find(i => i.kind === 'lep'), sepp = insts.find(i => i.kind === 'sepp')
+  const eg = (i: Inst | undefined, c: string) => i ? `"${shortName(i.title)} ${c}"` : null
+  return [
+  fn('search', `Hybrid search over the ${names.join(' and the ')}. Returns the best matching provisions with their place in the instrument.`, { query: { type: 'string' } }, ['query']),
+  fn('open', `Read a whole clause or section, e.g. ${[eg(lep, 'cl 4.1A'), eg(sepp, 's 169')].filter(Boolean).join(' or ')}.`, { ref: { type: 'string' } }, ['ref']),
   fn('overridden_by', 'What overrides a clause: provisions that apply despite it, prevail over it, displace it as a non-discretionary standard, or are more specific.', { ref: { type: 'string' } }, ['ref']),
   fn('follow', 'What a clause overrides, refers to, is subject to, and the conditions that limit where it applies.', { ref: { type: 'string' } }, ['ref']),
-  fn('land_use_table', 'The Randwick LEP Land Use Table for one zone (objectives, permitted without consent, with consent, prohibited).', { zone: { type: 'string', description: 'e.g. R2' } }, ['zone']),
-  fn('definition', 'The definition of a term in the LEP Dictionary or the Housing SEPP.', { term: { type: 'string' } }, ['term']),
+  fn('land_use_table', `The ${lep ? shortName(lep.title) : 'LEP'} Land Use Table for one zone (objectives, permitted without consent, with consent, prohibited).`, { zone: { type: 'string', description: 'e.g. R2' } }, ['zone']),
+  fn('definition', `The definition of a term in the ${names.join(' or the ')}.`, { term: { type: 'string' } }, ['term']),
   fn('resolve', 'Decide which of several provisions governs, by fixed precedence (despite, prevails, non-discretionary standards, SEPP over LEP, specific over general). Give every candidate rule you found; the ruling comes back with a trace. Use it whenever two provisions give different answers.', {
     claims: { type: 'array', items: { type: 'object', properties: {
-      ref: { type: 'string', description: 'e.g. "Housing SEPP s 168(2)(d)"' }, effect: { type: 'string', enum: ['value', 'permit', 'prohibit'] },
+      ref: { type: 'string', description: `e.g. ${eg(sepp, 's 168(2)(d)') ?? eg(lep, 'cl 4.4(2)')}` }, effect: { type: 'string', enum: ['value', 'permit', 'prohibit'] },
       value: { type: 'number' }, unit: { type: 'string' }, comparator: { type: 'string', enum: ['max', 'min'] },
       applies: { type: 'string', enum: ['yes', 'no', 'unknown'], description: 'does this provision apply to this lot and proposal' },
       condition: { type: 'string', description: 'when applies is unknown: the fact that decides it' } }, required: ['ref', 'effect', 'applies'] } } }, ['claims']),
-]
+  ]
+}
 
 const clip = (s: string, n: number) => s.length > n ? s.slice(0, n) + ' ...' : s
 const show = (c: Chunk) => `### ${c.header}\n${clip(c.body, 2500)}`
@@ -37,7 +43,7 @@ const show = (c: Chunk) => `### ${c.header}\n${clip(c.body, 2500)}`
 export async function runAgent(C: Corpus, question: string, lot: any, opts: { maxSteps?: number; seed?: string } = {}) {
   const maxSteps = opts.maxSteps ?? 8
   const messages: ChatMessage[] = [
-    { role: 'system', content: SYSTEM + `
+    { role: 'system', content: systemPrompt(C.insts) + `
 You have tools to read further: open a whole clause, see what overrides it (overridden_by) or what it overrides and what limits where it applies (follow), read a zone's Land Use Table, look up a definition, or search again.
 Work in this order:
 1. From the provisions given and any you read, list every provision that could answer the question for this lot, and whether it applies to the lot (yes / no / unknown, with the deciding fact).
@@ -81,7 +87,7 @@ Work in this order:
     },
   }
   for (let step = 0; step < maxSteps; step++) {
-    const r = await chat({ messages, tools: TOOLS, maxTokens: 1200, model: MODELS.answer })
+    const r = await chat({ messages, tools: toolsFor(C.insts), maxTokens: 1200, model: MODELS.answer })
     tin += r.tokens_in; tout += r.tokens_out; cost += r.cost_usd
     messages.push(r.message)
     if (!r.tool_calls.length) {

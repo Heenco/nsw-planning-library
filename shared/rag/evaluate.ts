@@ -16,6 +16,7 @@
  */
 import { landUseKey } from '../land-use-key'
 import { resolve, type Claim as RClaim, type Rel, type Prov, type Resolution } from './resolver'
+import { shortName } from './refs'
 
 export type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
 /** pathway: a development application (the default) or a complying / exempt development certificate */
@@ -23,27 +24,35 @@ export interface Ask { kind: 'permissibility' | 'standard' | 'subdivision'; use:
   /** subdivision: how many lots, which title, when the consent for the development on the lot was granted, and whether the
    *  subdivision comes from one application with that development */
   lots?: number; tenure?: 'torrens' | 'strata' | 'community' | null; consentDate?: string | null; combinedDa?: boolean | null
-  /** answer from one instrument only ("Under Randwick LEP 2012, ...") */
-  only?: 'lep' | 'sepp' }
+  /** answer from one instrument only ("Under <instrument>, ..."): its document id */
+  only?: string }
 interface C { id: string; provision_id: string; kind: string; consent: string | null; uses: string[]; zones: string[]; terms: string[]; excludes: string[]; requires: any[]
   topic: string | null; comparator: string | null; value: number | null; unit: string | null; value_source: string | null; band: any; non_discretionary: boolean; unit_provision: string | null; span: string | null; reader: string }
 interface PV { id: string; local_id: string; document_id: string; doc_kind: string; path: string[]; parent_id: string | null; heading: string | null }
-export interface Engine { claims: C[]; provs: Map<string, PV>; rels: Rel[]; provMap: Map<string, Prov>; zoneNames: Map<string, string>; label: (provId: string) => string }
+/** how a claim's condition is tested (rag.claim_binding, decided when the graph was built - scripts/rag/02d-bindings.ts) */
+interface Binding { claim_id: string; part: string; text: string; status: string; scope_terms: string[]; sources: string[]; assume_absent: boolean; note: string | null }
+export interface Engine { claims: C[]; provs: Map<string, PV>; rels: Rel[]; provMap: Map<string, Prov>; zoneNames: Map<string, string>; label: (provId: string) => string
+  bindings: Map<string, Binding[]>; shortNames: Map<string, string>
+  /** the date each instrument's text is in force as at (nsw.document.as_at_date, Sydney date): every answer is the law on that day */
+  asAt: Map<string, string> }
 
-export interface Tested { claim: C; holds: boolean | null; why: string[]; notChecked: string[]; subs: Result[] }
+/** one condition as it was tested on the lot - or why it could not be */
+export interface Check { text: string; result: boolean | null; how: string; could: boolean }
+export interface Tested { claim: C; holds: boolean | null; why: string[]; notChecked: string[]; subs: Result[]; checks: Check[] }
 export interface Limit { label: string; text: string; status: 'met' | 'not met' | 'depends' | 'applies'; detail: string; subs: Result[] }
 export interface Result { ask: Ask; answer: { effect: string; value?: number | null; unit?: string | null; expr?: string } | null; verdict: string; ruling: Resolution | null
-  tested: Tested[]; limits: Limit[]; notChecked: string[]; note?: string }
+  tested: Tested[]; limits: Limit[]; notChecked: string[]; note?: string; checks: Check[] }
 
-/** scope terms and frame exclusions the lot facts can answer; anything else is unknown (terms) or not checked (exclusions) */
-const FACTS: [RegExp, (l: any) => boolean | null][] = [
-  [/low and mid rise housing area/i, l => l.low_mid_rise_area?.band ? l.low_mid_rise_area.class !== 'excluded' : false],
-  [/heritage item/i, l => l.heritage == null ? false : /item/i.test(l.heritage)],
-]
-const fact = (term: string, lot: any) => FACTS.find(([re]) => re.test(term))?.[1](lot) ?? undefined
+export { shortName }
 
 export async function loadEngine(q: Query): Promise<Engine> {
   const claims: C[] = (await q(`SELECT c.*, c.value::float8 AS value FROM rag.claim c`)).rows
+  const bindings = new Map<string, Binding[]>()
+  for (const b of (await q(`SELECT claim_id, part, text, status, scope_terms, sources, assume_absent, note FROM rag.claim_binding`).catch(() => ({ rows: [] as any[] }))).rows)
+    bindings.set(b.claim_id, [...(bindings.get(b.claim_id) ?? []), b])
+  const shortNames = new Map<string, string>((await q(`SELECT document_id, title FROM rag.instrument`)).rows.map(r => [r.document_id, shortName(r.title)]))
+  const asAt = new Map<string, string>((await q(`SELECT i.document_id, (d.as_at_date AT TIME ZONE 'Australia/Sydney')::date::text AS as_at
+                                                   FROM rag.instrument i JOIN nsw.document d ON d.id = i.document_id WHERE d.as_at_date IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows.map(r => [r.document_id, r.as_at]))
   const provs = new Map<string, PV>((await q(`SELECT p.id, p.local_id, p.document_id, i.kind doc_kind, coalesce(p.path, '{}') path, p.parent_id, p.heading
                                                 FROM rag.provision p JOIN rag.instrument i USING (document_id)`)).rows.map(r => [r.id, r]))
   const rels: Rel[] = (await q(`SELECT kind, from_provision, to_provision, to_document, to_ref, status, basis, span FROM rag.relation WHERE kind NOT IN ('part_of', 'next', 'refers_to', 'defines')`)).rows
@@ -54,7 +63,7 @@ export async function loadEngine(q: Query): Promise<Engine> {
     const segs = p.local_id.split('#')[0]!.split('-').filter(s => !/^oc\.\d+$/.test(s))
     if (p.path.some(x => x.startsWith('pt-cg')) || p.local_id.startsWith('pt-cg')) {
       const g = p.local_id.startsWith('pt-cg') ? p.local_id : p.path.find(x => x.startsWith('pt-cg'))!
-      return `Randwick LEP Land Use Table, ${g.replace(/^pt-cg1\.Zone_/, 'Zone ')}${p.heading ? ` (${p.heading})` : ''}`
+      return `${shortNames.get(p.document_id) ?? ''} Land Use Table, ${g.replace(/^pt-cg1\.Zone_/, 'Zone ')}${p.heading ? ` (${p.heading})` : ''}`.trim()
     }
     let s = ''
     for (const seg of segs) {
@@ -66,9 +75,9 @@ export async function loadEngine(q: Query): Promise<Engine> {
       else if ((m = seg.match(/^pt\.(.+)$/))) s += `Pt ${m[1]} `
     }
     if (p.local_id.includes('#')) s += ' table'
-    return `${p.doc_kind === 'sepp' ? 'Housing SEPP' : 'Randwick LEP'} ${s.trim()}`
+    return `${shortNames.get(p.document_id) ?? ''} ${s.trim()}`.trim()
   }
-  return { claims, provs, rels, provMap, zoneNames, label }
+  return { claims, provs, rels, provMap, zoneNames, label, bindings, shortNames, asAt }
 }
 
 const useMatch = (claimUse: string, asked: string) => {
@@ -77,14 +86,52 @@ const useMatch = (claimUse: string, asked: string) => {
 }
 
 export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
-  const E: Engine = ask.only ? { ...E0, claims: E0.claims.filter(c => E0.provs.get(c.provision_id)?.doc_kind === ask.only) } : E0
+  const E: Engine = ask.only ? { ...E0, claims: E0.claims.filter(c => E0.provs.get(c.provision_id)?.document_id === ask.only) } : E0
   const ancestors = (id: string | null): string[] => { const out: string[] = []; for (let x = id ? E.provs.get(id) : undefined; x; x = x.parent_id ? E.provs.get(x.parent_id) : undefined) out.push(x.id); return out }
   const framesFor = (c: C) => {
     const units = new Set([...ancestors(c.provision_id), ...ancestors(c.unit_provision)])
     return E.claims.filter(f => f.kind === 'frame' && f.unit_provision && units.has(f.unit_provision))
   }
   const proposal = ask.proposal ?? 'development'
-  const scope = (c: C, why: string[], notChecked: string[], subs: Result[], isFrame: boolean): boolean | null => {
+  /**
+   * A condition tested through the binding the graph build gave it: the registered layers (nsw.scope_layer, tested on
+   * this lot into lot.terms), a council list, or nothing - and then it is said that it could not be checked, and why.
+   */
+  const viaBinding = (c: C, text: string, part: string): Check => {
+    const b = E.bindings.get(c.id)?.find(x => x.part === part && x.text === text)
+    if (!b) return { text, result: null, how: 'no binding: the graph build did not decide how to test it', could: false }
+    if (b.status === 'bound') {
+      const lgaT = b.scope_terms.filter(t => t.startsWith('lga:')), layerT = b.scope_terms.filter(t => !/^(lga:|map:|!?zone:|zoneclass:|area>=|lot$)/.test(t))
+      const lgaR = lgaT.length ? (lot.lga ? lgaT.some(t => t.slice(4) === String(lot.lga).toUpperCase()) : null) : undefined
+      // a list item's own tests: the lot's zone (named, excepted, or by class), its area, a map label's polygon
+      const zIn = b.scope_terms.filter(t => /^(zone|zoneclass):/.test(t)), zOut = b.scope_terms.filter(t => t.startsWith('!zone:'))
+      const zName = E.zoneNames.get(String(lot.zone)) ?? ''
+      const zoneR = zIn.length || zOut.length ? (lot.zone == null ? null
+        : (!zIn.length || zIn.some(t => t.startsWith('zone:') ? t.slice(5) === String(lot.zone) : new RegExp(t.slice(9), 'i').test(zName))) && !zOut.some(t => t.slice(6) === String(lot.zone))) : undefined
+      const areaT = b.scope_terms.find(t => t.startsWith('area>='))
+      const areaR = areaT ? (lot.area_m2 == null ? null : Number(lot.area_m2) >= Number(areaT.slice(6))) : undefined
+      const mapT = b.scope_terms.filter(t => t.startsWith('map:'))
+      const shareOf = (t: string) => { const [m, l] = t.slice(4).split('|'); return Math.max(0, ...(Array.isArray(lot.mapped) ? lot.mapped : []).filter((x: any) => String(x.map).toLowerCase().replace(/ map$/, '') === m && String(x.label).toLowerCase() === l).map((x: any) => Number(x.share))) }
+      const mapR = mapT.length ? (!Array.isArray(lot.mapped) ? null : mapT.some(t => shareOf(t) >= 0.9) ? true : mapT.every(t => shareOf(t) <= 0.05) ? false : null) : undefined
+      const layerRs = layerT.map(t => ({ t, f: lot.terms?.[t] as { holds: boolean | null; why: string } | undefined }))
+      const both = /(both|all) must hold/.test(b.note ?? '')
+      const layerR = !layerT.length ? undefined
+        : both ? (layerRs.some(x => x.f?.holds === false) ? false : layerRs.every(x => x.f?.holds === true) ? true : null)
+        : (layerRs.some(x => x.f?.holds === true) ? true : layerRs.every(x => x.f?.holds === false) ? false : null)
+      const parts = [lgaR, layerR, zoneR, areaR, mapR].filter(x => x !== undefined) as (boolean | null)[]
+      const result = both ? (parts.includes(false) ? false : parts.every(x => x === true) ? true : null) : (parts.includes(true) ? true : parts.every(x => x === false) ? false : null)
+      const how = [lgaT.length ? `council ${lot.lga ?? 'not recorded'}` : null,
+        zoneR !== undefined ? `zone ${lot.zone ?? 'not recorded'}${zName ? ` (${zName})` : ''}` : null,
+        areaT ? `lot area ${lot.area_m2 ?? '?'} m2 against ${areaT.slice(6)} m2 (${b.note ?? 'site area'})` : null,
+        ...mapT.map(t => `${t.slice(4).replace('|', ': ')} - ${Array.isArray(lot.mapped) ? `${Math.round(shareOf(t) * 100)}% of the lot inside` : 'map facts not computed'}`),
+        ...layerRs.map(x => `${x.t}: ${x.f ? `${x.f.holds == null ? 'unknown' : x.f.holds ? 'yes' : 'no'} (${x.f.why})` : 'not computed for this lot'}`)].filter(Boolean).join('; ')
+      return { text, result, how, could: result !== null }
+    }
+    if (b.status === 'no_data') return b.assume_absent ? { text, result: false, how: `assumed absent - no dataset held (${b.note ?? b.scope_terms.join(', ')})`, could: true }
+      : { text, result: null, how: `no dataset held for ${b.scope_terms.join(', ')}${b.note ? ` (${b.note})` : ''}`, could: false }
+    return { text, result: null, how: b.status === 'no_polygon' ? 'no polygon for this map label' : b.status === 'no_match' ? 'no registered layer matches these words' : b.note ?? b.status, could: false }
+  }
+  const scope = (c: C, why: string[], notChecked: string[], subs: Result[], isFrame: boolean, checks: Check[] = []): boolean | null => {
     let h: boolean | null = true
     const and = (r: boolean | null, w: string) => { why.push(`${w}: ${r == null ? 'unknown' : r ? 'yes' : 'no'}`); if (r === false) h = false; else if (r == null && h !== false) h = null }
     if (c.uses.length) and(c.uses.some(u => useMatch(u, ask.use)), `use ${c.uses.join(' / ')}`)
@@ -107,7 +154,11 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       // a figure the consent authority may allow if it is satisfied: never assumed either way - the answer splits on it
       else if (t.startsWith('discretion:')) and(null, `the consent authority is satisfied (${t.slice(11, 120)})`)
       else if (t === 'detached') and(ask.detached ?? null, 'detached')
-      else { const f = fact(t, lot); and(f === undefined ? null : f, t) }
+      else {
+        const ch = viaBinding(c, t, 'term'); checks.push(ch)
+        if (!ch.could) notChecked.push(`${t} - ${ch.how}`)
+        and(ch.result, t)
+      }
     }
     // the land a claim describes - by its lots and / or by a mapped area - is one place said two ways: in it if either
     // description says so. A lot only partly covered ("Part of Lot 7020", or a map polygon over part of the lot) is
@@ -125,10 +176,14 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
         } else {
           const m = t.slice(7).match(/^(.+) on the (.+?)(?: Map)?$/); if (!m) continue
           const labels = m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()), map = m[2]!.toLowerCase()
-          if (!Array.isArray(lot.mapped)) { notChecked.push(`${t.slice(7)} (map not held)`); results.push(false); said.push(`${t.slice(7)}: map not held - not checked`); continue }
+          // fail closed: no polygon for the map label (decided at build), or the lot's map facts not computed -> unknown
+          const b = E.bindings.get(c.id)?.find(x => x.part === 'mapped' && x.text === t.slice(7))
+          if (b && b.status !== 'bound') { notChecked.push(`${t.slice(7)} - no polygon for this map label`); checks.push({ text: t.slice(7), result: null, how: 'no polygon for this map label', could: false }); results.push(null); said.push(`${t.slice(7)}: no polygon - not checked`); continue }
+          if (!Array.isArray(lot.mapped)) { notChecked.push(`${t.slice(7)} - map facts not computed for this lot`); checks.push({ text: t.slice(7), result: null, how: 'map facts not computed for this lot', could: false }); results.push(null); said.push(`${t.slice(7)}: not computed`); continue }
           const hit = lot.mapped.filter((x: any) => String(x.map).toLowerCase() === map && labels.includes(String(x.label).toLowerCase()))
           const share = Math.max(0, ...hit.map((x: any) => Number(x.share)))
           const r = share >= 0.9 ? true : share > 0.05 ? null : false
+          checks.push({ text: t.slice(7), result: r, how: `map polygon (nsw.rule_spatial_ref): ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'lot not inside'}`, could: true })
           results.push(r); said.push(`${t.slice(7)}: ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'not inside'}`)
         }
       }
@@ -136,8 +191,10 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     }
     for (const ex of c.excludes) {
       if (ex.startsWith('zone:')) { const name = ex.slice(5); and(!new RegExp(name.replace(/ zone$/, ''), 'i').test(E.zoneNames.get(String(lot.zone)) ?? ''), `not in a ${name}`); continue }
-      const f = fact(ex, lot)
-      if (f === undefined) notChecked.push(ex); else and(!f, `not ${ex}`)
+      // an exclusion: the lot must be outside it - unknown when its layer could not answer (fail closed, said why)
+      const ch = viaBinding(c, ex, 'exclude'); checks.push({ ...ch, text: `excluded if: ${ex}` })
+      if (!ch.could) notChecked.push(`${ex} - ${ch.how}`)
+      and(ch.result == null ? null : !ch.result, `not ${ex}`)
     }
     // a band on the lot's area or on its frontage (the rule here: a lot's width is its primary frontage)
     const bandValue = c.band?.metric === 'lot_size' ? lot.area_m2 : c.band?.metric === 'frontage' ? lot.frontage_m : undefined
@@ -153,12 +210,33 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       subs.push(sub); and(sub.verdict === 'permitted' ? true : sub.verdict === 'prohibited' ? false : null, `${r.permissible} permissible here`)
     }
     if (!isFrame) for (const f of framesFor(c)) {
-      const w: string[] = []; const r = scope(f, w, notChecked, subs, true)
+      // a frame whose condition is a list, bound item by item at build: each item tested, combined as the list says
+      const fb = E.bindings.get(f.id) ?? [], itemsRow = fb.find(b => b.part === 'frame' && b.status === 'items')
+      if (itemsRow) {
+        const rs = fb.filter(b => b.part === 'item').map(b => {
+          const ch: Check = b.status === 'proposal_fact' || b.status === 'discretion' ? { text: b.text, result: null, how: b.note ?? b.status, could: false } : viaBinding(f, b.text, 'item')
+          checks.push({ ...ch, text: `${E.label(f.provision_id)}: ${b.text}` })
+          if (!ch.could) notChecked.push(`${E.label(f.provision_id)}: ${b.text} - ${ch.how}`)
+          return ch.result
+        })
+        const comb = itemsRow.note ?? 'unknown'
+        const r = comb === 'any' ? (rs.includes(true) ? true : rs.every(x => x === false) ? false : null)
+          : comb === 'all' ? (rs.includes(false) ? false : rs.every(x => x === true) ? true : null)
+          : rs.every(x => x === true) ? true : rs.every(x => x === false) ? false : null
+        and(r, `frame ${E.label(f.provision_id)} [${comb === 'any' ? 'any' : comb === 'all' ? 'all' : 'how they combine is not read; '} of ${rs.length} listed conditions]`); continue
+      }
+      // a frame whose scope the build could not read: the claim's reach is unknown, not "everywhere"
+      if (fb.some(b => b.part === 'frame' && b.status === 'unscoped')) {
+        notChecked.push(`where ${E.label(f.provision_id)} applies - its scope was not read`)
+        checks.push({ text: `frame ${E.label(f.provision_id)}`, result: null, how: 'its scope was not read when the graph was built', could: false })
+        and(null, `frame ${E.label(f.provision_id)} [scope not read]`); continue
+      }
+      const w: string[] = []; const r = scope(f, w, notChecked, subs, true, checks)
       and(r, `frame ${E.label(f.provision_id)} [${w.join('; ')}]`)
     }
     return h
   }
-  const test = (c: C): Tested => { const why: string[] = [], notChecked: string[] = [], subs: Result[] = []; const holds = scope(c, why, notChecked, subs, false); return { claim: c, holds, why, notChecked, subs } }
+  const test = (c: C): Tested => { const why: string[] = [], notChecked: string[] = [], subs: Result[] = [], checks: Check[] = []; const holds = scope(c, why, notChecked, subs, false, checks); return { claim: c, holds, why, notChecked, subs, checks } }
   /** a claim with no use of its own speaks for the uses of its frames ("development to which this Part applies").
    *  A permission or prohibition of a narrower kind still answers the broader question (it is reported as "only as ...");
    *  a standard on a narrower kind (terraces) does not bind the broader use (multi dwelling housing). */
@@ -172,6 +250,13 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   const toR = (t: Tested, effect: 'value' | 'permit' | 'prohibit', value?: number | null): RClaim => ({ id: t.claim.id, provision: t.claim.provision_id, effect, value: value ?? null, unit: t.claim.unit,
     comparator: (t.claim.comparator as any) ?? null, holds: t.holds, condition: t.holds == null ? t.why.filter(w => /unknown/.test(w)).join('; ') : null, label: E.label(t.claim.provision_id) })
   const notChecked = new Set<string>()
+  /** the conditions tested for the rules that reach the lot, and every one that could not be tested - each once */
+  // the checks behind the answer: every check of a claim that applies, every check no data could settle, and - for a
+  // claim that does not apply - the check that ruled it out (an exclusion that holds, a condition that fails)
+  const decisive = (ch: Check) => ch.could && (ch.text.startsWith('excluded if:') ? ch.result === true : ch.result === false)
+  const aggChecks = (ts: Tested[]) => { const seen = new Map<string, Check>()
+    for (const t of ts) for (const ch of t.checks) if (t.holds !== false || !ch.could || decisive(ch)) seen.set(`${ch.text}|${ch.how}`, ch)
+    return [...seen.values()] }
 
   if (ask.kind === 'permissibility') {
     const tested = E.claims.filter(c => (c.kind === 'permit' || c.kind === 'prohibit') && aboutUse(c)).map(test)
@@ -269,7 +354,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
         limits.push({ label: E.label(c.provision_id).replace(/\((a|i)\)$/, ''), text: c.band?.of ? `group:${c.band.of}` : (c.span ?? ''), status, detail: `${c.topic?.replace('_', ' ')}: ${detail}${c.non_discretionary ? ' (non-discretionary standard)' : ''}`, subs })
       }
     }
-    return { ask, answer: ruling.answer, verdict, ruling, tested, limits, notChecked: [...notChecked], note }
+    return { ask, answer: ruling.answer, verdict, ruling, tested, limits, notChecked: [...notChecked], note, checks: aggChecks(tested) }
   }
 
   // a subdivision: the minimum lot size is a ruling (it may turn on a date nobody gave - then each case is answered),
@@ -305,7 +390,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     }
     return { ask, answer, verdict, ruling: min.ruling, tested: min.tested,
       limits: [{ label: 'Each resulting lot', text: 'resolved:lot_size', status: verdict === 'yes' ? 'met' : verdict === 'no' ? 'not met' : 'depends', detail: `about ${each != null ? Math.round(each) : '?'} m² from ${lot.area_m2} m² in ${lots} lots`, subs: [min] }],
-      notChecked: min.notChecked }
+      notChecked: min.notChecked, checks: min.checks }
   }
 
   // a figure: the standards on this topic that reach this lot and use
@@ -325,7 +410,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     const fsr = evaluate(E, { ...ask, topic: 'fsr' }, lot, depth + 1)
     const v = fsr.answer?.value != null && lot.area_m2 != null ? Math.round(Number(fsr.answer.value) * Number(lot.area_m2) * 10) / 10 : null
     return { ask, answer: v != null ? { effect: 'value', value: v, unit: 'm2', expr: `${fsr.answer!.value}:1 x ${lot.area_m2} m2` } : null, verdict: v != null ? 'decided' : fsr.verdict,
-      ruling: fsr.ruling, tested: fsr.tested, limits: [{ label: 'derived', text: 'floor space ratio x site area', status: 'applies', detail: v != null ? `${v} m2` : 'unknown', subs: [fsr] }], notChecked: fsr.notChecked }
+      ruling: fsr.ruling, tested: fsr.tested, limits: [{ label: 'derived', text: 'floor space ratio x site area', status: 'applies', detail: v != null ? `${v} m2` : 'unknown', subs: [fsr] }], notChecked: fsr.notChecked, checks: fsr.checks }
   }
   // "whichever is the greater / lesser" of alternatives: one figure, or an expression when one side is relative
   const groups = new Map<string, typeof live>()
@@ -341,7 +426,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   }
   const ruling = resolve(rclaims, E.rels, E.provMap)
   const answer = ruling.answer ? { ...ruling.answer, ...(expr ? { expr } : {}) } : null
-  return { ask, answer, verdict: ruling.verdict, ruling, tested, limits: [], notChecked: [...notChecked] }
+  return { ask, answer, verdict: ruling.verdict, ruling, tested, limits: [], notChecked: [...notChecked], checks: aggChecks(tested) }
 }
 
 /**
@@ -351,19 +436,31 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
  */
 export interface Explained {
   ask: Ask; verdict: string; answer: Result['answer']; note?: string; notChecked: string[]
+  checks: Check[]
+  /** the instruments the answer read, and the date their text is as at */
+  asAt: { instrument: string; date: string | null }[]
   claims: { provision_id: string; label: string; kind: string; uses: string[]; zones: string[]; value: number | null; unit: string | null; topic: string | null; non_discretionary: boolean; holds: boolean | null; why: string[]; won: boolean; subs: Explained[] }[]
-  steps: { rule: string; winner: string; winner_id: string | null; loser: string; loser_id: string | null; why: string; relation: string; basis: string; status: string }[]
+  steps: { rule: string; winner: string; winner_id: string | null; loser: string; loser_id: string | null; why: string; relation: string; relation_id: string | null; basis: string; status: string }[]
   branches: { if: string; answer: string | null; steps: Explained['steps'] }[]
   limits: { label: string; provision_id: string | null; detail: string; status: string; text: string; subs: Explained[] }[]
 }
+/** the instruments whose claims this answer tested (and its sub-questions), with the date their text is as at */
+function asAtOf(E: Engine, r: Result): Explained['asAt'] {
+  const docs = new Set<string>()
+  const walk = (x: Result) => { for (const t of x.tested) { const d = E.provs.get(t.claim.provision_id)?.document_id; if (d) docs.add(d); t.subs.forEach(walk) } x.limits.forEach(l => l.subs.forEach(walk)) }
+  walk(r)
+  return [...docs].map(d => ({ instrument: E.shortNames.get(d) ?? d, date: E.asAt.get(d) ?? null })).sort((a, b) => a.instrument.localeCompare(b.instrument))
+}
+
 export function explain(E: Engine, r: Result, depth = 0): Explained {
   const idOf = (label: string) => r.tested.find(t => E.label(t.claim.provision_id) === label || t.claim.id === label)?.claim.provision_id
     ?? [...E.provs.values()].find(p => E.label(p.id) === label)?.id ?? null
-  const steps = (tr: NonNullable<Result['ruling']>['trace']) => tr.map(s => ({ rule: s.rule, winner: s.winner, winner_id: idOf(s.winner), loser: s.loser, loser_id: idOf(s.loser), why: s.why, relation: s.by, basis: s.basis, status: s.status }))
+  const steps = (tr: NonNullable<Result['ruling']>['trace']) => tr.map(s => ({ rule: s.rule, winner: s.winner, winner_id: s.winner_provision ?? idOf(s.winner), loser: s.loser, loser_id: s.loser_provision ?? idOf(s.loser),
+    why: s.why, relation: s.by, relation_id: s.by_provision ?? null, basis: s.basis, status: s.status }))
   const won = new Set(r.ruling?.answer?.claims ?? [])
   const fig = (a: any) => a == null ? null : a.effect === 'value' ? `${a.value ?? ''}${a.unit ? ` ${a.unit}` : ''}`.trim() || null : a.effect
   return {
-    ask: r.ask, verdict: r.verdict, answer: r.answer, note: r.note, notChecked: [...new Set(r.notChecked)],
+    ask: r.ask, verdict: r.verdict, answer: r.answer, note: r.note, notChecked: [...new Set(r.notChecked)], checks: r.checks ?? [], asAt: asAtOf(E, r),
     claims: r.tested.map(t => ({ provision_id: t.claim.provision_id, label: E.label(t.claim.provision_id), kind: t.claim.kind, uses: t.claim.uses, zones: t.claim.zones,
       value: (t as any).value ?? t.claim.value, unit: t.claim.unit, topic: t.claim.topic, non_discretionary: t.claim.non_discretionary, holds: t.holds, why: t.why, won: won.has(t.claim.id),
       subs: depth < 3 ? t.subs.map(s => explain(E, s, depth + 1)) : [] })),
@@ -383,6 +480,9 @@ export function writeAnswer(E: Engine, r: Result, lot: any): string {
     : x.answer.expr && /x/.test(x.answer.expr) ? `${x.answer.value} ${unitOf(x.answer.unit)} (${x.answer.expr})`     // derived: 187.9 m² (0.65:1 x 289 m2)
     : x.answer.expr ?? `${x.answer.value} ${unitOf(x.answer.unit)}`.trim()
   const where = `${lot.address ?? lot.lot} (${lot.area_m2} m2, Zone ${lot.zone})`
+  // a precedence step that rests on a reading the text does not state (more_specific_than, proposed) says so
+  const interp = (s: { basis: string; status: string }) => s.basis === 'interpretive' && s.status !== 'verified'
+  const stepLine = (s: NonNullable<Result['ruling']>['trace'][number]) => `- ${s.winner} prevails over ${s.loser}: ${s.why}${interp(s) ? ' [an interpretive reading, not stated in the text - not yet verified]' : ''}.`
   if (r.ask.kind === 'permissibility') {
     L.push(`${r.ask.use[0]!.toUpperCase()}${r.ask.use.slice(1)} on ${where}: ${r.verdict === 'permitted' ? `permissible ${r.answer && r.tested.find(t => t.claim.id === r.ruling?.answer?.claims?.[0])?.claim.consent === 'without' ? 'without' : 'with'} consent` : r.verdict === 'prohibited' ? 'prohibited' : r.verdict === 'maybe' ? 'it depends - see below' : 'no rule found'}${r.note ? ` (${r.note})` : ''}.`)
     for (const t of r.tested.filter(t => t.holds !== false)) {
@@ -394,7 +494,7 @@ export function writeAnswer(E: Engine, r: Result, lot: any): string {
       for (const f of t.why.filter(w => /^frame/.test(w))) L.push(`    ${f.replace(/^frame /, 'applies because ').replace(/: yes$/, '')}`)
       for (const s of t.subs) L.push(`    (${s.ask.use}: ${s.verdict} - ${s.tested.filter(x => x.holds !== false).map(x => E.label(x.claim.provision_id)).join(', ')})`)
     }
-    for (const s of r.ruling?.trace ?? []) L.push(`- ${s.winner} prevails over ${s.loser}: ${s.why}.`)
+    for (const s of r.ruling?.trace ?? []) L.push(stepLine(s))
     for (const b of r.ruling?.branches ?? []) L.push(`- if ${b.if}: ${b.answer?.effect ?? 'no rule'}`)
     if (r.limits.length) {
       L.push('Limits:')
@@ -408,12 +508,14 @@ export function writeAnswer(E: Engine, r: Result, lot: any): string {
   } else {
     const what = r.ask.kind === 'subdivision' ? `${r.ask.tenure ?? ''} subdivision into ${r.ask.lots ?? 2} lots - minimum lot size`.trim() : (r.ask.topic ?? '').replace('_', ' ')
     L.push(`${what[0]?.toUpperCase() ?? ''}${what.slice(1)} for ${r.ask.use} on ${where}: ${fmt(r)}${r.ask.kind === 'subdivision' ? ` - ${r.verdict === 'yes' ? 'each lot clears it' : r.verdict === 'no' ? 'the lots do not clear it' : 'depends'}` : r.verdict === 'maybe' ? ' (depends)' : ''}.`)
-    for (const s of r.ruling?.trace ?? []) L.push(`- ${s.winner} prevails over ${s.loser}: ${s.why}.`)
+    for (const s of r.ruling?.trace ?? []) L.push(stepLine(s))
     // the answer split on a fact nobody gave: each case with its figure and the rule that decides it
     const br = r.ruling?.branches ?? (r.ask.kind === 'subdivision' ? r.limits[0]?.subs[0]?.ruling?.branches : undefined) ?? []
     for (const b of br) L.push(`- if ${b.if.replace(/frame [^[]*\[|\]|: unknown/g, '').trim()}: ${b.answer?.value != null ? `${b.answer.value}${r.ask.topic === 'fsr' ? ':1' : ` ${unitOf(b.answer.unit) || (r.ask.topic === 'height' ? 'm' : '')}`}` : 'no limit'}${b.trace.length ? ` (${b.trace.map(s => `${s.winner} over ${s.loser}`).join('; ')})` : ''}`)
     for (const t of r.tested.filter(t => t.holds !== false)) L.push(`- ${E.label(t.claim.provision_id)}: ${(t as any).value ?? ''} ${t.claim.unit ?? ''}${t.claim.non_discretionary ? ' (non-discretionary)' : ''}${t.holds == null ? ` - only if ${t.why.filter(w => /unknown/.test(w)).map(w => w.replace(/: unknown$/, '')).join('; ').slice(0, 140)}` : ''}`)
   }
   if (r.notChecked.length) L.push(`Not checked (no data held): ${[...new Set(r.notChecked)].slice(0, 8).join('; ')}${r.notChecked.length > 8 ? '; ...' : ''}.`)
+  const at = asAtOf(E, r)
+  if (at.length) L.push(`Law as at: ${at.map(a => `${a.instrument} ${a.date ?? '(date not recorded)'}`).join('; ')} - amendments after that date are not read.`)
   return L.join('\n')
 }

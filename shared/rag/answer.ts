@@ -12,31 +12,39 @@
  * the figure appears in a cited provision (the check that catches "225 m2, cl 4.1A(4)(a)"); and an override the answer
  * did not address (an incoming despite / displaces_standard / prevails edge on a cited clause from a clause not cited).
  */
-import { provisionOf, subtreeText, clauseKey, type Corpus, type Chunk } from './retrieve'
+import { provisionOf, subtreeText, clauseKey, docLabel, type Corpus, type Chunk } from './retrieve'
+import { shortName, type Inst } from './refs'
 
 export interface Answer {
   verdict: 'yes' | 'no' | 'maybe' | null; value: number | null; unit: string | null; values_if?: { if: string; value: number }[]
   controlling: string[]; quotes: { cite: string; text: string }[]; unknowns: string[]; reasoning: string
 }
 
-export const SYSTEM = `You answer questions about NSW planning law for one lot, from the provisions you are given: Randwick Local Environmental Plan 2012 (the LEP) and parts of State Environmental Planning Policy (Housing) 2021 (the Housing SEPP).
+/** the instruments in the corpus, named as the prompt and the citations name them */
+export function systemPrompt(insts: Inst[]): string {
+  const leps = insts.filter(i => i.kind === 'lep'), sepps = insts.filter(i => i.kind === 'sepp')
+  const named = [...leps.map(i => `${i.title} (the ${leps.length === 1 ? 'LEP' : shortName(i.title)})`), ...sepps.map(i => `parts of ${i.title} (the ${shortName(i.title)})`)]
+  const eg = [...leps.slice(0, 1).map(i => `"${docLabel(i.title)} cl 4.4A(2)"`), ...sepps.slice(0, 1).map(i => `"${shortName(i.title)} s 168(2)(d)"`)].join(' or ')
+  return SYSTEM.replace('{INSTRUMENTS}', named.join(' and ')).replace('{EXAMPLES}', eg)
+}
+
+const SYSTEM = `You answer questions about NSW planning law for one lot, from the provisions you are given: {INSTRUMENTS}.
 Rules:
 - Use only the provisions and lot facts provided. Do not rely on outside knowledge of these instruments.
 - Several provisions may answer the same question. Work out which one governs: a provision that applies "despite" another, a SEPP that prevails over the LEP, a non-discretionary development standard, a more specific provision over a general one. Say which and why.
 - If the answer depends on a fact you were not given (a date, a proposal detail, a map you cannot see), the verdict is "maybe": list the unknown facts, and give the answer for each case in values_if when it is a figure.
 - If the provisions given do not settle the question, say "maybe" and explain - never guess.
-- Cite provisions as "<instrument> <clause>", e.g. "Randwick LEP 2012 cl 4.4A(2)" or "Housing SEPP s 168(2)(d)".
+- Cite provisions as "<instrument> <clause>", e.g. {EXAMPLES}.
 - Quotes must be copied exactly, word for word, from the provision cited.
 Reply with JSON only:
 {"verdict": "yes" | "no" | "maybe" | null, "value": number | null, "unit": string | null, "values_if": [{"if": string, "value": number}], "controlling": [string], "quotes": [{"cite": string, "text": string}], "unknowns": [string], "reasoning": string}
 verdict: for "is X permissible" yes = permissible (with or without consent), no = prohibited; for "can it be subdivided" yes/no; null when the question only asks for a figure or a description.`
 
-const shortDoc = (c: Chunk) => c.doc_kind === 'sepp' ? 'Housing SEPP 2021' : 'Randwick LEP 2012'
 const clauseLabel = (c: Chunk) => c.clause.replace(/^sec\./, c.doc_kind === 'sepp' ? 's ' : 'cl ').replace(/^pt-cg1\.Zone_/, 'Land Use Table, Zone ').replace(/^sch\./, 'Sch ')
 
 /** how a chunk is shown to the model: R0 with its instrument and clause only, R1+ with the full structural header */
 export function showChunk(c: Chunk, variant: string, why?: string): string {
-  const head = variant === 'R0' ? `${shortDoc(c)} ${clauseLabel(c)}` : c.header
+  const head = variant === 'R0' ? `${docLabel(c.doc_title)} ${clauseLabel(c)}` : c.header
   return `### ${head}${why ? `  [${why}]` : ''}\n${c.body}`
 }
 
@@ -87,7 +95,7 @@ export function checks(C: Corpus, a: Answer) {
     if (!['despite', 'displaces_standard', 'prevails_over'].includes(r.kind) || !r.to) continue
     const to = C.provs.get(r.to), from = C.provs.get(r.from); if (!to || !from) continue
     const toKey = `${to.document_id}|${clauseKey(to.local_id, to.path)}`, fromKey = `${from.document_id}|${clauseKey(from.local_id, from.path)}`
-    if (citedClauses.has(toKey) && !citedClauses.has(fromKey)) unaddressed.add(`${from.doc_kind === 'sepp' ? 'Housing ' : 'LEP '}${clauseKey(from.local_id, from.path)} ${r.kind} ${clauseKey(to.local_id, to.path)}`)
+    if (citedClauses.has(toKey) && !citedClauses.has(fromKey)) unaddressed.add(`${shortName(C.insts.find(i => i.document_id === from.document_id)?.title ?? from.doc_kind)} ${clauseKey(from.local_id, from.path)} ${r.kind} ${clauseKey(to.local_id, to.path)}`)
   }
   return {
     cites: cited.length, cites_resolved: cited.filter(c => c.id).length, unresolved_cites: cited.filter(c => !c.id).map(c => c.ref),
