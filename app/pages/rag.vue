@@ -148,12 +148,14 @@
         <div class="rg-cols">
           <div v-if="status.retrieval">
             <h3 class="rg-h3">Retrieval recall · gold clause in the first k</h3>
+            <div class="rg-scroll">
             <table class="rg-table">
               <thead><tr><th>Variant</th><th class="n">n</th><th class="n">any@3</th><th class="n">any@8</th><th class="n">all@3</th><th class="n">all@8</th></tr></thead>
               <tbody><tr v-for="(r, v) in status.retrieval.summary" :key="v">
                 <td><strong>{{ v }}</strong></td><td class="n">{{ r.n }}</td><td class="n">{{ p100(r['any@3']) }}</td><td class="n">{{ p100(r['any@8']) }}</td><td class="n">{{ p100(r['all@3']) }}</td><td class="n">{{ p100(r['all@8']) }}</td>
               </tr></tbody>
             </table>
+            </div>
             <p class="rg-muted">R2 most often misses: {{ status.retrieval.misses.join(', ') }}</p>
           </div>
           <div v-if="status.resolver">
@@ -166,14 +168,15 @@
         </div>
 
         <template v-if="status.queue?.length">
-          <h3 class="rg-h3">Adjudication queue · drafts for Manni to confirm or correct ({{ status.queue.length }} shown)</h3>
-          <article v-for="(a, i) in status.queue" :key="i" class="rg-step">
+          <h3 class="rg-h3">Adjudication queue · drafts for Manni to confirm or correct · most disputed first</h3>
+          <article v-for="(a, i) in (showAll ? status.queue : status.queue.slice(0, 12))" :key="i" class="rg-step">
             <div class="rg-step-head"><span class="rg-tag">{{ a.set_name }} {{ a.clause }}</span> <span class="rg-small">{{ a.text }}</span></div>
             <p class="rg-done"><span class="rg-k">Proposed</span>{{ ruling(a.expected) }}
               <span v-if="a.wrong_sides?.length" class="rg-bad"> · disagree: {{ a.wrong_sides.join(', ') }}</span></p>
             <p v-if="a.expected?.trace?.length" class="rg-done rg-small"><span class="rg-k">Why</span>{{ a.expected.trace.join(' → ') }}</p>
             <details v-if="a.quote" class="rg-small"><summary>controlling words</summary><p class="rg-quote">{{ a.quote }}</p></details>
           </article>
+          <button v-if="status.queue.length > 12" class="rg-more" @click="showAll = !showAll">{{ showAll ? 'Show fewer' : `Show all ${status.queue.length}` }}</button>
         </template>
       </template>
       </ClientOnly>
@@ -245,6 +248,7 @@ const sum = (rows: any[] | undefined, k: string) => (rows ?? []).reduce((a, r) =
 const when = (iso: string) => new Date(iso).toLocaleString('en-AU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 const took = (a: string, b: string) => { const s = (new Date(b).getTime() - new Date(a).getTime()) / 1000; return s < 90 ? `${s.toFixed(1)} s` : `${(s / 60).toFixed(1)} min` }
 const short = (o: unknown) => { const t = o ? JSON.stringify(o) : ''; return t.length > 160 ? t.slice(0, 157) + '…' : t }
+const showAll = ref(false)
 const SIDES = ['P', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4']
 const SETS = ['pilot_key', 'hard_case', 'propcode', 'grid']
 const SIDE_NAMES: Record<string, string> = { P: 'engine', R0: 'plain', R1: 'headers', R2: 'contextual', R3: '+ relations', L0: 'long context', R4: 'agent + resolver' }
@@ -319,6 +323,9 @@ const ruling = (e: any) => {
 .rg-where { margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 5px; }
 .rg-where code { font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #475569; }
 .rg-scroll { overflow-x: auto; }
+@media (max-width: 760px) { .rg-table { display: block; overflow-x: auto; } }
+.rg-list li, .rg-step, .rg-done { overflow-wrap: anywhere; }
+.rg-more { font-size: 12px; padding: 5px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #334155; cursor: pointer; }
 .rg-good { color: #15803d; }
 .rg-bad { color: #b91c1c; }
 .rg-quote { white-space: pre-wrap; background: #f8fafc; border-left: 3px solid #cbd5e1; padding: 6px 10px; margin: 6px 0 0; }
