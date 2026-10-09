@@ -46,7 +46,12 @@ async function main() {
     try {
       let answer, raw = '', retrieved: any[] = [], trace: any = null, tin = 0, tout = 0, c = 0
       if (v === 'R4') {
-        const r = await runAgent(C, x.text, x.lot_facts)
+        // seeded with what R3 finds, then free to navigate (unseeded, Llama answered 3 in 4 questions without reading anything - kept as R4u)
+        const hits = search(C, 'R3', x.text, await queryVec(x.text, embed), 8)
+        const extra = expand(C, hits.map(h => h.chunk), 8)
+        retrieved = [...hits.map(h => ({ chunk: h.chunk.id, header: h.chunk.header, why: 'search' })), ...extra.map(e => ({ chunk: e.chunk.id, header: e.chunk.header, why: e.why }))]
+        const seed = [...hits.map(h => showChunk(h.chunk, 'R3')), ...extra.map(e => showChunk(e.chunk, 'R3', e.why))].join('\n\n')
+        const r = await runAgent(C, x.text, x.lot_facts, { seed })
         answer = r.answer; raw = r.raw; trace = r.trace; tin = r.tokens_in; tout = r.tokens_out; c = r.cost_usd
       } else {
         let context: string

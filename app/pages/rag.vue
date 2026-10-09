@@ -249,9 +249,10 @@ const when = (iso: string) => new Date(iso).toLocaleString('en-AU', { day: 'nume
 const took = (a: string, b: string) => { const s = (new Date(b).getTime() - new Date(a).getTime()) / 1000; return s < 90 ? `${s.toFixed(1)} s` : `${(s / 60).toFixed(1)} min` }
 const short = (o: unknown) => { const t = o ? JSON.stringify(o) : ''; return t.length > 160 ? t.slice(0, 157) + '…' : t }
 const showAll = ref(false)
-const SIDES = ['P', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4']
-const SETS = ['pilot_key', 'hard_case', 'propcode', 'grid']
-const SIDE_NAMES: Record<string, string> = { P: 'engine', R0: 'plain', R1: 'headers', R2: 'contextual', R3: '+ relations', L0: 'long context', R4: 'agent + resolver' }
+const SIDES = ['P', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4u', 'R4']
+// the sets, then the grid by question (dual occupancy, secondary dwelling, multi dwelling housing, FSR, height, subdivision)
+const SETS = ['pilot_key', 'hard_case', 'propcode', 'grid', 'g_dual', 'g_secondary', 'g_mdh', 'g_fsr', 'g_height', 'g_subdiv']
+const SIDE_NAMES: Record<string, string> = { P: 'engine', R0: 'plain', R1: 'headers', R2: 'contextual', R3: '+ relations', L0: 'long context', R4u: 'agent, unseeded', R4: 'agent + resolver' }
 const sideName = (k: string) => SIDE_NAMES[k] ?? ''
 const p = (n: unknown) => n == null ? '—' : `${n}%`
 const p100 = (n: unknown) => n == null ? '—' : `${Math.round(Number(n) * 100)}%`

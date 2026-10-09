@@ -30,12 +30,22 @@ export const TOOLS = [
 const clip = (s: string, n: number) => s.length > n ? s.slice(0, n) + ' ...' : s
 const show = (c: Chunk) => `### ${c.header}\n${clip(c.body, 2500)}`
 
-export async function runAgent(C: Corpus, question: string, lot: any, opts: { maxSteps?: number } = {}) {
+/**
+ * seed: the provisions R3 retrieval found (hits + relation expansion), so the agent always starts from text. Llama 3.3
+ * left to itself answered 119 of 158 questions without a single tool call - from the lot facts alone.
+ */
+export async function runAgent(C: Corpus, question: string, lot: any, opts: { maxSteps?: number; seed?: string } = {}) {
   const maxSteps = opts.maxSteps ?? 8
   const messages: ChatMessage[] = [
-    { role: 'system', content: SYSTEM + '\nYou have tools to search and read the instruments. Read whole clauses before relying on them, check what overrides each clause you rely on, and when provisions conflict call resolve and follow its ruling. When you have the answer, reply with the JSON only.' },
-    { role: 'user', content: `Lot facts:\n${lot ? JSON.stringify(lot, null, 1) : '(no particular lot)'}\n\nQuestion: ${question}` },
+    { role: 'system', content: SYSTEM + `
+You have tools to read further: open a whole clause, see what overrides it (overridden_by) or what it overrides and what limits where it applies (follow), read a zone's Land Use Table, look up a definition, or search again.
+Work in this order:
+1. From the provisions given and any you read, list every provision that could answer the question for this lot, and whether it applies to the lot (yes / no / unknown, with the deciding fact).
+2. If two or more of them give different answers, or they come from both instruments, call resolve with all of them. Its ruling decides precedence; your answer must follow it. If it rules "maybe", your verdict is "maybe" with the cases.
+3. Reply with the JSON only. Every provision in "controlling" must be one you have read.` },
+    { role: 'user', content: `Lot facts:\n${lot ? JSON.stringify(lot, null, 1) : '(no particular lot)'}\n\n${opts.seed ? `Provisions found so far:\n${opts.seed}\n\n` : ''}Question: ${question}` },
   ]
+  let resolved = false, nudged = false
   const trace: any[] = []; let tin = 0, tout = 0, cost = 0
   const clauseChunks = (ref: string) => { const id = provisionOf(C, ref); if (!id) return null; const p = C.provs.get(id)!; return { p, chunks: C.byClause.get(`${p.document_id}|${clauseKey(p.local_id, p.path)}`) ?? [] } }
   const relLine = (r: Corpus['rels'][number], dir: 'in' | 'out') => {
@@ -66,7 +76,7 @@ export async function runAgent(C: Corpus, question: string, lot: any, opts: { ma
       const provs = new Map<string, Prov>([...C.provs.values()].map(p => [p.id, { id: p.id, local_id: p.local_id, path: p.path, document_id: p.document_id, doc_kind: p.doc_kind }]))
       const rels: Rel[] = C.rels.map(r => ({ kind: r.kind, from_provision: r.from, to_provision: r.to, to_document: r.to_document, to_ref: r.to_ref, status: r.status, basis: r.basis, span: r.span }))
       const r = resolve(claims, rels, provs)
-      trace.push({ resolver: r })
+      trace.push({ resolver: r }); resolved = true
       return JSON.stringify({ ruling: r.verdict, answer: r.answer, branches: r.branches?.map(b => ({ if: b.if, answer: b.answer })), trace: r.trace.map(s => `${s.rule}: ${s.winner} > ${s.loser} (${s.why}; ${s.basis}${s.status === 'proposed' && s.basis === 'interpretive' ? ', interpretive' : ''})`), unresolved: r.unresolved, dropped: r.dropped, unknown_refs: bad })
     },
   }
@@ -77,6 +87,13 @@ export async function runAgent(C: Corpus, question: string, lot: any, opts: { ma
     if (!r.tool_calls.length) {
       const ans = parseAnswer(r.content)
       const empty = ans && ans.verdict == null && ans.value == null && !ans.controlling.length
+      // an answer resting on several provisions, or on both instruments, goes through the resolver once before it stands
+      const docs = new Set((ans?.controlling ?? []).map(c => provisionOf(C, c)).filter(Boolean).map(id => C.provs.get(id!)!.doc_kind))
+      if (ans && !empty && !resolved && !nudged && ((ans.controlling.length ?? 0) > 1 || docs.size > 1)) {
+        nudged = true
+        messages.push({ role: 'user', content: 'Your answer relies on more than one provision. Call resolve with every provision you considered (with whether each applies to this lot), then give the JSON answer that follows its ruling.' })
+        continue
+      }
       if (ans && !empty) return { answer: ans, raw: r.content, trace, tokens_in: tin, tokens_out: tout, cost_usd: cost, steps: step + 1 }
       messages.push({ role: 'user', content: empty ? 'That answer is empty. Use the tools to find the provisions, then reply with the JSON answer.' : 'Reply with the JSON answer only, in the format given.' }); continue
     }

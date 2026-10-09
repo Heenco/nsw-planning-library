@@ -56,7 +56,8 @@ export function resolve(claims: Claim[], relations: Rel[], provs: Map<string, Pr
     branches.push({ if: conds.map(c => `${on.has(c) ? '' : 'not '}${c}`).join(' and '), answer: r.answer, trace: r.trace })
   }
   const same = branches.every(b => JSON.stringify(b.answer && keyOfAnswer(b.answer)) === JSON.stringify(branches[0]!.answer && keyOfAnswer(branches[0]!.answer)))
-  if (same) return { ...decide(claims.map(c => c.holds === null ? { ...c, holds: true } : c), relations, provs), unresolved: [] }
+  // the unknowns do not change the answer: report the ruling and trace that rest on known facts only
+  if (same) return { ...decide(claims.map(c => c.holds === null ? { ...c, holds: false } : c), relations, provs), unresolved: [] }
   return { verdict: 'maybe', answer: null, branches, trace: [], unresolved: conds, dropped: [] }
 }
 const keyOfAnswer = (a: NonNullable<Resolution['answer']>) => `${a.effect}:${a.value ?? ''}`

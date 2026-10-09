@@ -61,10 +61,15 @@ async function main() {
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const C = await loadCorpus(q)
   const RUN = arg('--run')
-  const answers = (await q(`SELECT DISTINCT ON (a.question_id, a.variant) a.*, qn.set_name, qn.expected, qn.kind
-                              FROM rag.answer a JOIN rag.question qn ON qn.id = a.question_id ${RUN ? 'WHERE a.run_id = $1' : ''}
-                             ORDER BY a.question_id, a.variant, a.id DESC`, RUN ? [RUN] : [])).rows
-  const engine = (await q(`SELECT e.*, qn.set_name, qn.expected, qn.kind FROM rag.engine_answer e JOIN rag.question qn ON qn.id = e.question_id`)).rows
+  const answers = (await q(`SELECT DISTINCT ON (a.question_id, a.variant) a.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause
+                              FROM rag.answer a JOIN rag.question qn ON qn.id = a.question_id JOIN rag.run r ON r.id = a.run_id ${RUN ? 'WHERE a.run_id = $1' : ''}
+                             ORDER BY a.question_id, a.variant, r.started_at DESC`, RUN ? [RUN] : [])).rows
+  // stability: where a question was answered more than once by a variant, does the decision repeat?
+  const repeats = (await q(`SELECT a.variant, a.question_id, array_agg(coalesce(a.answer->>'verdict', '') || '|' || coalesce(a.answer->>'value', '')) d
+                              FROM rag.answer a GROUP BY 1, 2 HAVING count(*) > 1`)).rows
+  const stability: Record<string, { pairs: number; same: number }> = {}
+  for (const r of repeats) { const s = (stability[r.variant] ??= { pairs: 0, same: 0 }); s.pairs++; if (new Set(r.d).size === 1) s.same++ }
+  const engine = (await q(`SELECT e.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause FROM rag.engine_answer e JOIN rag.question qn ON qn.id = e.question_id`)).rows
   type Acc = Record<string, number>
   const by: Record<string, Acc> = {}
   const bump = (k: string, f: string, n = 1) => { (by[k] ??= {})[f] = (by[k]![f] ?? 0) + n }
@@ -72,7 +77,7 @@ async function main() {
   for (const a of answers) {
     const ans = a.answer?.unparsed ? null : a.answer
     const s = score(C, a.expected, ans)
-    for (const k of [a.variant, `${a.variant}|${a.set_name}`]) {
+    for (const k of [a.variant, `${a.variant}|${a.set_name}`, ...(a.set_name === 'grid' ? [`${a.variant}|${a.qclause}`] : [])]) {
       bump(k, 'answers'); bump(k, 'cost', Number(a.cost_usd ?? 0)); bump(k, 'latency', Number(a.latency_ms ?? 0))
       if (!ans) bump(k, 'unparsed')
       const c = a.checks ?? {}
@@ -86,7 +91,7 @@ async function main() {
   for (const e of engine) {
     const ans = e.verdict === 'not_answered' || e.verdict === 'error' ? null : { verdict: e.verdict, value: null, controlling: (e.controlling ?? []).map((c: string) => `Randwick LEP 2012 cl ${c}`) }
     const s = score(C, e.expected, ans)
-    for (const k of ['P', `P|${e.set_name}`]) {
+    for (const k of ['P', `P|${e.set_name}`, ...(e.set_name === 'grid' ? [`P|${e.qclause}`] : [])]) {
       bump(k, 'answers'); if (!ans) bump(k, 'not_answered')
       if (s) { bump(k, 'scored'); if (s.correct) bump(k, 'correct'); if (s.confidently_wrong) bump(k, 'confidently_wrong'); if (s.abstained) bump(k, 'abstained') }
       else if (e.expected?.status !== 'none' && !ans) bump(k, 'abstained_unanswered')
@@ -99,9 +104,11 @@ async function main() {
     controlling: pct(v.ctrl_hit, v.ctrl_n), cites_resolved: pct(v.cites_resolved, v.cites), quotes_verbatim: pct(v.quotes_verbatim, v.quotes), figure_in_cited: pct(v.figures_in_cited, v.figures),
     unaddressed_overrides_per_answer: v.answers ? +((v.unaddressed_overrides ?? 0) / v.answers).toFixed(2) : null, unparsed: v.unparsed ?? 0, not_answered: v.not_answered ?? 0,
     cost_per_answer: v.answers && v.cost ? +(v.cost / v.answers).toFixed(5) : null, latency_s: v.answers && v.latency ? +(v.latency / v.answers / 1000).toFixed(1) : null,
+    stability: stability[k] ? pct(stability[k]!.same, stability[k]!.pairs) : null, stability_pairs: stability[k]?.pairs ?? 0,
   }]))
+  console.log('stability (same decision on a repeat):', Object.entries(stability).map(([k, s]) => `${k} ${pct(s.same, s.pairs)}% of ${s.pairs}`).join(', '))
   console.log('side     answers scored  acc  conf.wrong  abstain  ctrl  cites  quotes  fig  overr  $/ans    s')
-  for (const k of ['P', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4']) {
+  for (const k of ['P', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4u', 'R4']) {
     const s = summary[k]; if (!s) continue
     console.log(k.padEnd(8), String(s.answers).padStart(7), String(s.scored).padStart(6), `${s.accuracy}%`.padStart(5), `${s.confidently_wrong}%`.padStart(10), `${s.abstained}%`.padStart(8),
       `${s.controlling ?? '-'}%`.padStart(5), `${s.cites_resolved ?? '-'}%`.padStart(6), `${s.quotes_verbatim ?? '-'}%`.padStart(7), `${s.figure_in_cited ?? '-'}%`.padStart(5), String(s.unaddressed_overrides_per_answer ?? '-').padStart(6), String(s.cost_per_answer ?? '-').padStart(8), String(s.latency_s ?? '-').padStart(5))

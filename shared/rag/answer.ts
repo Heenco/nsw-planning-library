@@ -44,8 +44,20 @@ export function userPrompt(question: string, lot: any, context: string): string 
   return `Lot facts:\n${lot ? JSON.stringify(lot, null, 1) : '(no particular lot)'}\n\nProvisions:\n${context}\n\nQuestion: ${question}`
 }
 
+/** an answer cut off at the output limit: the decision comes first, so verdict, value and the controlling list survive */
+function salvage(raw: string): (Answer & { truncated: true }) | null {
+  if (!/^\s*\{/.test(raw)) return null
+  const str = (k: string) => raw.match(new RegExp(`"${k}"\\s*:\\s*"([^"]*)"`))?.[1] ?? null
+  const num = (k: string) => { const m = raw.match(new RegExp(`"${k}"\\s*:\\s*(-?[\\d.]+)`)); return m ? Number(m[1]) : null }
+  const ctrl = raw.match(/"controlling"\s*:\s*\[([^\]]*)\]/)?.[1]
+  const v = (str('verdict') ?? '').toLowerCase()
+  const a = { verdict: (['yes', 'no', 'maybe'].includes(v) ? v : null) as Answer['verdict'], value: num('value'), unit: str('unit'), values_if: [],
+    controlling: ctrl ? [...ctrl.matchAll(/"([^"]+)"/g)].map(x => x[1]!) : [], quotes: [], unknowns: [], reasoning: '', truncated: true as const }
+  return a.verdict != null || a.value != null || a.controlling.length ? a : null
+}
+
 export function parseAnswer(raw: string): Answer | null {
-  const m = raw.match(/\{[\s\S]*\}/); if (!m) return null
+  const m = raw.match(/\{[\s\S]*\}/); if (!m) return salvage(raw)
   try {
     const j = JSON.parse(m[0])
     const v = String(j.verdict ?? '').toLowerCase()
@@ -53,7 +65,7 @@ export function parseAnswer(raw: string): Answer | null {
       unit: j.unit ?? null, values_if: Array.isArray(j.values_if) ? j.values_if.filter((x: any) => x && x.value != null).map((x: any) => ({ if: String(x.if), value: Number(String(x.value).replace(/:1$/, '')) })) : [],
       controlling: (j.controlling ?? []).map(String), quotes: (j.quotes ?? []).filter((x: any) => x?.text).map((x: any) => ({ cite: String(x.cite ?? ''), text: String(x.text) })),
       unknowns: (j.unknowns ?? []).map(String), reasoning: String(j.reasoning ?? '') }
-  } catch { return null }
+  } catch { return salvage(raw) }
 }
 
 const normText = (s: string) => s.toLowerCase().replace(/[‘’“”"']/g, '').replace(/[–—-]/g, '-').replace(/\s+/g, ' ').replace(/\s*([,;:.()])\s*/g, '$1').trim()
