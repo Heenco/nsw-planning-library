@@ -133,12 +133,16 @@ export const RAG_PHASES: PlanPhase[] = [
   {
     id: 'P4', title: 'Question bank and the deterministic side', goal: 'The same questions, the same lot facts, both sides answering.',
     steps: [
-      { id: 'P4.1', title: 'Pilot keys and engine keys for Randwick', status: 'todo', doneWhen: 'pilot.key rows for Randwick loaded as questions with their expected answers' },
-      { id: 'P4.2', title: 'Hard cases learnt this week', status: 'todo',
-        doneWhen: '32 Holden St: s 169 vs 4.1 (with/without the 28 Feb 2025 date), 4.1A(4) strata 275, 4.4A 0.6:1 vs map, s 168 0.65:1 non-discretionary, secondary dwelling via s 52 though the LEP prohibits it, manor house via Ch 6; 62 Carr St 247 m2' },
-      { id: 'P4.3', title: 'Lot grid', status: 'todo', doneWhen: '~15 Randwick lots (zones, lot sizes, maps) x the housing types + subdivision + height / FSR / minimum lot size, with frozen lot facts' },
-      { id: 'P4.4', title: 'PropCode claims for 32 Holden St', status: 'todo', doneWhen: 'the ~60 checkable claims in the two PropCode reports, as questions with their claimed answers' },
-      { id: 'P4.5', title: 'Engine answers frozen', status: 'todo', doneWhen: 'every question answered by the deterministic side and stored with the pilot run it read' },
+      { id: 'P4.1', title: 'Pilot keys and engine keys for Randwick', status: 'done', doneWhen: 'pilot.key rows for Randwick loaded as questions with their expected answers',
+        result: '17 pilot.key rows for Randwick as questions (10 on a lot, 7 extraction), each tagged lep_only and carrying the key’s own expected answer.', where: ['scripts/rag/06-questions.ts'] },
+      { id: 'P4.2', title: 'Hard cases learnt this week', status: 'done', doneWhen: '32 Holden St: s 169 vs 4.1 (with/without the 28 Feb 2025 date), 4.1A(4) strata 275, 4.4A 0.6:1 vs map, s 168 0.65:1 non-discretionary, secondary dwelling via s 52 though the LEP prohibits it, manor house via Ch 6; 62 Carr St 247 m2',
+        result: '15 hard cases on 32 Holden St, 62 Carr St and 28 Eastern Av (510 m2, R2, inside an LMR area - where s 169’s date decides): s 169 with the date unknown / after / before 28 Feb 2025, 4.1A(4) strata 275, FSR map vs 4.4A vs s 168(2)(d), secondary dwelling through s 50 / s 52, multi dwelling housing through s 170, 4.1C(2) vs s 166, s 8 vs 1.9, a manor house whose meaning lives in the Codes SEPP (honest answer: cannot tell). Rulings Manni stated are status key; the rest are drafts for confirmation.', where: ['scripts/rag/06-questions.ts'] },
+      { id: 'P4.3', title: 'Lot grid', status: 'done', doneWhen: '~15 Randwick lots (zones, lot sizes, maps) x the housing types + subdivision + height / FSR / minimum lot size, with frozen lot facts',
+        result: '18 lots: one per zone x area band inside an LMR area, four outside one, one excluded by a heritage item, plus the key and hard-case lots; 6 questions each (dual occupancy, secondary dwelling, multi dwelling housing, FSR, height, subdivision) = 90. Lot facts frozen per question (zone, area, frontage, map panels, LMR band and class, heritage). Expected answers come from adjudication.', where: ['scripts/rag/06-questions.ts'] },
+      { id: 'P4.4', title: 'PropCode claims for 32 Holden St', status: 'done', doneWhen: 'the ~60 checkable claims in the two PropCode reports, as questions with their claimed answers',
+        result: '6 PropCode claims, the ones this session wrote down when it compared the two reports (the PDFs are not on disk, so not all ~60): 225 cited to 4.1A(4)(a), 275 for all title types, 550 + 450 lot minimums, permissibility via s 166, the 0.5:1 secondary-dwelling cap, 0.65:1 over 0.6:1. Each carries the claim and whether it is right.', where: ['scripts/rag/06-questions.ts'] },
+      { id: 'P4.5', title: 'Engine answers frozen', status: 'done', doneWhen: 'every question answered by the deterministic side and stored with the pilot run it read',
+        result: '128 engine answers stamped with pilot run 9d401555: 39 conditional, 34 prohibited, 1 no_permission, 54 not answered (figures, precedence and lot-free questions). The LEP-only reading shows: secondary dwellings prohibited on every lot, multi dwelling housing prohibited in R2 LMR areas, dual occupancy prohibited by 4.1C(2) on R2 LMR lots under 550 m2 - each permitted by the Housing SEPP.', where: ['scripts/rag/07-engine.ts'] },
     ],
   },
   {
