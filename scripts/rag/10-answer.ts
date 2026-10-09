@@ -13,7 +13,7 @@
 import 'dotenv/config'
 import pg from 'pg'
 import { chat, embed, pool, MODELS } from '../../shared/rag/deepinfra'
-import { loadCorpus, search, expand, queryVec } from '../../shared/rag/retrieve'
+import { loadCorpus, search, expand, queryVec, scoped, docsFor, type Corpus } from '../../shared/rag/retrieve'
 import { systemPrompt, showChunk, userPrompt, parseAnswer, checks } from '../../shared/rag/answer'
 import { runAgent } from '../../shared/rag/agent'
 
@@ -27,13 +27,19 @@ const CONC = Number(arg('--concurrency', '6'))
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
-  const C = await loadCorpus(q)
-  const questions = (await q(`SELECT id, set_name, clause, kind, text, lot_facts FROM rag.question ${SETS.length ? 'WHERE set_name = ANY($1)' : ''} ORDER BY set_name, clause, cadid`, SETS.length ? [SETS] : [])).rows.slice(0, LIMIT)
+  const C0 = await loadCorpus(q)
+  const questions = (await q(`SELECT id, set_name, document_id, clause, kind, text, lot_facts FROM rag.question ${SETS.length ? 'WHERE set_name = ANY($1)' : ''} ORDER BY set_name, clause, cadid`, SETS.length ? [SETS] : [])).rows.slice(0, LIMIT)
 
-  // L0: the operative text, in instrument order, definitions cut to their first sentence
-  const ordered = [...C.chunks].sort((a, b) => a.document_id.localeCompare(b.document_id) || a.header.localeCompare(b.header))
-  const l0 = ordered.map(c => c.role === 'definition' ? `### ${c.header}\n${c.body.split(/(?<=\.)\s/)[0]}` : `### ${c.header}\n${c.body}`).join('\n\n')
-  console.log('questions', questions.length, 'variants', VARIANTS.join(','), 'x', REPEAT, '| L0 context ~', Math.round(l0.length / 4), 'tokens')
+  // L0: the operative text of the question's own instruments (its LEP and the SEPPs), in instrument order, definitions
+  // cut to their first sentence - built once per LEP
+  const l0s = new Map<string, string>()
+  const l0Of = (Cq: Corpus) => {
+    const key = [...(Cq.scope ?? [])].sort().join(',')
+    if (!l0s.has(key)) l0s.set(key, [...Cq.chunks].filter(c => !Cq.scope || Cq.scope.has(c.document_id)).sort((a, b) => a.document_id.localeCompare(b.document_id) || a.header.localeCompare(b.header))
+      .map(c => c.role === 'definition' ? `### ${c.header}\n${c.body.split(/(?<=\.)\s/)[0]}` : `### ${c.header}\n${c.body}`).join('\n\n'))
+    return l0s.get(key)!
+  }
+  console.log('questions', questions.length, 'variants', VARIANTS.join(','), 'x', REPEAT, '| model', MODELS.answer)
 
   const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('answer', $1) RETURNING id`, [JSON.stringify({ variants: VARIANTS, sets: SETS, repeat: REPEAT, model: MODELS.answer, k: 8, l0_definitions: 'first sentence' })])).rows[0].id
   // --resume: skip (question, variant) pairs that already have an answer from this model
@@ -43,6 +49,8 @@ async function main() {
   let done = 0, cost = 0, failed = 0
   await pool(jobs, CONC, async ({ x, v }) => {
     const t0 = Date.now()
+    // the question reads its own LEP and the SEPPs, never another council's plan
+    const C = scoped(C0, docsFor(C0, x.document_id))
     try {
       let answer, raw = '', retrieved: any[] = [], trace: any = null, tin = 0, tout = 0, c = 0
       if (v === 'R4') {
@@ -55,7 +63,7 @@ async function main() {
         answer = r.answer; raw = r.raw; trace = r.trace; tin = r.tokens_in; tout = r.tokens_out; c = r.cost_usd
       } else {
         let context: string
-        if (v === 'L0') context = l0
+        if (v === 'L0') context = l0Of(C)
         else {
           const hits = search(C, v, x.text, await queryVec(x.text, embed), 8)
           const extra = v === 'R3' ? expand(C, hits.map(h => h.chunk), 8) : []

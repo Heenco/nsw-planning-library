@@ -48,12 +48,12 @@ async function main() {
   }
 
   const todo = chunks.filter(c => !c.llm_context).slice(0, LIMIT)
-  const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('context', $1) RETURNING id`, [JSON.stringify({ model: MODELS.answer, doc_chars: DOC_CHARS, chunks: todo.length })])).rows[0].id
+  const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('context', $1) RETURNING id`, [JSON.stringify({ model: MODELS.context, doc_chars: DOC_CHARS, chunks: todo.length })])).rows[0].id
   console.log('chunks without a context:', todo.length, 'of', chunks.length)
   let done = 0, cost = 0, tin = 0, tout = 0, failed = 0
   await pool(todo, CONCURRENCY, async c => {
     try {
-      const r = await chat({ maxTokens: 160, messages: [{ role: 'user', content:
+      const r = await chat({ model: MODELS.context, maxTokens: 160, messages: [{ role: 'user', content:
         `<document>\n${docFor(c)}\n</document>\nHere is the chunk we want to situate within the whole document\n<chunk>\n${c.header}\n${c.body}\n</chunk>\n`
         + 'Please give a short succinct context to situate this chunk within the overall document for the purposes of improving search retrieval of the chunk. '
         + 'Answer only with the succinct context and nothing else.' }] })

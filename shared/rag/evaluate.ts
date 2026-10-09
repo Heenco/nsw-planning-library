@@ -34,7 +34,9 @@ interface Binding { claim_id: string; part: string; text: string; status: string
 export interface Engine { claims: C[]; provs: Map<string, PV>; rels: Rel[]; provMap: Map<string, Prov>; zoneNames: Map<string, string>; label: (provId: string) => string
   bindings: Map<string, Binding[]>; shortNames: Map<string, string>
   /** the date each instrument's text is in force as at (nsw.document.as_at_date, Sydney date): every answer is the law on that day */
-  asAt: Map<string, string> }
+  asAt: Map<string, string>
+  /** the instruments held: which LEP governs a lot is decided from these */
+  insts: { document_id: string; title: string; kind: string }[] }
 
 /** one condition as it was tested on the lot - or why it could not be */
 export interface Check { text: string; result: boolean | null; how: string; could: boolean }
@@ -50,7 +52,8 @@ export async function loadEngine(q: Query): Promise<Engine> {
   const bindings = new Map<string, Binding[]>()
   for (const b of (await q(`SELECT claim_id, part, text, status, scope_terms, sources, assume_absent, note FROM rag.claim_binding`).catch(() => ({ rows: [] as any[] }))).rows)
     bindings.set(b.claim_id, [...(bindings.get(b.claim_id) ?? []), b])
-  const shortNames = new Map<string, string>((await q(`SELECT document_id, title FROM rag.instrument`)).rows.map(r => [r.document_id, shortName(r.title)]))
+  const insts = (await q(`SELECT document_id, title, kind FROM rag.instrument ORDER BY rank, title`)).rows
+  const shortNames = new Map<string, string>(insts.map(r => [r.document_id, shortName(r.title)]))
   const asAt = new Map<string, string>((await q(`SELECT i.document_id, (d.as_at_date AT TIME ZONE 'Australia/Sydney')::date::text AS as_at
                                                    FROM rag.instrument i JOIN nsw.document d ON d.id = i.document_id WHERE d.as_at_date IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows.map(r => [r.document_id, r.as_at]))
   const provs = new Map<string, PV>((await q(`SELECT p.id, p.local_id, p.document_id, i.kind doc_kind, coalesce(p.path, '{}') path, p.parent_id, p.heading
@@ -77,7 +80,7 @@ export async function loadEngine(q: Query): Promise<Engine> {
     if (p.local_id.includes('#')) s += ' table'
     return `${shortNames.get(p.document_id) ?? ''} ${s.trim()}`.trim()
   }
-  return { claims, provs, rels, provMap, zoneNames, label, bindings, shortNames, asAt }
+  return { claims, provs, rels, provMap, zoneNames, label, bindings, shortNames, asAt, insts }
 }
 
 const useMatch = (claimUse: string, asked: string) => {
@@ -85,8 +88,39 @@ const useMatch = (claimUse: string, asked: string) => {
   return a === c || a.startsWith(c + ' (') || c.startsWith(a + ' (')
 }
 
+/**
+ * The LEP that governs a lot: the plan its zoning comes from (lot.epi), else the one named for its council, else the only
+ * LEP held. A lot under a plan the corpus does not hold has none - and is never answered from the SEPPs alone.
+ */
+export function lepFor(E: Engine, lot: any): { doc: string | null; why: string } {
+  const leps = E.insts.filter(i => i.kind === 'lep')
+  const named = (s: string) => leps.filter(l => new RegExp(`(^|[^a-z])${shortName(l.title).replace(/ LEP$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z]|$)`, 'i').test(s))
+  if (lot?.epi) {
+    const i = leps.find(l => l.title.toLowerCase() === String(lot.epi).toLowerCase())
+    return i ? { doc: i.document_id, why: `zoned under ${shortName(i.title)}` } : { doc: null, why: `the lot is zoned under ${lot.epi}, which is not in the corpus` }
+  }
+  if (lot?.lga) {
+    const i = named(String(lot.lga))
+    if (i.length === 1) return { doc: i[0]!.document_id, why: `council ${lot.lga}` }
+    return { doc: null, why: `no LEP held for council ${lot.lga}` }
+  }
+  if (leps.length === 1) return { doc: leps[0]!.document_id, why: 'the only LEP held' }
+  return { doc: null, why: `which of the ${leps.length} LEPs held applies is not stated` }
+}
+
 export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
-  const E: Engine = ask.only ? { ...E0, claims: E0.claims.filter(c => E0.provs.get(c.provision_id)?.document_id === ask.only) } : E0
+  // the instruments that speak to this lot: the one asked about ("Under ..."), else the SEPPs and the lot's own LEP
+  const docOf = (c: C) => E0.provs.get(c.provision_id)
+  const lep = ask.only ? null : lepFor(E0, lot)
+  if (lep && !lep.doc && E0.insts.some(i => i.kind === 'lep'))
+    return { ask, answer: null, verdict: 'maybe', ruling: null, tested: [], limits: [], notChecked: [lep.why], checks: [],
+      note: `${lep.why} - its Land Use Table and standards are not read, so no answer is given from the other instruments alone` }
+  const E: Engine = ask.only ? { ...E0, claims: E0.claims.filter(c => docOf(c)?.document_id === ask.only) }
+    : lep?.doc ? { ...E0, claims: E0.claims.filter(c => docOf(c)?.doc_kind !== 'lep' || docOf(c)?.document_id === lep.doc) } : E0
+  /** a map area of the claim's own instrument (map names repeat across LEPs: "Area 1 on the Key Sites Map") */
+  const ownMap = (c: C, x: any) => !x.document_id || x.document_id === docOf(c)?.document_id
+  /** a map label as rag.map_polygon stores it: lower case, any dash as "-" with no space round it */
+  const nl = (s: unknown) => String(s ?? '').trim().replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ').toLowerCase()
   const ancestors = (id: string | null): string[] => { const out: string[] = []; for (let x = id ? E.provs.get(id) : undefined; x; x = x.parent_id ? E.provs.get(x.parent_id) : undefined) out.push(x.id); return out }
   const framesFor = (c: C) => {
     const units = new Set([...ancestors(c.provision_id), ...ancestors(c.unit_provision)])
@@ -111,7 +145,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       const areaT = b.scope_terms.find(t => t.startsWith('area>='))
       const areaR = areaT ? (lot.area_m2 == null ? null : Number(lot.area_m2) >= Number(areaT.slice(6))) : undefined
       const mapT = b.scope_terms.filter(t => t.startsWith('map:'))
-      const shareOf = (t: string) => { const [m, l] = t.slice(4).split('|'); return Math.max(0, ...(Array.isArray(lot.mapped) ? lot.mapped : []).filter((x: any) => String(x.map).toLowerCase().replace(/ map$/, '') === m && String(x.label).toLowerCase() === l).map((x: any) => Number(x.share))) }
+      const shareOf = (t: string) => { const [m, l] = t.slice(4).split('|'); return Math.max(0, ...(Array.isArray(lot.mapped) ? lot.mapped : []).filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase().replace(/ map$/, '') === m && nl(x.label) === nl(l)).map((x: any) => Number(x.share))) }
       const mapR = mapT.length ? (!Array.isArray(lot.mapped) ? null : mapT.some(t => shareOf(t) >= 0.9) ? true : mapT.every(t => shareOf(t) <= 0.05) ? false : null) : undefined
       const layerRs = layerT.map(t => ({ t, f: lot.terms?.[t] as { holds: boolean | null; why: string } | undefined }))
       const both = /(both|all) must hold/.test(b.note ?? '')
@@ -180,7 +214,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
           const b = E.bindings.get(c.id)?.find(x => x.part === 'mapped' && x.text === t.slice(7))
           if (b && b.status !== 'bound') { notChecked.push(`${t.slice(7)} - no polygon for this map label`); checks.push({ text: t.slice(7), result: null, how: 'no polygon for this map label', could: false }); results.push(null); said.push(`${t.slice(7)}: no polygon - not checked`); continue }
           if (!Array.isArray(lot.mapped)) { notChecked.push(`${t.slice(7)} - map facts not computed for this lot`); checks.push({ text: t.slice(7), result: null, how: 'map facts not computed for this lot', could: false }); results.push(null); said.push(`${t.slice(7)}: not computed`); continue }
-          const hit = lot.mapped.filter((x: any) => String(x.map).toLowerCase() === map && labels.includes(String(x.label).toLowerCase()))
+          const hit = lot.mapped.filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase() === map && labels.map(nl).includes(nl(x.label)))
           const share = Math.max(0, ...hit.map((x: any) => Number(x.share)))
           const r = share >= 0.9 ? true : share > 0.05 ? null : false
           checks.push({ text: t.slice(7), result: r, how: `map polygon (nsw.rule_spatial_ref): ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'lot not inside'}`, could: true })
@@ -248,7 +282,8 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
 
   const mapValue = (src: string | null) => /Height/i.test(src ?? '') ? lot.height_map_m : /Floor Space/i.test(src ?? '') ? lot.fsr_map : /Lot Size/i.test(src ?? '') ? lot.lot_size_map_m2 : null
   const toR = (t: Tested, effect: 'value' | 'permit' | 'prohibit', value?: number | null): RClaim => ({ id: t.claim.id, provision: t.claim.provision_id, effect, value: value ?? null, unit: t.claim.unit,
-    comparator: (t.claim.comparator as any) ?? null, holds: t.holds, condition: t.holds == null ? t.why.filter(w => /unknown/.test(w)).join('; ') : null, label: E.label(t.claim.provision_id) })
+    comparator: (t.claim.comparator as any) ?? null, holds: t.holds, condition: t.holds == null ? t.why.filter(w => /unknown/.test(w)).join('; ') : null, label: E.label(t.claim.provision_id),
+    bar: t.claim.kind === 'prohibit' && t.claim.reader === 'consent bar' })
   const notChecked = new Set<string>()
   /** the conditions tested for the rules that reach the lot, and every one that could not be tested - each once */
   // the checks behind the answer: every check of a claim that applies, every check no data could settle, and - for a

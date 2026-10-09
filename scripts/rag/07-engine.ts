@@ -18,18 +18,19 @@ const run = promisify(execFile)
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
-  // the pilot runs on one plan: the corpus's LEP (with more than one, the plan each question's lot falls under is needed - not built)
+  // the pilot runs on the plan each question is about (rag.question.document_id), with that plan's latest propositions
   const leps = (await q(`SELECT document_id, title FROM rag.instrument WHERE kind = 'lep'`)).rows
-  if (leps.length !== 1) throw new Error(`the pilot runs on one plan; the corpus holds ${leps.length} LEPs`)
-  const PLAN: string = leps[0].title
-  const pilotRun = (await q(`SELECT id FROM pilot.run WHERE document_id = $1 AND stage = 'propositions' ORDER BY started_at DESC LIMIT 1`, [leps[0].document_id])).rows[0]?.id ?? null
-  const questions = (await q(`SELECT id, set_name, cadid, kind, use_term, text FROM rag.question ORDER BY set_name, clause`)).rows
-  const stage = (await q(`INSERT INTO rag.run (stage, config) VALUES ('engine', $1) RETURNING id`, [JSON.stringify({ plan: PLAN, pilot_run: pilotRun })])).rows[0].id
+  const plans: Record<string, string> = Object.fromEntries(leps.map(l => [l.document_id, l.title]))
+  const pilotRuns: Record<string, string | null> = {}
+  for (const l of leps) pilotRuns[l.document_id] = (await q(`SELECT id FROM pilot.run WHERE document_id = $1 AND stage = 'propositions' ORDER BY started_at DESC LIMIT 1`, [l.document_id])).rows[0]?.id ?? null
+  const questions = (await q(`SELECT id, set_name, document_id, cadid, kind, use_term, text FROM rag.question ORDER BY set_name, clause`)).rows
+  const stage = (await q(`INSERT INTO rag.run (stage, config) VALUES ('engine', $1) RETURNING id`, [JSON.stringify({ plans, pilot_runs: pilotRuns })])).rows[0].id
   await q(`DELETE FROM rag.engine_answer`)
   const tally: Record<string, number> = {}
   for (const x of questions) {
     let verdict = 'not_answered', controlling: string[] = [], payload: any = { why: 'the engine answers permissibility and subdivision for a lot; not figures, precedence or lot-free questions' }
-    if (x.cadid && ['permissibility', 'subdivision'].includes(x.kind) && x.use_term) {
+    const PLAN = plans[x.document_id], pilotRun = pilotRuns[x.document_id] ?? null
+    if (x.cadid && PLAN && ['permissibility', 'subdivision'].includes(x.kind) && x.use_term) {
       const args = ['tsx', 'scripts/norms/pilot-key.ts', '--plan', PLAN, '--cadid', x.cadid, '--use', x.use_term, ...(x.kind === 'subdivision' ? ['--proposal', 'subdivision', '--lots', '2'] : [])]
       try {
         // npx needs a shell on Windows, and a shell splits on spaces: quote what has them (the plan title, the use)
@@ -47,7 +48,7 @@ async function main() {
     await q(`INSERT INTO rag.engine_answer (question_id, run_id, pilot_run, verdict, controlling, payload) VALUES ($1, $2, $3, $4, $5, $6)`, [x.id, stage, pilotRun, verdict, controlling, payload])
     if (verdict !== 'not_answered') console.log(verdict.padEnd(12), (controlling.join(',') || '-').padEnd(16), x.set_name.padEnd(9), x.text.slice(0, 110))
   }
-  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [stage, JSON.stringify({ questions: questions.length, verdicts: tally, pilot_run: pilotRun })])
+  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [stage, JSON.stringify({ questions: questions.length, verdicts: tally, pilot_runs: pilotRuns })])
   console.log(tally)
   await client.end()
 }

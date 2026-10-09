@@ -10,7 +10,7 @@
       <NuxtLink to="/" class="rg-back">&larr; Home</NuxtLink>
       <h1 class="rg-title">RAG pilot</h1>
       <p class="rg-lead">
-        A structure-aware, navigating RAG over <strong>Randwick LEP 2012</strong> and the Housing SEPP parts that reach its lots,
+        A structure-aware, navigating RAG over <strong>{{ lepNames || 'the LEPs in scripts/rag/corpus.json' }}</strong> and the Housing SEPP parts that reach their lots,
         built on what the CDC pilot learnt about the text - stems with their roles, leaves with their connectives, tables as
         cells - and compared with the deterministic engine question by question. The model finds and explains; a deterministic
         resolver decides precedence and writes down why. Plan updated {{ RAG_UPDATED }}; counts live from schema <code>rag</code>.
@@ -251,6 +251,10 @@
       <ClientOnly>
         <div class="qb-bar">
           <button v-for="s in QSETS" :key="s.id" type="button" class="qb-chip" :class="{ 'qb-chip--on': qset === s.id }" @click="qset = s.id">{{ s.label }}</button>
+          <select v-if="qleps.length > 1" v-model="qlep" class="qb-search" aria-label="LEP">
+            <option value="">every LEP</option>
+            <option v-for="l in qleps" :key="l" :value="l">{{ l }}</option>
+          </select>
           <input v-model="qsearch" class="qb-search" placeholder="search question or address">
         </div>
         <p v-if="!qlist" class="rg-muted">Loading questions…</p>
@@ -297,12 +301,12 @@
                     <p><b>{{ qdetail[x.id].engine.verdict }}</b>
                       <template v-if="qdetail[x.id].engine.controlling?.length"> by
                         <template v-for="c in qdetail[x.id].engine.controlling" :key="c">
-                          <RagClause v-if="qdetail[x.id].refs['Randwick LEP cl ' + c]" :id="qdetail[x.id].refs['Randwick LEP cl ' + c]" :p="qdetail[x.id].provisions[qdetail[x.id].refs['Randwick LEP cl ' + c]]" :fallback="c" />
+                          <RagClause v-if="qdetail[x.id].engine.refs?.[c]" :id="qdetail[x.id].engine.refs[c]" :p="qdetail[x.id].provisions[qdetail[x.id].engine.refs[c]]" :fallback="c" />
                           <span v-else class="rg-tag">{{ c === 'LUT' ? 'Land Use Table' : c }}</span>
                         </template>
                       </template>
                     </p>
-                    <p class="rg-small">How: scripts/norms/pilot-key.ts reads the pilot's propositions for Randwick LEP only (the Housing SEPP is not loaded) and evaluates them on the lot.</p>
+                    <p class="rg-small">How: scripts/norms/pilot-key.ts reads the pilot's propositions for {{ qdetail[x.id].engine.plan ?? 'the LEP' }} only (the Housing SEPP is not loaded) and evaluates them on the lot.</p>
                   </template>
                   <p v-else class="rg-muted">not run on this question</p>
                 </div>
@@ -402,6 +406,8 @@ const BIND_MEANS: Record<string, string> = {
   proposal_fact: 'answered from the question (date, tenure, number of lots), not from a map',
   discretion: 'a matter for the consent authority: the answer splits on it',
 }
+/** the LEPs schema rag holds now (rag.instrument, via /api/rag/status) */
+const lepNames = computed(() => (status.value?.instruments ?? []).filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title).replace(/ Local Environmental Plan (\d{4})$/, ' LEP $1')).join(', '))
 const bindCount = (s: string) => (status.value?.bindings ?? []).filter((b: any) => b.status === s).length
 
 const steps = RAG_PHASES.flatMap(p => p.steps)
@@ -426,10 +432,11 @@ const showAll = ref(false)
 // the question browser: the list once, each question's full answer on demand
 const QSETS = [{ id: 'all', label: 'All' }, { id: 'hard_case', label: 'Hard cases' }, { id: 'local', label: 'Additional uses & local controls' },
   { id: 'propcode', label: 'PropCode claims' }, { id: 'pilot_key', label: 'Pilot keys' }, { id: 'grid', label: 'Grid' }]
-const qset = ref('all'), qsearch = ref(''), openQ = ref<string | null>(null)
+const qset = ref('all'), qsearch = ref(''), qlep = ref(''), openQ = ref<string | null>(null)
 const qdetail = reactive<Record<string, any>>({})
 const { data: qlist } = useFetch<any[]>('/api/rag/questions', { server: false, lazy: true })
-const shownQs = computed(() => (qlist.value ?? []).filter((x: any) => (qset.value === 'all' || x.set_name === qset.value)
+const qleps = computed(() => [...new Set((qlist.value ?? []).map((x: any) => x.lep).filter(Boolean))].sort() as string[])
+const shownQs = computed(() => (qlist.value ?? []).filter((x: any) => (qset.value === 'all' || x.set_name === qset.value) && (!qlep.value || x.lep === qlep.value)
   && (!qsearch.value || x.text.toLowerCase().includes(qsearch.value.toLowerCase()))))
 const toggleQ = async (id: string) => {
   openQ.value = openQ.value === id ? null : id

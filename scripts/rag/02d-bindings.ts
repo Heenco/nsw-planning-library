@@ -6,7 +6,11 @@
  *
  * The layers are the app's own registry, nsw.scope_layer (the term -> table / view / lmr / cdc / esa registry entry
  * catalogue that /testing-spatial-services and /cdc-map use), the map polygons the resolver put in nsw.rule_spatial_ref,
- * the cadastre (lot ids) and derived.lot_lga (councils). A condition's words are matched to registered terms by their
+ * the cadastre (lot ids) and derived.lot_lga (councils). Map areas come from rag.map_polygon, a table this script rebuilds:
+ * the plan's own epi map layers (every epi table with epi_name / map_name / label, read by map name and label - "Area 1" or
+ * "Stream Order 1") together with the polygons the resolver put in nsw.rule_spatial_ref; where both have a (plan, map,
+ * label), the plan's own layer is the one used (lot facts).
+ * A condition's words are matched to registered terms by their
  * content words (every word of the registered term in the condition), so "land in an ANEF contour of 25 or greater or
  * ANEC contour of 20 or greater" binds to "ANEF 25 or ANEC 20 contour". Nothing names a clause.
  *
@@ -20,6 +24,9 @@ import 'dotenv/config'
 import pg from 'pg'
 
 const DRY = process.argv.includes('--dry')
+/** a map label as stored and compared: lower case, any dash as "-" with no space round it, single spaces */
+export const normLabel = (s: string) => s.trim().replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ').toLowerCase()
+const LABEL = `lower(regexp_replace(regexp_replace(trim(x.l), '\\s*[-\u2013\u2014]\\s*', '-', 'g'), '\\s+', ' ', 'g'))`
 const STOP = new Set('a an the of in on or and to as for by any land that is which within meaning under identified area areas following this greater higher than'.split(' '))
 const words = (s: string) => s.toLowerCase().replace(/[“”"'’(),.;:—–-]/g, ' ').split(/\s+/).filter(w => w && !STOP.has(w))
 
@@ -29,8 +36,37 @@ async function main() {
   const reg = (await q(`SELECT term, source_kind, source, assume_absent, note FROM nsw.scope_layer`)).rows
     .map(r => ({ ...r, w: [...new Set(words(r.term))] })).filter(r => r.w.length >= 1)
   const lgas = (await q(`SELECT DISTINCT upper(lga_name) n FROM derived.lot_lga WHERE lga_name IS NOT NULL`)).rows.map(r => String(r.n))
-  const polys = new Set((await q(`SELECT DISTINCT lower(regexp_replace(map_layer, ' Map$', '')) || '|' || lower(value) k FROM nsw.rule_spatial_ref WHERE geom IS NOT NULL`)).rows.map(r => r.k))
-  const claims = (await q(`SELECT c.id, c.kind, c.uses, c.zones, c.terms, c.excludes, c.requires, c.span, c.provision_id, p.local_id, p.own_text FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id`)).rows
+  // ── map polygons: the plans' own epi map layers + the resolver's refs, one view (rag.map_polygon) ─────────────────
+  const epiMaps = (await q(`SELECT c.table_name, (SELECT f_geometry_column FROM geometry_columns g WHERE g.f_table_schema = 'epi' AND g.f_table_name = c.table_name LIMIT 1) AS gcol
+                              FROM information_schema.columns c WHERE c.table_schema = 'epi' GROUP BY c.table_name
+                             HAVING bool_or(column_name = 'epi_name') AND bool_or(column_name = 'map_name') AND bool_or(column_name = 'label') AND bool_or(column_name = 'lay_class')`)).rows
+    .filter(r => r.gcol && /^[a-z_0-9]+$/.test(r.table_name))
+  // one row per (polygon, label): a polygon answers to its label and to its class ("Stream Order 1"), each normalised -
+  // lower case, any dash as "-" with no space round it ("14 - 16 Hill Road" = "14–16 Hill Road")
+  const view = [
+    ...epiMaps.map(r => `SELECT i.document_id, regexp_replace(e.map_name, ' Map$', '') AS map, e.label::text AS label, e.lay_class::text AS alt,
+        ST_Transform(e."${r.gcol}", 4283) AS geom, 'epi.${r.table_name}'::text AS source, true AS own
+       FROM epi.${r.table_name} e JOIN rag.instrument i ON i.title = e.epi_name WHERE e.map_name IS NOT NULL`),
+    `SELECT r.document_id, regexp_replace(r.map_layer, ' Map$', '') AS map, r.value AS label, NULL::text AS alt, ST_Transform(r.geom, 4283) AS geom,
+        coalesce(r.geom_source, 'nsw.rule_spatial_ref') AS source, (r.geom_source LIKE 'epi.%') AS own
+       FROM nsw.rule_spatial_ref r JOIN rag.instrument i ON i.document_id = r.document_id WHERE r.geom IS NOT NULL`,
+  ].join('\n UNION ALL\n')
+  const labelled = `SELECT m.document_id, lower(m.map) AS map, ${LABEL} AS label, m.geom, m.source, m.own
+                      FROM (${view}) m, LATERAL (SELECT DISTINCT l FROM (VALUES (m.label), (m.alt)) v(l) WHERE l IS NOT NULL) x`
+  // a table, not a view: lot facts read it once per lot, and the union over every epi map layer is slow to scan each time
+  if (!DRY) {
+    // an earlier build made it a view: drop whichever it is
+    const kind = (await q(`SELECT c.relkind FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'rag' AND c.relname = 'map_polygon'`)).rows[0]?.relkind
+    if (kind) await q(kind === 'v' ? `DROP VIEW rag.map_polygon` : `DROP TABLE rag.map_polygon`)
+    await q(`CREATE TABLE rag.map_polygon AS ${labelled}`)
+    await q(`CREATE INDEX ON rag.map_polygon USING gist (geom)`)
+    await q(`CREATE INDEX ON rag.map_polygon (document_id, map, label)`)
+    await q(`ANALYZE rag.map_polygon`)
+  }
+  // keyed by instrument: map names repeat across LEPs ("Area 1 on the Key Sites Map")
+  const polys = new Set((await q(`SELECT DISTINCT document_id || '|' || map || '|' || label k FROM ${DRY ? `(${labelled}) z` : 'rag.map_polygon'}`)).rows.map(r => r.k))
+  console.log(`map polygons: ${epiMaps.length} epi map layers + nsw.rule_spatial_ref -> ${polys.size} (plan, map, label) keys`)
+  const claims = (await q(`SELECT c.id, c.kind, c.uses, c.zones, c.terms, c.excludes, c.requires, c.span, c.provision_id, p.local_id, p.own_text, p.document_id FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id`)).rows
   const kids = new Map<string, any[]>()
   for (const k of (await q(`SELECT id, parent_id, own_text, connective FROM rag.provision WHERE parent_id IS NOT NULL AND kind NOT IN ('cell', 'row', 'table', 'term') ORDER BY sort, local_id`)).rows)
     kids.set(k.parent_id, [...(kids.get(k.parent_id) ?? []), k])
@@ -88,8 +124,8 @@ async function main() {
       return add(c, 'item', text, 'bound', { scope_terms: [`area>=${Number((area[1] ?? area[2])!.replace(/,/g, ''))}`], sources: ['cadastre.lot'], note: 'the site taken as the lot' })
     const mapped = text.match(/identified as [“"]([^”"]+)[”"] on the (.+?)(?: Map)?\.?$/i)
     if (mapped) {
-      const k = `${mapped[2]!.toLowerCase()}|${mapped[1]!.toLowerCase()}`
-      return add(c, 'item', text, polys.has(k) ? 'bound' : 'no_polygon', { scope_terms: polys.has(k) ? [`map:${k}`] : [], sources: polys.has(k) ? ['nsw.rule_spatial_ref'] : [] })
+      const k = `${mapped[2]!.toLowerCase()}|${normLabel(mapped[1]!)}`
+      return add(c, 'item', text, polys.has(`${c.document_id}|${k}`) ? 'bound' : 'no_polygon', { scope_terms: polys.has(`${c.document_id}|${k}`) ? [`map:${k}`] : [], sources: polys.has(`${c.document_id}|${k}`) ? ['nsw.rule_spatial_ref'] : [] })
     }
     // the development itself, not the land
     if (/^(does not involve|involves?|is, or will be|will be|is for|is carried out|the consent authority|development for the purposes? of)/i.test(text) || /\bin height\b/i.test(text))
@@ -106,7 +142,7 @@ async function main() {
         const m = t.slice(7).match(/^(.+) on the (.+?)(?: Map)?$/)
         const labels = m ? m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()) : []
         const map = m?.[2]?.toLowerCase() ?? ''
-        const held = labels.filter(l => polys.has(`${map}|${l}`))
+        const held = labels.filter(l => polys.has(`${c.document_id}|${map}|${normLabel(l)}`))
         add(c, 'mapped', t.slice(7), held.length === labels.length && labels.length ? 'bound' : held.length ? 'bound' : 'no_polygon',
           { scope_terms: held.map(l => `map:${map}|${l}`), sources: held.length ? ['nsw.rule_spatial_ref'] : [], note: held.length && held.length < labels.length ? `no polygon for ${labels.filter(l => !held.includes(l)).join(', ')}` : null })
       } else bindText(c, 'term', t)

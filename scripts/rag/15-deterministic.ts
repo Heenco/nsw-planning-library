@@ -61,7 +61,7 @@ async function main() {
   const E = await loadEngine(q), C = await loadCorpus(q)
   INSTS = C.insts
   VOCAB = [...new Set(E.claims.flatMap(c => c.uses))].filter(u => u.length > 3).sort((a, b) => b.length - a.length)
-  const questions = (await q(`SELECT id, set_name, clause, kind, use_term, text, lot_facts FROM rag.question ORDER BY set_name, clause, cadid`)).rows
+  const questions = (await q(`SELECT id, set_name, document_id, clause, kind, use_term, text, lot_facts FROM rag.question ORDER BY set_name, clause, cadid`)).rows
   const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('answer', $1) RETURNING id`, [JSON.stringify({ variants: ['D'], model: 'deterministic', claims: E.claims.length })])).rows[0].id
   await q(`DELETE FROM rag.answer WHERE variant = 'D'`)
   const label = (r: Result, ids?: string[]) => r.tested.filter(t => (ids ?? r.ruling?.answer?.claims ?? []).includes(t.claim.id)).map(t => E.label(t.claim.provision_id))
@@ -81,8 +81,9 @@ async function main() {
       // the clause's own standards, read from the claims on it
       const m = String(x.clause).match(/^([\d.]+[A-Z]*)((?:\(\w+\))*)$/)
       const local = m ? [`sec.${m[1]}`, ...[...m[2]!.matchAll(/\((\w+)\)/g)].map((p, i) => i === 0 ? `-ssec.${p[1]}` : `-para${i}.${p[1]}`)].join('') : ''
-      const cs = E.claims.filter(c => c.kind === 'standard' && E.provs.get(c.provision_id)?.doc_kind === 'lep' && (E.provs.get(c.provision_id)!.local_id === local || E.provs.get(c.provision_id)!.local_id.startsWith(local + '-') || E.provs.get(c.provision_id)!.local_id.startsWith(local + '#')))
-      const under = (pid: string) => { const l = C.provs.get(pid)?.local_id ?? ''; return l === local || l.startsWith(local + '-') || l.startsWith(local + '#') }
+      const ofQ = (pid: string) => E.provs.get(pid)?.doc_kind === 'lep' && (!x.document_id || E.provs.get(pid)?.document_id === x.document_id)
+      const cs = E.claims.filter(c => c.kind === 'standard' && ofQ(c.provision_id) && (E.provs.get(c.provision_id)!.local_id === local || E.provs.get(c.provision_id)!.local_id.startsWith(local + '-') || E.provs.get(c.provision_id)!.local_id.startsWith(local + '#')))
+      const under = (pid: string) => { const p = C.provs.get(pid); const l = p?.local_id ?? ''; return (!x.document_id || p?.document_id === x.document_id) && (l === local || l.startsWith(local + '-') || l.startsWith(local + '#')) }
       const fig = x.text.match(/(\d[\d,]*(?:\.\d+)?)\s*(m2|square metres|metres|%)/i)?.[1]?.replace(/,/g, '')
       if (/standard or (?:part of )?a definition|part of a definition/i.test(x.text) && fig) {
         // is the figure a standard, or inside a definition? look in the clause's terms and its standards
@@ -94,7 +95,7 @@ async function main() {
         cited.push(...[term?.id, std?.provision_id].filter(Boolean) as string[])
       } else if (/which areas|which map/i.test(x.text)) {
         // the clause's frame: the mapped land it applies to
-        const frames = E.claims.filter(c => c.kind === 'frame' && c.unit_provision && E.provs.get(c.provision_id)?.doc_kind === 'lep' && under(c.provision_id))
+        const frames = E.claims.filter(c => c.kind === 'frame' && c.unit_provision && ofQ(c.provision_id) && under(c.provision_id))
         const areas = [...new Set(frames.flatMap(f => f.terms.filter(t => t.startsWith('mapped:')).map(t => t.slice(7))))]
         answer.controlling = frames.map(f => E.label(f.provision_id))
         answer.reasoning = areas.length ? `applies to land identified as ${areas.join('; ')}` : `no mapped area read for ${x.clause}`

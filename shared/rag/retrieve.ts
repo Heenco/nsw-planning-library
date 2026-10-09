@@ -19,7 +19,15 @@ export interface Corpus {
   rels: { kind: string; from: string; to: string | null; to_document: string | null; to_ref: string | null; status: string; basis: string; span: string | null }[]
   provs: Map<string, { id: string; local_id: string; document_id: string; doc_kind: string; path: string[]; parent_id: string | null; own_text: string }>
   insts: Inst[]
+  /** the instruments a question may read (its own LEP and the SEPPs) - unset reads everything */
+  scope?: Set<string>
 }
+
+/** the corpus as one question sees it: its LEP and the SEPPs, never another council's plan. Shares the indexes. */
+export const scoped = (C: Corpus, docs: string[]): Corpus => ({ ...C, insts: C.insts.filter(i => docs.includes(i.document_id)), scope: new Set(docs) })
+/** the instruments a question is about: its LEP (rag.question.document_id) and every SEPP; a question with no LEP reads all */
+export const docsFor = (C: Corpus, lepDoc: string | null | undefined) => lepDoc ? [lepDoc, ...C.insts.filter(i => i.kind !== 'lep').map(i => i.document_id)] : C.insts.map(i => i.document_id)
+const inScope = (C: Corpus, docId: string | undefined) => !C.scope || (!!docId && C.scope.has(docId))
 
 /** "Housing SEPP 2021", "Randwick LEP 2012" */
 export const docLabel = (title: string) => `${shortName(title)} ${title.match(/\d{4}$/)?.[0] ?? ''}`.trim()
@@ -63,8 +71,9 @@ export const VARIANT_INDEX: Record<string, 'plain' | 'structural' | 'contextual'
 /** hybrid search: BM25 and cosine ranks fused by reciprocal rank (k = 60), definitions down-weighted unless asked for */
 export function search(C: Corpus, variant: string, query: string, qvec: Float32Array, k = 8): { chunk: Chunk; score: number; why: string }[] {
   const idx = VARIANT_INDEX[variant] ?? 'contextual'
-  const lex = C.bm25[idx]!.search(query, 60)
-  const sem = [...C.vec[idx]!.entries()].map(([id, v]) => ({ id, s: cos(qvec, v) })).sort((a, b) => b.s - a.s).slice(0, 60)
+  const ok = (id: string) => inScope(C, C.byId.get(id)?.document_id)
+  const lex = C.bm25[idx]!.search(query, C.scope ? 400 : 60).filter(x => ok(x.id)).slice(0, 60)
+  const sem = [...C.vec[idx]!.entries()].filter(([id]) => ok(id)).map(([id, v]) => ({ id, s: cos(qvec, v) })).sort((a, b) => b.s - a.s).slice(0, 60)
   const fused = new Map<string, number>()
   lex.forEach((x, i) => fused.set(x.id, (fused.get(x.id) ?? 0) + 1 / (60 + i)))
   sem.forEach((x, i) => fused.set(x.id, (fused.get(x.id) ?? 0) + 1 / (60 + i)))
@@ -79,7 +88,7 @@ export function expand(C: Corpus, hits: Chunk[], limit = 8): { chunk: Chunk; why
   const clauseIds = (c: Chunk) => new Set([c.provision_id, ...[...C.provs.values()].filter(p => p.document_id === c.document_id && clauseKey(p.local_id, p.path) === c.clause).map(p => p.id)])
   const add = (provId: string | null, why: string) => {
     if (!provId || out.length >= limit) return
-    const p = C.provs.get(provId); if (!p) return
+    const p = C.provs.get(provId); if (!p || !inScope(C, p.document_id)) return
     for (const ch of C.byClause.get(`${p.document_id}|${clauseKey(p.local_id, p.path)}`) ?? []) if (!have.has(ch.id) && ch.role !== 'definition') { have.add(ch.id); out.push({ chunk: ch, why }); break }
   }
   for (const h of hits) {

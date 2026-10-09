@@ -16,9 +16,11 @@
  *                   only where the two cannot both be obeyed: a permission against a prohibition, or a maximum below a
  *                   minimum. Two maxima (or two minima) are not inconsistent: both bind
  *   3 specific      more_specific_than (interpretive; status 'proposed' is reported as such in the trace)
- *   4 cumulative    two standards of the same kind from different instruments, nothing above deciding: both apply, so
+ *   4 bar           a consent bar ("development consent must not be granted for X on ...") against a permission of the
+ *                   same instrument: the bar operates on top of what the zone permits, so no consent can be granted
+ *   5 cumulative    two standards of the same kind from different instruments, nothing above deciding: both apply, so
  *                   the more onerous is the one that binds
- *   5 conflict      nothing decides: "maybe - conflict", never a guess
+ *   6 conflict      nothing decides: "maybe - conflict", never a guess
  */
 
 export type Tri = boolean | null
@@ -32,6 +34,7 @@ export interface Claim {
   holds: Tri                        // does it apply to this lot and proposal
   condition?: string | null         // what decides it, when holds is null
   label?: string                    // "Randwick LEP 2012 4.4A(2)" for the trace
+  bar?: boolean                     // a prohibition read from "development consent must not be granted"
 }
 export interface Rel { kind: string; from_provision: string; to_provision: string | null; to_document: string | null; to_ref: string | null; status: string; basis: string; span?: string | null }
 export interface Prov { id: string; local_id: string; path: string[]; document_id: string; doc_kind: 'lep' | 'sepp' | string }
@@ -127,11 +130,14 @@ function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resol
     const r = relations.find(r => r.kind === 'more_specific_than' && covers(r.from_provision, a) && covers(r.to_provision, b))
     return r ? { rel: r, why: 'the more specific provision governs the general one' } : null
   }
-  // 4 cumulative: two maxima or two minima from different instruments - both can be met, so both bind
+  // 4 bar: a consent bar and a permission of the same instrument - the permission is not lost, but consent cannot be granted
+  const bar: Test = (a, b) => a.effect === 'prohibit' && a.bar && b.effect === 'permit' && sameDoc(a, b)
+    ? { rel: null, why: 'development consent must not be granted for it here: the bar applies on top of what the zone permits' } : null
+  // 5 cumulative: two maxima or two minima from different instruments - both can be met, so both bind
   const cumulative: Test = (a, b) => a.effect === 'value' && b.effect === 'value' && a.comparator && a.comparator === b.comparator && !sameDoc(a, b) && more(a, b)
     ? { rel: null, why: `both apply - neither instrument displaces the other and they are not inconsistent - so the more onerous ${a.comparator === 'max' ? 'maximum' : 'minimum'} binds` } : null
 
-  for (const [rule, test] of [['explicit', explicit], ['instrument', instrument], ['specific', specific], ['cumulative', cumulative]] as [string, Test][]) {
+  for (const [rule, test] of [['explicit', explicit], ['instrument', instrument], ['specific', specific], ['bar', bar], ['cumulative', cumulative]] as [string, Test][]) {
     let changed = true
     while (changed) {
       changed = false

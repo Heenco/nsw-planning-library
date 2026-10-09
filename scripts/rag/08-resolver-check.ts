@@ -53,10 +53,15 @@ const CASES: { id: string; question: string; expect: { verdict: string; value?: 
     { doc: 'sepp', local: 'sec.166', effect: 'permit', holds: true, label: 'Housing SEPP s 166' } ] },
 ]
 
+/** the instruments these hand-written cases cite ('lep' / 'sepp' in a case means these) */
+const CASES_FOR = { lep: 'Randwick Local Environmental Plan 2012', sepp: 'State Environmental Planning Policy (Housing) 2021' }
+
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
-  const docs = Object.fromEntries((await q(`SELECT kind, document_id FROM rag.instrument`)).rows.map(r => [r.kind, r.document_id]))
+  const byTitle = new Map((await q(`SELECT title, document_id FROM rag.instrument`)).rows.map(r => [r.title, r.document_id]))
+  if (!byTitle.has(CASES_FOR.lep) || !byTitle.has(CASES_FOR.sepp)) { console.log(`resolver cases need ${CASES_FOR.lep} and ${CASES_FOR.sepp} in the corpus - skipped`); await client.end(); return }
+  const docs: Record<string, string> = { lep: byTitle.get(CASES_FOR.lep)!, sepp: byTitle.get(CASES_FOR.sepp)! }
   const results: any[] = []
   for (const k of CASES) {
     const claims: Claim[] = []

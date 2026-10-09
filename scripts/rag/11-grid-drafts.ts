@@ -30,6 +30,8 @@ import 'dotenv/config'
 import pg from 'pg'
 
 const DRY = process.argv.includes('--dry')
+/** the plan these drafts read (its clause numbers are in them); another LEP's grid questions stay unkeyed until adjudicated */
+const DRAFTS_FOR = 'Randwick Local Environmental Plan 2012'
 
 export function draft(kind: string, lot: any): any | null {
   const zone = lot.zone, area = Number(lot.area_m2), lmr = lot.low_mid_rise_area?.class === 'in'
@@ -85,7 +87,8 @@ export function draft(kind: string, lot: any): any | null {
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
-  const grid = (await q(`SELECT id, clause, lot_facts, text FROM rag.question WHERE set_name = 'grid'`)).rows
+  const grid = (await q(`SELECT q.id, q.clause, q.lot_facts, q.text FROM rag.question q JOIN rag.instrument i ON i.document_id = q.document_id
+                           WHERE q.set_name = 'grid' AND i.title = $1`, [DRAFTS_FOR])).rows
   const tally: Record<string, number> = {}
   const out: { id: string; expected: any }[] = []
   for (const g of grid) {

@@ -14,7 +14,10 @@
  *   permissions      "Development for the purposes of X is permitted with (development) consent ... in Zone R2" and
  *                    "Development to which this Part applies may be carried out with consent" (inherits the frame)
  *   consent bars     "Development consent must not be granted ... unless-": a figure in it is a standard (4.1C's
- *                    550 m2); a list under it is a set of conditions (limitations), each with its figures and any
+ *                    550 m2); with no figure and no "unless" it is a prohibition of the uses on the land it names
+ *                    (Parramatta 6.11(1): dual occupancies on "D" on the Dual Occupancy Prohibition Map); "unless the
+ *                    land- (a) ..., or (b) ..." is a prohibition the listed land lifts (each item an exclusion); any
+ *                    other list under it is a set of conditions (limitations), each with its figures and any
  *                    cross-reference to another instrument read as a sub-question
  *   standards        a figure with a topic ("a maximum floor space ratio of 0.65:1"), a map rule ("shown for the land
  *                    on the Height of Buildings Map"), a "the maximum height of X on land in Zone R3 is 9.5 metres"
@@ -25,7 +28,7 @@ import pg from 'pg'
 import { landUseKey } from '../../shared/land-use-key'
 
 const DRY = process.argv.includes('--dry')
-interface P { id: string; document_id: string; parent_id: string | null; local_id: string; kind: string; heading: string | null; own_text: string; sort: number; ordinal: number | null; path: string[] }
+interface P { id: string; document_id: string; parent_id: string | null; local_id: string; kind: string; heading: string | null; own_text: string; sort: number; ordinal: number | null; path: string[]; connective?: string | null }
 interface Claim { provision_id: string; kind: string; consent?: string | null; uses?: string[]; zones?: string[]; terms?: string[]; excludes?: string[]; requires?: any[]
   topic?: string | null; comparator?: string | null; value?: number | null; unit?: string | null; value_source?: string | null; band?: any; non_discretionary?: boolean
   unit_provision?: string | null; source: string; span?: string | null; reader: string }
@@ -105,7 +108,7 @@ async function main() {
     ...(await q(`SELECT DISTINCT land_use FROM nsw.lep_permissibility`)).rows.map(r => landUseKey(r.land_use)),
     ...(await q(`SELECT DISTINCT heading FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL`)).rows.map(r => landUseKey(r.heading)),
   ])].filter(v => v.length > 3 && v.split(' ').length <= 6).sort((a, b) => b.length - a.length)
-  const provs: P[] = (await q(`SELECT id, document_id, parent_id, local_id, kind, heading, coalesce(own_text, '') own_text, sort, ordinal, coalesce(path, '{}') path FROM rag.provision`)).rows
+  const provs: P[] = (await q(`SELECT id, document_id, parent_id, local_id, kind, heading, coalesce(own_text, '') own_text, sort, ordinal, coalesce(path, '{}') path, connective FROM rag.provision`)).rows
   const byId = new Map(provs.map(p => [p.id, p]))
   const local = (doc: string, id: string) => provs.find(p => p.document_id === doc && p.local_id === id) ?? null
   const kids = new Map<string, P[]>()
@@ -266,8 +269,19 @@ async function main() {
       const uses = m[2] ? usesOf(m[2]) : [], s = scopeOf(`${m[4] ?? ''}`), unit = m[1] ? unitOf(m[1], p)?.id ?? null : null
       const tail = norm(m[5] ?? ''), kidsOf = kids.get(p.id) ?? []
       const fig = figureOf(tail)
+      // a bar on named uses with no figure: outright (nothing after it), or lifted by land the list names ("unless the land-
+      // (a) contains a heritage item, or (b) has 2 street frontages, ..."), each item an exclusion - only for an "or" list
+      const landList = /^the (land|lot|site)\b/i.test(tail) && kidsOf.length > 0 && kidsOf.every(k => k.connective === 'or' || k === kidsOf[kidsOf.length - 1])
       if (fig && topicOf(tail)) add({ provision_id: p.id, kind: 'standard', uses, zones: s.zones, terms: s.terms, unit_provision: unit, topic: topicOf(tail), comparator: fig.comparator ?? 'min',
         value: fig.value, unit: fig.unit, value_source: 'text', source: 'text', reader: 'consent bar', span: t.slice(0, 300) })
+      // outright: the uses, then only where - land, a zone, a mapped area - and no condition ("if the lot is less than ...",
+      // "in a building that contains a dwelling if ...": those are conditions, read below)
+      else if (uses.length && !m[3] && !tail && !kidsOf.length && /^\s*(on|in) (land|zone)\b/i.test(m[4] ?? '') && !/\b(if|where|while|unless)\b/i.test(`${m[2] ?? ''} ${m[4] ?? ''}`))
+        add({ provision_id: p.id, kind: 'prohibit', uses, zones: s.zones, terms: s.terms, unit_provision: unit, source: 'text', reader: 'consent bar', span: t.slice(0, 300) })
+      else if (uses.length && !m[3] && landList)
+        add({ provision_id: p.id, kind: 'prohibit', uses, zones: s.zones, terms: s.terms, unit_provision: unit, source: 'text', reader: 'consent bar',
+          excludes: kidsOf.map(k => norm([k.own_text, ...(kids.get(k.id) ?? []).map(g => g.own_text)].join(' ')).replace(/[,;.]?\s*(or|and)?$/i, '')).filter(x => x.length > 2),
+          span: t.slice(0, 300) })
       else {
         const leaves = kidsOf.length ? kidsOf : [p]
         for (const k of leaves) {

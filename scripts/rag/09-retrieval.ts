@@ -11,7 +11,7 @@
 import 'dotenv/config'
 import pg from 'pg'
 import { embed } from '../../shared/rag/deepinfra'
-import { loadCorpus, search, expand, keyedProvision, clauseKey, queryVec, type Corpus } from '../../shared/rag/retrieve'
+import { loadCorpus, search, expand, keyedProvision, clauseKey, queryVec, scoped, docsFor, type Corpus } from '../../shared/rag/retrieve'
 import { shortName } from '../../shared/rag/refs'
 
 export function goldOf(C: Corpus, expected: any): string[] {
@@ -29,7 +29,7 @@ async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const C = await loadCorpus(q)
-  const questions = (await q(`SELECT id, set_name, clause, text, expected FROM rag.question WHERE expected->>'status' <> 'none' ORDER BY set_name, clause`)).rows
+  const questions = (await q(`SELECT id, set_name, document_id, clause, text, expected FROM rag.question WHERE expected->>'status' <> 'none' ORDER BY set_name, clause`)).rows
   const K = [3, 5, 8]
   const rows: any[] = []
   const tally: Record<string, Record<string, number>> = {}
@@ -38,8 +38,9 @@ async function main() {
     if (!gold.length) continue
     const qv = await queryVec(x.text, embed)
     for (const v of ['R0', 'R1', 'R2', 'R3']) {
-      const hits = search(C, v, x.text, qv, 8).map(h => h.chunk)
-      const listAt = (k: number) => v === 'R3' ? [...hits.slice(0, k), ...expand(C, hits.slice(0, k), k).map(e => e.chunk)] : hits.slice(0, k)
+      const Cq = scoped(C, docsFor(C, x.document_id))
+      const hits = search(Cq, v, x.text, qv, 8).map(h => h.chunk)
+      const listAt = (k: number) => v === 'R3' ? [...hits.slice(0, k), ...expand(Cq, hits.slice(0, k), k).map(e => e.chunk)] : hits.slice(0, k)
       const keys = listAt(8).map(c => `${c.document_id}|${c.clause}`)
       const t = (tally[v] ??= { n: 0 })
       t.n!++

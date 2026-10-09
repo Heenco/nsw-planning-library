@@ -1,0 +1,11 @@
+{
+  "_": "The instruments in schema rag. 01-snapshot.ts loads exactly these; 01b-groups.py and 02a-terms.py read their XML at each instrument's as-at date. An LEP comes from pilot.node (the CDC pilot's structure); a SEPP from nsw.section, limited to its scope (top-level local ids). Add an LEP here and run scripts/rag/run.ts.",
+  "leps": [
+    "Randwick Local Environmental Plan 2012",
+    "Hornsby Local Environmental Plan 2013",
+    "Parramatta Local Environmental Plan 2023"
+  ],
+  "sepps": [
+    { "title": "State Environmental Planning Policy (Housing) 2021", "scope": ["ch.1", "ch.3-pt.1", "ch.6", "sch.1", "sch.7A", "sch.10"] }
+  ]
+}

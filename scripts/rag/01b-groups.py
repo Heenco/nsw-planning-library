@@ -19,17 +19,8 @@ import psycopg2
 from lxml import etree
 
 DRY = '--dry' in sys.argv
-APP = Path(__file__).resolve().parents[2]
-DATA = APP.parent / 'Notebooks' / 'Data' / 'rag_pilot'
-SOURCES = [
-    ('Randwick Local Environmental Plan 2012', DATA / 'epi-2013-0036.2026-04-07.xml'),
-    ('State Environmental Planning Policy (Housing) 2021', DATA / 'epi-2021-0714.2026-10-09.xml'),
-]
-
-def env(key):
-    for line in (APP / '.env').read_text(encoding='utf-8').splitlines():
-        if line.startswith(key + '='):
-            return line.split('=', 1)[1].strip().strip('"').strip("'")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from corpus_xml import env, sources, remove_provisions   # every instrument in rag.instrument, its XML at its own as-at date
 
 norm = lambda s: re.sub(r'\s+', ' ', s or '').strip()
 
@@ -57,25 +48,20 @@ def groups(xml_path):
 def main():
     con = psycopg2.connect(env('DATABASE_URL')); cur = con.cursor()
     report, run = {}, None
+    SOURCES = sources(cur)
     if not DRY:
-        cur.execute("INSERT INTO rag.run (stage, config) VALUES ('groups', %s) RETURNING id", (json.dumps({'sources': [p.name for _, p in SOURCES]}),))
+        cur.execute("INSERT INTO rag.run (stage, config) VALUES ('groups', %s) RETURNING id", (json.dumps({'sources': [p.name for _, _, _, p in SOURCES]}),))
         run = cur.fetchone()[0]
-    for title, path in SOURCES:
-        cur.execute("SELECT document_id FROM rag.instrument WHERE title = %s", (title,))
-        doc = cur.fetchone()[0]
-        # idempotent: undo an earlier run of THIS script (its rows are stamped with a 'groups' run) - never a group the
-        # snapshot itself brought in. A dry run reads as if that undo had happened.
+    for title, doc, _kind, path in SOURCES:
+        # idempotent and in place: an earlier run's groups (stamped with a 'groups' run - never a group the snapshot itself
+        # brought in) are read as if undone - their members under the group's parent - and the groups are then upserted
+        # with the same ids, so nothing that hangs off them (chunks, claims, adjudications) is lost
         mine = "SELECT p.id FROM rag.provision p JOIN rag.run r ON r.id = p.snapshot_run WHERE p.document_id = %s AND p.kind = 'group' AND r.stage = 'groups'"
-        if not DRY:
-            cur.execute(f"UPDATE rag.provision c SET parent_id = g.parent_id FROM rag.provision g WHERE c.parent_id = g.id AND g.id IN ({mine})", (doc,))
-            cur.execute(f"DELETE FROM rag.relation WHERE from_provision IN ({mine}) OR to_provision IN ({mine})", (doc, doc))
-            cur.execute(f"DELETE FROM rag.provision WHERE id IN ({mine})", (doc,))
         cur.execute(f"SELECT id, local_id, parent_id, container, sort, kind FROM rag.provision WHERE document_id = %s AND id NOT IN ({mine})", (doc, doc))
         rows = cur.fetchall()
-        if DRY:   # members currently under one of this script's groups count as under the group's parent
-            cur.execute(f"SELECT id, parent_id FROM rag.provision WHERE id IN ({mine})", (doc,))
-            gp = dict(cur.fetchall())
-            rows = [(r[0], r[1], gp.get(r[2], r[2]), r[3], r[4], r[5]) for r in rows]
+        cur.execute(f"SELECT id, parent_id FROM rag.provision WHERE id IN ({mine})", (doc,))
+        gp = dict(cur.fetchall())
+        rows = [(r[0], r[1], gp.get(r[2], r[2]), r[3], r[4], r[5]) for r in rows]
         by_local = {r[1]: r for r in rows}
         parent_of = {r[0]: r[2] for r in rows}
         gs = groups(path)
@@ -108,8 +94,15 @@ def main():
         cur.execute("""INSERT INTO rag.provision (id, document_id, parent_id, local_id, kind, heading, own_text, ordinal, path, container, sort, content_sha, snapshot_run)
                        SELECT id, document_id, parent_id, local_id, kind, heading, own_text, ordinal, '{}', container, sort, md5(local_id || heading), %s
                          FROM jsonb_to_recordset(%s::jsonb) AS x(id uuid, document_id uuid, parent_id uuid, local_id text, kind text, heading text,
-                              own_text text, ordinal int, container text, sort int)""", (run, json.dumps(made)))
+                              own_text text, ordinal int, container text, sort int)
+                       ON CONFLICT (id) DO UPDATE SET parent_id = EXCLUDED.parent_id, heading = EXCLUDED.heading, ordinal = EXCLUDED.ordinal,
+                         container = EXCLUDED.container, sort = EXCLUDED.sort, content_sha = EXCLUDED.content_sha""", (run, json.dumps(made)))
+        # every clause sits where this run puts it: under its group, else back under the parent of the group it had
+        cur.execute(f"UPDATE rag.provision c SET parent_id = g.parent_id FROM rag.provision g WHERE c.parent_id = g.id AND g.id IN ({mine}) AND NOT (c.id = ANY(%s::uuid[]))",
+                    (doc, [m['id'] for m in moves]))
         cur.execute("UPDATE rag.provision c SET parent_id = x.p FROM jsonb_to_recordset(%s::jsonb) AS x(id uuid, p uuid) WHERE c.id = x.id", (json.dumps(moves),))
+        # a group this run no longer makes: its members were moved off it above
+        report[title]['removed'] = remove_provisions(cur, [g for g in gp if str(g) not in {m['id'] for m in made}])
         # paths from the parent chain: the ancestors' local ids, root first
         cur.execute("""WITH RECURSIVE ch AS (
                          SELECT id, parent_id, ARRAY[]::text[] AS path FROM rag.provision WHERE document_id = %s AND parent_id IS NULL

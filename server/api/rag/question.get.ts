@@ -35,9 +35,11 @@ export default defineEventHandler(async (event) => {
     for (const c of a.answer?.controlling ?? []) refs.push({ ref: String(c) })
   }
   // the pilot names clauses of the plan it ran on (rag.run config.plan)
-  const plan = engine ? (await q(`SELECT r.config->>'plan' AS plan FROM rag.engine_answer e JOIN rag.run r ON r.id = e.run_id WHERE e.question_id = $1`, [id]))[0]?.plan : null
+  const plan = engine ? (await q(`SELECT coalesce(r.config->'plans'->>(qn.document_id::text), r.config->>'plan') AS plan FROM rag.engine_answer e JOIN rag.run r ON r.id = e.run_id
+                             JOIN rag.question qn ON qn.id = e.question_id WHERE e.question_id = $1`, [id]))[0]?.plan : null
   const planShort = plan ? instrumentOf(plan, insts, 'lep') : null
-  for (const c of engine?.controlling ?? []) if (c !== 'LUT') refs.push({ ref: `${planShort ? planShort.title : 'LEP'} cl ${c}`, hint: 'lep' })
+  const engineRef = (c: string) => `${planShort ? planShort.title : 'LEP'} cl ${c}`
+  for (const c of engine?.controlling ?? []) if (c !== 'LUT') refs.push({ ref: engineRef(c), hint: 'lep' })
   const chunkIds = answers.flatMap(a => (a.retrieved ?? []).map((r: any) => r.chunk)).filter(Boolean)
   const chunkProv = chunkIds.length ? await q(`SELECT id, provision_id FROM rag.chunk WHERE id = ANY($1::uuid[])`, [chunkIds]) : []
   for (const c of chunkProv) ids.add(c.provision_id)
@@ -57,5 +59,8 @@ export default defineEventHandler(async (event) => {
       FROM rag.provision p JOIN rag.instrument i USING (document_id) WHERE p.id = ANY($1::uuid[])`, [[...ids]]) : []
   const provisions = Object.fromEntries(rows.map((p: any) => [p.id, { label: labelOf(p), local_id: p.local_id, kind: p.kind, heading: p.heading, text: p.text, stem: p.stem, url: urlOf(p.source_url, p.local_id) }]))
   for (const c of chunkProv) for (const a of answers) for (const r of a.retrieved ?? []) if (r.chunk === c.id) r.provision_id = c.provision_id
-  return { question, answers, engine, provisions, refs: refMap, instruments: insts.map(i => ({ kind: i.kind, title: i.title, url: i.source_url })) }
+  // side P's clauses by clause number, whichever plan it ran on
+  const engineRefs = Object.fromEntries((engine?.controlling ?? []).filter((c: string) => c !== 'LUT').map((c: string) => [c, refMap[engineRef(c)] ?? null]))
+  return { question, answers, engine: engine && { ...engine, plan: planShort?.title ?? plan ?? null, refs: engineRefs }, provisions, refs: refMap,
+    instruments: insts.map(i => ({ kind: i.kind, title: i.title, url: i.source_url })) }
 })

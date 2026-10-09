@@ -69,9 +69,9 @@ Work in this order:
     follow: a => { const x = clauseChunks(a.ref); if (!x) return `no such provision: ${a.ref}`
       const ids = new Set([...C.provs.values()].filter(p => p.document_id === x.p.document_id && clauseKey(p.local_id, p.path) === clauseKey(x.p.local_id, x.p.path)).map(p => p.id))
       return [...new Set(C.rels.filter(r => ids.has(r.from) && r.kind !== 'defines').map(r => relLine(r, 'out')))].slice(0, 25).join('\n') || 'no outgoing relations' },
-    land_use_table: a => { const z = String(a.zone).toUpperCase().replace(/^ZONE\s+/, ''); const g = [...C.provs.values()].find(p => p.local_id === `pt-cg1.Zone_${z}`)
+    land_use_table: a => { const z = String(a.zone).toUpperCase().replace(/^ZONE\s+/, ''); const g = [...C.provs.values()].find(p => p.local_id === `pt-cg1.Zone_${z}` && p.doc_kind === 'lep' && (!C.scope || C.scope.has(p.document_id)))
       return g ? (C.byClause.get(`${g.document_id}|${g.local_id}`) ?? []).map(show).join('\n\n') : `no Land Use Table entry for ${z}` },
-    definition: a => { const t = String(a.term).toLowerCase(); const hits = C.chunks.filter(c => c.role === 'definition' && c.header.toLowerCase().includes(`"${t}`)).slice(0, 3); return hits.map(show).join('\n\n') || `no definition of "${a.term}"` },
+    definition: a => { const t = String(a.term).toLowerCase(); const hits = C.chunks.filter(c => c.role === 'definition' && (!C.scope || C.scope.has(c.document_id)) && c.header.toLowerCase().includes(`"${t}`)).slice(0, 3); return hits.map(show).join('\n\n') || `no definition of "${a.term}"` },
     resolve: a => {
       const claims: Claim[] = []; const bad: string[] = []
       for (const [i, c] of (a.claims ?? []).entries()) {

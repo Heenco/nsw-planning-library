@@ -361,7 +361,8 @@ async function main() {
     const m = textOf(p).match(/\bdescribed or referred to in Schedule (\w+)\b/i); if (!m) continue
     const op = clauseOf(p); if (!op) continue
     const sch = local(p.document_id, `sch.${m[1]}`); if (!sch) continue
-    const inOp = (x: P) => x.local_id === op.local_id || x.local_id.startsWith(op.local_id + '-')
+    // the operative clause of THIS instrument: every LEP numbers it 2.5, and each one's override is its own
+    const inOp = (x: P) => x.document_id === p.document_id && (x.local_id === op.local_id || x.local_id.startsWith(op.local_id + '-'))
     const wide = rels.filter(r => r.kind === 'despite' && !r.to_provision && r.to_document && inOp(byId.get(r.from_provision)!))
     for (const item of (kids.get(sch.id) ?? []).filter(k => k.kind === 'clause'))
       for (const r of wide) add({ ...r, from_provision: item.id, span: `${r.span ?? ''} (through ${op.local_id})`.trim(), reader: 'overrides', basis: 'text', status: 'proposed' })
@@ -398,7 +399,7 @@ async function main() {
   const ndStems = provs.filter(p => SEPPS.includes(p.document_id) && /non-discretionary development standards/i.test(textOf(p)) && (kids.get(p.id) ?? []).length)
   for (const stem of ndStems) {
     const cl = clauseOf(stem)
-    const sectionText = [cl?.heading ?? '', ...provs.filter(x => cl && x.local_id.startsWith(cl.local_id + '-')).map(textOf)].join(' ')
+    const sectionText = [cl?.heading ?? '', ...provs.filter(x => cl && x.document_id === cl.document_id && x.local_id.startsWith(cl.local_id + '-')).map(textOf)].join(' ')
     const uses = usesIn(sectionText)
     for (const leaf of kids.get(stem.id)!) {
       const lt = topics.get(leaf.id) ?? []

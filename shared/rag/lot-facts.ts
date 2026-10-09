@@ -4,8 +4,8 @@
  *
  *   base       shared/norms/facts.ts lotFacts: zone, area, frontage, battle-axe, the FSR / height / lot size maps, council
  *   lmr        lmr.lot_lmr: the low and mid rise band and class
- *   mapped     the map areas the lot is in (nsw.rule_spatial_ref, the plan's own epi polygon preferred where two refs give
- *              one map label different polygons) with the share of the lot inside
+ *   mapped     the map areas the lot is in (rag.map_polygon: the plans' own epi map layers and nsw.rule_spatial_ref - the
+ *              plan's own polygon preferred where both give one map label) with the share of the lot inside
  *   terms      every registered term the graph's claims are bound to (rag.claim_binding), tested with lotTermInterior:
  *              a polygon holds only where it covers 1 m2 or more of the lot
  */
@@ -23,17 +23,15 @@ export async function ragLotFacts(q: Query, cadid: string) {
   const lmr = (await q(`SELECT band, class, measured_from, excluded_by, eligible_types FROM lmr.lot_lmr WHERE cadid::text = $1`, [cadid])).rows[0]
   const addr = (await q(`SELECT formatted_address FROM derived.lot_profile WHERE cadid::text = $1 ORDER BY is_primary_address DESC NULLS LAST, address_confidence DESC NULLS LAST LIMIT 1`, [cadid])).rows[0]
   // "Area 1 on the Key Sites Map" came back both from epi.epi_key_sites (Young Street, Randwick - right) and from
-  // dpie_ppl_6 (Matraville - wrong): where the plan's own epi layer has the label, it wins
+  // dpie_ppl_6 (Matraville - wrong): where the plan's own epi layer has the label anywhere, a resolver polygon for it is not used
   const mapped = (await q(`
-    WITH refs AS (
-      SELECT regexp_replace(r.map_layer, ' Map$', '') AS map, r.value AS label, r.geom, (r.geom_source LIKE 'epi.%') AS own,
-             bool_or(r.geom_source LIKE 'epi.%') OVER (PARTITION BY regexp_replace(r.map_layer, ' Map$', ''), r.value) AS has_own
-        FROM nsw.rule_spatial_ref r JOIN rag.instrument i ON i.kind = 'lep' AND r.document_id = i.document_id WHERE r.geom IS NOT NULL)
-    SELECT DISTINCT ON (refs.map, refs.label) refs.map, refs.label,
-           round((ST_Area(ST_Intersection(refs.geom, ST_Transform(l.geom, ST_SRID(refs.geom)))) / nullif(ST_Area(ST_Transform(l.geom, ST_SRID(refs.geom))), 0))::numeric, 2)::float8 AS share
-      FROM refs, cadastre.lot l
-     WHERE l.cadid::text = $1 AND (refs.own OR NOT refs.has_own) AND ST_Intersects(refs.geom, ST_Transform(l.geom, ST_SRID(refs.geom)))
-     ORDER BY refs.map, refs.label, 3 DESC`, [cadid]).catch(() => ({ rows: [] as any[] }))).rows.filter((m: any) => m.share > 0.01)
+    WITH lot AS (SELECT geom FROM cadastre.lot WHERE cadid::text = $1 LIMIT 1),
+         hit AS (SELECT m.document_id, m.map, m.label, m.own, ST_Area(ST_Intersection(m.geom, lot.geom)::geography) / nullif(ST_Area(lot.geom::geography), 0) AS share
+                   FROM rag.map_polygon m, lot WHERE m.geom && lot.geom AND ST_Intersects(m.geom, lot.geom))
+    SELECT DISTINCT ON (h.document_id, h.map, h.label) h.document_id::text AS document_id, h.map, h.label, round(h.share::numeric, 2)::float8 AS share
+      FROM hit h
+     WHERE h.own OR NOT EXISTS (SELECT 1 FROM rag.map_polygon o WHERE o.own AND o.document_id = h.document_id AND o.map = h.map AND o.label = h.label)
+     ORDER BY h.document_id, h.map, h.label, h.share DESC`, [cadid]).catch(() => ({ rows: [] as any[] }))).rows.filter((m: any) => m.share > 0.01)
   const boundTerms = (await q(`SELECT DISTINCT unnest(scope_terms) t FROM rag.claim_binding WHERE status = 'bound'`).catch(() => ({ rows: [] as any[] }))).rows
     .map(r => String(r.t)).filter(t => !OWN.test(t))
   const terms: Record<string, { holds: boolean | null; why: string }> = {}

@@ -7,8 +7,8 @@ import { nswQuery } from '../../utils/nsw-kg/pool'
 export default defineEventHandler(async () => {
   const q = async (sql: string, p: unknown[] = []) => { try { return (await nswQuery<any>(sql, p as any[])).rows } catch { return [] } }
   const [questions, answers, engine] = await Promise.all([
-    q(`SELECT id, set_name, clause, kind, text, expected->>'status' AS status, expected->>'verdict' AS e_verdict, expected->>'value' AS e_value, expected->'values' AS e_values, expected->>'source' AS e_source
-         FROM rag.question ORDER BY CASE set_name WHEN 'hard_case' THEN 1 WHEN 'local' THEN 2 WHEN 'propcode' THEN 3 WHEN 'pilot_key' THEN 4 ELSE 5 END, clause, text`),
+    q(`SELECT q.id, q.set_name, q.clause, q.kind, q.text, i.title AS lep, expected->>'status' AS status, expected->>'verdict' AS e_verdict, expected->>'value' AS e_value, expected->'values' AS e_values, expected->>'source' AS e_source
+         FROM rag.question q LEFT JOIN rag.instrument i ON i.document_id = q.document_id ORDER BY i.title, CASE set_name WHEN 'hard_case' THEN 1 WHEN 'local' THEN 2 WHEN 'propcode' THEN 3 WHEN 'pilot_key' THEN 4 ELSE 5 END, clause, text`),
     q(`SELECT DISTINCT ON (a.question_id, a.variant) a.question_id, a.variant, a.answer->>'verdict' AS verdict, a.answer->>'value' AS value, (a.answer ? 'unparsed') AS unparsed
          FROM rag.answer a JOIN rag.run r ON r.id = a.run_id WHERE a.variant IN ('D', 'R3', 'L0', 'R4') ORDER BY a.question_id, a.variant, r.started_at DESC`),
     q(`SELECT question_id, verdict FROM rag.engine_answer`),

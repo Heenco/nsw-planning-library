@@ -29,14 +29,16 @@ export interface PlanPhase {
   steps: PlanStep[]
 }
 
-export const RAG_UPDATED = '2026-10-09'
+export const RAG_UPDATED = '2026-10-10'
 
 export const RAG_SCOPE = {
   instruments: [
     { title: 'Randwick Local Environmental Plan 2012', parts: 'whole plan', source: 'pilot.node (frozen copy, stamped with the pilot run)' },
+    { title: 'Hornsby Local Environmental Plan 2013', parts: 'whole plan', source: 'pilot.node (added 2026-10-10 through scripts/rag/corpus.json)' },
+    { title: 'Parramatta Local Environmental Plan 2023', parts: 'whole plan', source: 'pilot.node (added 2026-10-10 through scripts/rag/corpus.json)' },
     { title: 'State Environmental Planning Policy (Housing) 2021', parts: 'Ch 1 (incl. s 8 "prevails"), Ch 3 Pt 1 (secondary dwellings), Ch 6 (low and mid rise housing), Sch 1 (secondary dwelling CDC), Sch 7A (savings and transitional), Sch 10 (dictionary)', source: 'nsw.section' },
   ],
-  outOfScope: 'DCPs, the Codes SEPP, other SEPPs and other LEPs - each a later phase once Randwick works end to end.',
+  outOfScope: 'DCPs, the Codes SEPP, other SEPPs and other LEPs - an LEP is added by naming it in scripts/rag/corpus.json and running scripts/rag/run.ts.',
 }
 
 export const RAG_DECISIONS: { id: string; decision: string; why: string }[] = [
@@ -184,6 +186,10 @@ export const RAG_PHASES: PlanPhase[] = [
         doneWhen: 'every reader, label, link, prompt and question template takes the instruments from rag.instrument (by kind and title), so a second LEP or SEPP needs no code change',
         result: 'Removed from 02-relations (the SI-meaning rule is found by its words and its “other than in Schedule N” exceptions; dictionaries by heading; cl 4.6 and specific-over-general for every LEP), refs / retrieve / answer / agent / 07 / 09 / 12 / 15 / 06. Resolver steps carry their provisions, so a link opens the right row; interpretive steps say they are not verified; SEPP s 8 applies only where the two cannot both be obeyed (two maxima both bind: the more onerous governs). Every answer states the date its law is as at.',
         where: ['scripts/rag/02-relations.ts', 'shared/rag/refs.ts', 'shared/rag/resolver.ts'] },
+      { id: 'P7.6', title: 'More than one LEP: Hornsby and Parramatta', status: 'done',
+        doneWhen: 'the corpus is a list (scripts/rag/corpus.json) and one command builds it (scripts/rag/run.ts); a lot is answered from its own LEP and the SEPPs only; adding an LEP keeps what was paid for the others',
+        result: 'Free stages run end to end on all three plans in about 5 minutes (311 questions: Randwick 133, Hornsby 91, Parramatta 87). Side D per plan on its keyed questions: Randwick 132 scored, 100% / 0% confidently wrong; Hornsby 17, 65% / 6% (29% maybe: 7.6 / 7.7 discretionary heights and FSR not read); Parramatta 9, 67% / 11%. Built for it: stable provision ids and a fingerprint per instrument (an unchanged plan keeps its chunks, contexts and embeddings); clause groups and terms updated in place; each plan’s XML at its own as-at date; the governing LEP chosen per lot from its zoning (a lot under a plan not held is “maybe”, never answered from the SEPP alone); map polygons from the plans’ own 56 epi map layers as well as the resolver’s refs (46 unbound Schedule 1 / map conditions down to 8); retrieval, L0 and the agent scoped to the question’s plan; consent bars read as prohibitions; side P (the CDC engine) opt-in only; Anthropic as a model provider (scripts/rag/check-llm.ts).',
+        where: ['scripts/rag/corpus.json', 'scripts/rag/run.ts', 'scripts/rag/01-snapshot.ts', 'scripts/rag/02d-bindings.ts', 'shared/rag/evaluate.ts', 'scripts/rag/12b-score-by-lep.ts'] },
     ],
   },
 ]

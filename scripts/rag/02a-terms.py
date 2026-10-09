@@ -19,17 +19,8 @@ import psycopg2
 from lxml import etree
 
 DRY = '--dry' in sys.argv
-APP = Path(__file__).resolve().parents[2]
-DATA = APP.parent / 'Notebooks' / 'Data' / 'rag_pilot'
-SOURCES = [
-    ('Randwick Local Environmental Plan 2012', DATA / 'epi-2013-0036.2026-04-07.xml', ('dict',)),
-    ('State Environmental Planning Policy (Housing) 2021', DATA / 'epi-2021-0714.2026-10-09.xml', ('sch.10',)),
-]
-
-def env(key):
-    for line in (APP / '.env').read_text(encoding='utf-8').splitlines():
-        if line.startswith(key + '='):
-            return line.split('=', 1)[1].strip().strip('"').strip("'")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from corpus_xml import env, sources, dictionary_ids, remove_provisions   # every instrument in rag.instrument, its XML at its own as-at date
 
 norm = lambda s: re.sub(r'\s+', ' ', s or '').strip()
 
@@ -69,13 +60,15 @@ def main():
     con = psycopg2.connect(env('DATABASE_URL')); cur = con.cursor()
     report = {}
     run = None
+    SOURCES = sources(cur)
     if not DRY:
         cur.execute("INSERT INTO rag.run (stage, config) VALUES ('terms', %s) RETURNING id",
-                    (json.dumps({'sources': [str(p.name) for _, p, _ in SOURCES]}),))
+                    (json.dumps({'sources': [str(p.name) for _, _, _, p in SOURCES]}),))
         run = cur.fetchone()[0]
-    for title, path, planwide in SOURCES:
-        cur.execute("SELECT document_id FROM rag.instrument WHERE title = %s", (title,))
-        doc = cur.fetchone()[0]
+    for title, doc, _kind, path in SOURCES:
+        # plan-wide terms: those of the instrument's Dictionary (an LEP's 'dict', a SEPP's schedule headed Dictionary)
+        planwide = dictionary_ids(etree.fromstring(re.sub(r'<!DOCTYPE[^>]*>', '', path.read_text(encoding='utf-8')).encode('utf-8'),
+                                                   parser=etree.XMLParser(recover=True, huge_tree=True)))
         cur.execute("SELECT id, local_id, path, container, sort FROM rag.provision WHERE document_id = %s AND kind <> 'term'", (doc,))
         by_local = {r[1]: r for r in cur.fetchall()}
         defs = definitions(path)
@@ -104,13 +97,15 @@ def main():
                          'empty_text': sum(1 for k in kept if len(k['own_text']) < len(k['heading']) + 5)}
         if DRY:
             continue
-        cur.execute("DELETE FROM rag.relation WHERE from_provision IN (SELECT id FROM rag.provision WHERE document_id = %s AND kind = 'term') "
-                    "OR to_provision IN (SELECT id FROM rag.provision WHERE document_id = %s AND kind = 'term')", (doc, doc))
-        cur.execute("DELETE FROM rag.provision WHERE document_id = %s AND kind = 'term'", (doc,))
+        # in place: a term keeps its id (and its definition chunk, context and embeddings); a term no longer in the XML goes
+        cur.execute("SELECT id FROM rag.provision WHERE document_id = %s AND kind = 'term'", (doc,))
+        report[title]['removed'] = remove_provisions(cur, [r[0] for r in cur.fetchall() if str(r[0]) not in {k['id'] for k in kept}])
         cur.execute("""INSERT INTO rag.provision (id, document_id, parent_id, local_id, kind, heading, own_text, ordinal, path, container, sort, content_sha, snapshot_run)
                        SELECT id, document_id, parent_id, local_id, kind, heading, own_text, ordinal, path, container, sort, md5(local_id || own_text), %s
                          FROM jsonb_to_recordset(%s::jsonb) AS x(id uuid, document_id uuid, parent_id uuid, local_id text, kind text, heading text,
-                              own_text text, ordinal int, path text[], container text, sort int)""", (run, json.dumps(kept)))
+                              own_text text, ordinal int, path text[], container text, sort int)
+                       ON CONFLICT (id) DO UPDATE SET parent_id = EXCLUDED.parent_id, heading = EXCLUDED.heading, own_text = EXCLUDED.own_text, ordinal = EXCLUDED.ordinal,
+                         path = EXCLUDED.path, container = EXCLUDED.container, sort = EXCLUDED.sort, content_sha = EXCLUDED.content_sha""", (run, json.dumps(kept)))
     if not DRY:
         cur.execute("UPDATE rag.run SET finished_at = now(), counts = %s WHERE id = %s", (json.dumps(report), run))
         con.commit()

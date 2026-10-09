@@ -69,7 +69,8 @@ async function main() {
                               FROM rag.answer a GROUP BY 1, 2 HAVING count(*) > 1`)).rows
   const stability: Record<string, { pairs: number; same: number }> = {}
   for (const r of repeats) { const s = (stability[r.variant] ??= { pairs: 0, same: 0 }); s.pairs++; if (new Set(r.d).size === 1) s.same++ }
-  const engine = (await q(`SELECT e.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause FROM rag.engine_answer e JOIN rag.question qn ON qn.id = e.question_id`)).rows
+  const engine = (await q(`SELECT e.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause, coalesce(r.config->'plans'->>(qn.document_id::text), r.config->>'plan') AS plan
+                             FROM rag.engine_answer e JOIN rag.question qn ON qn.id = e.question_id LEFT JOIN rag.run r ON r.id = e.run_id`)).rows
   type Acc = Record<string, number>
   const by: Record<string, Acc> = {}
   const bump = (k: string, f: string, n = 1) => { (by[k] ??= {})[f] = (by[k]![f] ?? 0) + n }
@@ -89,7 +90,7 @@ async function main() {
     perQ.set(a.question_id, { ...(perQ.get(a.question_id) ?? {}), [a.variant]: { verdict: ans?.verdict ?? null, value: ans?.value ?? null, controlling: ans?.controlling ?? [], correct: s?.correct ?? null } })
   }
   for (const e of engine) {
-    const ans = e.verdict === 'not_answered' || e.verdict === 'error' ? null : { verdict: e.verdict, value: null, controlling: (e.controlling ?? []).map((c: string) => `Randwick LEP 2012 cl ${c}`) }
+    const ans = e.verdict === 'not_answered' || e.verdict === 'error' ? null : { verdict: e.verdict, value: null, controlling: (e.controlling ?? []).map((c: string) => `${e.plan ?? 'LEP'} cl ${c}`) }
     const s = score(C, e.expected, ans)
     for (const k of ['P', `P|${e.set_name}`, `P|ground:${e.expected?.status}`, ...(e.set_name === 'grid' ? [`P|${e.qclause}`] : [])]) {
       bump(k, 'answers'); if (!ans) bump(k, 'not_answered')

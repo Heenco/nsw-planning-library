@@ -1,21 +1,37 @@
 /**
- * RAG pilot - the DeepInfra calls (chat with tools, embeddings) with retries and token / cost accounting.
- * Plain fetch, no SDK, so the same module runs in scripts (tsx) and in Nitro.
+ * RAG pilot - the model calls (chat with tools, embeddings) with retries and token / cost accounting. Plain fetch, no
+ * SDK, so the same module runs in scripts (tsx) and in Nitro.
+ *
+ *   chat     DeepInfra (OpenAI-compatible) for open models; a model id starting "claude-" goes to the Anthropic Messages
+ *            API instead, with the OpenAI-shaped messages and tools translated both ways - so every caller (contexts,
+ *            R0-R3, L0, the R4 agent with its tools) runs on either without change
+ *   embed    DeepInfra bge-en-icl (Anthropic has no embeddings endpoint)
+ *
+ * Which models: RAG_LLM=anthropic in .env switches the defaults to Claude (contexts on Haiku 4.5, answers on Sonnet 5);
+ * RAG_MODEL_ANSWER / RAG_MODEL_CONTEXT pick a model outright. ANTHROPIC_API_KEY / DEEPINFRA_API_KEY are the keys.
  */
 
+const PROVIDER = (process.env.RAG_LLM ?? 'deepinfra').toLowerCase()
 export const MODELS = {
-  answer: 'meta-llama/Llama-3.3-70B-Instruct',
+  answer: process.env.RAG_MODEL_ANSWER ?? (PROVIDER === 'anthropic' ? 'claude-sonnet-5' : 'meta-llama/Llama-3.3-70B-Instruct'),
+  context: process.env.RAG_MODEL_CONTEXT ?? (PROVIDER === 'anthropic' ? 'claude-haiku-4-5-20251001' : 'meta-llama/Llama-3.3-70B-Instruct'),
   second: 'Qwen/Qwen3-235B-A22B-Instruct-2507',
   embed: 'BAAI/bge-en-icl',
-} as const
+}
 
-/** USD per million tokens, DeepInfra list prices as read 2026-10 - for comparing variants, not for invoicing */
+/** USD per million tokens, list prices as read 2026-10 - for comparing variants, not for invoicing. A model not listed
+ *  costs 0 here and says so once: add its price rather than trust the total */
 export const PRICE: Record<string, { in: number; out: number }> = {
   'meta-llama/Llama-3.3-70B-Instruct': { in: 0.23, out: 0.40 },
   'Qwen/Qwen3-235B-A22B-Instruct-2507': { in: 0.13, out: 0.60 },
   'BAAI/bge-en-icl': { in: 0.01, out: 0 },
+  'claude-haiku-4-5-20251001': { in: 1, out: 5 },
 }
-export const costOf = (model: string, tin: number, tout: number) => ((PRICE[model]?.in ?? 0) * tin + (PRICE[model]?.out ?? 0) * tout) / 1e6
+const unpriced = new Set<string>()
+export const costOf = (model: string, tin: number, tout: number) => {
+  if (!PRICE[model] && !unpriced.has(model)) { unpriced.add(model); console.warn(`[rag] no price listed for ${model}: its cost is counted as 0 (shared/rag/deepinfra.ts PRICE)`) }
+  return ((PRICE[model]?.in ?? 0) * tin + (PRICE[model]?.out ?? 0) * tout) / 1e6
+}
 
 const BASE = 'https://api.deepinfra.com/v1/openai'
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
@@ -38,6 +54,7 @@ export interface ChatResult { content: string; tool_calls: any[]; tokens_in: num
 
 export async function chat(opts: { messages: ChatMessage[]; model?: string; tools?: any[]; maxTokens?: number; temperature?: number; json?: boolean; key?: string }): Promise<ChatResult> {
   const model = opts.model ?? MODELS.answer
+  if (model.startsWith('claude-')) return anthropicChat({ ...opts, model })
   const key = opts.key ?? process.env.DEEPINFRA_API_KEY
   if (!key) throw new Error('DEEPINFRA_API_KEY is not set')
   const t0 = Date.now()
@@ -50,6 +67,51 @@ export async function chat(opts: { messages: ChatMessage[]; model?: string; tool
   const tin = j.usage?.prompt_tokens ?? 0, tout = j.usage?.completion_tokens ?? 0
   return { content: msg.content ?? '', tool_calls: msg.tool_calls ?? [], tokens_in: tin, tokens_out: tout, cost_usd: costOf(model, tin, tout), ms: Date.now() - t0,
     message: { role: 'assistant', content: msg.content ?? null, ...(msg.tool_calls?.length ? { tool_calls: msg.tool_calls } : {}) } }
+}
+
+/**
+ * The Anthropic Messages API behind the same contract: system messages become `system`; an assistant turn's tool_calls
+ * become tool_use blocks and a tool message a tool_result block in a user turn (consecutive turns of one role merged, as
+ * the API requires); tools take `input_schema`. JSON is asked for in words - there is no response_format.
+ */
+async function anthropicChat(opts: { messages: ChatMessage[]; model: string; tools?: any[]; maxTokens?: number; temperature?: number; json?: boolean; key?: string }): Promise<ChatResult> {
+  const key = opts.key ?? process.env.ANTHROPIC_API_KEY
+  if (!key) throw new Error('ANTHROPIC_API_KEY is not set - add it to the app .env')
+  const system = [...opts.messages.filter(m => m.role === 'system').map(m => m.content ?? ''), ...(opts.json ? ['Reply with one JSON object and nothing else.'] : [])].join('\n\n')
+  const turns: { role: 'user' | 'assistant'; content: any[] }[] = []
+  const push = (role: 'user' | 'assistant', blocks: any[]) => {
+    if (!blocks.length) return
+    const last = turns[turns.length - 1]
+    if (last && last.role === role) last.content.push(...blocks); else turns.push({ role, content: blocks })
+  }
+  for (const m of opts.messages) {
+    if (m.role === 'system') continue
+    if (m.role === 'tool') push('user', [{ type: 'tool_result', tool_use_id: m.tool_call_id, content: m.content ?? '' }])
+    else if (m.role === 'assistant') push('assistant', [...(m.content ? [{ type: 'text', text: m.content }] : []),
+      ...(m.tool_calls ?? []).map((t: any) => ({ type: 'tool_use', id: t.id, name: t.function?.name, input: (() => { try { return JSON.parse(t.function?.arguments || '{}') } catch { return {} } })() }))])
+    else push('user', [{ type: 'text', text: m.content ?? '' }])
+  }
+  const body = {
+    model: opts.model, max_tokens: opts.maxTokens ?? 800, ...(system ? { system } : {}), messages: turns,
+    ...(opts.temperature != null ? { temperature: opts.temperature } : {}),
+    ...(opts.tools?.length ? { tools: opts.tools.map((t: any) => ({ name: t.function.name, description: t.function.description, input_schema: t.function.parameters })) } : {}),
+  }
+  const t0 = Date.now()
+  let j: any = null, last = ''
+  for (let i = 0; i < 5 && !j; i++) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' }, body: JSON.stringify(body) })
+      .catch(e => ({ ok: false, status: 0, text: async () => String(e) }) as unknown as Response)
+    if (res.ok) { j = await res.json(); break }
+    last = `${res.status} ${(await res.text().catch(() => '')).slice(0, 300)}`
+    if (res.status && res.status < 500 && res.status !== 429) break          // 529 overloaded and 5xx are retried
+    await sleep(1000 * 2 ** i)
+  }
+  if (!j) throw new Error(`Anthropic messages (${opts.model}): ${last}`)
+  const text = (j.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
+  const tool_calls = (j.content ?? []).filter((b: any) => b.type === 'tool_use').map((b: any) => ({ id: b.id, type: 'function', function: { name: b.name, arguments: JSON.stringify(b.input ?? {}) } }))
+  const tin = (j.usage?.input_tokens ?? 0) + (j.usage?.cache_read_input_tokens ?? 0) + (j.usage?.cache_creation_input_tokens ?? 0), tout = j.usage?.output_tokens ?? 0
+  return { content: text, tool_calls, tokens_in: tin, tokens_out: tout, cost_usd: costOf(opts.model, tin, tout), ms: Date.now() - t0,
+    message: { role: 'assistant', content: text || null, ...(tool_calls.length ? { tool_calls } : {}) } }
 }
 
 /** bge-en-icl embeddings; queries take an instruction prefix, documents do not (the model's own convention) */
