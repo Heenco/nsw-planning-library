@@ -36,6 +36,9 @@ function askOf(q: any): { ask: Ask | null; mode: string; lot: any } {
   if (q.kind === 'precedence') return { ask: null, mode: 'precedence', lot }
   if (q.kind === 'extraction') return { ask: null, mode: 'extraction', lot }
   if (q.kind === 'subdivision' || /subdivi/i.test(t)) {
+    // a question across title types ("Torrens, community and strata ... alike?") asks each of them
+    const named = ['torrens', 'community', 'strata'].filter(x => new RegExp(x, 'i').test(t))
+    if (named.length > 1) return { ask: { kind: 'subdivision', use, lots: 2, proposal: 'subdivision', only, consentDate: isoOf(t), combinedDa: null }, mode: `tenure-compare:${named.join(',')}`, lot }
     const tenure = /strata/i.test(t) ? 'strata' : /community/i.test(t) ? 'community' : 'torrens'
     const date = isoOf(t), separate = /separate|not known/i.test(t) ? (date || /not known/i.test(t) ? (/not known/i.test(t) ? null : false) : null) : null
     const lots = Number(t.match(/into (\d+) lots/i)?.[1] ?? 2)
@@ -70,9 +73,40 @@ async function main() {
       const m = String(x.clause).match(/^([\d.]+[A-Z]*)((?:\(\w+\))*)$/)
       const local = m ? [`sec.${m[1]}`, ...[...m[2]!.matchAll(/\((\w+)\)/g)].map((p, i) => i === 0 ? `-ssec.${p[1]}` : `-para${i}.${p[1]}`)].join('') : ''
       const cs = E.claims.filter(c => c.kind === 'standard' && E.provs.get(c.provision_id)?.doc_kind === 'lep' && (E.provs.get(c.provision_id)!.local_id === local || E.provs.get(c.provision_id)!.local_id.startsWith(local + '-') || E.provs.get(c.provision_id)!.local_id.startsWith(local + '#')))
-      const c = cs.find(c => c.value != null) ?? cs[0]
-      if (c) { answer = { ...answer, value: c.value, unit: c.unit, controlling: [E.label(c.provision_id)], reasoning: `${E.label(c.provision_id)}: ${c.topic} ${c.comparator ?? ''} ${c.value ?? c.value_source ?? ''} ${c.unit ?? ''} (${cs.length} standard claim(s) on the clause)` } }
-      else answer.reasoning = `no standard claim on ${x.clause}`
+      const under = (pid: string) => { const l = C.provs.get(pid)?.local_id ?? ''; return l === local || l.startsWith(local + '-') || l.startsWith(local + '#') }
+      const fig = x.text.match(/(\d[\d,]*(?:\.\d+)?)\s*(m2|square metres|metres|%)/i)?.[1]?.replace(/,/g, '')
+      if (/standard or (?:part of )?a definition|part of a definition/i.test(x.text) && fig) {
+        // is the figure a standard, or inside a definition? look in the clause's terms and its standards
+        const term = [...C.provs.values()].find(p => p.local_id.includes('-def.') && under(p.id) && p.own_text.replace(/,/g, '').includes(fig))
+        const std = cs.find(c => String(c.value) === fig)
+        answer.controlling = [E.label(term?.id ?? std?.provision_id ?? '') || x.clause].filter(Boolean)
+        answer.reasoning = term ? `part of a definition: "${term.own_text.slice(0, 160)}" - not a development standard` : std ? `a development standard: ${E.label(std.provision_id)}` : `the figure ${fig} is in neither a definition nor a standard of ${x.clause}`
+        answer.kind_of_figure = term ? 'definition' : std ? 'standard' : null
+      } else if (/which areas|which map/i.test(x.text)) {
+        // the clause's frame: the mapped land it applies to
+        const frames = E.claims.filter(c => c.kind === 'frame' && c.unit_provision && E.provs.get(c.provision_id)?.doc_kind === 'lep' && under(c.provision_id))
+        const areas = [...new Set(frames.flatMap(f => f.terms.filter(t => t.startsWith('mapped:')).map(t => t.slice(7))))]
+        answer.controlling = frames.map(f => E.label(f.provision_id))
+        answer.reasoning = areas.length ? `applies to land identified as ${areas.join('; ')}` : `no mapped area read for ${x.clause}`
+        answer.areas = areas
+      } else {
+        const c = cs.find(c => c.value != null) ?? cs[0]
+        if (c) { answer = { ...answer, value: c.value, unit: c.unit, controlling: [E.label(c.provision_id)], reasoning: `${E.label(c.provision_id)}: ${c.topic} ${c.comparator ?? ''} ${c.value ?? c.value_source ?? ''} ${c.unit ?? ''}${c.band?.metric ? ` where ${c.band.metric} ${c.band.lo != null ? `> ${c.band.lo}` : ''}${c.band.hi != null ? ` and < ${c.band.hi}` : ''}` : ''}${c.band?.relative ? ` of ${c.band.relative}` : ''} (${cs.length} standard claim(s) on the clause)` } }
+        else answer.reasoning = `no standard claim on ${x.clause}`
+      }
+    } else if (ask && lot && mode.startsWith('tenure-compare:')) {
+      // the same subdivision under each title type: is the minimum the same for all?
+      const per = mode.slice(15).split(',').map(tn => {
+        const r = evaluate(E, { ...ask, tenure: tn as any }, lot)
+        const min = r.limits[0]?.subs[0]
+        const v = r.answer?.value ?? null, expr = r.answer?.expr ?? null
+        return { tn, v, expr, by: min ? label(min) : [], branches: (min?.ruling?.branches ?? []).map(b => ({ if: b.if, value: Number(b.answer?.value) })) }
+      })
+      const sig = (p: typeof per[number]) => p.branches.length ? JSON.stringify(p.branches.map(b => b.value).sort()) : String(p.v)
+      answer.verdict = per.every(p => sig(p) === sig(per[0]!)) ? 'yes' : 'no'
+      answer.controlling = [...new Set(per.flatMap(p => p.by))]
+      answer.reasoning = per.map(p => `${p.tn}: ${p.expr ?? (p.v != null ? `${p.v} m²` : 'no minimum')} (${p.by.join(', ') || '-'})`).join('; ')
+      answer.values_if = per.filter(p => p.v != null).map(p => ({ if: p.tn, value: Number(p.v) }))
     } else if (ask && lot) {
       const r = evaluate(E, ask, lot)
       const text = writeAnswer(E, r, lot)

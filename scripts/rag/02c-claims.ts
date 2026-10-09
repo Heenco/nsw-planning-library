@@ -175,6 +175,18 @@ async function main() {
     m = t.match(/^Development to which this (chapter|Part|Division|section|clause) applies may be carried out with(out)? (?:development )?consent/i)
     if (m) { add({ provision_id: p.id, kind: 'permit', consent: m[2] ? 'without' : 'with', unit_provision: unitOf(m[1]!, p)?.id ?? null, source: 'text', reader: 'permission', span: t.slice(0, 300) }); continue }
 
+    // "Development consent must not be granted for development on land to which this clause applies unless the consent
+    // authority is satisfied that at least 50% of the gross floor area of ... will be used for ..." - a standard on the
+    // unit, its figure possibly a share of another quantity
+    m = t.match(/^Development consent must not be granted (?:to|for) development on land to which this (chapter|Part|Division|section|clause) applies unless\b(.*)$/i)
+    if (m) {
+      const tail = norm(m[2]!), fig = figureOf(tail), topic = topicOf(tail)
+      if (fig && topic) {
+        add({ provision_id: p.id, kind: 'standard', topic, comparator: fig.comparator ?? 'min', value: fig.value, unit: fig.unit, value_source: 'text', unit_provision: unitOf(m[1]!, p)?.id ?? null,
+          band: fig.unit === '%' ? { relative: norm(tail.replace(/^.*?%\s*of\s*/, '')).replace(/\s*[—-]\s*$/, '') } : null, source: 'text', reader: 'consent bar', span: t.slice(0, 300) })
+        continue
+      }
+    }
     // consent bars: a figure is a standard, a list is a set of conditions
     m = t.match(/^Development consent must not be granted (?:to|for) (?:the )?(?:development (?:to which this (chapter|Part|Division|section|clause) applies|for the purposes of (.+?)(?= on | unless|,|$))|(subdivision)[^,]*?)(.*?)(?:unless\b(.*))?$/i)
     if (m) {
@@ -247,6 +259,24 @@ async function main() {
         unit: /:1/.test(m[5]!) ? 'ratio' : /square|m2/i.test(m[5]!) ? 'm2' : 'm', uses: forUses, zones: zoneCodes(m[3]!), value_source: 'text', unit_provision: cl?.id ?? null,
         terms: /subdivision/i.test(t) ? ['proposal:subdivision'] : [], source: 'text', reader: 'standard sentence', span: t.slice(0, 300) })
       continue
+    }
+    // a figure banded by a condition, under a stem that names the standard: "The maximum height of a building ... is-"
+    // (a) "if the land has a street frontage greater than 7 metres but less than 12 metres-16 metres"
+    const bstem = norm(p.parent_id ? byId.get(p.parent_id)?.own_text : '')
+    if (p.kind === 'paragraph' && /\bis\s*[—-]\s*$/.test(bstem) && topicOf(bstem)) {
+      const stem = bstem
+      const b = t.match(/^if (?:the )?(?:land|site|lot) has an? ([a-z ]+?) (greater than|more than|at least|not less than|less than|not more than|of)\s*([\d,.]+)\s*(?:square metres|metres|m2|m)?(?:\s+but\s+(less than|not more than)\s*([\d,.]+)\s*(?:square metres|metres|m2|m)?)?\s*[—-]\s*([\d,.]+)\s*(metres|m\b|:1|m2|square metres)/i)
+      if (b) {
+        const metric = /frontage|width/i.test(b[1]!) ? 'frontage' : /area|size/i.test(b[1]!) ? 'lot_size' : b[1]!.trim()
+        const num = (s?: string) => s == null ? null : Number(s.replace(/,/g, ''))
+        const lower = /greater|more than|at least|not less/i.test(b[2]!), upper = /less than|not more/i.test(b[2]!)
+        const band = { metric, lo: lower ? num(b[3]) : null, lo_incl: /at least|not less/i.test(b[2]!), hi: upper ? num(b[3]) : num(b[5]), hi_incl: /not more/i.test(b[2]! + (b[4] ?? '')) }
+        const ss = scopeOf(stem)
+        add({ provision_id: p.id, kind: 'standard', topic: topicOf(stem), comparator: /maximum/i.test(stem) ? 'max' : /minimum/i.test(stem) ? 'min' : 'max', value: num(b[6])!,
+          unit: /:1/.test(b[7]!) ? 'ratio' : /m2|square/i.test(b[7]!) ? 'm2' : 'm', zones: ss.zones, terms: ss.terms, band, value_source: 'text', unit_provision: cl?.id ?? null,
+          source: 'text', reader: 'banded standard', span: `${stem.slice(0, 160)} ${t}`.slice(0, 300) })
+        continue
+      }
     }
     // a figure with a topic in a leaf ("a maximum floor space ratio of 0.65:1", "for a detached secondary dwelling-a minimum site area of 450m2")
     const f = figureOf(t), topic = topicOf(t)

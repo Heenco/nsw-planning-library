@@ -114,10 +114,14 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       const f = fact(ex, lot)
       if (f === undefined) notChecked.push(ex); else and(!f, `not ${ex}`)
     }
-    if (c.band?.metric === 'lot_size' && lot.area_m2 != null) {
-      const a = Number(lot.area_m2), b = c.band
+    // a band on the lot's area or on its frontage (the rule here: a lot's width is its primary frontage)
+    const bandValue = c.band?.metric === 'lot_size' ? lot.area_m2 : c.band?.metric === 'frontage' ? lot.frontage_m : undefined
+    if (c.band?.metric && c.band.metric !== 'lot_size' && c.band.metric !== 'frontage') and(null, `${c.band.metric} band (no fact held)`)
+    if (c.band?.metric === 'frontage' && lot.frontage_m == null) and(null, 'frontage band (frontage not known)')
+    if ((c.band?.metric === 'lot_size' || c.band?.metric === 'frontage') && bandValue != null) {
+      const a = Number(bandValue), b = c.band
       const ok = (b.lo == null || (b.lo_incl ? a >= b.lo : a > b.lo)) && (b.hi == null || (b.hi_incl ? a <= b.hi : a < b.hi))
-      and(ok, `lot ${a} m2 in ${b.lo ?? ''}${b.lo != null ? (b.lo_incl ? '≤' : '<') : ''}…${b.hi != null ? (b.hi_incl ? '≤' : '<') : ''}${b.hi ?? ''}`)
+      and(ok, `${b.metric === 'frontage' ? `frontage ${a} m` : `lot ${a} m2`} in ${b.lo ?? ''}${b.lo != null ? (b.lo_incl ? '≤' : '<') : ''}…${b.hi != null ? (b.hi_incl ? '≤' : '<') : ''}${b.hi ?? ''}`)
     }
     for (const r of c.requires) if (r.permissible && depth < 3) {
       const sub = evaluate(E, { kind: 'permissibility', use: r.permissible, proposal: 'development' }, lot, depth + 1)
@@ -344,7 +348,8 @@ export function writeAnswer(E: Engine, r: Result, lot: any): string {
       }
     }
   } else {
-    L.push(`${r.ask.topic} for ${r.ask.use} on ${where}: ${fmt(r)}${r.verdict === 'maybe' ? ' (depends)' : ''}.`)
+    const what = r.ask.kind === 'subdivision' ? `${r.ask.tenure ?? ''} subdivision into ${r.ask.lots ?? 2} lots - minimum lot size`.trim() : (r.ask.topic ?? '').replace('_', ' ')
+    L.push(`${what[0]?.toUpperCase() ?? ''}${what.slice(1)} for ${r.ask.use} on ${where}: ${fmt(r)}${r.ask.kind === 'subdivision' ? ` - ${r.verdict === 'yes' ? 'each lot clears it' : r.verdict === 'no' ? 'the lots do not clear it' : 'depends'}` : r.verdict === 'maybe' ? ' (depends)' : ''}.`)
     for (const s of r.ruling?.trace ?? []) L.push(`- ${s.winner} prevails over ${s.loser}: ${s.why}.`)
     for (const t of r.tested.filter(t => t.holds !== false)) L.push(`- ${E.label(t.claim.provision_id)}: ${(t as any).value ?? ''} ${t.claim.unit ?? ''}${t.claim.non_discretionary ? ' (non-discretionary)' : ''}`)
   }
