@@ -63,19 +63,29 @@ def main():
     for title, path in SOURCES:
         cur.execute("SELECT document_id FROM rag.instrument WHERE title = %s", (title,))
         doc = cur.fetchone()[0]
-        if not DRY:   # idempotent: undo an earlier run before re-reading
-            cur.execute("""UPDATE rag.provision c SET parent_id = g.parent_id FROM rag.provision g
-                            WHERE c.parent_id = g.id AND g.kind = 'group' AND g.document_id = %s""", (doc,))
-            cur.execute("DELETE FROM rag.relation WHERE from_provision IN (SELECT id FROM rag.provision WHERE document_id = %s AND kind = 'group') "
-                        "OR to_provision IN (SELECT id FROM rag.provision WHERE document_id = %s AND kind = 'group')", (doc, doc))
-            cur.execute("DELETE FROM rag.provision WHERE document_id = %s AND kind = 'group'", (doc,))
-        cur.execute("SELECT id, local_id, parent_id, container, sort, kind FROM rag.provision WHERE document_id = %s", (doc,))
+        # idempotent: undo an earlier run of THIS script (its rows are stamped with a 'groups' run) - never a group the
+        # snapshot itself brought in. A dry run reads as if that undo had happened.
+        mine = "SELECT p.id FROM rag.provision p JOIN rag.run r ON r.id = p.snapshot_run WHERE p.document_id = %s AND p.kind = 'group' AND r.stage = 'groups'"
+        if not DRY:
+            cur.execute(f"UPDATE rag.provision c SET parent_id = g.parent_id FROM rag.provision g WHERE c.parent_id = g.id AND g.id IN ({mine})", (doc,))
+            cur.execute(f"DELETE FROM rag.relation WHERE from_provision IN ({mine}) OR to_provision IN ({mine})", (doc, doc))
+            cur.execute(f"DELETE FROM rag.provision WHERE id IN ({mine})", (doc,))
+        cur.execute(f"SELECT id, local_id, parent_id, container, sort, kind FROM rag.provision WHERE document_id = %s AND id NOT IN ({mine})", (doc, doc))
         rows = cur.fetchall()
+        if DRY:   # members currently under one of this script's groups count as under the group's parent
+            cur.execute(f"SELECT id, parent_id FROM rag.provision WHERE id IN ({mine})", (doc,))
+            gp = dict(cur.fetchall())
+            rows = [(r[0], r[1], gp.get(r[2], r[2]), r[3], r[4], r[5]) for r in rows]
         by_local = {r[1]: r for r in rows}
         parent_of = {r[0]: r[2] for r in rows}
         gs = groups(path)
-        made, moves, no_holder, no_members = [], [], 0, 0
+        made, moves, no_holder, no_members, already = [], [], 0, 0, 0
         for g in gs:
+            # the snapshot already holds this group (the pilot structure is to carry clausegroups with these same ids):
+            # nothing to restore, and a second provision on the same anchor would break every local_id lookup
+            if g['xml_id'] in by_local:
+                already += 1
+                continue
             held = [by_local[m] for m in g['members'] if m in by_local]
             if not held:
                 no_members += 1
@@ -92,7 +102,7 @@ def main():
                          'container': held[0][3], 'sort': min(h[4] or 0 for h in held) - 1})
             moves += [{'id': str(h[0]), 'p': gid} for h in held]
         report[title] = {'clausegroups': len(gs), 'made': len(made), 'clauses_moved': len(moves), 'without_held_members': no_members, 'without_holder': no_holder,
-                         'sample': [m['heading'] for m in made[:4]]}
+                         'already_in_snapshot': already, 'sample': [m['heading'] for m in made[:4]]}
         if DRY:
             continue
         cur.execute("""INSERT INTO rag.provision (id, document_id, parent_id, local_id, kind, heading, own_text, ordinal, path, container, sort, content_sha, snapshot_run)
