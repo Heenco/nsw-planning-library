@@ -61,16 +61,18 @@ async function main() {
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const C = await loadCorpus(q)
   const RUN = arg('--run')
-  const answers = (await q(`SELECT DISTINCT ON (a.question_id, a.variant) a.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause
-                              FROM rag.answer a JOIN rag.question qn ON qn.id = a.question_id JOIN rag.run r ON r.id = a.run_id ${RUN ? 'WHERE a.run_id = $1' : ''}
+  // every summary key also exists per plan: "<key>@<LEP title>" (the /rag page shows one plan at a time)
+  const answers = (await q(`SELECT DISTINCT ON (a.question_id, a.variant) a.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause, i.title AS lep
+                              FROM rag.answer a JOIN rag.question qn ON qn.id = a.question_id JOIN rag.run r ON r.id = a.run_id LEFT JOIN rag.instrument i ON i.document_id = qn.document_id ${RUN ? 'WHERE a.run_id = $1' : ''}
                              ORDER BY a.question_id, a.variant, r.started_at DESC`, RUN ? [RUN] : [])).rows
   // stability: where a question was answered more than once by a variant, does the decision repeat?
   const repeats = (await q(`SELECT a.variant, a.question_id, array_agg(coalesce(a.answer->>'verdict', '') || '|' || coalesce(a.answer->>'value', '')) d
                               FROM rag.answer a GROUP BY 1, 2 HAVING count(*) > 1`)).rows
   const stability: Record<string, { pairs: number; same: number }> = {}
   for (const r of repeats) { const s = (stability[r.variant] ??= { pairs: 0, same: 0 }); s.pairs++; if (new Set(r.d).size === 1) s.same++ }
-  const engine = (await q(`SELECT e.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause, coalesce(r.config->'plans'->>(qn.document_id::text), r.config->>'plan') AS plan
-                             FROM rag.engine_answer e JOIN rag.question qn ON qn.id = e.question_id LEFT JOIN rag.run r ON r.id = e.run_id`)).rows
+  const engine = (await q(`SELECT e.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause, coalesce(r.config->'plans'->>(qn.document_id::text), r.config->>'plan') AS plan, i.title AS lep
+                             FROM rag.engine_answer e JOIN rag.question qn ON qn.id = e.question_id LEFT JOIN rag.run r ON r.id = e.run_id LEFT JOIN rag.instrument i ON i.document_id = qn.document_id`)).rows
+  const withLep = (keys: string[], lep: string | null) => lep ? [...keys, ...keys.map(k => `${k}@${lep}`)] : keys
   type Acc = Record<string, number>
   const by: Record<string, Acc> = {}
   const bump = (k: string, f: string, n = 1) => { (by[k] ??= {})[f] = (by[k]![f] ?? 0) + n }
@@ -78,7 +80,7 @@ async function main() {
   for (const a of answers) {
     const ans = a.answer?.unparsed ? null : a.answer
     const s = score(C, a.expected, ans)
-    for (const k of [a.variant, `${a.variant}|${a.set_name}`, `${a.variant}|ground:${a.expected?.status}`, ...(a.set_name === 'grid' ? [`${a.variant}|${a.qclause}`] : [])]) {
+    for (const k of withLep([a.variant, `${a.variant}|${a.set_name}`, `${a.variant}|ground:${a.expected?.status}`, ...(a.set_name === 'grid' ? [`${a.variant}|${a.qclause}`] : [])], a.lep)) {
       bump(k, 'answers'); bump(k, 'cost', Number(a.cost_usd ?? 0)); bump(k, 'latency', Number(a.latency_ms ?? 0))
       if (!ans) bump(k, 'unparsed')
       const c = a.checks ?? {}
@@ -92,7 +94,7 @@ async function main() {
   for (const e of engine) {
     const ans = e.verdict === 'not_answered' || e.verdict === 'error' ? null : { verdict: e.verdict, value: null, controlling: (e.controlling ?? []).map((c: string) => `${e.plan ?? 'LEP'} cl ${c}`) }
     const s = score(C, e.expected, ans)
-    for (const k of ['P', `P|${e.set_name}`, `P|ground:${e.expected?.status}`, ...(e.set_name === 'grid' ? [`P|${e.qclause}`] : [])]) {
+    for (const k of withLep(['P', `P|${e.set_name}`, `P|ground:${e.expected?.status}`, ...(e.set_name === 'grid' ? [`P|${e.qclause}`] : [])], e.lep)) {
       bump(k, 'answers'); if (!ans) bump(k, 'not_answered')
       if (s) { bump(k, 'scored'); if (s.correct) bump(k, 'correct'); if (s.confidently_wrong) bump(k, 'confidently_wrong'); if (s.abstained) bump(k, 'abstained') }
       else if (e.expected?.status !== 'none' && !ans) bump(k, 'abstained_unanswered')

@@ -1,8 +1,8 @@
 <!--
   /rag - the RAG pilot: where it is heading (shared/rag-plan.ts) and what schema `rag` holds right now (/api/rag/status).
 
-  A second pilot beside the CDC session's deterministic one: a structure-aware, navigating RAG over Randwick LEP 2012
-  and the Housing SEPP parts that reach its lots, compared with the engine question by question.
+  A second pilot beside the CDC session's deterministic one: the rag engine (no model) and RAG variants over the LEPs in
+  scripts/rag/corpus.json and the Housing SEPP parts that reach their lots. One plan at a time (?lep=).
 -->
 <template>
   <div class="rg-page">
@@ -10,190 +10,59 @@
       <NuxtLink to="/" class="rg-back">&larr; Home</NuxtLink>
       <h1 class="rg-title">RAG pilot</h1>
       <p class="rg-lead">
-        A structure-aware, navigating RAG over <strong>{{ lepNames || 'the LEPs in scripts/rag/corpus.json' }}</strong> and the Housing SEPP parts that reach their lots,
-        built on what the CDC pilot learnt about the text - stems with their roles, leaves with their connectives, tables as
-        cells - and compared with the deterministic engine question by question. The model finds and explains; a deterministic
-        resolver decides precedence and writes down why. Plan updated {{ RAG_UPDATED }}; counts live from schema <code>rag</code>.
+        Planning questions about real lots, answered from the text of each LEP and the Housing SEPP: by the rag engine with no
+        model (<strong>D</strong>), by RAG variants that let a model write the answer (<strong>R0-R4, L0</strong>), and - for
+        comparison only - by the CDC engine (<strong>P</strong>). Pick a plan; everything below is for that plan.
       </p>
     </header>
 
-    <!-- progress -->
-    <section class="rg-progress">
-      <div class="rg-bar"><div class="rg-bar-done" :style="{ width: pct + '%' }" /><div class="rg-bar-doing" :style="{ width: pctDoing + '%' }" /></div>
-      <p class="rg-count">{{ stepCount.done }} of {{ stepCount.all }} steps done · {{ stepCount.doing }} in progress · {{ stepCount.blocked }} blocked</p>
-      <nav class="rg-phases">
-        <a v-for="p in RAG_PHASES" :key="p.id" :href="'#' + p.id" class="rg-phase-chip" :class="'rg-phase-chip--' + phaseState(p)">
-          <strong>{{ p.id }}</strong> {{ p.title }}
-        </a>
-      </nav>
-    </section>
-
-    <!-- live -->
-    <section class="rg-section">
-      <h2 class="rg-h2">Live <span class="rg-muted" v-if="status">· measured {{ when(status.measuredAt) }} in {{ status.ms }} ms</span></h2>
+    <!-- the plan this page is about: every section below follows it (?lep= in the URL) -->
+    <nav class="rg-plans" aria-label="Plan">
       <ClientOnly>
-      <p v-if="pending" class="rg-muted">Loading…</p>
-      <p v-else-if="error" class="rg-err">Could not load /api/rag/status: {{ error.message }}</p>
-      <template v-else-if="status">
-        <div class="rg-cards">
-          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.instruments, 'provisions')) }}</div><div class="rg-card-l">provisions</div></div>
-          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.relations, 'n')) }}</div><div class="rg-card-l">relations</div></div>
-          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.chunks, 'n')) }}</div><div class="rg-card-l">chunks</div></div>
-          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.embeddings, 'n')) }}</div><div class="rg-card-l">embeddings</div></div>
-          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.questions, 'n')) }}</div><div class="rg-card-l">questions</div></div>
-          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.answers, 'n')) }}</div><div class="rg-card-l">RAG answers</div></div>
-        </div>
-
-        <h3 class="rg-h3">Corpus</h3>
-        <table class="rg-table">
-          <thead><tr><th>Instrument</th><th>In scope</th><th class="n">Provisions</th><th class="n">Stems</th><th class="n">Connectives</th><th class="n">Table nodes</th><th>Snapshot</th></tr></thead>
-          <tbody>
-            <tr v-for="i in status.instruments" :key="i.title">
-              <td>{{ i.title }} <span class="rg-tag">{{ i.kind }} · rank {{ i.rank }}</span></td>
-              <td class="rg-small">{{ i.scope ? i.scope.join(', ') : 'whole plan' }}</td>
-              <td class="n">{{ fmt(i.provisions) }}</td><td class="n">{{ fmt(i.stems) }}</td><td class="n">{{ fmt(i.connectives) }}</td><td class="n">{{ fmt(i.table_nodes) }}</td>
-              <td class="rg-small">{{ i.snapshot_at ? when(i.snapshot_at) : '—' }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <h3 class="rg-h3">Relations by kind <span class="rg-muted">- the law's own logic as data</span></h3>
-        <table class="rg-table">
-          <thead><tr><th>Kind</th><th>Meaning</th><th class="n">Total</th><th class="n">Verified</th><th class="n">Proposed</th><th class="n">Rejected</th><th class="n">Target unresolved</th></tr></thead>
-          <tbody>
-            <tr v-for="r in status.relations" :key="r.kind" :class="{ 'rg-dim': !r.n }">
-              <td><code>{{ r.kind }}</code></td><td class="rg-small">{{ r.meaning }}</td>
-              <td class="n">{{ fmt(r.n) }}</td><td class="n">{{ fmt(r.verified) }}</td><td class="n">{{ fmt(r.proposed) }}</td><td class="n">{{ fmt(r.rejected) }}</td><td class="n">{{ fmt(r.unresolved) }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="rg-cols">
-          <div>
-            <h3 class="rg-h3">Index</h3>
-            <p v-if="!status.chunks.length" class="rg-muted">Not built yet (Phase 3).</p>
-            <ul class="rg-list"><li v-for="c in status.chunks" :key="c.role">{{ c.role }}: {{ fmt(c.n) }} <span class="rg-muted">({{ fmt(c.with_context) }} with context)</span></li></ul>
-            <ul class="rg-list"><li v-for="e in status.embeddings" :key="e.variant + e.model">embeddings {{ e.variant }} · {{ e.model }}: {{ fmt(e.n) }}</li></ul>
-          </div>
-          <div>
-            <h3 class="rg-h3">Questions and answers</h3>
-            <p v-if="!status.questions.length" class="rg-muted">No questions yet (Phase 4).</p>
-            <ul class="rg-list"><li v-for="qq in status.questions" :key="qq.set_name + qq.kind">{{ qq.set_name }} · {{ qq.kind }}: {{ fmt(qq.n) }}</li></ul>
-            <ul class="rg-list">
-              <li v-if="status.engine.n">engine answers: {{ fmt(status.engine.n) }} over {{ status.engine.runs }} run(s)</li>
-              <li v-for="a in status.answers" :key="a.variant + a.model">{{ a.variant }} · {{ a.model }}: {{ fmt(a.n) }} · avg {{ fmt(a.avg_ms) }} ms · ${{ a.cost ?? 0 }}</li>
-              <li v-for="a in status.adjudications" :key="a.status">adjudications {{ a.status }}: {{ fmt(a.n) }}</li>
-            </ul>
-          </div>
-        </div>
-
-        <h3 class="rg-h3">Recent runs</h3>
-        <table class="rg-table">
-          <thead><tr><th>Stage</th><th>Started</th><th>Took</th><th>Counts</th></tr></thead>
-          <tbody>
-            <tr v-for="r in status.runs" :key="r.id">
-              <td><code>{{ r.stage }}</code></td><td class="rg-small">{{ when(r.started_at) }}</td>
-              <td class="rg-small">{{ r.finished_at ? took(r.started_at, r.finished_at) : 'running / failed' }}</td>
-              <td class="rg-small rg-mono">{{ short(r.counts) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </template>
+        <button type="button" class="rg-plan" :class="{ 'rg-plan--on': !plan }" @click="plan = ''">All plans</button>
+        <button v-for="l in plans" :key="l" type="button" class="rg-plan" :class="{ 'rg-plan--on': plan === l }" @click="plan = l">{{ shortPlan(l) }}</button>
       </ClientOnly>
-    </section>
+      <span class="rg-plan-links"><a href="#results">Results</a> · <a href="#questions">Questions</a> · <a href="#spatial">Spatial</a> · <a href="#corpus">Corpus &amp; runs</a> · <a href="#about">About the pilot</a></span>
+    </nav>
 
-    <!-- spatial resolution: what the graph can test on a lot (build), and what each answer could and could not check (per lot) -->
-    <section class="rg-section" id="spatial">
-      <h2 class="rg-h2">Spatial resolution <span class="rg-muted">· resolved when the graph is built, then on each lot - and said plainly where it cannot be</span></h2>
-      <ClientOnly>
-      <template v-if="status?.bindings">
-        <h3 class="rg-h3">1 · Building the graph: every condition a claim depends on, and how it will be tested</h3>
-        <p class="rg-muted">From <code>rag.claim_binding</code> (scripts/rag/02d-bindings.ts). A condition is bound to the layers registered in
-          <code>nsw.scope_layer</code> (the ones /testing-spatial-services and /cdc-map read), to a council list, or to the polygons
-          of a map the clause names. Anything that is not bound is listed here, and on a lot it is answered <em>maybe</em>, never assumed.</p>
-        <div class="rg-cards">
-          <div v-for="s in BIND_ORDER.filter(s => bindCount(s))" :key="s" class="rg-card" :class="{ 'rg-card--warn': !BIND_OK.includes(s) }">
-            <div class="rg-card-n">{{ bindCount(s) }}</div><div class="rg-card-l">{{ BIND_LABEL[s] }}</div>
-          </div>
-        </div>
-        <details v-for="s in BIND_ORDER.filter(s => bindCount(s))" :key="'d' + s" class="rg-bind" :open="!BIND_OK.includes(s)">
-          <summary><strong>{{ BIND_LABEL[s] }}</strong> · {{ bindCount(s) }} <span class="rg-muted">- {{ BIND_MEANS[s] }}</span></summary>
-          <table class="rg-table">
-            <thead><tr><th>Clause</th><th>Condition</th><th>Tested against</th></tr></thead>
-            <tbody>
-              <tr v-for="(b, i) in status.bindings.filter((b: any) => b.status === s)" :key="i">
-                <td class="rg-small"><a v-if="b.url" :href="b.url" target="_blank" rel="noopener">{{ b.label }}</a><span v-else>{{ b.label }}</span>
-                  <span class="rg-muted"> · {{ b.claim_kind }} {{ b.part }}</span></td>
-                <td class="rg-small">{{ b.text }}</td>
-                <td class="rg-small">
-                  <code v-for="t in (b.scope_terms ?? [])" :key="t" class="rg-term">{{ t }}</code>
-                  <span v-if="b.sources?.length" class="rg-muted"> {{ b.sources.join(', ') }}</span>
-                  <span v-if="b.assume_absent" class="rg-muted"> (no dataset: treated as absent, said in the answer)</span>
-                  <span v-if="b.note" class="rg-muted"> {{ b.note }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </details>
-
-        <h3 class="rg-h3">2 · Deciding on each lot</h3>
-        <template v-if="status.lotChecks">
-          <p class="rg-muted">
-            Of side D's {{ status.lotChecks.answers }} answers, {{ status.lotChecks.with_checked }} tested at least one condition against lot data and
-            <strong>{{ status.lotChecks.with_unchecked }}</strong> rest on a condition no data could settle - those say so in their trace
-            ("Could not check") and the answer is <em>maybe</em> on that point, not assumed.</p>
-          <div class="rg-cols2">
-            <div>
-              <p class="rg-k">Could not check · questions affected</p>
-              <ul class="rg-list"><li v-for="(c, i) in status.lotChecks.unchecked" :key="i">{{ c.text }} <span class="rg-muted">- {{ c.how }} · {{ c.n }}</span></li></ul>
-              <p v-if="!status.lotChecks.unchecked.length" class="rg-muted">None.</p>
-            </div>
-            <div>
-              <p class="rg-k">Checked against data · yes / no across answers</p>
-              <ul class="rg-list"><li v-for="(c, i) in status.lotChecks.checked.slice(0, 25)" :key="i">{{ c.text }} <span class="rg-muted">· {{ c.yes }} yes / {{ c.no }} no</span></li></ul>
-            </div>
-          </div>
-        </template>
-      </template>
-      </ClientOnly>
-    </section>
 
     <!-- results -->
     <section class="rg-section" id="results">
-      <h2 class="rg-h2">Results</h2>
+      <h2 class="rg-h2">Results <span class="rg-muted">· {{ plan ? shortPlan(plan) : 'all plans' }}</span></h2>
       <ClientOnly>
       <template v-if="status">
-        <template v-if="status.score">
+        <template v-if="status.score && SIDES.some(k => S(k))">
           <h3 class="rg-h3">Scores · {{ when(status.score.at) }} · against key and draft answers</h3>
           <div class="rg-scroll">
           <table class="rg-table">
             <thead><tr><th>Side</th><th class="n">Answers</th><th class="n">Scored</th><th class="n">Correct</th><th class="n">Confidently wrong</th><th class="n">Abstained</th>
               <th class="n">Cites right clause</th><th class="n">Cites resolve</th><th class="n">Quotes verbatim</th><th class="n">Figure in cited clause</th><th class="n">Unaddressed overrides</th><th class="n">$ / answer</th><th class="n">s</th></tr></thead>
             <tbody>
-              <tr v-for="k in SIDES.filter(k => status.score.summary[k])" :key="k">
+              <tr v-for="k in SIDES.filter(k => S(k))" :key="k">
                 <td><strong>{{ k }}</strong> <span class="rg-muted">{{ sideName(k) }}</span></td>
-                <td class="n">{{ status.score.summary[k].answers }}</td><td class="n">{{ status.score.summary[k].scored }}</td>
-                <td class="n">{{ p(status.score.summary[k].accuracy) }}</td>
-                <td class="n" :class="{ 'rg-bad': (status.score.summary[k].confidently_wrong ?? 0) >= 20 }">{{ p(status.score.summary[k].confidently_wrong) }}</td>
-                <td class="n">{{ p(status.score.summary[k].abstained) }}</td><td class="n">{{ p(status.score.summary[k].controlling) }}</td>
-                <td class="n">{{ p(status.score.summary[k].cites_resolved) }}</td><td class="n">{{ p(status.score.summary[k].quotes_verbatim) }}</td>
-                <td class="n">{{ p(status.score.summary[k].figure_in_cited) }}</td><td class="n">{{ status.score.summary[k].unaddressed_overrides_per_answer ?? '—' }}</td>
-                <td class="n">{{ status.score.summary[k].cost_per_answer ?? '—' }}</td><td class="n">{{ status.score.summary[k].latency_s ?? '—' }}</td>
+                <td class="n">{{ S(k).answers }}</td><td class="n">{{ S(k).scored }}</td>
+                <td class="n">{{ p(S(k).accuracy) }}</td>
+                <td class="n" :class="{ 'rg-bad': (S(k).confidently_wrong ?? 0) >= 20 }">{{ p(S(k).confidently_wrong) }}</td>
+                <td class="n">{{ p(S(k).abstained) }}</td><td class="n">{{ p(S(k).controlling) }}</td>
+                <td class="n">{{ p(S(k).cites_resolved) }}</td><td class="n">{{ p(S(k).quotes_verbatim) }}</td>
+                <td class="n">{{ p(S(k).figure_in_cited) }}</td><td class="n">{{ S(k).unaddressed_overrides_per_answer ?? '—' }}</td>
+                <td class="n">{{ S(k).cost_per_answer ?? '—' }}</td><td class="n">{{ S(k).latency_s ?? '—' }}</td>
               </tr>
             </tbody>
           </table>
           </div>
           <p class="rg-muted">P is the CDC session's engine (LEP pilot); it answers permissibility and subdivision only - questions it does not answer are not scored for it.
             D is the rag engine with no model (rag.claim + the evaluator). <strong>ground:key</strong> = settled answers (the pilot's keys and Manni's rulings), the independent test;
-            <strong>ground:draft</strong> = Claude's draft rulings awaiting confirmation, written with the same readings D encodes, so D's score there is partly circular. By set:</p>
+            <strong>ground:draft</strong> = Claude's draft rulings awaiting confirmation, written with the same readings D encodes, so D's score there is partly circular.
+            <template v-if="plan && !S('D|hard_case')"> This plan's only keys are the CDC pilot's own (pilot.key), so P is scored against its own answers here - read P's figure as circular.</template> By set:</p>
           <div class="rg-scroll">
           <table class="rg-table">
-            <thead><tr><th>Set</th><th v-for="k in SIDES" :key="k" class="n">{{ k }}</th></tr></thead>
+            <thead><tr><th>Set</th><th v-for="k in setSides" :key="k" class="n">{{ k }}</th></tr></thead>
             <tbody>
-              <tr v-for="s in SETS" :key="s">
+              <tr v-for="s in setRows" :key="s">
                 <td>{{ s }}</td>
-                <td v-for="k in SIDES" :key="k" class="n rg-small">
-                  <template v-if="status.score.summary[k + '|' + s]?.scored">{{ p(status.score.summary[k + '|' + s].accuracy) }} <span class="rg-muted">/ {{ p(status.score.summary[k + '|' + s].confidently_wrong) }} cw</span></template>
+                <td v-for="k in setSides" :key="k" class="n rg-small">
+                  <template v-if="S(k + '|' + s)?.scored">{{ p(S(k + '|' + s).accuracy) }} <span class="rg-muted">/ {{ p(S(k + '|' + s).confidently_wrong) }} cw</span></template>
                   <template v-else>—</template>
                 </td>
               </tr>
@@ -201,8 +70,23 @@
           </table>
           </div>
         </template>
-        <p v-else class="rg-muted">No scores yet - scripts/rag/12-score.ts.</p>
+        <p v-else class="rg-muted">No scores {{ plan ? 'for ' + shortPlan(plan) + ' ' : '' }}yet - scripts/rag/12-score.ts.</p>
 
+        <template v-if="shownQueue.length">
+          <h3 class="rg-h3">Adjudication queue · drafts for Manni to confirm or correct · most disputed first</h3>
+          <article v-for="(a, i) in (showAll ? shownQueue : shownQueue.slice(0, 12))" :key="i" class="rg-step">
+            <div class="rg-step-head"><span class="rg-tag">{{ a.set_name }} {{ a.clause }}</span> <span v-if="!plan && a.lep" class="rg-tag">{{ shortPlan(a.lep) }}</span> <span class="rg-small">{{ a.text }}</span></div>
+            <p class="rg-done"><span class="rg-k">Proposed</span>{{ ruling(a.expected) }}
+              <span v-if="a.wrong_sides?.length" class="rg-bad"> · disagree: {{ a.wrong_sides.join(', ') }}</span></p>
+            <p v-if="a.expected?.trace?.length" class="rg-done rg-small"><span class="rg-k">Why</span>{{ a.expected.trace.join(' → ') }}</p>
+            <details v-if="a.quote" class="rg-small"><summary>controlling words</summary><p class="rg-quote">{{ a.quote }}</p></details>
+          </article>
+          <button v-if="shownQueue.length > 12" class="rg-more" @click="showAll = !showAll">{{ showAll ? 'Show fewer' : `Show all ${shownQueue.length}` }}</button>
+        </template>
+        <p v-if="unkeyed" class="rg-muted rg-small">{{ unkeyed }} more question(s) have no expected answer yet (mostly the grid) - they are answered and shown under Questions, but there is nothing to rule on until one is drafted.</p>
+
+        <details class="rg-fold rg-fold--inner">
+          <summary>Retrieval recall and the resolver's precedence keys <span class="rg-muted">· measured across all plans</span></summary>
         <div class="rg-cols">
           <div v-if="status.retrieval">
             <h3 class="rg-h3">Retrieval recall · gold clause in the first k</h3>
@@ -225,24 +109,14 @@
           </div>
         </div>
 
-        <template v-if="status.queue?.length">
-          <h3 class="rg-h3">Adjudication queue · drafts for Manni to confirm or correct · most disputed first</h3>
-          <article v-for="(a, i) in (showAll ? status.queue : status.queue.slice(0, 12))" :key="i" class="rg-step">
-            <div class="rg-step-head"><span class="rg-tag">{{ a.set_name }} {{ a.clause }}</span> <span class="rg-small">{{ a.text }}</span></div>
-            <p class="rg-done"><span class="rg-k">Proposed</span>{{ ruling(a.expected) }}
-              <span v-if="a.wrong_sides?.length" class="rg-bad"> · disagree: {{ a.wrong_sides.join(', ') }}</span></p>
-            <p v-if="a.expected?.trace?.length" class="rg-done rg-small"><span class="rg-k">Why</span>{{ a.expected.trace.join(' → ') }}</p>
-            <details v-if="a.quote" class="rg-small"><summary>controlling words</summary><p class="rg-quote">{{ a.quote }}</p></details>
-          </article>
-          <button v-if="status.queue.length > 12" class="rg-more" @click="showAll = !showAll">{{ showAll ? 'Show fewer' : `Show all ${status.queue.length}` }}</button>
-        </template>
+        </details>
       </template>
       </ClientOnly>
     </section>
 
     <!-- questions: every answer and how it was reached -->
     <section class="rg-section" id="questions">
-      <h2 class="rg-h2">Questions <span class="rg-muted">· every side's answer and how it was reached, clause by clause</span></h2>
+      <h2 class="rg-h2">Questions <span class="rg-muted">· {{ plan ? shortPlan(plan) : 'all plans' }} · every side's answer and how it was reached</span></h2>
       <p class="rg-muted">
         <strong>D</strong> the rag engine with no model (claims read from the text → tested on the lot → resolver) ·
         <strong>P</strong> the CDC session's engine (LEP pilot only) · <strong>R3 / L0 / R4</strong> Llama 3.3 writing the answer from retrieved text.
@@ -251,17 +125,14 @@
       <ClientOnly>
         <div class="qb-bar">
           <button v-for="s in QSETS" :key="s.id" type="button" class="qb-chip" :class="{ 'qb-chip--on': qset === s.id }" @click="qset = s.id">{{ s.label }}</button>
-          <select v-if="qleps.length > 1" v-model="qlep" class="qb-search" aria-label="LEP">
-            <option value="">every LEP</option>
-            <option v-for="l in qleps" :key="l" :value="l">{{ l }}</option>
-          </select>
           <input v-model="qsearch" class="qb-search" placeholder="search question or address">
         </div>
         <p v-if="!qlist" class="rg-muted">Loading questions…</p>
         <div v-else class="qb-list">
+          <p class="rg-muted rg-small">{{ shownQs.length }} question(s)</p>
           <div v-for="x in shownQs" :key="x.id" class="qb-item" :class="{ 'qb-item--open': openQ === x.id }">
             <button type="button" class="qb-row" @click="toggleQ(x.id)">
-              <span class="rg-tag">{{ x.set_name }} {{ x.clause }}</span>
+              <span class="rg-tag">{{ x.set_name }} {{ x.clause }}</span><span v-if="!plan && x.lep" class="rg-tag rg-tag--plan">{{ shortPlan(x.lep) }}</span>
               <span class="qb-text">{{ x.text }}</span>
               <span class="qb-sides">
                 <span class="qb-exp" :title="'expected (' + x.status + ')'">exp {{ short2(x.e_verdict, x.e_value, x.e_values) }}<em>{{ x.status === 'key' ? ' key' : x.status === 'draft' ? ' draft' : '' }}</em></span>
@@ -343,7 +214,150 @@
       </ClientOnly>
     </section>
 
-    <!-- plan -->
+    <!-- spatial resolution: what the graph can test on a lot (build), and what each answer could and could not check (per lot) -->
+    <section class="rg-section" id="spatial">
+      <h2 class="rg-h2">Spatial resolution <span class="rg-muted">· {{ plan ? shortPlan(plan) : 'all plans' }} · resolved when the graph is built, then on each lot - and said plainly where it cannot be</span></h2>
+      <ClientOnly>
+      <template v-if="status?.bindings">
+        <h3 class="rg-h3">1 · Building the graph: every condition a claim depends on, and how it will be tested</h3>
+        <p class="rg-muted">From <code>rag.claim_binding</code> (scripts/rag/02d-bindings.ts). A condition is bound to the layers registered in
+          <code>nsw.scope_layer</code> (the ones /testing-spatial-services and /cdc-map read), to a council list, or to the polygons
+          of a map the clause names. Anything that is not bound is listed here, and on a lot it is answered <em>maybe</em>, never assumed.
+          <template v-if="plan">The Housing SEPP's conditions apply under every plan and are included.</template></p>
+        <div class="rg-cards">
+          <div v-for="s in BIND_ORDER.filter(s => bindCount(s))" :key="s" class="rg-card" :class="{ 'rg-card--warn': !BIND_OK.includes(s) }">
+            <div class="rg-card-n">{{ bindCount(s) }}</div><div class="rg-card-l">{{ BIND_LABEL[s] }}</div>
+          </div>
+        </div>
+        <details v-for="s in BIND_ORDER.filter(s => bindCount(s))" :key="'d' + s" class="rg-bind" :open="!BIND_OK.includes(s)">
+          <summary><strong>{{ BIND_LABEL[s] }}</strong> · {{ bindCount(s) }} <span class="rg-muted">- {{ BIND_MEANS[s] }}</span></summary>
+          <table class="rg-table">
+            <thead><tr><th>Clause</th><th>Condition</th><th>Tested against</th></tr></thead>
+            <tbody>
+              <tr v-for="(b, i) in planBindings.filter((b: any) => b.status === s)" :key="i">
+                <td class="rg-small"><a v-if="b.url" :href="b.url" target="_blank" rel="noopener">{{ b.label }}</a><span v-else>{{ b.label }}</span>
+                  <span class="rg-muted"> · {{ b.claim_kind }} {{ b.part }}</span></td>
+                <td class="rg-small">{{ b.text }}</td>
+                <td class="rg-small">
+                  <code v-for="t in (b.scope_terms ?? [])" :key="t" class="rg-term">{{ t }}</code>
+                  <span v-if="b.sources?.length" class="rg-muted"> {{ b.sources.join(', ') }}</span>
+                  <span v-if="b.assume_absent" class="rg-muted"> (no dataset: treated as absent, said in the answer)</span>
+                  <span v-if="b.note" class="rg-muted"> {{ b.note }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+
+        <h3 class="rg-h3">2 · Deciding on each lot</h3>
+        <template v-if="LC">
+          <p class="rg-muted">
+            Of side D's {{ LC.answers }} answers, {{ LC.with_checked }} tested at least one condition against lot data and
+            <strong>{{ LC.with_unchecked }}</strong> rest on a condition no data could settle - those say so in their trace
+            ("Could not check") and the answer is <em>maybe</em> on that point, not assumed.</p>
+          <div class="rg-cols2">
+            <div>
+              <p class="rg-k">Could not check · questions affected</p>
+              <ul class="rg-list"><li v-for="(c, i) in LC.unchecked" :key="i">{{ c.text }} <span class="rg-muted">- {{ c.how }} · {{ c.n }}</span></li></ul>
+              <p v-if="!LC.unchecked.length" class="rg-muted">None.</p>
+            </div>
+            <div>
+              <p class="rg-k">Checked against data · yes / no across answers</p>
+              <ul class="rg-list"><li v-for="(c, i) in LC.checked.slice(0, 25)" :key="i">{{ c.text }} <span class="rg-muted">· {{ c.yes }} yes / {{ c.no }} no</span></li></ul>
+            </div>
+          </div>
+        </template>
+      </template>
+      </ClientOnly>
+    </section>
+
+    <!-- corpus, index and runs (every plan): folded -->
+    <details id="corpus" class="rg-section rg-fold">
+      <summary class="rg-h2">Corpus, index and runs <span class="rg-muted" v-if="status">· every plan · measured {{ when(status.measuredAt) }} in {{ status.ms }} ms</span></summary>
+      <ClientOnly>
+      <p v-if="pending" class="rg-muted">Loading…</p>
+      <p v-else-if="error" class="rg-err">Could not load /api/rag/status: {{ error.message }}</p>
+      <template v-else-if="status">
+        <div class="rg-cards">
+          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.instruments, 'provisions')) }}</div><div class="rg-card-l">provisions</div></div>
+          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.relations, 'n')) }}</div><div class="rg-card-l">relations</div></div>
+          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.chunks, 'n')) }}</div><div class="rg-card-l">chunks</div></div>
+          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.embeddings, 'n')) }}</div><div class="rg-card-l">embeddings</div></div>
+          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.questions, 'n')) }}</div><div class="rg-card-l">questions</div></div>
+          <div class="rg-card"><div class="rg-card-n">{{ fmt(sum(status.answers, 'n')) }}</div><div class="rg-card-l">RAG answers</div></div>
+        </div>
+
+        <h3 class="rg-h3">Corpus</h3>
+        <table class="rg-table">
+          <thead><tr><th>Instrument</th><th>In scope</th><th class="n">Provisions</th><th class="n">Stems</th><th class="n">Connectives</th><th class="n">Table nodes</th><th>Snapshot</th></tr></thead>
+          <tbody>
+            <tr v-for="i in status.instruments" :key="i.title">
+              <td>{{ i.title }} <span class="rg-tag">{{ i.kind }} · rank {{ i.rank }}</span></td>
+              <td class="rg-small">{{ i.scope ? i.scope.join(', ') : 'whole plan' }}</td>
+              <td class="n">{{ fmt(i.provisions) }}</td><td class="n">{{ fmt(i.stems) }}</td><td class="n">{{ fmt(i.connectives) }}</td><td class="n">{{ fmt(i.table_nodes) }}</td>
+              <td class="rg-small">{{ i.snapshot_at ? when(i.snapshot_at) : '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="rg-h3">Relations by kind <span class="rg-muted">- the law's own logic as data</span></h3>
+        <table class="rg-table">
+          <thead><tr><th>Kind</th><th>Meaning</th><th class="n">Total</th><th class="n">Verified</th><th class="n">Proposed</th><th class="n">Rejected</th><th class="n">Target unresolved</th></tr></thead>
+          <tbody>
+            <tr v-for="r in status.relations" :key="r.kind" :class="{ 'rg-dim': !r.n }">
+              <td><code>{{ r.kind }}</code></td><td class="rg-small">{{ r.meaning }}</td>
+              <td class="n">{{ fmt(r.n) }}</td><td class="n">{{ fmt(r.verified) }}</td><td class="n">{{ fmt(r.proposed) }}</td><td class="n">{{ fmt(r.rejected) }}</td><td class="n">{{ fmt(r.unresolved) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="rg-cols">
+          <div>
+            <h3 class="rg-h3">Index</h3>
+            <p v-if="!status.chunks.length" class="rg-muted">Not built yet (Phase 3).</p>
+            <ul class="rg-list"><li v-for="c in status.chunks" :key="c.role">{{ c.role }}: {{ fmt(c.n) }} <span class="rg-muted">({{ fmt(c.with_context) }} with context)</span></li></ul>
+            <ul class="rg-list"><li v-for="e in status.embeddings" :key="e.variant + e.model">embeddings {{ e.variant }} · {{ e.model }}: {{ fmt(e.n) }}</li></ul>
+          </div>
+          <div>
+            <h3 class="rg-h3">Questions and answers</h3>
+            <p v-if="!status.questions.length" class="rg-muted">No questions yet (Phase 4).</p>
+            <ul class="rg-list"><li v-for="qq in status.questions" :key="qq.set_name + qq.kind">{{ qq.set_name }} · {{ qq.kind }}: {{ fmt(qq.n) }}</li></ul>
+            <ul class="rg-list">
+              <li v-if="status.engine.n">engine answers: {{ fmt(status.engine.n) }} over {{ status.engine.runs }} run(s)</li>
+              <li v-for="a in status.answers" :key="a.variant + a.model">{{ a.variant }} · {{ a.model }}: {{ fmt(a.n) }} · avg {{ fmt(a.avg_ms) }} ms · ${{ a.cost ?? 0 }}</li>
+              <li v-for="a in status.adjudications" :key="a.status">adjudications {{ a.status }}: {{ fmt(a.n) }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="rg-h3">Recent runs</h3>
+        <table class="rg-table">
+          <thead><tr><th>Stage</th><th>Started</th><th>Took</th><th>Counts</th></tr></thead>
+          <tbody>
+            <tr v-for="r in status.runs" :key="r.id">
+              <td><code>{{ r.stage }}</code></td><td class="rg-small">{{ when(r.started_at) }}</td>
+              <td class="rg-small">{{ r.finished_at ? took(r.started_at, r.finished_at) : 'running / failed' }}</td>
+              <td class="rg-small rg-mono">{{ short(r.counts) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+      </ClientOnly>
+    </details>
+
+    <!-- the pilot itself: progress, phases, scope, variants, decisions, open questions - folded -->
+    <details id="about" class="rg-section rg-fold">
+      <summary class="rg-h2">About the pilot <span class="rg-muted">· plan updated {{ RAG_UPDATED }} · {{ stepCount.done }} of {{ stepCount.all }} steps done</span></summary>
+    <section class="rg-progress">
+      <div class="rg-bar"><div class="rg-bar-done" :style="{ width: pct + '%' }" /><div class="rg-bar-doing" :style="{ width: pctDoing + '%' }" /></div>
+      <p class="rg-count">{{ stepCount.done }} of {{ stepCount.all }} steps done · {{ stepCount.doing }} in progress · {{ stepCount.blocked }} blocked</p>
+      <nav class="rg-phases">
+        <a v-for="p in RAG_PHASES" :key="p.id" :href="'#' + p.id" class="rg-phase-chip" :class="'rg-phase-chip--' + phaseState(p)">
+          <strong>{{ p.id }}</strong> {{ p.title }}
+        </a>
+      </nav>
+    </section>
+
     <section v-for="p in RAG_PHASES" :id="p.id" :key="p.id" class="rg-section">
       <h2 class="rg-h2"><span class="rg-pid">{{ p.id }}</span> {{ p.title }}</h2>
       <p class="rg-goal">{{ p.goal }}</p>
@@ -382,6 +396,7 @@
       <h2 class="rg-h2">Open</h2>
       <ul class="rg-list"><li v-for="o in RAG_OPEN" :key="o.q"><strong>{{ o.q }}</strong> - {{ o.note }}</li></ul>
     </section>
+    </details>
   </div>
 </template>
 
@@ -406,9 +421,25 @@ const BIND_MEANS: Record<string, string> = {
   proposal_fact: 'answered from the question (date, tenure, number of lots), not from a map',
   discretion: 'a matter for the consent authority: the answer splits on it',
 }
-/** the LEPs schema rag holds now (rag.instrument, via /api/rag/status) */
-const lepNames = computed(() => (status.value?.instruments ?? []).filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title).replace(/ Local Environmental Plan (\d{4})$/, ' LEP $1')).join(', '))
-const bindCount = (s: string) => (status.value?.bindings ?? []).filter((b: any) => b.status === s).length
+// the plan the page shows (?lep=<LEP title>, empty = all plans): scores, adjudication, questions and spatial follow it
+const route = useRoute(), router = useRouter()
+const plan = computed<string>({
+  get: () => String(route.query.lep ?? ''),
+  set: (v: string) => { router.replace({ query: { ...route.query, lep: v || undefined }, hash: route.hash }) },
+})
+const plans = computed(() => (status.value?.instruments ?? []).filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title)) as string[])
+const shortPlan = (t: string) => String(t).replace(/ Local Environmental Plan (\d{4})$/, ' LEP $1')
+/** a score row for the plan shown (12-score.ts keys every row per plan as "<key>@<LEP title>") */
+const S = (k: string) => status.value?.score?.summary?.[plan.value ? `${k}@${plan.value}` : k]
+/** a SEPP's bindings (plan null) apply under every plan */
+const planBindings = computed(() => (status.value?.bindings ?? []).filter((b: any) => !plan.value || !b.plan || b.plan === plan.value))
+const LC = computed(() => status.value?.lotChecks?.[plan.value] ?? null)
+// the queue shows what there is to rule on - a draft or a key some side disagrees with; a question with no proposed
+// answer yet is only counted
+const planQueue = computed(() => (status.value?.queue ?? []).filter((a: any) => !plan.value || a.lep === plan.value))
+const shownQueue = computed(() => planQueue.value.filter((a: any) => a.expected?.status && a.expected.status !== 'none'))
+const unkeyed = computed(() => planQueue.value.length - shownQueue.value.length)
+const bindCount = (s: string) => planBindings.value.filter((b: any) => b.status === s).length
 
 const steps = RAG_PHASES.flatMap(p => p.steps)
 const stepCount = {
@@ -432,11 +463,10 @@ const showAll = ref(false)
 // the question browser: the list once, each question's full answer on demand
 const QSETS = [{ id: 'all', label: 'All' }, { id: 'hard_case', label: 'Hard cases' }, { id: 'local', label: 'Additional uses & local controls' },
   { id: 'propcode', label: 'PropCode claims' }, { id: 'pilot_key', label: 'Pilot keys' }, { id: 'grid', label: 'Grid' }]
-const qset = ref('all'), qsearch = ref(''), qlep = ref(''), openQ = ref<string | null>(null)
+const qset = ref('all'), qsearch = ref(''), openQ = ref<string | null>(null)
 const qdetail = reactive<Record<string, any>>({})
 const { data: qlist } = useFetch<any[]>('/api/rag/questions', { server: false, lazy: true })
-const qleps = computed(() => [...new Set((qlist.value ?? []).map((x: any) => x.lep).filter(Boolean))].sort() as string[])
-const shownQs = computed(() => (qlist.value ?? []).filter((x: any) => (qset.value === 'all' || x.set_name === qset.value) && (!qlep.value || x.lep === qlep.value)
+const shownQs = computed(() => (qlist.value ?? []).filter((x: any) => (qset.value === 'all' || x.set_name === qset.value) && (!plan.value || x.lep === plan.value)
   && (!qsearch.value || x.text.toLowerCase().includes(qsearch.value.toLowerCase()))))
 const toggleQ = async (id: string) => {
   openQ.value = openQ.value === id ? null : id
@@ -452,6 +482,9 @@ const factLine = (l: any) => [l.address, l.lot, l.area_m2 != null ? `${l.area_m2
 const SIDES = ['P', 'D', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4u', 'R4']
 // the sets, then the grid by question (dual occupancy, secondary dwelling, multi dwelling housing, FSR, height, subdivision)
 const SETS = ['ground:key', 'ground:draft', 'pilot_key', 'hard_case', 'propcode', 'grid', 'g_dual', 'g_secondary', 'g_mdh', 'g_fsr', 'g_height', 'g_subdiv']
+/** the by-set table shows only the sets and sides that have a score for the plan shown */
+const setRows = computed(() => SETS.filter(st => SIDES.some(k => S(`${k}|${st}`)?.scored)))
+const setSides = computed(() => SIDES.filter(k => SETS.some(st => S(`${k}|${st}`)?.scored)))
 const SIDE_NAMES: Record<string, string> = { P: 'CDC engine', D: 'rag engine, no model', R0: 'plain', R1: 'headers', R2: 'contextual', R3: '+ relations', L0: 'long context', R4u: 'agent, unseeded', R4: 'agent + resolver' }
 const sideName = (k: string) => SIDE_NAMES[k] ?? ''
 const p = (n: unknown) => n == null ? '—' : `${n}%`
@@ -467,6 +500,17 @@ const ruling = (e: any) => {
 </script>
 
 <style scoped>
+.rg-plans { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 12px 0 8px; padding: 8px 0;
+  background: #fff; border-bottom: 1px solid #e2e8f0; }
+.rg-plan { border: 1px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer; color: #0f172a; }
+.rg-plan--on { background: #0f172a; border-color: #0f172a; color: #fff; }
+.rg-plan-links { margin-left: auto; font-size: 12px; color: #64748b; }
+.rg-plan-links a { color: #6366f1; text-decoration: none; }
+@media (max-width: 760px) { .rg-plan-links { margin-left: 0; width: 100%; } }
+.rg-fold > summary { cursor: pointer; list-style: revert; }
+.rg-fold--inner { margin: 14px 0 4px; }
+.rg-fold--inner > summary { font-size: 13px; font-weight: 600; color: #334155; }
+.rg-tag--plan { background: #eef2ff; color: #3730a3; }
 .rg-page { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; color: #0f172a;
   font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
 .rg-back { color: #6366f1; text-decoration: none; font-size: 12px; }
