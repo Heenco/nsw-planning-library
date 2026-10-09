@@ -153,7 +153,8 @@ export const RAG_PHASES: PlanPhase[] = [
 ]
 
 export const RAG_OPEN: { q: string; note: string }[] = [
-  { q: 'The pilot builder lives in the CDC session\'s temporary scratchpad', note: 'Asked to be committed before we depend on it; the snapshot copies its output, not its code.' },
+  { q: 'The pilot builder is saved but not committed', note: 'Now at Notebooks/08D - LEP pilot chain/ (moved out of the scratchpad 2026-10-09), deliberately uncommitted per Manni ("save, not commit") - committing it is Manni\'s call. pilot.node for Randwick is stable; pilot.proposition changes per run (round 28 on 2026-10-09), so every comparison stamps the run it read.' },
+  { q: 'One resolver for both pilots', note: 'Agreed in principle with the CDC session (2026-10-09): it adopts the rag.relation_kind set; fallback ranks on its scale dcp 10 / lep 20 / sepp 30. Nothing built on either side yet.' },
   { q: 'Lot area: 645.7 m2 (cadastre) vs 651.3 m2 (PropCode) at 32 Holden St', note: 'No registered plan area on DP752015; a threshold near 650 m2 depends on which is right.' },
   { q: 'Known engine defects kept in on purpose', note: 's 169(2) date dropped, 4.1C(2) read as a resulting-lot minimum, LEP-only permissibility in /cdc/types and /pattern-book, 4.4A vs the map inverted - recorded, so the comparison shows whether RAG catches them.' },
 ]
