@@ -159,17 +159,23 @@ export const RAG_PHASES: PlanPhase[] = [
   {
     id: 'P6', title: 'RAG variants', goal: 'Each layer added one at a time, so we learn what each is worth.',
     steps: [
-      { id: 'P6.1', title: 'Retrieval only - recall@k per variant', status: 'todo', doneWhen: 'the key clause is retrieved for each question; per-variant recall reported before any answering' },
-      { id: 'P6.2', title: 'Answering R0-R3 and L0 with the checks', status: 'todo', doneWhen: 'structured answers; citation / span / figure-in-clause / not-displaced checks stored per answer' },
-      { id: 'P6.3', title: 'R4: navigating agent with the resolver tool', status: 'todo', doneWhen: 'tools: search, open (whole clause), follow, overridden_by, land_use_table, frame, definition, lot_facts, resolve' },
+      { id: 'P6.1', title: 'Retrieval only - recall@k per variant', status: 'done', doneWhen: 'the key clause is retrieved for each question; per-variant recall reported before any answering',
+        result: '118 questions with gold clauses. Any gold clause in the first 8: R0 61%, R1 64%, R2 60%, R3 74%; every gold clause in the first 8: R0-R2 44-47%, R3 70%. Relation expansion is the lever; model-written contexts (R2) did not beat deterministic headers (R1). Most missed: Housing SEPP s 52 (its heading never says secondary dwelling), the 4.1 and 4.4 map clauses.', where: ['scripts/rag/09-retrieval.ts', 'shared/rag/retrieve.ts'] },
+      { id: 'P6.2', title: 'Answering R0-R3 and L0 with the checks', status: 'done', doneWhen: 'structured answers; citation / span / figure-in-clause / not-displaced checks stored per answer',
+        result: 'R0-R3 and L0 answered all 128 questions with Llama 3.3 70B; every answer checked (cited clause exists, quote verbatim, figure in the cited clause, unaddressed overrides). L0 (the whole corpus, ~103k tokens) is the best LLM variant on the drafts but confidently wrong on 27% of settled keys, and costs ~20x R3. Repeat stability: R3 90%, R0-R2 83-84%, L0 77%.', where: ['scripts/rag/10-answer.ts', 'shared/rag/answer.ts'] },
+      { id: 'P6.3', title: 'R4: navigating agent with the resolver tool', status: 'done', doneWhen: 'tools: search, open (whole clause), follow, overridden_by, land_use_table, frame, definition, lot_facts, resolve',
+        result: 'Unseeded, Llama 3.3 answered 119 of 158 questions without a single tool call (kept as R4u: 18% on settled keys). Seeded with R3 retrieval and required to send conflicting provisions to the resolver (R4): 50% on keys, 14% confidently wrong - the model still mislabels whether a provision applies. Side D replaces the model in that step: rag.claim (read from the text, no pilot) + shared/rag/evaluate.ts answer all 128 in ~10 s.', where: ['shared/rag/agent.ts', 'scripts/rag/02c-claims.ts', 'shared/rag/evaluate.ts', 'scripts/rag/15-deterministic.ts'] },
     ],
   },
   {
     id: 'P7', title: 'Compare and adjudicate', goal: 'Every disagreement settled against the clause text; the confirmed ones become keys for both pilots.',
     steps: [
-      { id: 'P7.1', title: 'Scores per variant and per side', status: 'todo', doneWhen: 'the metrics above on /rag, per question set' },
-      { id: 'P7.2', title: 'Adjudication queue', status: 'todo', doneWhen: 'each disagreement drafted with its quote; confirmed rulings written back as keys' },
-      { id: 'P7.3', title: 'Findings', status: 'todo', doneWhen: 'what RAG gets right that the engine misses, and the reverse - with the decision on what goes to production' },
+      { id: 'P7.1', title: 'Scores per variant and per side', status: 'done', doneWhen: 'the metrics above on /rag, per question set',
+        result: 'On the 22 settled keys (the pilot’s and Manni’s rulings): D 82% correct / 0% confidently wrong; R2 and R3 73% / 5%; L0 68% / 27%; R1 68% / 9%; R4 50% / 14%; R0 45% / 18%; P (the CDC engine, LEP-only) 50% / 50% on the 8 it answers. On Claude’s 105 drafts D scores 99%, partly circular - the drafts and D share the same readings - which is why the drafts need Manni’s rulings.', where: ['scripts/rag/12-score.ts', '/rag Results'] },
+      { id: 'P7.2', title: 'Adjudication queue', status: 'doing', doneWhen: 'each disagreement drafted with its quote; confirmed rulings written back as keys',
+        result: '128 questions in the queue on /rag, most disputed first: each with the proposed ruling, its reasons and the controlling words. Waiting for Manni. Corrections already made from what the runs exposed: s 166 applies state-wide (less s 164), 4.1C(2) is a development standard, the binding minimum at 32 Holden St is 450 m2 (s 168(2)(a) displaces 4.1C), an unmet safe harbour lets the displaced standard bind again.', where: ['scripts/rag/11-grid-drafts.ts', 'scripts/rag/06-questions.ts'] },
+      { id: 'P7.3', title: 'Findings', status: 'doing', doneWhen: 'what RAG gets right that the engine misses, and the reverse - with the decision on what goes to production',
+        result: 'So far: (1) a deterministic engine over claims read from the text beats every LLM variant on settled keys and is never confidently wrong there; (2) the LLM helps most where the claims readers have no pattern (prose without a figure, unusual sentence forms) - D’s 5 misses are all of that kind; (3) relation expansion is the one retrieval layer that pays; (4) the LEP-only engine is wrong wherever the Housing SEPP permits (secondary dwellings, s 166, s 170). Production decision waits on the adjudication.' },
     ],
   },
 ]
