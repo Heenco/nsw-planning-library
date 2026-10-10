@@ -69,7 +69,9 @@ async function main() {
   const epiMaps = (await q(`SELECT c.table_name, (SELECT f_geometry_column FROM geometry_columns g WHERE g.f_table_schema = 'epi' AND g.f_table_name = c.table_name LIMIT 1) AS gcol
                               FROM information_schema.columns c WHERE c.table_schema = 'epi' GROUP BY c.table_name
                              HAVING bool_or(column_name = 'epi_name') AND bool_or(column_name = 'map_name') AND bool_or(column_name = 'label') AND bool_or(column_name = 'lay_class')`)).rows
-    .filter(r => r.gcol && /^[a-z_0-9]+$/.test(r.table_name))
+    // not the sheet index (epi_map_tiles: which printed sheet covers where - 32 km2 rectangles with no label, which put every
+    // North Sydney lot "inside" its Additional Permitted Uses and Land Reservation Acquisition maps)
+    .filter(r => r.gcol && /^[a-z_0-9]+$/.test(r.table_name) && !/map_tiles?$|sheet/.test(r.table_name))
   // one row per (polygon, label): a polygon answers to its label and to its class ("Stream Order 1"), each normalised -
   // lower case, any dash as "-" with no space round it ("14 - 16 Hill Road" = "14–16 Hill Road")
   const view = [
@@ -85,7 +87,7 @@ async function main() {
        FROM nsw.rule_spatial_ref r JOIN rag.instrument i ON i.document_id = r.document_id WHERE r.geom IS NOT NULL`,
   ].join('\n UNION ALL\n')
   const labelled = `SELECT m.document_id, lower(m.map) AS map, ${LABEL} AS label, m.geom, m.source, m.own
-                      FROM (${view}) m, LATERAL (SELECT DISTINCT l FROM (VALUES (m.label), (m.alt)) v(l) WHERE l IS NOT NULL) x`
+                      FROM (${view}) m, LATERAL (SELECT DISTINCT l FROM (VALUES (m.label), (m.alt)) v(l) WHERE nullif(trim(l), '') IS NOT NULL) x`
   // a table, not a view: lot facts read it once per lot, and the union over every epi map layer is slow to scan each time
   if (!DRY) {
     // an earlier build made it a view: drop whichever it is

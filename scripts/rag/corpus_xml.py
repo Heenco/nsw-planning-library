@@ -27,21 +27,26 @@ def _valid_at(raw, as_at):
     return bool(first and first.group(1) and first.group(1) <= as_at and (not end or not end.group(1) or end.group(1) > as_at))
 
 
-def xml_for(epi_code, as_at, fallback=None):
+def xml_for(epi_code, as_at, fallback=None, tries=4, timeout=180):
     """the instrument's XML in force at as_at, fetched once and kept. When the site cannot be reached, a copy already on
-    disk (fallback: the file the nsw ingest loaded, nsw.document.raw_path) is used if its own validity dates cover as_at"""
+    disk (fallback: the file the nsw ingest loaded, nsw.document.raw_path) is used if its own validity dates cover as_at.
+    A check that can do without the file (01d-currency.py) asks for fewer tries and a shorter timeout"""
     path = DATA / f'{epi_code}.{as_at}.xml'
     if path.exists() and path.stat().st_size > 10_000:
         return path
     import time
+    from types import SimpleNamespace
     from curl_cffi import requests
     url = f'https://legislation.nsw.gov.au/export/xml/{as_at}/{epi_code}'
-    # the site answers 503 / 429 at times (busy, not missing): retried with backoff, 4 tries over about 35 s
-    for attempt in range(4):
-        r = requests.get(url, impersonate='chrome', timeout=180)
-        if r.status_code not in (429, 500, 502, 503, 504, 520, 522, 524):
+    # the site answers 503 / 429 / 52x at times (busy, not missing), or does not answer: retried with backoff
+    for attempt in range(tries):
+        try:
+            r = requests.get(url, impersonate='chrome', timeout=timeout)
+        except Exception as e:                                         # a timeout or a dropped connection is a busy site too
+            r = SimpleNamespace(status_code=0, content=str(e).encode()[:300])
+        if r.status_code not in (0, 429, 500, 502, 503, 504, 520, 522, 524):
             break
-        if attempt < 3: time.sleep(5 * 2 ** attempt)
+        if attempt < tries - 1: time.sleep(5 * 2 ** attempt)
     if r.status_code != 200 or b'<legis' not in r.content[:5000] and b'<?xml' not in r.content[:200]:
         if fallback and Path(fallback).exists():
             raw = Path(fallback).read_bytes()

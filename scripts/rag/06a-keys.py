@@ -256,7 +256,7 @@ def main():
                  -- and any other mapped area of the plan, whatever the layer it came from (Area 3 on Ku-ring-gai's APU map,
                  -- Parramatta's Dual Occupancy Prohibition Map), except the maps every lot is on
                  AND NOT EXISTS (SELECT 1 FROM rag.map_polygon x WHERE x.document_id = %s AND x.geom && l.geom AND ST_Intersects(x.geom, l.geom)
-                                  AND x.map NOT IN ('land zoning', 'height of buildings', 'floor space ratio', 'lot size', 'land application', 'heritage', 'acid sulfate soils', 'flood planning'))
+                                  AND coalesce(x.label, '') <> '' AND x.map NOT IN ('land zoning', 'height of buildings', 'floor space ratio', 'lot size', 'land application', 'heritage', 'acid sulfate soils', 'flood planning'))
                ORDER BY l.cadid LIMIT %s""", (title, zone, title, title, title, title, title, doc, LOTS_PER_ZONE * 3))
             picked = [r for r in cur.fetchall() if (r[1] or '').upper() not in named][:LOTS_PER_ZONE]
             z = tables[zone]

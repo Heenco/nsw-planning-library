@@ -568,6 +568,15 @@ async function main() {
     if (code && c.kind !== 'frame') c.terms = [...(c.terms ?? []), `pathway:${/exempt/i.test(code.heading ?? '') ? 'exempt' : 'complying'}`]
   }
 
+  // a permission its own sentence makes the consent authority's to give ("... is permitted with development consent if the
+  // consent authority is satisfied that- (a) ...", North Sydney Sch 1 item 50): it depends, never a flat yes
+  for (const c of claims) {
+    if (c.kind !== 'permit' || (c.terms ?? []).some((t: string) => t.startsWith('discretion:'))) continue
+    const own = norm(byId.get(c.provision_id)?.own_text)
+    const m = own.match(/\b(?:only )?if the consent authority is (?:satisfied|of the opinion)\b.*$/i)
+    if (m) c.terms = [...(c.terms ?? []), `discretion:${m[0].slice(0, 200)}`]
+  }
+
   // the figures no reader took: a provision whose words carry a measure (m, m2, :1, %) with no claim on it or under it - so
   // a new instrument's unread sentence forms show at build time, not when a question fails (rag.unread, reader 'claims')
   const claimed = new Set(claims.map(c => c.provision_id))
