@@ -16,7 +16,7 @@ import { landUseKey } from '../land-use-key'
 type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
 
 /** scope terms tested from the lot's own facts by the evaluator, not through nsw.scope_layer */
-const OWN = /^(lga:|map:|near:|!?zone:|zoneclass:|area>=|lot$)/
+const OWN = /^(lga:|map:|notmap:|unheld:|near:|nearzone:|use:|!?zone:|zoneclass:|zonegroup:|area>=|lot$)/
 
 export async function ragLotFacts(q: Query, cadid: string) {
   const f: any = await lotFacts(q as any, cadid, landUseKey)
@@ -45,6 +45,18 @@ export async function ragLotFacts(q: Query, cadid: string) {
     const r = (await q(`SELECT EXISTS (SELECT 1 FROM rag.map_polygon m, cadastre.lot l WHERE l.cadid::text = $1 AND m.document_id = $2 AND m.map = $3 AND m.label = $4
                           AND ST_DWithin(m.geom::geography, l.geom::geography, $5)) AS h`, [cadid, doc, map, label, Number(metres)]).catch(() => null))
     terms[t] = r ? { holds: Boolean(r.rows[0].h), why: `${r.rows[0].h ? 'within' : 'not within'} ${metres} m of ${label} on the ${map} map` } : { holds: null, why: 'distance query failed' }
+  }
+  // "within N m of a boundary between any 2 zones" (cl 5.3): the lot within N m of land the plan zones differently - any
+  // other zone, or the zones named (nearzone:<m>|<zone-code pattern>), on the plan's own zoning map
+  const zoneTerms = (await q(`SELECT DISTINCT unnest(scope_terms) t FROM rag.claim_binding WHERE status = 'bound'`).catch(() => ({ rows: [] as any[] }))).rows.map(r => String(r.t)).filter(t => t.startsWith('nearzone:'))
+  for (const t of zoneTerms) {
+    const [, metres, pat] = t.match(/^nearzone:([\d.]+)\|(.*)$/) ?? []
+    if (metres == null || !f.epi || !f.zone) { terms[t] = { holds: null, why: 'the lot has no zone on the plan' }; continue }
+    const r = (await q(`SELECT string_agg(DISTINCT z.sym_code, ', ') AS z FROM epi.epi_land_zoning z, cadastre.lot l
+                         WHERE l.cadid::text = $1 AND z.epi_name = $2 AND z.sym_code IS DISTINCT FROM $3 AND ($4 = '' OR z.sym_code ~ ('^(' || $4 || ')$'))
+                           AND z.geom && ST_Expand(l.geom, $5 / 80000.0) AND ST_DWithin(z.geom::geography, l.geom::geography, $5)`, [cadid, f.epi, f.zone, pat ?? '', Number(metres)]).catch(() => null))
+    const near = r?.rows[0]?.z ?? null
+    terms[t] = r ? { holds: near != null, why: near ? `within ${metres} m of land in ${near}` : `no land in ${pat ? 'the zones named' : 'another zone'} within ${metres} m` } : { holds: null, why: 'zone distance query failed' }
   }
   const heritage = (await q(`SELECT string_agg(DISTINCT h.lay_class, ', ') c FROM epi.epi_heritage h, cadastre.lot l
                               WHERE l.cadid::text = $1 AND h.geom && l.geom AND ST_Intersects(h.geom, ST_PointOnSurface(l.geom))`, [cadid])).rows[0]?.c ?? null

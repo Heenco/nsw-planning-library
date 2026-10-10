@@ -135,29 +135,44 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     const b = E.bindings.get(c.id)?.find(x => x.part === part && x.text === text)
     if (!b) return { text, result: null, how: 'no binding: the graph build did not decide how to test it', could: false }
     if (b.status === 'bound') {
-      const lgaT = b.scope_terms.filter(t => t.startsWith('lga:')), layerT = b.scope_terms.filter(t => !/^(lga:|map:|!?zone:|zoneclass:|area>=|lot$)/.test(t))
+      const lgaT = b.scope_terms.filter(t => t.startsWith('lga:')), layerT = b.scope_terms.filter(t => !/^(lga:|map:|notmap:|unheld:|use:|!?zone:|zoneclass:|zonegroup:|area>=|lot$)/.test(t))
+      // the use of the proposal (an item "hotel or motel accommodation"): one of the uses named, tested on the use asked about
+      const useT = b.scope_terms.filter(t => t.startsWith('use:'))
+      const useR = useT.length ? useT.some(t => t.slice(4).split('|').some(u => useMatch(u, ask.use))) : undefined
       const lgaR = lgaT.length ? (lot.lga ? lgaT.some(t => t.slice(4) === String(lot.lga).toUpperCase()) : null) : undefined
-      // a list item's own tests: the lot's zone (named, excepted, or by class), its area, a map label's polygon
-      const zIn = b.scope_terms.filter(t => /^(zone|zoneclass):/.test(t)), zOut = b.scope_terms.filter(t => t.startsWith('!zone:'))
+      // a list item's own tests: the lot's zone (named, excepted, by class name, or by the Standard Instrument's zone group -
+      // "a rural or residential zone": RU1.., R1..), its area, a map label's polygon
+      const zIn = b.scope_terms.filter(t => /^(zone|zoneclass|zonegroup):/.test(t)), zOut = b.scope_terms.filter(t => t.startsWith('!zone:'))
       const zName = E.zoneNames.get(String(lot.zone)) ?? ''
+      const inZone = (t: string) => t.startsWith('zone:') ? t.slice(5) === String(lot.zone)
+        : t.startsWith('zonegroup:') ? t.slice(10).split('|').some(g => new RegExp(`^${g}\\d{1,2}[A-Z]?$`).test(String(lot.zone)))
+        : new RegExp(t.slice(10), 'i').test(zName)
       const zoneR = zIn.length || zOut.length ? (lot.zone == null ? null
-        : (!zIn.length || zIn.some(t => t.startsWith('zone:') ? t.slice(5) === String(lot.zone) : new RegExp(t.slice(9), 'i').test(zName))) && !zOut.some(t => t.slice(6) === String(lot.zone))) : undefined
+        : (!zIn.length || zIn.some(inZone)) && !zOut.some(t => t.slice(6) === String(lot.zone))) : undefined
       const areaT = b.scope_terms.find(t => t.startsWith('area>='))
       const areaR = areaT ? (lot.area_m2 == null ? null : Number(lot.area_m2) >= Number(areaT.slice(6))) : undefined
       const mapT = b.scope_terms.filter(t => t.startsWith('map:'))
       const shareOf = (t: string) => { const [m, l] = t.slice(4).split('|'); return Math.max(0, ...(Array.isArray(lot.mapped) ? lot.mapped : []).filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase().replace(/ map$/, '') === m && nl(x.label) === nl(l)).map((x: any) => Number(x.share))) }
-      const mapR = mapT.length ? (!Array.isArray(lot.mapped) ? null : mapT.some(t => shareOf(t) >= 0.9) ? true : mapT.every(t => shareOf(t) <= 0.05) ? false : null) : undefined
+      // a label the clause names that no layer draws (unheld:): outside the drawn ones is not outside - unknown
+      const unheld = b.scope_terms.filter(t => t.startsWith('unheld:'))
+      const mapR = mapT.length ? (!Array.isArray(lot.mapped) ? null : mapT.some(t => shareOf(t) >= 0.9) ? true : mapT.every(t => shareOf(t) <= 0.05) ? (unheld.length ? null : false) : null) : undefined
+      // outside a map area ("that is not on land identified as "Area A""): wholly outside every label, or (almost) wholly in one
+      const notT = b.scope_terms.filter(t => t.startsWith('notmap:')), notShare = (t: string) => shareOf(`map:${t.slice(7)}`)
+      const notR = notT.length ? (!Array.isArray(lot.mapped) ? null : notT.every(t => notShare(t) <= 0.05) ? true : notT.some(t => notShare(t) >= 0.9) ? false : null) : undefined
       const layerRs = layerT.map(t => ({ t, f: lot.terms?.[t] as { holds: boolean | null; why: string } | undefined }))
       const both = /(both|all) must hold/.test(b.note ?? '')
       const layerR = !layerT.length ? undefined
         : both ? (layerRs.some(x => x.f?.holds === false) ? false : layerRs.every(x => x.f?.holds === true) ? true : null)
         : (layerRs.some(x => x.f?.holds === true) ? true : layerRs.every(x => x.f?.holds === false) ? false : null)
-      const parts = [lgaR, layerR, zoneR, areaR, mapR].filter(x => x !== undefined) as (boolean | null)[]
+      const parts = [lgaR, layerR, zoneR, areaR, mapR, notR, useR].filter(x => x !== undefined) as (boolean | null)[]
       const result = both ? (parts.includes(false) ? false : parts.every(x => x === true) ? true : null) : (parts.includes(true) ? true : parts.every(x => x === false) ? false : null)
       const how = [lgaT.length ? `council ${lot.lga ?? 'not recorded'}` : null,
         zoneR !== undefined ? `zone ${lot.zone ?? 'not recorded'}${zName ? ` (${zName})` : ''}` : null,
         areaT ? `lot area ${lot.area_m2 ?? '?'} m2 against ${areaT.slice(6)} m2 (${b.note ?? 'site area'})` : null,
         ...mapT.map(t => `${t.slice(4).replace('|', ': ')} - ${Array.isArray(lot.mapped) ? `${Math.round(shareOf(t) * 100)}% of the lot inside` : 'map facts not computed'}`),
+        ...unheld.map(t => `${t.slice(7).replace('|', ': ')} - no polygon held`),
+        ...notT.map(t => `outside ${t.slice(7).replace('|', ': ')} - ${Array.isArray(lot.mapped) ? `${Math.round(notShare(t) * 100)}% of the lot inside` : 'map facts not computed'}`),
+        ...useT.map(t => `the use asked about (${ask.use}) against ${t.slice(4).replace(/\|/g, ' / ')}`),
         ...layerRs.map(x => `${x.t}: ${x.f ? `${x.f.holds == null ? 'unknown' : x.f.holds ? 'yes' : 'no'} (${x.f.why})` : 'not computed for this lot'}`)].filter(Boolean).join('; ')
       return { text, result, how, could: result !== null }
     }
@@ -209,15 +224,19 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
           results.push(r); said.push(`lot ${lot.lot} ${r === true ? 'is' : r === null ? 'is partly' : 'is not'} in the lots described`)
         } else {
           const m = t.slice(7).match(/^(.+) on the (.+?)(?: Map)?$/); if (!m) continue
-          const labels = m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()), map = m[2]!.toLowerCase()
+          // "Area 21A, Area 21B and Area 21C": each label, and the whole in case the map draws a label with "and" in it
+          const raw = m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()), map = m[2]!.toLowerCase()
+          const labels = [...new Set([...raw, ...raw.flatMap(l => l.split(/\s+and\s+/).map(x => x.trim()))])]
           // fail closed: no polygon for the map label (decided at build), or the lot's map facts not computed -> unknown
           const b = E.bindings.get(c.id)?.find(x => x.part === 'mapped' && x.text === t.slice(7))
           if (b && b.status !== 'bound') { notChecked.push(`${t.slice(7)} - no polygon for this map label`); checks.push({ text: t.slice(7), result: null, how: 'no polygon for this map label', could: false }); results.push(null); said.push(`${t.slice(7)}: no polygon - not checked`); continue }
           if (!Array.isArray(lot.mapped)) { notChecked.push(`${t.slice(7)} - map facts not computed for this lot`); checks.push({ text: t.slice(7), result: null, how: 'map facts not computed for this lot', could: false }); results.push(null); said.push(`${t.slice(7)}: not computed`); continue }
           const hit = lot.mapped.filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase() === map && labels.map(nl).includes(nl(x.label)))
           const share = Math.max(0, ...hit.map((x: any) => Number(x.share)))
-          const r = share >= 0.9 ? true : share > 0.05 ? null : false
-          checks.push({ text: t.slice(7), result: r, how: `map polygon (rag.map_polygon): ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'lot not inside'}`, could: true })
+          // a label the clause names that no layer draws: not inside the drawn ones is not "not inside" (fail closed)
+          const unheld = (b?.scope_terms ?? []).filter(x => x.startsWith('unheld:')).map(x => x.slice(7).split('|')[1])
+          const r = share >= 0.9 ? true : share > 0.05 ? null : unheld.length ? null : false
+          checks.push({ text: t.slice(7), result: r, how: `map polygon (rag.map_polygon): ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'lot not inside'}${unheld.length ? `; no polygon held for ${unheld.join(', ')}` : ''}`, could: r !== null || !unheld.length })
           results.push(r); said.push(`${t.slice(7)}: ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'not inside'}`)
         }
       }
@@ -264,6 +283,13 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
         notChecked.push(`where ${E.label(f.provision_id)} applies - its scope was not read`)
         checks.push({ text: `frame ${E.label(f.provision_id)}`, result: null, how: 'its scope was not read when the graph was built', could: false })
         and(null, `frame ${E.label(f.provision_id)} [scope not read]`); continue
+      }
+      // a frame about what the development is ("a fire alarm system that ..."): a fact of the proposal, not given
+      const pf = fb.find(b => b.part === 'frame' && b.status === 'proposal_fact')
+      if (pf) {
+        notChecked.push(`${E.label(f.provision_id)}: ${pf.text} - a fact of the proposed development, not given with the question`)
+        checks.push({ text: `frame ${E.label(f.provision_id)}`, result: null, how: `a fact of the proposed development: ${pf.text.slice(0, 120)}`, could: false })
+        and(null, `frame ${E.label(f.provision_id)} [the development is: ${pf.text.slice(0, 80)}]`); continue
       }
       const w: string[] = []; const r = scope(f, w, notChecked, subs, true, checks)
       and(r, `frame ${E.label(f.provision_id)} [${w.join('; ')}]`)

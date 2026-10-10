@@ -75,7 +75,9 @@ function lotsIn(text: string): string[] {
     }
     for (const n of nums) out.push(`${m[1] ? '~' : ''}${n}/${m[3] ?? ''}/DP${m[4]}`)
   }
-  for (const m of t.matchAll(/\bSP\s*(\d+)/g)) out.push(`SP${m[1]}`)
+  // a strata plan, not a zone: "Zone SP2 Infrastructure", "Zones SP1, SP2 and SP3" are the Standard Instrument's special
+  // purpose zones (one digit, after "Zone" or before the zone's name)
+  for (const m of t.matchAll(/(?<!\bZones?\s+(?:[A-Z]{1,3}\d{1,2}[A-Z]?(?:,\s*|\s+(?:and|or)\s+))*)\bSP\s*(\d+)(?!\d)(?!\s+(?:[A-Z][a-z]+|Zone))/g)) out.push(`SP${m[1]}`)
   return [...new Set(out)]
 }
 
@@ -142,13 +144,18 @@ async function main() {
   // 7.1). It is in force within the unit its definition clause names ("In this Part-" its Part, "In this clause-" the
   // clause), else the whole instrument - so another Part's "Area 1" is never read as this one
   const escRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  // the forms the plans use: "means the land identified as", "the area identified as", "the land, shown as", "the part of
+  // Melrose Park North identified as" - one label or several ("“Area 1” or “Area 2”")
   const areaDefs = terms.flatMap(t => {
-    const m = norm(t.own_text).match(/\bmeans (?:the )?land (?:identified|shown|marked) as [“"]([^”"]+)[”"] on the ([A-Z][\w ]*? Map)/)
+    const m = norm(t.own_text).match(/\bmeans (?:the )?(?:land|area|part of (?:the )?[A-Z][\w ]*?),? (?:identified|shown|marked|edged|hatched|coloured)(?: [a-z]+)? as ((?:[“"][^”"]+[”"](?:,\s*|\s+(?:or|and)\s+)?)+) on the ([A-Z][\w ]*? Map)/)
     if (!m || !norm(t.heading)) return []
+    const labels = [...m[1]!.matchAll(/[“"]([^”"]+)[”"]/g)].map(x => x[1]!.trim())
     const holder = t.parent_id ? byId.get(t.parent_id) : undefined
     const unitWord = norm(holder?.own_text).match(/^In this (Part|Division|clause|section|Schedule|Chapter)\b/i)?.[1]
     const unit = unitWord && holder ? unitOf(unitWord, holder) : null
-    return [{ doc: t.document_id, re: new RegExp(`\\b(?:in|on|within)\\s+(?:land\\s+(?:in|within)\\s+)?(?:the\\s+)?${escRe(norm(t.heading))}(?![\\w])`, 'i'), label: m[1]!, map: m[2]!, unit: unit?.id ?? null }]
+    // named after "in / on / within / to" ("on land in Area 1", "applies to Parramatta City Centre"), or as the whole
+    // phrase's subject ("Parramatta City Centre, other than ...")
+    return [{ doc: t.document_id, re: new RegExp(`(?:^\\s*|\\b(?:in|on|within|to)\\s+)(?:land\\s+(?:in|within)\\s+)?(?:the\\s+)?${escRe(norm(t.heading))}(?![\\w])`, 'i'), label: labels.join(' or '), map: m[2]!, unit: unit?.id ?? null }]
   })
   const inUnit = (p: P, unit: string | null) => !unit || !!up(p, x => x.id === unit)
   /** zones, scope terms and sub-questions in a phrase about where / when something applies; `at`, the provision the
@@ -160,9 +167,18 @@ async function main() {
     for (const term of scopeTerms) if (new RegExp(`\\b(in|on|within) an? ${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(phrase)) tms.push(term)
     for (const m of phrase.matchAll(/\bif development for the purposes? of (.+?) is permissible on the land under another environmental planning instrument/gi))
       requires.push({ permissible: usesOf(m[1]!)[0] })
-    // land a map marks ("shown as Area 1 on the Key Sites Map", "identified as "Y1" or "Y2" on the ... Map") and land
-    // named by its lot ("Lot 1, DP 433534")
-    for (const m of phrase.matchAll(/\b(?:shown|identified|marked) as (.+?) on the ([A-Z][\w ]*? Map)/g)) tms.push(`mapped:${norm(m[1]).replace(/[“”"]/g, '')} on the ${m[2]}`)
+    // "This clause applies if development for the purposes of an eco-tourist facility is permitted with development consent
+    // under this Plan" (cl 5.13, 5.18 in every plan): the land where that use is permissible here - a sub-question
+    for (const m of phrase.matchAll(/(?:^|\bif )development for the purposes? of (.+?) is permitted with(?:out)? (?:development )?consent under this Plan/gi))
+      if (usesOf(m[1]!).length) requires.push({ permissible: usesOf(m[1]!)[0] })
+    // "so much of any land that is within the relevant distance of a boundary between any 2 zones. The relevant distance is
+    // 20 metres" (cl 5.3): the lot within that distance of land in another zone, measured on the plan's zoning map. A
+    // distance given zone by zone is a list, bound item by item (02d)
+    const zb = /\bwithin the relevant distance of a boundary between any (?:2|two) zones\b/i.test(phrase) ? phrase.match(/\brelevant distance is ([\d.]+)\s*(?:m|metres)\b/i) : null
+    if (zb) tms.push(`nearzone:${Number(zb[1])}|`)
+    // land a map marks ("shown as Area 1 on the Key Sites Map", "identified as "Y1" or "Y2" on the ... Map", and the plans'
+    // own slip "identified as "Area 3" of the ... Map") and land named by its lot ("Lot 1, DP 433534")
+    for (const m of phrase.matchAll(/\b(?:shown|identified|marked) as (.+?) (?:on|of) the ([A-Z][\w ]*? Map)/g)) tms.push(`mapped:${norm(m[1]).replace(/[“”"]/g, '')} on the ${m[2]}`)
     // title type: a community title subdivision is "under the Community Land Development Act"; a strata one is "by the
     // registration of a strata plan" / "for a strata plan scheme"; "but does not apply to ..." excludes it
     const notPart = phrase.match(/\bbut does not apply to (.+)$/i)?.[1] ?? ''

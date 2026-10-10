@@ -24,6 +24,7 @@
  */
 import 'dotenv/config'
 import pg from 'pg'
+import { landUseKey } from '../../shared/land-use-key'
 
 const DRY = process.argv.includes('--dry')
 /** a map label as stored and compared: lower case, any dash as "-" with no space round it, single spaces */
@@ -31,6 +32,21 @@ export const normLabel = (s: string) => s.trim().replace(/^(?:a|an|the)\s+/i, ''
 const LABEL = `lower(regexp_replace(regexp_replace(trim(x.l), '\\s*[-\u2013\u2014]\\s*', '-', 'g'), '\\s+', ' ', 'g'))`
 const STOP = new Set('a an the of in on or and to as for by any land that is which within meaning under identified area areas following this greater higher than'.split(' '))
 const words = (s: string) => s.toLowerCase().replace(/[“”"'’(),.;:—–-]/g, ' ').split(/\s+/).filter(w => w && !STOP.has(w))
+/** the Standard Instrument's zone groups, as the zone codes every plan uses ("a rural, residential or recreation zone") */
+const ZONE_GROUPS: [RegExp, string][] = [[/^residential$/i, 'R'], [/^rural$/i, 'RU'], [/^business$/i, 'B'], [/^industrial$/i, 'IN'], [/^employment$/i, 'E'],
+  [/^(conservation|environment(?:al)? protection)$/i, 'C'], [/^recreation$/i, 'RE'], [/^special purposes?$/i, 'SP'], [/^waterways?$/i, 'W'], [/^mixed use$/i, 'MU']]
+const GROUP_WORDS = 'residential|rural|business|industrial|employment|conservation|environment(?:al)? protection|recreation|special purposes?|waterways?|mixed use'
+/** "in a rural, residential, employment, mixed use, special purpose or recreation zone" -> the zone-code groups, and the words matched */
+export const zoneGroupsIn = (s: string): { groups: string[]; span: string } | null => {
+  const m = s.match(new RegExp(`\\b((?:(?:${GROUP_WORDS})(?:\\s*,\\s*|\\s+or\\s+|\\s+and\\s+)?)+)\\s+zones?\\b`, 'i'))
+  if (!m) return null
+  const groups = [...m[1]!.matchAll(new RegExp(GROUP_WORDS, 'gi'))].map(g => ZONE_GROUPS.find(([re]) => re.test(g[0]!))?.[1]).filter(Boolean) as string[]
+  return groups.length ? { groups: [...new Set(groups)], span: m[0]! } : null
+}
+/** zone codes named in words: "Zone E1 Local Centre or Zone E2 Commercial Centre", "Zones R2 and R3" */
+const zoneCodesIn = (s: string) => [...s.matchAll(/\bZones? ((?:[A-Z]{1,3}\d{1,2}[A-Z]?(?:[ ,]+(?:and |or )?)?(?:[A-Z][a-z]+ ?)*)+)/g)].flatMap(m => m[1]!.match(/\b[A-Z]{1,3}\d{1,2}[A-Z]?\b/g) ?? [])
+/** a zone-code pattern for zones named and zone groups ("R" -> any R1, R2 ...) */
+const zonePattern = (codes: string[], groups: string[]) => [...codes, ...groups.map(g => `${g}\\d{1,2}[A-Z]?`)].join('|')
 
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
@@ -38,6 +54,17 @@ async function main() {
   const reg = (await q(`SELECT term, source_kind, source, assume_absent, note FROM nsw.scope_layer`)).rows
     .map(r => ({ ...r, w: [...new Set(words(r.term))] })).filter(r => r.w.length >= 1)
   const lgas = (await q(`SELECT DISTINCT upper(lga_name) n FROM derived.lot_lga WHERE lga_name IS NOT NULL`)).rows.map(r => String(r.n))
+  // the land uses every plan's Land Use Table names: an item that is only a use is the proposal's use, not a place
+  const vocab = [...new Set((await q(`SELECT DISTINCT land_use FROM nsw.lep_permissibility WHERE land_use IS NOT NULL`)).rows.map(r => landUseKey(String(r.land_use))))]
+    .filter(v => v.length > 3).sort((a, b) => b.length - a.length)
+  /** the land uses a phrase names, longest first ("information and education facilities" is one use, not two), and the
+   *  words left over once they and the joining words are taken out */
+  const usesIn = (s: string) => {
+    let k = ` ${landUseKey(s).replace(/[,;.:()]/g, ' ').replace(/\s+/g, ' ')} `
+    const uses: string[] = []
+    for (const v of vocab) if (k.includes(` ${v} `)) { uses.push(v); k = k.split(` ${v} `).join(' ') }
+    return { uses, rest: words(k).filter(w => !/^(development|purpose|purposes|other|includ\w*|ancillary|related)$/.test(w)) }
+  }
   // ── map polygons: the plans' own epi map layers + the resolver's refs, one view (rag.map_polygon) ─────────────────
   const epiMaps = (await q(`SELECT c.table_name, (SELECT f_geometry_column FROM geometry_columns g WHERE g.f_table_schema = 'epi' AND g.f_table_name = c.table_name LIMIT 1) AS gcol
                               FROM information_schema.columns c WHERE c.table_schema = 'epi' GROUP BY c.table_name
@@ -122,18 +149,47 @@ async function main() {
 
   /** one list item of a frame: a zone, a site area, a mapped label, a council or a registered layer - or a fact of the
    *  development itself ("does not involve the erection of ...", "is, or will be, at least 15 metres in height") */
-  const ZONE_CLASS = /\b(residential|rural|business|industrial|employment|conservation|recreation|special purpose|waterway)s? zones?\b/i
+  const ZONE_WORDS_RE = /\bZones? (?:[A-Z]{1,3}\d{1,2}[A-Z]?[ ,]*(?:and |or )?)+(?:[A-Z][a-z]+ ?)*/g
+  const AREA_RE = /(?:site )?area of (?:at least|not less than) ([\d,]+)\s*(?:square metres|m2|m²)|([\d,]+)\s*(?:square metres|m2|m²) or (?:greater|more)/i
+  /** words that only say "land" - what may be left of an item once its zones, area and map labels are read */
+  const LAND_ONLY = /^(is|be|on|at|located|zoned|shown|marked|has|have|site|lot|lots|land|zone|zones)$/
   const bindItem = (c: any, text: string, stem: string) => {
-    const zoneCodes = (s: string) => [...s.matchAll(/\bZones? ((?:[A-Z]{1,3}\d{1,2}[A-Z]?(?:[ ,]+(?:and |or )?)?)+)/g)].flatMap(m => m[1]!.match(/[A-Z]{1,3}\d{1,2}[A-Z]?/g) ?? [])
     const [inc, exc] = (() => { const i = text.search(/\bother than\b/i); return i < 0 ? [text, ''] : [text.slice(0, i), text.slice(i)] })()
-    const zt = [...zoneCodes(inc).map(z => `zone:${z}`), ...zoneCodes(exc).map(z => `!zone:${z}`), ...(inc.match(ZONE_CLASS) ? [`zoneclass:${inc.match(ZONE_CLASS)![1]!.toLowerCase()}`] : [])]
+    const grp = zoneGroupsIn(inc)
+    const zt = [...zoneCodesIn(inc).map(z => `zone:${z}`), ...zoneCodesIn(exc).map(z => `!zone:${z}`), ...(grp ? [`zonegroup:${grp.groups.join('|')}`] : [])]
     // what is left once the zones are taken out: nothing but land words -> the zones are the whole condition
-    const rest = words(text.replace(/\bZones? (?:[A-Z]{1,3}\d{1,2}[A-Z]?[ ,]*(?:and |or )?)+(?:[A-Z][a-z]+ ?)*/g, ' ').replace(ZONE_CLASS, ' ').replace(/\bother than\b/gi, ' '))
-      .filter(w => !/^(is|be|located|zoned|residential|density|low|medium|high|large|lot|general|mixed|use)$/.test(w))
+    const rest = words(text.replace(ZONE_WORDS_RE, ' ').replace(grp?.span ?? '\u0000', ' ').replace(/\bother than\b/gi, ' '))
+      .filter(w => !/^(is|be|located|zoned|residential|density|low|medium|high|large|lot|general|mixed|use|zone|zones)$/.test(w))
     if (zt.length && !rest.length) return add(c, 'item', text, 'bound', { scope_terms: zt, sources: ['zone'] })
-    const area = text.match(/(?:site )?area of (?:at least|not less than) ([\d,]+) (?:square metres|m2)|([\d,]+) (?:square metres|m2) or (?:greater|more)/i)
+    // a zone named by its code and name alone, as list items in "the following zones- (a) RU1 Primary Production, ..."
+    const bare = text.match(/^(?:Zone\s+)?([A-Z]{1,3}\d{1,2}[A-Z]?)\s+[A-Z][A-Za-z-]*(?:\s+(?:and\s+)?[A-Z][A-Za-z-]*)*[.,;]?\s*(?:or|and)?$/)
+    if (bare) return add(c, 'item', text, 'bound', { scope_terms: [`zone:${bare[1]}`], sources: ['zone'] })
+    // a zone and the uses it lets in ("in Zone R1 General Residential-development for the purposes of business premises,
+    // office premises or shops"): the lot in the zone and the proposal one of the uses - all must hold
+    const zu = text.match(/^(?:on land |for land )?in (.+?)\s*[—–-]\s*(?:development )?for the purposes? of (.+)$/i)
+    if (zu) {
+      const z = { codes: zoneCodesIn(zu[1]!), groups: zoneGroupsIn(zu[1]!)?.groups ?? [] }, u = usesIn(zu[2]!)
+      if ((z.codes.length || z.groups.length) && u.uses.length && !u.rest.length)
+        return add(c, 'item', text, 'bound', { scope_terms: [...z.codes.map(x => `zone:${x}`), ...(z.groups.length ? [`zonegroup:${z.groups.join('|')}`] : []), `use:${u.uses.join('|')}`],
+          sources: ['zone', 'the question (the use asked about)'], note: 'the zone and the use: all must hold' })
+    }
+    // only uses ("hotel or motel accommodation", "for the purposes of attached dwellings, multi dwelling housing or
+    // residential flat buildings"): the proposal is one of them - tested against the use asked about
+    const onlyUses = usesIn(text.replace(/^(?:development )?for(?: the purposes? of)?\s+/i, ''))
+    if (onlyUses.uses.length && !onlyUses.rest.length)
+      return add(c, 'item', text, 'bound', { scope_terms: [`use:${onlyUses.uses.join('|')}`], sources: ['the question (the use asked about)'], note: 'the use of the proposed development' })
+    const area = text.match(AREA_RE)
     if (area && words(text.replace(area[0], ' ')).filter(w => !/^(has|site)$/.test(w)).length === 0)
       return add(c, 'item', text, 'bound', { scope_terms: [`area>=${Number((area[1] ?? area[2])!.replace(/,/g, ''))}`], sources: ['cadastre.lot'], note: 'the site taken as the lot' })
+    // a distance from land in other zones, zone by zone (cl 5.3 "The relevant distance is- (a) for land in a residential
+    // zone or Zone SP2 Infrastructure-4 metres from any boundary with land in a Zone E1 Local Centre or ...")
+    const zb = text.match(/^for land in (.+?)\s*[—–-]\s*([\d.]+)\s*(?:m|metres) from any boundary with land in (.+?)[,;.]?\s*(?:or|and)?$/i)
+    if (zb) {
+      const from = { codes: zoneCodesIn(zb[1]!), groups: zoneGroupsIn(zb[1]!)?.groups ?? [] }, to = { codes: zoneCodesIn(zb[3]!), groups: zoneGroupsIn(zb[3]!)?.groups ?? [] }
+      if ((from.codes.length || from.groups.length) && (to.codes.length || to.groups.length))
+        return add(c, 'item', text, 'bound', { scope_terms: [...from.codes.map(z => `zone:${z}`), ...(from.groups.length ? [`zonegroup:${from.groups.join('|')}`] : []), `nearzone:${Number(zb[2])}|${zonePattern(to.codes, to.groups)}`],
+          sources: ['zone', 'epi.epi_land_zoning'], note: 'the zone and the distance: all must hold' })
+    }
     // land within a distance of a mapped feature: "land within- 10m of streams identified as "Stream Order 1" on the Riparian
     // Lands and Watercourses Map, or 20m of streams identified as "Stream Order 2" ..." - any one of them
     const near = [...text.matchAll(/(\d[\d.]*)\s*(?:m|metres)\s+of\s+[^“"]*?identified as [“"]([^”"]+)[”"] on the (.+?) Map\b/gi)]
@@ -143,14 +199,42 @@ async function main() {
       return add(c, 'item', text, held.length ? 'bound' : 'no_polygon', { scope_terms: held.map(x => `near:${c.document_id}:${x.m}:${x.k}`), sources: [...new Set(held.flatMap(x => srcOf(`${c.document_id}|${x.k}`)))],
         note: held.length < keys.length ? `no polygon for ${keys.filter(x => !held.includes(x)).map(x => x.k).join(', ')}` : 'within the distance of any one' })
     }
-    const mapped = text.match(/identified as [“"]([^”"]+)[”"] on the (.+?)(?: Map)?\.?$/i)
-    if (mapped) {
-      const k = `${mapped[2]!.toLowerCase()}|${normLabel(mapped[1]!)}`
-      return add(c, 'item', text, polys.has(`${c.document_id}|${k}`) ? 'bound' : 'no_polygon', { scope_terms: polys.has(`${c.document_id}|${k}`) ? [`map:${k}`] : [], sources: srcOf(`${c.document_id}|${k}`) })
+    // map labels: "land identified as "Area C" or "Area D" on the Special Provisions Area Map", ""Area 1", "Area 2" ... or
+    // "Area 5" on the Additional Local Provisions Map", "is on land identified as ... of the ... Map" - any label. The item
+    // may also name zones or a site area ("... Map that has a site area of at least 1,300m2"): all must hold. Words left
+    // unread leave the whole item unread - never half-tested
+    const maps = [...text.matchAll(/((?:[“"][^”"]+[”"](?:\s*,\s*|\s+or\s+|\s+and\s+)?)+)\s*(?:on|of) the ([A-Z][\w ]*?) Map\b/g)]
+    if (maps.length) {
+      const keys = [...new Set(maps.flatMap(m => [...m[1]!.matchAll(/[“"]([^”"]+)[”"]/g)].map(l => `${m[2]!.toLowerCase()}|${normLabel(l[1]!)}`)))]
+      let left = text; for (const m of maps) left = left.replace(m[0], ' ')
+      // "that is not on land identified as ...": the lot outside the area
+      const negated = /\bnot (?:on|in|within) (?:the )?land\b/i.test(left)
+      if (negated) left = left.replace(/\bnot\b/i, ' ')
+      // how the map draws it ("shown in red hatching and identified as") says nothing more about the land
+      left = left.replace(/\b(?:shown|marked|edged|coloured)\s+(?:in|with|by)?\s*(?:(?:red|blue|green|yellow|purple|orange|black|brown|pink|grey|gray|heavy|thick|broken|dashed)\s+)*(?:hatching|edging|outline|colour|color|cross-hatching|lines?)\b/gi, ' ')
+      const a = left.match(AREA_RE); if (a) left = left.replace(a[0], ' ')
+      const g = zoneGroupsIn(left), codes = zoneCodesIn(left)
+      left = left.replace(ZONE_WORDS_RE, ' ').replace(g?.span ?? '\u0000', ' ')
+      const unread = words(left).filter(w => !LAND_ONLY.test(w))
+      if (unread.length) return add(c, 'item', text, 'no_match', { note: `the map area is read, these words are not: ${unread.join(' ')}` })
+      const held = keys.filter(k => polys.has(`${c.document_id}|${k}`)), missing = keys.filter(k => !held.includes(k))
+      if (!held.length) return add(c, 'item', text, 'no_polygon', { note: `no polygon for ${keys.join(', ')}` })
+      const other = [...codes.map(z => `zone:${z}`), ...(g ? [`zonegroup:${g.groups.join('|')}`] : []), ...(a ? [`area>=${Number((a[1] ?? a[2])!.replace(/,/g, ''))}`] : [])]
+      // outside an area some of whose labels have no polygon cannot be shown - unread rather than guessed
+      if (negated && missing.length) return add(c, 'item', text, 'no_polygon', { note: `outside the area, but no polygon for ${missing.join(', ')}` })
+      if (negated) return add(c, 'item', text, 'bound', { scope_terms: [...held.map(k => `notmap:${k}`), ...other], sources: [...new Set(held.flatMap(k => srcOf(`${c.document_id}|${k}`)))],
+        note: other.length ? 'outside the map area, and the rest: all must hold' : 'outside the map area' })
+      // a label with no polygon: the lot outside the others is not "outside" - it may be in that one (unheld: fails closed)
+      return add(c, 'item', text, 'bound', { scope_terms: [...held.map(k => `map:${k}`), ...missing.map(k => `unheld:${k}`), ...other],
+        sources: [...new Set([...held.flatMap(k => srcOf(`${c.document_id}|${k}`)), ...(other.length ? ['zone / cadastre.lot'] : [])])],
+        note: [other.length ? 'the map area and the rest: all must hold' : null, missing.length ? `no polygon for ${missing.join(', ')}` : null].filter(Boolean).join('; ') || null })
     }
-    // the development itself, not the land
-    if (/^(does not involve|involves?|is, or will be|will be|is for|is carried out|the consent authority|development for the purposes? of)/i.test(text) || /\bin height\b/i.test(text))
-      return add(c, 'item', text, /consent authority/i.test(text) ? 'discretion' : 'proposal_fact', { note: /consent authority/i.test(text) ? "the consent authority's judgement" : 'a fact of the proposed development' })
+    // the development itself, not the land: what it is, its use, its floor area, cost, height, how it was designed, or a
+    // building already on the land
+    const isUse = usesIn(text).uses.length > 0
+    if (/^(does not involve|involves?|involving|is, or will be|will be|is for|is carried out|is a winner|the consent authority|development (?:for the purposes? of|for which|involving)|for the purposes? of|used (?:only )?for|significant alterations|that will result in|on which an? .+? is (?:erected|proposed))/i.test(text)
+      || /\bin height\b|\bheight of (?:more|less) than\b|\bgross floor area\b|\bestimated development cost\b|\bcompetitive design process\b|\bconsent authority (?:considers|is satisfied)\b/i.test(text))
+      return add(c, 'item', text, /consent authority/i.test(text) ? 'discretion' : 'proposal_fact', { note: /consent authority/i.test(text) ? "the consent authority's judgement" : isUse ? 'the use of the proposed development' : 'a fact of the proposed development' })
     bindText(c, 'item', text, stem)
   }
 
@@ -161,12 +245,19 @@ async function main() {
       else if (t.startsWith('lots:')) add(c, 'term', t, 'bound', { scope_terms: ['lot'], sources: ['cadastre.lot'] })
       else if (t.startsWith('mapped:')) {
         const m = t.slice(7).match(/^(.+) on the (.+?)(?: Map)?$/)
-        const labels = m ? m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()) : []
         const map = m?.[2]?.toLowerCase() ?? ''
-        const held = labels.filter(l => polys.has(`${c.document_id}|${map}|${normLabel(l)}`))
-        add(c, 'mapped', t.slice(7), held.length === labels.length && labels.length ? 'bound' : held.length ? 'bound' : 'no_polygon',
-          { scope_terms: held.map(l => `map:${map}|${l}`), sources: [...new Set(held.flatMap(l => srcOf(`${c.document_id}|${map}|${normLabel(l)}`)))], note: held.length && held.length < labels.length ? `no polygon for ${labels.filter(l => !held.includes(l)).join(', ')}` : null })
-      } else bindText(c, 'term', t)
+        // "Area 21A, Area 21B and Area 21C": a list, unless the whole label is one the map draws
+        const labels = (m ? m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()) : [])
+          .flatMap(l => polys.has(`${c.document_id}|${map}|${normLabel(l)}`) || !/\s+and\s+/.test(l) ? [l] : l.split(/\s+and\s+/).map(x => x.trim()))
+        const held = labels.filter(l => polys.has(`${c.document_id}|${map}|${normLabel(l)}`)), missing = labels.filter(l => !held.includes(l))
+        // a label with no polygon (Area 21B of "Area 21A, Area 21B and Area 21C"): a lot outside the others may be in it -
+        // kept as unheld:, so "not inside" is never concluded from the labels that are drawn
+        add(c, 'mapped', t.slice(7), held.length ? 'bound' : 'no_polygon',
+          { scope_terms: [...held.map(l => `map:${map}|${l}`), ...(held.length ? missing.map(l => `unheld:${map}|${normLabel(l)}`) : [])], sources: [...new Set(held.flatMap(l => srcOf(`${c.document_id}|${map}|${normLabel(l)}`)))], note: held.length && missing.length ? `no polygon for ${missing.join(', ')}` : null })
+      }
+      // "within the relevant distance of a boundary between any 2 zones" (cl 5.3): measured on the plan's zoning map
+      else if (t.startsWith('nearzone:')) add(c, 'term', t, 'bound', { scope_terms: [t], sources: ['epi.epi_land_zoning'], note: 'the lot within that distance of land in another zone' })
+      else bindText(c, 'term', t)
     }
     for (const ex of c.excludes as string[]) {
       if (ex.startsWith('zone:')) { add(c, 'exclude', ex, 'bound', { scope_terms: [ex], sources: ['zone name'] }); continue }
@@ -176,7 +267,8 @@ async function main() {
     // or, when it ends in a list, its condition is the list: bound item by item
     if (c.kind === 'frame' && !c.uses.length && !c.zones.length && !c.terms.length && !c.excludes.length && !(c.requires ?? []).length) {
       const broad = /whole of the State|^the State.?$|land to which this (Plan|Policy) applies|Land Application Map|^all land|^any land|^development$/i.test(c.span ?? '')
-      const stem = norm(c.own_text), items = kids.get(c.provision_id) ?? []
+      // a Note after the stem's dash is not the stem ("the following rural zones- Note. When this Plan was made ...")
+      const stem = norm(c.own_text).replace(/\s+Note\.?\s.*$/, ''), items = kids.get(c.provision_id) ?? []
       // "whether ... or ..." items restrict nothing ("the total floor area of a building- (a) whether ... before, or ...
       // after, ..., and (b) whether or not ...")
       const open = items.length && items.every(k => /^whether\b/i.test(norm(k.own_text)))
@@ -189,7 +281,12 @@ async function main() {
         add(c, 'frame', c.span ?? stem, 'items', { note: comb })
         // an item that is itself a stem carries its own list with it ("is on land that- (i) ..., (ii) ...")
         for (const k of items) bindItem(c, norm([k.own_text, ...(/[—-]\s*$/.test(norm(k.own_text)) ? (kids.get(k.id) ?? []).map(g => g.own_text) : [])].join(' ')).replace(/[,;]\s*(or|and)?$/i, ''), stem)
-      } else if (!broad) add(c, 'frame', c.span ?? '', 'unscoped', { note: `frame on ${c.local_id}: its scope was not read` })
+      }
+      // a frame about a thing, not a place ("a fire alarm system that can be monitored by ...", "timber paling ... fences",
+      // "replacement of an existing awning"): whether it applies is a fact of the proposed development
+      else if (!broad && !/\b(land|lots?|zones?|areas?|sites?|map|precincts?|centres?|locality|street|road|catchment|foreshore|council|local government|state)\b/i.test(c.span ?? ''))
+        add(c, 'frame', c.span ?? '', 'proposal_fact', { note: 'what the development is - a fact of the proposal, not of the land' })
+      else if (!broad) add(c, 'frame', c.span ?? '', 'unscoped', { note: `frame on ${c.local_id}: its scope was not read` })
     }
   }
 
@@ -259,6 +356,12 @@ async function main() {
   for (const b of out.filter(o => o.status === 'no_polygon')) {
     const c: any = metaOf.get(b.claim_id)
     if (c) coverage.push({ document_id: c.document_id, check_kind: 'clause_no_polygon', provision_id: c.pid, note: b.text.slice(0, 300) })
+  }
+  // bound, but some of the labels it names have no polygon (unheld:) - a lot outside the drawn ones is answered maybe
+  for (const b of out.filter(o => o.status === 'bound' && (o.scope_terms as string[]).some(t => t.startsWith('unheld:')))) {
+    const c: any = metaOf.get(b.claim_id)
+    if (c) coverage.push({ document_id: c.document_id, check_kind: 'clause_no_polygon', provision_id: c.pid,
+      note: `${b.text.slice(0, 200)} - no polygon for ${(b.scope_terms as string[]).filter(t => t.startsWith('unheld:')).map(t => t.slice(7).replace('|', ': ')).join(', ')}` })
   }
   // a condition no registered layer answers (no_match), or one registered with no dataset held and not assumed absent
   // (no_data): on a lot it is "could not check"
