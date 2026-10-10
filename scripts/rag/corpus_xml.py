@@ -19,15 +19,37 @@ def env(key):
             return line.split('=', 1)[1].strip().strip('"').strip("'")
 
 
-def xml_for(epi_code, as_at):
-    """the instrument's XML in force at as_at, fetched once and kept"""
+def _valid_at(raw, as_at):
+    """the exdoc's own validity covers as_at: first.valid.date <= as_at and (no end.valid.date, or it is later)"""
+    head = raw[:2000].decode('utf-8', 'replace')
+    first = re.search(r'first\.valid\.date="([^"]*)"', head)
+    end = re.search(r'end\.valid\.date="([^"]*)"', head)
+    return bool(first and first.group(1) and first.group(1) <= as_at and (not end or not end.group(1) or end.group(1) > as_at))
+
+
+def xml_for(epi_code, as_at, fallback=None):
+    """the instrument's XML in force at as_at, fetched once and kept. When the site cannot be reached, a copy already on
+    disk (fallback: the file the nsw ingest loaded, nsw.document.raw_path) is used if its own validity dates cover as_at"""
     path = DATA / f'{epi_code}.{as_at}.xml'
     if path.exists() and path.stat().st_size > 10_000:
         return path
+    import time
     from curl_cffi import requests
     url = f'https://legislation.nsw.gov.au/export/xml/{as_at}/{epi_code}'
-    r = requests.get(url, impersonate='chrome', timeout=180)
+    # the site answers 503 / 429 at times (busy, not missing): retried with backoff, 4 tries over about 35 s
+    for attempt in range(4):
+        r = requests.get(url, impersonate='chrome', timeout=180)
+        if r.status_code not in (429, 500, 502, 503, 504, 520, 522, 524):
+            break
+        if attempt < 3: time.sleep(5 * 2 ** attempt)
     if r.status_code != 200 or b'<legis' not in r.content[:5000] and b'<?xml' not in r.content[:200]:
+        if fallback and Path(fallback).exists():
+            raw = Path(fallback).read_bytes()
+            if _valid_at(raw, as_at):
+                print(f'{url}: HTTP {r.status_code} - using {fallback} (valid at {as_at})')
+                DATA.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(raw)
+                return path
         raise RuntimeError(f'{url}: HTTP {r.status_code}, {len(r.content)} bytes - not the instrument XML')
     DATA.mkdir(parents=True, exist_ok=True)
     path.write_bytes(r.content)
@@ -43,7 +65,7 @@ def sources(cur):
         m = re.search(r'(epi-\d{4}-\d{3,4})', url) or re.search(r'(epi-\d{4}-\d{3,4})', raw)
         if not m or not as_at:
             raise RuntimeError(f'{title}: no epi code or as-at date to fetch its XML by')
-        out.append((title, doc, kind, xml_for(m.group(1), as_at)))
+        out.append((title, doc, kind, xml_for(m.group(1), as_at, raw or None)))
     return out
 
 

@@ -2,6 +2,7 @@
  * RAG pilot, Phase 6.2 / 6.3 - answer the question bank with every variant, check every answer.
  *
  *   npx tsx scripts/rag/10-answer.ts --variants R0,R1,R2,R3,L0,R4 [--sets hard_case,propcode] [--limit 5] [--repeat 3] [--concurrency 6]
+ *   ... --lep "Ku-ring-gai Local Environmental Plan 2015"   # only that plan's questions (a newly added LEP)
  *
  *   R0-R3  retrieve 8 chunks (R3: + up to 8 by relation expansion), one call
  *   L0     the whole corpus in the prompt, no retrieval - Anthropic's advice for a corpus under ~200k tokens; definitions
@@ -23,12 +24,14 @@ const SETS = arg('--sets', '').split(',').filter(Boolean)
 const LIMIT = Number(arg('--limit', '0')) || Infinity
 const REPEAT = Number(arg('--repeat', '1'))
 const CONC = Number(arg('--concurrency', '6'))
+const LEP = arg('--lep', process.env.RAG_LEP ?? '')
 
 async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const C0 = await loadCorpus(q)
-  const questions = (await q(`SELECT id, set_name, document_id, clause, kind, text, lot_facts FROM rag.question WHERE coalesce(expected->>'status', '') <> 'retired' ${SETS.length ? 'AND set_name = ANY($1)' : ''} ORDER BY set_name, clause, cadid`, SETS.length ? [SETS] : [])).rows.slice(0, LIMIT)
+  const questions = (await q(`SELECT id, set_name, document_id, clause, kind, text, lot_facts FROM rag.question WHERE coalesce(expected->>'status', '') <> 'retired'
+      AND (cardinality($1::text[]) = 0 OR set_name = ANY($1)) AND ($2 = '' OR document_id = (SELECT document_id FROM rag.instrument WHERE title = $2)) ORDER BY set_name, clause, cadid`, [SETS, LEP])).rows.slice(0, LIMIT)
 
   // L0: the operative text of the question's own instruments (its LEP and the SEPPs), in instrument order, definitions
   // cut to their first sentence - built once per LEP
@@ -41,7 +44,7 @@ async function main() {
   }
   console.log('questions', questions.length, 'variants', VARIANTS.join(','), 'x', REPEAT, '| model', MODELS.answer)
 
-  const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('answer', $1) RETURNING id`, [JSON.stringify({ variants: VARIANTS, sets: SETS, repeat: REPEAT, model: MODELS.answer, k: 8, l0_definitions: 'first sentence' })])).rows[0].id
+  const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('answer', $1) RETURNING id`, [JSON.stringify({ variants: VARIANTS, sets: SETS, lep: LEP || null, repeat: REPEAT, model: MODELS.answer, k: 8, l0_definitions: 'first sentence' })])).rows[0].id
   // --resume: skip (question, variant) pairs that already have an answer from this model
   const done0 = process.argv.includes('--resume')
     ? new Set((await q(`SELECT question_id || '|' || variant k FROM rag.answer WHERE model = $1`, [MODELS.answer])).rows.map(r => r.k)) : new Set<string>()
@@ -70,7 +73,11 @@ async function main() {
           retrieved = [...hits.map(h => ({ chunk: h.chunk.id, header: h.chunk.header, why: 'search' })), ...extra.map(e => ({ chunk: e.chunk.id, header: e.chunk.header, why: e.why }))]
           context = [...hits.map(h => showChunk(h.chunk, v)), ...extra.map(e => showChunk(e.chunk, v, e.why))].join('\n\n')
         }
-        const r = await chat({ messages: [{ role: 'system', content: systemPrompt(C.insts) }, { role: 'user', content: userPrompt(x.text, x.lot_facts, context) }], maxTokens: 1200, json: true })
+        // L0's provisions are the same for every question on the plan: sent first and marked for the prompt cache
+        const r = await chat({ messages: v === 'L0'
+          ? [{ role: 'system', content: systemPrompt(C.insts) }, { role: 'user', content: `Provisions:
+${context}`, cache: true }, { role: 'user', content: userPrompt(x.text, x.lot_facts, '(the provisions above)') }]
+          : [{ role: 'system', content: systemPrompt(C.insts) }, { role: 'user', content: userPrompt(x.text, x.lot_facts, context) }], maxTokens: 1200, json: true })
         answer = parseAnswer(r.content); raw = r.content; tin = r.tokens_in; tout = r.tokens_out; c = r.cost_usd
       }
       cost += c

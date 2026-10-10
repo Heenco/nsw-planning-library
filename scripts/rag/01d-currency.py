@@ -58,7 +58,13 @@ def main():
             summary[title] = {'as_at': as_at, 'in_force_to': end or None, 'stale': False}
             print(f'{title}: as at {as_at}, still in force (to {end or "-"})')
             continue
-        new = parse(xml_for(code, TODAY))
+        # today's version is a check, not an input: the site unreachable leaves it unchecked, never stops the pipeline
+        try:
+            new = parse(xml_for(code, TODAY))
+        except RuntimeError as e:
+            summary[title] = {'as_at': as_at, 'in_force_to': end, 'stale': True, 'checked': False, 'why': str(e)[:160]}
+            print(f'{title}: as at {as_at}, superseded {end} - the version in force today not fetched ({str(e)[:100]}): not compared')
+            continue
         scope = set(scopes.get(doc) or [])
         a, b = units(old, scope), units(new, scope)
         cur.execute("SELECT local_id, id::text FROM rag.provision WHERE document_id = %s", (doc,))

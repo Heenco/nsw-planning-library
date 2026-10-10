@@ -3,9 +3,20 @@
   "leps": [
     "Randwick Local Environmental Plan 2012",
     "Hornsby Local Environmental Plan 2013",
-    "Parramatta Local Environmental Plan 2023"
+    "Parramatta Local Environmental Plan 2023",
+    "Ku-ring-gai Local Environmental Plan 2015"
   ],
   "sepps": [
-    { "title": "State Environmental Planning Policy (Housing) 2021", "scope": ["ch.1", "ch.3-pt.1", "ch.6", "sch.1", "sch.7A", "sch.10"] }
+    {
+      "title": "State Environmental Planning Policy (Housing) 2021",
+      "scope": [
+        "ch.1",
+        "ch.3-pt.1",
+        "ch.6",
+        "sch.1",
+        "sch.7A",
+        "sch.10"
+      ]
+    }
   ]
 }

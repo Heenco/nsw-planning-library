@@ -297,7 +297,8 @@ async function main() {
         if (of.length !== 1) continue
         const r = of[0]!, use = r.uses?.[0] ?? 'dwelling house'
         const l = await lotFor([...new Set([...(r.zones ?? []), ...frameZones])]); if (!l) continue
-        const discretion = (r.terms ?? []).some((t: string) => t.startsWith('discretion:'))
+        // at the consent authority's judgement, or switched off unless it is satisfied (Ku-ring-gai 6.15(4)): it depends
+        const discretion = (r.terms ?? []).some((t: string) => t.startsWith('discretion:')) || disapplied.has(r.pid)
         qs.push({ set_name: 'area', document_id: LEP.document_id, clause: `${r.local_id}@${tag}`, cadid: l.cadid, kind: 'standard', use_term: use, text: under + TOPIC_Q[topic]!(use, l).replace(/^W/, 'w'),
           expected: { status: 'derived', ...(discretion ? { verdict: 'maybe', values: { 'the consent authority is satisfied': r.value } } : { value: r.value }), unit: r.unit,
             controlling: [`${nameOf(LEP.title).toLowerCase()}:${r.local_id}`], note: `rag.area_clause: ${r.local_id} ${r.role}${discretion ? ' (if the consent authority is satisfied)' : ''} - ${label} on the ${map} Map` },

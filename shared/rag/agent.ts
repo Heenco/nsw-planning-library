@@ -105,7 +105,9 @@ Work in this order:
     }
     for (const call of r.tool_calls) {
       let args: any = {}; try { args = JSON.parse(call.function?.arguments ?? '{}') } catch { /* keep {} */ }
-      const out = await Promise.resolve(tools[call.function?.name]?.(args) ?? `unknown tool ${call.function?.name}`).catch(e => `tool error: ${String(e).slice(0, 200)}`)
+      // a tool that throws - even synchronously, on an argument the model left out - answers the model with the error, so it
+      // can call again; it never fails the answer
+      const out = await (async () => tools[call.function?.name]?.(args) ?? `unknown tool ${call.function?.name}`)().catch(e => `tool error: ${String(e).slice(0, 200)}`)
       trace.push({ tool: call.function?.name, args, chars: out.length })
       messages.push({ role: 'tool', tool_call_id: call.id, name: call.function?.name, content: clip(out, 12000) })
     }

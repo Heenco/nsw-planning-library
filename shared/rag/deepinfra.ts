@@ -7,13 +7,19 @@
  *            R0-R3, L0, the R4 agent with its tools) runs on either without change
  *   embed    DeepInfra bge-en-icl (Anthropic has no embeddings endpoint)
  *
- * Which models: RAG_LLM=anthropic in .env switches the defaults to Claude (contexts on Haiku 4.5, answers on Sonnet 5);
- * RAG_MODEL_ANSWER / RAG_MODEL_CONTEXT pick a model outright. ANTHROPIC_API_KEY / DEEPINFRA_API_KEY are the keys.
+ * Which models: RAG_LLM=anthropic in .env switches the defaults to Claude - contexts AND answers on Haiku 4.5 (Sonnet answers
+ * cost about $29 for one plan's 173 answers on 2026-10-10: never the default); RAG_MODEL_ANSWER / RAG_MODEL_CONTEXT pick a
+ * model outright. ANTHROPIC_API_KEY / DEEPINFRA_API_KEY are the keys.
+ *
+ * Spend is guarded, per process (one pipeline stage): a model with no price below is refused (its cost would count as 0 -
+ * how that $29 went uncounted), unless RAG_ALLOW_UNPRICED=1; and calls stop once the stage has spent RAG_BUDGET_USD (default
+ * 5). On Anthropic a message marked `cache` (a fixed prefix: L0's provisions) and the history of a multi-turn call (the R4
+ * agent) are prompt-cached - read back at a tenth of the input price.
  */
 
 const PROVIDER = (process.env.RAG_LLM ?? 'deepinfra').toLowerCase()
 export const MODELS = {
-  answer: process.env.RAG_MODEL_ANSWER ?? (PROVIDER === 'anthropic' ? 'claude-sonnet-5' : 'meta-llama/Llama-3.3-70B-Instruct'),
+  answer: process.env.RAG_MODEL_ANSWER ?? (PROVIDER === 'anthropic' ? 'claude-haiku-4-5-20251001' : 'meta-llama/Llama-3.3-70B-Instruct'),
   context: process.env.RAG_MODEL_CONTEXT ?? (PROVIDER === 'anthropic' ? 'claude-haiku-4-5-20251001' : 'meta-llama/Llama-3.3-70B-Instruct'),
   second: 'Qwen/Qwen3-235B-A22B-Instruct-2507',
   embed: 'BAAI/bge-en-icl',
@@ -28,6 +34,15 @@ export const PRICE: Record<string, { in: number; out: number }> = {
   'claude-haiku-4-5-20251001': { in: 1, out: 5 },
 }
 const unpriced = new Set<string>()
+/** what this process has spent, and the cap it stops at */
+let spent = 0
+const BUDGET = Number(process.env.RAG_BUDGET_USD ?? 5)
+export const spentUsd = () => spent
+function guard(model: string) {
+  if (!PRICE[model] && process.env.RAG_ALLOW_UNPRICED !== '1')
+    throw new Error(`${model} has no price in shared/rag/deepinfra.ts PRICE - refused, so its spend cannot go uncounted (add its price, or RAG_ALLOW_UNPRICED=1)`)
+  if (spent >= BUDGET) throw new Error(`budget reached: $${spent.toFixed(2)} of RAG_BUDGET_USD=${BUDGET} spent in this stage - stopped`)
+}
 export const costOf = (model: string, tin: number, tout: number) => {
   if (!PRICE[model] && !unpriced.has(model)) { unpriced.add(model); console.warn(`[rag] no price listed for ${model}: its cost is counted as 0 (shared/rag/deepinfra.ts PRICE)`) }
   return ((PRICE[model]?.in ?? 0) * tin + (PRICE[model]?.out ?? 0) * tout) / 1e6
@@ -49,11 +64,13 @@ async function post(path: string, body: unknown, key: string, tries = 5): Promis
   throw new Error(`DeepInfra ${path}: ${last}`)
 }
 
-export interface ChatMessage { role: 'system' | 'user' | 'assistant' | 'tool'; content: string | null; tool_calls?: any[]; tool_call_id?: string; name?: string }
+/** cache: a fixed prefix the next calls repeat word for word (prompt-cached on Anthropic; ignored elsewhere) */
+export interface ChatMessage { role: 'system' | 'user' | 'assistant' | 'tool'; content: string | null; tool_calls?: any[]; tool_call_id?: string; name?: string; cache?: boolean }
 export interface ChatResult { content: string; tool_calls: any[]; tokens_in: number; tokens_out: number; cost_usd: number; ms: number; message: ChatMessage }
 
 export async function chat(opts: { messages: ChatMessage[]; model?: string; tools?: any[]; maxTokens?: number; temperature?: number; json?: boolean; key?: string }): Promise<ChatResult> {
   const model = opts.model ?? MODELS.answer
+  guard(model)
   if (model.startsWith('claude-')) return anthropicChat({ ...opts, model })
   const key = opts.key ?? process.env.DEEPINFRA_API_KEY
   if (!key) throw new Error('DEEPINFRA_API_KEY is not set')
@@ -65,7 +82,8 @@ export async function chat(opts: { messages: ChatMessage[]; model?: string; tool
   }, key)
   const msg = j.choices?.[0]?.message ?? {}
   const tin = j.usage?.prompt_tokens ?? 0, tout = j.usage?.completion_tokens ?? 0
-  return { content: msg.content ?? '', tool_calls: msg.tool_calls ?? [], tokens_in: tin, tokens_out: tout, cost_usd: costOf(model, tin, tout), ms: Date.now() - t0,
+  const cost = costOf(model, tin, tout); spent += cost
+  return { content: msg.content ?? '', tool_calls: msg.tool_calls ?? [], tokens_in: tin, tokens_out: tout, cost_usd: cost, ms: Date.now() - t0,
     message: { role: 'assistant', content: msg.content ?? null, ...(msg.tool_calls?.length ? { tool_calls: msg.tool_calls } : {}) } }
 }
 
@@ -89,10 +107,12 @@ async function anthropicChat(opts: { messages: ChatMessage[]; model: string; too
     if (m.role === 'tool') push('user', [{ type: 'tool_result', tool_use_id: m.tool_call_id, content: m.content ?? '' }])
     else if (m.role === 'assistant') push('assistant', [...(m.content ? [{ type: 'text', text: m.content }] : []),
       ...(m.tool_calls ?? []).map((t: any) => ({ type: 'tool_use', id: t.id, name: t.function?.name, input: (() => { try { return JSON.parse(t.function?.arguments || '{}') } catch { return {} } })() }))])
-    else push('user', [{ type: 'text', text: m.content ?? '' }])
+    else push('user', [{ type: 'text', text: m.content ?? '', ...(m.cache ? { cache_control: { type: 'ephemeral' } } : {}) }])
   }
+  // a multi-turn call (the agent): the conversation so far is the next call's prefix - cache up to its last block
+  if (turns.some(t => t.role === 'assistant')) { const lt = turns[turns.length - 1]!, lb = lt.content[lt.content.length - 1]; if (lb) lb.cache_control = { type: 'ephemeral' } }
   const body = {
-    model: opts.model, max_tokens: opts.maxTokens ?? 800, ...(system ? { system } : {}), messages: turns,
+    model: opts.model, max_tokens: opts.maxTokens ?? 800, ...(system ? { system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }] } : {}), messages: turns,
     ...(opts.temperature != null ? { temperature: opts.temperature } : {}),
     ...(opts.tools?.length ? { tools: opts.tools.map((t: any) => ({ name: t.function.name, description: t.function.description, input_schema: t.function.parameters })) } : {}),
   }
@@ -109,8 +129,12 @@ async function anthropicChat(opts: { messages: ChatMessage[]; model: string; too
   if (!j) throw new Error(`Anthropic messages (${opts.model}): ${last}`)
   const text = (j.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
   const tool_calls = (j.content ?? []).filter((b: any) => b.type === 'tool_use').map((b: any) => ({ id: b.id, type: 'function', function: { name: b.name, arguments: JSON.stringify(b.input ?? {}) } }))
-  const tin = (j.usage?.input_tokens ?? 0) + (j.usage?.cache_read_input_tokens ?? 0) + (j.usage?.cache_creation_input_tokens ?? 0), tout = j.usage?.output_tokens ?? 0
-  return { content: text, tool_calls, tokens_in: tin, tokens_out: tout, cost_usd: costOf(opts.model, tin, tout), ms: Date.now() - t0,
+  const u = j.usage ?? {}, read = u.cache_read_input_tokens ?? 0, wrote = u.cache_creation_input_tokens ?? 0
+  const tin = (u.input_tokens ?? 0) + read + wrote, tout = u.output_tokens ?? 0
+  // a cache write is 1.25x the input price, a read 0.1x
+  const cost = costOf(opts.model, (u.input_tokens ?? 0) + wrote * 1.25 + read * 0.1, tout)
+  spent += cost
+  return { content: text, tool_calls, tokens_in: tin, tokens_out: tout, cost_usd: cost, ms: Date.now() - t0,
     message: { role: 'assistant', content: text || null, ...(tool_calls.length ? { tool_calls } : {}) } }
 }
 
