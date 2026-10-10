@@ -18,6 +18,10 @@
         additional permitted uses, the numeric control tables &mdash; covers the
         <strong>{{ PROPERTY_LGA_LABEL }}</strong> {{ PROPERTY_LGAS.length > 1 ? 'LGAs' : 'LGA' }}.
         A report outside those says so rather than leaving the section blank.
+        <template v-if="ragLeps.length">
+          The LEP clause reading &mdash; permissibility, the plan's clauses and mapped areas, worked out by rule with no AI
+          (<NuxtLink to="/rag">/rag</NuxtLink>) &mdash; covers <strong>{{ ragLeps.length }} LEPs</strong>: {{ ragLepLabel }}.
+        </template>
         AI-generated answers may be incomplete or inaccurate. Always verify with official sources.
       </div>
 
@@ -299,13 +303,27 @@ const sampleAddresses = [
   { lga: 'Randwick', zone: 'AC',  address: '204-230 MARINE PARADE MAROUBRA',   lat: -33.946805487356855, lng: 151.2557380830788 },
 ]
 
-/** Chips grouped by council, in the order the samples are declared. */
+/**
+ * The LEPs the rag engine reads (/api/rag/samples), each with sample lots the pipeline chose by rule - so a council
+ * onboarded through scripts/rag/run.ts gets its line and its chips here with no edit to this page.
+ */
+const ragSamples = ref<{ leps: Array<{ title: string; short: string; council: string; samples: Array<{ tag: string; address: string; lot: string; zone: string; cadid: string }> }> }>({ leps: [] })
+const ragLeps = computed(() => ragSamples.value.leps)
+const ragLepLabel = computed(() => ragLeps.value.map(l => l.short)
+  .reduce((acc, l, i, arr) => (i === 0 ? l : i === arr.length - 1 ? `${acc} and ${l}` : `${acc}, ${l}`), ''))
+
+/** Chips grouped by council: the hand-picked ones first, in the order declared, then every other LEP the rag engine reads. */
 const sampleAddressGroups = computed(() => {
-  const out: Array<{ lga: string; items: typeof sampleAddresses }> = []
+  const out: Array<{ lga: string; items: Array<(typeof sampleAddresses)[number] & { search?: string }> }> = []
   for (const s of sampleAddresses) {
     const g = out.find((x) => x.lga === s.lga)
     if (g) g.items.push(s)
     else out.push({ lga: s.lga, items: [s] })
+  }
+  for (const l of ragLeps.value) {
+    if (out.some(g => g.lga.toLowerCase() === l.council.toLowerCase()) || !l.samples.length) continue
+    // shown by address, searched by lot reference: a street address can match a dozen lots, a lot reference one
+    out.push({ lga: l.council, items: l.samples.map(s => ({ lga: l.council, zone: s.tag, address: s.address, search: s.lot, lat: 0, lng: 0 })) })
   }
   return out
 })
@@ -319,12 +337,12 @@ const sampleAddressGroups = computed(() => {
  * lot selects it; anything else leaves the suggestions open for the reader to choose, which is also
  * what happens when a sample address is not in the build yet.
  */
-async function pickSampleAddress(s: { address: string; lat: number; lng: number; zone?: string }) {
+async function pickSampleAddress(s: { address: string; lat: number; lng: number; zone?: string; search?: string }) {
   propertyAddress.value = s.address
   selectedCadid.value = null
   selectedMsoid.value = null
   acResults.value = []
-  await fetchAddressSuggestions(s.address)
+  await fetchAddressSuggestions(s.search ?? s.address)
   if (acResults.value.length === 1) selectAddress(acResults.value[0]!)
 }
 // ── Address autocomplete ─────────────────────────────────────────────────────
@@ -453,6 +471,8 @@ function handleMapHover(locId: string) {
 // ── Load index on mount ──────────────────────────────────────────────────────
 
 onMounted(async () => {
+  // the LEPs the rag engine reads, and their sample lots: a failure leaves the page as it was
+  fetch('/api/rag/samples').then(r => r.ok ? r.json() : null).then(j => { if (j?.leps) ragSamples.value = j }).catch(() => {})
   try {
     const resp = await fetch('/instruments.json')
     index.value = withVisibleDcpsOnly(await resp.json())
