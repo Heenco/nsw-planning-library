@@ -410,6 +410,13 @@ async function main() {
   // the measures no reader took (written by 02c-claims.ts to rag.unread)
   for (const u of (await q(`SELECT u.provision_id, p.document_id, u.span FROM rag.unread u JOIN rag.provision p ON p.id = u.provision_id WHERE u.reader = 'claims'`)).rows)
     coverage.push({ document_id: u.document_id, check_kind: 'figure_unread', provision_id: u.provision_id, note: String(u.span ?? '').slice(0, 300) })
+  // per plan, kept with the run so the next build can say what moved: coverage by kind, bindings by status
+  const docOfClaim = (id: string) => (metaOf.get(id) as any)?.document_id
+  const byPlan: Record<string, Record<string, number>> = {}
+  const bump = (doc: string | undefined, k: string) => { if (!doc) return; byPlan[doc] ??= {}; byPlan[doc]![k] = (byPlan[doc]![k] ?? 0) + 1 }
+  for (const c of coverage) bump(c.document_id, `coverage:${c.check_kind}`)
+  for (const b of out) bump(docOfClaim(b.claim_id), `binding:${b.status}`)
+  for (const a of areaRows) bump(a.document_id, 'area_clause')
   const covTally = coverage.reduce((a: Record<string, number>, c) => ({ ...a, [c.check_kind]: (a[c.check_kind] ?? 0) + 1 }), {})
   console.log(`\narea_clause: ${areaRows.length} (map area, clause) links over ${areaKeys.size} areas | coverage`, covTally)
   if (DRY) { await client.end(); return }
@@ -429,7 +436,7 @@ async function main() {
   await q(`INSERT INTO rag.coverage (document_id, check_kind, map, label, provision_id, source, note, run_id)
            SELECT document_id, check_kind, map, label, provision_id, source, note, $2 FROM jsonb_to_recordset($1::jsonb)
              AS x(document_id uuid, check_kind text, map text, label text, provision_id uuid, source text, note text)`, [JSON.stringify(coverage), run])
-  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ bindings: out.length, by: tally, area_clause: areaRows.length, coverage: covTally })])
+  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ bindings: out.length, by: tally, area_clause: areaRows.length, coverage: covTally, by_plan: byPlan })])
   await q('COMMIT')
   console.log('written', out.length)
   await client.end()

@@ -82,6 +82,25 @@ export default defineEventHandler(async () => {
                                  ORDER BY c.check_kind, i.rank, i.title, c.map, c.label, p.sort`)
   const coverage = coverageRows.map(c => ({ check: c.check_kind, map: c.map, area: c.area, source: c.source, note: c.note, plan: c.doc_kind === 'lep' ? c.title : null,
     label: c.local_id ? labelOf(c) : null, url: c.local_id ? urlOf(c.source_url, c.local_id) : null }))
+  // since the previous build: what moved per plan (02d's by_plan counts) and which of side D's answers changed (15's
+  // outcomes) - a regression shows here before anyone has to compare runs by hand
+  const [bNow, bPrev] = await q(`SELECT started_at, counts FROM rag.run WHERE stage = 'bindings' AND finished_at IS NOT NULL AND counts ? 'by_plan' ORDER BY started_at DESC LIMIT 2`)
+  const [dNow, dPrev] = await q(`SELECT started_at, counts FROM rag.run WHERE stage = 'answer' AND config->>'model' = 'deterministic' AND finished_at IS NOT NULL AND counts ? 'outcomes' ORDER BY started_at DESC LIMIT 2`)
+  const titleOf = new Map<string, string>((await q(`SELECT document_id::text AS d, title FROM rag.instrument`)).map(r => [r.d, r.title]))
+  const moved: { plan: string | null; key: string; before: number; now: number }[] = []
+  if (bNow && bPrev) for (const doc of new Set([...Object.keys(bNow.counts.by_plan), ...Object.keys(bPrev.counts.by_plan)])) {
+    const a = bPrev.counts.by_plan[doc] ?? {}, b = bNow.counts.by_plan[doc] ?? {}
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) if ((a[k] ?? 0) !== (b[k] ?? 0))
+      moved.push({ plan: titleOf.get(doc) ?? null, key: k, before: a[k] ?? 0, now: b[k] ?? 0 })
+  }
+  let changedAnswers: any[] = []
+  if (dNow && dPrev) {
+    const a = dPrev.counts.outcomes as Record<string, string>, b = dNow.counts.outcomes as Record<string, string>
+    const ids = [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(id => a[id] !== b[id])
+    if (ids.length) changedAnswers = (await q(`SELECT q.id::text, q.text, q.set_name, i.title AS lep FROM rag.question q LEFT JOIN rag.instrument i ON i.document_id = q.document_id WHERE q.id::text = ANY($1)`, [ids]))
+      .map(r => ({ ...r, before: a[r.id] ?? '(new)', now: b[r.id] ?? '(removed)' }))
+  }
+  const since = { bindingsAt: bNow?.started_at ?? null, previousBindingsAt: bPrev?.started_at ?? null, answersAt: dNow?.started_at ?? null, previousAnswersAt: dPrev?.started_at ?? null, moved, changedAnswers }
   // stage 2 (each lot): of side D's latest answers, how many rest on a condition no data could settle, and which ones -
   // for every plan together ('') and for each LEP
   const lotChecksFor = async (lep: string | null) => (await q(`
@@ -101,7 +120,7 @@ export default defineEventHandler(async () => {
   const leps = instruments.filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title))
   const lotChecks: Record<string, any> = { '': await lotChecksFor(null) }
   for (const l of leps) lotChecks[l] = await lotChecksFor(l)
-  return { ms: Date.now() - started, bindings, unreadFigures, mapSources, areaClauses, coverage, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
+  return { ms: Date.now() - started, bindings, unreadFigures, mapSources, areaClauses, coverage, since, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
     engine: engine[0] ?? { n: 0, runs: 0 }, answers, adjudications, runs,
     retrieval: retrieval && { at: retrieval.started_at, summary: retrieval.counts?.summary ?? {}, misses: retrieval.counts?.r2_misses ?? [] },
     resolver: resolver && { at: resolver.started_at, pass: resolver.counts?.pass ?? 0, fail: resolver.counts?.fail ?? 0,

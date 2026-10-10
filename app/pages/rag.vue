@@ -266,6 +266,25 @@
           </table>
         </details>
 
+        <h3 class="rg-h3">Since the previous build</h3>
+        <p v-if="!status.since?.previousBindingsAt" class="rg-muted">One build recorded so far - the next build is compared with it.</p>
+        <template v-else>
+          <p class="rg-muted">Build {{ when(status.since.bindingsAt) }} against {{ when(status.since.previousBindingsAt) }}: what moved{{ plan ? ' in ' + shortPlan(plan) : '' }},
+            and side D's answers that changed (verdict | value | unit | values by case). Nothing listed means nothing moved.</p>
+          <div class="rg-cols2">
+            <div>
+              <p class="rg-k">Counts that moved</p>
+              <ul class="rg-list"><li v-for="(m, i) in planMoved" :key="i">{{ m.key.replace(':', ' · ') }}: {{ m.before }} → <strong>{{ m.now }}</strong><span v-if="!plan" class="rg-muted"> · {{ shortPlan(m.plan) }}</span></li></ul>
+              <p v-if="!planMoved.length" class="rg-muted">None.</p>
+            </div>
+            <div>
+              <p class="rg-k">Side D answers that changed</p>
+              <ul class="rg-list"><li v-for="(a, i) in planChanged" :key="i">{{ a.text }} <span class="rg-muted">- {{ a.before }} → </span><strong>{{ a.now }}</strong></li></ul>
+              <p v-if="!planChanged.length" class="rg-muted">None.</p>
+            </div>
+          </div>
+        </template>
+
         <h3 class="rg-h3">Map areas and the clauses that govern them</h3>
         <p class="rg-muted">
           Each named area on a plan's maps, and every clause the build tied to it (<code>rag.area_clause</code>): directly, where a
@@ -512,6 +531,8 @@ const S = (k: string) => status.value?.score?.summary?.[plan.value ? `${k}@${pla
 /** a SEPP's bindings (plan null) apply under every plan */
 const planBindings = computed(() => (status.value?.bindings ?? []).filter((b: any) => !plan.value || !b.plan || b.plan === plan.value))
 const LC = computed(() => status.value?.lotChecks?.[plan.value] ?? null)
+const planMoved = computed(() => (status.value?.since?.moved ?? []).filter((m: any) => !plan.value || !m.plan || m.plan === plan.value))
+const planChanged = computed(() => (status.value?.since?.changedAnswers ?? []).filter((a: any) => !plan.value || !a.lep || a.lep === plan.value))
 const planAreas = computed(() => (status.value?.areaClauses ?? []).filter((a: any) => !plan.value || !a.plan || a.plan === plan.value))
 const COV_ORDER = ['text_changed_since', 'map_newer_than_text', 'area_no_clause', 'clause_no_polygon', 'condition_no_layer', 'frame_unscoped', 'label_not_in_epi', 'schedule_item_unread', 'figure_unread'] as const
 const COV_LIST = ['text_changed_since', 'map_newer_than_text', 'area_no_clause', 'clause_no_polygon', 'condition_no_layer', 'frame_unscoped', 'label_not_in_epi', 'schedule_item_unread'] as const

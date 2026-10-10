@@ -62,6 +62,7 @@ async function main() {
   INSTS = C.insts
   VOCAB = [...new Set(E.claims.flatMap(c => c.uses))].filter(u => u.length > 3).sort((a, b) => b.length - a.length)
   const questions = (await q(`SELECT id, set_name, document_id, clause, kind, use_term, text, lot_facts FROM rag.question WHERE coalesce(expected->>'status', '') <> 'retired' ORDER BY set_name, clause, cadid`)).rows
+  const outcomes: Record<string, string> = {}
   const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('answer', $1) RETURNING id`, [JSON.stringify({ variants: ['D'], model: 'deterministic', claims: E.claims.length })])).rows[0].id
   await q(`DELETE FROM rag.answer WHERE variant = 'D'`)
   const label = (r: Result, ids?: string[]) => r.tested.filter(t => (ids ?? r.ruling?.answer?.claims ?? []).includes(t.claim.id)).map(t => E.label(t.claim.provision_id))
@@ -173,11 +174,13 @@ async function main() {
       answer.not_checked = r.notChecked
     } else answer.reasoning = `not answered: ${mode}${lot ? '' : ' (no lot facts)'}`
     const k = `${x.set_name}:${answer.verdict ?? (answer.value != null ? 'value' : answer.controlling.length ? 'cited' : 'none')}`; tally[k] = (tally[k] ?? 0) + 1
+    // each answer's outcome, kept with the run: the next build's page shows which answers changed (status.get.ts)
+    outcomes[x.id] = [answer.verdict ?? '', answer.value ?? '', answer.unit ?? '', (answer.values_if ?? []).map((v: any) => v.value).join('/')].join('|')
     await q(`INSERT INTO rag.answer (run_id, question_id, variant, model, retrieved, answer, checks, trace, latency_ms, tokens_in, tokens_out, cost_usd)
              VALUES ($1, $2, 'D', 'deterministic', '[]', $3, $4, $5, $6, 0, 0, 0)`, [run, x.id, JSON.stringify(answer), JSON.stringify(checks(C, answer)), JSON.stringify({ mode, ask, explain: explained, cited }), Date.now() - t0])
     if (SHOW) console.log(`\n### ${x.set_name} ${x.clause}: ${x.text}\n${answer.reasoning}`)
   }
-  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ answers: questions.length, tally })])
+  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ answers: questions.length, tally, outcomes })])
   console.log(tally)
   await client.end()
 }
