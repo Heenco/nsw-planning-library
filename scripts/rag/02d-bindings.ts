@@ -6,7 +6,9 @@
  *
  * The layers are the app's own registry, nsw.scope_layer (the term -> table / view / lmr / cdc / esa registry entry
  * catalogue that /testing-spatial-services and /cdc-map use), the map polygons the resolver put in nsw.rule_spatial_ref,
- * the cadastre (lot ids) and derived.lot_lga (councils). Map areas come from rag.map_polygon, a table this script rebuilds:
+ * the cadastre (lot ids) and derived.lot_lga (councils). It also writes rag.area_clause (each map area and the clauses that
+ * govern it - directly, or through the frame above them) and rag.coverage (control areas no clause reads, clauses whose
+ * area has no polygon, Schedule 1 items with no permission read, measures no reader took). Map areas come from rag.map_polygon, a table this script rebuilds:
  * the plan's own epi map layers (every epi table with epi_name / map_name / label, read by map name and label - "Area 1" or
  * "Stream Order 1") together with the polygons the resolver put in nsw.rule_spatial_ref; where both have a (plan, map,
  * label), the plan's own layer is the one used (lot facts).
@@ -197,6 +199,79 @@ async function main() {
     const xs = out.filter(o => o.status === st)
     console.log(`\n${st} (${xs.length}):`); for (const x of xs.slice(0, 25)) console.log('  ', claims.find(c => c.id === x.claim_id)!.local_id.padEnd(26), x.text.slice(0, 120))
   }
+
+  // ── the map areas and the clauses that govern them (rag.area_clause) ─────────────────────────────────
+  // every bound map / distance condition ties its area to its clause; a frame ("This clause applies to land identified as
+  // "Area 10" ...") ties the area to every rule under the unit it governs (Sch 1 item 10(2): permits ...)
+  const meta = (await q(`SELECT c.id, c.kind, c.uses, c.topic, c.comparator, c.value::float8 AS v, c.unit, c.value_source, p.id AS pid, p.local_id, p.document_id, u.local_id AS unit_local
+                           FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id LEFT JOIN rag.provision u ON u.id = c.unit_provision`)).rows
+  const metaOf = new Map(meta.map((r: any) => [r.id, r]))
+  const roleOf = (c: any) => c.kind === 'permit' ? `permits ${(c.uses ?? []).join(', ') || 'development'}` : c.kind === 'prohibit' ? `prohibits ${(c.uses ?? []).join(', ') || 'development'}`
+    : c.kind === 'standard' ? `${c.topic ?? 'standard'} ${c.comparator ?? ''} ${c.v ?? (c.value_source ?? '')}${c.v != null && c.unit ? ` ${c.unit}` : ''}`.replace(/\s+/g, ' ').trim()
+    : c.kind === 'frame' ? 'applies to' : c.kind
+  const areaRows: any[] = [], seenArea = new Set<string>()
+  const pushArea = (r: any) => { const k = `${r.document_id}|${r.map}|${r.label}|${r.claim_id}`; if (!seenArea.has(k)) { seenArea.add(k); areaRows.push(r) } }
+  for (const b of out.filter(o => o.status === 'bound')) {
+    const c: any = metaOf.get(b.claim_id); if (!c) continue
+    for (const t of b.scope_terms as string[]) {
+      const mm = t.match(/^map:(.+?)\|(.+)$/), nm = t.match(/^near:[^:]+:([\d.]+):(.+?)\|(.+)$/)
+      if (!mm && !nm) continue
+      const area = { document_id: c.document_id, map: (mm ? mm[1] : nm![2])!, label: normLabel((mm ? mm[2] : nm![3])!), distance_m: nm ? Number(nm[1]) : null }
+      pushArea({ ...area, provision_id: c.pid, claim_id: c.id, claim_kind: c.kind, via_frame: false,
+        role: `${b.part === 'exclude' ? 'excluded where: ' : ''}${roleOf(c)}${area.distance_m != null ? ` (within ${area.distance_m} m)` : ''}` })
+      if (c.kind === 'frame' && c.unit_local) for (const r of meta)
+        if (r.kind !== 'frame' && r.document_id === c.document_id && (r.local_id === c.unit_local || r.local_id.startsWith(c.unit_local + '-')))
+          pushArea({ ...area, provision_id: r.pid, claim_id: r.id, claim_kind: r.kind, via_frame: true, role: roleOf(r) })
+    }
+  }
+  const areaKeys = new Set(areaRows.map(r => `${r.document_id}|${r.map}|${r.label}`))
+  // a map whose figure a clause reads whole ("the floor space ratio shown for the land on the Floor Space Ratio Map"): every
+  // label on it is governed by that clause
+  const wholeMaps = new Set(meta.filter((r: any) => String(r.value_source ?? '').startsWith('map:')).map((r: any) => `${r.document_id}|${String(r.value_source).slice(4).toLowerCase().replace(/ map$/, '')}`))
+
+  // ── coverage: what the build could not tie together (rag.coverage) ────────────────────────────────────
+  // the control areas: the plans' own layers of areas a clause is meant to name - additional permitted uses, key sites,
+  // local and special provisions, and the maps' additional controls
+  const controlAreas = (await q(`
+    SELECT i.document_id, lower(regexp_replace(s.map_name, ' Map$', '')) AS map, s.label, s.source
+      FROM (SELECT epi_name, map_name, label::text, 'epi.epi_additional_permitted_uses' AS source FROM epi.epi_additional_permitted_uses
+            UNION SELECT epi_name, map_name, label::text, 'epi.epi_key_sites' FROM epi.epi_key_sites
+            UNION SELECT epi_name, map_name, label::text, 'epi.epi_local_provisions' FROM epi.epi_local_provisions
+            UNION SELECT epi_name, map_name, label::text, 'epi.epi_special_provision' FROM epi.epi_special_provision
+            UNION SELECT epi_name, map_name, coalesce(label, legis_area), 'rag.additional_controls:' || source FROM rag.additional_controls) s
+      JOIN rag.instrument i ON i.title = s.epi_name
+     WHERE s.label IS NOT NULL AND s.label <> '<Null>' AND s.map_name IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows
+  // where the plan's words name the area (the label in quotes, in a provision that names the map), the gap is a reader's;
+  // where they do not, the area is one no clause names - the map's own legend, or a clause outside the corpus
+  const provText = (await q(`SELECT p.id, p.document_id, p.local_id, lower(replace(replace(coalesce(p.own_text, ''), '“', '"'), '”', '"')) AS t
+                               FROM rag.provision p JOIN rag.instrument i ON i.document_id = p.document_id WHERE i.kind = 'lep' AND coalesce(p.own_text, '') <> ''`)).rows
+  const namedIn = (doc: string, map: string, label: string) => provText.find((r: any) => r.document_id === doc && r.t.includes(`${map} map`)
+    && (r.t.includes(`"${label}"`) || r.t.includes(`"area ${label}"`) || r.t.includes(`"the ${label}"`)))
+  const coverage: any[] = [], seenCov = new Set<string>()
+  for (const a of controlAreas) {
+    const label = normLabel(String(a.label)), k = `${a.document_id}|${a.map}|${label}`
+    if (areaKeys.has(k) || wholeMaps.has(`${a.document_id}|${a.map}`) || seenCov.has(k)) continue
+    seenCov.add(k)
+    const at: any = namedIn(a.document_id, a.map, label)
+    coverage.push({ document_id: a.document_id, check_kind: 'area_no_clause', map: a.map, label, source: a.source, provision_id: at?.id ?? null,
+      note: at ? `named in ${at.local_id} - no reader bound it` : 'no provision names this area' })
+  }
+  for (const b of out.filter(o => o.status === 'no_polygon')) {
+    const c: any = metaOf.get(b.claim_id)
+    if (c) coverage.push({ document_id: c.document_id, check_kind: 'clause_no_polygon', provision_id: c.pid, note: b.text.slice(0, 300) })
+  }
+  // a Schedule 1 item with words but no permission read
+  const schItems = (await q(`SELECT p.id, p.document_id, p.local_id FROM rag.provision p JOIN rag.instrument i ON i.document_id = p.document_id
+                              WHERE i.kind = 'lep' AND p.local_id ~ '^sch\.1-sec\.[^-]+$'
+                                AND EXISTS (SELECT 1 FROM rag.provision k WHERE k.document_id = p.document_id AND k.local_id LIKE p.local_id || '-%' AND coalesce(k.own_text, '') <> '')`)).rows
+  for (const it of schItems)
+    if (!meta.some((r: any) => r.kind === 'permit' && r.document_id === it.document_id && r.local_id.startsWith(it.local_id + '-')))
+      coverage.push({ document_id: it.document_id, check_kind: 'schedule_item_unread', provision_id: it.id, note: 'no permission read in this item' })
+  // the measures no reader took (written by 02c-claims.ts to rag.unread)
+  for (const u of (await q(`SELECT u.provision_id, p.document_id, u.span FROM rag.unread u JOIN rag.provision p ON p.id = u.provision_id WHERE u.reader = 'claims'`)).rows)
+    coverage.push({ document_id: u.document_id, check_kind: 'figure_unread', provision_id: u.provision_id, note: String(u.span ?? '').slice(0, 300) })
+  const covTally = coverage.reduce((a: Record<string, number>, c) => ({ ...a, [c.check_kind]: (a[c.check_kind] ?? 0) + 1 }), {})
+  console.log(`\narea_clause: ${areaRows.length} (map area, clause) links over ${areaKeys.size} areas | coverage`, covTally)
   if (DRY) { await client.end(); return }
   await q('BEGIN')
   const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('bindings', '{}') RETURNING id`)).rows[0].id
@@ -204,7 +279,16 @@ async function main() {
   await q(`INSERT INTO rag.claim_binding (claim_id, part, text, status, scope_terms, sources, assume_absent, note, run_id)
            SELECT claim_id, part, text, status, scope_terms, sources, assume_absent, note, $2 FROM jsonb_to_recordset($1::jsonb)
              AS x(claim_id uuid, part text, text text, status text, scope_terms text[], sources text[], assume_absent boolean, note text)`, [JSON.stringify(out), run])
-  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ bindings: out.length, by: tally })])
+  await q(`DELETE FROM rag.area_clause`)
+  for (let i = 0; i < areaRows.length; i += 2000)
+    await q(`INSERT INTO rag.area_clause (document_id, map, label, provision_id, claim_id, claim_kind, role, via_frame, distance_m, run_id)
+             SELECT document_id, map, label, provision_id, claim_id, claim_kind, role, via_frame, distance_m, $2 FROM jsonb_to_recordset($1::jsonb)
+               AS x(document_id uuid, map text, label text, provision_id uuid, claim_id uuid, claim_kind text, role text, via_frame boolean, distance_m numeric)`, [JSON.stringify(areaRows.slice(i, i + 2000)), run])
+  await q(`DELETE FROM rag.coverage`)
+  await q(`INSERT INTO rag.coverage (document_id, check_kind, map, label, provision_id, source, note, run_id)
+           SELECT document_id, check_kind, map, label, provision_id, source, note, $2 FROM jsonb_to_recordset($1::jsonb)
+             AS x(document_id uuid, check_kind text, map text, label text, provision_id uuid, source text, note text)`, [JSON.stringify(coverage), run])
+  await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ bindings: out.length, by: tally, area_clause: areaRows.length, coverage: covTally })])
   await q('COMMIT')
   console.log('written', out.length)
   await client.end()

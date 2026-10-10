@@ -65,6 +65,23 @@ export default defineEventHandler(async () => {
                                 FROM rag.unread u JOIN rag.provision p ON p.id = u.provision_id JOIN rag.instrument i ON i.document_id = p.document_id
                                WHERE u.reader = 'claims' ORDER BY i.rank, i.title, p.sort, p.local_id`)
   const unreadFigures = unreadRows.map(u => ({ span: u.span, label: labelOf(u), url: urlOf(u.source_url, u.local_id), plan: u.doc_kind === 'lep' ? u.title : null }))
+  // each map area and the clauses that govern it (rag.area_clause, built by 02d), one entry per area
+  const areaRows = await q(`SELECT i.title, i.kind doc_kind, i.source_url, a.map, a.label, a.role, a.via_frame, a.distance_m, p.local_id, coalesce(p.path, '{}') path, p.heading
+                              FROM rag.area_clause a JOIN rag.provision p ON p.id = a.provision_id JOIN rag.instrument i ON i.document_id = a.document_id
+                             ORDER BY i.rank, i.title, a.map, a.label, a.via_frame, p.sort`)
+  const areaOf = new Map<string, any>()
+  for (const r of areaRows) {
+    const k = `${r.title}|${r.map}|${r.label}`
+    if (!areaOf.has(k)) areaOf.set(k, { plan: r.doc_kind === 'lep' ? r.title : null, map: r.map, label: r.label, clauses: [] })
+    areaOf.get(k).clauses.push({ label: labelOf(r), url: urlOf(r.source_url, r.local_id), role: r.role, via_frame: r.via_frame })
+  }
+  const areaClauses = [...areaOf.values()]
+  // what the build could not tie together (rag.coverage, built by 02d)
+  const coverageRows = await q(`SELECT c.check_kind, c.map, c.label AS area, c.source, c.note, i.title, i.kind doc_kind, i.source_url, p.local_id, coalesce(p.path, '{}') path, p.heading
+                                  FROM rag.coverage c LEFT JOIN rag.instrument i ON i.document_id = c.document_id LEFT JOIN rag.provision p ON p.id = c.provision_id
+                                 ORDER BY c.check_kind, i.rank, i.title, c.map, c.label, p.sort`)
+  const coverage = coverageRows.map(c => ({ check: c.check_kind, map: c.map, area: c.area, source: c.source, note: c.note, plan: c.doc_kind === 'lep' ? c.title : null,
+    label: c.local_id ? labelOf(c) : null, url: c.local_id ? urlOf(c.source_url, c.local_id) : null }))
   // stage 2 (each lot): of side D's latest answers, how many rest on a condition no data could settle, and which ones -
   // for every plan together ('') and for each LEP
   const lotChecksFor = async (lep: string | null) => (await q(`
@@ -84,7 +101,7 @@ export default defineEventHandler(async () => {
   const leps = instruments.filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title))
   const lotChecks: Record<string, any> = { '': await lotChecksFor(null) }
   for (const l of leps) lotChecks[l] = await lotChecksFor(l)
-  return { ms: Date.now() - started, bindings, unreadFigures, mapSources, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
+  return { ms: Date.now() - started, bindings, unreadFigures, mapSources, areaClauses, coverage, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
     engine: engine[0] ?? { n: 0, runs: 0 }, answers, adjudications, runs,
     retrieval: retrieval && { at: retrieval.started_at, summary: retrieval.counts?.summary ?? {}, misses: retrieval.counts?.r2_misses ?? [] },
     resolver: resolver && { at: resolver.started_at, pass: resolver.counts?.pass ?? 0, fail: resolver.counts?.fail ?? 0,
