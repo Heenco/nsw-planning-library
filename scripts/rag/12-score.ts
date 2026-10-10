@@ -93,7 +93,9 @@ async function main() {
   for (const a of answers) {
     const ans = a.answer?.unparsed ? null : a.answer
     const s = score(C, a.expected, ans)
-    for (const k of withLep([a.variant, `${a.variant}|${a.set_name}`, `${a.variant}|ground:${a.expected?.status}`, ...(a.set_name === 'grid' ? [`${a.variant}|${a.qclause}`] : [])], a.lep)) {
+    // a question derived from the build's own index (set 'area') is a consistency check, never part of a side's headline
+    const derived = a.expected?.status === 'derived'
+    for (const k of withLep(derived ? [`${a.variant}|${a.set_name}`, `${a.variant}|ground:derived`] : [a.variant, `${a.variant}|${a.set_name}`, `${a.variant}|ground:${a.expected?.status}`, ...(a.set_name === 'grid' ? [`${a.variant}|${a.qclause}`] : [])], a.lep)) {
       bump(k, 'answers'); bump(k, 'cost', Number(a.cost_usd ?? 0)); bump(k, 'latency', Number(a.latency_ms ?? 0))
       if (!ans) bump(k, 'unparsed')
       const c = a.checks ?? {}
@@ -107,7 +109,7 @@ async function main() {
   for (const e of engine) {
     const ans = e.verdict === 'not_answered' || e.verdict === 'error' ? null : { verdict: e.verdict, value: null, controlling: (e.controlling ?? []).map((c: string) => `${e.plan ?? 'LEP'} cl ${c}`) }
     const s = score(C, e.expected, ans)
-    for (const k of withLep(['P', `P|${e.set_name}`, `P|ground:${e.expected?.status}`, ...(e.set_name === 'grid' ? [`P|${e.qclause}`] : [])], e.lep)) {
+    for (const k of withLep(e.expected?.status === 'derived' ? [`P|${e.set_name}`, 'P|ground:derived'] : ['P', `P|${e.set_name}`, `P|ground:${e.expected?.status}`, ...(e.set_name === 'grid' ? [`P|${e.qclause}`] : [])], e.lep)) {
       bump(k, 'answers'); if (!ans) bump(k, 'not_answered')
       if (s) { bump(k, 'scored'); if (s.correct) bump(k, 'correct'); if (s.confidently_wrong) bump(k, 'confidently_wrong'); if (s.abstained) bump(k, 'abstained') }
       else if (e.expected?.status !== 'none' && !ans) bump(k, 'abstained_unanswered')
@@ -136,12 +138,13 @@ async function main() {
   for (const x of questions) {
     const sides = perQ.get(x.id) ?? {}
     const wrong = Object.entries(sides).filter(([, v]: any) => v.correct === false).map(([k]) => k)
-    if (x.expected?.status === 'key' && !wrong.length) continue
+    if ((x.expected?.status === 'key' || x.expected?.status === 'derived') && !wrong.length) continue
     if (x.expected?.status === 'none' && !Object.keys(sides).length) continue
     const ctrl = (x.expected?.controlling ?? [])[0] as string | undefined
     const pid = ctrl ? keyedProvision(C, ctrl) : null
     queue.push({ question_id: x.id, proposed: { expected: x.expected, wrong_sides: wrong, sides }, quote: pid ? subtreeText(C, pid).slice(0, 1500) : null, source_provision: pid,
-      note: x.expected?.status === 'draft' ? `Claude draft; ${wrong.length} side(s) disagree: ${wrong.join(', ') || 'none'}` : x.expected?.status === 'key' ? `key; ${wrong.join(', ')} disagree - is the key right?` : 'no key' })
+      note: x.expected?.status === 'draft' ? `Claude draft; ${wrong.length} side(s) disagree: ${wrong.join(', ') || 'none'}`
+        : x.expected?.status === 'derived' ? `the build's index (rag.area_clause) and ${wrong.join(', ')} disagree on this area - which is right?` : x.expected?.status === 'key' ? `key; ${wrong.join(', ')} disagree - is the key right?` : 'no key' })
   }
   await q('BEGIN')
   await q(`DELETE FROM rag.adjudication WHERE status = 'proposed'`)

@@ -235,6 +235,79 @@ async function main() {
     for (const [k, kind, use, text] of GRID) qs.push({ set_name: 'grid', document_id: gridDoc.get(cad), clause: k, cadid: cad, kind, use_term: use, text: text(l), expected: { status: 'none' }, tags: [l.low_mid_rise_area.band ? 'lmr' : 'not_lmr'], lot: l })
   }
 
+  // ── area: each map area and a clause that governs it (rag.area_clause, built by 02d), asked on a real lot wholly inside
+  //    it - every plan, every area, no list kept by hand. The expected answer is what the index says the clause does
+  //    (status 'derived'): a consistency check of lot facts -> map share -> frame -> ruling against the build, NOT an
+  //    independent key - it is scored on its own, and every disagreement goes to adjudication
+  const TOPIC_Q: Record<string, (use: string, l: any) => string> = {
+    height: (u, l) => `What is the maximum building height for a ${u} on ${where(l)}?`,
+    fsr: (u, l) => `What is the maximum floor space ratio for a ${u} on ${where(l)}?`,
+  }
+  for (const LEP of LEPS) {
+    // a rule another provision switches off "unless the consent authority is satisfied" (Hornsby 6.13(4)) - its answer depends
+    const disapplied = new Set((await q(`SELECT r.to_provision::text AS id FROM rag.relation r JOIN rag.provision f ON f.id = r.from_provision
+                                          WHERE r.kind = 'disapplies' AND f.document_id = $1 AND f.own_text ~* $2`, [LEP.document_id, '\\munless\\M'])).rows.map((r: any) => r.id))
+    const rows = (await q(`SELECT a.map, a.label, a.claim_kind, a.role, a.via_frame, p.id::text AS pid, p.local_id, c.uses, c.zones, c.terms, c.topic, c.value::float8 AS value, c.unit, c.comparator, c.value_source
+                             FROM rag.area_clause a JOIN rag.claim c ON c.id = a.claim_id JOIN rag.provision p ON p.id = a.provision_id
+                            WHERE a.document_id = $1 AND a.claim_kind IN ('permit', 'prohibit', 'standard', 'frame') ORDER BY a.map, a.label, p.local_id`, [LEP.document_id])).rows
+    const areas = new Map<string, any[]>()
+    for (const r of rows) areas.set(`${r.map}|${r.label}`, [...(areas.get(`${r.map}|${r.label}`) ?? []), r])
+    // asked of the plan alone ("Under Hornsby LEP 2013, ..."): the check is the plan's own clause, not how a SEPP meets it
+    const under = `Under ${shortName(LEP.title)}, `
+    let made = 0
+    for (const [k, rs] of areas) {
+      const [map, label] = k.split('|')
+      // lots whose point on surface is in the area (an index probe, not a geometry overlay per lot); the share of the lot
+      // inside is then read from its facts - 90% or more, as the evaluator itself requires
+      const cands = (await q(`SELECT l.cadid::text FROM rag.map_polygon m JOIN cadastre.lot l ON l.geom && m.geom AND ST_Intersects(m.geom, ST_PointOnSurface(l.geom))
+                                WHERE m.document_id = $1 AND m.map = $2 AND m.label = $3 AND l.lotidstring NOT LIKE '%SP%' AND ST_Area(l.geom::geography) > 100
+                                ORDER BY l.cadid LIMIT 8`, [LEP.document_id, map, label]).catch(() => ({ rows: [] as any[] }))).rows.map((r: any) => r.cadid as string)
+      if (!cands.length) continue
+      // the zones a rule or its area's frame names: a lot outside them is not the rule's case
+      const frameZones = rs.filter(r => r.claim_kind === 'frame').flatMap(r => r.zones ?? [])
+      const lotFor = async (zones: string[]) => {
+        for (const cad of cands) {
+          const l = await facts(cad)
+          if (String(l.epi ?? '').toLowerCase() !== LEP.title.toLowerCase()) continue    // zoned under another plan
+          if (zones.length && !zones.includes(String(l.zone))) continue
+          const inside = Math.max(0, ...(l.mapped ?? []).filter((x: any) => x.document_id === LEP.document_id && x.map === map && x.label === label).map((x: any) => Number(x.share)))
+          if (inside < 0.9) continue
+          return l
+        }
+        return null
+      }
+      const tag = `${map}|${label}`
+      for (const r of rs.filter(r => (r.claim_kind === 'permit' || r.claim_kind === 'prohibit') && r.uses?.length).slice(0, 2)) {
+        const l = await lotFor([...new Set([...(r.zones ?? []), ...frameZones])]); if (!l) continue
+        const use = r.uses[0]
+        // a permission on a condition of the proposal, at the consent authority's judgement, or switched off unless it is satisfied: it depends
+        const depends = (r.terms ?? []).some((t: string) => /^(condition|discretion):/.test(t)) || disapplied.has(r.pid)
+        qs.push({ set_name: 'area', document_id: LEP.document_id, clause: `${r.local_id}@${tag}`, cadid: l.cadid, kind: 'permissibility', use_term: use,
+          text: `${under}is ${/^[aeiou]/i.test(use) ? 'an' : 'a'} ${use} permissible on ${where(l)}?`,
+          expected: { status: 'derived', verdict: depends ? 'maybe' : r.claim_kind === 'permit' ? 'yes' : 'no', controlling: [`${nameOf(LEP.title).toLowerCase()}:${r.local_id}`],
+            note: `rag.area_clause: ${r.local_id} ${r.role}${r.via_frame ? ' (under the frame)' : ''} - ${label} on the ${map} Map` }, tags: ['area', map], lot: l })
+        made++
+      }
+      // one area-specific figure per topic (two on one topic are cases - not a single expected figure); a figure the consent
+      // authority may allow if satisfied is "maybe", never the figure
+      // a maximum, asked as a maximum (a minimum - "at least 1:1 of non-residential floor space" - is not the answer to it)
+      const stds = rs.filter(r => r.claim_kind === 'standard' && r.comparator === 'max' && r.value != null && TOPIC_Q[r.topic] && !String(r.value_source ?? '').startsWith('map:'))
+      for (const topic of [...new Set(stds.map(r => r.topic))]) {
+        const of = stds.filter(r => r.topic === topic)
+        if (of.length !== 1) continue
+        const r = of[0]!, use = r.uses?.[0] ?? 'dwelling house'
+        const l = await lotFor([...new Set([...(r.zones ?? []), ...frameZones])]); if (!l) continue
+        const discretion = (r.terms ?? []).some((t: string) => t.startsWith('discretion:'))
+        qs.push({ set_name: 'area', document_id: LEP.document_id, clause: `${r.local_id}@${tag}`, cadid: l.cadid, kind: 'standard', use_term: use, text: under + TOPIC_Q[topic]!(use, l).replace(/^W/, 'w'),
+          expected: { status: 'derived', ...(discretion ? { verdict: 'maybe', values: { 'the consent authority is satisfied': r.value } } : { value: r.value }), unit: r.unit,
+            controlling: [`${nameOf(LEP.title).toLowerCase()}:${r.local_id}`], note: `rag.area_clause: ${r.local_id} ${r.role}${discretion ? ' (if the consent authority is satisfied)' : ''} - ${label} on the ${map} Map` },
+          tags: ['area', map], lot: l })
+        made++
+      }
+    }
+    console.log(`area: ${made} questions for ${nameOf(LEP.title)} over ${areas.size} areas`)
+  }
+
   for (const x of qs) x.id = uuidOf(`rag-q|${x.set_name}|${x.clause ?? ''}|${x.cadid ?? ''}|${x.key_ref ?? ''}|${x.text}`)
   const bySet = qs.reduce((a: Record<string, number>, x) => ({ ...a, [x.set_name]: (a[x.set_name] ?? 0) + 1 }), {})
   const byLep = qs.reduce((a: Record<string, number>, x) => { const t = nameOf(LEPS.find(l => l.document_id === x.document_id)?.title ?? '?'); return { ...a, [t]: (a[t] ?? 0) + 1 } }, {})

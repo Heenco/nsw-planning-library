@@ -16,7 +16,7 @@ import { landUseKey } from '../land-use-key'
 type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
 
 /** scope terms tested from the lot's own facts by the evaluator, not through nsw.scope_layer */
-const OWN = /^(lga:|map:|notmap:|unheld:|near:|nearzone:|use:|!?zone:|zoneclass:|zonegroup:|area>=|lot$)/
+const OWN = /^(lga:|map:|notmap:|unheld:|near:|nearzone:|use:|fact:|!?zone:|zoneclass:|zonegroup:|area>=|lot$)/
 
 export async function ragLotFacts(q: Query, cadid: string) {
   const f: any = await lotFacts(q as any, cadid, landUseKey)

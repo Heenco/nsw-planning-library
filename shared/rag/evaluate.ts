@@ -153,7 +153,9 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     const b = E.bindings.get(c.id)?.find(x => x.part === part && x.text === text)
     if (!b) return { text, result: null, how: 'no binding: the graph build did not decide how to test it', could: false }
     if (b.status === 'bound') {
-      const lgaT = b.scope_terms.filter(t => t.startsWith('lga:')), layerT = b.scope_terms.filter(t => !/^(lga:|map:|notmap:|unheld:|use:|!?zone:|zoneclass:|zonegroup:|area>=|lot$)/.test(t))
+      const lgaT = b.scope_terms.filter(t => t.startsWith('lga:')), layerT = b.scope_terms.filter(t => !/^(lga:|map:|notmap:|unheld:|use:|fact:|!?zone:|zoneclass:|zonegroup:|area>=|lot$)/.test(t))
+      // a fact of the proposal the item joins to the land ("a building with a height of at least 10m"): not given - unknown
+      const factT = b.scope_terms.filter(t => t.startsWith('fact:')), factR = factT.length ? null : undefined
       // the use of the proposal (an item "hotel or motel accommodation"): one of the uses named, tested on the use asked about
       const useT = b.scope_terms.filter(t => t.startsWith('use:'))
       const useR = useT.length ? useT.some(t => t.slice(4).split('|').some(u => useMatch(u, ask.use))) : undefined
@@ -182,7 +184,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       const layerR = !layerT.length ? undefined
         : both ? (layerRs.some(x => x.f?.holds === false) ? false : layerRs.every(x => x.f?.holds === true) ? true : null)
         : (layerRs.some(x => x.f?.holds === true) ? true : layerRs.every(x => x.f?.holds === false) ? false : null)
-      const parts = [lgaR, layerR, zoneR, areaR, mapR, notR, useR].filter(x => x !== undefined) as (boolean | null)[]
+      const parts = [lgaR, layerR, zoneR, areaR, mapR, notR, useR, factR].filter(x => x !== undefined) as (boolean | null)[]
       const result = both ? (parts.includes(false) ? false : parts.every(x => x === true) ? true : null) : (parts.includes(true) ? true : parts.every(x => x === false) ? false : null)
       const how = [lgaT.length ? `council ${lot.lga ?? 'not recorded'}` : null,
         zoneR !== undefined ? `zone ${lot.zone ?? 'not recorded'}${zName ? ` (${zName})` : ''}` : null,
@@ -191,6 +193,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
         ...unheld.map(t => `${t.slice(7).replace('|', ': ')} - no polygon held`),
         ...notT.map(t => `outside ${t.slice(7).replace('|', ': ')} - ${Array.isArray(lot.mapped) ? `${Math.round(notShare(t) * 100)}% of the lot inside` : 'map facts not computed'}`),
         ...useT.map(t => `the use asked about (${ask.use}) against ${t.slice(4).replace(/\|/g, ' / ')}`),
+        ...factT.map(t => `${t.slice(5)}: a fact of the proposed development, not given`),
         ...layerRs.map(x => `${x.t}: ${x.f ? `${x.f.holds == null ? 'unknown' : x.f.holds ? 'yes' : 'no'} (${x.f.why})` : 'not computed for this lot'}`)].filter(Boolean).join('; ')
       return { text, result, how, could: result !== null }
     }
@@ -249,7 +252,10 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
           const b = E.bindings.get(c.id)?.find(x => x.part === 'mapped' && x.text === t.slice(7))
           if (b && b.status !== 'bound') { notChecked.push(`${t.slice(7)} - no polygon for this map label`); checks.push({ text: t.slice(7), result: null, how: 'no polygon for this map label', could: false }); results.push(null); said.push(`${t.slice(7)}: no polygon - not checked`); continue }
           if (!Array.isArray(lot.mapped)) { notChecked.push(`${t.slice(7)} - map facts not computed for this lot`); checks.push({ text: t.slice(7), result: null, how: 'map facts not computed for this lot', could: false }); results.push(null); said.push(`${t.slice(7)}: not computed`); continue }
-          const hit = lot.mapped.filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase() === map && labels.map(nl).includes(nl(x.label)))
+          // the labels as the map draws them (the build matched "Area B" in the words to "B" on the layer), else the words'
+          const drawn = (b?.scope_terms ?? []).filter(x => x.startsWith('map:')).map(x => x.slice(4).split('|')[1]!)
+          const want = (drawn.length ? drawn : labels).map(nl)
+          const hit = lot.mapped.filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase() === map && want.includes(nl(x.label)))
           const share = Math.max(0, ...hit.map((x: any) => Number(x.share)))
           // a label the clause names that no layer draws: not inside the drawn ones is not "not inside" (fail closed)
           const unheld = (b?.scope_terms ?? []).filter(x => x.startsWith('unheld:')).map(x => x.slice(7).split('|')[1])

@@ -100,6 +100,10 @@ export default defineEventHandler(async () => {
     if (ids.length) changedAnswers = (await q(`SELECT q.id::text, q.text, q.set_name, i.title AS lep FROM rag.question q LEFT JOIN rag.instrument i ON i.document_id = q.document_id WHERE q.id::text = ANY($1)`, [ids]))
       .map(r => ({ ...r, before: a[r.id] ?? '(new)', now: b[r.id] ?? '(removed)' }))
   }
+  // against /report-2's Planning constraints (scripts/rag/16-compare-report2.ts): the latest comparison, lots where the two differ
+  const cmp = (await q(`SELECT started_at, counts FROM rag.run WHERE stage = 'compare_report2' ORDER BY started_at DESC LIMIT 1`))[0]
+  const report2 = cmp ? { at: cmp.started_at, tally: cmp.counts?.tally ?? {}, lots: (cmp.counts?.lots ?? []).map((l: any) => ({ ...l, rows: (l.rows ?? []).filter((r: any) => r.result !== 'both') }))
+    .filter((l: any) => l.error || l.rows.length) } : null
   const since = { bindingsAt: bNow?.started_at ?? null, previousBindingsAt: bPrev?.started_at ?? null, answersAt: dNow?.started_at ?? null, previousAnswersAt: dPrev?.started_at ?? null, moved, changedAnswers }
   // stage 2 (each lot): of side D's latest answers, how many rest on a condition no data could settle, and which ones -
   // for every plan together ('') and for each LEP
@@ -120,7 +124,7 @@ export default defineEventHandler(async () => {
   const leps = instruments.filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title))
   const lotChecks: Record<string, any> = { '': await lotChecksFor(null) }
   for (const l of leps) lotChecks[l] = await lotChecksFor(l)
-  return { ms: Date.now() - started, bindings, unreadFigures, mapSources, areaClauses, coverage, since, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
+  return { ms: Date.now() - started, bindings, unreadFigures, mapSources, areaClauses, coverage, since, report2, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
     engine: engine[0] ?? { n: 0, runs: 0 }, answers, adjudications, runs,
     retrieval: retrieval && { at: retrieval.started_at, summary: retrieval.counts?.summary ?? {}, misses: retrieval.counts?.r2_misses ?? [] },
     resolver: resolver && { at: resolver.started_at, pass: resolver.counts?.pass ?? 0, fail: resolver.counts?.fail ?? 0,

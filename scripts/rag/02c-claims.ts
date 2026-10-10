@@ -450,7 +450,11 @@ async function main() {
     // a leaf of a condition list ("... is 22 metres if-", "... unless-", "This clause applies to development on land-")
     // states when something applies, not a standard
     const stem = norm(p.parent_id ? byId.get(p.parent_id)?.own_text : '')
+    // - and so does the list of a discretionary grant ("may approve development with a floor space ratio of up to 1.3:1 ... but
+    // only if the consent authority is satisfied that- (b) that part ... will have an area of at least 5,000m2"): its items
+    // are the conditions of that grant, never standards of their own
     const conditionList = /\b(if|unless|where|only if)\s*[—-]\s*$/i.test(stem) || /\bapplies (only )?to\b[^—]*[—-]\s*$/i.test(stem)
+      || /\bmay\b[^—]*\b(?:if|only if|unless|provided)\b[^—]*[—-]\s*$/i.test(stem)
     if (f && topic && f.comparator && p.kind === 'paragraph' && t.length < 260 && !/^(if|where|in the case)\b/i.test(t) && !conditionList) {
       // "for a detached secondary dwelling-" names a use only when the words are a known land use; "for a lot with an area
       // of at least 450m2 but not more than 900m2-" is a band on the lot, and "for a battle-axe lot-" is neither

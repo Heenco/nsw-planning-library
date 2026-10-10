@@ -335,6 +335,29 @@
           </table>
         </details>
 
+        <h3 class="rg-h3">Against /report-2's Planning constraints</h3>
+        <p v-if="!status.report2" class="rg-muted">Not compared yet - <code>npx tsx scripts/rag/16-compare-report2.ts</code> with the dev server running.</p>
+        <template v-else>
+          <p class="rg-muted">{{ when(status.report2.at) }}: for each lot in the question bank, the areas /api/report/additional-controls puts it in (from
+            epi.additional_controls) against /api/rag/lot-controls (rag.map_polygon + rag.area_clause), on the maps report-2 reads.
+            {{ status.report2.tally.lots }} lots · {{ status.report2.tally.both }} areas both see ({{ status.report2.tally.clauses_agree }} with the same clause,
+            {{ status.report2.tally.clauses_differ }} citing different ones) · {{ status.report2.tally.only_report2 }} only on report-2 · {{ status.report2.tally.only_rag }} only in rag.</p>
+          <table v-if="planReport2.length" class="rg-table">
+            <thead><tr><th>Lot</th><th>Where they differ</th></tr></thead>
+            <tbody>
+              <tr v-for="l in planReport2" :key="l.cadid">
+                <td class="rg-small">{{ l.address ?? l.cadid }}<span v-if="!plan && l.plan" class="rg-muted"> · {{ shortPlan(l.plan) }}</span></td>
+                <td class="rg-small">
+                  <div v-if="l.error" class="rg-err">{{ l.error }}</div>
+                  <div v-for="(r, i) in l.rows" :key="i">{{ r.result.replace('_', ' ') }}: {{ r.map }} / {{ r.label }}
+                    <span class="rg-muted">(report-2 {{ (r.report2 ?? []).join(' ') || '-' }}; rag {{ (r.rag ?? []).join(' ') || '-' }})</span></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p v-else class="rg-muted">No differences{{ plan ? ' for ' + shortPlan(plan) : '' }}.</p>
+        </template>
+
         <h3 class="rg-h3">2 · Deciding on each lot</h3>
         <template v-if="LC">
           <p class="rg-muted">
@@ -531,6 +554,7 @@ const S = (k: string) => status.value?.score?.summary?.[plan.value ? `${k}@${pla
 /** a SEPP's bindings (plan null) apply under every plan */
 const planBindings = computed(() => (status.value?.bindings ?? []).filter((b: any) => !plan.value || !b.plan || b.plan === plan.value))
 const LC = computed(() => status.value?.lotChecks?.[plan.value] ?? null)
+const planReport2 = computed(() => (status.value?.report2?.lots ?? []).filter((l: any) => !plan.value || l.plan === plan.value))
 const planMoved = computed(() => (status.value?.since?.moved ?? []).filter((m: any) => !plan.value || !m.plan || m.plan === plan.value))
 const planChanged = computed(() => (status.value?.since?.changedAnswers ?? []).filter((a: any) => !plan.value || !a.lep || a.lep === plan.value))
 const planAreas = computed(() => (status.value?.areaClauses ?? []).filter((a: any) => !plan.value || !a.plan || a.plan === plan.value))

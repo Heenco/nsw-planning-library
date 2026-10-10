@@ -99,6 +99,12 @@ async function main() {
   // keyed by instrument: map names repeat across LEPs ("Area 1 on the Key Sites Map")
   const polyRows = (await q(`SELECT DISTINCT document_id || '|' || map || '|' || label k, source, own FROM ${DRY ? `(${labelled}) z` : 'rag.map_polygon'}`)).rows
   const polys = new Set(polyRows.map(r => r.k))
+  /** the label as the map draws it: the words say "Area B", the layer "B" (or the other way round) - the one held, or null */
+  const heldLabel = (doc: string, map: string, label: string) => {
+    const n = normLabel(label)
+    for (const v of [n, n.replace(/^area /, ''), `area ${n}`]) if (polys.has(`${doc}|${map}|${v}`)) return v
+    return null
+  }
   // where each (plan, map, label) is drawn: the plan's own layers when it has them (lot facts use only those), else the
   // resolver's refs - what a binding says it is tested against
   const polySrc = new Map<string, string[]>()
@@ -151,6 +157,10 @@ async function main() {
    *  development itself ("does not involve the erection of ...", "is, or will be, at least 15 metres in height") */
   const ZONE_WORDS_RE = /\bZones? (?:[A-Z]{1,3}\d{1,2}[A-Z]?[ ,]*(?:and |or )?)+(?:[A-Z][a-z]+ ?)*/g
   const AREA_RE = /(?:site )?area of (?:at least|not less than) ([\d,]+)\s*(?:square metres|m2|m²)|([\d,]+)\s*(?:square metres|m2|m²) or (?:greater|more)/i
+  /** words about the development itself, not the land: what it is, its use, floor area, cost, height, how it was designed,
+   *  a building already on the land - or the consent authority's judgement */
+  const PROPOSAL_START = /^(does not involve|involves?|involving|is, or will be|will be|is for|is carried out|is a winner|the consent authority|development (?:for the purposes? of|for which|involving|that will)|for the purposes? of|used (?:only )?for|significant alterations|that will result in|on which an? .+? is (?:erected|proposed))/i
+  const PROPOSAL_ANY = /\bin height\b|\bheight (?:above ground level (?:\(existing\) )?)?of (?:more|less) than\b|\bheight of at least\b|\bgross floor area\b|\bestimated development cost\b|\bcompetitive design process\b|\bconsent authority (?:considers|is satisfied)\b/i
   /** words that only say "land" - what may be left of an item once its zones, area and map labels are read */
   const LAND_ONLY = /^(is|be|on|at|located|zoned|shown|marked|has|have|site|lot|lots|land|zone|zones)$/
   const bindItem = (c: any, text: string, stem: string) => {
@@ -194,7 +204,7 @@ async function main() {
     // Lands and Watercourses Map, or 20m of streams identified as "Stream Order 2" ..." - any one of them
     const near = [...text.matchAll(/(\d[\d.]*)\s*(?:m|metres)\s+of\s+[^“"]*?identified as [“"]([^”"]+)[”"] on the (.+?) Map\b/gi)]
     if (near.length) {
-      const keys = near.map(m => ({ m: Number(m[1]), k: `${m[3]!.toLowerCase()}|${normLabel(m[2]!)}` }))
+      const keys = near.map(m => ({ m: Number(m[1]), k: `${m[3]!.toLowerCase()}|${heldLabel(c.document_id, m[3]!.toLowerCase(), m[2]!) ?? normLabel(m[2]!)}` }))
       const held = keys.filter(x => polys.has(`${c.document_id}|${x.k}`))
       return add(c, 'item', text, held.length ? 'bound' : 'no_polygon', { scope_terms: held.map(x => `near:${c.document_id}:${x.m}:${x.k}`), sources: [...new Set(held.flatMap(x => srcOf(`${c.document_id}|${x.k}`)))],
         note: held.length < keys.length ? `no polygon for ${keys.filter(x => !held.includes(x)).map(x => x.k).join(', ')}` : 'within the distance of any one' })
@@ -205,7 +215,7 @@ async function main() {
     // unread leave the whole item unread - never half-tested
     const maps = [...text.matchAll(/((?:[“"][^”"]+[”"](?:\s*,\s*|\s+or\s+|\s+and\s+)?)+)\s*(?:on|of) the ([A-Z][\w ]*?) Map\b/g)]
     if (maps.length) {
-      const keys = [...new Set(maps.flatMap(m => [...m[1]!.matchAll(/[“"]([^”"]+)[”"]/g)].map(l => `${m[2]!.toLowerCase()}|${normLabel(l[1]!)}`)))]
+      const keys = [...new Set(maps.flatMap(m => [...m[1]!.matchAll(/[“"]([^”"]+)[”"]/g)].map(l => `${m[2]!.toLowerCase()}|${heldLabel(c.document_id, m[2]!.toLowerCase(), l[1]!) ?? normLabel(l[1]!)}`)))]
       let left = text; for (const m of maps) left = left.replace(m[0], ' ')
       // "that is not on land identified as ...": the lot outside the area
       const negated = /\bnot (?:on|in|within) (?:the )?land\b/i.test(left)
@@ -215,11 +225,14 @@ async function main() {
       const a = left.match(AREA_RE); if (a) left = left.replace(a[0], ' ')
       const g = zoneGroupsIn(left), codes = zoneCodesIn(left)
       left = left.replace(ZONE_WORDS_RE, ' ').replace(g?.span ?? '\u0000', ' ')
-      const unread = words(left).filter(w => !LAND_ONLY.test(w))
+      // the rest a fact of the proposal ("development that will result in a building with a height of at least 10m on land
+      // identified as "MPD" ..."): the area and that fact - outside the area it does not hold, inside it turns on the proposal
+      const fact = PROPOSAL_START.test(left.trim()) || PROPOSAL_ANY.test(left) ? norm(left).slice(0, 160) : null
+      const unread = fact ? [] : words(left).filter(w => !LAND_ONLY.test(w))
       if (unread.length) return add(c, 'item', text, 'no_match', { note: `the map area is read, these words are not: ${unread.join(' ')}` })
       const held = keys.filter(k => polys.has(`${c.document_id}|${k}`)), missing = keys.filter(k => !held.includes(k))
       if (!held.length) return add(c, 'item', text, 'no_polygon', { note: `no polygon for ${keys.join(', ')}` })
-      const other = [...codes.map(z => `zone:${z}`), ...(g ? [`zonegroup:${g.groups.join('|')}`] : []), ...(a ? [`area>=${Number((a[1] ?? a[2])!.replace(/,/g, ''))}`] : [])]
+      const other = [...codes.map(z => `zone:${z}`), ...(g ? [`zonegroup:${g.groups.join('|')}`] : []), ...(a ? [`area>=${Number((a[1] ?? a[2])!.replace(/,/g, ''))}`] : []), ...(fact ? [`fact:${fact}`] : [])]
       // outside an area some of whose labels have no polygon cannot be shown - unread rather than guessed
       if (negated && missing.length) return add(c, 'item', text, 'no_polygon', { note: `outside the area, but no polygon for ${missing.join(', ')}` })
       if (negated) return add(c, 'item', text, 'bound', { scope_terms: [...held.map(k => `notmap:${k}`), ...other], sources: [...new Set(held.flatMap(k => srcOf(`${c.document_id}|${k}`)))],
@@ -232,8 +245,7 @@ async function main() {
     // the development itself, not the land: what it is, its use, its floor area, cost, height, how it was designed, or a
     // building already on the land
     const isUse = usesIn(text).uses.length > 0
-    if (/^(does not involve|involves?|involving|is, or will be|will be|is for|is carried out|is a winner|the consent authority|development (?:for the purposes? of|for which|involving)|for the purposes? of|used (?:only )?for|significant alterations|that will result in|on which an? .+? is (?:erected|proposed))/i.test(text)
-      || /\bin height\b|\bheight of (?:more|less) than\b|\bgross floor area\b|\bestimated development cost\b|\bcompetitive design process\b|\bconsent authority (?:considers|is satisfied)\b/i.test(text))
+    if (PROPOSAL_START.test(text) || PROPOSAL_ANY.test(text))
       return add(c, 'item', text, /consent authority/i.test(text) ? 'discretion' : 'proposal_fact', { note: /consent authority/i.test(text) ? "the consent authority's judgement" : isUse ? 'the use of the proposed development' : 'a fact of the proposed development' })
     bindText(c, 'item', text, stem)
   }
@@ -248,7 +260,8 @@ async function main() {
         const map = m?.[2]?.toLowerCase() ?? ''
         // "Area 21A, Area 21B and Area 21C": a list, unless the whole label is one the map draws
         const labels = (m ? m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()) : [])
-          .flatMap(l => polys.has(`${c.document_id}|${map}|${normLabel(l)}`) || !/\s+and\s+/.test(l) ? [l] : l.split(/\s+and\s+/).map(x => x.trim()))
+          .flatMap(l => heldLabel(c.document_id, map, l) || !/\s+and\s+/.test(l) ? [l] : l.split(/\s+and\s+/).map(x => x.trim()))
+          .map(l => heldLabel(c.document_id, map, l) ?? l)
         const held = labels.filter(l => polys.has(`${c.document_id}|${map}|${normLabel(l)}`)), missing = labels.filter(l => !held.includes(l))
         // a label with no polygon (Area 21B of "Area 21A, Area 21B and Area 21C"): a lot outside the others may be in it -
         // kept as unheld:, so "not inside" is never concluded from the labels that are drawn
@@ -322,6 +335,23 @@ async function main() {
     }
   }
   const areaKeys = new Set(areaRows.map(r => `${r.document_id}|${r.map}|${r.label}`))
+  // every provision that names a drawn area ("... on land identified as "Area C" on the Key Sites Map, the consent authority
+  // must consider ...") - a matter to consider, a concurrence, a DCP requirement, a calculation rule, a trigger - is tied to it
+  // as 'mention' even where no reader made it a rule, so an area's clauses are complete for any reader of a lot. (A mention
+  // does not close the coverage gap: the area is still one no reader bound.)
+  const provText = (await q(`SELECT p.id, p.document_id, p.local_id, left(p.own_text, 200) AS o, lower(replace(replace(coalesce(p.own_text, ''), '“', '"'), '”', '"')) AS t
+                               FROM rag.provision p JOIN rag.instrument i ON i.document_id = p.document_id WHERE i.kind = 'lep' AND coalesce(p.own_text, '') <> ''`)).rows
+  const mentions: any[] = []
+  for (const r of provText) for (const m of r.t.matchAll(/((?:"[^"]+"(?:\s*,\s*|\s+or\s+|\s+and\s+)?)+)\s*(?:on|of) the ([a-z][\w ]*?) map\b/g)) {
+    const map = m[2]!.trim()
+    for (const l of m[1]!.matchAll(/"([^"]+)"/g)) {
+      const label = heldLabel(r.document_id, map, l[1]!); if (!label) continue
+      mentions.push({ document_id: r.document_id, map, label, provision_id: r.id, local_id: r.local_id })
+      if (!areaRows.some(x => x.document_id === r.document_id && x.map === map && x.label === label && x.provision_id === r.id))
+        areaRows.push({ document_id: r.document_id, map, label, provision_id: r.id, claim_id: null, claim_kind: 'mention', via_frame: false, distance_m: null,
+          role: `names this area: ${String(r.o).replace(/\s+/g, ' ').slice(0, 160)}` })
+    }
+  }
   // a map whose figure a clause reads whole ("the floor space ratio shown for the land on the Floor Space Ratio Map"): every
   // label on it is governed by that clause
   const wholeMaps = new Set(meta.filter((r: any) => String(r.value_source ?? '').startsWith('map:')).map((r: any) => `${r.document_id}|${String(r.value_source).slice(4).toLowerCase().replace(/ map$/, '')}`))
@@ -340,10 +370,8 @@ async function main() {
      WHERE s.label IS NOT NULL AND s.label <> '<Null>' AND s.map_name IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows
   // where the plan's words name the area (the label in quotes, in a provision that names the map), the gap is a reader's;
   // where they do not, the area is one no clause names - the map's own legend, or a clause outside the corpus
-  const provText = (await q(`SELECT p.id, p.document_id, p.local_id, lower(replace(replace(coalesce(p.own_text, ''), '“', '"'), '”', '"')) AS t
-                               FROM rag.provision p JOIN rag.instrument i ON i.document_id = p.document_id WHERE i.kind = 'lep' AND coalesce(p.own_text, '') <> ''`)).rows
-  const namedIn = (doc: string, map: string, label: string) => provText.find((r: any) => r.document_id === doc && r.t.includes(`${map} map`)
-    && (r.t.includes(`"${label}"`) || r.t.includes(`"area ${label}"`) || r.t.includes(`"the ${label}"`)))
+  // (a label and its map named together - "“Area 2” on the Key Sites Map" - not each somewhere in the provision)
+  const namedIn = (doc: string, map: string, label: string) => { const m = mentions.find(x => x.document_id === doc && x.map === map && x.label === label); return m ? { id: m.provision_id, local_id: m.local_id } : undefined }
   const coverage: any[] = [], seenCov = new Set<string>()
   for (const a of controlAreas) {
     const label = normLabel(String(a.label)), k = `${a.document_id}|${a.map}|${label}`
