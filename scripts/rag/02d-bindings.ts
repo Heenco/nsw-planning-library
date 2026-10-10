@@ -102,10 +102,13 @@ async function main() {
   const polyRows = (await q(`SELECT DISTINCT document_id || '|' || map || '|' || label k, source, own FROM ${DRY ? `(${labelled}) z` : 'rag.map_polygon'}`)).rows
   const polys = new Set(polyRows.map(r => r.k))
   /** the label as the map draws it: the words say "Area B", the layer "B" (or the other way round) - the one held, or null */
+  // the Land Zoning Map draws a zone's sub-labels with the zone code in front ("sp2 railway"); the words say "Railway"
+  const zoneLabel = new Map<string, string>()
+  for (const k of polys) { if (!k) continue; const m = k.match(/^(.+?\|.+?)\|([a-z]{1,3}\d{1,2}[a-z]?) (.+)$/); if (m) zoneLabel.set(`${m[1]}|${m[3]}`, `${m[2]} ${m[3]}`) }
   const heldLabel = (doc: string, map: string, label: string) => {
     const n = normLabel(label)
     for (const v of [n, n.replace(/^area /, ''), `area ${n}`]) if (polys.has(`${doc}|${map}|${v}`)) return v
-    return null
+    return zoneLabel.get(`${doc}|${map}|${n}`) ?? null
   }
   // where each (plan, map, label) is drawn: the plan's own layers when it has them (lot facts use only those), else the
   // resolver's refs - what a binding says it is tested against
@@ -252,13 +255,10 @@ async function main() {
     bindText(c, 'item', text, stem)
   }
 
-  for (const c of claims) {
-    for (const t of c.terms as string[]) {
-      if (/^(date:|tenure:|!tenure:|pathway:|proposal:|condition:)|^detached$/.test(t)) add(c, 'term', t, 'proposal_fact', { note: t.startsWith('date:') ? 'the consent date - given with the question' : t.includes('tenure') ? 'the title type' : t.startsWith('pathway:') ? 'the approval pathway' : t.startsWith('condition:') ? `a condition of the permission: ${t.slice(10)}` : 'a fact of the proposal' })
-      else if (t.startsWith('discretion:')) add(c, 'term', t, 'discretion', { note: "the consent authority's judgement" })
-      else if (t.startsWith('lots:')) add(c, 'term', t, 'bound', { scope_terms: ['lot'], sources: ['cadastre.lot'] })
-      else if (t.startsWith('mapped:')) {
-        const m = t.slice(7).match(/^(.+) on the (.+?)(?: Map)?$/)
+  /** a map area a claim names ("Area 21A, Area 21B and Area 21C on the Key Sites Map"): its polygons. `part` is 'mapped'
+   *  for the land the claim is about, 'exclude' for land it is not about ("does not apply to land identified as ...") */
+  const bindMapped = (c: any, part: string, text: string, body: string) => {
+        const m = body.match(/^(.+) on the (.+?)(?: Map)?$/)
         const map = m?.[2]?.toLowerCase() ?? ''
         // "Area 21A, Area 21B and Area 21C": a list, unless the whole label is one the map draws
         const labels = (m ? m[1]!.split(/\s+or\s+|,\s*/).map(x => x.trim().toLowerCase()) : [])
@@ -267,15 +267,23 @@ async function main() {
         const held = labels.filter(l => polys.has(`${c.document_id}|${map}|${normLabel(l)}`)), missing = labels.filter(l => !held.includes(l))
         // a label with no polygon (Area 21B of "Area 21A, Area 21B and Area 21C"): a lot outside the others may be in it -
         // kept as unheld:, so "not inside" is never concluded from the labels that are drawn
-        add(c, 'mapped', t.slice(7), held.length ? 'bound' : 'no_polygon',
+        add(c, part, text, held.length ? 'bound' : 'no_polygon',
           { scope_terms: [...held.map(l => `map:${map}|${l}`), ...(held.length ? missing.map(l => `unheld:${map}|${normLabel(l)}`) : [])], sources: [...new Set(held.flatMap(l => srcOf(`${c.document_id}|${map}|${normLabel(l)}`)))], note: held.length && missing.length ? `no polygon for ${missing.join(', ')}` : null })
-      }
+  }
+
+  for (const c of claims) {
+    for (const t of c.terms as string[]) {
+      if (/^(date:|tenure:|!tenure:|pathway:|proposal:|condition:)|^detached$/.test(t)) add(c, 'term', t, 'proposal_fact', { note: t.startsWith('date:') ? 'the consent date - given with the question' : t.includes('tenure') ? 'the title type' : t.startsWith('pathway:') ? 'the approval pathway' : t.startsWith('condition:') ? `a condition of the permission: ${t.slice(10)}` : 'a fact of the proposal' })
+      else if (t.startsWith('discretion:')) add(c, 'term', t, 'discretion', { note: "the consent authority's judgement" })
+      else if (t.startsWith('lots:')) add(c, 'term', t, 'bound', { scope_terms: ['lot'], sources: ['cadastre.lot'] })
+      else if (t.startsWith('mapped:')) bindMapped(c, 'mapped', t.slice(7), t.slice(7))
       // "within the relevant distance of a boundary between any 2 zones" (cl 5.3): measured on the plan's zoning map
       else if (t.startsWith('nearzone:')) add(c, 'term', t, 'bound', { scope_terms: [t], sources: ['epi.epi_land_zoning'], note: 'the lot within that distance of land in another zone' })
       else bindText(c, 'term', t)
     }
     for (const ex of c.excludes as string[]) {
       if (ex.startsWith('zone:')) { add(c, 'exclude', ex, 'bound', { scope_terms: [ex], sources: ['zone name'] }); continue }
+      if (ex.startsWith('mapped:')) { bindMapped(c, 'exclude', ex, ex.slice(7)); continue }
       bindText(c, 'exclude', ex)
     }
     // a frame that names no use, zone, place or condition: unless it is the whole State or plan, its scope was not read -

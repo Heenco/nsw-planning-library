@@ -89,9 +89,12 @@ export async function loadEngine(q: Query): Promise<Engine> {
   // the uses the corpus knows: every use a claim names, and every term the instruments define in their own words (not one
   // that "has the same meaning as in" an instrument the corpus does not hold - a manor house)
   KNOWN.clear()
-  for (const c of claims) for (const u of c.uses ?? []) if (u !== '*') KNOWN.add(landUseKey(u))
-  for (const t of (await q(`SELECT heading FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL AND coalesce(own_text, '') !~* 'has the same meaning as'`).catch(() => ({ rows: [] as any[] }))).rows)
-    KNOWN.add(landUseKey(t.heading))
+  const terms = (await q(`SELECT heading, coalesce(own_text, '') ~* 'has the same meaning as' borrowed FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows
+  const own = new Set(terms.filter(t => !t.borrowed).map(t => landUseKey(t.heading)))
+  // a term only ever borrowed stays unknown even where a claim names it (Parramatta 4.1C's table lists "manor houses")
+  const borrowed = new Set(terms.filter(t => t.borrowed).map(t => landUseKey(t.heading)).filter(h => !own.has(h)))
+  for (const c of claims) for (const u of c.uses ?? []) if (u !== '*' && !borrowed.has(landUseKey(u))) KNOWN.add(landUseKey(u))
+  for (const h of own) KNOWN.add(h)
   return { claims, provs, rels, provMap, zoneNames, label, bindings, shortNames, asAt, insts }
 }
 /** the uses the corpus defines or names (loadEngine): a Land Use Table catch-all decides only for one of them */
@@ -392,13 +395,21 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       const winners = tested.filter(t => t.holds !== false && t.claim.kind === 'permit' && (ruling.answer?.claims ?? tested.map(x => x.claim.id)).includes(t.claim.id))
       const units = new Set(winners.flatMap(w => [w.claim.unit_provision, ...ancestors(w.claim.provision_id)]).filter(Boolean) as string[])
       // the conditions of the unit that grants the permission
-      for (const c of E.claims.filter(c => c.kind === 'condition' && c.unit_provision && units.has(c.unit_provision) && !c.terms.includes('proposal:subdivision'))) {
+      for (const c of E.claims.filter(c => c.kind === 'condition' && c.reader !== 'consent condition' && c.unit_provision && units.has(c.unit_provision) && !c.terms.includes('proposal:subdivision'))) {
         const subs: Result[] = []
         for (const r of c.requires) if (r.standard && depth < 3) subs.push(evaluate(E, { kind: 'standard', use: r.use, topic: r.standard, proposal: 'development' }, lot, depth + 1))
         limits.push({ label: E.label(c.provision_id), text: c.span ?? '', status: 'applies', detail: c.value != null ? `${c.comparator ?? ''} ${c.value} ${c.unit ?? ''}`.trim() : '', subs })
       }
       for (const c of E.claims.filter(c => c.kind === 'condition' && c.unit_provision && units.has(c.unit_provision) && c.terms.includes('proposal:subdivision')))
         limits.push({ label: E.label(c.provision_id), text: c.span ?? '', status: 'applies', detail: 'after the development: no subdivision', subs: [] })
+      // a consent bar on the use lifted by a condition about the proposal or the consent authority's judgement ("unless the
+      // consent authority is satisfied that the office premises will be located above ground floor level"): the use stays
+      // permissible, subject to it - listed wherever the bar reaches this lot, whatever clause grants the permission
+      for (const c of E.claims.filter(c => c.kind === 'condition' && c.reader === 'consent condition' && aboutUse(c))) {
+        const t = test(c); if (t.holds === false) continue
+        limits.push({ label: E.label(c.provision_id), text: c.span ?? '', status: 'depends',
+          detail: c.terms.some(x => x.startsWith('discretion:')) ? "subject to the consent authority's judgement" : 'subject to a fact of the proposed development', subs: [] })
+      }
       // the standards on this use that reach the lot
       // standards on the use: named in the claim, or in the frame of the clause it sits in (s 168's leaves name no use;
       // s 168(1) does)

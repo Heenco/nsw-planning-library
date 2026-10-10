@@ -22,6 +22,7 @@
 import 'dotenv/config'
 import pg from 'pg'
 import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { ragLotFacts } from '../../shared/rag/lot-facts'
 import { shortName } from '../../shared/rag/refs'
 import { docLabel } from '../../shared/rag/retrieve'
@@ -258,10 +259,11 @@ async function main() {
     for (const [k, rs] of areas) {
       const [map, label] = k.split('|')
       // lots whose point on surface is in the area (an index probe, not a geometry overlay per lot); the share of the lot
-      // inside is then read from its facts - 90% or more, as the evaluator itself requires
+      // inside is then read from its facts - 90% or more, as the evaluator itself requires. The largest first: the check is
+      // whether the area reaches the lot, and on a small lot a minimum lot size would decide it instead
       const cands = (await q(`SELECT l.cadid::text FROM rag.map_polygon m JOIN cadastre.lot l ON l.geom && m.geom AND ST_Intersects(m.geom, ST_PointOnSurface(l.geom))
                                 WHERE m.document_id = $1 AND m.map = $2 AND m.label = $3 AND l.lotidstring NOT LIKE '%SP%' AND ST_Area(l.geom::geography) > 100
-                                ORDER BY l.cadid LIMIT 8`, [LEP.document_id, map, label]).catch(() => ({ rows: [] as any[] }))).rows.map((r: any) => r.cadid as string)
+                                ORDER BY ST_Area(l.geom::geography) DESC, l.cadid LIMIT 8`, [LEP.document_id, map, label]).catch(() => ({ rows: [] as any[] }))).rows.map((r: any) => r.cadid as string)
       if (!cands.length) continue
       // the zones a rule or its area's frame names: a lot outside them is not the rule's case
       const frameZones = rs.filter(r => r.claim_kind === 'frame').flatMap(r => r.zones ?? [])
@@ -308,6 +310,23 @@ async function main() {
     }
     console.log(`area: ${made} questions for ${nameOf(LEP.title)} over ${areas.size} areas`)
   }
+
+  // ── edge: the hard cases of each plan's own clauses and schedules (scripts/rag/edge-keys.json) - an additional permitted
+  //    use, a local clause that bars or conditions a use the table permits, a lot size that differs by kind or area, a
+  //    subdivision a clause allows or forbids - written by Claude from the clause words on lots taken from the layers, not
+  //    from D. Status 'draft' until Manni confirms; asked of the plan alone
+  const edge = JSON.parse(readFileSync(new URL('./edge-keys.json', import.meta.url), 'utf8')).keys as any[]
+  const titleDoc = new Map(LEPS.map(l => [l.title, l.document_id]))
+  for (const k of edge) {
+    const doc = titleDoc.get(k.plan); if (!doc) continue
+    const l = await facts(k.cadid), under = `Under ${shortName(k.plan)}, `
+    const text = k.kind === 'permissibility' ? `${under}is development for the purposes of ${k.use} permissible on ${where(l)}?`
+      : k.kind === 'standard' ? `${under}what is the minimum lot size for development for the purposes of ${k.use} on ${where(l)}?`
+      : `${under}can ${where(l)} be subdivided (Torrens title) into 2 lots after development for the purposes of ${k.use} is lawfully built on it?`
+    qs.push({ set_name: 'edge', document_id: doc, clause: k.id, cadid: k.cadid, kind: k.kind, use_term: k.use, text,
+      expected: { status: 'draft', ...k.expected, note: k.note, key_source: 'Claude, from the clause words (scripts/rag/edge-keys.json)' }, tags: ['edge'], lot: l })
+  }
+  console.log(`edge: ${edge.length} hand-written cases`)
 
   // ── keys: every plan's answer keys from sources D does not read (rag.key, written by 06a-keys.py) - the Land Use Table
   //    from the legislation XML (key_lut) and the lot's maps from the live Planning Portal service (key_map). Status 'key':

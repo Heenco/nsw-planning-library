@@ -155,11 +155,12 @@ async function main() {
       if (mode !== 'floor-area-by-reference') explained.push(explain(E, r))
       const text = writeAnswer(E, r, lot)
       if (mode === 'permissibility') {
-        // a permitted use whose binding (not non-discretionary) minimum lot size this lot fails cannot get consent as of right
-        const bar = r.limits.find(l => l.text === 'resolved:lot_size' && l.status === 'not met')
+        // a permitted use whose binding (not non-discretionary) minimum lot size or lot width (its primary frontage) this lot
+        // fails cannot get consent as of right
+        const bar = r.limits.find(l => (l.text === 'resolved:lot_size' || l.text === 'resolved:lot_width') && l.status === 'not met')
         answer.verdict = r.verdict === 'permitted' ? (bar ? 'no' : 'yes') : r.verdict === 'prohibited' ? 'no' : 'maybe'
         answer.controlling = [...label(r), ...(bar ? bar.subs.flatMap(s => label(s)) : [])]
-        if (bar) answer.unknowns = ['unless the minimum lot size is varied under cl 4.6']
+        if (bar) answer.unknowns = [`unless the minimum lot ${bar.text === 'resolved:lot_width' ? 'width' : 'size'} is varied under cl 4.6`]
       } else if (mode === 'subdivision-can' || mode === 'subdivision-min') {
         const min = r.limits[0]?.subs[0]
         answer.verdict = mode === 'subdivision-can' ? r.verdict : r.verdict === 'maybe' && r.answer?.value == null ? 'maybe' : null

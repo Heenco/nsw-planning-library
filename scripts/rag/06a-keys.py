@@ -106,13 +106,16 @@ def governed_of(root, defined, groups):
             continue
         t = text(el).lower().replace('’', "'")
         # sentence by sentence: an outright bar ("must not be granted ... for the purposes of X", no "unless" - a condition
-        # is a limit, not a bar), or the use permitted / prohibited by the clause itself
+        # on the proposal is a limit, not a bar), a bar lifted only by the lot's own area or size ("... for the erection of
+        # multi dwelling housing ... unless the lot has an area of at least 1,200 square metres": on a smaller lot the
+        # answer is the clause's, not the table's), or the use permitted / prohibited by the clause itself
         for sent in re.split(r'(?<=[.;])\s+|\s+\(\d+\)\s+', t):
-            bar = 'must not be granted' in sent and 'unless' not in sent
+            lot_bar = re.search(r'\bunless\b.*\b(?:lot|site)\b.*(?:\barea\b|\bsize\b|\bat least [\d,.]+\s*(?:m2|square metres))', sent)
+            bar = 'must not be granted' in sent and ('unless' not in sent or bool(lot_bar))
             perm = re.search(r'for the purposes? of [^.;]{3,200}? (?:is|are) (?:permitted|prohibited)\b', sent)
             if not (bar or perm):
                 continue
-            for m in re.finditer(r'for the purposes? of ([^.;:]{3,200})', sent):
+            for m in re.finditer(r'(?:for the purposes? of|the erection of|the carrying out of) ([^.;:]{3,200})', sent):
                 words = ' ' + ' '.join(key(w) for w in re.split(r'[\s,]+', m.group(1)) if w) + ' '
                 for d in defined:
                     if len(d) > 4 and f' {d} ' in words:
