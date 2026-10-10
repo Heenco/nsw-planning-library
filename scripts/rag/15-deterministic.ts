@@ -38,6 +38,8 @@ function askOf(q: any): { ask: Ask | null; mode: string; lot: any } {
     lot = area || zone ? { address: 'a hypothetical lot', lot: null, area_m2: area ? Number(area.replace(/,/g, '')) : null, zone, fsr_map: fsr ? Number(fsr) : null, mapped: [], terms: {},
       assumed: 'the question states all the facts: the lot is on no mapped area it does not name' } : null
   }
+  // what a plan's map gives the lot (keyed from the live Planning Portal map service): read from D's own lot facts
+  if (q.kind === 'map') return { ask: null, mode: 'map', lot }
   if (q.kind === 'precedence') return { ask: null, mode: 'precedence', lot }
   if (q.kind === 'extraction') return { ask: null, mode: 'extraction', lot }
   if (q.kind === 'subdivision' || /subdivi/i.test(t)) {
@@ -73,7 +75,14 @@ async function main() {
     let answer: any = { verdict: null, value: null, unit: null, values_if: [], controlling: [], quotes: [], unknowns: [], reasoning: '' }
     // the full reasoning as data (shared/rag/evaluate.ts explain): what /rag shows, clause by clause
     const explained: any[] = [], cited: string[] = []
-    if (mode === 'precedence') {
+    if (mode === 'map') {
+      const t = String(x.text), field = /Land Zoning Map/i.test(t) ? 'zone' : /Height of Buildings/i.test(t) ? 'height_map_m' : /Floor Space Ratio/i.test(t) ? 'fsr_map' : /Lot Size/i.test(t) ? 'lot_size_map_m2' : null
+      const split = field && field !== 'zone' ? lot?.map_split?.[field] : null
+      if (field === 'zone') { const code = t.match(/in Zone ([A-Z]{1,3}\d{1,2}[A-Z]?)(?![A-Za-z0-9])/)?.[1]; answer.verdict = lot?.zone == null ? null : String(lot.zone) === code ? 'yes' : 'no'; answer.reasoning = `the lot is zoned ${lot?.zone ?? 'not known'} (${lot?.epi ?? 'no plan'})` }
+      else if (split?.length) { answer.verdict = 'maybe'; answer.values_if = split.map((s: any) => ({ if: `${Math.round(s.share * 100)}% of the lot`, value: s.value })); answer.reasoning = `the map splits the lot: ${split.map((s: any) => `${s.value} on ${Math.round(s.share * 100)}%`).join(', ')}` }
+      else if (field) { answer.value = lot?.[field] ?? null; answer.unit = field === 'height_map_m' ? 'm' : field === 'fsr_map' ? 'ratio' : 'm2'; answer.reasoning = `the map gives the lot ${answer.value ?? 'no figure'}` }
+      else answer.reasoning = 'not answered: no map named'
+    } else if (mode === 'precedence') {
       const rule = E.rels.find(r => r.kind === 'inconsistency_rule'), sub = E.rels.find(r => r.kind === 'subject_to' && /SEPP that prevails/i.test(r.to_ref ?? ''))
       answer.controlling = [rule && E.label(rule.from_provision), sub && E.label(sub.from_provision)].filter(Boolean)
       cited.push(...[rule?.from_provision, sub?.from_provision].filter(Boolean) as string[])

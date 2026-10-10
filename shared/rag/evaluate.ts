@@ -61,6 +61,12 @@ export async function loadEngine(q: Query): Promise<Engine> {
   const rels: Rel[] = (await q(`SELECT kind, from_provision, to_provision, to_document, to_ref, status, basis, span FROM rag.relation WHERE kind NOT IN ('part_of', 'next', 'refers_to', 'defines')`)).rows
   const provMap = new Map<string, Prov>([...provs.values()].map(p => [p.id, { id: p.id, local_id: p.local_id, path: p.path, document_id: p.document_id, doc_kind: p.doc_kind }]))
   const zoneNames = new Map<string, string>((await q(`SELECT DISTINCT zone_code, zone_name FROM nsw.lep_permissibility WHERE zone_name IS NOT NULL`)).rows.map(r => [r.zone_code, r.zone_name]))
+  // the Dictionary's exclusions: "A ... but does not include ... A (B)" - A (B) is then its own use, not a kind of A
+  NOT_KIND.clear()
+  for (const t of (await q(`SELECT heading, own_text FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL AND own_text ~* 'not include'`).catch(() => ({ rows: [] as any[] }))).rows) {
+    const a = landUseKey(t.heading), after = String(t.own_text).split(/not include/i).slice(1).join(' ')
+    for (const m of after.matchAll(new RegExp(`${a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, 's? ')}s?\\s*\\(([^)]+)\\)`, 'gi'))) NOT_KIND.add(`${a}|${landUseKey(`${a} (${m[1]})`)}`)
+  }
   const label = (id: string) => {
     const p = provs.get(id); if (!p) return id
     const segs = p.local_id.split('#')[0]!.split('-').filter(s => !/^oc\.\d+$/.test(s))
@@ -80,12 +86,25 @@ export async function loadEngine(q: Query): Promise<Engine> {
     if (p.local_id.includes('#')) s += ' table'
     return `${shortNames.get(p.document_id) ?? ''} ${s.trim()}`.trim()
   }
+  // the uses the corpus knows: every use a claim names, and every term the instruments define in their own words (not one
+  // that "has the same meaning as in" an instrument the corpus does not hold - a manor house)
+  KNOWN.clear()
+  for (const c of claims) for (const u of c.uses ?? []) if (u !== '*') KNOWN.add(landUseKey(u))
+  for (const t of (await q(`SELECT heading FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL AND coalesce(own_text, '') !~* 'has the same meaning as'`).catch(() => ({ rows: [] as any[] }))).rows)
+    KNOWN.add(landUseKey(t.heading))
   return { claims, provs, rels, provMap, zoneNames, label, bindings, shortNames, asAt, insts }
 }
+/** the uses the corpus defines or names (loadEngine): a Land Use Table catch-all decides only for one of them */
+const KNOWN = new Set<string>()
+const isKnown = (use: string) => { const a = landUseKey(use); return KNOWN.has(a) || [...KNOWN].some(k => a.startsWith(k + ' (')) }
 
+/** "A (B)" that is NOT a kind of A: the plan's Dictionary says A "does not include" it ("home occupation ... does not
+ *  include ... a home occupation (sex services)") - filled by loadEngine from the instruments' terms */
+const NOT_KIND = new Set<string>()
+const kindOf = (narrow: string, broad: string) => narrow.startsWith(broad + ' (') && !NOT_KIND.has(`${broad}|${narrow}`)
 const useMatch = (claimUse: string, asked: string) => {
   const a = landUseKey(asked), c = landUseKey(claimUse)
-  return a === c || a.startsWith(c + ' (') || c.startsWith(a + ' (')
+  return a === c || kindOf(a, c) || kindOf(c, a)
 }
 
 /**
@@ -204,7 +223,9 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   const scope = (c: C, why: string[], notChecked: string[], subs: Result[], isFrame: boolean, checks: Check[] = []): boolean | null => {
     let h: boolean | null = true
     const and = (r: boolean | null, w: string) => { why.push(`${w}: ${r == null ? 'unknown' : r ? 'yes' : 'no'}`); if (r === false) h = false; else if (r == null && h !== false) h = null }
-    if (c.uses.length) and(c.uses.some(u => useMatch(u, ask.use)), `use ${c.uses.join(' / ')}`)
+    // a catch-all decides only for a use the corpus knows: one defined outside it (a manor house) is not "not listed" - unknown
+    if (c.uses.includes('*')) and(isKnown(ask.use) ? true : null, isKnown(ask.use) ? 'any use the zone does not list' : `${ask.use} is not defined in the instruments held - the catch-all cannot be applied`)
+    else if (c.uses.length) and(c.uses.some(u => useMatch(u, ask.use)), `use ${c.uses.join(' / ')}`)
     if (c.zones.length) and(c.zones.includes(String(lot.zone)), `zone ${c.zones.join(' / ')}`)
     for (const t of c.terms) {
       if (t === 'proposal:subdivision') and(proposal === 'subdivision', 'a subdivision')
@@ -324,11 +345,13 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   /** a claim with no use of its own speaks for the uses of its frames ("development to which this Part applies").
    *  A permission or prohibition of a narrower kind still answers the broader question (it is reported as "only as ...");
    *  a standard on a narrower kind (terraces) does not bind the broader use (multi dwelling housing). */
-  const covers = (claimUse: string) => { const a = landUseKey(ask.use), c = landUseKey(claimUse); return a === c || a.startsWith(c + ' (') }
+  const covers = (claimUse: string) => { const a = landUseKey(ask.use), c = landUseKey(claimUse); return a === c || kindOf(a, c) }
   const aboutUse = (c: C) => {
     const m = c.kind === 'standard' || c.kind === 'condition' ? covers : (u: string) => useMatch(u, ask.use)
-    return c.uses.length ? c.uses.some(m) : framesFor(c).some(f => f.uses.some(m))
+    // '*': a Land Use Table catch-all ("Any development not specified in item 2 or 3") - about every use
+    return c.uses.includes('*') || (c.uses.length ? c.uses.some(m) : framesFor(c).some(f => f.uses.some(m)))
   }
+  const catchAll = (c: C) => c.uses.includes('*')
 
   const mapValue = (src: string | null) => /Height/i.test(src ?? '') ? lot.height_map_m : /Floor Space/i.test(src ?? '') ? lot.fsr_map : /Lot Size/i.test(src ?? '') ? lot.lot_size_map_m2 : null
   const toR = (t: Tested, effect: 'value' | 'permit' | 'prohibit', value?: number | null): RClaim => ({ id: t.claim.id, provision: t.claim.provision_id, effect, value: value ?? null, unit: t.claim.unit,
@@ -344,7 +367,10 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     return [...seen.values()] }
 
   if (ask.kind === 'permissibility') {
-    const tested = E.claims.filter(c => (c.kind === 'permit' || c.kind === 'prohibit') && aboutUse(c)).map(test)
+    const about = E.claims.filter(c => (c.kind === 'permit' || c.kind === 'prohibit') && aboutUse(c))
+    // a zone's catch-all answers only a use none of that zone's own listings answers
+    const listedIn = (all: C) => about.some(c => !catchAll(c) && String(c.reader).startsWith('land use table') && docOf(c)?.document_id === docOf(all)?.document_id && c.zones.some(z => all.zones.includes(z)))
+    const tested = about.filter(c => !catchAll(c) || !listedIn(c)).map(test)
     tested.forEach(t => t.notChecked.forEach(n => notChecked.add(n)))
     let ruling = resolve(tested.map(t => toR(t, t.claim.kind as any)), E.rels, E.provMap)
     // asked about a use whose kinds the table splits ("dual occupancies (attached)" permitted, "(detached)" prohibited):
@@ -352,7 +378,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     let only: string[] = []
     if (ruling.verdict === 'maybe' && !ruling.branches?.length) {
       const live = tested.filter(t => t.holds !== false)
-      const narrower = (t: Tested) => t.claim.uses.length > 0 && t.claim.uses.every(u => landUseKey(u) !== landUseKey(ask.use))
+      const narrower = (t: Tested) => t.claim.uses.length > 0 && !catchAll(t.claim) && t.claim.uses.every(u => landUseKey(u) !== landUseKey(ask.use))
       if (live.length && live.every(narrower) && live.some(t => t.claim.kind === 'permit')) {
         only = [...new Set(live.filter(t => t.claim.kind === 'permit').flatMap(t => t.claim.uses))]
         ruling = { ...ruling, verdict: 'decided', answer: { effect: 'permit', claims: live.filter(t => t.claim.kind === 'permit').map(t => t.claim.id) }, unresolved: [] }
@@ -573,8 +599,8 @@ export function writeAnswer(E: Engine, r: Result, lot: any): string {
     for (const t of r.tested.filter(t => t.holds !== false)) {
       const c = t.claim
       // name the use when the claim is about a narrower one than asked ("dual occupancies (attached)" for "dual occupancy")
-      const what = c.uses.length && !c.uses.some(u => landUseKey(u) === landUseKey(r.ask.use)) ? c.uses.join(', ') : 'it'
-      if (c.kind === 'prohibit') L.push(`- ${E.label(c.provision_id)} prohibits ${what}${c.span?.startsWith('catchall') ? ', as development not listed in items 2 or 3' : ''}.`)
+      const what = c.uses.includes('*') ? 'it' : c.uses.length && !c.uses.some(u => landUseKey(u) === landUseKey(r.ask.use)) ? c.uses.join(', ') : 'it'
+      if (c.kind === 'prohibit') L.push(`- ${E.label(c.provision_id)} prohibits ${what}${c.span?.startsWith('catchall') || c.uses.includes('*') ? ', as development not listed in items 2 or 3' : ''}.`)
       else L.push(`- ${E.label(c.provision_id)} permits ${what}${c.consent === 'without' ? ' without consent' : ' with consent'}.`)
       for (const f of t.why.filter(w => /^frame/.test(w))) L.push(`    ${f.replace(/^frame /, 'applies because ').replace(/: yes$/, '')}`)
       for (const s of t.subs) L.push(`    (${s.ask.use}: ${s.verdict} - ${s.tested.filter(x => x.holds !== false).map(x => E.label(x.claim.provision_id)).join(', ')})`)

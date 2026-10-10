@@ -5,7 +5,8 @@
  * for the same use are recognised as the same use.
  */
 export function landUseKey(u: string | null | undefined): string {
-  return String(u ?? '').replace(/\s+/g, ' ').trim().toLowerCase()
+  // one apostrophe: the Land Use Tables write "Backpackers’ accommodation", a typed question "backpackers' accommodation"
+  return String(u ?? '').replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase()
     .replace(/ies\b/g, 'y')
     .replace(/(?<![s])s\b/g, '')
 }

@@ -309,6 +309,28 @@ async function main() {
     console.log(`area: ${made} questions for ${nameOf(LEP.title)} over ${areas.size} areas`)
   }
 
+  // ── keys: every plan's answer keys from sources D does not read (rag.key, written by 06a-keys.py) - the Land Use Table
+  //    from the legislation XML (key_lut) and the lot's maps from the live Planning Portal service (key_map). Status 'key':
+  //    these are what D's accuracy for a newly onboarded council is measured on
+  const at = (l: any) => `${l.address ?? 'lot ' + l.lot} (lot ${l.lot})`
+  const MAP_Q: Record<string, (l: any, k: any) => string> = {
+    zone: (l, k) => `On the Land Zoning Map, is ${at(l)} in Zone ${k.expected.zone}?`,
+    height: l => `What maximum building height does the Height of Buildings Map show for ${at(l)}?`,
+    fsr: l => `What maximum floor space ratio does the Floor Space Ratio Map show for ${at(l)}?`,
+    lot_size: l => `What minimum lot size does the Lot Size Map show for ${at(l)}?`,
+  }
+  const keyRows = (await q(`SELECT k.document_id, k.kind, k.cadid, k.subject, k.expected, k.source, k.note, i.title FROM rag.key k JOIN rag.instrument i USING (document_id) ORDER BY i.title, k.kind, k.cadid, k.subject`)
+    .catch(() => ({ rows: [] as any[] }))).rows
+  for (const k of keyRows) {
+    const l = await facts(k.cadid)
+    const expected = { status: 'key', ...k.expected, key_source: k.source, note: k.note }
+    if (k.kind === 'lut') qs.push({ set_name: 'key_lut', document_id: k.document_id, clause: k.subject, cadid: k.cadid, kind: 'permissibility', use_term: k.subject,
+      text: `Under ${shortName(k.title)}, is ${/^[aeiou]/i.test(k.subject) ? 'an' : 'a'} ${k.subject} permissible on ${at(l)}?`, expected, tags: ['key', 'lut'], lot: l })
+    else if (MAP_Q[k.subject]) qs.push({ set_name: 'key_map', document_id: k.document_id, clause: k.subject, cadid: k.cadid, kind: 'map', use_term: null,
+      text: MAP_Q[k.subject]!(l, k), expected, tags: ['key', 'map'], lot: l })
+  }
+  console.log(`keys: ${keyRows.length} (${keyRows.filter(k => k.kind === 'lut').length} Land Use Table, ${keyRows.filter(k => k.kind === 'map').length} map)`)
+
   for (const x of qs) x.id = uuidOf(`rag-q|${x.set_name}|${x.clause ?? ''}|${x.cadid ?? ''}|${x.key_ref ?? ''}|${x.text}`)
   const bySet = qs.reduce((a: Record<string, number>, x) => ({ ...a, [x.set_name]: (a[x.set_name] ?? 0) + 1 }), {})
   const byLep = qs.reduce((a: Record<string, number>, x) => { const t = nameOf(LEPS.find(l => l.document_id === x.document_id)?.title ?? '?'); return { ...a, [t]: (a[t] ?? 0) + 1 } }, {})
