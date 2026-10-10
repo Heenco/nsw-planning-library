@@ -260,6 +260,30 @@ async function main() {
     const c: any = metaOf.get(b.claim_id)
     if (c) coverage.push({ document_id: c.document_id, check_kind: 'clause_no_polygon', provision_id: c.pid, note: b.text.slice(0, 300) })
   }
+  // a condition no registered layer answers (no_match), or one registered with no dataset held and not assumed absent
+  // (no_data): on a lot it is "could not check"
+  for (const b of out.filter(o => o.status === 'no_match' || (o.status === 'no_data' && !o.assume_absent))) {
+    const c: any = metaOf.get(b.claim_id)
+    if (c) coverage.push({ document_id: c.document_id, check_kind: 'condition_no_layer', provision_id: c.pid, source: b.status === 'no_data' ? b.scope_terms.join(', ') : null,
+      note: `${b.part === 'exclude' ? 'excluded if: ' : b.part === 'item' ? 'list item: ' : ''}${b.text.slice(0, 260)}${b.status === 'no_data' ? ` - registered, no dataset held` : ''}` })
+  }
+  // a frame whose place was not read: every rule under it is unknown on every lot
+  for (const b of out.filter(o => o.status === 'unscoped')) {
+    const c: any = metaOf.get(b.claim_id)
+    if (c) coverage.push({ document_id: c.document_id, check_kind: 'frame_unscoped', provision_id: c.pid, note: b.text.slice(0, 300) })
+  }
+  // a map label only a source other than the plan's EPI map layers draws (the Additional Controls, a resolver map ref):
+  // a gap in the EPI dump, kept on record - with whether the plan has that map in the dump at all
+  // (a resolver ref with no map is a site - a street address or a Lot/DP - not a map label)
+  if (!DRY) for (const g of (await q(`
+      WITH k AS (SELECT document_id, map, label, bool_or(source LIKE 'epi.%') AS in_epi, string_agg(DISTINCT source, ', ') AS sources
+                   FROM rag.map_polygon WHERE label IS NOT NULL AND map IS NOT NULL GROUP BY 1, 2, 3)
+      SELECT k.document_id, k.map, k.label, k.sources,
+             (SELECT count(DISTINCT e.label) FROM rag.map_polygon e WHERE e.document_id = k.document_id AND e.map = k.map AND e.source LIKE 'epi.%')::int AS epi_labels
+        FROM k JOIN rag.instrument i ON i.document_id = k.document_id
+       WHERE NOT k.in_epi AND i.kind = 'lep' ORDER BY 1, 2, 3`)).rows)
+    coverage.push({ document_id: g.document_id, check_kind: 'label_not_in_epi', map: g.map, label: g.label, source: g.sources,
+      note: g.epi_labels ? `the plan's EPI layer for this map holds ${g.epi_labels} other label(s), not this one` : 'the EPI dump holds no layer for this map in this plan' })
   // a Schedule 1 item with words but no permission read
   const schItems = (await q(`SELECT p.id, p.document_id, p.local_id FROM rag.provision p JOIN rag.instrument i ON i.document_id = p.document_id
                               WHERE i.kind = 'lep' AND p.local_id ~ '^sch\.1-sec\.[^-]+$'

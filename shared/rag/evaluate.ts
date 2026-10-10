@@ -217,7 +217,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
           const hit = lot.mapped.filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase() === map && labels.map(nl).includes(nl(x.label)))
           const share = Math.max(0, ...hit.map((x: any) => Number(x.share)))
           const r = share >= 0.9 ? true : share > 0.05 ? null : false
-          checks.push({ text: t.slice(7), result: r, how: `map polygon (nsw.rule_spatial_ref): ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'lot not inside'}`, could: true })
+          checks.push({ text: t.slice(7), result: r, how: `map polygon (rag.map_polygon): ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'lot not inside'}`, could: true })
           results.push(r); said.push(`${t.slice(7)}: ${share > 0 ? `${Math.round(share * 100)}% of the lot inside` : 'not inside'}`)
         }
       }

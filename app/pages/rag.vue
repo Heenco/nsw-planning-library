@@ -272,8 +272,8 @@
           clause's condition names the area, or through the frame above it ("This clause applies to land identified as "Area 10" on the
           Additional Permitted Uses Map" - and so does every rule under it). Coverage (<code>rag.coverage</code>) lists what could not be
           tied together: an area on a control layer (additional permitted uses, key sites, local and special provisions, additional
-          controls) that no clause read names, a clause whose area has no polygon, a Schedule 1 item with no permission read, and the
-          figures above. A map read whole by a clause (the Height of Buildings Map's figure) is not listed area by area.</p>
+          controls) that no clause read names, a clause whose area has no polygon, a condition no layer answers, a frame whose place was not
+          read, a map label the EPI dump lacks, a Schedule 1 item with no permission read, and the figures above. A map read whole by a clause (the Height of Buildings Map's figure) is not listed area by area.</p>
         <div class="rg-cards">
           <div class="rg-card"><div class="rg-card-n">{{ planAreas.length }}</div><div class="rg-card-l">areas tied to a clause</div></div>
           <div v-for="k in COV_ORDER" :key="k" class="rg-card" :class="{ 'rg-card--warn': covOf(k).length }">
@@ -513,13 +513,17 @@ const S = (k: string) => status.value?.score?.summary?.[plan.value ? `${k}@${pla
 const planBindings = computed(() => (status.value?.bindings ?? []).filter((b: any) => !plan.value || !b.plan || b.plan === plan.value))
 const LC = computed(() => status.value?.lotChecks?.[plan.value] ?? null)
 const planAreas = computed(() => (status.value?.areaClauses ?? []).filter((a: any) => !plan.value || !a.plan || a.plan === plan.value))
-const COV_ORDER = ['area_no_clause', 'clause_no_polygon', 'schedule_item_unread', 'figure_unread'] as const
-const COV_LIST = ['area_no_clause', 'clause_no_polygon', 'schedule_item_unread'] as const
+const COV_ORDER = ['area_no_clause', 'clause_no_polygon', 'condition_no_layer', 'frame_unscoped', 'label_not_in_epi', 'schedule_item_unread', 'figure_unread'] as const
+const COV_LIST = ['area_no_clause', 'clause_no_polygon', 'condition_no_layer', 'frame_unscoped', 'label_not_in_epi', 'schedule_item_unread'] as const
 const COV_LABEL: Record<string, string> = { area_no_clause: 'control areas no clause read names', clause_no_polygon: 'clauses whose area has no polygon',
+  condition_no_layer: 'conditions no layer answers', frame_unscoped: 'frames whose place was not read', label_not_in_epi: 'map labels missing from the EPI dump',
   schedule_item_unread: 'Schedule 1 items with no permission read', figure_unread: 'figures no reader took' }
 const COV_MEANS: Record<string, string> = {
   area_no_clause: 'the note says whether a provision names the area in its words (a reader to teach) or none does (the map\'s own legend, or a clause outside the corpus)',
   clause_no_polygon: 'the clause names an area, but no layer holds a polygon with that label - on a lot it is answered maybe',
+  condition_no_layer: 'a condition of a claim no registered layer matches (or one registered with no dataset) - on a lot it is "could not check" and the answer is maybe on it',
+  frame_unscoped: 'a frame ("This Part applies to ...") whose place the readers did not read - every rule under it is unknown on every lot',
+  label_not_in_epi: 'a map label only the Additional Controls or a resolver map ref draws, not the plan’s EPI map layer - a gap in the EPI dump, filled from the other source',
   schedule_item_unread: 'an item with words but no permission claim - its use is not found on any lot',
   figure_unread: 'listed above' }
 const covOf = (k: string) => (status.value?.coverage ?? []).filter((c: any) => c.check === k && (!plan.value || !c.plan || c.plan === plan.value))
