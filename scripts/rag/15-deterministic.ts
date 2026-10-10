@@ -61,7 +61,7 @@ async function main() {
   const E = await loadEngine(q), C = await loadCorpus(q)
   INSTS = C.insts
   VOCAB = [...new Set(E.claims.flatMap(c => c.uses))].filter(u => u.length > 3).sort((a, b) => b.length - a.length)
-  const questions = (await q(`SELECT id, set_name, document_id, clause, kind, use_term, text, lot_facts FROM rag.question ORDER BY set_name, clause, cadid`)).rows
+  const questions = (await q(`SELECT id, set_name, document_id, clause, kind, use_term, text, lot_facts FROM rag.question WHERE coalesce(expected->>'status', '') <> 'retired' ORDER BY set_name, clause, cadid`)).rows
   const run = (await q(`INSERT INTO rag.run (stage, config) VALUES ('answer', $1) RETURNING id`, [JSON.stringify({ variants: ['D'], model: 'deterministic', claims: E.claims.length })])).rows[0].id
   await q(`DELETE FROM rag.answer WHERE variant = 'D'`)
   const label = (r: Result, ids?: string[]) => r.tested.filter(t => (ids ?? r.ruling?.answer?.claims ?? []).includes(t.claim.id)).map(t => E.label(t.claim.provision_id))
@@ -82,7 +82,12 @@ async function main() {
       const m = String(x.clause).match(/^([\d.]+[A-Z]*)((?:\(\w+\))*)$/)
       const local = m ? [`sec.${m[1]}`, ...[...m[2]!.matchAll(/\((\w+)\)/g)].map((p, i) => i === 0 ? `-ssec.${p[1]}` : `-para${i}.${p[1]}`)].join('') : ''
       const ofQ = (pid: string) => E.provs.get(pid)?.doc_kind === 'lep' && (!x.document_id || E.provs.get(pid)?.document_id === x.document_id)
+      // the clause's own standard comes before its paragraphs' ("7.6(1): 20.5 m" before "(1)(c): at least 1,300 m2 ...")
+      const depthOf = (pid: string) => (E.provs.get(pid)!.local_id.match(/-/g) ?? []).length
       const cs = E.claims.filter(c => c.kind === 'standard' && ofQ(c.provision_id) && (E.provs.get(c.provision_id)!.local_id === local || E.provs.get(c.provision_id)!.local_id.startsWith(local + '-') || E.provs.get(c.provision_id)!.local_id.startsWith(local + '#')))
+        .sort((a, b) => depthOf(a.provision_id) - depthOf(b.provision_id))
+      /** the land a claim names: its mapped areas, and what it excludes ("contains a heritage item", "has 2 street frontages") */
+      const areasOf = (cl: any[]) => [...new Set(cl.flatMap(c => [...c.terms.filter((t: string) => t.startsWith('mapped:')).map((t: string) => t.slice(7)), ...(c.excludes ?? []).filter((x: string) => !x.startsWith('zone:')).map((x: string) => `not where: ${x}`)]))]
       const under = (pid: string) => { const p = C.provs.get(pid); const l = p?.local_id ?? ''; return (!x.document_id || p?.document_id === x.document_id) && (l === local || l.startsWith(local + '-') || l.startsWith(local + '#')) }
       const fig = x.text.match(/(\d[\d,]*(?:\.\d+)?)\s*(m2|square metres|metres|%)/i)?.[1]?.replace(/,/g, '')
       if (/standard or (?:part of )?a definition|part of a definition/i.test(x.text) && fig) {
@@ -93,18 +98,32 @@ async function main() {
         answer.reasoning = term ? `part of a definition: "${term.own_text.slice(0, 160)}" - not a development standard` : std ? `a development standard: ${E.label(std.provision_id)}` : `the figure ${fig} is in neither a definition nor a standard of ${x.clause}`
         answer.kind_of_figure = term ? 'definition' : std ? 'standard' : null
         cited.push(...[term?.id, std?.provision_id].filter(Boolean) as string[])
-      } else if (/which areas|which map/i.test(x.text)) {
-        // the clause's frame: the mapped land it applies to
-        const frames = E.claims.filter(c => c.kind === 'frame' && c.unit_provision && ofQ(c.provision_id) && under(c.provision_id))
-        const areas = [...new Set(frames.flatMap(f => f.terms.filter(t => t.startsWith('mapped:')).map(t => t.slice(7))))]
-        answer.controlling = frames.map(f => E.label(f.provision_id))
-        answer.reasoning = areas.length ? `applies to land identified as ${areas.join('; ')}` : `no mapped area read for ${x.clause}`
+      } else if (/which areas|which map|what land/i.test(x.text) && !/development standard/i.test(x.text)) {
+        // (a question that asks for the standard as well - "... set, and on which mapped area?" - is answered below, areas included)
+        // the land the clause applies to - and does not: from every claim under it (frames, permissions, prohibitions with
+        // their exceptions, standards), not only its frames
+        const own = E.claims.filter(c => ofQ(c.provision_id) && under(c.provision_id))
+        const areas = areasOf(own)
+        const used = own.filter(c => areasOf([c]).length)
+        answer.controlling = [...new Set(used.map(c => E.label(c.provision_id)))]
+        answer.reasoning = areas.length ? `applies to: ${areas.join('; ')}` : `no mapped area or land condition read for ${x.clause}`
         answer.areas = areas
-        cited.push(...frames.map(f => f.provision_id))
+        cited.push(...used.map(c => c.provision_id))
       } else {
         const c = cs.find(c => c.value != null) ?? cs[0]
-        if (c) cited.push(c.provision_id)
-        if (c) { answer = { ...answer, value: c.value, unit: c.unit, controlling: [E.label(c.provision_id)], reasoning: `${E.label(c.provision_id)}: ${c.topic} ${c.comparator ?? ''} ${c.value ?? c.value_source ?? ''} ${c.unit ?? ''}${c.band?.metric ? ` where ${c.band.metric} ${c.band.lo != null ? `> ${c.band.lo}` : ''}${c.band.hi != null ? ` and < ${c.band.hi}` : ''}` : ''}${c.band?.relative ? ` of ${c.band.relative}` : ''} (${cs.length} standard claim(s) on the clause)` } }
+        // a standard set as one of several figures ("whichever of the following is the greater- (a) 60 m2, (b) 33% of ..."):
+        // every figure, and the rule that picks between them
+        const group = c?.band?.pick ? cs.filter(o => o.band?.pick && o.band?.of === c.band.of && o.value != null) : c ? [c] : []
+        const fmtOf = (o: any) => `${o.value}${o.unit === 'ratio' ? ':1' : o.unit === '%' ? '%' : ` ${o.unit ?? ''}`}${o.band?.relative ? ` of ${o.band.relative}` : ''}`.trim()
+        const condOf = (o: any) => o.band?.metric && !o.band?.pick ? ` where ${o.band.metric} ${o.band.lo != null ? `> ${o.band.lo}` : ''}${o.band.hi != null ? ` < ${o.band.hi}` : ''}`.trimEnd() : ''
+        if (c) cited.push(...group.map(o => o.provision_id))
+        if (c) {
+          answer = { ...answer, value: c.value, unit: c.unit, controlling: [...new Set(group.map(o => E.label(o.provision_id)))],
+            figures: group.length > 1 ? group.map(o => o.value) : undefined, areas: areasOf([c]),
+            reasoning: group.length > 1
+              ? `${E.label(c.provision_id).replace(/\(\w+\)$/, '')}: ${c.topic} ${c.comparator ?? ''} ${group.map(fmtOf).join(' or ')}, whichever is the ${c.band.pick} (${cs.length} standard claim(s) on the clause)`
+              : `${E.label(c.provision_id)}: ${c.topic} ${c.comparator ?? ''} ${c.value ?? c.value_source ?? ''} ${c.unit ?? ''}${condOf(c)}${c.band?.relative ? ` of ${c.band.relative}` : ''}${areasOf([c]).length ? ` on ${areasOf([c]).join('; ')}` : ''} (${cs.length} standard claim(s) on the clause)` }
+        }
         else answer.reasoning = `no standard claim on ${x.clause}`
       }
     } else if (ask && lot && mode.startsWith('tenure-compare:')) {

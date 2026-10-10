@@ -81,13 +81,19 @@ async function main() {
                 not_controlling: e.not_by ? [`${K}:${e.not_by}`] : [], note: k.note, raw: e }, lot: l })
       } else {
         const fig = e.no_proposition_with?.value ?? null
+        // the land a key names: map areas ("D" on the Dual Occupancy Prohibition Map) and land it excludes ("heritage item")
+        const areas = (e.scope ?? []).filter((x: any) => x?.value).map((x: any) => ({ value: String(x.value), map: x.map_layer ?? null, excludes: x.polarity === 'excludes' }))
+        const mapsOnly = areas.length > 0 && areas.every((x: any) => x.map && !x.excludes)
         const text = e.modality === 'defines' && fig != null ? `Under ${PLAN_LABEL} clause ${k.clause}, is the ${Number(fig).toLocaleString('en-AU')} ${e.no_proposition_with?.unit === 'sqm' ? 'm2 ' : ''}figure a development standard or part of a definition?`
           : e.rows ? `What does the table in ${PLAN_LABEL} clause ${k.clause} set, and how many rows does it have?`
-          : e.scope ? `Which areas on which map does ${PLAN_LABEL} clause ${k.clause} apply to?`
+          : areas.length && e.value != null ? `What development standard does ${PLAN_LABEL} clause ${k.clause} set, and on which mapped area? Give the figure, unit and the area.`
+          : mapsOnly ? `Which areas on which map does ${PLAN_LABEL} clause ${k.clause} apply to?`
+          : areas.length ? `What land does ${PLAN_LABEL} clause ${k.clause} apply to, and what land does it not apply to?`
           : `What development standard does ${PLAN_LABEL} clause ${k.clause} set? Give the figure, unit and what it applies to.`
-        const graded = (e.modality === 'defines' && fig != null) || e.rows || e.scope || e.value != null
+        const graded = (e.modality === 'defines' && fig != null) || e.rows || areas.length || e.value != null
         qs.push({ set_name: 'pilot_key', document_id: LEP.document_id, clause: k.clause, kind: 'extraction', text, key_ref: k.id, tags: ['lep_only', 'no_lot'],
-          expected: graded ? { status: 'key', source: 'pilot.key', value: e.value ?? null, unit: e.unit ?? null, zone: e.zone ?? null, topic: e.topic ?? null, controlling: [`${K}:${k.clause}`], note: k.note, raw: e }
+          expected: graded ? { status: 'key', source: 'pilot.key', value: e.value ?? null, unit: e.unit ?? null, zone: e.zone ?? null, topic: e.topic ?? null, ...(areas.length ? { areas } : {}),
+              controlling: [`${K}:${k.clause}`], note: k.note, raw: e }
             : { status: 'none', source: 'pilot.key', note: `key shape not phrased as a question: ${JSON.stringify(e).slice(0, 200)}`, raw: e } })
       }
     }
@@ -244,7 +250,11 @@ async function main() {
            ON CONFLICT (id) DO UPDATE SET expected = excluded.expected, lot_facts = excluded.lot_facts, tags = excluded.tags, kind = excluded.kind, use_term = excluded.use_term,
              document_id = excluded.document_id`,
     [JSON.stringify(qs.map(x => ({ ...x, lot: x.lot ?? null })))])
-  await q(`INSERT INTO rag.run (stage, config, counts, finished_at) VALUES ('questions', '{}', $1, now())`, [JSON.stringify({ questions: qs.length, by_set: bySet })])
+  // a question no longer asked (its wording changed with the key) keeps its answers but is retired: never scored again
+  const retired = (await q(`UPDATE rag.question SET expected = coalesce(expected, '{}'::jsonb) || '{"status": "retired"}'::jsonb
+                             WHERE NOT (id = ANY($1::uuid[])) AND coalesce(expected->>'status', '') <> 'retired' RETURNING id`, [qs.map(x => x.id)])).rowCount
+  if (retired) console.log('retired (no longer asked):', retired)
+  await q(`INSERT INTO rag.run (stage, config, counts, finished_at) VALUES ('questions', '{}', $1, now())`, [JSON.stringify({ questions: qs.length, by_set: bySet, retired })])
   await q('COMMIT')
   console.log('written')
   await client.end()

@@ -194,6 +194,10 @@ export const RAG_PHASES: PlanPhase[] = [
         doneWhen: 'contexts, embeddings and R0-R4 / L0 answers for the new plans (DeepInfra, Llama 3.3); scores per plan; the page shows one plan at a time',
         result: 'DeepInfra, 2026-10-10: 1,414 contexts ($1.03), embeddings, 1,068 answers ($6.46), no failures (Parramatta L0 at ~127k tokens fitted). On each plan’s keys - Hornsby 17: D 65% / 6% CW, R0-R1 41% / 6%, R3 24% / 29%, L0 18% / 76%, R4 18% / 47%; Parramatta 9: D 67% / 11%, R4 78% / 11%, R1 and R3 67%, L0 33%. P scores 100% on both, but those keys are the CDC pilot’s own (circular). /rag: a plan switch (?lep=) drives scores, adjudication, questions and spatial; corpus, runs and this plan are folded.',
         where: ['app/pages/rag.vue', 'server/api/rag/status.get.ts', 'scripts/rag/12-score.ts'] },
+      { id: 'P7.8', title: 'Side D at 100% on every plan’s keys', status: 'done',
+        doneWhen: 'the 9 Hornsby / Parramatta extraction misses read correctly, with generic readers; Randwick unchanged',
+        result: 'Four generic fixes: a reader for “A building in Area N may have a height / floor space ratio of up to X if the consent authority is satisfied” (the area on the map the clause names, else the map of the standard’s topic, said in the claim); a figure that says where a standard applies (“above a height of 40m”) is its condition, not its value; an extraction answer gives every figure of a whichever-is-greater clause and the clause’s own standard before its paragraphs’; “which land” reads mapped areas and exclusions from every claim under the clause. Keys that name land are scored on the land; questions whose wording changed are retired, not re-scored. Build report: every measure no reader took (214) on /rag. D: Randwick 132 / 132, Hornsby 17 / 17, Parramatta 9 / 9, 0% confidently wrong.',
+        where: ['scripts/rag/02c-claims.ts', 'scripts/rag/15-deterministic.ts', 'scripts/rag/12-score.ts', 'scripts/rag/06-questions.ts'] },
     ],
   },
 ]

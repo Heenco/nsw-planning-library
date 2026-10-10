@@ -37,8 +37,15 @@ function clausesOf(C: Corpus, refs: string[], keyed = false): Set<string> {
   return out
 }
 
-export function score(C: Corpus, e: any, a: { verdict: any; value: any; values_if?: any[]; controlling?: string[] } | null) {
-  if (!e || e.status === 'none' || !a) return null
+/** an expected area found among the answer's: its label as a word, and its map when it names one */
+const areaHit = (x: { value: string; map?: string | null }, said: string[]) => {
+  const n = (s: string) => s.toLowerCase().replace(/[“”"]/g, '').replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ')
+  const v = n(x.value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), m = x.map ? n(x.map).replace(/ map$/, '') : null
+  return said.some(t => new RegExp(`(^|[^a-z0-9])${v}([^a-z0-9]|$)`).test(n(t)) && (!m || n(t).includes(m)))
+}
+
+export function score(C: Corpus, e: any, a: { verdict: any; value: any; values_if?: any[]; controlling?: string[]; figures?: number[]; areas?: string[] } | null) {
+  if (!e || e.status === 'none' || e.status === 'retired' || !a) return null
   const expMaybe = yn(e.verdict) === 'maybe' || !!e.values
   const isFigure = e.value != null
   const isVerdict = !isFigure && !expMaybe && yn(e.verdict) != null
@@ -46,14 +53,20 @@ export function score(C: Corpus, e: any, a: { verdict: any; value: any; values_i
   const controlling = ctrlKey.size ? [...ctrlKey].some(k => ctrlAns.has(k)) : null
   const av = yn(a.verdict), definite = (av === 'yes' || av === 'no') || (a.value != null && av !== 'maybe' && !(a.values_if?.length))
   let correct: boolean | null = null
+  // the land a clause applies to: every expected area must be among the answer's
+  const areasOk = e.areas?.length ? (a.areas?.length ? e.areas.every((x: any) => areaHit(x, a.areas!)) : false) : null
+  // one of several figures the clause sets ("60 m2 or 33% ..., whichever is the greater") is the clause's answer
+  const figureHit = (v: number) => (a.value != null && close(Number(a.value), v)) || !!a.figures?.some(f => close(Number(f), v))
   if (expMaybe) {
     const branches = (e.values ? Object.values(e.values) : (e.values_if ?? []).map((x: any) => x.value)).map(Number).filter(n => !isNaN(n))
     correct = av === 'maybe' || (!!a.values_if?.length && branches.every((b: number) => a.values_if!.some((x: any) => close(Number(x.value), b))))
-  } else if (isFigure) correct = a.value != null && close(Number(a.value), Number(e.value)) && av !== 'maybe'
+  } else if (isFigure) correct = figureHit(Number(e.value)) && av !== 'maybe' && areasOk !== false
+  else if (areasOk != null) correct = areasOk
   else if (isVerdict) correct = av === yn(e.verdict)
   else if (controlling != null) correct = controlling                                // e.g. "which prevails": the clause is the answer
   if (correct == null) return null
-  return { correct, confidently_wrong: !correct && definite, abstained: !correct && !definite, controlling }
+  const said = definite || !!a.areas?.length
+  return { correct, confidently_wrong: !correct && said, abstained: !correct && !said, controlling }
 }
 
 async function main() {
@@ -63,7 +76,7 @@ async function main() {
   const RUN = arg('--run')
   // every summary key also exists per plan: "<key>@<LEP title>" (the /rag page shows one plan at a time)
   const answers = (await q(`SELECT DISTINCT ON (a.question_id, a.variant) a.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause, i.title AS lep
-                              FROM rag.answer a JOIN rag.question qn ON qn.id = a.question_id JOIN rag.run r ON r.id = a.run_id LEFT JOIN rag.instrument i ON i.document_id = qn.document_id ${RUN ? 'WHERE a.run_id = $1' : ''}
+                              FROM rag.answer a JOIN rag.question qn ON qn.id = a.question_id JOIN rag.run r ON r.id = a.run_id LEFT JOIN rag.instrument i ON i.document_id = qn.document_id WHERE coalesce(qn.expected->>'status', '') <> 'retired' ${RUN ? 'AND a.run_id = $1' : ''}
                              ORDER BY a.question_id, a.variant, r.started_at DESC`, RUN ? [RUN] : [])).rows
   // stability: where a question was answered more than once by a variant, does the decision repeat?
   const repeats = (await q(`SELECT a.variant, a.question_id, array_agg(coalesce(a.answer->>'verdict', '') || '|' || coalesce(a.answer->>'value', '')) d
@@ -71,7 +84,7 @@ async function main() {
   const stability: Record<string, { pairs: number; same: number }> = {}
   for (const r of repeats) { const s = (stability[r.variant] ??= { pairs: 0, same: 0 }); s.pairs++; if (new Set(r.d).size === 1) s.same++ }
   const engine = (await q(`SELECT e.*, qn.set_name, qn.expected, qn.kind, qn.clause qclause, coalesce(r.config->'plans'->>(qn.document_id::text), r.config->>'plan') AS plan, i.title AS lep
-                             FROM rag.engine_answer e JOIN rag.question qn ON qn.id = e.question_id LEFT JOIN rag.run r ON r.id = e.run_id LEFT JOIN rag.instrument i ON i.document_id = qn.document_id`)).rows
+                             FROM rag.engine_answer e JOIN rag.question qn ON qn.id = e.question_id LEFT JOIN rag.run r ON r.id = e.run_id LEFT JOIN rag.instrument i ON i.document_id = qn.document_id WHERE coalesce(qn.expected->>'status', '') <> 'retired'`)).rows
   const withLep = (keys: string[], lep: string | null) => lep ? [...keys, ...keys.map(k => `${k}@${lep}`)] : keys
   type Acc = Record<string, number>
   const by: Record<string, Acc> = {}
@@ -118,7 +131,7 @@ async function main() {
   }
 
   // adjudication: every draft key, and every question where the sides disagree with each other or with a key
-  const questions = (await q(`SELECT id, set_name, clause, text, expected FROM rag.question`)).rows
+  const questions = (await q(`SELECT id, set_name, clause, text, expected FROM rag.question WHERE coalesce(expected->>'status', '') <> 'retired'`)).rows
   const queue: any[] = []
   for (const x of questions) {
     const sides = perQ.get(x.id) ?? {}

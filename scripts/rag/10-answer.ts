@@ -28,7 +28,7 @@ async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const C0 = await loadCorpus(q)
-  const questions = (await q(`SELECT id, set_name, document_id, clause, kind, text, lot_facts FROM rag.question ${SETS.length ? 'WHERE set_name = ANY($1)' : ''} ORDER BY set_name, clause, cadid`, SETS.length ? [SETS] : [])).rows.slice(0, LIMIT)
+  const questions = (await q(`SELECT id, set_name, document_id, clause, kind, text, lot_facts FROM rag.question WHERE coalesce(expected->>'status', '') <> 'retired' ${SETS.length ? 'AND set_name = ANY($1)' : ''} ORDER BY set_name, clause, cadid`, SETS.length ? [SETS] : [])).rows.slice(0, LIMIT)
 
   // L0: the operative text of the question's own instruments (its LEP and the SEPPs), in instrument order, definitions
   // cut to their first sentence - built once per LEP

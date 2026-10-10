@@ -29,7 +29,7 @@ async function main() {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL }); await client.connect()
   const q = (sql: string, p: unknown[] = []) => client.query(sql, p as any[])
   const C = await loadCorpus(q)
-  const questions = (await q(`SELECT id, set_name, document_id, clause, text, expected FROM rag.question WHERE expected->>'status' <> 'none' ORDER BY set_name, clause`)).rows
+  const questions = (await q(`SELECT id, set_name, document_id, clause, text, expected FROM rag.question WHERE expected->>'status' NOT IN ('none', 'retired') ORDER BY set_name, clause`)).rows
   const K = [3, 5, 8]
   const rows: any[] = []
   const tally: Record<string, Record<string, number>> = {}

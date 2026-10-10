@@ -243,6 +243,22 @@ async function main() {
         terms: [`discretion:${why}`], unit_provision: cl?.id ?? null, source: 'text', reader: 'discretionary standard', span: t.slice(0, 300) })
       continue
     }
+    // a building on a mapped area that may go higher or denser if the consent authority is satisfied: "A building in Area 1
+    // may have a height of up to 23.5m if the consent authority is satisfied-" (Hornsby 7.6, 7.7). The area is on the map
+    // the clause names; where it names none, on the map of the standard's own topic (a height on the Height of Buildings
+    // Map, a floor space ratio on the Floor Space Ratio Map) - that inference is written into the claim's span
+    m = t.match(/^(?:A|Any|The) building (?:on land )?(?:in|on|within) (.+?) may have an? (?:building |maximum )?(height|floor space ratio)(?: of)? (?:up to|not more than|not exceeding)\s*([\d.]+)\s*(m\b|metres|:1)(.*)$/i)
+    if (m) {
+      const topic = /floor space/i.test(m[2]!) ? 'fsr' : 'height'
+      const named = m[1]!.match(/^(.+?) on the ([A-Z][\w ]*? Map)$/)
+      const map = named ? named[2]! : topic === 'height' ? 'Height of Buildings Map' : 'Floor Space Ratio Map'
+      const area = norm(named ? named[1] : m[1]).replace(/^(?:land )?(?:identified|shown|marked) as /i, '').replace(/[“”"]/g, '')
+      const why = norm([m[5]!, ...(kids.get(p.id) ?? []).map(k => k.own_text)].join(' ')).replace(/^\s*if\s*/i, '').slice(0, 200)
+      add({ provision_id: p.id, kind: 'standard', topic, comparator: 'max', value: Number(m[3]), unit: topic === 'fsr' ? 'ratio' : 'm', value_source: 'text',
+        terms: [`mapped:${area} on the ${map}`, ...(/consent authority/i.test(m[5]!) ? [`discretion:${why}`] : [])], unit_provision: cl?.id ?? null, source: 'text', reader: 'discretionary standard',
+        span: `${t.slice(0, 260)}${named ? '' : ` [the area read on the ${map}: the clause names no map]`}`.slice(0, 300) })
+      continue
+    }
     // "Development consent under subclause (2) must only be granted in relation to buildings with a frontage to ..." -
     // a limitation on the permission it names (or on the clause's permissions)
     m = t.match(/^Development consent (?:under subclause \((\w+)\) )?(?:must|may) only be granted (.+)$/i)
@@ -365,8 +381,14 @@ async function main() {
         continue
       }
     }
-    // a figure with a topic in a leaf ("a maximum floor space ratio of 0.65:1", "for a detached secondary dwelling-a minimum site area of 450m2")
-    const f = figureOf(t), topic = topicOf(t)
+    // a figure with a topic in a leaf ("a maximum floor space ratio of 0.65:1", "for a detached secondary dwelling-a minimum site area of 450m2").
+    // A figure that says WHERE the standard applies is its condition, not its value: "the gross floor area of each storey ...
+    // above a height of 40m will not exceed 700m2" is a 700 m2 floor area for storeys above 40 m
+    const condM = t.match(/\b(above|below|over|exceeding|more than|less than)\s+(?:a\s+)?(height|site area|lot size|floor area)\s+of\s+([\d,.]+)\s*(square metres|m2|metres|m)\b/i)
+    const tt = condM ? norm(t.replace(condM[0], ' ')) : t
+    const condBand = condM ? { metric: /height/i.test(condM[2]!) ? 'height' : /lot|site/i.test(condM[2]!) ? 'lot_size' : 'floor_area',
+      ...(/below|less/i.test(condM[1]!) ? { hi: Number(condM[3]!.replace(/,/g, '')) } : { lo: Number(condM[3]!.replace(/,/g, '')) }) } : null
+    const f = figureOf(tt), topic = topicOf(tt)
     // a leaf of a condition list ("... is 22 metres if-", "... unless-", "This clause applies to development on land-")
     // states when something applies, not a standard
     const stem = norm(p.parent_id ? byId.get(p.parent_id)?.own_text : '')
@@ -383,7 +405,7 @@ async function main() {
       // and the title type, from the leaf, its stem or the clause's own words ("for a strata plan scheme")
       const tenure = [...(/strata plan|strata scheme/i.test(`${t} ${stem}`) ? ['tenure:strata'] : []), ...(/Community Land Development Act/i.test(`${t} ${stem}`) ? ['tenure:community'] : [])]
       add({ provision_id: p.id, kind: 'standard', topic, comparator: f.comparator, value: f.value, unit: f.unit, uses: forUse ? forKnown : stemUse ? usesOf(stemUse) : [],
-        band: lotBand ? { metric: 'lot_size', lo: Number(lotBand[2]!.replace(/,/g, '')), lo_incl: /at least/i.test(lotBand[1]!), hi: lotBand[4] ? Number(lotBand[4].replace(/,/g, '')) : null, hi_incl: /not more/i.test(lotBand[3] ?? '') } : null,
+        band: lotBand ? { metric: 'lot_size', lo: Number(lotBand[2]!.replace(/,/g, '')), lo_incl: /at least/i.test(lotBand[1]!), hi: lotBand[4] ? Number(lotBand[4].replace(/,/g, '')) : null, hi_incl: /not more/i.test(lotBand[3] ?? '') } : condBand,
         terms: [...tenure, ...(forUse && /detached/i.test(forUse[1]!) ? ['detached'] : []), ...(/resulting lot|subdivision/i.test(`${t} ${stem}`) || /subdivision/i.test(cl?.heading ?? '') ? ['proposal:subdivision'] : [])],
         non_discretionary: ndStem(p), value_source: 'text', unit_provision: cl?.id ?? null, source: 'text', reader: 'standard leaf', span: t.slice(0, 300) })
     }
@@ -426,6 +448,14 @@ async function main() {
     if (code && c.kind !== 'frame') c.terms = [...(c.terms ?? []), `pathway:${/exempt/i.test(code.heading ?? '') ? 'exempt' : 'complying'}`]
   }
 
+  // the figures no reader took: a provision whose words carry a measure (m, m2, :1, %) with no claim on it or under it - so
+  // a new instrument's unread sentence forms show at build time, not when a question fails (rag.unread, reader 'claims')
+  const claimed = new Set(claims.map(c => c.provision_id))
+  const hasClaimBelow = (p: P): boolean => claimed.has(p.id) || (kids.get(p.id) ?? []).some(hasClaimBelow)
+  const MEASURE = /\b\d[\d,]*(?:\.\d+)?\s*(?:m2|square metres|metres|m\b|:1|%)/i
+  const unreadFigures = provs.filter(p => !['term', 'cell', 'row', 'table', 'group', 'definition', 'objective'].includes(p.kind) && !p.path.some(x => x.startsWith('pt-cg'))
+    && MEASURE.test(p.own_text) && !hasClaimBelow(p) && !(p.parent_id && claimed.has(p.parent_id)))
+  console.log('figures no reader took:', unreadFigures.length)
   const tally = claims.reduce((a: Record<string, number>, c) => ({ ...a, [`${c.kind}/${c.reader}`]: (a[`${c.kind}/${c.reader}`] ?? 0) + 1 }), {})
   console.log('claims', claims.length, tally)
   const show = (local: string) => { for (const c of claims.filter(c => byId.get(c.provision_id)?.local_id.startsWith(local))) console.log(' ', byId.get(c.provision_id)!.local_id.padEnd(28), c.kind.padEnd(9), JSON.stringify({ uses: c.uses, zones: c.zones, terms: c.terms, req: c.requires, ex: c.excludes?.length, topic: c.topic, cmp: c.comparator, v: c.value, u: c.unit, src: c.value_source, band: c.band, nd: c.non_discretionary, unit: c.unit_provision ? byId.get(c.unit_provision)?.local_id : null }).slice(0, 300)) }
@@ -441,6 +471,10 @@ async function main() {
                FROM jsonb_to_recordset($1::jsonb) AS x(provision_id uuid, kind text, consent text, uses text[], zones text[], terms text[], excludes text[], requires jsonb, topic text, comparator text,
                     value numeric, unit text, value_source text, band jsonb, non_discretionary boolean, unit_provision uuid, source text, span text, reader text)`, [JSON.stringify(claims.slice(i, i + 2000)), run])
   await q(`UPDATE rag.run SET finished_at = now(), counts = $2 WHERE id = $1`, [run, JSON.stringify({ claims: claims.length, by: tally })])
+  await q(`DELETE FROM rag.unread WHERE reader = 'claims'`)
+  if (unreadFigures.length) await q(`INSERT INTO rag.unread (provision_id, reader, trigger, span, note, run_id)
+           SELECT provision_id, 'claims', 'figure', span, note, $2 FROM jsonb_to_recordset($1::jsonb) AS x(provision_id uuid, span text, note text)`,
+    [JSON.stringify(unreadFigures.map(p => ({ provision_id: p.id, span: norm(p.own_text).slice(0, 300), note: 'a measure in the text that no claim reader took' }))), run])
   await q('COMMIT')
   console.log('written', claims.length)
   await client.end()

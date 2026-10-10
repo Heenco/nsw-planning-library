@@ -54,6 +54,11 @@ export default defineEventHandler(async () => {
   // plan: the LEP a binding belongs to (a SEPP's bindings apply under every plan: null)
   const bindings = bindingRows.map(b => ({ status: b.status, part: b.part, text: b.text, scope_terms: b.scope_terms, sources: b.sources, assume_absent: b.assume_absent,
     note: b.note, claim_kind: b.claim_kind, label: labelOf(b), url: urlOf(b.source_url, b.local_id), plan: b.doc_kind === 'lep' ? b.title : null }))
+  // reading the text: every measure in the words that no claim reader turned into a claim (rag.unread, reader 'claims')
+  const unreadRows = await q(`SELECT u.span, p.local_id, coalesce(p.path, '{}') path, p.heading, i.kind doc_kind, i.title, i.source_url
+                                FROM rag.unread u JOIN rag.provision p ON p.id = u.provision_id JOIN rag.instrument i ON i.document_id = p.document_id
+                               WHERE u.reader = 'claims' ORDER BY i.rank, i.title, p.sort, p.local_id`)
+  const unreadFigures = unreadRows.map(u => ({ span: u.span, label: labelOf(u), url: urlOf(u.source_url, u.local_id), plan: u.doc_kind === 'lep' ? u.title : null }))
   // stage 2 (each lot): of side D's latest answers, how many rest on a condition no data could settle, and which ones -
   // for every plan together ('') and for each LEP
   const lotChecksFor = async (lep: string | null) => (await q(`
@@ -73,7 +78,7 @@ export default defineEventHandler(async () => {
   const leps = instruments.filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title))
   const lotChecks: Record<string, any> = { '': await lotChecksFor(null) }
   for (const l of leps) lotChecks[l] = await lotChecksFor(l)
-  return { ms: Date.now() - started, bindings, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
+  return { ms: Date.now() - started, bindings, unreadFigures, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
     engine: engine[0] ?? { n: 0, runs: 0 }, answers, adjudications, runs,
     retrieval: retrieval && { at: retrieval.started_at, summary: retrieval.counts?.summary ?? {}, misses: retrieval.counts?.r2_misses ?? [] },
     resolver: resolver && { at: resolver.started_at, pass: resolver.counts?.pass ?? 0, fail: resolver.counts?.fail ?? 0,

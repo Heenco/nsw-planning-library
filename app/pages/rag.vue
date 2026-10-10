@@ -249,6 +249,21 @@
           </table>
         </details>
 
+        <details v-if="planUnread.length" class="rg-bind">
+          <summary><strong>Figures no reader took</strong> · {{ planUnread.length }} <span class="rg-muted">- a measure in the text (m, m², :1, %) that no claim
+            reader turned into a claim. Most are not standards (distances, dates, dimensions); a standard among them is a sentence form to teach the readers
+            (scripts/rag/02c-claims.ts) - D cannot answer from it until then.</span></summary>
+          <table class="rg-table">
+            <thead><tr><th>Clause</th><th>Words</th></tr></thead>
+            <tbody>
+              <tr v-for="(u, i) in planUnread" :key="i">
+                <td class="rg-small"><a v-if="u.url" :href="u.url" target="_blank" rel="noopener">{{ u.label }}</a><span v-else>{{ u.label }}</span></td>
+                <td class="rg-small">{{ u.span }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+
         <h3 class="rg-h3">2 · Deciding on each lot</h3>
         <template v-if="LC">
           <p class="rg-muted">
@@ -434,6 +449,7 @@ const S = (k: string) => status.value?.score?.summary?.[plan.value ? `${k}@${pla
 /** a SEPP's bindings (plan null) apply under every plan */
 const planBindings = computed(() => (status.value?.bindings ?? []).filter((b: any) => !plan.value || !b.plan || b.plan === plan.value))
 const LC = computed(() => status.value?.lotChecks?.[plan.value] ?? null)
+const planUnread = computed(() => (status.value?.unreadFigures ?? []).filter((u: any) => !plan.value || !u.plan || u.plan === plan.value))
 // the queue shows what there is to rule on - a draft or a key some side disagrees with; a question with no proposed
 // answer yet is only counted
 const planQueue = computed(() => (status.value?.queue ?? []).filter((a: any) => !plan.value || a.lep === plan.value))
