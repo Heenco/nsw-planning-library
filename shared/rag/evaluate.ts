@@ -120,7 +120,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   /** a map area of the claim's own instrument (map names repeat across LEPs: "Area 1 on the Key Sites Map") */
   const ownMap = (c: C, x: any) => !x.document_id || x.document_id === docOf(c)?.document_id
   /** a map label as rag.map_polygon stores it: lower case, any dash as "-" with no space round it */
-  const nl = (s: unknown) => String(s ?? '').trim().replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ').toLowerCase()
+  const nl = (s: unknown) => String(s ?? '').trim().replace(/^(?:a|an|the)\s+/i, '').replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ').toLowerCase()
   const ancestors = (id: string | null): string[] => { const out: string[] = []; for (let x = id ? E.provs.get(id) : undefined; x; x = x.parent_id ? E.provs.get(x.parent_id) : undefined) out.push(x.id); return out }
   const framesFor = (c: C) => {
     const units = new Set([...ancestors(c.provision_id), ...ancestors(c.unit_provision)])

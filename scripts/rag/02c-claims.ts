@@ -251,12 +251,17 @@ async function main() {
     if (m) {
       const topic = /floor space/i.test(m[2]!) ? 'fsr' : 'height'
       const named = m[1]!.match(/^(.+?) on the ([A-Z][\w ]*? Map)$/)
-      const map = named ? named[2]! : topic === 'height' ? 'Height of Buildings Map' : 'Floor Space Ratio Map'
-      const area = norm(named ? named[1] : m[1]).replace(/^(?:land )?(?:identified|shown|marked) as /i, '').replace(/[“”"]/g, '')
+      // a defined term of this instrument for the area ("In this Part- Area 1 means the land identified as "Area 1" on the
+      // Height of Buildings Map"): its label and map
+      const word = norm(named ? named[1] : m[1]).replace(/[“”"]/g, '')
+      const defn = terms.filter(x => x.document_id === p.document_id && norm(x.heading).toLowerCase() === word.toLowerCase())
+        .map(x => norm(x.own_text).match(/identified as [“"]([^”"]+)[”"] on the ([A-Z][\w ]*? Map)/)).find(Boolean)
+      const map = named ? named[2]! : defn ? defn[2]! : topic === 'height' ? 'Height of Buildings Map' : 'Floor Space Ratio Map'
+      const area = (defn ? defn[1]! : word).replace(/^(?:land )?(?:identified|shown|marked) as /i, '')
       const why = norm([m[5]!, ...(kids.get(p.id) ?? []).map(k => k.own_text)].join(' ')).replace(/^\s*if\s*/i, '').slice(0, 200)
       add({ provision_id: p.id, kind: 'standard', topic, comparator: 'max', value: Number(m[3]), unit: topic === 'fsr' ? 'ratio' : 'm', value_source: 'text',
         terms: [`mapped:${area} on the ${map}`, ...(/consent authority/i.test(m[5]!) ? [`discretion:${why}`] : [])], unit_provision: cl?.id ?? null, source: 'text', reader: 'discretionary standard',
-        span: `${t.slice(0, 260)}${named ? '' : ` [the area read on the ${map}: the clause names no map]`}`.slice(0, 300) })
+        span: `${t.slice(0, 260)}${named ? '' : defn ? ` [${word}: as the Part defines it, on the ${map}]` : ` [the area read on the ${map}: no map named or defined]`}`.slice(0, 300) })
       continue
     }
     // "Development consent under subclause (2) must only be granted in relation to buildings with a frontage to ..." -

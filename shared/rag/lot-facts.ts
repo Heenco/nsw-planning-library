@@ -16,7 +16,7 @@ import { landUseKey } from '../land-use-key'
 type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
 
 /** scope terms tested from the lot's own facts by the evaluator, not through nsw.scope_layer */
-const OWN = /^(lga:|map:|!?zone:|zoneclass:|area>=|lot$)/
+const OWN = /^(lga:|map:|near:|!?zone:|zoneclass:|area>=|lot$)/
 
 export async function ragLotFacts(q: Query, cadid: string) {
   const f: any = await lotFacts(q as any, cadid, landUseKey)
@@ -36,6 +36,16 @@ export async function ragLotFacts(q: Query, cadid: string) {
     .map(r => String(r.t)).filter(t => !OWN.test(t))
   const terms: Record<string, { holds: boolean | null; why: string }> = {}
   for (const t of boundTerms) terms[t] = await lotTermInterior(q as any, cadid, t, f.lga ?? null).catch(e => ({ holds: null, why: `query failed: ${String(e).slice(0, 80)}` }))
+  // "within N m of <label> on <map>": the lot within that distance of any polygon of the plan's map with that label
+  const nearTerms = (await q(`SELECT DISTINCT unnest(scope_terms) t FROM rag.claim_binding WHERE status = 'bound'`).catch(() => ({ rows: [] as any[] }))).rows.map(r => String(r.t)).filter(t => t.startsWith('near:'))
+  for (const t of nearTerms) {
+    const [, doc, metres, key] = t.match(/^near:([^:]+):([\d.]+):(.+)$/) ?? []
+    const [map, label] = String(key ?? '').split('|')
+    if (!doc || !map) continue
+    const r = (await q(`SELECT EXISTS (SELECT 1 FROM rag.map_polygon m, cadastre.lot l WHERE l.cadid::text = $1 AND m.document_id = $2 AND m.map = $3 AND m.label = $4
+                          AND ST_DWithin(m.geom::geography, l.geom::geography, $5)) AS h`, [cadid, doc, map, label, Number(metres)]).catch(() => null))
+    terms[t] = r ? { holds: Boolean(r.rows[0].h), why: `${r.rows[0].h ? 'within' : 'not within'} ${metres} m of ${label} on the ${map} map` } : { holds: null, why: 'distance query failed' }
+  }
   const heritage = (await q(`SELECT string_agg(DISTINCT h.lay_class, ', ') c FROM epi.epi_heritage h, cadastre.lot l
                               WHERE l.cadid::text = $1 AND h.geom && l.geom AND ST_Intersects(h.geom, ST_PointOnSurface(l.geom))`, [cadid])).rows[0]?.c ?? null
   return {

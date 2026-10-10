@@ -25,7 +25,7 @@ import pg from 'pg'
 
 const DRY = process.argv.includes('--dry')
 /** a map label as stored and compared: lower case, any dash as "-" with no space round it, single spaces */
-export const normLabel = (s: string) => s.trim().replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ').toLowerCase()
+export const normLabel = (s: string) => s.trim().replace(/^(?:a|an|the)\s+/i, '').replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ').toLowerCase()
 const LABEL = `lower(regexp_replace(regexp_replace(trim(x.l), '\\s*[-\u2013\u2014]\\s*', '-', 'g'), '\\s+', ' ', 'g'))`
 const STOP = new Set('a an the of in on or and to as for by any land that is which within meaning under identified area areas following this greater higher than'.split(' '))
 const words = (s: string) => s.toLowerCase().replace(/[“”"'’(),.;:—–-]/g, ' ').split(/\s+/).filter(w => w && !STOP.has(w))
@@ -47,6 +47,10 @@ async function main() {
     ...epiMaps.map(r => `SELECT i.document_id, regexp_replace(e.map_name, ' Map$', '') AS map, e.label::text AS label, e.lay_class::text AS alt,
         ST_Transform(e."${r.gcol}", 4283) AS geom, 'epi.${r.table_name}'::text AS source, true AS own
        FROM epi.${r.table_name} e JOIN rag.instrument i ON i.title = e.epi_name WHERE e.map_name IS NOT NULL`),
+    // the maps' additional controls, from the feature services (rag.additional_controls, 01c-additional-controls.py): the
+    // plan's own layers, which the EPI dump carries only in part
+    `SELECT i.document_id, regexp_replace(a.map_name, ' Map$', '') AS map, a.label, a.legis_area AS alt, a.geom, 'rag.additional_controls:' || a.source AS source, true AS own
+       FROM rag.additional_controls a JOIN rag.instrument i ON i.title = a.epi_name`,
     `SELECT r.document_id, regexp_replace(r.map_layer, ' Map$', '') AS map, r.value AS label, NULL::text AS alt, ST_Transform(r.geom, 4283) AS geom,
         coalesce(r.geom_source, 'nsw.rule_spatial_ref') AS source, (r.geom_source LIKE 'epi.%') AS own
        FROM nsw.rule_spatial_ref r JOIN rag.instrument i ON i.document_id = r.document_id WHERE r.geom IS NOT NULL`,
@@ -122,6 +126,15 @@ async function main() {
     const area = text.match(/(?:site )?area of (?:at least|not less than) ([\d,]+) (?:square metres|m2)|([\d,]+) (?:square metres|m2) or (?:greater|more)/i)
     if (area && words(text.replace(area[0], ' ')).filter(w => !/^(has|site)$/.test(w)).length === 0)
       return add(c, 'item', text, 'bound', { scope_terms: [`area>=${Number((area[1] ?? area[2])!.replace(/,/g, ''))}`], sources: ['cadastre.lot'], note: 'the site taken as the lot' })
+    // land within a distance of a mapped feature: "land within- 10m of streams identified as "Stream Order 1" on the Riparian
+    // Lands and Watercourses Map, or 20m of streams identified as "Stream Order 2" ..." - any one of them
+    const near = [...text.matchAll(/(\d[\d.]*)\s*(?:m|metres)\s+of\s+[^“"]*?identified as [“"]([^”"]+)[”"] on the (.+?) Map\b/gi)]
+    if (near.length) {
+      const keys = near.map(m => ({ m: Number(m[1]), k: `${m[3]!.toLowerCase()}|${normLabel(m[2]!)}` }))
+      const held = keys.filter(x => polys.has(`${c.document_id}|${x.k}`))
+      return add(c, 'item', text, held.length ? 'bound' : 'no_polygon', { scope_terms: held.map(x => `near:${c.document_id}:${x.m}:${x.k}`), sources: held.length ? ['rag.map_polygon'] : [],
+        note: held.length < keys.length ? `no polygon for ${keys.filter(x => !held.includes(x)).map(x => x.k).join(', ')}` : 'within the distance of any one' })
+    }
     const mapped = text.match(/identified as [“"]([^”"]+)[”"] on the (.+?)(?: Map)?\.?$/i)
     if (mapped) {
       const k = `${mapped[2]!.toLowerCase()}|${normLabel(mapped[1]!)}`

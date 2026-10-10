@@ -9,6 +9,7 @@
  *   npx tsx scripts/rag/run.ts --plan                # print what would run, run nothing
  *   npx tsx scripts/rag/run.ts --variants R3,L0      # which RAG variants the answers stage runs (default R0,R1,R2,R3,L0,R4)
  *   npx tsx scripts/rag/run.ts --with-pilot          # also run side P, the CDC engine, as a comparison (slow: one run per question)
+ *   npx tsx scripts/rag/run.ts --refresh-controls    # re-copy the maps' additional controls from UrbanPortalDBP first (SSH)
  *
  * The rag engine (side D) and the RAG variants never call the CDC engine. Side P exists only to compare against it, so
  * it is off unless asked for.
@@ -29,6 +30,7 @@ const tsx = (f: string, ...a: string[]) => ['npx', 'tsx', `scripts/rag/${f}`, ..
 const py = (f: string, ...a: string[]) => ['python', `scripts/rag/${f}`, ...a]
 
 const STAGES: Stage[] = [
+  { id: 'controls', what: 'the maps' additional controls, copied from UrbanPortalDBP (rag.additional_controls)', cmd: py('01c-additional-controls.py'), optIn: '--refresh-controls' },
   { id: 'snapshot', what: 'provisions of every instrument in corpus.json (only new or changed ones replaced)', cmd: tsx('01-snapshot.ts') },
   { id: 'groups', what: 'Land Use Table zones and other clause groups, from each instrument\'s XML', cmd: py('01b-groups.py') },
   { id: 'terms', what: 'definitions as provisions, from the XML', cmd: py('02a-terms.py') },
