@@ -54,6 +54,12 @@ export default defineEventHandler(async () => {
   // plan: the LEP a binding belongs to (a SEPP's bindings apply under every plan: null)
   const bindings = bindingRows.map(b => ({ status: b.status, part: b.part, text: b.text, scope_terms: b.scope_terms, sources: b.sources, assume_absent: b.assume_absent,
     note: b.note, claim_kind: b.claim_kind, label: labelOf(b), url: urlOf(b.source_url, b.local_id), plan: b.doc_kind === 'lep' ? b.title : null }))
+  // the map areas the bindings test against (rag.map_polygon, built by 02d), by plan and where they come from
+  const mapSources = await q(`SELECT i.title AS plan, i.kind,
+        CASE WHEN m.source LIKE 'rag.additional_controls%' THEN 'Additional Controls (UrbanPortalDBP feature-service layers)'
+             WHEN m.source LIKE 'epi.%' THEN 'EPI map layers (GEODAAS dump)' ELSE 'resolver map refs (nsw.rule_spatial_ref)' END AS family,
+        count(*)::int AS polygons, count(DISTINCT m.map || '|' || m.label)::int AS labels, count(DISTINCT m.map)::int AS maps
+      FROM rag.map_polygon m JOIN rag.instrument i ON i.document_id = m.document_id GROUP BY 1, 2, 3 ORDER BY 1, 3`)
   // reading the text: every measure in the words that no claim reader turned into a claim (rag.unread, reader 'claims')
   const unreadRows = await q(`SELECT u.span, p.local_id, coalesce(p.path, '{}') path, p.heading, i.kind doc_kind, i.title, i.source_url
                                 FROM rag.unread u JOIN rag.provision p ON p.id = u.provision_id JOIN rag.instrument i ON i.document_id = p.document_id
@@ -78,7 +84,7 @@ export default defineEventHandler(async () => {
   const leps = instruments.filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title))
   const lotChecks: Record<string, any> = { '': await lotChecksFor(null) }
   for (const l of leps) lotChecks[l] = await lotChecksFor(l)
-  return { ms: Date.now() - started, bindings, unreadFigures, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
+  return { ms: Date.now() - started, bindings, unreadFigures, mapSources, lotChecks, measuredAt: new Date().toISOString(), instruments, kinds, relations, chunks, embeddings, questions,
     engine: engine[0] ?? { n: 0, runs: 0 }, answers, adjudications, runs,
     retrieval: retrieval && { at: retrieval.started_at, summary: retrieval.counts?.summary ?? {}, misses: retrieval.counts?.r2_misses ?? [] },
     resolver: resolver && { at: resolver.started_at, pass: resolver.counts?.pass ?? 0, fail: resolver.counts?.fail ?? 0,

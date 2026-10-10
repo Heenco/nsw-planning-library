@@ -68,8 +68,14 @@ async function main() {
     await q(`ANALYZE rag.map_polygon`)
   }
   // keyed by instrument: map names repeat across LEPs ("Area 1 on the Key Sites Map")
-  const polys = new Set((await q(`SELECT DISTINCT document_id || '|' || map || '|' || label k FROM ${DRY ? `(${labelled}) z` : 'rag.map_polygon'}`)).rows.map(r => r.k))
-  console.log(`map polygons: ${epiMaps.length} epi map layers + nsw.rule_spatial_ref -> ${polys.size} (plan, map, label) keys`)
+  const polyRows = (await q(`SELECT DISTINCT document_id || '|' || map || '|' || label k, source, own FROM ${DRY ? `(${labelled}) z` : 'rag.map_polygon'}`)).rows
+  const polys = new Set(polyRows.map(r => r.k))
+  // where each (plan, map, label) is drawn: the plan's own layers when it has them (lot facts use only those), else the
+  // resolver's refs - what a binding says it is tested against
+  const polySrc = new Map<string, string[]>()
+  for (const r of polyRows) polySrc.set(r.k, [...(polySrc.get(r.k) ?? []), ...(r.own ? [`+${r.source}`] : [r.source])])
+  const srcOf = (k: string) => { const all = polySrc.get(k) ?? []; const own = all.filter(x => x.startsWith('+')).map(x => x.slice(1)); return [...new Set(own.length ? own : all)] }
+  console.log(`map polygons: ${epiMaps.length} epi map layers + rag.additional_controls + nsw.rule_spatial_ref -> ${polys.size} (plan, map, label) keys`)
   const claims = (await q(`SELECT c.id, c.kind, c.uses, c.zones, c.terms, c.excludes, c.requires, c.span, c.provision_id, p.local_id, p.own_text, p.document_id FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id`)).rows
   const kids = new Map<string, any[]>()
   for (const k of (await q(`SELECT id, parent_id, own_text, connective FROM rag.provision WHERE parent_id IS NOT NULL AND kind NOT IN ('cell', 'row', 'table', 'term') ORDER BY sort, local_id`)).rows)
@@ -132,13 +138,13 @@ async function main() {
     if (near.length) {
       const keys = near.map(m => ({ m: Number(m[1]), k: `${m[3]!.toLowerCase()}|${normLabel(m[2]!)}` }))
       const held = keys.filter(x => polys.has(`${c.document_id}|${x.k}`))
-      return add(c, 'item', text, held.length ? 'bound' : 'no_polygon', { scope_terms: held.map(x => `near:${c.document_id}:${x.m}:${x.k}`), sources: held.length ? ['rag.map_polygon'] : [],
+      return add(c, 'item', text, held.length ? 'bound' : 'no_polygon', { scope_terms: held.map(x => `near:${c.document_id}:${x.m}:${x.k}`), sources: [...new Set(held.flatMap(x => srcOf(`${c.document_id}|${x.k}`)))],
         note: held.length < keys.length ? `no polygon for ${keys.filter(x => !held.includes(x)).map(x => x.k).join(', ')}` : 'within the distance of any one' })
     }
     const mapped = text.match(/identified as [“"]([^”"]+)[”"] on the (.+?)(?: Map)?\.?$/i)
     if (mapped) {
       const k = `${mapped[2]!.toLowerCase()}|${normLabel(mapped[1]!)}`
-      return add(c, 'item', text, polys.has(`${c.document_id}|${k}`) ? 'bound' : 'no_polygon', { scope_terms: polys.has(`${c.document_id}|${k}`) ? [`map:${k}`] : [], sources: polys.has(`${c.document_id}|${k}`) ? ['nsw.rule_spatial_ref'] : [] })
+      return add(c, 'item', text, polys.has(`${c.document_id}|${k}`) ? 'bound' : 'no_polygon', { scope_terms: polys.has(`${c.document_id}|${k}`) ? [`map:${k}`] : [], sources: srcOf(`${c.document_id}|${k}`) })
     }
     // the development itself, not the land
     if (/^(does not involve|involves?|is, or will be|will be|is for|is carried out|the consent authority|development for the purposes? of)/i.test(text) || /\bin height\b/i.test(text))
@@ -157,7 +163,7 @@ async function main() {
         const map = m?.[2]?.toLowerCase() ?? ''
         const held = labels.filter(l => polys.has(`${c.document_id}|${map}|${normLabel(l)}`))
         add(c, 'mapped', t.slice(7), held.length === labels.length && labels.length ? 'bound' : held.length ? 'bound' : 'no_polygon',
-          { scope_terms: held.map(l => `map:${map}|${l}`), sources: held.length ? ['nsw.rule_spatial_ref'] : [], note: held.length && held.length < labels.length ? `no polygon for ${labels.filter(l => !held.includes(l)).join(', ')}` : null })
+          { scope_terms: held.map(l => `map:${map}|${l}`), sources: [...new Set(held.flatMap(l => srcOf(`${c.document_id}|${map}|${normLabel(l)}`)))], note: held.length && held.length < labels.length ? `no polygon for ${labels.filter(l => !held.includes(l)).join(', ')}` : null })
       } else bindText(c, 'term', t)
     }
     for (const ex of c.excludes as string[]) {

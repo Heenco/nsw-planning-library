@@ -222,7 +222,9 @@
         <h3 class="rg-h3">1 · Building the graph: every condition a claim depends on, and how it will be tested</h3>
         <p class="rg-muted">From <code>rag.claim_binding</code> (scripts/rag/02d-bindings.ts). A condition is bound to the layers registered in
           <code>nsw.scope_layer</code> (the ones /testing-spatial-services and /cdc-map read), to a council list, or to the polygons
-          of a map the clause names. Anything that is not bound is listed here, and on a lot it is answered <em>maybe</em>, never assumed.
+          of a map the clause names - <code>rag.map_polygon</code>: the plan's EPI map layers, the maps' Additional Controls
+          (<code>rag.additional_controls</code>, from UrbanPortalDBP) and the resolver's map refs, the plan's own layers first; see
+          "Corpus, index and runs". Anything that is not bound is listed here, and on a lot it is answered <em>maybe</em>, never assumed.
           <template v-if="plan">The Housing SEPP's conditions apply under every plan and are included.</template></p>
         <div class="rg-cards">
           <div v-for="s in BIND_ORDER.filter(s => bindCount(s))" :key="s" class="rg-card" :class="{ 'rg-card--warn': !BIND_OK.includes(s) }">
@@ -311,6 +313,17 @@
               <td class="rg-small">{{ i.scope ? i.scope.join(', ') : 'whole plan' }}</td>
               <td class="n">{{ fmt(i.provisions) }}</td><td class="n">{{ fmt(i.stems) }}</td><td class="n">{{ fmt(i.connectives) }}</td><td class="n">{{ fmt(i.table_nodes) }}</td>
               <td class="rg-small">{{ i.snapshot_at ? when(i.snapshot_at) : '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="rg-h3">Map areas held <span class="rg-muted">- the polygons a map condition is tested against (rag.map_polygon){{ plan ? ' · ' + shortPlan(plan) : '' }}</span></h3>
+        <table class="rg-table">
+          <thead><tr><th>Plan</th><th>From</th><th class="n">Maps</th><th class="n">Labels</th><th class="n">Polygons</th></tr></thead>
+          <tbody>
+            <tr v-for="(m, i) in (status.mapSources ?? []).filter((m: any) => !plan || m.plan === plan || m.kind !== 'lep')" :key="i">
+              <td class="rg-small">{{ shortPlan(m.plan) }}</td><td class="rg-small">{{ m.family }}</td>
+              <td class="n">{{ fmt(m.maps) }}</td><td class="n">{{ fmt(m.labels) }}</td><td class="n">{{ fmt(m.polygons) }}</td>
             </tr>
           </tbody>
         </table>
