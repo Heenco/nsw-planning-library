@@ -117,6 +117,24 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       note: `${lep.why} - its Land Use Table and standards are not read, so no answer is given from the other instruments alone` }
   const E: Engine = ask.only ? { ...E0, claims: E0.claims.filter(c => docOf(c)?.document_id === ask.only) }
     : lep?.doc ? { ...E0, claims: E0.claims.filter(c => docOf(c)?.doc_kind !== 'lep' || docOf(c)?.document_id === lep.doc) } : E0
+  // a lot the Height of Buildings / Floor Space Ratio / Lot Size Map splits (two or more figures over it): the question is
+  // answered for each part, and the answer is that figure only if every part gets the same one - else "maybe", part by part
+  const splitField = ask.kind === 'standard' ? ({ height: 'height_map_m', fsr: 'fsr_map', floor_area: 'fsr_map', lot_size: 'lot_size_map_m2' } as Record<string, string>)[ask.topic ?? ''] : undefined
+  const split = splitField ? lot?.map_split?.[splitField] as { value: number; share: number }[] | undefined : undefined
+  if (split && split.length > 1) {
+    const { map_split: _ms, ...rest } = lot
+    const parts = split.map(s => ({ s, r: evaluate(E0, ask, { ...rest, [splitField!]: s.value }, depth) }))
+    const mapName = splitField === 'height_map_m' ? 'Height of Buildings Map' : splitField === 'fsr_map' ? 'Floor Space Ratio Map' : 'Lot Size Map'
+    const said = `the ${mapName} gives this lot ${split.map(s => `${s.value} on ${Math.round(s.share * 100)}%`).join(', ')}`
+    const same = new Set(parts.map(p => `${p.r.verdict}|${p.r.answer?.value ?? ''}|${p.r.answer?.expr ?? ''}`)).size === 1
+    const check: Check = { text: `${mapName} on this lot`, result: null, how: said, could: !same ? false : true }
+    if (same) return { ...parts[0]!.r, note: [parts[0]!.r.note, `${said} - the same answer on every part`].filter(Boolean).join('; '), checks: [...parts[0]!.r.checks, check] }
+    const u = parts.find(p => p.r.answer?.unit)?.r.answer?.unit ?? ({ height_map_m: 'm', lot_size_map_m2: 'm2' } as Record<string, string>)[splitField!] ?? ''
+    const fig = (v: unknown) => splitField === 'fsr_map' ? `${v}:1` : `${v} ${u === 'm2' ? 'm²' : u}`.trim()
+    return { ask, verdict: 'maybe', answer: { effect: 'value', value: null, unit: u || null, expr: parts.map(p => `${p.r.answer?.value != null ? fig(p.r.answer.value) : p.r.answer?.expr ?? 'none'} on the part mapped ${fig(p.s.value)} (${Math.round(p.s.share * 100)}% of the lot)`).join('; ') },
+      ruling: parts[0]!.r.ruling, tested: parts.flatMap(p => p.r.tested), limits: [], notChecked: [...new Set([...parts.flatMap(p => p.r.notChecked), `${said} - answered part by part`])],
+      note: `${said}: the answer differs between the parts`, checks: [...parts.flatMap(p => p.r.checks), check] }
+  }
   /** a map area of the claim's own instrument (map names repeat across LEPs: "Area 1 on the Key Sites Map") */
   const ownMap = (c: C, x: any) => !x.document_id || x.document_id === docOf(c)?.document_id
   /** a map label as rag.map_polygon stores it: lower case, any dash as "-" with no space round it */

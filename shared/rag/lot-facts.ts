@@ -58,11 +58,32 @@ export async function ragLotFacts(q: Query, cadid: string) {
     const near = r?.rows[0]?.z ?? null
     terms[t] = r ? { holds: near != null, why: near ? `within ${metres} m of land in ${near}` : `no land in ${pat ? 'the zones named' : 'another zone'} within ${metres} m` } : { holds: null, why: 'zone distance query failed' }
   }
+  // the Height of Buildings, Floor Space Ratio and Lot Size maps over the whole lot, not at one point: each figure the plan's
+  // map gives the lot, with the share of the lot under it. One figure over (almost) the whole of what is mapped is the lot's
+  // figure; two or more each over more than 5% split the lot (map_split) - the evaluator answers each part
+  const MAPS: [string, string, string][] = [['height_map_m', 'epi.epi_height_of_building', 'h.max_b_h::float8'], ['fsr_map', 'epi.epi_floor_space_ratio', 'h.fsr::float8'],
+    ['lot_size_map_m2', 'epi.epi_lot_size', `CASE WHEN h.units ~* 'ha' THEN h.lot_size::float8 * 10000 ELSE h.lot_size::float8 END`]]
+  const mapFig: Record<string, number | null> = {}, map_split: Record<string, { value: number; share: number }[]> = {}
+  for (const [field, table, expr] of MAPS) {
+    if (!f.epi) continue
+    const rows = (await q(`
+      WITH l AS (SELECT geom, ST_Area(geom::geography) AS a FROM cadastre.lot WHERE cadid::text = $1 LIMIT 1)
+      SELECT ${expr} AS value, sum(ST_Area(ST_Intersection(h.geom, l.geom)::geography) / nullif(l.a, 0))::float8 AS share
+        FROM ${table} h, l WHERE h.epi_name = $2 AND h.geom && l.geom AND ST_Intersects(h.geom, l.geom) GROUP BY 1 ORDER BY 2 DESC`, [cadid, f.epi]).catch(() => null))?.rows
+    if (!rows) continue                                                  // a geometry the intersection could not take: the point value stands
+    const parts = rows.filter((r: any) => r.value != null && r.share > 0.05).map((r: any) => ({ value: Number(r.value), share: Math.round(Number(r.share) * 100) / 100 }))
+    const mapped = parts.reduce((s, p) => s + p.share, 0)
+    if (parts.length === 1 || (parts[0] && parts[0].share >= 0.9 * mapped)) mapFig[field] = parts[0]!.value
+    else if (parts.length > 1) { map_split[field] = parts; mapFig[field] = null }
+  }
   const heritage = (await q(`SELECT string_agg(DISTINCT h.lay_class, ', ') c FROM epi.epi_heritage h, cadastre.lot l
                               WHERE l.cadid::text = $1 AND h.geom && l.geom AND ST_Intersects(h.geom, ST_PointOnSurface(l.geom))`, [cadid])).rows[0]?.c ?? null
   return {
     cadid, lot: f.lotId, address: addr?.formatted_address ?? null, lga: f.lga, zone: f.zone, epi: f.epi, area_m2: f.areaM2, frontage_m: f.frontageM ?? null,
-    battle_axe: f.isBattleaxe ?? null, fsr_map: f.fsrMax ?? null, height_map_m: f.heightMaxM ?? null, lot_size_map_m2: f.lotSizeMinM2, heritage, mapped, terms,
+    battle_axe: f.isBattleaxe ?? null,
+    // the map figures over the whole lot where they could be measured, else at the lot's point (shared/norms/facts.ts)
+    fsr_map: 'fsr_map' in mapFig ? mapFig.fsr_map : f.fsrMax ?? null, height_map_m: 'height_map_m' in mapFig ? mapFig.height_map_m : f.heightMaxM ?? null,
+    lot_size_map_m2: 'lot_size_map_m2' in mapFig ? mapFig.lot_size_map_m2 : f.lotSizeMinM2, ...(Object.keys(map_split).length ? { map_split } : {}), heritage, mapped, terms,
     low_mid_rise_area: lmr ? { band: lmr.band, class: lmr.class, from: lmr.measured_from, excluded_by: lmr.excluded_by } : { band: null, note: 'not within a low and mid rise housing area' },
   }
 }
