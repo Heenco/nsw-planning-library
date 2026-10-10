@@ -32,6 +32,7 @@ const py = (f: string, ...a: string[]) => ['python', `scripts/rag/${f}`, ...a]
 const STAGES: Stage[] = [
   { id: 'controls', what: 'the maps’ additional controls, copied from UrbanPortalDBP (rag.additional_controls)', cmd: py('01c-additional-controls.py'), optIn: '--refresh-controls' },
   { id: 'snapshot', what: 'provisions of every instrument in corpus.json (only new or changed ones replaced)', cmd: tsx('01-snapshot.ts') },
+  { id: 'currency', what: 'is the text still the law: clauses added / changed / removed since its as-at date (legislation XML)', cmd: py('01d-currency.py') },
   { id: 'groups', what: 'Land Use Table zones and other clause groups, from each instrument\'s XML', cmd: py('01b-groups.py') },
   { id: 'terms', what: 'definitions as provisions, from the XML', cmd: py('02a-terms.py') },
   // claims before relations (cl 4.6 reads the standards) and again after (frames read applies_only_if)

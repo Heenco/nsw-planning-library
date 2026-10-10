@@ -387,8 +387,21 @@ async function main() {
        WHERE NOT k.in_epi AND i.kind = 'lep' ORDER BY 1, 2, 3`)).rows)
     coverage.push({ document_id: g.document_id, check_kind: 'label_not_in_epi', map: g.map, label: g.label, source: g.sources,
       note: g.epi_labels ? `the plan's EPI layer for this map holds ${g.epi_labels} other label(s), not this one` : 'the EPI dump holds no layer for this map in this plan' })
+  // a map amended after the date the text is as at: the amendment that redrew it may have changed clauses the corpus does
+  // not hold (each epi layer's commenced_date, the Additional Controls' currency_date)
+  const dated = (await q(`SELECT c.table_name FROM information_schema.columns c WHERE c.table_schema = 'epi' AND c.column_name = 'commenced_date'
+                             AND c.table_name = ANY($1::text[])`, [epiMaps.map(r => r.table_name)])).rows.map(r => String(r.table_name))
+  const newer = [
+    ...dated.map(t => `SELECT i.document_id, lower(regexp_replace(e.map_name, ' Map$', '')) AS map, 'epi.${t}' AS source, max(e.commenced_date)::date::text AS at, string_agg(DISTINCT e.amendment, '; ') AS amds
+                         FROM epi.${t} e JOIN rag.instrument i ON i.title = e.epi_name WHERE i.as_at IS NOT NULL AND e.commenced_date::date > (i.as_at AT TIME ZONE 'Australia/Sydney')::date GROUP BY 1, 2`),
+    `SELECT i.document_id, lower(regexp_replace(a.map_name, ' Map$', '')), 'rag.additional_controls:' || a.source, max(a.currency_date)::date::text, string_agg(DISTINCT a.amendment, '; ')
+       FROM rag.additional_controls a JOIN rag.instrument i ON i.title = a.epi_name WHERE i.as_at IS NOT NULL AND a.currency_date::date > (i.as_at AT TIME ZONE 'Australia/Sydney')::date GROUP BY 1, 2, 3`]
+  if (!DRY) for (const r of (await q(`SELECT z.*, (i.as_at AT TIME ZONE 'Australia/Sydney')::date::text AS as_at FROM (${newer.join(' UNION ALL ')}) z
+                                       JOIN rag.instrument i ON i.document_id = z.document_id ORDER BY 1, 2`).catch(e => { console.log('map currency:', String(e).slice(0, 120)); return { rows: [] as any[] } })).rows)
+    coverage.push({ document_id: r.document_id, check_kind: 'map_newer_than_text', map: r.map, label: null, source: r.source,
+      note: `amended ${r.at}${r.amds ? ` (${String(r.amds).slice(0, 160)})` : ''} - the text is as at ${r.as_at}` })
   // a Schedule 1 item with words but no permission read
-  const schItems = (await q(`SELECT p.id, p.document_id, p.local_id FROM rag.provision p JOIN rag.instrument i ON i.document_id = p.document_id
+  const schItems =(await q(`SELECT p.id, p.document_id, p.local_id FROM rag.provision p JOIN rag.instrument i ON i.document_id = p.document_id
                               WHERE i.kind = 'lep' AND p.local_id ~ '^sch\.1-sec\.[^-]+$'
                                 AND EXISTS (SELECT 1 FROM rag.provision k WHERE k.document_id = p.document_id AND k.local_id LIKE p.local_id || '-%' AND coalesce(k.own_text, '') <> '')`)).rows
   for (const it of schItems)
@@ -411,7 +424,8 @@ async function main() {
     await q(`INSERT INTO rag.area_clause (document_id, map, label, provision_id, claim_id, claim_kind, role, via_frame, distance_m, run_id)
              SELECT document_id, map, label, provision_id, claim_id, claim_kind, role, via_frame, distance_m, $2 FROM jsonb_to_recordset($1::jsonb)
                AS x(document_id uuid, map text, label text, provision_id uuid, claim_id uuid, claim_kind text, role text, via_frame boolean, distance_m numeric)`, [JSON.stringify(areaRows.slice(i, i + 2000)), run])
-  await q(`DELETE FROM rag.coverage`)
+  // its own kinds only: 01d-currency.py writes text_changed_since
+  await q(`DELETE FROM rag.coverage WHERE check_kind <> 'text_changed_since'`)
   await q(`INSERT INTO rag.coverage (document_id, check_kind, map, label, provision_id, source, note, run_id)
            SELECT document_id, check_kind, map, label, provision_id, source, note, $2 FROM jsonb_to_recordset($1::jsonb)
              AS x(document_id uuid, check_kind text, map text, label text, provision_id uuid, source text, note text)`, [JSON.stringify(coverage), run])
