@@ -138,9 +138,24 @@ async function main() {
   const zoneTerms = new Map<string, string[]>()
   for (const t of terms) { const z = zoneCodes(t.own_text); if (z.length >= 2) zoneTerms.set(norm(t.heading).toLowerCase(), z) }
   const scopeTerms = [...new Set(terms.map(t => norm(t.heading).toLowerCase()).filter(h => h.split(' ').length >= 3 && !zoneTerms.has(h)))].sort((a, b) => b.length - a.length)
-  /** zones, scope terms and sub-questions in a phrase about where / when something applies */
-  const scopeOf = (phrase: string) => {
+  // a term that names a mapped area: "Area 1 means the land identified as "Area 1" on the Height of Buildings Map" (Hornsby
+  // 7.1). It is in force within the unit its definition clause names ("In this Part-" its Part, "In this clause-" the
+  // clause), else the whole instrument - so another Part's "Area 1" is never read as this one
+  const escRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const areaDefs = terms.flatMap(t => {
+    const m = norm(t.own_text).match(/\bmeans (?:the )?land (?:identified|shown|marked) as [“"]([^”"]+)[”"] on the ([A-Z][\w ]*? Map)/)
+    if (!m || !norm(t.heading)) return []
+    const holder = t.parent_id ? byId.get(t.parent_id) : undefined
+    const unitWord = norm(holder?.own_text).match(/^In this (Part|Division|clause|section|Schedule|Chapter)\b/i)?.[1]
+    const unit = unitWord && holder ? unitOf(unitWord, holder) : null
+    return [{ doc: t.document_id, re: new RegExp(`\\b(?:in|on|within)\\s+(?:land\\s+(?:in|within)\\s+)?(?:the\\s+)?${escRe(norm(t.heading))}(?![\\w])`, 'i'), label: m[1]!, map: m[2]!, unit: unit?.id ?? null }]
+  })
+  const inUnit = (p: P, unit: string | null) => !unit || !!up(p, x => x.id === unit)
+  /** zones, scope terms and sub-questions in a phrase about where / when something applies; `at`, the provision the
+   *  phrase is in, lets a defined area ("on land in Area 1") be read as the map area its definition names */
+  const scopeOf = (phrase: string, at?: P) => {
     const zones = zoneCodes(phrase), tms: string[] = [], requires: any[] = []
+    if (at) for (const d of areaDefs) if (d.doc === at.document_id && inUnit(at, d.unit) && d.re.test(phrase)) tms.push(`mapped:${d.label} on the ${d.map}`)
     for (const [term, z] of zoneTerms) if (new RegExp(`\\bin an? ${term}\\b`, 'i').test(phrase)) zones.push(...z)
     for (const term of scopeTerms) if (new RegExp(`\\b(in|on|within) an? ${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(phrase)) tms.push(term)
     for (const m of phrase.matchAll(/\bif development for the purposes? of (.+?) is permissible on the land under another environmental planning instrument/gi))
@@ -159,7 +174,7 @@ async function main() {
     tms.push(...datesOf(phrase))
     const lots = lotsIn(phrase)
     if (lots.length) tms.push(`lots:${lots.join('|')}`)
-    return { zones: [...new Set(zones)], terms: tms, requires }
+    return { zones: [...new Set(zones)], terms: [...new Set(tms)], requires }
   }
 
   // ── land use tables: the resolved table, anchored on the zone's item ─────────────────────────────
@@ -181,7 +196,7 @@ async function main() {
   for (const f of frames) {
     const phrase = norm(f.scope?.phrase), conds: string[] = f.scope?.conditions ?? []
     const usesM = phrase.match(/^development (?:for the purposes? of|involving subdivision for the purposes? of) (.+?)(?=\s+(?:on land|in a |in the following|in Zone|if |on a lot|$))/i)
-    const s = scopeOf(phrase)
+    const s = scopeOf(phrase, byId.get(f.to_provision))
     // the land a frame describes may run into its list items and a table of lots ("land at the following-")
     const deep = (id: string): string[] => (kids.get(id) ?? []).flatMap(k => [k.own_text, ...deep(k.id)])
     const allLots = lotsIn([phrase, ...conds, ...deep(f.to_provision)].join(' ; '))
@@ -222,9 +237,31 @@ async function main() {
     // permissions
     let m = t.match(/^Development for the purposes? of (.+?) is permitted with(out)? (?:development )?consent(.*)$/i)
     if (m) {
-      const s = scopeOf(m[3]!), unitM = m[3]!.match(/on land to which this (chapter|Part|Division|section|clause) applies/i)
+      const s = scopeOf(m[3]!, p), unitM = m[3]!.match(/on land to which this (chapter|Part|Division|section|clause) applies/i)
       add({ provision_id: p.id, kind: 'permit', consent: m[2] ? 'without' : 'with', uses: usesOf(m[1]!), zones: s.zones, terms: s.terms, requires: s.requires,
         unit_provision: unitM ? unitOf(unitM[1]!, p)?.id ?? null : null, source: 'text', reader: 'permission', span: t.slice(0, 300) })
+      continue
+    }
+    // "Development for the following purposes is permitted with development consent- (a) boat launching ramps, (b) ..." (the
+    // list form, Hornsby / Parramatta Schedule 1): the uses are the list items, the place is the stem's or the item's frame
+    m = t.match(/^Development for the following purposes? is permitted with(out)? (?:development )?consent(.*?)\s*[—:-]\s*$/i)
+    if (m) {
+      const items = (kids.get(p.id) ?? []).map(k => norm(k.own_text).replace(/[,;.]?\s*(?:or|and)?\s*$/i, '')).filter(Boolean)
+      const uses = [...new Set(items.flatMap(x => usesOf(x)))]
+      if (uses.length) {
+        const s = scopeOf(m[2]!, p)
+        add({ provision_id: p.id, kind: 'permit', consent: m[1] ? 'without' : 'with', uses, zones: s.zones, terms: s.terms, requires: s.requires, unit_provision: null,
+          source: 'text', reader: 'permission', span: `${t.slice(0, 160)} ${items.join('; ')}`.slice(0, 300) })
+        continue
+      }
+    }
+    // "The use of no more than 10 rooms in Yurora House for hotel or motel accommodation is permitted with development
+    // consent": a permission for the use, on a condition the words state and no dataset holds (a fact of the proposal)
+    m = t.match(/^The use of (.+?) for (?:the purposes? of )?(.+?) is permitted with(out)? (?:development )?consent(.*)$/i)
+    if (m && usesOf(m[2]!).length) {
+      const s = scopeOf(m[4]!, p)
+      add({ provision_id: p.id, kind: 'permit', consent: m[3] ? 'without' : 'with', uses: usesOf(m[2]!), zones: s.zones, terms: [...s.terms, `condition:${norm(m[1])}`], requires: s.requires,
+        unit_provision: null, source: 'text', reader: 'permission', span: t.slice(0, 300) })
       continue
     }
     m = t.match(/^Development to which this (chapter|Part|Division|section|clause) applies may be carried out with(out)? (?:development )?consent/i)
@@ -287,7 +324,7 @@ async function main() {
     // consent bars: a figure is a standard, a list is a set of conditions
     m = t.match(/^Development consent must not be granted (?:to|for) (?:the )?(?:development (?:to which this (chapter|Part|Division|section|clause) applies|for the purposes? of (.+?)(?= on | unless|,|$))|(subdivision)[^,]*?)(.*?)(?:unless\b(.*))?$/i)
     if (m) {
-      const uses = m[2] ? usesOf(m[2]) : [], s = scopeOf(`${m[4] ?? ''}`), unit = m[1] ? unitOf(m[1], p)?.id ?? null : null
+      const uses = m[2] ? usesOf(m[2]) : [], s = scopeOf(`${m[4] ?? ''}`, p), unit = m[1] ? unitOf(m[1], p)?.id ?? null : null
       const tail = norm(m[5] ?? ''), kidsOf = kids.get(p.id) ?? []
       const fig = figureOf(tail)
       // a bar on named uses with no figure: outright (nothing after it), or lifted by land the list names ("unless the land-
@@ -379,7 +416,7 @@ async function main() {
         const num = (s?: string) => s == null ? null : Number(s.replace(/,/g, ''))
         const lower = /greater|more than|at least|not less/i.test(b[2]!), upper = /less than|not more/i.test(b[2]!)
         const band = { metric, lo: lower ? num(b[3]) : null, lo_incl: /at least|not less/i.test(b[2]!), hi: upper ? num(b[3]) : num(b[5]), hi_incl: /not more/i.test(b[2]! + (b[4] ?? '')) }
-        const ss = scopeOf(stem)
+        const ss = scopeOf(stem, p)
         add({ provision_id: p.id, kind: 'standard', topic: topicOf(stem), comparator: /maximum/i.test(stem) ? 'max' : /minimum/i.test(stem) ? 'min' : 'max', value: num(b[6])!,
           unit: /:1/.test(b[7]!) ? 'ratio' : /m2|square/i.test(b[7]!) ? 'm2' : 'm', zones: ss.zones, terms: ss.terms, band, value_source: 'text', unit_provision: cl?.id ?? null,
           source: 'text', reader: 'banded standard', span: `${stem.slice(0, 160)} ${t}`.slice(0, 300) })

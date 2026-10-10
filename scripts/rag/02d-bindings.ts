@@ -154,7 +154,7 @@ async function main() {
 
   for (const c of claims) {
     for (const t of c.terms as string[]) {
-      if (/^(date:|tenure:|!tenure:|pathway:|proposal:)|^detached$/.test(t)) add(c, 'term', t, 'proposal_fact', { note: t.startsWith('date:') ? 'the consent date - given with the question' : t.includes('tenure') ? 'the title type' : t.startsWith('pathway:') ? 'the approval pathway' : 'a fact of the proposal' })
+      if (/^(date:|tenure:|!tenure:|pathway:|proposal:|condition:)|^detached$/.test(t)) add(c, 'term', t, 'proposal_fact', { note: t.startsWith('date:') ? 'the consent date - given with the question' : t.includes('tenure') ? 'the title type' : t.startsWith('pathway:') ? 'the approval pathway' : t.startsWith('condition:') ? `a condition of the permission: ${t.slice(10)}` : 'a fact of the proposal' })
       else if (t.startsWith('discretion:')) add(c, 'term', t, 'discretion', { note: "the consent authority's judgement" })
       else if (t.startsWith('lots:')) add(c, 'term', t, 'bound', { scope_terms: ['lot'], sources: ['cadastre.lot'] })
       else if (t.startsWith('mapped:')) {
