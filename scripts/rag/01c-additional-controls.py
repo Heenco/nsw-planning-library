@@ -9,6 +9,10 @@ hold areas the GEODAAS EPI dump leaves out - Hornsby's Cherrybrook Areas 1, 2 (H
 Space Ratio Map), incentive heights and floor space ratios. UrbanPortalDBP is reached over SSH (psql as postgres,
 read-only COPY ... TO STDOUT); its password is PIPELINE_SSH_PASSWORD in the app .env, read at run time and never
 printed. planningai is the app's DATABASE_URL. 02d-bindings.ts then adds the copy to rag.map_polygon.
+
+The same rows are kept as epi.additional_controls, beside the EPI layers, for readers outside the rag pipeline (the
+/report-2 planning constraints). It is rebuilt here with the rag copy, in the same transaction, so the two never differ.
+No epi_ prefix and no lay_class column on purpose: 02d reads every epi_* map layer, and must not read this one twice.
 """
 import csv, io, json, sys
 from pathlib import Path
@@ -70,6 +74,15 @@ def main():
                           nullif(nullif(legis_value, ''), '<Null>'), nullif(nullif(amendment, ''), '<Null>'), nullif(currency_date, '')::date,
                           ST_Transform(ST_SetSRID(ST_GeomFromEWKB(decode(wkb, 'hex')), 4326), 4283), %s FROM ac_in""", (run,))
     n = cur.rowcount
+    # the copy in schema epi, beside the EPI layers
+    cur.execute('DROP TABLE IF EXISTS epi.additional_controls')
+    cur.execute("""CREATE TABLE epi.additional_controls AS
+                   SELECT id, source, source_id, epi_name, map_name, label, legis_area, legis_clause, legis_value, amendment, currency_date, geom
+                     FROM rag.additional_controls ORDER BY id""")
+    cur.execute('ALTER TABLE epi.additional_controls ADD PRIMARY KEY (id)')
+    cur.execute('CREATE INDEX ON epi.additional_controls USING gist (geom)')
+    cur.execute('CREATE INDEX ON epi.additional_controls (epi_name, map_name)')
+    cur.execute("""COMMENT ON TABLE epi.additional_controls IS 'The LEP maps'' Additional Controls (feature-service layers AdditionalControls_FSR / HOB / LZN / LotSize), copied from UrbanPortalDBP by nsw-planning-library scripts/rag/01c-additional-controls.py with rag.additional_controls. Areas the GEODAAS EPI layers lack, e.g. Hornsby Cherrybrook HOB Areas 1, 2 and FSR Area 10. SRID 4283.'""")
     cur.execute("SELECT epi_name, map_name, count(*) FROM rag.additional_controls WHERE epi_name IN (SELECT title FROM rag.instrument) GROUP BY 1, 2 ORDER BY 1, 2")
     held = cur.fetchall()
     cur.execute("UPDATE rag.run SET finished_at = now(), counts = %s WHERE id = %s", (json.dumps({'rows': n, 'by_layer': by, 'corpus_plans': [list(map(str, h)) for h in held]}), run))
