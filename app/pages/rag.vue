@@ -22,7 +22,7 @@
         <button type="button" class="rg-plan" :class="{ 'rg-plan--on': !plan }" @click="plan = ''">All plans</button>
         <button v-for="l in plans" :key="l" type="button" class="rg-plan" :class="{ 'rg-plan--on': plan === l }" @click="plan = l">{{ shortPlan(l) }}</button>
       </ClientOnly>
-      <span class="rg-plan-links"><a href="#results">Results</a> · <a href="#questions">Questions</a> · <a href="#spatial">Spatial</a> · <a href="#corpus">Corpus &amp; runs</a> · <a href="#about">About the pilot</a></span>
+      <span class="rg-plan-links"><a href="#results">Results</a> · <a href="#questions">Questions</a> · <a href="#spatial">Spatial</a> · <a href="#pipeline">Pipeline</a> · <a href="#corpus">Corpus &amp; runs</a> · <a href="#about">About the pilot</a></span>
     </nav>
 
 
@@ -380,6 +380,68 @@
       </ClientOnly>
     </section>
 
+    <!-- the pipeline itself: every stage, what it makes, from what, and whether a model is involved -->
+    <section class="rg-section" id="pipeline">
+      <h2 class="rg-h2">Pipeline <span class="rg-muted">· every plan · scripts/rag/run.ts, stage by stage - what each makes, from what, and whether a model is involved</span></h2>
+      <p class="rg-goal">
+        The default run calls <strong>no model</strong>: the law is read into data (claims, relations, bindings), side D answers
+        every question from that data, and the answers are scored against keys D never reads. A model appears only in the
+        opt-in comparison lane (<code>--with-llm-variants</code>) - the RAG variants R0-R4 and L0, which were the
+        comparison, not the answer. A full rebuild of five plans takes about 17 minutes, 14 of them building the question
+        bank's lot facts.
+      </p>
+
+      <h3 class="rg-h3">Build and check</h3>
+      <div class="pl-scroll">
+        <svg class="pl-svg" viewBox="0 0 1000 545" role="img" aria-label="The rag pipeline: sources, the graph build, side D's answers, the keys and the score, and the opt-in model lane">
+          <defs>
+            <marker id="pl-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748b" /></marker>
+            <marker id="pl-arrow-paid" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706" /></marker>
+          </defs>
+          <text v-for="c in PL_COLS" :key="c.t" :x="c.x" y="30" class="pl-col">{{ c.t }}</text>
+          <path v-for="(e, i) in plEdges" :key="i" :d="e.d" class="pl-edge" :class="{ 'pl-edge--paid': e.paid, 'pl-edge--test': e.test }" :marker-end="`url(#${e.paid ? 'pl-arrow-paid' : 'pl-arrow'})`" />
+          <g v-for="n in PL_NODES" :key="n.id" :class="'pl-node pl-node--' + n.kind">
+            <rect :x="n.x" :y="n.y" :width="n.w" :height="n.h" rx="7" />
+            <text :x="n.x + 9" :y="n.y + 18" class="pl-t">{{ n.t }}</text>
+            <text v-for="(l, i) in n.lines" :key="i" :x="n.x + 9" :y="n.y + 33 + i * 13" class="pl-l">{{ l }}</text>
+            <text v-if="n.out" :x="n.x + 9" :y="n.y + n.h - 7" class="pl-o">{{ n.out }}</text>
+          </g>
+          <text x="455" y="460" class="pl-lane">Opt-in, paid - the comparison only (--with-llm-variants)</text>
+        </svg>
+      </div>
+      <p class="pl-legend">
+        <span class="pl-key pl-key--src" /> source data, loaded before the pipeline
+        <span class="pl-key pl-key--det" /> no model
+        <span class="pl-key pl-key--test" /> the test: keys and scores, from sources D does not read
+        <span class="pl-key pl-key--paid" /> calls a paid model, only when asked for
+      </p>
+
+      <h3 class="rg-h3">How side D answers one question</h3>
+      <ol class="pl-flow">
+        <li v-for="s in PL_ANSWER" :key="s.t"><strong>{{ s.t }}</strong><span>{{ s.d }}</span></li>
+      </ol>
+
+      <h3 class="rg-h3">Every stage</h3>
+      <table class="rg-table pl-table">
+        <thead><tr><th>#</th><th>Stage</th><th>What it makes, and how</th><th>Reads</th><th>Writes</th><th>Model</th></tr></thead>
+        <tbody>
+          <tr v-for="(s, i) in PL_STAGES" :key="s.id" :class="{ 'pl-row--paid': s.model.includes('paid') }">
+            <td class="n">{{ i + 1 }}</td>
+            <td><code>{{ s.id }}</code><br><span class="rg-muted">{{ s.script }}</span><span v-if="s.optIn" class="rg-tag pl-opt">{{ s.optIn }}</span></td>
+            <td class="rg-small">{{ s.what }}</td>
+            <td class="rg-small">{{ s.reads }}</td>
+            <td class="rg-small rg-mono">{{ s.writes }}</td>
+            <td class="rg-small"><span :class="s.model.includes('paid') ? 'pl-paid' : 'pl-none'">{{ s.model }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="rg-muted">
+        Where Claude took part outside the run: the grid's draft expectations (<code>11-grid-drafts.ts</code>) and the edge cases
+        (<code>scripts/rag/edge-keys.json</code>) were written by Claude in the session, from the clause words, and are stored as
+        data - they are drafts until confirmed, and no model is called when they are loaded or scored.
+      </p>
+    </section>
+
     <!-- corpus, index and runs (every plan): folded -->
     <details id="corpus" class="rg-section rg-fold">
       <summary class="rg-h2">Corpus, index and runs <span class="rg-muted" v-if="status">· every plan · measured {{ when(status.measuredAt) }} in {{ status.ms }} ms</span></summary>
@@ -602,6 +664,79 @@ const took = (a: string, b: string) => { const s = (new Date(b).getTime() - new 
 const short = (o: unknown) => { const t = o ? JSON.stringify(o) : ''; return t.length > 160 ? t.slice(0, 157) + '…' : t }
 const showAll = ref(false)
 
+// ── the pipeline section: one diagram (boxes and the edges between them) and the stage table, as scripts/rag/run.ts runs it
+type PlNode = { id: string; kind: 'src' | 'det' | 'test' | 'paid'; x: number; y: number; w: number; h: number; t: string; lines: string[]; out?: string }
+const PL_COLS = [{ x: 10, t: 'Sources' }, { x: 215, t: 'Build the graph' }, { x: 455, t: 'Answer' }, { x: 720, t: 'Check' }]
+const PL_NODES: PlNode[] = [
+  { id: 'struct', kind: 'src', x: 10, y: 45, w: 180, h: 62, t: 'Plan structure', lines: ["each LEP's tree, from the XML"], out: 'pilot.node · nsw.section' },
+  { id: 'xml', kind: 'src', x: 10, y: 117, w: 180, h: 62, t: 'Legislation XML', lines: ['as at its date, and today’s'], out: 'legislation.nsw.gov.au' },
+  { id: 'lut', kind: 'src', x: 10, y: 189, w: 180, h: 62, t: 'Land Use Tables', lines: ['every zone x use, resolved'], out: 'nsw.lep_permissibility' },
+  { id: 'maps', kind: 'src', x: 10, y: 261, w: 180, h: 88, t: 'Maps and lots', lines: ['EPI map layers, additional', 'controls, cadastre, frontage'], out: 'epi.* · cadastre · derived' },
+  { id: 'snap', kind: 'det', x: 215, y: 45, w: 215, h: 60, t: 'snapshot', lines: ['each plan’s provisions'], out: 'rag.instrument · rag.provision' },
+  { id: 'cur', kind: 'det', x: 215, y: 111, w: 215, h: 60, t: 'currency · groups · terms', lines: ['still the law? zones, definitions'], out: 'rag.coverage · rag.provision' },
+  { id: 'rel', kind: 'det', x: 215, y: 177, w: 215, h: 60, t: 'relations', lines: ['despite, subject to, applies if'], out: 'rag.relation' },
+  { id: 'claims', kind: 'det', x: 215, y: 243, w: 215, h: 60, t: 'claims (twice)', lines: ['what each sentence says, as data'], out: 'rag.claim · rag.unread' },
+  { id: 'bind', kind: 'det', x: 215, y: 309, w: 215, h: 60, t: 'bindings', lines: ['how each condition meets a lot'], out: 'rag.claim_binding · map_polygon' },
+  { id: 'chunks', kind: 'det', x: 215, y: 375, w: 215, h: 60, t: 'chunks', lines: ['text for the model lane below'], out: 'rag.chunk' },
+  { id: 'q', kind: 'det', x: 455, y: 45, w: 240, h: 76, t: 'Question bank', lines: ['real lots, facts frozen: zone, area,', 'frontage, map areas · 9 sets'], out: 'rag.question' },
+  { id: 'd', kind: 'det', x: 455, y: 150, w: 240, h: 102, t: 'Side D - the rag engine', lines: ['the claims that reach the lot, each', 'condition tested, precedence', 'resolved, limits applied'], out: 'rag.answer (variant D)' },
+  { id: 'r', kind: 'test', x: 455, y: 285, w: 240, h: 62, t: 'Resolver check', lines: ['12 precedence cases, no clause named'], out: 'rag.run' },
+  { id: 'k', kind: 'test', x: 720, y: 45, w: 270, h: 128, t: 'Answer keys and expectations', lines: ['Land Use Table: the legislation XML', 'zoning, height, FSR, lot size: the', 'live Planning Portal map', 'your pilot keys; Claude’s drafts and', 'edge cases (drafts until confirmed)'], out: 'rag.key · rag.question.expected' },
+  { id: 's', kind: 'test', x: 720, y: 205, w: 270, h: 90, t: 'Score', lines: ['each side against the keys, per plan;', 'disagreements queued to rule on'], out: 'rag.adjudication · Results above' },
+  { id: 'ctx', kind: 'paid', x: 215, y: 470, w: 215, h: 62, t: 'context', lines: ['a model sums up each chunk'], out: 'Claude Haiku 4.5 / Llama' },
+  { id: 'emb', kind: 'paid', x: 455, y: 470, w: 112, h: 62, t: 'embed', lines: ['chunk vectors'], out: 'bge-en-icl' },
+  { id: 'ret', kind: 'paid', x: 583, y: 470, w: 112, h: 62, t: 'retrieval', lines: ['recall'], out: 'bge-en-icl' },
+  { id: 'ans', kind: 'paid', x: 720, y: 470, w: 270, h: 62, t: 'answers R0-R4, L0', lines: ['a model writes the answer from chunks'], out: 'Claude Haiku 4.5 (never Sonnet)' },
+]
+const plNode = Object.fromEntries(PL_NODES.map(n => [n.id, n]))
+const plR = (n: PlNode) => [n.x + n.w, n.y + n.h / 2], plL = (n: PlNode) => [n.x, n.y + n.h / 2]
+const plT = (n: PlNode) => [n.x + n.w / 2, n.y], plB = (n: PlNode) => [n.x + n.w / 2, n.y + n.h]
+const plCurve = (a: number[], b: number[], horizontal: boolean) => horizontal
+  ? `M${a[0]},${a[1]} C${a[0]! + 20},${a[1]} ${b[0]! - 20},${b[1]} ${b[0]},${b[1]}`
+  : `M${a[0]},${a[1]} L${b[0]},${b[1]}`
+const plEdges = ([
+  ['struct', 'snap', 'h'], ['xml', 'cur', 'h'], ['lut', 'claims', 'h'], ['maps', 'bind', 'h'],
+  ['snap', 'cur', 'v'], ['cur', 'rel', 'v'], ['rel', 'claims', 'v'], ['claims', 'bind', 'v'],
+  ['rel', 'd', 'h'], ['claims', 'd', 'h'], ['bind', 'd', 'h'], ['q', 'd', 'v'], ['r', 'd', 'up'],
+  ['d', 's', 'h'], ['k', 's', 'v'],
+  ['chunks', 'ctx', 'v', 'paid'], ['ctx', 'emb', 'h', 'paid'], ['emb', 'ret', 'h', 'paid'], ['ret', 'ans', 'h', 'paid'], ['ans', 's', 'up', 'paid'],
+] as [string, string, string, string?][]).map(([a, b, how, paid]) => {
+  const A = plNode[a]!, B = plNode[b]!
+  return { paid: !!paid, test: a === 'r', d: how === 'h' ? plCurve(plR(A), plL(B), true) : how === 'up' ? plCurve(plT(A), plB(B), false) : plCurve(plB(A), plT(B), false) }
+})
+const PL_ANSWER = [
+  { t: 'Read the question', d: 'its use, the plan it asks under ("Under Hornsby LEP 2013, ..."), the topic, the title type and number of lots - from its words' },
+  { t: 'The lot’s facts', d: 'zone, area, primary frontage, and every map area with the share of the lot inside it - frozen when the question was built' },
+  { t: 'The claims that could answer it', d: 'every permission, prohibition and standard on that use in that plan and the SEPP; a zone’s catch-all only where the zone does not list the use' },
+  { t: 'Does each reach this lot', d: 'each condition through its binding - the zone, a map area (90% of the lot inside), a layer, a Schedule 1 lot, or a fact of the proposal / the consent authority’s judgement: yes, no or unknown' },
+  { t: 'Which one wins', d: 'the resolver: the law’s own words first (despite, subject to, does not apply), then a SEPP over the LEP, specific over general, a consent bar over a permission; an unknown splits the answer into cases' },
+  { t: 'What limits it', d: 'the standards on the use that reach the lot (lot size, width, FSR, height) and the conditions it stays subject to; a lot that fails a minimum lot size or width is "no, unless varied under cl 4.6"' },
+  { t: 'The answer', d: 'yes / no / maybe or a figure, the clauses that control it, and every condition that could not be checked - stored as variant D and scored against the keys' },
+]
+const PL_STAGES = [
+  { id: 'controls', script: '01c-additional-controls.py', optIn: '--refresh-controls', what: 'Copies the maps’ additional controls (APU, key sites, local provisions ...) so a clause’s map area has a polygon', reads: 'UrbanPortalDBP AdditionalControls_* (over SSH)', writes: 'rag.additional_controls', model: 'none' },
+  { id: 'snapshot', script: '01-snapshot.ts', what: 'Copies each plan’s provisions - stems, list items with their and / or, tables as rows and cells; replaces only a plan whose text changed', reads: 'pilot.node (LEPs), nsw.section (SEPP parts in scope)', writes: 'rag.instrument, rag.provision', model: 'none' },
+  { id: 'currency', script: '01d-currency.py', what: 'Is the text still the law: compares the held version with today’s and lists clauses added, changed or removed since', reads: 'legislation XML (held date and today)', writes: 'rag.coverage', model: 'none' },
+  { id: 'groups', script: '01b-groups.py', what: 'Land Use Table zones and other clause groups, from the XML’s structure', reads: 'legislation XML', writes: 'rag.provision', model: 'none' },
+  { id: 'terms', script: '02a-terms.py', what: 'Every definition as its own provision (the Dictionary and "In this clause-" terms)', reads: 'legislation XML', writes: 'rag.provision (kind term)', model: 'none' },
+  { id: 'claims-pre', script: '02c-claims.ts', what: 'Claims, first pass - the standards cl 4.6 and the relations need', reads: 'rag.provision, nsw.lep_permissibility', writes: 'rag.claim', model: 'none' },
+  { id: 'relations', script: '02-relations.ts', what: 'The law’s own logic as data: despite, subject to, applies only if, does not apply, refers to, defines, prevails over', reads: 'rag.provision, rag.claim', writes: 'rag.relation, rag.unread', model: 'none' },
+  { id: 'claims', script: '02c-claims.ts', what: 'Claims, read sentence by sentence by drafting pattern - permit, prohibit, standard, condition, frame - each with its uses, zones and terms; the figures no reader took are listed', reads: 'rag.provision, rag.relation, nsw.lep_permissibility', writes: 'rag.claim, rag.unread', model: 'none' },
+  { id: 'bindings', script: '02d-bindings.ts', what: 'How each condition is tested on a lot: a zone, a map label’s polygons, a registered layer, a council list - or why it cannot be (no data, no polygon, a fact of the proposal, discretion)', reads: 'rag.claim, epi.* layers, rag.additional_controls, nsw.scope_layer, nsw.rule_spatial_ref', writes: 'rag.map_polygon, rag.claim_binding, rag.area_clause, rag.coverage', model: 'none' },
+  { id: 'chunks', script: '03-chunks.ts', what: 'Retrieval chunks of the text - used only by the model lane; unchanged chunks keep their embeddings', reads: 'rag.provision', writes: 'rag.chunk', model: 'none' },
+  { id: 'context', script: '04-context.ts', optIn: '--with-llm-variants', what: 'A model-written context sentence per chunk (contextual retrieval, variant R2)', reads: 'rag.chunk', writes: 'rag.chunk (context)', model: 'Claude Haiku 4.5, or Llama 3.3 on DeepInfra - paid' },
+  { id: 'embed', script: '05-embed.ts', optIn: '--with-llm-variants', what: 'Embeddings for chunks without one', reads: 'rag.chunk', writes: 'rag.embedding', model: 'bge-en-icl on DeepInfra - paid' },
+  { id: 'keys', script: '06a-keys.py', what: 'Answer keys from sources D does not read: permissibility from the Land Use Table in the legislation XML (uses another clause governs are left out), and zoning, height, FSR and lot size from the live Planning Portal map', reads: 'legislation XML, Planning Portal MapServer, cadastre.lot, epi.*', writes: 'rag.key', model: 'none' },
+  { id: 'questions', script: '06-questions.ts', what: 'The question bank, per plan: real lots with frozen facts; sets key_lut, key_map, pilot_key, hard_case, propcode, local, grid, area (derived) and edge', reads: 'rag.key, pilot.key, edge-keys.json, cadastre.lot, epi.*, rag.map_polygon', writes: 'rag.question', model: 'none' },
+  { id: 'drafts', script: '11-grid-drafts.ts', what: 'Claude’s draft expectations for the grid, kept as code so a corrected reading is re-applied everywhere', reads: 'rag.question', writes: 'rag.question (expected)', model: 'none at run time' },
+  { id: 'engine', script: '07-engine.ts', optIn: '--with-pilot', what: 'Side P, for comparison only: the CDC engine on each question’s plan (slow: one run per question)', reads: 'the CDC pilot', writes: 'rag.engine_answer', model: 'none' },
+  { id: 'resolver', script: '08-resolver-check.ts', what: 'The precedence keys: does the resolver reach the ruled answer by the right rule, given only the claims and the relations', reads: 'rag.relation, fixtures', writes: 'rag.run', model: 'none' },
+  { id: 'deterministic', script: '15-deterministic.ts', what: 'Side D answers every question: the claims, their bindings on the lot’s facts, the resolver, the limits', reads: 'rag.claim, rag.claim_binding, rag.relation, rag.question', writes: 'rag.answer (D)', model: 'none' },
+  { id: 'retrieval', script: '09-retrieval.ts', optIn: '--with-llm-variants', what: 'Retrieval recall per variant (embeds the questions)', reads: 'rag.question, rag.embedding', writes: 'rag.run', model: 'bge-en-icl on DeepInfra - paid' },
+  { id: 'answers', script: '10-answer.ts', optIn: '--with-llm-variants', what: 'The RAG variants R0-R4 and L0: a model reads the retrieved chunks and writes the answer (spend capped per stage)', reads: 'rag.question, rag.chunk, rag.embedding', writes: 'rag.answer (R0-R4, L0)', model: 'Claude Haiku 4.5 by default - paid; never Sonnet' },
+  { id: 'score', script: '12-score.ts', what: 'Every side against the keys, per plan and per set; a key or draft some side disagrees with goes to the queue', reads: 'rag.answer, rag.question', writes: 'rag.adjudication, the Results above', model: 'none' },
+]
+
 // the question browser: the list once, each question's full answer on demand
 const QSETS = [{ id: 'all', label: 'All' }, { id: 'hard_case', label: 'Hard cases' }, { id: 'local', label: 'Additional uses & local controls' },
   { id: 'propcode', label: 'PropCode claims' }, { id: 'pilot_key', label: 'Pilot keys' }, { id: 'grid', label: 'Grid' }]
@@ -743,5 +878,37 @@ const ruling = (e: any) => {
 .rg-more { font-size: 12px; padding: 5px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #334155; cursor: pointer; }
 .rg-good { color: #15803d; }
 .rg-bad { color: #b91c1c; }
+/* the pipeline diagram: a fixed drawing, scrolled sideways on a phone rather than shrunk past reading */
+.pl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #e2e8f0; border-radius: 8px; background: #fcfcfd; }
+.pl-svg { display: block; width: 100%; min-width: 760px; height: auto; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.pl-col { font-size: 11px; font-weight: 700; fill: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+.pl-lane { font-size: 11px; font-weight: 700; fill: #b45309; text-transform: uppercase; letter-spacing: .05em; }
+.pl-node rect { stroke-width: 1.2; }
+.pl-node--src rect { fill: #f1f5f9; stroke: #94a3b8; }
+.pl-node--det rect { fill: #ecfdf5; stroke: #10b981; }
+.pl-node--test rect { fill: #eef2ff; stroke: #6366f1; }
+.pl-node--paid rect { fill: #fffbeb; stroke: #f59e0b; stroke-dasharray: 5 3; }
+.pl-t { font-size: 12.5px; font-weight: 700; fill: #0f172a; }
+.pl-l { font-size: 11px; fill: #334155; }
+.pl-o { font-size: 9.5px; fill: #64748b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.pl-edge { fill: none; stroke: #94a3b8; stroke-width: 1.4; }
+.pl-edge--paid { stroke: #f59e0b; stroke-dasharray: 5 3; }
+.pl-edge--test { stroke-dasharray: 2 3; }
+.pl-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 12px; color: #475569; margin: 8px 0 0; }
+.pl-key { display: inline-block; width: 14px; height: 10px; border-radius: 3px; border: 1.2px solid; vertical-align: -1px; margin-right: 5px; }
+.pl-key--src { background: #f1f5f9; border-color: #94a3b8; }
+.pl-key--det { background: #ecfdf5; border-color: #10b981; }
+.pl-key--test { background: #eef2ff; border-color: #6366f1; }
+.pl-key--paid { background: #fffbeb; border-color: #f59e0b; border-style: dashed; }
+.pl-flow { counter-reset: pl; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.pl-flow li { counter-increment: pl; position: relative; border: 1px solid #a7f3d0; background: #f0fdf4; border-radius: 8px; padding: 8px 10px 9px 34px; font-size: 12.5px; overflow-wrap: anywhere; }
+.pl-flow li::before { content: counter(pl); position: absolute; left: 9px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: #10b981; color: #fff; font-size: 11px; font-weight: 700; text-align: center; line-height: 18px; }
+.pl-flow strong { display: block; color: #064e3b; margin-bottom: 2px; }
+.pl-flow span { color: #334155; }
+.pl-table code { font-size: 12px; }
+.pl-opt { display: inline-block; margin-top: 3px; background: #fef3c7; color: #92400e; }
+.pl-row--paid td { background: #fffbeb; }
+.pl-none { color: #15803d; font-weight: 600; }
+.pl-paid { color: #b45309; font-weight: 600; }
 .rg-quote { white-space: pre-wrap; background: #f8fafc; border-left: 3px solid #cbd5e1; padding: 6px 10px; margin: 6px 0 0; }
 </style>
