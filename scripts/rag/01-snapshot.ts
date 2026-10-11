@@ -60,15 +60,18 @@ interface Row {
 }
 type Q = (sql: string, p?: unknown[]) => Promise<pg.QueryResult<any>>
 
-/** an LEP: the pilot's nodes */
-async function lepRows(q: Q, doc: any) {
+/** an LEP, or a SEPP taken whole: the pilot's nodes (a scope keeps only the top-level units named and what is under them) */
+async function lepRows(q: Q, doc: any, scope: string[] | null = null) {
   const pilotRuns = (await q(`SELECT DISTINCT ON (stage) stage, id, started_at FROM pilot.run WHERE document_id = $1 ORDER BY stage, started_at DESC`, [doc.id])).rows
-  const nodes = (await q(`
+  const all = (await q(`
     SELECT n.id, n.section_id, n.parent_id, n.local_id, n.kind, n.ordinal, n.heading, n.text, n.connective, n.list_role, n.run_id,
            coalesce(s.sort_order, ps.sort_order) AS sort
       FROM pilot.node n LEFT JOIN nsw.section s ON s.id = n.section_id
       LEFT JOIN pilot.node p ON p.id = n.parent_id LEFT JOIN nsw.section ps ON ps.id = p.section_id
      WHERE n.document_id = $1`, [doc.id])).rows
+  const allById = new Map(all.map(n => [n.id, n]))
+  const topOf = (n: any) => { let x = n; while (x.parent_id && allById.get(x.parent_id)) x = allById.get(x.parent_id); return x.local_id }
+  const nodes = scope ? all.filter(n => scope.includes(topOf(n))) : all
   const byId = new Map(nodes.map(n => [n.id, n]))
   const kids = new Map<string, any[]>()
   for (const n of nodes) if (n.parent_id) { if (!kids.has(n.parent_id)) kids.set(n.parent_id, []); kids.get(n.parent_id)!.push(n) }
@@ -124,17 +127,19 @@ async function main() {
     if (!d) throw new Error(`corpus.json names "${title}", which is not in nsw.document`)
     return d
   }
-  const wanted = [...CORPUS.leps.map(t => ({ title: t, kind: 'lep' as const, rank: 20, scope: null as string[] | null })),
-                  ...CORPUS.sepps.map(s => ({ title: s.title, kind: 'sepp' as const, rank: 30, scope: s.scope }))]
+  // a SEPP whose tables matter (the Codes SEPP's standards are tables by lot width) takes the pilot tree like an LEP:
+  // nsw.section flattens tables into text. route 'pilot' with no scope is the whole instrument
+  const wanted = [...CORPUS.leps.map(t => ({ title: t, kind: 'lep' as const, rank: 20, scope: null as string[] | null, route: 'pilot' as const })),
+                  ...CORPUS.sepps.map(s => ({ title: s.title, kind: 'sepp' as const, rank: 30, scope: s.scope ?? null, route: (s.route ?? 'section') as 'pilot' | 'section' }))]
   const held = new Map<string, any>((await q(`SELECT document_id, title, source_fingerprint, snapshot_run FROM rag.instrument`)).rows.map(r => [r.document_id, r]))
 
   const plan: { d: any; w: typeof wanted[number]; rows: Row[]; source: any; fp: string; action: 'new' | 'changed' | 'unchanged' | 'forced' }[] = []
   for (const w of wanted) {
     const d = await doc(w.title)
-    const got = w.kind === 'lep' ? await lepRows(q, d) : await seppRows(q, d, w.scope!), source = got.source
+    const got = w.route === 'pilot' ? await lepRows(q, d, w.scope) : await seppRows(q, d, w.scope!), source = got.source
     const had = new Map<string, string>((await q(`SELECT local_id, id FROM rag.provision WHERE document_id = $1`, [d.id])).rows.map(r => [r.local_id, r.id]))
     const rows = stableIds(got.rows, had)
-    if (!rows.length) throw new Error(`${w.title}: no ${w.kind === 'lep' ? 'pilot.node rows - run the CDC pilot structure for it first' : 'nsw.section rows in scope'}`)
+    if (!rows.length) throw new Error(`${w.title}: no ${w.route === 'pilot' ? 'pilot.node rows - run the CDC pilot structure for it first' : 'nsw.section rows in scope'}`)
     const fp = fingerprint(rows), h = held.get(d.id)
     // an instrument loaded before fingerprints were kept: its own snapshot rows give the fingerprint it had
     const was = h?.source_fingerprint ?? (h ? fingerprint((await q(`SELECT local_id, content_sha FROM rag.provision WHERE document_id = $1 AND snapshot_run = $2`, [d.id, h.snapshot_run])).rows) : null)
@@ -143,7 +148,7 @@ async function main() {
   const drop = [...held.values()].filter(h => !plan.some(p => p.d.id === h.document_id))
   const counts = (rows: Row[]) => Object.fromEntries(Object.entries(rows.reduce((a: Record<string, number>, r) => ({ ...a, [r.kind]: (a[r.kind] ?? 0) + 1 }), {})).sort((a, b) => b[1] - a[1]).slice(0, 8))
   for (const p of plan) console.log(`${p.action.padEnd(9)} ${p.w.kind} ${p.d.title} (as at ${p.d.as_at}): ${p.rows.length} provisions`, counts(p.rows),
-    p.w.kind === 'lep' ? `pilot ${p.source.pilot_runs.map((r: any) => `${r.stage}@${new Date(r.started_at).toISOString().slice(0, 16)}`).join(', ')}` : `scope ${p.w.scope!.join(', ')}`)
+    p.w.route === 'pilot' ? `pilot ${p.source.pilot_runs.map((r: any) => `${r.stage}@${new Date(r.started_at).toISOString().slice(0, 16)}`).join(', ')}${p.w.scope ? ` scope ${p.w.scope.join(', ')}` : ''}` : `scope ${p.w.scope!.join(', ')}`)
   for (const h of drop) console.log(`drop      ${h.title} (no longer in corpus.json)`)
   const todo = plan.filter(p => p.action !== 'unchanged')
   if (DRY || (!todo.length && !drop.length)) { if (!todo.length && !drop.length) console.log('nothing to do'); await client.end(); return }

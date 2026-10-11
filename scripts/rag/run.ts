@@ -47,6 +47,7 @@ const STAGES: Stage[] = [
   { id: 'context', what: 'a model-written context for each chunk without one', cmd: tsx('04-context.ts'), paid: 'context model', optIn: '--with-llm-variants' },
   { id: 'embed', what: 'embeddings for chunks without them (DeepInfra bge-en-icl)', cmd: tsx('05-embed.ts'), paid: 'embeddings', optIn: '--with-llm-variants' },
   { id: 'keys', what: 'answer keys from sources D does not read: the Land Use Table from the legislation XML, the lot maps from the live Planning Portal', cmd: py('06a-keys.py') },
+  { id: 'keys-codes', what: 'the complying development codes’ keys on the same lots: cl 1.19 land from the Planning Portal services, Housing Code eligibility and standards from the XML tables', cmd: py('06b-keys-codes.py') },
   { id: 'questions', what: 'the question bank with frozen lot facts, per LEP', cmd: tsx('06-questions.ts') },
   { id: 'drafts', what: 'Claude\'s draft keys for the hand-written plan\'s grid', cmd: tsx('11-grid-drafts.ts') },
   { id: 'engine', what: 'side P, for comparison only: the CDC engine on each question\'s plan', cmd: tsx('07-engine.ts'), optIn: '--with-pilot' },

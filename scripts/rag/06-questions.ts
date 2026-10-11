@@ -345,10 +345,21 @@ async function main() {
     const expected = { status: 'key', ...k.expected, key_source: k.source, note: k.note }
     if (k.kind === 'lut') qs.push({ set_name: 'key_lut', document_id: k.document_id, clause: k.subject, cadid: k.cadid, kind: 'permissibility', use_term: k.subject,
       text: `Under ${shortName(k.title)}, is ${/^[aeiou]/i.test(k.subject) ? 'an' : 'a'} ${k.subject} permissible on ${at(l)}?`, expected, tags: ['key', 'lut'], lot: l })
-    else if (MAP_Q[k.subject]) qs.push({ set_name: 'key_map', document_id: k.document_id, clause: k.subject, cadid: k.cadid, kind: 'map', use_term: null,
+    else if (k.kind === 'map' && MAP_Q[k.subject]) qs.push({ set_name: 'key_map', document_id: k.document_id, clause: k.subject, cadid: k.cadid, kind: 'map', use_term: null,
       text: MAP_Q[k.subject]!(l, k), expected, tags: ['key', 'map'], lot: l })
+    // the complying development codes (06b-keys-codes.py): a cl 1.19 land exclusion the live service draws (asked of the
+    // lot's facts), the Housing Code on the lot, and its standards for a dwelling house - asked under the code by name
+    else if (k.kind === 'cdc_land') qs.push({ set_name: 'key_cdc_land', document_id: k.document_id, clause: k.subject, cadid: k.cadid, kind: 'layer', use_term: k.subject,
+      text: `Is ${at(l)} on land that is ${/^(land |susceptible|flood|bush|acid|drinking|environmentally|heritage)/i.test(k.subject) ? '' : 'a '}${k.subject.replace(/ \(EPI\)$/, '')} (an exclusion under cl 1.19 of the Codes SEPP)?`, expected, tags: ['key', 'cdc'], lot: l })
+    else if (k.kind === 'cdc_eligible') qs.push({ set_name: 'key_cdc', document_id: k.document_id, clause: 'Housing Code', cadid: k.cadid, kind: 'permissibility', use_term: k.subject,
+      text: `Under ${shortName(k.title)}, can a 1 or 2 storey ${k.subject} be erected on ${at(l)} as complying development under the Housing Code?`, expected, tags: ['key', 'cdc'], lot: l })
+    else if (k.kind === 'cdc_standard') {
+      const Q: Record<string, string> = { height: 'maximum building height', floor_area: 'maximum gross floor area of all buildings', landscaping: 'minimum landscaped area', setback_side: 'minimum setback from each side boundary', setback_rear: 'minimum setback from the rear boundary' }
+      if (Q[k.subject]) qs.push({ set_name: 'key_cdc', document_id: k.document_id, clause: k.subject, cadid: k.cadid, kind: 'standard', use_term: 'dwelling house',
+        text: `Under ${shortName(k.title)}, what is the ${Q[k.subject]} for a dwelling house erected as complying development under the Housing Code on ${at(l)}?`, expected, tags: ['key', 'cdc'], lot: l })
+    }
   }
-  console.log(`keys: ${keyRows.length} (${keyRows.filter(k => k.kind === 'lut').length} Land Use Table, ${keyRows.filter(k => k.kind === 'map').length} map)`)
+  console.log(`keys: ${keyRows.length} (${keyRows.filter(k => k.kind === 'lut').length} Land Use Table, ${keyRows.filter(k => k.kind === 'map').length} map, ${keyRows.filter(k => k.kind.startsWith('cdc')).length} codes)`)
 
   for (const x of qs) x.id = uuidOf(`rag-q|${x.set_name}|${x.clause ?? ''}|${x.cadid ?? ''}|${x.key_ref ?? ''}|${x.text}`)
   const bySet = qs.reduce((a: Record<string, number>, x) => ({ ...a, [x.set_name]: (a[x.set_name] ?? 0) + 1 }), {})

@@ -89,6 +89,9 @@ async function main() {
     if (w === 'division') return up(p, x => x.kind === 'division')
     if (w === 'chapter') return up(p, x => x.kind === 'chapter')
     if (w === 'schedule') return up(p, x => x.kind === 'schedule')
+    // "This code applies to ..." in an exempt and complying development policy: the Part (or division of the exempt
+    // codes Part) headed "... Code" the sentence sits in
+    if (w === 'code') return up(p, x => /^pt\.[0-9A-Z]+(?:-div\.[0-9A-Z]+)?$/.test(x.local_id) && /\bCodes?\b/.test(x.heading ?? ''))
     return null
   }
   const local = (doc: string, id: string) => byLocal.get(`${doc}|${id}`) ?? null
@@ -322,12 +325,20 @@ async function main() {
     }
 
     // applies (only) to / if - the frames: where a clause, Part or Chapter reaches
-    const ap = t.match(/^This (clause|section|subclause|Part|Division|Chapter|Schedule|Plan|Policy) (?:also )?applies (only )?(to|if|where|in relation to|despite)\b\s*(.*)$/i)
+    // ("Subject to subclause (2), this code applies to ..." opens with its proviso; the proviso is read on its own)
+    const ap = t.match(/^(?:Subject to [^,]+,\s*)?This (clause|section|subclause|Part|Division|Chapter|Schedule|Plan|Policy|code) (?:also )?applies (only )?(to|if|where|in relation to|despite)\b\s*(.*)$/i)
     if (ap && ap[3]!.toLowerCase() !== 'despite') {
       const unit = /Plan|Policy/i.test(ap[1]!) ? null : unitOf(ap[1]!, p)
       add({ kind: 'applies_only_if', from_provision: unit?.id ?? p.id, to_provision: p.id, basis: 'text', reader: 'overrides', span: clip(t, 300), authority_provision: p.id,
         scope: { unit: ap[1], only: !!ap[2], form: ap[3], phrase: clip(norm(ap[4]), 300), exceptions: /\bother than\b|\bexcept\b/i.test(t), conditions: subtreeText(p, 30) },
         status: unit || /Plan|Policy/i.test(ap[1]!) ? 'verified' : 'proposed' })
+    } else if (/^This (Division|Subdivision|Part) sets out the development standards that apply to\b/i.test(t)) {
+      // "This Division sets out the development standards that apply to the erection or alteration of, or an addition to, a
+      // dwelling house and any attached development" (a complying development code): the Division's reach, as a frame
+      const sm = t.match(/^This (Division|Subdivision|Part) sets out the development standards that apply to (?:the following types of (?:complying|exempt) development under this code\s*[—–-]\s*)?(.*)$/i)!
+      const unit = sm[1]!.toLowerCase() === 'subdivision' ? up(p, x => x.kind === 'subdivision') : unitOf(sm[1]!, p)
+      add({ kind: 'applies_only_if', from_provision: unit?.id ?? p.id, to_provision: p.id, basis: 'text', reader: 'overrides', span: clip(t, 300), authority_provision: p.id,
+        scope: { unit: sm[1], only: true, form: 'to', phrase: clip(norm(sm[2] || t), 300), exceptions: /\bother than\b|\bexcept\b/i.test(t), conditions: subtreeText(p, 30) }, status: unit ? 'verified' : 'proposed' })
     } else if (/^Applies (only )?(to|if|where|in relation to)\b/i.test(t)) {
       const unit = /-ssec\.[^-]+$/.test(p.local_id) && p.parent_id ? byId.get(p.parent_id)! : p
       add({ kind: 'applies_only_if', from_provision: unit.id, to_provision: p.id, basis: 'text', reader: 'overrides', span: clip(t, 300), authority_provision: p.id,

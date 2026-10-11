@@ -1,5 +1,5 @@
 {
-  "_": "The instruments in schema rag. 01-snapshot.ts loads exactly these; 01b-groups.py and 02a-terms.py read their XML at each instrument's as-at date. An LEP comes from pilot.node (the CDC pilot's structure); a SEPP from nsw.section, limited to its scope (top-level local ids). Add an LEP here and run scripts/rag/run.ts.",
+  "_": "The instruments in schema rag. 01-snapshot.ts loads exactly these; 01b-groups.py and 02a-terms.py read their XML at each instrument's as-at date. An LEP comes from pilot.node (the CDC pilot's structure); a SEPP from nsw.section, limited to its scope (top-level local ids). Add an LEP here and run scripts/rag/run.ts. A SEPP with \"route\": \"pilot\" is taken from pilot.node like an LEP (its tables kept); with no scope it is loaded whole.",
   "leps": [
     "Randwick Local Environmental Plan 2012",
     "Hornsby Local Environmental Plan 2013",
@@ -18,6 +18,11 @@
         "sch.7A",
         "sch.10"
       ]
+    },
+    {
+      "title": "State Environmental Planning Policy (Exempt and Complying Development Codes) 2008",
+      "route": "pilot",
+      "scope": null
     }
   ]
 }

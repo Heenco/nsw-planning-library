@@ -44,28 +44,55 @@ interface Claim { provision_id: string; kind: string; consent?: string | null; u
   unit_provision?: string | null; source: string; span?: string | null; reader: string }
 
 const norm = (s: unknown) => String(s ?? '').replace(/\s+/g, ' ').trim()
-const ZONE = /\bZone\s+([A-Z]{1,2}\d{1,2}[A-Z]?)\b/g
-const zoneCodes = (t: string) => [...new Set([...t.matchAll(ZONE)].map(m => m[1]!))]
+// "Zone R2", and a list "Zones RU1, RU2, RU4 or RU6" / "Zones R1, R2, R3, R4 and RU5"
+const ZONE = /\bZones?\s+((?:[A-Z]{1,2}\d{1,2}[A-Z]?)(?:(?:,\s*|\s+(?:and|or)\s+)[A-Z]{1,2}\d{1,2}[A-Z]?)*)\b/g
+const zoneCodes = (t: string) => [...new Set([...t.matchAll(ZONE)].flatMap(m => m[1]!.split(/,\s*|\s+(?:and|or)\s+/)))]
 
-/** what a figure is about */
+/** what a figure is about. The first group are the questions the pilot asks by name; the rest are the measures the
+ *  complying development codes set in their tables ("Minimum setback from each side boundary", "Maximum length of built to
+ *  boundary wall", "Minimum landscaped area", "Maximum GFA"), each its own topic so a question can ask for it */
 function topicOf(t: string): string | null {
   const s = t.toLowerCase()
   if (/floor space ratio/.test(s)) return 'fsr'
+  if (/built to boundary|built-to-boundary/.test(s)) return /height/.test(s) ? 'btb_height' : 'btb_length'
+  if (/setback/.test(s)) return /primary road|front/.test(s) ? 'setback_primary' : /secondary road/.test(s) ? 'setback_secondary' : /parallel road|lane\b/.test(s) ? 'setback_parallel' : /rear/.test(s) ? (/side/.test(s) ? 'setback_side_rear' : 'setback_rear') : /side/.test(s) ? 'setback_side' : /boundary/.test(s) ? 'setback_boundary' : 'setback'
+  if (/garage door/.test(s)) return 'garage_door_width'
+  if (/basement/.test(s)) return 'basement_area'
+  if (/site coverage/.test(s)) return 'site_coverage'
+  if (/footprint/.test(s)) return 'footprint'
+  if (/private open space/.test(s)) return 'private_open_space'
   if (/height/.test(s)) return 'height'
   if (/\bwide\b|width|frontage/.test(s)) return 'lot_width'
   if (/lot size|site area|area of (the|each|any) (resulting )?lot|lot must have an area|size of (any|each) lot|(?<!floor )area of at least|\b(lot|site) (that )?(is|will be) at least\b/.test(s)) return 'lot_size'
-  if (/floor area/.test(s)) return 'floor_area'
+  if (/floor area|\bgfa\b/.test(s)) return 'floor_area'
   if (/parking|car space/.test(s)) return 'parking'
   if (/landscap/.test(s)) return 'landscaping'
+  if (/storeys?\b/.test(s)) return 'storeys'
   return null
 }
-/** "a maximum ... of 0.65:1" / "no more than 60m2" / "at least 225m2" / "9.5 metres" */
+/** "a maximum ... of 0.65:1" / "no more than 60m2" / "at least 225m2" / "9.5 metres" / "900mm" (0.9 m) / "60% of lot area" */
 function figureOf(t: string): { comparator: string | null; value: number; unit: string } | null {
-  const m = t.match(/(\d[\d,]*(?:\.\d+)?)\s*(:1|m2|m²|square metres|metres|m\b|%|spaces?|storeys?)/i); if (!m) return null
-  const unit = /:1/.test(m[2]!) ? 'ratio' : /m2|m²|square/i.test(m[2]!) ? 'm2' : /metres|^m$/i.test(m[2]!) ? 'm' : m[2]!.toLowerCase()
+  const m = t.match(/(\d[\d,]*(?:\.\d+)?)\s*(:1|m2|m²|square metres|metres|mm\b|m\b|%|spaces?|storeys?)/i); if (!m) return null
+  const mm = /^mm$/i.test(m[2]!)
+  const unit = /:1/.test(m[2]!) ? 'ratio' : /m2|m²|square/i.test(m[2]!) ? 'm2' : /metres|^mm?$/i.test(m[2]!) ? 'm' : m[2]!.toLowerCase()
   const comparator = /maximum|no more than|not (?:be |to be )?more than|not (?:to )?exceed|must not exceed|up to/i.test(t) ? 'max'
     : /minimum|at least|not (?:be |to be )?less than|no less than/i.test(t) ? 'min' : null
-  return { comparator, value: Number(m[1]!.replace(/,/g, '')), unit }
+  const value = Number(m[1]!.replace(/,/g, ''))
+  return { comparator, value: mm ? value / 1000 : value, unit }
+}
+/**
+ * A table cell's value as the codes write it: "900mm", "8.5m", "60% of lot area", "25% of lot area + 150" (a floor area from
+ * the lot's area), "20m or 50% of the depth of the lot, whichever is the lesser" (a setback capped by the lot's depth).
+ * The share forms keep the base they are a share of, and the figure the lot gives is worked out when the lot is known.
+ */
+function cellValue(v: string): { value: number | null; unit: string; comparator: string | null; band: any } | null {
+  const s = v.replace(/\s+/g, ' ').trim()
+  let m = s.match(/^(\d[\d,.]*)\s*% of (?:the )?(lot area|site area|area of the (?:lot|landholding)|landholding area|parent lot area)(?: \+ (\d[\d,.]*))?/i)
+  if (m) return { value: Number(m[1]!.replace(/,/g, '')), unit: '%', comparator: null, band: { relative: 'lot area', add: m[3] ? Number(m[3].replace(/,/g, '')) : null } }
+  m = s.match(/^(\d[\d,.]*)\s*(m|mm)\s+or\s+(\d[\d,.]*)\s*% of the depth of the lot, whichever is the (lesser|greater)/i)
+  if (m) return { value: Number(m[1]!.replace(/,/g, '')) / (m[2]!.toLowerCase() === 'mm' ? 1000 : 1), unit: 'm', comparator: null, band: { pick: m[4]!.toLowerCase(), relative: 'depth of the lot', pct: Number(m[3]!.replace(/,/g, '')) } }
+  const f = figureOf(s); if (!f) return null
+  return { value: f.value, unit: f.unit, comparator: f.comparator, band: null }
 }
 /** "dual occupancies or semi-detached dwellings", "a secondary dwelling", "multi dwelling housing or attached dwellings" */
 /**
@@ -149,7 +176,10 @@ async function main() {
   const terms = provs.filter(p => p.kind === 'term')
   const zoneTerms = new Map<string, string[]>()
   for (const t of terms) { const z = zoneCodes(t.own_text); if (z.length >= 2) zoneTerms.set(norm(t.heading).toLowerCase(), z) }
-  const scopeTerms = [...new Set(terms.map(t => norm(t.heading).toLowerCase()).filter(h => h.split(' ').length >= 3 && !zoneTerms.has(h)))].sort((a, b) => b.length - a.length)
+  // (a defined term that is a map's name - "Lot Size Map", "Additional Permitted Uses Map" - is read by the map readers, never as a place)
+  const scopeTerms = [...new Set(terms.map(t => norm(t.heading).toLowerCase()).filter(h => h.split(' ').length >= 3 && !zoneTerms.has(h) && !/ map$/.test(h)))].sort((a, b) => b.length - a.length)
+  const lgaTerms = new Map<string, string>()
+  for (const t of terms) { const m = norm(t.own_text).match(/\bmeans the local government areas of (.+)$/i); if (m) lgaTerms.set(norm(t.heading).toLowerCase(), `the following local government areas— ${m[1]!.slice(0, 1500)}`) }
   // a term that names a mapped area: "Area 1 means the land identified as "Area 1" on the Height of Buildings Map" (Hornsby
   // 7.1). It is in force within the unit its definition clause names ("In this Part-" its Part, "In this clause-" the
   // clause), else the whole instrument - so another Part's "Area 1" is never read as this one
@@ -197,7 +227,12 @@ async function main() {
     for (const [term, z] of zoneTerms) if (new RegExp(`\\bin an? ${term}\\b`, 'i').test(phrase)) zones.push(...z)
     if (at && !zones.length) for (const [g, re] of Object.entries(ZONE_GROUP))
       if (new RegExp(`\\bin an? ${g} zone\\b`, 'i').test(phrase) && !new RegExp(`\\bother than (?:land )?in an? ${g} zone\\b`, 'i').test(phrase)) zones.push(...(planZones.get(at.document_id) ?? []).filter(z => re.test(z)))
-    for (const term of scopeTerms) if (new RegExp(`\\b(in|on|within) an? ${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(phrase)) tms.push(term)
+    for (const term of scopeTerms) if (new RegExp(`\\b(in|on|within) (?:an? |the )?${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(phrase)) {
+      // a defined term that is a list of councils ("inland local government areas means the local government areas of
+      // Albury City, Armidale Regional, ...") is bound as that list, not as words no layer holds
+      const def = lgaTerms.get(term)
+      tms.push(def ?? term)
+    }
     for (const m of phrase.matchAll(/\bif development for the purposes? of (.+?) is permissible on the land under another environmental planning instrument/gi))
       requires.push({ permissible: usesOf(m[1]!)[0] })
     // "This clause applies if development for the purposes of an eco-tourist facility is permitted with development consent
@@ -212,6 +247,9 @@ async function main() {
     // land a map marks ("shown as Area 1 on the Key Sites Map", "identified as "Y1" or "Y2" on the ... Map", and the plans'
     // own slip "identified as "Area 3" of the ... Map") and land named by its lot ("Lot 1, DP 433534")
     for (const m of phrase.matchAll(/\b(?:shown|identified|marked) as (.+?) (?:on|of) the ([A-Z][\w ]*? Map)/g)) tms.push(`mapped:${norm(m[1]).replace(/[“”"]/g, '')} on the ${m[2]}`)
+    // "land shown on the Riverstone East Stage 3 Precinct Variation Area Map", "a subdivision of any land shown on the Lot
+    // Size Map": any polygon of that map over the lot, whatever its label
+    for (const m of phrase.matchAll(/\bland (?:shown|identified) on the ([A-Z][\w ]*? Map)\b/g)) if (!tms.some(t => t.startsWith('mapped:') && t.endsWith(m[1]!))) tms.push(`anymap:${m[1]}`)
     // title type: a community title subdivision is "under the Community Land Development Act"; a strata one is "by the
     // registration of a strata plan" / "for a strata plan scheme"; "but does not apply to ..." excludes it
     const notPart = phrase.match(/\bbut does not apply to (.+)$/i)?.[1] ?? ''
@@ -303,6 +341,10 @@ async function main() {
   for (const f of frames) {
     const phrase = norm(f.scope?.phrase), conds: string[] = f.scope?.conditions ?? []
     const usesM = phrase.match(/^development (?:for the purposes? of|involving subdivision for the purposes? of) (.+?)(?=\s+(?:on land|in a |in the following|in Zone|if |on a lot|$))/i)
+    // a frame about what is built rather than where ("the erection or alteration of, or an addition to, a dwelling house and
+    // any attached development", a code's Division): the uses it names, as defined or listed
+    // (only a phrase that opens with the activity: "a subdivision ... that requires development consent" names no use)
+    const builtUses = !usesM && /^(?:the )?(?:erection|alteration|addition|construction|demolition|carrying out)\b/i.test(phrase) ? usesOf(phrase).filter(u => VOCAB.includes(u)) : []
     const s = scopeOf(phrase, byId.get(f.to_provision))
     // the land a frame describes may run into its list items and a table of lots ("land at the following-")
     const deep = (id: string): string[] => (kids.get(id) ?? []).flatMap(k => [k.own_text, ...deep(k.id)])
@@ -312,7 +354,7 @@ async function main() {
     // "This section applies only if- (a) ... on or after <date>, or (b) ..." - the dates in the list are alternatives
     const condDates = conds.flatMap(c => datesOf(c))
     const dateTerm = condDates.length ? [`date:${condDates.join('|')}`] : []
-    add({ provision_id: f.to_provision, kind: 'frame', unit_provision: f.from_provision, uses: usesM ? usesOf(usesM[1]!) : [],
+    add({ provision_id: f.to_provision, kind: 'frame', unit_provision: f.from_provision, uses: usesM ? usesOf(usesM[1]!) : builtUses,
       zones: [...new Set([...s.zones, ...(/following zones/i.test(phrase) ? condZones : [])])], terms: [...s.terms.filter(x => !/^(consent|combined_da)/.test(x)), ...s.terms.filter(x => /^(consent|combined_da)/.test(x)).map(x => `date:${x}`), ...dateTerm, ...(/subdivision/i.test(phrase) ? ['proposal:subdivision'] : [])],
       // "the whole of the State, other than the following- (a) bush fire prone land, ... (e) the following local government
       // areas- (i) Bathurst Regional, ..." - each item whole, a nested list kept with it
@@ -333,6 +375,22 @@ async function main() {
     const ex = [...(/strata/i.test(tail) ? ['!tenure:strata'] : []), ...(/Community Land Development/i.test(tail) ? ['!tenure:community'] : [])]
     if (ex.length) add({ provision_id: from.id, kind: 'frame', unit_provision: d.to_provision, terms: ex, source: 'text', reader: 'disapplication', span: text.slice(0, 300) })
   }
+
+  // ── the codes of an exempt and complying development policy ─────────────────────────────────────────
+  // A code is a Part (or a division of "Exempt Development Codes") headed "... Code"; everything under it is on the
+  // pathway its heading says: exempt where the heading says so, complying otherwise. The policy names a code by its
+  // heading ("the Housing Code"); "this Policy" names them all
+  // (by local id, not kind: the pilot tree gives one Part the kind "note")
+  const codeUnits = provs.filter(p => /^pt\.[0-9A-Z]+(?:-div\.[0-9A-Z]+)?$/.test(p.local_id) && /\bCodes?\b/.test(p.heading ?? '') && !/^Code\b/.test(p.heading ?? ''))
+  const pathwayOfUnit = (u: P) => /exempt/i.test(u.heading ?? '') || /exempt/i.test(up(u, x => x.kind === 'part' && x.id !== u.id)?.heading ?? '') ? 'exempt' : 'complying'
+  const codeOf = (p: P) => up(p, x => codeUnits.includes(x))
+  const codesNamed = (phrase: string, doc: string, pathway: string | null) => {
+    if (/\bthis Policy\b/i.test(phrase)) return codeUnits.filter(u => u.document_id === doc && (!pathway || pathwayOfUnit(u) === pathway))
+    return codeUnits.filter(u => u.document_id === doc && new RegExp(`\\b${escRe(norm(u.heading))}\\b`, 'i').test(phrase))
+  }
+  /** an item of a code's list that is about the land, not what is built: the registered layers answer it */
+  const landItem = (t: string) => /^(development on |on )?(land|a lot|any lot|unsewered|bush fire prone|flood)\b/i.test(t) || /\bon land (that|identified|within|shown)\b/i.test(t)
+  const zonesIn = (t: string) => /\bZones?\b/.test(t) ? [...new Set([...t.matchAll(/\b([A-Z]{1,2}\d{1,2}[A-Z]?)\b/g)].map(m => m[1]!))] : []
 
   // ── permissions, consent bars, standards: sentence readers over every provision ─────────────────────
   // list items a reader of their stem reads (their figure is the stem's standard, never one of their own): "Subclause (3)
@@ -355,8 +413,115 @@ async function main() {
     const cl = clauseOf(p)
     const ndStem = (x: P | null): boolean => !!x && (/non-discretionary development standards/i.test(x.own_text) || (x.parent_id ? ndStem(byId.get(x.parent_id)!) : false))
 
+    // ── a code's own three lists ──
+    // "The following development is complying development under this code- (a) the erection of a new 1 or 2 storey
+    // dwelling house and any attached development, ..." - each item a permission on that pathway, the item's words a
+    // condition of it (what is built: a fact of the proposal), on the code unit so the code's frames apply
+    let m = t.match(/^The following (?:types of )?development (?:is|are) (complying|exempt) development under this code\s*[—–-]\s*$/i)
+    const code = codeOf(p)
+    if (m && code) {
+      for (const k of kids.get(p.id) ?? []) {
+        // an item and its sub-items together ("the erection or alteration of, or addition to- (i) any 1 or 2 storey dual
+        // occupancy, manor house or multi dwelling housing (terraces), or (ii) any attached development ...")
+        const deepText = (id: string): string[] => (kids.get(id) ?? []).flatMap(g => [norm(g.own_text), ...deepText(g.id)])
+        const kt = norm([k.own_text, ...deepText(k.id)].join(' ')).replace(/[,;.]?\s*(?:or|and)?\s*$/i, ''); if (!kt) continue
+        // what is built (storeys, attached development) is the question's own subject, carried in the span, never a
+        // condition that would leave every answer "maybe"
+        // the uses the item names, as defined or listed somewhere (a sentence's other words are not uses)
+        add({ provision_id: k.id, kind: 'permit', consent: m[1]!.toLowerCase(), uses: usesOf(kt).filter(u => VOCAB.includes(u)), unit_provision: code.id, source: 'text', reader: 'code permit', span: kt.slice(0, 300) })
+      }
+      continue
+    }
+    // "The erection of a new single storey or two storey dwelling house is development specified for this code if the
+    // development is erected on a lot- (a) in Zone RU1, RU2, RU4 or RU6 that has an area of at least 4,000m2, or (b) in
+    // Zone R5" (3A.2); "Bed and breakfast accommodation is development specified for this code if it is-" (4A.1); "The
+    // demolition or removal of the following development, is development specified for this code- (a) a dwelling house,
+    // ..." (7.1): a permission on the code's pathway for the subject (or each listed item), each lot condition in the list
+    // its own permission's place, the rest a condition the answer lists
+    m = t.match(/^(.+?),? (?:is|are) development specified for this code(?:\s+if\b(.*))?\s*[—–-]?\s*$/i)
+    if (m && code) {
+      const subject = norm(m[1]!), tail = norm(m[2] ?? ''), items = (kids.get(p.id) ?? []).map(k => ({ k, kt: norm(k.own_text).replace(/[,;.]?\s*(?:or|and)?\s*$/i, '') })).filter(x => x.kt.length > 2)
+      const subjUses = usesOf(subject).filter(u => VOCAB.includes(u))
+      if (/the following development$/i.test(subject) || !subjUses.length && items.length && !tail) {
+        // the list names what is specified
+        for (const x of items) { const u = usesOf(x.kt).filter(u => VOCAB.includes(u)); if (u.length) add({ provision_id: x.k.id, kind: 'permit', consent: pathwayOfUnit(code), uses: u, unit_provision: code.id, source: 'text', reader: 'code permit', span: x.kt.slice(0, 300) }) }
+      } else if (subjUses.length) {
+        // the list (or the tail) says where / when: a zone or lot-size item is the permission's own place, else a condition
+        const placeItems = items.filter(x => zonesIn(x.kt).length || /\barea of (?:at least|not less than)/i.test(x.kt))
+        if (placeItems.length) for (const x of placeItems) {
+          const area = x.kt.match(/\barea of (?:at least|not less than) (\d[\d,]*(?:\.\d+)?)\s*(?:m2|m²|square metres)/i)
+          add({ provision_id: x.k.id, kind: 'permit', consent: pathwayOfUnit(code), uses: subjUses, zones: zonesIn(x.kt), band: area ? { metric: 'lot_size', lo: Number(area[1]!.replace(/,/g, '')), lo_incl: true, hi: null, hi_incl: false } : null,
+            unit_provision: code.id, source: 'text', reader: 'code permit', span: `${subject}: ${x.kt}`.slice(0, 300) })
+        }
+        else add({ provision_id: p.id, kind: 'permit', consent: pathwayOfUnit(code), uses: subjUses, unit_provision: code.id, source: 'text', reader: 'code permit', span: t.slice(0, 300) })
+        for (const x of items.filter(x => !placeItems.includes(x))) add({ provision_id: x.k.id, kind: 'condition', unit_provision: code.id, terms: [`condition:${x.kt.slice(0, 200)}`], source: 'text', reader: 'code condition', span: x.kt.slice(0, 300) })
+        if (tail && !items.length) add({ provision_id: p.id, kind: 'condition', unit_provision: code.id, terms: [`condition:${tail.slice(0, 200)}`], source: 'text', reader: 'code condition', span: tail.slice(0, 300) })
+      }
+      continue
+    }
+    // "The following development is not complying development under this code- (a) ... roof terrace ..., (c) development on
+    // a battle-axe lot, (i) development on unsewered land": land the code does not reach is an exclusion on the code (a
+    // frame the layers test); what is built is a condition the answer lists
+    m = t.match(/^The following development is not (complying|exempt) development under this code\s*[—–-]\s*$/i)
+    if (m && code) {
+      const items = (kids.get(p.id) ?? []).map(k => ({ k, kt: norm([k.own_text, ...(kids.get(k.id) ?? []).map(g => g.own_text)].join(' ')).replace(/[,;.]?\s*(?:or|and)?\s*$/i, '') })).filter(x => x.kt.length > 2)
+      const land = items.filter(x => landItem(x.kt)), rest = items.filter(x => !landItem(x.kt))
+      if (land.length) add({ provision_id: p.id, kind: 'frame', unit_provision: code.id, excludes: land.map(x => x.kt.replace(/^(development )?on /i, '')), source: 'text', reader: 'code exclusion', span: t.slice(0, 300) })
+      for (const x of rest) add({ provision_id: x.k.id, kind: 'condition', unit_provision: code.id, terms: [`condition:not ${x.kt.slice(0, 190)}`], source: 'text', reader: 'code condition', span: x.kt.slice(0, 300) })
+      continue
+    }
+    // "Complying development specified for this code may only be carried out on a lot that meets the following
+    // requirements- (a) the lot must be in Zone R1, R2, R3, R4 or RU5, (b) the area of the lot must not be less than 200m2,
+    // (c) the width of the lot must be at least 6m measured at the building line, (d) there must only be 1 dwelling house
+    // on the lot ...": each lot test a frame on the code (all must hold); the rest conditions the answer lists
+    m = t.match(/^(?:Complying|Exempt) development (?:specified for|under) this code may only be carried out on a lot that meets the following requirements\s*[—–-]\s*$/i)
+    if (m && code) {
+      for (const k of kids.get(p.id) ?? []) {
+        const kt = norm(k.own_text).replace(/[,;.]?\s*(?:or|and)?\s*$/i, ''); if (!kt) continue
+        const z = zonesIn(kt)
+        const area = kt.match(/\barea of the lot must (?:not be less than|be at least) (\d[\d,]*(?:\.\d+)?)\s*(?:m2|m²|square metres)/i)
+        const width = kt.match(/\bwidth of the lot must be at least (\d[\d,]*(?:\.\d+)?)\s*m\b/i)
+        if (z.length && /\bmust be in\b/i.test(kt)) add({ provision_id: k.id, kind: 'frame', unit_provision: code.id, zones: z, source: 'text', reader: 'lot requirement', span: kt.slice(0, 300) })
+        else if (area) add({ provision_id: k.id, kind: 'frame', unit_provision: code.id, band: { metric: 'lot_size', lo: Number(area[1]!.replace(/,/g, '')), lo_incl: true, hi: null, hi_incl: false }, source: 'text', reader: 'lot requirement', span: kt.slice(0, 300) })
+        else if (width) add({ provision_id: k.id, kind: 'frame', unit_provision: code.id, band: { metric: 'frontage', lo: Number(width[1]!.replace(/,/g, '')), lo_incl: true, hi: null, hi_incl: false }, source: 'text', reader: 'lot requirement', span: kt.slice(0, 300) })
+        else add({ provision_id: k.id, kind: 'condition', unit_provision: code.id, terms: [`condition:${kt.slice(0, 200)}`], source: 'text', reader: 'code condition', span: kt.slice(0, 300) })
+      }
+      continue
+    }
+    // ── the policy's general requirements for a pathway ──
+    // "To be complying development specified for the Housing Code, the Inland Code, ..., the development must not be
+    // carried out on- (a) land within a heritage conservation area ..., (b) land that is reserved ..." (1.19); "To be exempt
+    // development for the purposes of this Policy, the development- (a) must not be carried out on land that ..." (1.16);
+    // "To be complying development for the purposes of this Policy, the development must- (b) be permissible, with consent,
+    // under an environmental planning instrument applying to the land" (1.18): each named code (or every code of that
+    // pathway) takes the land items as exclusions; a permissibility test is a sub-question to the land's own plan
+    m = t.match(/^To be (complying|exempt) development (?:specified for|under|for the purposes? of) (.+?), the development( must(?: not be carried out on)?)?\s*[—–-]?\s*(.*)$/i)
+    if (m) {
+      const units = codesNamed(m[2]!, p.document_id, m[1]!.toLowerCase())
+      const inline = m[3] && /carried out on/i.test(m[3]) && norm(m[4] ?? '') ? [norm(m[4]!)] : []
+      const items = inline.length ? inline : (kids.get(p.id) ?? []).map(k => norm([k.own_text, ...(kids.get(k.id) ?? []).map(g => g.own_text)].join(' ')).replace(/[,;.]?\s*(?:or|and)?\s*$/i, '')).filter(x => x.length > 2)
+      // the stem may end "the development-" (items "must not be carried out on ...") or "the development must-" (items "not
+      // be carried out on ..."): either way the land is what follows "carried out on"
+      const land = items.map(x => x.replace(/^(?:must )?not be carried out on /i, '')).filter((x, i) => m![3] && /carried out on/i.test(m![3]) ? true : /^(?:must )?not be carried out on /i.test(items[i]!) || landItem(x))
+      const lep = items.some(x => /\bbe permissible,? with (?:development )?consent,? under an environmental planning instrument\b/i.test(x))
+      for (const u of units) {
+        if (land.length) add({ provision_id: p.id, kind: 'frame', unit_provision: u.id, excludes: land, source: 'text', reader: 'land exclusion', span: t.slice(0, 300) })
+        if (lep) add({ provision_id: p.id, kind: 'frame', unit_provision: u.id, terms: ['lep:permissible'], source: 'text', reader: 'policy requirement', span: t.slice(0, 300) })
+      }
+      if (units.length) continue
+    }
+    // "Development specified in the Housing Code, the Inland Code, ... is not complying development under that code if it
+    // is carried out on land identified ... on a map specified in Schedule 5" (1.19(2), (3A))
+    m = t.match(/^Development specified in (.+?) is not (complying|exempt) development under that code if it is carried out on (.+)$/i)
+    if (m) {
+      const units = codesNamed(m[1]!, p.document_id, m[2]!.toLowerCase())
+      const ex = [norm(m[3]!).replace(/[.,;]\s*$/, ''), ...(kids.get(p.id) ?? []).map(k => norm(k.own_text).replace(/[,;.]?\s*(?:or|and)?\s*$/i, '')).filter(x => x.length > 2)]
+      for (const u of units) add({ provision_id: p.id, kind: 'frame', unit_provision: u.id, excludes: ex, source: 'text', reader: 'land exclusion', span: t.slice(0, 300) })
+      if (units.length) continue
+    }
+
     // permissions
-    let m = t.match(/^Development for the purposes? of (.+?) is permitted with(out)? (?:development )?consent(.*)$/i)
+    m = t.match(/^Development for the purposes? of (.+?) is permitted with(out)? (?:development )?consent(.*)$/i)
     if (m) {
       const s = scopeOf(m[3]!, p), unitM = m[3]!.match(/on land to which this (chapter|Part|Division|section|clause) applies/i)
       add({ provision_id: p.id, kind: 'permit', consent: m[2] ? 'without' : 'with', uses: usesOf(m[1]!), zones: s.zones, terms: s.terms, requires: s.requires,
@@ -651,10 +816,19 @@ async function main() {
     const tt = condM ? norm(t.replace(condM[0], ' ')) : t
     const condBand = condM ? { metric: /height/i.test(condM[2]!) ? 'height' : /lot|site/i.test(condM[2]!) ? 'lot_size' : 'floor_area',
       ...(/below|less/i.test(condM[1]!) ? { hi: Number(condM[3]!.replace(/,/g, '')) } : { lo: Number(condM[3]!.replace(/,/g, '')) }) } : null
-    const f = figureOf(tt), topic = topicOf(tt)
+    const stem = norm(p.parent_id ? byId.get(p.parent_id)?.own_text : '')
+    // a leaf that is only the figure ("(a) 400m2," under "The area of the parent lot must be at least-", "(b) otherwise-15m"
+    // under "The width of the parent lot ... must be at least-"): the stem gives the measure and the direction
+    const f0 = figureOf(tt), topic0 = topicOf(tt)
+    const stemCmp = /\bat least\b|\bnot (?:be )?less than\b|\bminimum\b/i.test(stem) ? 'min' : /\bnot (?:be )?more than\b|\bmust not exceed\b|\bmaximum\b|\bno more than\b/i.test(stem) ? 'max' : null
+    const fromStem = f0 && !f0.comparator && stemCmp && /[—–-]\s*$/.test(stem) && !/\b(if|unless|where)\s*[—–-]\s*$/i.test(stem) && (topic0 ?? topicOf(stem))
+    const f = fromStem ? { ...f0!, comparator: stemCmp! } : f0
+    // "50% of the minimum landscaped area must be located behind the building line": a share of the measure says where
+    // it goes, not how much it is - its own topic, so it never answers for the measure
+    const topic1 = fromStem ? (topic0 ?? topicOf(stem)) : topic0
+    const topic = topic1 && f?.unit === '%' && new RegExp(`% of the (?:minimum |maximum )?(?:${topic1 === 'landscaping' ? 'landscaped area' : topic1 === 'floor_area' ? '(?:gross )?floor area' : topic1.replace('_', ' ')})`, 'i').test(tt) ? `${topic1}_share` : topic1
     // a leaf of a condition list ("... is 22 metres if-", "... unless-", "This clause applies to development on land-")
     // states when something applies, not a standard
-    const stem = norm(p.parent_id ? byId.get(p.parent_id)?.own_text : '')
     // - and so does the list of a discretionary grant ("may approve development with a floor space ratio of up to 1.3:1 ... but
     // only if the consent authority is satisfied that- (b) that part ... will have an area of at least 5,000m2"): its items
     // are the conditions of that grant, never standards of their own
@@ -663,8 +837,10 @@ async function main() {
     // 0.5:1" is a condition of (2)'s exceedance two levels down, never a 0.5:1 maximum (Parramatta 4.4A(2))
     const stems: string[] = []
     for (let x = p.parent_id ? byId.get(p.parent_id) : undefined; x && x.id !== cl?.id; x = x.parent_id ? byId.get(x.parent_id) : undefined) stems.push(norm(x.own_text))
+    // (and a list of what a standard does NOT apply to - "do not apply to the following if they are at least 450mm from the
+    // boundary- (j) rainwater tanks not more than 1.8m in height": the items are exceptions, never standards)
     const isConditionStem = (s: string) => /\b(if|unless|where|only if)\s*[—-]\s*$/i.test(s) || /\bapplies (only )?to\b[^—]*[—-]\s*$/i.test(s)
-      || /\bmay\b[^—]*\b(?:if|only if|unless|provided)\b[^—]*[—-]\s*$/i.test(s)
+      || /\bmay\b[^—]*\b(?:if|only if|unless|provided)\b[^—]*[—-]\s*$/i.test(s) || /\b(?:do|does) not apply to\b[^—]*[—-]\s*$/i.test(s)
     const conditionList = stems.some(isConditionStem)
     if (f && topic && f.comparator && p.kind === 'paragraph' && t.length < 260 && !/^(if|where|in the case)\b/i.test(t) && !conditionList) {
       // "for a detached secondary dwelling-" names a use only when the words are a known land use; "for a lot with an area
@@ -685,9 +861,21 @@ async function main() {
   }
 
   // ── control tables: every body row, captions -> scope ─────────────────────────────────────────────
-  const bandOf = (s: string) => {
+  // a band column: "≥ 950m2" / "< 450m2" (the LEPs), "6m–18m", ">18m–24m", ">24m", "200m2–900m2", ">1,500m2", "6–10m" (the
+  // codes, by lot width at the building line or by lot area). A lot's width is its primary frontage (the rule every test
+  // here uses); a column on another measure (a building height, a primary road setback) is a band the lot's facts do not
+  // hold - kept by name, answered "unknown" on a lot
+  const bandMetric = (cap: string) => /lot width|width of (?:the )?(?:parent )?lot|lot frontage/i.test(cap) ? 'frontage' : /lot (?:area|size)|site area|landholding area|area of the lot/i.test(cap) ? 'lot_size' : cap.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+  const bandOf = (s: string, cap = 'lot size') => {
+    const metric = bandMetric(cap), n = (x: string) => Number(x.replace(/,/g, ''))
+    let m = s.match(/^\s*(≥|>)?\s*(\d[\d,.]*)\s*(?:m2|m²|m|ha)?\s*[–\-]\s*(\d[\d,.]*)\s*(?:m2|m²|m|ha)?\s*$/)
+    if (m) return { metric, lo: n(m[2]!), lo_incl: m[1] !== '>', hi: n(m[3]!), hi_incl: true }
+    m = s.match(/^\s*(≥|>|more than|at least)\s*(\d[\d,.]*)\s*(?:m2|m²|m|ha)?\s*$/i)
+    if (m) return { metric, lo: n(m[2]!), lo_incl: /≥|at least/i.test(m[1]!), hi: null, hi_incl: false }
+    m = s.match(/^\s*(≤|<|less than|up to|not more than)\s*(\d[\d,.]*)\s*(?:m2|m²|m|ha)?\s*$/i)
+    if (m) return { metric, lo: null, lo_incl: false, hi: n(m[2]!), hi_incl: /≤|up to|not more/i.test(m[1]!) }
     const lo = s.match(/(≥|>)\s*(\d[\d,.]*)/), hi = s.match(/(≤|<)\s*(\d[\d,.]*)/)
-    return lo || hi ? { metric: 'lot_size', lo: lo ? Number(lo[2]!.replace(/,/g, '')) : null, lo_incl: lo?.[1] === '≥', hi: hi ? Number(hi[2]!.replace(/,/g, '')) : null, hi_incl: hi?.[1] === '≤' } : null
+    return lo || hi ? { metric, lo: lo ? n(lo[2]!) : null, lo_incl: lo?.[1] === '≥', hi: hi ? n(hi[2]!) : null, hi_incl: hi?.[1] === '≤' } : null
   }
   for (const tb of provs.filter(p => p.kind === 'table')) {
     const holder = tb.parent_id ? byId.get(tb.parent_id)! : tb
@@ -696,17 +884,35 @@ async function main() {
     for (const r of (kids.get(tb.id) ?? []).filter(r => r.kind === 'row' && r.heading !== 'head')) {
       const cells = (kids.get(r.id) ?? []).filter(c => c.kind === 'cell')
       const vals = cells.map((c, i) => { const v = norm(c.own_text) || above[i] || ''; above[i] = v; return { cap: norm(c.heading).toLowerCase(), v, id: c.id } })
-      const valueCell = [...vals].reverse().find(v => figureOf(v.v)); if (!valueCell) continue
-      const topic = topicOf(valueCell.cap), fig = figureOf(valueCell.v); if (!topic || !fig) continue
-      const useCell = vals.find(v => /land use|use|purpose/.test(v.cap)), zoneCell = vals.find(v => /zone/.test(v.cap)), bandCell = vals.find(v => /lot size|site area|area/.test(v.cap) && v !== valueCell && figureOf(v.v))
+      // the band column: a caption that names a measure of the lot ("Lot width at the building line", "Lot area") with a
+      // range in the cell; the value columns are every other cell with a figure (a codes table can carry two or three -
+      // "Side A | Side B", "Building height at any point | Minimum required setback")
+      const isBandCap = (cap: string) => /^(lot|site|landholding|parent lot)\b.*\b(width|area|size|frontage)\b|^width of|^(building|wall) height|^height of|^setback of|^primary road setback|^building footprint|^land use zone/i.test(cap)
+      // the lot's own band first (its width or area); any other band column ("Building height at any point", "Setback of
+      // dwelling house from primary road") is a fact of the proposed building the row turns on
+      const bandCells = vals.filter(v => isBandCap(v.cap) && bandOf(v.v, v.cap))
+      const bandCell = bandCells.find(v => ['frontage', 'lot_size'].includes(bandMetric(v.cap))) ?? bandCells[0]
+      const factCells = bandCells.filter(v => v !== bandCell)
+      const useCell = vals.find(v => /land use|\buse\b|purpose/.test(v.cap) && !bandCells.includes(v)), zoneCell = vals.find(v => /zone/.test(v.cap) && !bandCells.includes(v))
       // a column of map labels ("Area 3", "Area 6") under a stem that says where they are drawn ("in an area specified in
       // Column 1 ... and identified on the Floor Space Ratio Map", Hornsby 4.4(2A)): each row binds to its area's polygons
-      const areaCell = vals.find(v => v !== valueCell && v !== bandCell && (/^area$/.test(v.cap) || /^area \w+$/i.test(v.v)) && !figureOf(v.v))
+      const areaCell = vals.find(v => v !== bandCell && (/^area$/.test(v.cap) || /^area \w+$/i.test(v.v)) && !figureOf(v.v))
       const mapName = areaCell ? norm(holder.own_text).match(/\b(?:identified|shown|marked)\b[^.]*?\bon the ([A-Z][\w ]*? Map)\b/)?.[1] : null
-      add({ provision_id: valueCell.id, kind: 'standard', topic, comparator: /maximum/.test(valueCell.cap) ? 'max' : /minimum/.test(valueCell.cap) ? 'min' : 'max', value: fig.value, unit: fig.unit,
-        uses: useCell ? usesOf(useCell.v) : [], zones: zoneCell ? zoneCodes(zoneCell.v.replace(/^(?=[A-Z]{1,2}\d)/, 'Zone ')) : [], band: bandCell ? bandOf(bandCell.v) : null,
-        terms: areaCell && mapName ? [`mapped:${areaCell.v} on the ${mapName}`] : [],
-        value_source: 'table', unit_provision: clauseOf(holder)?.id ?? null, source: 'text', reader: 'table row', span: vals.map(v => `${v.cap}: ${v.v}`).join('; ') })
+      const holderText = norm(holder.own_text)
+      const valueCells = vals.filter(v => !bandCells.includes(v) && v !== useCell && v !== zoneCell && v !== areaCell && cellValue(v.v))
+      if (!valueCells.length) continue
+      for (const valueCell of valueCells) {
+        const cv = cellValue(valueCell.v)!
+        // the topic from the column's caption; a bare caption ("Side A") takes the stem's subject ("a setback from each side
+        // boundary"), and so does the comparator
+        const topic = topicOf(valueCell.cap) ?? topicOf(`${holderText} ${valueCell.cap}`); if (!topic) continue
+        const comparator = /maximum/i.test(valueCell.cap) ? 'max' : /minimum/i.test(valueCell.cap) ? 'min' : cv.comparator ?? (/must not exceed|maximum|no more than/i.test(holderText) ? 'max' : /at least|minimum|not less than/i.test(holderText) ? 'min' : 'max')
+        add({ provision_id: valueCell.id, kind: 'standard', topic, comparator, value: cv.value, unit: cv.unit,
+          uses: useCell ? usesOf(useCell.v) : [], zones: zoneCell ? zoneCodes(zoneCell.v.replace(/^(?=[A-Z]{1,2}\d)/, 'Zone ')) : [], band: bandCell ? bandOf(bandCell.v, bandCell.cap) : cv.band,
+          terms: [...(areaCell && mapName ? [`mapped:${areaCell.v} on the ${mapName}`] : []), ...(cv.band && bandCell ? [`formula:${JSON.stringify(cv.band)}`] : []), ...(/side a\b/i.test(valueCell.cap) ? ['side:a'] : /side b\b/i.test(valueCell.cap) ? ['side:b'] : []),
+            ...factCells.map(v => `fact:${v.cap} ${v.v}`)],
+          value_source: 'table', unit_provision: clauseOf(holder)?.id ?? null, source: 'text', reader: 'table row', span: vals.map(v => `${v.cap}: ${v.v}`).join('; ') })
+      }
     }
   }
 
@@ -735,6 +941,18 @@ async function main() {
     const text = own.join(' ')
     const sc = scopeOf(text, p0)
     const mapped = sc.terms.filter(t => t.startsWith('mapped:'))
+    // the thing the figure is a measure of: "The maximum height of the floor level of the balcony, deck, patio, terrace or
+    // verandah is ..." is not a standard on the dwelling house. A sentence (own or stem) that opens with the measure names
+    // its subject after "of" / "for"; a subject that is a listed use is that use, one that is any building or development
+    // at all is no restriction, and any other is kept by its own words so a question about a use never meets it
+    if (!c.uses?.length) {
+      // ("The maximum height for a dwelling house ...", "The height of a wall erected within 900mm of a side boundary must not exceed-")
+      const subj = own.map(s => s.match(/^The (?:maximum |minimum )?(?:building |gross |site |total )?(?:height|floor area|floor space ratio|setback|landscaped area|width|length|area|footprint|site coverage|number of storeys)(?: of| for) (?:an? |the |all |any )?(.+?)(?= is | must | on a lot| that | shown|,|$)/i)?.[1]).find(Boolean)
+      if (subj && !/^(buildings?|development|structures?|works?|lots?|dwellings?)\b/i.test(subj)) {
+        const known = usesOf(subj).filter(u => VOCAB.includes(u))
+        c.uses = known.length ? known : subj.toLowerCase().split(/,\s*|\s+or\s+|\s+and\s+/).map(x => x.replace(/^(the |an? )/, '').trim()).filter(x => x.length > 2).slice(0, 6)
+      }
+    }
     // "if the site area is at least 2,000m2": a floor on the lot the figure applies to
     const floor = text.match(/\bif the (?:site|lot) area is (?:at least|not less than|more than) ([\d,]+(?:\.\d+)?)\s*(?:m2|m²|square metres)/i)
     const disc = text.match(/\bif the consent authority is (?:satisfied|of the opinion)\b.*$/i)
@@ -765,10 +983,12 @@ async function main() {
     for (const c of claims) if (c.kind !== 'frame' && (c.provision_id === to.id || under(c.provision_id, to.id))) c.excludes = [...new Set([...(c.excludes ?? []), area])]
   }
 
-  // a claim inside an exempt or complying development code binds only on that pathway, never a development application
+  // a claim inside an exempt or complying development code binds only on that pathway, never a development application:
+  // a Part headed "... Code" of the codes policy, or a schedule headed "complying development" (the Housing SEPP's)
   for (const c of claims) {
-    const code = up(byId.get(c.provision_id)!, x => /complying development|exempt development/i.test(x.heading ?? ''))
-    if (code && c.kind !== 'frame') c.terms = [...(c.terms ?? []), `pathway:${/exempt/i.test(code.heading ?? '') ? 'exempt' : 'complying'}`]
+    const at = byId.get(c.provision_id)!
+    const code = codeOf(at) ?? up(at, x => /complying development|exempt development/i.test(x.heading ?? ''))
+    if (code && c.kind !== 'frame' && !(c.terms ?? []).some(t => t.startsWith('pathway:'))) c.terms = [...(c.terms ?? []), `pathway:${codeUnits.includes(code) ? pathwayOfUnit(code) : /exempt/i.test(code.heading ?? '') ? 'exempt' : 'complying'}`]
   }
 
   // a permission its own sentence makes the consent authority's to give ("... is permitted with development consent if the

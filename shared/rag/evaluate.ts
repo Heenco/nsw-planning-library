@@ -20,7 +20,7 @@ import { shortName } from './refs'
 
 export type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
 /** pathway: a development application (the default) or a complying / exempt development certificate */
-export interface Ask { kind: 'permissibility' | 'standard' | 'subdivision'; use: string; topic?: string; proposal?: 'development' | 'subdivision'; detached?: boolean | null; pathway?: 'da' | 'complying' | 'exempt'
+export interface Ask { kind: 'permissibility' | 'standard' | 'subdivision'; use: string; topic?: string; code?: string; proposal?: 'development' | 'subdivision'; detached?: boolean | null; pathway?: 'da' | 'complying' | 'exempt'
   /** subdivision: how many lots, which title, when the consent for the development on the lot was granted, and whether the
    *  subdivision comes from one application with that development */
   lots?: number; tenure?: 'torrens' | 'strata' | 'community' | null; consentDate?: string | null; combinedDa?: boolean | null
@@ -88,18 +88,22 @@ export async function loadEngine(q: Query): Promise<Engine> {
   }
   // the uses the corpus knows: every use a claim names, and every term the instruments define in their own words (not one
   // that "has the same meaning as in" an instrument the corpus does not hold - a manor house)
-  KNOWN.clear()
-  const terms = (await q(`SELECT heading, coalesce(own_text, '') ~* 'has the same meaning as' borrowed FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows
+  KNOWN.clear(); KNOWN_BY_DOC.clear()
+  const terms = (await q(`SELECT document_id, heading, coalesce(own_text, '') ~* 'has the same meaning as' borrowed FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows
   const own = new Set(terms.filter(t => !t.borrowed).map(t => landUseKey(t.heading)))
   // a term only ever borrowed stays unknown even where a claim names it (Parramatta 4.1C's table lists "manor houses")
   const borrowed = new Set(terms.filter(t => t.borrowed).map(t => landUseKey(t.heading)).filter(h => !own.has(h)))
-  for (const c of claims) for (const u of c.uses ?? []) if (u !== '*' && !borrowed.has(landUseKey(u))) KNOWN.add(landUseKey(u))
-  for (const h of own) KNOWN.add(h)
+  const addKnown = (doc: string | undefined, u: string) => { KNOWN.add(u); if (doc) { if (!KNOWN_BY_DOC.has(doc)) KNOWN_BY_DOC.set(doc, new Set()); KNOWN_BY_DOC.get(doc)!.add(u) } }
+  for (const c of claims) for (const u of c.uses ?? []) if (u !== '*' && !borrowed.has(landUseKey(u))) addKnown(provs.get(c.provision_id)?.document_id, landUseKey(u))
+  for (const t of terms) if (!t.borrowed) addKnown(t.document_id, landUseKey(t.heading))
   return { claims, provs, rels, provMap, zoneNames, label, bindings, shortNames, asAt, insts }
 }
 /** the uses the corpus defines or names (loadEngine): a Land Use Table catch-all decides only for one of them */
 const KNOWN = new Set<string>()
-const isKnown = (use: string) => { const a = landUseKey(use); return KNOWN.has(a) || [...KNOWN].some(k => a.startsWith(k + ' (')) }
+/** the uses each instrument itself defines or lists: a plan's catch-all decides only for one of its own (a term the codes
+ *  policy defines - a manor house - is not thereby a use the plan's table has left unlisted) */
+const KNOWN_BY_DOC = new Map<string, Set<string>>()
+const isKnown = (use: string, doc?: string) => { const a = landUseKey(use), set = doc ? KNOWN_BY_DOC.get(doc) ?? new Set<string>() : KNOWN; return set.has(a) || [...set].some(k => a.startsWith(k + ' (')) }
 
 /** "A (B)" that is NOT a kind of A: the plan's Dictionary says A "does not include" it ("home occupation ... does not
  *  include ... a home occupation (sex services)") - filled by loadEngine from the instruments' terms */
@@ -130,7 +134,16 @@ export function lepFor(E: Engine, lot: any): { doc: string | null; why: string }
   return { doc: null, why: `which of the ${leps.length} LEPs held applies is not stated` }
 }
 
+/** RAG_TRACE=1 in the environment prints every call, nested ones indented, with what it asked and how long it took */
 export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
+  if (!process.env.RAG_TRACE) return evaluate0(E0, ask, lot, depth)
+  const t0 = Date.now()
+  console.error(`${'  '.repeat(depth)}> ${ask.kind} ${ask.use} ${ask.topic ?? ''} ${ask.pathway ?? 'da'} ${ask.code ?? ''}`)
+  const r = evaluate0(E0, ask, lot, depth)
+  console.error(`${'  '.repeat(depth)}< ${ask.kind} ${ask.use} ${ask.topic ?? ''}: ${r.verdict} in ${Date.now() - t0} ms (${r.tested.length} tested)`)
+  return r
+}
+function evaluate0(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   // the instruments that speak to this lot: the one asked about ("Under ..."), else the SEPPs and the lot's own LEP
   const docOf = (c: C) => E0.provs.get(c.provision_id)
   const lep = ask.only ? null : lepFor(E0, lot)
@@ -162,11 +175,19 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   /** a map label as rag.map_polygon stores it: lower case, any dash as "-" with no space round it */
   const nl = (s: unknown) => String(s ?? '').trim().replace(/^(?:a|an|the)\s+/i, '').replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ').toLowerCase()
   const ancestors = (id: string | null): string[] => { const out: string[] = []; for (let x = id ? E.provs.get(id) : undefined; x; x = x.parent_id ? E.provs.get(x.parent_id) : undefined) out.push(x.id); return out }
+  // the frames by the unit they hang on, indexed once: a claim's frames are those on any of its ancestors (or its unit's)
+  const frameByUnit = new Map<string, C[]>()
+  for (const f of E.claims) if (f.kind === 'frame' && f.unit_provision) frameByUnit.set(f.unit_provision, [...(frameByUnit.get(f.unit_provision) ?? []), f])
   const framesFor = (c: C) => {
     const units = new Set([...ancestors(c.provision_id), ...ancestors(c.unit_provision)])
-    return E.claims.filter(f => f.kind === 'frame' && f.unit_provision && units.has(f.unit_provision))
+    return [...units].flatMap(u => frameByUnit.get(u) ?? [])
   }
+  // a complying or exempt development question names its code ("under the Housing Code"): only that code's own claims
+  // answer it - the policy's general requirements reach them as frames on the code
+  const codeUnit = ask.code ? [...E.provs.values()].find(p => p.document_id && /^pt\./.test(p.local_id) && new RegExp(`^${ask.code!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i').test(p.heading ?? '')) : null
+  const inCode = (c: C) => !codeUnit || ancestors(c.provision_id).includes(codeUnit.id) || c.unit_provision === codeUnit.id
   const proposal = ask.proposal ?? 'development'
+  const lepMemo = new Map<string, Result>()
   /**
    * A condition tested through the binding the graph build gave it: the registered layers (nsw.scope_layer, tested on
    * this lot into lot.terms), a council list, or nothing - and then it is said that it could not be checked, and why.
@@ -194,7 +215,8 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       const areaT = b.scope_terms.find(t => t.startsWith('area>='))
       const areaR = areaT ? (lot.area_m2 == null ? null : Number(lot.area_m2) >= Number(areaT.slice(6))) : undefined
       const mapT = b.scope_terms.filter(t => t.startsWith('map:'))
-      const shareOf = (t: string) => { const [m, l] = t.slice(4).split('|'); return Math.max(0, ...(Array.isArray(lot.mapped) ? lot.mapped : []).filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase().replace(/ map$/, '') === m && nl(x.label) === nl(l)).map((x: any) => Number(x.share))) }
+      // (a label "*" is any polygon of the map)
+      const shareOf = (t: string) => { const [m, l] = t.slice(4).split('|'); return Math.max(0, ...(Array.isArray(lot.mapped) ? lot.mapped : []).filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase().replace(/ map$/, '') === m && (l === '*' || nl(x.label) === nl(l))).map((x: any) => Number(x.share))) }
       // a label the clause names that no layer draws (unheld:): outside the drawn ones is not outside - unknown
       const unheld = b.scope_terms.filter(t => t.startsWith('unheld:'))
       const mapR = mapT.length ? (!Array.isArray(lot.mapped) ? null : mapT.some(t => shareOf(t) >= 0.9) ? true : mapT.every(t => shareOf(t) <= 0.05) ? (unheld.length ? null : false) : null) : undefined
@@ -227,7 +249,7 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     let h: boolean | null = true
     const and = (r: boolean | null, w: string) => { why.push(`${w}: ${r == null ? 'unknown' : r ? 'yes' : 'no'}`); if (r === false) h = false; else if (r == null && h !== false) h = null }
     // a catch-all decides only for a use the corpus knows: one defined outside it (a manor house) is not "not listed" - unknown
-    if (c.uses.includes('*')) and(isKnown(ask.use) ? true : null, isKnown(ask.use) ? 'any use the zone does not list' : `${ask.use} is not defined in the instruments held - the catch-all cannot be applied`)
+    if (c.uses.includes('*')) { const k = isKnown(ask.use, docOf(c)?.document_id); and(k ? true : null, k ? 'any use the zone does not list' : `${ask.use} is not a use this plan defines or lists - the catch-all cannot be applied`) }
     else if (c.uses.length) and(c.uses.some(u => useMatch(u, ask.use)), `use ${c.uses.join(' / ')}`)
     if (c.zones.length) and(c.zones.includes(String(lot.zone)), `zone ${c.zones.join(' / ')}`)
     for (const t of c.terms) {
@@ -248,6 +270,17 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       // a figure the consent authority may allow if it is satisfied: never assumed either way - the answer splits on it
       else if (t.startsWith('discretion:')) and(null, `the consent authority is satisfied (${t.slice(11, 120)})`)
       else if (t === 'detached') and(ask.detached ?? null, 'detached')
+      // a figure the lot's own measures give, or the side of the lot a column is about: no test of its own
+      else if (t.startsWith('formula:') || t.startsWith('side:')) continue
+      // "be permissible, with consent, under an environmental planning instrument applying to the land" (a complying
+      // development code's first test): the land's own plan is asked, on the development application pathway
+      else if (t === 'lep:permissible') {
+        if (depth >= 3) { and(null, 'permissible under the land’s plan (not asked: too deep)'); continue }
+        // asked once per question: every claim of the code carries the same test
+        const sub = lepMemo.get(ask.use) ?? evaluate(E0, { kind: 'permissibility', use: ask.use, proposal: 'development' }, lot, depth + 1)
+        lepMemo.set(ask.use, sub)
+        subs.push(sub); and(sub.verdict === 'permitted' ? true : sub.verdict === 'prohibited' ? false : null, `${ask.use} permissible with consent under the land’s plan`)
+      }
       else {
         const ch = viaBinding(c, t, 'term'); checks.push(ch)
         if (!ch.could) notChecked.push(`${t} - ${ch.how}`)
@@ -370,7 +403,11 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     return [...seen.values()] }
 
   if (ask.kind === 'permissibility') {
-    const about = E.claims.filter(c => (c.kind === 'permit' || c.kind === 'prohibit') && aboutUse(c))
+    // on a development application only the claims with no pathway of their own; on a complying or exempt certificate only
+    // the code's own permissions and bars (the land's plan is reached through the code's own "permissible with consent" test)
+    const pw = ask.pathway ?? 'da'
+    const onPathway = (c: C) => pw === 'da' ? !c.terms.some(t => t.startsWith('pathway:')) : c.terms.includes(`pathway:${pw}`)
+    const about = E.claims.filter(c => (c.kind === 'permit' || c.kind === 'prohibit') && aboutUse(c) && onPathway(c) && inCode(c))
     // a zone's catch-all answers only a use none of that zone's own listings answers
     const listedIn = (all: C) => about.some(c => !catchAll(c) && String(c.reader).startsWith('land use table') && docOf(c)?.document_id === docOf(all)?.document_id && c.zones.some(z => all.zones.includes(z)))
     const tested = about.filter(c => !catchAll(c) || !listedIn(c)).map(test)
@@ -395,17 +432,17 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       const winners = tested.filter(t => t.holds !== false && t.claim.kind === 'permit' && (ruling.answer?.claims ?? tested.map(x => x.claim.id)).includes(t.claim.id))
       const units = new Set(winners.flatMap(w => [w.claim.unit_provision, ...ancestors(w.claim.provision_id)]).filter(Boolean) as string[])
       // the conditions of the unit that grants the permission
-      for (const c of E.claims.filter(c => c.kind === 'condition' && c.reader !== 'consent condition' && c.unit_provision && units.has(c.unit_provision) && !c.terms.includes('proposal:subdivision'))) {
+      for (const c of E.claims.filter(c => c.kind === 'condition' && c.reader !== 'consent condition' && c.unit_provision && units.has(c.unit_provision) && !c.terms.includes('proposal:subdivision') && onPathway(c) && inCode(c))) {
         const subs: Result[] = []
         for (const r of c.requires) if (r.standard && depth < 3) subs.push(evaluate(E, { kind: 'standard', use: r.use, topic: r.standard, proposal: 'development' }, lot, depth + 1))
-        limits.push({ label: E.label(c.provision_id), text: c.span ?? '', status: 'applies', detail: c.value != null ? `${c.comparator ?? ''} ${c.value} ${c.unit ?? ''}`.trim() : '', subs })
+        limits.push({ label: E.label(c.provision_id), text: c.span ?? '', status: 'applies', detail: c.value != null ? `${c.comparator ?? ''} ${c.value} ${c.unit ?? ''}`.trim() : (c.terms.find(t => t.startsWith('condition:'))?.slice(10) ?? c.span ?? '').slice(0, 160), subs })
       }
       for (const c of E.claims.filter(c => c.kind === 'condition' && c.unit_provision && units.has(c.unit_provision) && c.terms.includes('proposal:subdivision')))
         limits.push({ label: E.label(c.provision_id), text: c.span ?? '', status: 'applies', detail: 'after the development: no subdivision', subs: [] })
       // a consent bar on the use lifted by a condition about the proposal or the consent authority's judgement ("unless the
       // consent authority is satisfied that the office premises will be located above ground floor level"): the use stays
       // permissible, subject to it - listed wherever the bar reaches this lot, whatever clause grants the permission
-      for (const c of E.claims.filter(c => c.kind === 'condition' && c.reader === 'consent condition' && aboutUse(c))) {
+      for (const c of E.claims.filter(c => c.kind === 'condition' && c.reader === 'consent condition' && aboutUse(c) && onPathway(c) && inCode(c))) {
         const t = test(c); if (t.holds === false) continue
         limits.push({ label: E.label(c.provision_id), text: c.span ?? '', status: 'depends',
           detail: c.terms.some(x => x.startsWith('discretion:')) ? "subject to the consent authority's judgement" : 'subject to a fact of the proposed development', subs: [] })
@@ -413,7 +450,9 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       // the standards on this use that reach the lot
       // standards on the use: named in the claim, or in the frame of the clause it sits in (s 168's leaves name no use;
       // s 168(1) does)
-      for (const c of E.claims.filter(c => c.kind === 'standard' && aboutUse(c) && !c.terms.includes('proposal:subdivision'))) {
+      // (on the pathway asked and within the code named: a development application never lists a code's standards, nor a
+      // complying development certificate the plan's)
+      for (const c of E.claims.filter(c => c.kind === 'standard' && aboutUse(c) && !c.terms.includes('proposal:subdivision') && onPathway(c) && inCode(c))) {
         const t = test(c); if (t.holds === false && !t.why.some(w => /^detached/.test(w))) continue
         const v = c.value_source?.startsWith('map:') ? mapValue(c.value_source) : c.value
         // alternatives ("whichever is the greater") are one limit: listed once, under the first of them
@@ -535,10 +574,27 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   // a subdivision's minimum is a standard on the resulting lots; a development's lot size is a standard on the site.
   // Each question reads only its own kind.
   const ofProposal = (c: C) => ask.proposal === 'subdivision' && topic === 'lot_size' ? c.terms.includes('proposal:subdivision') : !c.terms.includes('proposal:subdivision')
-  const direct = E.claims.filter(c => c.kind === 'standard' && c.topic === topic && (aboutUse(c) || (!c.uses.length && !framesFor(c).some(f => f.uses.length))) && ofProposal(c))
+  // a standard on the pathway asked (a code's standards never bind a development application, and the plan's never bind a
+  // complying development certificate on their own), within the code named if one is
+  const pw0 = ask.pathway ?? 'da'
+  const direct = E.claims.filter(c => c.kind === 'standard' && c.topic === topic && (pw0 === 'da' ? !c.terms.some(t => t.startsWith('pathway:')) : c.terms.includes(`pathway:${pw0}`)) && inCode(c)
+    && (aboutUse(c) || (!c.uses.length && !framesFor(c).some(f => f.uses.length))) && ofProposal(c))
   // a map figure, or the map figure plus what a clause lets it exceed by ("by up to 6 metres")
   const valueOf = (c: C) => { const base = c.value_source?.startsWith('map:') ? mapValue(c.value_source) : c.value
+    // a share of the lot's area ("60% of lot area", "25% of lot area + 150", the codes' landscaped area and floor area):
+    // the lot's own figure, in m2
+    // (the share rides in a formula: term when the row also has a band on the lot's width or area)
+    const ft = c.terms.find(t => t.startsWith('formula:')), fm = ft ? JSON.parse(ft.slice(8)) : c.band?.relative || c.band?.pct != null ? c.band : null
+    if (c.unit === '%' && /^(lot|site) area$/.test(fm?.relative ?? '')) return base != null && lot.area_m2 != null ? Math.round((Number(base) / 100 * Number(lot.area_m2) + Number(fm?.add ?? 0)) * 10) / 10 : null
+    // a figure capped by a share of the lot's depth ("20m or 50% of the depth of the lot, whichever is the lesser")
+    if (fm?.pct != null && /depth of the lot/.test(fm.relative ?? '') && base != null) {
+      if (lot.lot_depth_m == null) return null
+      const alt = Math.round(fm.pct / 100 * Number(lot.lot_depth_m) * 100) / 100
+      return fm.pick === 'greater' ? Math.max(Number(base), alt) : Math.min(Number(base), alt)
+    }
     return c.band?.add != null ? (base != null ? Number(base) + Number(c.band.add) : null) : base }
+  /** the unit of the figure as worked out: a share of the lot's area is metres squared */
+  const unitOf = (c: C) => { const ft = c.terms.find(t => t.startsWith('formula:')), rel = ft ? JSON.parse(ft.slice(8))?.relative : c.band?.relative; return c.unit === '%' && /^(lot|site) area$/.test(rel ?? '') ? 'm2' : c.unit }
   const tested = direct.map(test).map(t => ({ ...t, value: valueOf(t.claim) }))
   tested.forEach(t => t.notChecked.forEach(n => notChecked.add(n)))
   const live = tested.filter(t => t.holds !== false && t.value != null)
@@ -558,8 +614,8 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     if (g.length > 1 && g[0]!.claim.band?.pick) {
       const abs = g.filter(t => !t.claim.band?.relative), rel = g.filter(t => t.claim.band?.relative)
       expr = [...abs.map(t => `${t.value} ${t.claim.unit}`), ...rel.map(t => `${t.value}${t.claim.unit === '%' ? '%' : ''} of ${t.claim.band.relative}`)].join(` or `) + `, whichever is the ${g[0]!.claim.band.pick}`
-      if (abs[0]) rclaims.push(toR(abs[0], 'value', abs[0].value))
-    } else for (const t of g) rclaims.push(toR(t, 'value', t.value))
+      if (abs[0]) rclaims.push({ ...toR(abs[0], 'value', abs[0].value), unit: unitOf(abs[0].claim) })
+    } else for (const t of g) rclaims.push({ ...toR(t, 'value', t.value), unit: unitOf(t.claim) })
   }
   const ruling = resolve(rclaims, E.rels, E.provMap)
   const answer = ruling.answer ? { ...ruling.answer, ...(expr ? { expr } : {}) } : null

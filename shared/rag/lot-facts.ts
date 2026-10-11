@@ -78,9 +78,12 @@ export async function ragLotFacts(q: Query, cadid: string) {
   }
   const heritage = (await q(`SELECT string_agg(DISTINCT h.lay_class, ', ') c FROM epi.epi_heritage h, cadastre.lot l
                               WHERE l.cadid::text = $1 AND h.geom && l.geom AND ST_Intersects(h.geom, ST_PointOnSurface(l.geom))`, [cadid])).rows[0]?.c ?? null
+  // the lot's shape the complying development codes test: its depth ("50% of the depth of the lot") and whether it fronts
+  // two parallel roads (a "parallel road lot"), from the 04D lot profile
+  const shape = (await q(`SELECT lot_depth_m, is_through_lot FROM derived.lot_profile WHERE cadid::text = $1 ORDER BY is_primary_address DESC NULLS LAST LIMIT 1`, [cadid]).catch(() => null))?.rows[0] ?? null
   return {
     cadid, lot: f.lotId, address: addr?.formatted_address ?? null, lga: f.lga, zone: f.zone, epi: f.epi, area_m2: f.areaM2, frontage_m: f.frontageM ?? null,
-    battle_axe: f.isBattleaxe ?? null,
+    battle_axe: f.isBattleaxe ?? null, lot_depth_m: shape?.lot_depth_m != null ? Number(shape.lot_depth_m) : null, through_lot: shape?.is_through_lot ?? null,
     // the map figures over the whole lot where they could be measured, else at the lot's point (shared/norms/facts.ts)
     fsr_map: 'fsr_map' in mapFig ? mapFig.fsr_map : f.fsrMax ?? null, height_map_m: 'height_map_m' in mapFig ? mapFig.height_map_m : f.heightMaxM ?? null,
     lot_size_map_m2: 'lot_size_map_m2' in mapFig ? mapFig.lot_size_map_m2 : f.lotSizeMinM2, ...(Object.keys(map_split).length ? { map_split } : {}), heritage, mapped, terms,

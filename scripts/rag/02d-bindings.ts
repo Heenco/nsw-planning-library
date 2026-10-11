@@ -99,7 +99,10 @@ async function main() {
     await q(`ANALYZE rag.map_polygon`)
   }
   // keyed by instrument: map names repeat across LEPs ("Area 1 on the Key Sites Map")
-  const polyRows = (await q(`SELECT DISTINCT document_id || '|' || map || '|' || label k, source, own FROM ${DRY ? `(${labelled}) z` : 'rag.map_polygon'}`)).rows
+  const polyRows0 = (await q(`SELECT DISTINCT document_id || '|' || map || '|' || label k, source, own FROM ${DRY ? `(${labelled}) z` : 'rag.map_polygon'}`)).rows
+  // a map the layer names after its instrument ("sepp (ecd) 2008 wilton greenfield housing code variation area") is the
+  // map the words name ("the Wilton Greenfield Housing Code Variation Area Map"): held under both names
+  const polyRows = polyRows0.flatMap(r => { const m = String(r.k).match(/^([^|]+)\|sepp \([^)]*\) \d{4} ([^|]+)\|(.+)$/); return m ? [r, { ...r, k: `${m[1]}|${m[2]}|${m[3]}` }] : [r] })
   const polys = new Set(polyRows.map(r => r.k))
   /** the label as the map draws it: the words say "Area B", the layer "B" (or the other way round) - the one held, or null */
   // the Land Zoning Map draws a zone's sub-labels with the zone code in front ("sp2 railway"); the words say "Railway"
@@ -116,7 +119,7 @@ async function main() {
   for (const r of polyRows) polySrc.set(r.k, [...(polySrc.get(r.k) ?? []), ...(r.own ? [`+${r.source}`] : [r.source])])
   const srcOf = (k: string) => { const all = polySrc.get(k) ?? []; const own = all.filter(x => x.startsWith('+')).map(x => x.slice(1)); return [...new Set(own.length ? own : all)] }
   console.log(`map polygons: ${epiMaps.length} epi map layers + rag.additional_controls + nsw.rule_spatial_ref -> ${polys.size} (plan, map, label) keys`)
-  const claims = (await q(`SELECT c.id, c.kind, c.uses, c.zones, c.terms, c.excludes, c.requires, c.span, c.provision_id, p.local_id, p.own_text, p.document_id FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id`)).rows
+  const claims = (await q(`SELECT c.id, c.kind, c.uses, c.zones, c.terms, c.excludes, c.requires, c.band, c.span, c.provision_id, p.local_id, p.own_text, p.document_id FROM rag.claim c JOIN rag.provision p ON p.id = c.provision_id`)).rows
   const kids = new Map<string, any[]>()
   for (const k of (await q(`SELECT id, parent_id, own_text, connective FROM rag.provision WHERE parent_id IS NOT NULL AND kind NOT IN ('cell', 'row', 'table', 'term') ORDER BY sort, local_id`)).rows)
     kids.set(k.parent_id, [...(kids.get(k.parent_id) ?? []), k])
@@ -132,7 +135,10 @@ async function main() {
   const match = (text: string) => {
     const tw = new Set(words(text)), tq = quals(text)
     let hits = reg.filter(r => r.w.every((w: string) => tw.has(w)) && r.w.length >= Math.min(2, words(text).length) && tq.every(x => quals(r.term).includes(x)))
-    hits = hits.filter(h => !hits.some(o => o !== h && o.w.length > h.w.length && h.w.every((w: string) => o.w.includes(w)) && o.source_kind === h.source_kind))
+    // a term inside a longer matched term is dropped - unless the text names it on its own as well ("a heritage
+    // conservation area or a draft heritage conservation area": both are tested)
+    const times = (phrase: string) => text.toLowerCase().split(phrase.toLowerCase()).length - 1
+    hits = hits.filter(h => !hits.some(o => o !== h && o.w.length > h.w.length && h.w.every((w: string) => o.w.includes(w)) && o.source_kind === h.source_kind && times(h.term) <= times(o.term)))
     // a label the text quotes ('land identified as "exclusion area" on the ... Map') is matched exactly, however short
     const quoted = [...text.matchAll(/[“"]([^”"]+)[”"]/g)].map(m => m[1]!.toLowerCase().trim())
     const exact = reg.filter(r => quoted.includes(String(r.term).toLowerCase()))
@@ -273,10 +279,18 @@ async function main() {
 
   for (const c of claims) {
     for (const t of c.terms as string[]) {
-      if (/^(date:|tenure:|!tenure:|pathway:|proposal:|condition:)|^detached$/.test(t)) add(c, 'term', t, 'proposal_fact', { note: t.startsWith('date:') ? 'the consent date - given with the question' : t.includes('tenure') ? 'the title type' : t.startsWith('pathway:') ? 'the approval pathway' : t.startsWith('condition:') ? `a condition of the permission: ${t.slice(10)}` : 'a fact of the proposal' })
+      if (/^(date:|tenure:|!tenure:|pathway:|proposal:|condition:|fact:)|^detached$/.test(t)) add(c, 'term', t, 'proposal_fact', { note: t.startsWith('date:') ? 'the consent date - given with the question' : t.includes('tenure') ? 'the title type' : t.startsWith('pathway:') ? 'the approval pathway' : t.startsWith('condition:') ? `a condition of the permission: ${t.slice(10)}` : t.startsWith('fact:') ? `a fact of the proposed building: ${t.slice(5)}` : 'a fact of the proposal' })
       else if (t.startsWith('discretion:')) add(c, 'term', t, 'discretion', { note: "the consent authority's judgement" })
+      // a figure worked out from the lot ("20m or 50% of the depth of the lot, whichever is the lesser"), the side of the lot
+      // a column is about, or a code's "permissible with consent under an EPI" test: the evaluator computes or asks these
+      else if (/^(formula:|side:|lep:)/.test(t)) add(c, 'term', t, 'bound', { scope_terms: [t], sources: [t.startsWith('lep:') ? 'the land’s own plan (a sub-question)' : 'derived.lot_profile'], note: t.startsWith('lep:') ? 'permissible with consent under the land’s plan' : 'computed from the lot' })
       else if (t.startsWith('lots:')) add(c, 'term', t, 'bound', { scope_terms: ['lot'], sources: ['cadastre.lot'] })
       else if (t.startsWith('mapped:')) bindMapped(c, 'mapped', t.slice(7), t.slice(7))
+      // "any land shown on the Lot Size Map": any polygon of the map, whatever its label
+      else if (t.startsWith('anymap:')) {
+        const map = t.slice(7).replace(/ Map$/i, '').toLowerCase(), held = polyRows.some(r => String(r.k).startsWith(`${c.document_id}|${map}|`))
+        add(c, 'term', t, held ? 'bound' : 'no_polygon', { scope_terms: held ? [`map:${map}|*`] : [], sources: held ? [...new Set(polyRows.filter(r => String(r.k).startsWith(`${c.document_id}|${map}|`)).flatMap(r => srcOf(String(r.k))))] : [], note: held ? 'any polygon of the map over the lot' : `no polygons held for the ${t.slice(7)}` })
+      }
       // "within the relevant distance of a boundary between any 2 zones" (cl 5.3): measured on the plan's zoning map
       else if (t.startsWith('nearzone:')) add(c, 'term', t, 'bound', { scope_terms: [t], sources: ['epi.epi_land_zoning'], note: 'the lot within that distance of land in another zone' })
       else bindText(c, 'term', t)
@@ -288,6 +302,8 @@ async function main() {
     }
     // a frame that names no use, zone, place or condition: unless it is the whole State or plan, its scope was not read -
     // or, when it ends in a list, its condition is the list: bound item by item
+    // (a frame with a band - "the area of the lot must not be less than 200m2" - is a lot measure, tested on the lot's facts)
+    if (c.kind === 'frame' && c.band) { add(c, 'frame', c.span ?? '', 'bound', { scope_terms: [`${c.band.metric}:band`], sources: ['cadastre.lot / derived.lot_profile'], note: 'a measure of the lot' }); continue }
     if (c.kind === 'frame' && !c.uses.length && !c.zones.length && !c.terms.length && !c.excludes.length && !(c.requires ?? []).length) {
       const broad = /whole of the State|^the State.?$|land to which this (Plan|Policy) applies|Land Application Map|^all land|^any land|^development$/i.test(c.span ?? '')
       // a Note after the stem's dash is not the stem ("the following rural zones- Note. When this Plan was made ...")

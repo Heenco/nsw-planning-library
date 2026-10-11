@@ -40,6 +40,8 @@ function askOf(q: any): { ask: Ask | null; mode: string; lot: any } {
   }
   // what a plan's map gives the lot (keyed from the live Planning Portal map service): read from D's own lot facts
   if (q.kind === 'map') return { ask: null, mode: 'map', lot }
+  // a layer the codes' land exclusions name, keyed from the live Planning Portal service: read from D's own lot facts
+  if (q.kind === 'layer') return { ask: null, mode: 'layer', lot }
   if (q.kind === 'precedence') return { ask: null, mode: 'precedence', lot }
   if (q.kind === 'extraction') return { ask: null, mode: 'extraction', lot }
   if (q.kind === 'subdivision' || /subdivi/i.test(t)) {
@@ -51,10 +53,18 @@ function askOf(q: any): { ask: Ask | null; mode: string; lot: any } {
     const lots = Number(t.match(/into (\d+) lots/i)?.[1] ?? 2)
     return { ask: { kind: 'subdivision', use, lots, tenure, consentDate: date, combinedDa: separate, proposal: 'subdivision', only }, mode: /minimum (lot )?size|minimum size/i.test(t) ? 'subdivision-min' : 'subdivision-can', lot }
   }
-  if (q.kind === 'permissibility') return { ask: { kind: 'permissibility', use, only }, mode: 'permissibility', lot }
-  const topic = /floor space ratio|total floor area/i.test(t) ? 'fsr' : /height/i.test(t) ? 'height' : /minimum lot size|lot size/i.test(t) ? 'lot_size' : /width|frontage/i.test(t) ? 'lot_width' : null
+  // the pathway: "as complying development" / "as exempt development" asks the codes; otherwise a development application
+  const pathway = /\bcomplying development\b/i.test(t) ? 'complying' as const : /\bexempt development\b/i.test(t) ? 'exempt' as const : undefined
+  // the code asked under ("under the Housing Code", "under the Low Rise Housing Diversity Code")
+  const code = t.match(/\bunder the ([A-Z][\w ]*? Code)\b/)?.[1]
+  if (q.kind === 'permissibility') return { ask: { kind: 'permissibility', use, only, pathway, code }, mode: 'permissibility', lot }
+  // the measure asked for: the plans' four, then the codes' (setbacks by boundary, built to boundary walls, landscaped area,
+  // gross floor area, site coverage, private open space, garage doors, basements, storeys)
+  const topic = /floor space ratio|total floor area/i.test(t) ? 'fsr' : /built to boundary/i.test(t) ? (/height/i.test(t) ? 'btb_height' : 'btb_length') : /setback/i.test(t) ? (/primary road|front/i.test(t) ? 'setback_primary' : /secondary road/i.test(t) ? 'setback_secondary' : /parallel road|lane\b/i.test(t) ? 'setback_parallel' : /rear/i.test(t) ? (/side/i.test(t) ? 'setback_side_rear' : 'setback_rear') : /side/i.test(t) ? 'setback_side' : 'setback')
+    : /garage door/i.test(t) ? 'garage_door_width' : /basement/i.test(t) ? 'basement_area' : /site coverage/i.test(t) ? 'site_coverage' : /footprint/i.test(t) ? 'footprint' : /private open space/i.test(t) ? 'private_open_space'
+    : /height/i.test(t) ? 'height' : /minimum lot size|lot size/i.test(t) ? 'lot_size' : /width|frontage/i.test(t) ? 'lot_width' : /gross floor area|floor area/i.test(t) ? 'floor_area' : /landscaped area/i.test(t) ? 'landscaping' : /storeys/i.test(t) ? 'storeys' : null
   if (!topic) return { ask: null, mode: 'unparsed', lot }
-  return { ask: { kind: 'standard', use, topic, only, proposal: 'development' }, mode: /total floor area/i.test(t) ? 'floor-area-by-reference' : 'standard', lot }
+  return { ask: { kind: 'standard', use, topic, only, proposal: 'development', pathway, code }, mode: /total floor area/i.test(t) ? 'floor-area-by-reference' : 'standard', lot }
 }
 
 async function main() {
@@ -82,6 +92,14 @@ async function main() {
       else if (split?.length) { answer.verdict = 'maybe'; answer.values_if = split.map((s: any) => ({ if: `${Math.round(s.share * 100)}% of the lot`, value: s.value })); answer.reasoning = `the map splits the lot: ${split.map((s: any) => `${s.value} on ${Math.round(s.share * 100)}%`).join(', ')}` }
       else if (field) { answer.value = lot?.[field] ?? null; answer.unit = field === 'height_map_m' ? 'm' : field === 'fsr_map' ? 'ratio' : 'm2'; answer.reasoning = `the map gives the lot ${answer.value ?? 'no figure'}` }
       else answer.reasoning = 'not answered: no map named'
+    } else if (mode === 'layer') {
+      // the registry term the question names, as the lot's facts tested it (shared/rag/lot-facts.ts terms), else the map
+      // polygons over the lot by label
+      const term = String(x.use_term ?? ''), f = lot?.terms?.[term]
+      const byMap = (lot?.mapped ?? []).filter((m: any) => new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(`${m.map} ${m.label}`) && Number(m.share) >= 0.05)
+      if (f) { answer.verdict = f.holds == null ? 'maybe' : f.holds ? 'yes' : 'no'; answer.reasoning = `${term}: ${f.why}` }
+      else if (byMap.length) { answer.verdict = 'yes'; answer.reasoning = `${term}: ${byMap.map((m: any) => `${m.label} on the ${m.map} map (${Math.round(m.share * 100)}%)`).join('; ')}` }
+      else { answer.verdict = 'maybe'; answer.reasoning = `${term}: not among the lot's tested terms or map polygons`; answer.unknowns = [term] }
     } else if (mode === 'precedence') {
       const rule = E.rels.find(r => r.kind === 'inconsistency_rule'), sub = E.rels.find(r => r.kind === 'subject_to' && /SEPP that prevails/i.test(r.to_ref ?? ''))
       answer.controlling = [rule && E.label(rule.from_provision), sub && E.label(sub.from_provision)].filter(Boolean)

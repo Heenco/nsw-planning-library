@@ -53,42 +53,74 @@ export interface Resolution {
 const keyOf = (c: Claim) => c.effect === 'value' ? `value:${c.value}` : c.effect
 const conflicting = (a: Claim, b: Claim) => keyOf(a) !== keyOf(b)
 
+/** does a relation end (a provision id) cover this claim: the claim's provision or one of its ancestors */
+const coversP = (provs: Map<string, Prov>, provId: string | null, c: Claim) => {
+  if (!provId) return false
+  if (provId === c.provision) return true
+  const target = provs.get(provId), p = provs.get(c.provision)
+  return !!target && !!p && p.document_id === target.document_id && (p.path ?? []).includes(target.local_id)
+}
+const inClauseOfP = (provs: Map<string, Prov>, provId: string, c: Claim) => {
+  const f = provs.get(provId), p = provs.get(c.provision); if (!f || !p || f.document_id !== p.document_id) return false
+  const cl = f.local_id.split('-')[0]!
+  return p.local_id === cl || p.local_id.startsWith(cl + '-')
+}
+const isEpiWide = (r: Rel) => r.kind === 'despite' && !r.to_provision && !r.to_document && /environmental planning instrument/i.test(r.to_ref ?? '')
+/** the relations that speak from each claim's side (its provision or an ancestor is the "from"), indexed once per ruling:
+ *  a precedence test between two claims then reads a handful of rows, not the corpus */
+interface RelIndex { from: Map<string, Rel[]>; instRule: Map<string, Rel | undefined>; subjectToSepp: Map<string, Rel | undefined> }
+function indexRels(claims: Claim[], relations: Rel[], provs: Map<string, Prov>): RelIndex {
+  const from = new Map<string, Rel[]>()
+  for (const c of claims) from.set(c.id, relations.filter(r => isEpiWide(r) ? inClauseOfP(provs, r.from_provision, c) : coversP(provs, r.from_provision, c)))
+  const docs = [...new Set(claims.map(c => provs.get(c.provision)?.document_id).filter(Boolean) as string[])]
+  const instRule = new Map(docs.map(d => [d, relations.find(r => r.kind === 'inconsistency_rule' && provs.get(r.from_provision)?.document_id === d)]))
+  const subjectToSepp = new Map(docs.map(d => [d, relations.find(r => r.kind === 'subject_to' && /SEPP that prevails/i.test(r.to_ref ?? '') && provs.get(r.from_provision)?.document_id === d)]))
+  return { from, instRule, subjectToSepp }
+}
+
 export function resolve(claims: Claim[], relations: Rel[], provs: Map<string, Prov>): Resolution {
   const unknown = claims.filter(c => c.holds === null)
-  if (!unknown.length) return decide(claims, relations, provs)
+  const idx = indexRels(claims, relations, provs)
+  if (!unknown.length) return decide(claims, relations, provs, idx)
   // a condition nobody knows: decide with and without each unknown group; agree -> decided, else maybe with branches
   const conds = [...new Set(unknown.map(c => c.condition ?? 'an unstated condition'))]
+  // the rows of one table column are alternatives ("building height 0m-4.5m" / ">4.5m-8.5m"): exactly one holds, so the
+  // cases are one per row, not every combination
+  const groupOf = (c: string) => c.match(/^fact:(.+?) [^ ]+(?:[–-][^ ]+)?: unknown$/)?.[1] ?? null
+  const groups = new Map<string, string[]>()
+  for (const c of conds) { const g = groupOf(c); if (g) groups.set(g, [...(groups.get(g) ?? []), c]) }
+  const exclusive = [...groups.values()].filter(g => g.length > 1), singles = conds.filter(c => !exclusive.some(g => g.includes(c)))
+  // every combination of the unknowns is a case; past a handful (a complying development code's land exclusions and lot
+  // tests can leave a dozen open on one lot) the cases are not enumerated - the answer is "maybe" on all of them, named
+  if (singles.length + exclusive.length > 8) return { verdict: 'maybe', answer: null, branches: [], trace: [], unresolved: conds, dropped: [] }
   const branches: NonNullable<Resolution['branches']> = []
-  for (let mask = 0; mask < 1 << conds.length; mask++) {
-    const on = new Set(conds.filter((_, i) => mask & (1 << i)))
-    const r = decide(claims.map(c => c.holds === null ? { ...c, holds: on.has(c.condition ?? 'an unstated condition') } : c), relations, provs)
-    branches.push({ if: conds.map(c => `${on.has(c) ? '' : 'not '}${c}`).join(' and '), answer: r.answer, trace: r.trace })
+  const cases: Set<string>[] = []
+  const walk = (i: number, on: Set<string>) => {
+    if (i === exclusive.length) { cases.push(on); return }
+    for (const c of exclusive[i]!) walk(i + 1, new Set([...on, c]))
+  }
+  walk(0, new Set())
+  for (let mask = 0; mask < 1 << singles.length; mask++) for (const ex of cases) {
+    const on = new Set([...singles.filter((_, i) => mask & (1 << i)), ...ex])
+    const r = decide(claims.map(c => c.holds === null ? { ...c, holds: on.has(c.condition ?? 'an unstated condition') } : c), relations, provs, idx)
+    // (an exclusive group is named by the alternative that holds)
+    branches.push({ if: [...singles.map(c => `${on.has(c) ? '' : 'not '}${c}`), ...ex].join(' and '), answer: r.answer, trace: r.trace })
   }
   const same = branches.every(b => JSON.stringify(b.answer && keyOfAnswer(b.answer)) === JSON.stringify(branches[0]!.answer && keyOfAnswer(branches[0]!.answer)))
   // the unknowns do not change the answer: report the ruling and trace that rest on known facts only
-  if (same) return { ...decide(claims.map(c => c.holds === null ? { ...c, holds: false } : c), relations, provs), unresolved: [] }
+  if (same) return { ...decide(claims.map(c => c.holds === null ? { ...c, holds: false } : c), relations, provs, idx), unresolved: [] }
   return { verdict: 'maybe', answer: null, branches, trace: [], unresolved: conds, dropped: [] }
 }
 const keyOfAnswer = (a: NonNullable<Resolution['answer']>) => `${a.effect}:${a.value ?? ''}`
 
-function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resolution {
+function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>, idx: RelIndex = indexRels(all, relations, provs)): Resolution {
   const dropped = all.filter(c => c.holds === false).map(c => ({ claim: c.id, why: 'does not apply to this lot or proposal' }))
   let live = all.filter(c => c.holds !== false)
   const trace: Step[] = []
   const P = (c: Claim) => provs.get(c.provision)
   const label = (c: Claim) => c.label ?? P(c)?.local_id ?? c.provision
-  /** does a relation end (a provision id) cover this claim: the claim's provision or one of its ancestors */
-  const covers = (provId: string | null, c: Claim) => {
-    if (!provId) return false
-    if (provId === c.provision) return true
-    const target = provs.get(provId), p = P(c)
-    return !!target && !!p && p.document_id === target.document_id && (p.path ?? []).includes(target.local_id)
-  }
-  const inClauseOf = (provId: string, c: Claim) => {
-    const f = provs.get(provId), p = P(c); if (!f || !p || f.document_id !== p.document_id) return false
-    const cl = f.local_id.split('-')[0]!
-    return p.local_id === cl || p.local_id.startsWith(cl + '-')
-  }
+  const covers = (provId: string | null, c: Claim) => coversP(provs, provId, c)
+  const relsOf = (c: Claim) => idx.from.get(c.id) ?? []
   const sameDoc = (a: Claim, b: Claim) => P(a)?.document_id === P(b)?.document_id
   const eliminate = (loser: Claim, winner: Claim, rule: string, r: Rel | null, why: string) => {
     live = live.filter(x => x.id !== loser.id)
@@ -101,10 +133,9 @@ function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resol
   type Test = (a: Claim, b: Claim) => { rel: Rel | null; why: string } | null
   // 1 explicit: a beats b
   const explicit: Test = (a, b) => {
-    for (const r of relations) {
-      // "Despite ... another environmental planning instrument" is said once, in its own subclause, for the whole clause
-      const epiWide = r.kind === 'despite' && !r.to_provision && !r.to_document && /environmental planning instrument/i.test(r.to_ref ?? '')
-      if (!(epiWide ? inClauseOf(r.from_provision, a) : covers(r.from_provision, a))) continue
+    // (a's rows: those whose "from" covers a - or, for "despite ... another environmental planning instrument", said once
+    // in its own subclause for the whole clause, those in a's clause)
+    for (const r of relsOf(a)) {
       if (['despite', 'prevails_over', 'displaces_standard', 'disapplies'].includes(r.kind) && covers(r.to_provision, b))
         return { rel: r, why: r.kind === 'displaces_standard' ? 'a non-discretionary standard: a more onerous standard cannot be required (EP&A Act s 4.15(3))' : `${r.kind.replace('_', ' ')} the other provision` }
       if (r.kind === 'despite' && !r.to_provision && !r.to_document && /environmental planning instrument/i.test(r.to_ref ?? '') && !sameDoc(a, b))
@@ -112,7 +143,7 @@ function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resol
       if (r.kind === 'despite' && !r.to_provision && r.to_document && r.to_document === P(b)?.document_id && sameDoc(a, b))
         return { rel: r, why: 'applies despite any other provision of this instrument' }
     }
-    for (const r of relations) if (r.kind === 'subject_to' && covers(r.from_provision, b) && covers(r.to_provision, a)) return { rel: r, why: 'the other provision is subject to this one' }
+    for (const r of relsOf(b)) if (r.kind === 'subject_to' && covers(r.to_provision, a)) return { rel: r, why: 'the other provision is subject to this one' }
     return null
   }
   /** can a and b not both be obeyed: permit vs prohibit, or a maximum below a minimum */
@@ -121,13 +152,12 @@ function decide(all: Claim[], relations: Rel[], provs: Map<string, Prov>): Resol
   // 2 instrument: a SEPP prevails over an LEP to the extent of the inconsistency (Housing SEPP s 8; LEP 1.9 / s 3.28)
   const instrument: Test = (a, b) => {
     if (P(a)?.doc_kind !== 'sepp' || P(b)?.doc_kind !== 'lep' || !inconsistent(a, b)) return null
-    const rule = relations.find(r => r.kind === 'inconsistency_rule' && provs.get(r.from_provision)?.document_id === P(a)?.document_id)
-      ?? relations.find(r => r.kind === 'subject_to' && /SEPP that prevails/i.test(r.to_ref ?? '') && provs.get(r.from_provision)?.document_id === P(b)?.document_id)
+    const rule = idx.instRule.get(P(a)?.document_id ?? '') ?? idx.subjectToSepp.get(P(b)?.document_id ?? '')
     return rule ? { rel: rule, why: 'a SEPP prevails over the LEP to the extent of the inconsistency' } : null
   }
   // 3 specific over general
   const specific: Test = (a, b) => {
-    const r = relations.find(r => r.kind === 'more_specific_than' && covers(r.from_provision, a) && covers(r.to_provision, b))
+    const r = relsOf(a).find(r => r.kind === 'more_specific_than' && covers(r.to_provision, b))
     return r ? { rel: r, why: 'the more specific provision governs the general one' } : null
   }
   // 4 bar: a consent bar and a permission of the same instrument - the permission is not lost, but consent cannot be granted
