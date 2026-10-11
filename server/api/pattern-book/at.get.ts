@@ -303,7 +303,7 @@ function linked(gates: Omit<PatternGate, 'href'>[]): PatternGate[] {
  * no "(terraces)" term at all, and cl 3BA.3(5) describes them as multi dwelling housing (terraces),
  * so that is what is tested.
  */
-const USE_TERMS: Record<string, { terms: string[]; inferred?: string }> = {
+export const USE_TERMS: Record<string, { terms: string[]; inferred?: string }> = {
   'dual': { terms: ['dual occupancies', 'dual occupancies (attached)', 'dual occupancies (detached)',
                     'dual occupancy', 'dual occupancy (attached)', 'dual occupancy (detached)'] },
   'multi dwelling housing': { terms: ['multi dwelling housing'] },

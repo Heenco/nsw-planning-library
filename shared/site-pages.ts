@@ -187,6 +187,13 @@ export const SITE_PAGES: SitePage[] = [
     notebook: '03 - slope calculations - spatial services',
   },
 
+  {
+    route: '/pilot', name: 'Pilot', status: 'building', kind: 'testing',
+    summary: 'The structure-first rule pilot, instrument by instrument: propositions and how they classify, control numbers accounted for, the findings that hold a run, keys, rounds, and what nothing in the database can resolve.',
+    reads: ['/api/pilot/progress', 'pilot.run', 'pilot.proposition', 'pilot.scope', 'pilot.finding', 'pilot.key'],
+    notebook: '08D - LEP pilot chain',
+  },
+
   // ── planned: notebooks with nothing in the app reading them yet ───────────
   {
     route: '/testing-flood', name: 'Testing flood', status: 'planned', kind: 'testing',

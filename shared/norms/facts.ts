@@ -127,11 +127,17 @@ export async function lotTerm(query: Query, cadid: string, term: string, lga: st
   const m = (await query(`SELECT * FROM nsw.scope_layer WHERE lower(term) = $1 ORDER BY dimension LIMIT 1`, [term.toLowerCase()])).rows[0]
   if (!m) return { holds: null, why: 'no scope_layer mapping' }
   if (m.source_kind === 'none') return { holds: null, why: `not held (${m.note ?? 'no dataset'})` }
-  if (m.test === 'attribute' && m.source === 'derived.lot_lga') {
-    if (!lga) return { holds: null, why: 'council not recorded' }
-    const h = (await query(`SELECT EXISTS (SELECT 1 FROM derived.lot_lga WHERE cadid::text = $1 AND (${m.filter})) AS h`, [cadid])).rows[0].h
-    if (m.upper_bound) return h ? { holds: null, why: `${lga}: inside the bound, the term itself not held` } : { holds: false, why: `${lga}: outside` }
-    return { holds: Boolean(h), why: lga }
+  // an attribute test reads a column of a per-lot derived table (lot_lga's council, lot_profile's
+  // frontage_count / is_corner_lot), never a polygon: "2 street frontages" was once an EXISTS on
+  // derived.lot_frontage_run, which is true for every lot that touches one road
+  if (m.test === 'attribute') {
+    if (!/^derived\.[a-z_0-9]+$/.test(String(m.source)) || !m.filter) return { holds: null, why: `attribute test needs a derived table and a filter (${m.source})` }
+    if (m.source === 'derived.lot_lga' && !lga) return { holds: null, why: 'council not recorded' }
+    const r = await query(`SELECT EXISTS (SELECT 1 FROM ${m.source} WHERE cadid::text = $1 AND (${m.filter})) AS h`, [cadid]).catch(() => null)
+    if (!r) return { holds: null, why: `query failed on ${m.source}` }
+    const h = r.rows[0].h, label = m.source === 'derived.lot_lga' ? String(lga) : `${m.source}: ${m.filter}`
+    if (m.upper_bound) return h ? { holds: null, why: `${label}: inside the bound, the term itself not held` } : { holds: false, why: `${label}: outside` }
+    return { holds: Boolean(h), why: label }
   }
   let tables: { table: string; filter: string | null }[]
   if (m.source_kind === 'registry') {

@@ -75,7 +75,10 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
     const base = { fact: c.fact, value: c.value, under: c.under, who, span: c.span }
     const p = q.proposal
     // a use and the group the plan's Dictionary puts it in: "dwelling house" is "residential accommodation"
+    // a qualified use is a member of its unqualified one - "dual occupancies (detached)" is a dual
+    // occupancy, as the Standard Instrument's Dictionary defines it - without any group being listed
     const isA = (u: string, v: string) => key(u) === key(v) || (lot.groups?.[key(v)] ?? []).includes(key(u))
+      || key(u).startsWith(key(v) + ' (')
     const eq = (have: string | undefined, label: string): Leaf => have == null
       ? { ...base, v: null, why: `${label} not stated` }
       : { ...base, v: c.fact === 'proposal.use' ? isA(have, String(c.value)) : key(have) === key(String(c.value)), why: `${label}: ${have}` }
@@ -138,8 +141,14 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
         : { ...base, v: cmpOf(lot.frontageM, c.cmp!, c.n!), why: `frontage ${lot.frontageM.toFixed(1)} m` }
       case 'lot.zone': return lot.zone == null ? { ...base, who: 'lot', v: null, why: 'zone not recorded' }
         : { ...base, v: lot.zone === String(c.value).toUpperCase(), why: `zone ${lot.zone}` }
-      case 'lot.area_m2': return lot.areaM2 == null ? { ...base, v: null, why: 'area not recorded' }
-        : { ...base, v: cmpOf(lot.areaM2, c.cmp!, c.n!), why: `${lot.areaM2} m²` }
+      case 'lot.area_m2': {
+        // against a number, or against the lot's own Lot Size Map minimum ("less than the minimum lot
+        // size shown on the Lot Size Map"); no minimum held = undecided, never false
+        const n = c.text === 'lot_size_map' ? lot.lotSizeMinM2 ?? null : c.n ?? null
+        if (lot.areaM2 == null) return { ...base, v: null, why: 'area not recorded' }
+        if (n == null) return { ...base, v: null, why: c.text === 'lot_size_map' ? 'the Lot Size Map minimum is not known here' : 'no figure to test against' }
+        return { ...base, v: cmpOf(lot.areaM2, c.cmp!, n), why: `${lot.areaM2} m²${c.text === 'lot_size_map' ? ` against the Lot Size Map minimum ${n} m²` : ''}` }
+      }
       case 'lot.on_map': return { ...base, v: lot.onLotSizeMap,
         why: lot.onLotSizeMap === true ? `on the Lot Size Map (${lot.lotSizeMinM2} m²)` : lot.onLotSizeMap === false ? 'not on the Lot Size Map in our copy' : 'Lot Size Map not held for this plan' }
       case 'lot.permits': {
@@ -272,7 +281,8 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
     let holds: Tri = null, test = 'not tested here'
     if (s.topic === 'resulting_lot_size' && min != null && sizeArea != null && (s.cmp === 'gte' || s.cmp === 'gt')) {
       const lots = q.proposal.resulting_lots
-      if (lots) { holds = sizeArea / lots >= min; test = `${lots} lots from ${sizeArea} m²${cutNote} average ${Math.round(sizeArea / lots)} m²${holds ? ' - possible; the layout decides' : ` - below ${min} m²`}` }
+      if (q.proposal.kind !== 'subdivision') { holds = sizeArea >= min; test = `the lot is ${sizeArea} m²${cutNote}${holds ? ` - at least ${min} m²` : ` - under ${min} m²`}` }
+      else if (lots) { holds = sizeArea / lots >= min; test = `${lots} lots from ${sizeArea} m²${cutNote} average ${Math.round(sizeArea / lots)} m²${holds ? ' - possible; the layout decides' : ` - below ${min} m²`}` }
       else if (sizeArea < 2 * min) { holds = false; test = `${sizeArea} m²${cutNote} cannot make 2 lots of ${min} m² (needs ${2 * min} m²)${sizeArea < min ? `; the lot is itself under ${min} m²` : ''}` }
       else test = `${sizeArea} m²${cutNote} allows up to ${Math.floor(sizeArea / min)} lots of ${min} m² - the layout decides`
     } else if (lot.handleRule?.clauses.includes(r.clause)) {
@@ -283,9 +293,10 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
         : 'a handle is recorded but its area is not measured'
     } else if (s.topic === 'resulting_lot_width' && s.n != null && lot.frontageM != null) {
       // side-by-side lots share the frontage (a battle-axe lot is the other way, and some clauses forbid it)
-      const lots = q.proposal.resulting_lots ?? 2
+      const lots = q.proposal.kind !== 'subdivision' ? 1 : q.proposal.resulting_lots ?? 2
       holds = lot.frontageM >= lots * s.n
-      test = `frontage ${lot.frontageM.toFixed(1)} m for ${lots} lots side by side needs ${lots * s.n} m${holds ? '' : ' - not enough'}`
+      test = lots === 1 ? `frontage ${lot.frontageM.toFixed(1)} m${holds ? ` - at least ${s.n} m` : ` - under ${s.n} m`}`
+        : `frontage ${lot.frontageM.toFixed(1)} m for ${lots} lots side by side needs ${lots * s.n} m${holds ? '' : ' - not enough'}`
     } else if (s.topic === 'building_height' || s.topic === 'floor_space_ratio') {
       /*
        * A land-use question proposes no building, so there is nothing to pass or fail against a

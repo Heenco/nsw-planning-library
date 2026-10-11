@@ -73,22 +73,14 @@ function ringArea(pts: number[][] | null): number {
   return Math.abs(a / 2)
 }
 
-export async function loadDesignBrief(
-  address: string,
-  { landUses, storeys }: { landUses: string[], storeys: number },
-): Promise<DesignBrief> {
-  const lot = (await nswQuery(
-    `SELECT address, lot_section_plan, area_sqm, perimeter_m, primary_frontage_length_m, lot_depth_m,
-            is_corner_lot, is_battleaxe, all_frontages, lzn_sym_code_p, hob_max_b_h_m, fsr_fsr,
-            lot_size, lot_size_units, epi_name, lga_name, dcp_plan_name,
-            orientation_degrees, average_slope, permissible_uses
-     FROM nsw.up_property_d_3 WHERE address = $1 LIMIT 1`,
-    [address],
-  )).rows[0]
-
-  if (!lot) throw createError({ statusCode: 404, statusMessage: 'Property not found' })
-
-  const scope = resolveDcpScope(lot.lzn_sym_code_p, landUses, [], false)
+/**
+ * The DCP controls that apply to one lot and one set of uses: the council's own DCP, scoped by development type, with
+ * frontage and storey bands applied and ancillary structures excluded; specific (use-named) rules beat general ones per
+ * control. Shared by the design brief and the report's siting section so both read the same rows.
+ */
+export async function dcpControls({ landUses, storeys, lga, zoneSym, frontage, topics = DESIGN_TOPICS }:
+  { landUses: string[], storeys: number, lga: string | null, zoneSym: string | null, frontage: number | null, topics?: string[] }): Promise<any[]> {
+  const scope = resolveDcpScope(zoneSym, landUses, [], false)
   const devTypes = scope.devTypes.length ? scope.devTypes : ['residential']
 
   // The envelope route's control query, widened from two topics to twelve. The
@@ -136,7 +128,7 @@ export async function loadDesignBrief(
          SELECT 1 FROM nsw.rule_applicability anc
          WHERE anc.rule_id = r.id AND anc.dimension = 'dev_element'
            AND anc.value = 'ancillary')`,
-    [landUses, storeys, lot.lga_name ?? '', devTypes, DESIGN_TOPICS, Number(lot.primary_frontage_length_m) || null],
+    [landUses, storeys, lga ?? '', devTypes, topics, Number(frontage) || null],
   )).rows as any[]
 
   // Specific beats general, per control — the same partition the envelope
@@ -153,6 +145,26 @@ export async function loadDesignBrief(
     const named = rows.filter(r => r.land_use)
     scoped.push(...(named.length ? named : rows))
   }
+
+  return scoped
+}
+
+export async function loadDesignBrief(
+  address: string,
+  { landUses, storeys }: { landUses: string[], storeys: number },
+): Promise<DesignBrief> {
+  const lot = (await nswQuery(
+    `SELECT address, lot_section_plan, area_sqm, perimeter_m, primary_frontage_length_m, lot_depth_m,
+            is_corner_lot, is_battleaxe, all_frontages, lzn_sym_code_p, hob_max_b_h_m, fsr_fsr,
+            lot_size, lot_size_units, epi_name, lga_name, dcp_plan_name,
+            orientation_degrees, average_slope, permissible_uses
+     FROM nsw.up_property_d_3 WHERE address = $1 LIMIT 1`,
+    [address],
+  )).rows[0]
+
+  if (!lot) throw createError({ statusCode: 404, statusMessage: 'Property not found' })
+
+  const scoped = await dcpControls({ landUses, storeys, lga: lot.lga_name ?? null, zoneSym: lot.lzn_sym_code_p ?? null, frontage: Number(lot.primary_frontage_length_m) || null })
 
   const { ring } = await fetchLotRing(lot.lot_section_plan, {
     area: lot.area_sqm, perimeter: lot.perimeter_m,

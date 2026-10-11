@@ -46,3 +46,6 @@ table.stats,
 #gui {
   letter-spacing: 0.01em;
 }
+
+/* LOCAL MOD: ?embed=1 (js/main.js) - inside another page only the model and the view cube show. */
+body.embedded #gui, body.embedded #stats, body.embedded #doc { display: none !important; }

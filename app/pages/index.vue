@@ -499,16 +499,16 @@ function dismissDisclaimer() {
 const router = useRouter()
 
 /**
- * Open the lot on /testing-spatial-services, which is where the measured answer lives.
+ * Open the lot on /report-2, the report built from the measured lot and the RAG engine.
  *
- * It used to push /report with a lat/lng. The spatial services page is keyed on the lot instead, and
- * it reads that lot out of the query on mount, so the address search and a pasted link arrive the
- * same way.
+ * It used to push /report with a lat/lng, then /testing-spatial-services by lot. /report-2 is keyed the
+ * same way - cadid, and msoid for the address picked - and reads both out of the query on mount, so the
+ * address search and a pasted link arrive the same way.
  */
 function goToLot() {
   if (!selectedCadid.value) return
   router.push({
-    path: '/testing-spatial-services',
+    path: '/report-2',
     query: {
       cadid: selectedCadid.value,
       ...(selectedMsoid.value == null ? {} : { msoid: String(selectedMsoid.value) }),

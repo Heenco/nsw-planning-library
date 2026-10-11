@@ -102,6 +102,18 @@ async function loadModel(file, { keepView = false } = {}) {
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const json = await res.json();
     if (seq !== loadSeq) return; // a newer load superseded this one
+    showModel(json, { keepView, file });
+  } catch (err) {
+    showError(`Failed to load ${file}: ${err.message}`);
+  }
+}
+
+// LOCAL MOD: the model-to-scene half of loadModel, so a model handed over by an
+// embedding page (postMessage, below) goes through exactly the same path as a
+// fetched one - keepView diffing included, which is what makes an edit animate
+// only the elements it changed.
+function showModel(json, { keepView = false, file = null } = {}) {
+  {
     const model = parseModel(json);
     let kept = null;
     let carried = null;
@@ -137,14 +149,14 @@ async function loadModel(file, { keepView = false } = {}) {
     }
     views.fit(sceneApi.bounds, { keepView });
     banner.hidden = true;
-    const url = new URL(location);
-    url.searchParams.set("model", file);
-    history.replaceState(null, "", url);
+    if (file) {
+      const url = new URL(location);
+      url.searchParams.set("model", file);
+      history.replaceState(null, "", url);
+    }
     document.dispatchEvent(new CustomEvent("craftbot:model", {
       detail: { model, sceneApi, file },
     }));
-  } catch (err) {
-    showError(`Failed to load ${file}: ${err.message}`);
   }
 }
 
@@ -413,7 +425,27 @@ const freezeAt = parseFloat(bootParams.get("freeze"));
 if (!Number.isNaN(freezeAt)) {
   document.addEventListener("craftbot:model", () => anims.freeze(freezeAt));
 }
-fetch("models/index.json", FETCH_OPTS)
+// LOCAL MOD: ?embed=1 - the viewer inside another page (/report-2's siting
+// section). No showcase is loaded and the side chrome is hidden; the host sends
+// craftbot-model JSON with postMessage({ type: "craftbot:model", model }) on
+// every edit, same origin only. The first model frames the camera, later ones
+// keep it, so dragging a building does not throw the view around.
+const embedded = bootParams.get("embed") === "1";
+if (embedded) {
+  document.body.classList.add("embedded");
+  let first = true;
+  window.addEventListener("message", (ev) => {
+    if (ev.origin !== location.origin || ev.data?.type !== "craftbot:model" || !ev.data.model) return;
+    try {
+      showModel(ev.data.model, { keepView: !first });
+      first = false;
+    } catch (err) {
+      showError(`Failed to show the model: ${err.message}`);
+    }
+  });
+  window.parent?.postMessage({ type: "craftbot:ready" }, location.origin);
+}
+if (!embedded) fetch("models/index.json", FETCH_OPTS)
   .then((r) => r.json())
   .then((idx) => {
     index = idx;

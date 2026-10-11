@@ -121,7 +121,9 @@ async function unionSql(): Promise<string> {
                              / NULLIF(ST_Area(t.g), 0) END`
     // sorted on, never returned: within a layer the smallest polygon is the most specific control
     const size = have.has('shape_area') ? 'e."shape_area"::double precision' : 'NULL::double precision'
-    return `SELECT '${t.table}'::text AS layer, ${WANTED.map(pick).join(', ')},
+    // each column named explicitly: a UNION takes its names from the first branch, and a table missing a column there
+    // (epi.additional_controls sorts first and has no lay_name) would otherwise rename it "text" for every row
+    return `SELECT '${t.table}'::text AS layer, ${WANTED.map(c => `${pick(c)} AS ${c}`).join(', ')},
                    (${cover})::double precision AS cover_pct,
                    ${size} AS sort_size
             FROM epi."${t.table}" e, t

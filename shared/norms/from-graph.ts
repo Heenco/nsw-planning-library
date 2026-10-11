@@ -44,7 +44,7 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
       JOIN nsw.section cl ON cl.document_id = s.document_id AND cl.level = 'clause' AND (s.local_id = cl.local_id OR s.local_id LIKE cl.local_id || '-%')
      WHERE s.document_id = $1 AND cl.local_id = ANY($2)`, [documentId, clauses.map(c => c.local_id)])).rows
   const rules = (await query(`
-    SELECT r.id, r.clause, r.kind, s.local_id AS section, cl.local_id AS clause_sec,
+    SELECT r.id, r.clause, r.kind, r.src, s.local_id AS section, cl.local_id AS clause_sec,
            coalesce((SELECT json_agg(json_build_object('d', a.dimension, 'v', a.value, 'p', a.polarity))
                        FROM nsw.rule_applicability a WHERE a.rule_id = r.id), '[]') AS app,
            coalesce((SELECT json_agg(json_build_object('type', e.effect_type, 'topic', e.topic, 'cmp', e.comparator, 'value', e.value,
@@ -109,9 +109,28 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
        * clear. Without this the four cells of a matrix clause are indistinguishable.
        */
       case 'land_characteristic': return { fact: 'lot.in', value: lv, span: s }
-      case 'dev_type': return lv === 'residential'
+      /*
+       * "lte 900", "gt 1500", "lt lot_size_map": the figure a rule turns on, in the format 08C writes
+       * these rows. A prohibition "unless the lot is at least 550 m2" carries lot_area 'lt 550'; Hornsby
+       * cl 6.9(3) "if the lot is less than the minimum lot size shown on the Lot Size Map" carries
+       * 'lt lot_size_map'. An unreadable value stays unparsed, which keeps the norm undecided.
+       */
+      case 'lot_area': case 'lot_width': {
+        const fact = a.d === 'lot_area' ? 'lot.area_m2' : 'lot.frontage_m'
+        // one bound ("lt 550", "lt lot_size_map") or a band ("gte 550 and lte 600": a table row's key)
+        const bounds = lv.split(/\s+and\s+/).map(b => b.match(/^(lt|lte|gt|gte|eq)\s+(\d+(?:\.\d+)?|lot_size_map)$/))
+        if (!bounds.length || bounds.some(m => !m)) return { fact: 'unparsed', text: `${a.d.replace(/_/g, ' ')}: ${v}`, span: s }
+        const leaves = bounds.map(m => m![2] === 'lot_size_map' ? { fact, cmp: m![1] as any, text: 'lot_size_map', span: s } as Cond : { fact, cmp: m![1] as any, n: Number(m![2]), span: s } as Cond)
+        return leaves.length === 1 ? leaves[0]! : { all: leaves }
+      }
+      // "development" is every proposal: a scope row that says so constrains nothing (the pilot writes it
+      // for "consent must not be granted to development ... unless", so the rule reads as a condition
+      // on all development rather than a prohibition of a use); it must not hold the norm open
+      case 'dev_type': return lv === 'development' ? { any: [{ fact: 'proposal.kind', value: 'use', span: s }, { fact: 'proposal.kind', value: 'subdivision', span: s }] } : lv === 'residential'
         ? { any: [{ fact: 'site.has', value: 'residential accommodation', span: s }, { fact: 'proposal.use', value: 'residential accommodation', span: s }] }
-        : { fact: 'unparsed', text: `development type: ${v}`, span: s }
+        : lv === 'by reference' || lv === 'development' ? { fact: 'unparsed', text: `development type: ${v}`, span: s }
+        // "demolition", "temporary use": a kind of proposal of its own; a use or subdivision question is not it
+        : { fact: 'proposal.kind', value: lv, span: s }
       default: return { fact: 'unparsed', text: `${a.d.replace(/_/g, ' ')}: ${v}`, span: s }
     }
   }
@@ -131,7 +150,9 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
       if (/^(area_label|site_ref|map_area)$/.test(d)) {
         const refs = g.flatMap(a => a.refs ?? [])
         const c = placeOf(r, refs, p === 'excludes' ? 'excludes' : 'applies', `${d.replace(/_/g, ' ')}: ${g.map(a => a.v).join(' / ')}`)
-        parts.push(c)
+        // "unless the land is ... identified as 'South Parramatta Conservation Area' on the Heritage Map": an
+        // excluded place is a place the lot must NOT be in, which this pushed as a place it must be in
+        parts.push(p === 'excludes' ? { not: c } : c)
         continue
       }
       const ls = g.map(a => leafFor(r, a))
@@ -181,7 +202,20 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
     })
     const wholeText = own.map(s => norm(s.raw_text)).join(' ')
     if (!operative.length || (own.length && NOT_ADOPTED.test(wholeText))) continue      // nothing left to read, or not adopted
-    const scopeRows = rs.filter(r => !(r.eff as any[]).some(e => effectOf(e))).flatMap(r => (r.app as any[]).map(a => ({ ...a, refs: r.refs })))
+    /*
+     * Scope rows BORROWED across a clause come only from rules that are scope and nothing else. A
+     * rule that bans or grants carries its own complete scope: Parramatta cl 6.11(2)'s four
+     * exceptions (corner lot, 2 street frontages, heritage item, South Parramatta CA) belong to
+     * 6.11(2) alone, and borrowed onto 6.11(1) they excused every lot on the "D" map that has two
+     * frontages from a prohibition that has no exceptions.
+     */
+    // ... and never a THRESHOLD: lot_area / lot_width / route_condition rows are the condition of the
+    // one rule they sit on (cl 4.1C(2)'s "at least 600 m2"), not the scope of the clause - borrowed
+    // onto the clause's standards they switched the standard off on exactly the lots that fail it
+    // "If a lot is a battle-axe lot ... the area of the access handle must not be included" is a rule of
+    // arithmetic (kind standard, no figure); as a donor it put lot.in battle-axe on cl 4.1(3)
+    const scopeRows = rs.filter(r => !(r.eff as any[]).some(e => effectOf(e)) && /^(frame|condition)$/.test(r.kind))
+      .flatMap(r => (r.app as any[]).filter(a => !/^(lot_area|lot_width|route_condition)$/.test(a.d)).map(a => ({ ...a, refs: r.refs })))
     /*
      * A PROHIBITION IS A RULE EVEN WITHOUT A NUMBER.
      *
@@ -228,7 +262,10 @@ export async function graphNorms(query: Query, documentId: string, instrument: s
       const ownDims = new Set(ownRows.map(a => a.d))
       // fail closed: most of the graph's rule fragments are incomplete (scope and effect split, values missing), so a norm
       // read from them is never decisive on its own - its standards show "if it applies", never "met"
-      const when: Cond = { all: [conditionOf(r, [...ownRows, ...scopeRows.filter(a => !ownDims.has(a.d))]),
+      // a rule read structurally (src 'structural': the pilot's projection) carries its whole scope by
+      // construction, so it is not held open the way an 08C fragment is
+      const when: Cond = r.src === 'structural' ? conditionOf(r, [...ownRows, ...scopeRows.filter(a => !ownDims.has(a.d))])
+        : { all: [conditionOf(r, [...ownRows, ...scopeRows.filter(a => !ownDims.has(a.d))]),
         { fact: 'unparsed', text: "the graph's rule for this clause, its scope as extracted - not checked against the clause's words", span: r.section }] }
       ;(r.eff as any[]).forEach((e, i) => {
         const then = effectOf(e)

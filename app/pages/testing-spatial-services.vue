@@ -298,6 +298,7 @@
             <template v-for="f in fieldsIn(detail.lot, g.fields)" :key="f.k">
               <dt><code>{{ f.k }}</code></dt>
               <dd :class="{ 'lp-null': f.isNull }">{{ f.v }}</dd>
+              <dd v-if="f.note" class="lp-fnote">{{ f.note }}</dd>
             </template>
           </dl>
         </div>
@@ -308,6 +309,7 @@
             <template v-for="f in lotLeftovers" :key="f.k">
               <dt><code>{{ f.k }}</code></dt>
               <dd :class="{ 'lp-null': f.isNull }">{{ f.v }}</dd>
+              <dd v-if="f.note" class="lp-fnote">{{ f.note }}</dd>
             </template>
           </dl>
         </details>
@@ -323,11 +325,19 @@
         <div class="lp-scroll">
           <table class="lp-table">
             <thead>
-              <tr><th v-for="c in RUN_COLUMNS" :key="c" scope="col"><code>{{ c }}</code></th></tr>
+              <tr>
+                <th v-for="c in RUN_COLUMNS" :key="c" scope="col">
+                  <code>{{ c }}</code>
+                  <span v-if="RUN_FIELD_DOCS[c]" class="lp-fnote">{{ RUN_FIELD_DOCS[c]!.meaning }}</span>
+                </th>
+              </tr>
             </thead>
             <tbody>
               <tr v-for="r in detail.runs" :key="String(r.seq)" :class="{ 'lp-tr--primary': r.is_primary }">
-                <td v-for="c in RUN_COLUMNS" :key="c" :class="{ 'lp-null': r[c] == null }">{{ show(r[c]) }}</td>
+                <td v-for="c in RUN_COLUMNS" :key="c" :class="{ 'lp-null': r[c] == null }">
+                  {{ show(r[c]) }}
+                  <span v-if="codeLabel(RUN_FIELD_DOCS[c], r[c])" class="lp-fnote">{{ codeLabel(RUN_FIELD_DOCS[c], r[c]) }}</span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -342,11 +352,19 @@
         <div class="lp-scroll">
           <table class="lp-table">
             <thead>
-              <tr><th v-for="c in ADDRESS_COLUMNS" :key="c" scope="col"><code>{{ c }}</code></th></tr>
+              <tr>
+                <th v-for="c in ADDRESS_COLUMNS" :key="c" scope="col">
+                  <code>{{ c }}</code>
+                  <span v-if="ADDRESS_FIELD_DOCS[c]" class="lp-fnote">{{ ADDRESS_FIELD_DOCS[c]!.meaning }}</span>
+                </th>
+              </tr>
             </thead>
             <tbody>
               <tr v-for="a in detail.addresses" :key="String(a.id)" :class="{ 'lp-tr--focus': a.msoid === focusMsoid }">
-                <td v-for="c in ADDRESS_COLUMNS" :key="c" :class="{ 'lp-null': a[c] == null }">{{ show(a[c]) }}</td>
+                <td v-for="c in ADDRESS_COLUMNS" :key="c" :class="{ 'lp-null': a[c] == null }">
+                  {{ show(a[c]) }}
+                  <span v-if="codeLabel(ADDRESS_FIELD_DOCS[c], a[c])" class="lp-fnote">{{ codeLabel(ADDRESS_FIELD_DOCS[c], a[c]) }}</span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -357,6 +375,7 @@
             <template v-for="f in firstAddressFields" :key="f.k">
               <dt><code>{{ f.k }}</code></dt>
               <dd :class="{ 'lp-null': f.isNull }">{{ f.v }}</dd>
+              <dd v-if="f.note" class="lp-fnote">{{ f.note }}</dd>
             </template>
           </dl>
         </details>
@@ -1352,6 +1371,7 @@
 
 <script setup lang="ts">
 import type { ZoneDetail } from '#shared/lep-permissibility'
+import { ADDRESS_FIELD_DOCS, codeLabel, LOT_FIELD_DOCS, RUN_FIELD_DOCS, type FieldDoc } from '#shared/lot-field-docs'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 useHead({ title: 'Testing spatial services · Planning Library' })
@@ -2340,8 +2360,19 @@ function show(v: unknown): string {
   return s === '' ? '(empty string)' : s
 }
 
+/**
+ * One field, ready to draw: its value, and the grey line under it - what the
+ * value means when it is a code, then what the column holds.
+ */
+function field(row: Record<string, any>, k: string, docs: Record<string, FieldDoc>) {
+  const doc = docs[k]
+  const label = codeLabel(doc, row[k])
+  const note = [label ? `${label}.` : '', doc?.meaning ?? ''].filter(Boolean).join(' ')
+  return { k, v: show(row[k]), isNull: row[k] == null, note }
+}
+
 function fieldsIn(row: Record<string, any>, keys: string[]) {
-  return keys.filter(k => k in row).map(k => ({ k, v: show(row[k]), isNull: row[k] == null }))
+  return keys.filter(k => k in row).map(k => field(row, k, LOT_FIELD_DOCS))
 }
 
 /** lot_frontage columns not claimed by a group, so nothing is silently dropped. */
@@ -2352,14 +2383,14 @@ const lotLeftovers = computed(() => {
   return Object.keys(row)
     .filter(k => !claimed.has(k) && k !== 'cadid' && row[k] !== undefined)
     .sort()
-    .map(k => ({ k, v: show(row[k]), isNull: row[k] == null }))
+    .map(k => field(row, k, LOT_FIELD_DOCS))
 })
 
 const firstAddressFields = computed(() => {
   const a = detail.value?.addresses[0]
   if (!a) return []
   return Object.keys(a).filter(k => a[k] !== undefined).sort()
-    .map(k => ({ k, v: show(a[k]), isNull: a[k] == null }))
+    .map(k => field(a, k, ADDRESS_FIELD_DOCS))
 })
 
 function num(v: unknown): number | null {
@@ -2764,6 +2795,10 @@ body { margin: 0; background: #f8fafb; }
 .lp-fields dt { color: #475569; }
 .lp-fields dd { margin: 0; color: #0f172a; overflow-wrap: anywhere; }
 .lp-null { color: #cbd5e1; font-style: italic; }
+/* The grey line under a field: spans both columns of .lp-fields, or sits under a header or cell. */
+.lp-fields dd.lp-fnote { grid-column: 1 / -1; margin: -0.05rem 0 0.3rem; color: #94a3b8; }
+.lp-fnote { display: block; color: #94a3b8; font-size: 0.68rem; font-style: normal; font-weight: 400; line-height: 1.3; }
+.lp-table th .lp-fnote { white-space: normal; min-width: 7rem; }
 
 .lp-scroll { overflow-x: auto; }
 .lp-table { border-collapse: collapse; font-size: 0.76rem; width: 100%; }
