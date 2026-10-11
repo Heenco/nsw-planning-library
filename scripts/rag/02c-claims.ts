@@ -658,8 +658,14 @@ async function main() {
     // - and so does the list of a discretionary grant ("may approve development with a floor space ratio of up to 1.3:1 ... but
     // only if the consent authority is satisfied that- (b) that part ... will have an area of at least 5,000m2"): its items
     // are the conditions of that grant, never standards of their own
-    const conditionList = /\b(if|unless|where|only if)\s*[—-]\s*$/i.test(stem) || /\bapplies (only )?to\b[^—]*[—-]\s*$/i.test(stem)
-      || /\bmay\b[^—]*\b(?:if|only if|unless|provided)\b[^—]*[—-]\s*$/i.test(stem)
+    // Every stem up to the clause is read, not only the nearest: "(2) The floor space ratio ... may exceed the ratio shown ...
+    // if the building is used for- (b) another land use- (ii) with a floor area at least equal to a floor space ratio of
+    // 0.5:1" is a condition of (2)'s exceedance two levels down, never a 0.5:1 maximum (Parramatta 4.4A(2))
+    const stems: string[] = []
+    for (let x = p.parent_id ? byId.get(p.parent_id) : undefined; x && x.id !== cl?.id; x = x.parent_id ? byId.get(x.parent_id) : undefined) stems.push(norm(x.own_text))
+    const isConditionStem = (s: string) => /\b(if|unless|where|only if)\s*[—-]\s*$/i.test(s) || /\bapplies (only )?to\b[^—]*[—-]\s*$/i.test(s)
+      || /\bmay\b[^—]*\b(?:if|only if|unless|provided)\b[^—]*[—-]\s*$/i.test(s)
+    const conditionList = stems.some(isConditionStem)
     if (f && topic && f.comparator && p.kind === 'paragraph' && t.length < 260 && !/^(if|where|in the case)\b/i.test(t) && !conditionList) {
       // "for a detached secondary dwelling-" names a use only when the words are a known land use; "for a lot with an area
       // of at least 450m2 but not more than 900m2-" is a band on the lot, and "for a battle-axe lot-" is neither
@@ -699,9 +705,44 @@ async function main() {
     }
   }
 
+  // ── where and when a standard applies, from its own words and the stems it hangs from ───────────────
+  // "The maximum floor space ratio for all buildings on land identified as "Area 5" on the Floor Space Ratio Map is 6:1 if
+  // the consent authority is satisfied ..." (Parramatta 4.4A(5)); "... on land ... identified as "Area C" ... is 2:1 if the
+  // site area is at least 2,000m2" (6.21(3)); a table whose subclause says "on land identified as "Area 1" on the Height of
+  // Buildings Map must not exceed the height determined in accordance with the table" (4.3(2A)). A standard read with its
+  // figure but none of that would hold on every lot of the plan. So each standard with no place of its own takes the map
+  // areas and zones its text and its stems (up to the clause) name, a site-area floor as a band, and a consent-authority
+  // condition as discretion - the same readers the frames use (scopeOf), so a new plan's wording needs no new rule
+  const under = (id: string, root: string) => { for (let x = byId.get(id); x; x = x.parent_id ? byId.get(x.parent_id) : undefined) if (x.id === root) return true; return false }
+  // Only the readers that take a figure from a sentence or a cell without reading where it applies; a consent bar, a
+  // subdivision exception or a map rule read their own scope and conditions (a "satisfied" in 4.1B(3) is about the
+  // existing dual occupancy the question states, not a condition on its figure)
+  const BARE = new Set(['standard sentence', 'standard leaf', 'table row', 'use standard', 'banded standard'])
+  let placed = 0
+  for (const c of claims) {
+    if (c.kind !== 'standard' || !BARE.has(c.reader) || (c.terms ?? []).some(t => t.startsWith('mapped:') || t.startsWith('discretion:'))) continue
+    const p0 = byId.get(c.provision_id); if (!p0) continue
+    const cl = clauseOf(p0)
+    const chain: P[] = []
+    for (let x: P | undefined = p0; x && x.id !== cl?.id; x = x.parent_id ? byId.get(x.parent_id) : undefined) chain.push(x)
+    const own = chain.filter(x => !['cell', 'row', 'table'].includes(x.kind)).map(x => norm(x.own_text)).filter(Boolean)
+    if (!own.length) continue
+    const text = own.join(' ')
+    const sc = scopeOf(text, p0)
+    const mapped = sc.terms.filter(t => t.startsWith('mapped:'))
+    // "if the site area is at least 2,000m2": a floor on the lot the figure applies to
+    const floor = text.match(/\bif the (?:site|lot) area is (?:at least|not less than|more than) ([\d,]+(?:\.\d+)?)\s*(?:m2|m²|square metres)/i)
+    const disc = text.match(/\bif the consent authority is (?:satisfied|of the opinion)\b.*$/i)
+    if (!mapped.length && !floor && !disc && !sc.zones.length) continue
+    c.terms = [...new Set([...(c.terms ?? []), ...mapped, ...(disc ? [`discretion:${norm(disc[0]).slice(0, 200)}`] : [])])]
+    if (!c.zones?.length && sc.zones.length) c.zones = sc.zones
+    if (floor && !c.band) c.band = { metric: 'lot_size', lo: Number(floor[1]!.replace(/,/g, '')), lo_incl: !/more than/i.test(floor[0]), hi: null, hi_incl: false }
+    placed++
+  }
+  console.log('standards given their place or condition from their stems:', placed)
+
   // an exception "Despite subclause (3), ..." is about what (3) is about: its standards take (3)'s title-type terms
   const despite = (await q(`SELECT from_provision, to_provision FROM rag.relation WHERE kind = 'despite' AND to_provision IS NOT NULL`)).rows
-  const under = (id: string, root: string) => { for (let x = byId.get(id); x; x = x.parent_id ? byId.get(x.parent_id) : undefined) if (x.id === root) return true; return false }
   for (const d of despite) {
     const from = byId.get(d.from_provision), to = byId.get(d.to_provision); if (!from || !to || from.document_id !== to.document_id || clauseOf(from)?.id !== clauseOf(to)?.id) continue
     const inherited = [...new Set(claims.filter(c => c.kind === 'standard' && under(c.provision_id, to.id)).flatMap(c => (c.terms ?? []).filter(t => t.startsWith('tenure:'))))]
