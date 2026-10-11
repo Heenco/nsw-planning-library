@@ -476,6 +476,21 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
         limits.push({ label: E.label(c.provision_id).replace(/\((a|i)\)$/, ''), text: c.band?.of ? `group:${c.band.of}` : (c.span ?? ''), status, detail: `${c.topic?.replace('_', ' ')}: ${detail}${c.non_discretionary ? ' (non-discretionary standard)' : ''}`, subs })
       }
     }
+    // a use the instruments split into kinds ("dual occupancy (attached)" / "(detached)"): a bar on one kind (Parramatta cl
+    // 6.11(2), detached only) must not answer for the whole use - each kind is asked on its own, and the use is permitted as
+    // the kinds that are, saying which are not and why
+    if (verdict !== 'permitted' && depth < 3) {
+      const a = landUseKey(ask.use)
+      const per = [...KNOWN].filter(k => kindOf(k, a)).sort().map(k => ({ k, r: evaluate(E0, { ...ask, use: k }, lot, depth + 1) }))
+      const yes = per.filter(p => p.r.verdict === 'permitted')
+      if (yes.length) {
+        const by = (r: Result) => [...new Set(r.tested.filter(t => r.ruling?.answer?.claims?.includes(t.claim.id)).map(t => E.label(t.claim.provision_id)))].join(', ')
+        const other = per.filter(p => p.r.verdict !== 'permitted').map(p => `${p.k} ${p.r.verdict === 'prohibited' ? `prohibited here${by(p.r) ? ` (${by(p.r)})` : ''}` : `${p.r.verdict} here`}`)
+        const first = yes[0]!.r
+        return { ...first, ask, note: [`only as ${yes.map(p => p.k).join(' or ')}`, ...other].join(' - '),
+          notChecked: [...new Set(per.flatMap(p => p.r.notChecked))], checks: [...first.checks, ...per.filter(p => p !== yes[0]).flatMap(p => p.r.checks)] }
+      }
+    }
     return { ask, answer: ruling.answer, verdict, ruling, tested, limits, notChecked: [...notChecked], note, checks: aggChecks(tested) }
   }
 
