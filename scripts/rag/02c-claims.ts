@@ -698,9 +698,14 @@ async function main() {
       const vals = cells.map((c, i) => { const v = norm(c.own_text) || above[i] || ''; above[i] = v; return { cap: norm(c.heading).toLowerCase(), v, id: c.id } })
       const valueCell = [...vals].reverse().find(v => figureOf(v.v)); if (!valueCell) continue
       const topic = topicOf(valueCell.cap), fig = figureOf(valueCell.v); if (!topic || !fig) continue
-      const useCell = vals.find(v => /land use|use|purpose/.test(v.cap)), zoneCell = vals.find(v => /zone/.test(v.cap)), bandCell = vals.find(v => /lot size|site area|area/.test(v.cap) && v !== valueCell)
+      const useCell = vals.find(v => /land use|use|purpose/.test(v.cap)), zoneCell = vals.find(v => /zone/.test(v.cap)), bandCell = vals.find(v => /lot size|site area|area/.test(v.cap) && v !== valueCell && figureOf(v.v))
+      // a column of map labels ("Area 3", "Area 6") under a stem that says where they are drawn ("in an area specified in
+      // Column 1 ... and identified on the Floor Space Ratio Map", Hornsby 4.4(2A)): each row binds to its area's polygons
+      const areaCell = vals.find(v => v !== valueCell && v !== bandCell && (/^area$/.test(v.cap) || /^area \w+$/i.test(v.v)) && !figureOf(v.v))
+      const mapName = areaCell ? norm(holder.own_text).match(/\b(?:identified|shown|marked)\b[^.]*?\bon the ([A-Z][\w ]*? Map)\b/)?.[1] : null
       add({ provision_id: valueCell.id, kind: 'standard', topic, comparator: /maximum/.test(valueCell.cap) ? 'max' : /minimum/.test(valueCell.cap) ? 'min' : 'max', value: fig.value, unit: fig.unit,
         uses: useCell ? usesOf(useCell.v) : [], zones: zoneCell ? zoneCodes(zoneCell.v.replace(/^(?=[A-Z]{1,2}\d)/, 'Zone ')) : [], band: bandCell ? bandOf(bandCell.v) : null,
+        terms: areaCell && mapName ? [`mapped:${areaCell.v} on the ${mapName}`] : [],
         value_source: 'table', unit_provision: clauseOf(holder)?.id ?? null, source: 'text', reader: 'table row', span: vals.map(v => `${v.cap}: ${v.v}`).join('; ') })
     }
   }
