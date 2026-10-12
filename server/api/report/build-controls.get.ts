@@ -162,16 +162,19 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
       if (!['permit', 'prohibit', 'standard'].includes(c.kind) || !inScope(E.provs.get(c.provision_id)?.document_id)) continue
       for (const u of c.uses ?? []) if (u && u !== '*') named.add(landUseKey(u))
     }
-    // what a Land Use Table or a SEPP grant names: that is the list of things one builds. Any permit/prohibit clause alone
-    // let in terms that are not uses at all - "Area 1", "road", "habitable room" - from clauses that bar development on them
+    // What a Land Use Table names, in any LEP held: the planning vocabulary of things one builds, read from the data. Any
+    // permit/prohibit clause let in terms that are not uses ("Area 1", "habitable room"); SEPP clauses did the same once
+    // the Codes SEPP was read in ("attached", "storey", "Land Zoning Map", "Complying development certificate" - its
+    // exempt and complying clauses name structures and conditions, not land uses). The verdict for each use is still the
+    // engine's, SEPP grants included; only the list comes from the tables.
     const permitNamed = new Set<string>()
     for (const c of E.claims) {
       if (!['permit', 'prohibit'].includes(c.kind)) continue
       const p = E.provs.get(c.provision_id)
-      if (!p || !inScope(p.document_id)) continue
-      const table = p.local_id.startsWith('pt-cg') || p.path.some(x => x.startsWith('pt-cg'))
-      if (!table && p.doc_kind !== 'sepp') continue
-      for (const u of c.uses ?? []) if (u && u !== '*') permitNamed.add(landUseKey(u))
+      if (!p || p.doc_kind !== 'lep') continue
+      if (!(p.local_id.startsWith('pt-cg') || p.path.some(x => x.startsWith('pt-cg')))) continue
+      // a map is never a use ("Land Zoning Map" comes through from a table row that refers to it)
+      for (const u of c.uses ?? []) if (u && u !== '*' && !/\bmap$/i.test(u.trim())) permitNamed.add(landUseKey(u))
     }
     const docs = [lep, ...E.insts.filter(i => i.kind === 'sepp').map(i => i.document_id)]
     const terms = (await q(`SELECT heading FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL AND document_id = ANY($1::uuid[])
