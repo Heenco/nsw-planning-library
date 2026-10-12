@@ -50,6 +50,8 @@ export interface BuildOption { use: string; label: string; verdict: 'permitted' 
 export interface BuildFigure {
   verdict: string; value: number | null; unit: string | null; expr: string | null
   by: string[]
+  /** the provisions behind `by`, same order - their words are served in `clauses` */
+  byIds: string[]
   steps: { winner: string; loser: string; interpretive: boolean }[]
   /** the cases it splits into when a fact is not known: the figure in each and the fact */
   branches: { if: string; answer: string | null }[]
@@ -93,6 +95,8 @@ export interface BuildResponse {
     exceptions?: BuildExceptions | null }) | null
   controls: BuildControl[]
   areas: BuildArea[]
+  /** the words of every clause the verdict and the controls cite, by its label - what a hover over the label shows */
+  clauses: Record<string, { heading: string | null; text: string }>
   ms: number
 }
 
@@ -111,6 +115,7 @@ function figure(E: Engine, r: Result): BuildFigure {
     value: a?.effect === 'value' && a.value != null ? Number(a.value) : null,
     unit: a?.unit ?? null, expr: a?.expr ?? null,
     by: [...new Set(won.map(c => E.label(c.provision_id)))],
+    byIds: [...new Map(won.map(c => [E.label(c.provision_id), c.provision_id])).values()],
     // one line per pair: the engine records a step for each claim of the losing provision (cl 6.11(2) over the R4 table, x3)
     steps: [...new Map(x.steps.map(s => [`${s.winner}|${s.loser}`, { winner: s.winner, loser: s.loser, interpretive: s.basis === 'interpretive' && s.status !== 'verified' }])).values()],
     branches: x.branches.map(b => ({ if: plainIf(b.if), answer: b.answer })),
@@ -142,7 +147,7 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
   const lotInfo = { areaM2: lot.area_m2 ?? null, frontageM: lot.frontage_m ?? null, zone: lot.zone ?? null }
   if (!lep) {
     return { engine: 'none', reason: `The RAG does not hold ${lot.epi ?? 'this lot\'s plan'}.`, plan: lot.epi ?? null, address: lot.address ?? null,
-      lot: lotInfo, options: [], use: null, permission: null, controls: [], areas: [], ms: Date.now() - started }
+      lot: lotInfo, options: [], use: null, permission: null, controls: [], areas: [], clauses: {}, ms: Date.now() - started }
   }
   setHeader(event, 'cache-control', 'public, max-age=60')
   const inScope = (docId: string | undefined) => docId === lep || E.insts.some(i => i.document_id === docId && i.kind === 'sepp')
@@ -157,9 +162,15 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
       if (!['permit', 'prohibit', 'standard'].includes(c.kind) || !inScope(E.provs.get(c.provision_id)?.document_id)) continue
       for (const u of c.uses ?? []) if (u && u !== '*') named.add(landUseKey(u))
     }
+    // what a Land Use Table or a SEPP grant names: that is the list of things one builds. Any permit/prohibit clause alone
+    // let in terms that are not uses at all - "Area 1", "road", "habitable room" - from clauses that bar development on them
     const permitNamed = new Set<string>()
     for (const c of E.claims) {
-      if (!['permit', 'prohibit'].includes(c.kind) || !inScope(E.provs.get(c.provision_id)?.document_id)) continue
+      if (!['permit', 'prohibit'].includes(c.kind)) continue
+      const p = E.provs.get(c.provision_id)
+      if (!p || !inScope(p.document_id)) continue
+      const table = p.local_id.startsWith('pt-cg') || p.path.some(x => x.startsWith('pt-cg'))
+      if (!table && p.doc_kind !== 'sepp') continue
       for (const u of c.uses ?? []) if (u && u !== '*') permitNamed.add(landUseKey(u))
     }
     const docs = [lep, ...E.insts.filter(i => i.kind === 'sepp').map(i => i.document_id)]
@@ -172,7 +183,7 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
       // fell to the catch-all, so home business read as prohibited in R2
       // - and cl 5.4 names the singular, so the key a Land Use Table or SEPP grant uses is preferred over any other
       const keys = [t.heading, `${t.heading}s`, `${t.heading}es`].map(h => landUseKey(h))
-      const k = keys.find(x => permitNamed.has(x)) ?? keys.find(x => named.has(x))
+      const k = keys.find(x => permitNamed.has(x))
       if (k && !shown.has(k)) shown.set(k, t.heading)
     }
     entry.options = [...shown.entries()].sort((a, b) => a[1].localeCompare(b[1])).flatMap(([use, label]) => {
@@ -224,7 +235,7 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
 
   const base = { engine: 'rag' as const, plan: lot.epi ?? null, address: lot.address ?? null, lot: lotInfo, options: entry.options }
   const use = query.use ? landUseKey(String(query.use)) : null
-  if (!use) return { ...base, use: null, permission: null, controls: [], areas: entry.areas, ms: Date.now() - started }
+  if (!use) return { ...base, use: null, permission: null, controls: [], areas: entry.areas, clauses: {}, ms: Date.now() - started }
 
   // the chosen use: is it permissible, and on what conditions
   const p = evaluate(E, { kind: 'permissibility', use }, lot)
@@ -394,5 +405,16 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
   const areas = entry.areas.map(a => ({ ...a, claims: a.claims.filter(c => !c.uses.length || c.uses.includes('*') || c.uses.some(u => u === use || use.startsWith(`${u} (`) || u.startsWith(`${use} (`))) }))
     .filter(a => a.claims.length)
 
-  return { ...base, use, permission, controls, areas, ms: Date.now() - started }
+  // the clause words for the labels shown: own text, or the parent's when the provision is a table cell or a bare paragraph
+  const clauses: BuildResponse['clauses'] = {}
+  const cited = new Map<string, string>()
+  for (const f of [permission, ...controls]) f.byIds.forEach((id, i) => { const l = f.by[i]; if (l && !cited.has(l)) cited.set(l, id) })
+  for (const [label, id] of cited) {
+    const own = (await textOf([id])).replace(/\s+/g, ' ').trim()
+    const p = E.provs.get(id)
+    const text = own.length > 40 || !p?.parent_id ? own : `${(await textOf([p.parent_id])).replace(/\s+/g, ' ').trim()} ${own}`.trim()
+    clauses[label] = { heading: headingOf(E, id), text: text.length > 600 ? `${text.slice(0, 600)}…` : text }
+  }
+
+  return { ...base, use, permission, controls, areas, clauses, ms: Date.now() - started }
 })

@@ -51,10 +51,10 @@
       <p v-else-if="!detail" class="r2-empty">Search for an address to open its report.</p>
 
       <template v-else>
-        <!-- ── Title block ─────────────────────────────────────────────── -->
+        <!-- ── Title block: the full address, then the lot, the council and how many addresses share it ── -->
         <section class="r2-title">
           <p class="r2-kicker">Site report</p>
-          <h1>{{ address || lot?.lot_id || cadid }}</h1>
+          <h1>{{ (fullAddress || lot?.lot_id || cadid).toUpperCase() }}</h1>
           <p class="r2-ids">
             <span v-if="lot?.lot_id">Lot <b>{{ lot.lot_id }}</b></span>
             <span v-if="lot?.lga_name">{{ titleCase(lot.lga_name) }}</span>
@@ -886,15 +886,7 @@
             Choose what you want to build. The list says what the zone allows; for the one you pick, every development control
             on this lot - resolved by the RAG engine across the LEP and the SEPPs, with the clause that sets it.
           </p>
-          <BuildControls :cadid="cadid" @trace="openStackTrace" @use="(u: { use: string; label: string }) => { sitingType = u.use; sitingLabel = u.label; sitingTrace = null }" />
-          <div v-if="stackTrace" class="r2-trace-cell r2-env-drawer">
-            <p class="r2-env-drawer-h">
-              <span><b>{{ cap(stackTrace.use) }}</b> · {{ SITING_TOPIC_LABEL[stackTrace.topic] ?? stackTrace.topic }}</span>
-              <button type="button" class="r2-trace-btn" @click="stackTrace = null">Close</button>
-            </p>
-            <p v-if="stackTrace.error" class="r2-error">{{ stackTrace.error }}</p>
-            <TraceView v-else :d="stackTrace.d" />
-          </div>
+          <BuildControls :cadid="cadid" :select="buildPick" @trace="openStackTrace" @use="(u: { use: string; label: string }) => { sitingType = u.use; sitingLabel = u.label; sitingTrace = null }" />
         </section>
 
         <!-- ── 15. Siting: put a building on the lot and move it (/api/report/siting, components/SitingStudio.vue) ── -->
@@ -906,14 +898,6 @@
             Click a clause to see how the RAG engine reached the figure.
           </p>
           <SitingStudio :cadid="cadid" :use="sitingType" :label="sitingLabel" @trace="openSitingTrace" />
-          <div v-if="sitingTrace" class="r2-trace-cell r2-env-drawer">
-            <p class="r2-env-drawer-h">
-              <span><b>{{ cap(sitingLabel || sitingType) }}</b> · {{ SITING_TOPIC_LABEL[sitingTrace.topic] ?? sitingTrace.topic }}</span>
-              <button type="button" class="r2-trace-btn" @click="sitingTrace = null">Close</button>
-            </p>
-            <p v-if="sitingTrace.error" class="r2-error">{{ sitingTrace.error }}</p>
-            <TraceView v-else :d="sitingTrace.d" />
-          </div>
         </section>
 
         <!-- ── Reference: the Land Use Table as written and resolved, unnumbered and closed ──────────── -->
@@ -1010,6 +994,22 @@
       </template>
     </main>
     </div>
+
+    <!-- How the engine reached a figure: one sheet for "What can I build" and Siting alike. Its content sits in a bare .r2 so
+         the trace keeps the page's own trace styles, which are written against .r2. -->
+    <Sheet :open="!!sheetTrace" @update:open="(o: boolean) => { if (!o) { stackTrace = null; sitingTrace = null } }">
+      <SheetContent side="right" class="w-full gap-0 overflow-y-auto sm:max-w-[600px]">
+        <SheetHeader class="border-b">
+          <SheetTitle>{{ sheetTitle }}</SheetTitle>
+          <SheetDescription>How the RAG engine reached it on this lot, clause by clause.</SheetDescription>
+        </SheetHeader>
+        <div class="r2 r2--sheet px-4 py-4">
+          <p v-if="sheetTrace?.error" class="r2-error">{{ sheetTrace.error }}</p>
+          <div v-else-if="!sheetTrace?.d" class="flex flex-col gap-2"><Skeleton class="h-6 w-2/3" /><Skeleton class="h-24 w-full" /><Skeleton class="h-24 w-full" /></div>
+          <TraceView v-else :d="sheetTrace.d" />
+        </div>
+      </SheetContent>
+    </Sheet>
   </div>
 </template>
 
@@ -1148,6 +1148,22 @@ const address = computed(() => {
   const a = detail.value?.addresses ?? []
   const row = a.find(x => x.msoid === msoid.value) ?? a.find(x => x.is_primary_address) ?? a[0]
   return (row?.address as string) || (lot.value?.address as string) || ''
+})
+/**
+ * The address as a letter would carry it: "10 BOUNDARY STREET PARRAMATTA" + suburb + postcode from the same
+ * derived.lot_address row -> "10 BOUNDARY STREET, PARRAMATTA NSW 2150". The street keeps its full road type (the
+ * row's formatted_address abbreviates it to ST); the state comes from formatted_address, NSW when it names none.
+ */
+const fullAddress = computed(() => {
+  const a = detail.value?.addresses ?? []
+  const row: any = a.find(x => x.msoid === msoid.value) ?? a.find(x => x.is_primary_address) ?? a[0]
+  const base = address.value
+  if (!row || !base) return base
+  const suburb = String(row.suburb ?? row.locality ?? '').trim()
+  const postcode = String(row.postcode ?? '').trim()
+  const state = String(row.formatted_address ?? '').match(/\b(NSW|ACT|VIC|QLD|SA|WA|TAS|NT)\b/i)?.[1]?.toUpperCase() ?? 'NSW'
+  const street = suburb && base.toUpperCase().endsWith(` ${suburb.toUpperCase()}`) ? base.slice(0, -suburb.length - 1) : base
+  return suburb ? `${street}, ${suburb} ${state}${postcode ? ` ${postcode}` : ''}` : `${base} ${state}${postcode ? ` ${postcode}` : ''}`
 })
 const runs = computed(() => detail.value?.shape?.runs ?? [])
 
@@ -2466,6 +2482,16 @@ async function openSitingTrace(topic: string) {
 }
 watch(cadid, () => { sitingTrace.value = null; stackTrace.value = null })
 
+// ── The summary band's housing chips pick a use in "What can I build"; one sheet shows either section's trace ──
+const buildPick = ref<string | null>(null)
+const sheetTrace = computed(() => stackTrace.value ?? sitingTrace.value)
+const sheetTitle = computed(() => {
+  const t = stackTrace.value
+  if (t) return `${cap(t.use)} · ${SITING_TOPIC_LABEL[t.topic] ?? t.topic}`
+  const st = sitingTrace.value
+  return st ? `${cap(sitingLabel.value || sitingType.value)} · ${SITING_TOPIC_LABEL[st.topic] ?? st.topic}` : ''
+})
+
 // ── Section 14: development standards (components/ControlStack.vue); a clause opens the RAG trace for that use and topic ──
 const stackTrace = ref<{ use: string; topic: string; d: SitingTrace | null; error?: string } | null>(null)
 async function openStackTrace({ use, topic }: { use: string; topic: string }) {
@@ -2481,14 +2507,18 @@ async function openStackTrace({ use, topic }: { use: string; topic: string }) {
 </script>
 
 <style scoped>
+/* The report's palette (app/assets/css/tailwind.css carries the same values for the shadcn-vue components): a cool
+   neutral, one planning-blue accent, and the verdict colours. These names are the page's own; the components use --ui-*. */
 .r2 {
-  --ink: #0f172a; --muted: #64748b; --faint: #94a3b8; --line: #e2e8f0; --soft: #f8fafc; --accent: #0f766e;
-  min-height: 100vh; background: #fff; color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; font-size: 15px; line-height: 1.55;
+  --ink: #101418; --muted: #5b6570; --faint: #8b949e; --line: #e3e7eb; --soft: #f1f3f5; --accent: #1d4ed8;
+  min-height: 100vh; background: #f7f8f9; color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", system-ui, sans-serif; font-size: 14.5px; line-height: 1.55;
 }
+/* the trace sheet's content: the page's styles without the page's ground */
+.r2--sheet { min-height: 0; background: transparent; }
 .r2-top {
   position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 20px;
-  padding: 12px 24px; background: rgba(255, 255, 255, 0.95); border-bottom: 1px solid var(--line);
+  padding: 10px 24px; background: rgba(255, 255, 255, 0.86); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
 }
 .r2-back { color: var(--muted); text-decoration: none; font-size: 0.85rem; white-space: nowrap; }
 .r2-search { position: relative; flex: 1; max-width: 560px; }
@@ -2496,7 +2526,7 @@ async function openStackTrace({ use, topic }: { use: string; topic: string }) {
   width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px;
   font: inherit; font-size: 0.9rem; background: var(--soft);
 }
-.r2-input:focus { outline: 2px solid #99f6e4; background: #fff; }
+.r2-input:focus { outline: 2px solid #93b4f8; background: #fff; }
 .r2-busy { position: absolute; right: 12px; top: 9px; font-size: 0.75rem; color: var(--faint); }
 .r2-list {
   position: absolute; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none;
@@ -2504,18 +2534,21 @@ async function openStackTrace({ use, topic }: { use: string; topic: string }) {
   max-height: 340px; overflow: auto;
 }
 .r2-opt { display: flex; justify-content: space-between; gap: 12px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.88rem; }
-.r2-opt--on { background: #f0fdfa; }
-.r2-page { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; }
+.r2-opt--on { background: #e8efff; }
+.r2-page { max-width: 920px; margin: 0 auto; padding: 24px 24px 80px; }
 .r2-empty { margin-top: 80px; text-align: center; color: var(--muted); }
 .r2-title { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 28px; }
 .r2-kicker { margin: 0; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
 .r2-title h1 { margin: 4px 0 6px; font-size: 1.7rem; font-weight: 650; letter-spacing: -0.01em; }
 .r2-ids { margin: 0; display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 0.88rem; }
-.r2-section h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 1.2rem; font-weight: 650; }
-.r2-num {
-  display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
-  background: var(--ink); color: #fff; font-size: 0.78rem;
+/* each section is a card on the page ground */
+.r2-section {
+  background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px 22px;
+  box-shadow: 0 1px 2px rgba(16, 20, 24, 0.05), 0 1px 1px rgba(16, 20, 24, 0.03);
+  scroll-margin-top: 72px;
 }
+.r2-section h2 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 10px; font-size: 1.12rem; font-weight: 600; letter-spacing: -0.01em; }
+.r2-num { font-family: "SF Mono", ui-monospace, Menlo, Monaco, "Cascadia Mono", Consolas, monospace; font-size: 0.78rem; font-weight: 500; color: var(--faint); }
 .r2-section h3 { margin: 28px 0 6px; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .r2-section p { margin: 0 0 6px; }
 .r2-lead { font-size: 1.02rem; }
@@ -2535,7 +2568,7 @@ async function openStackTrace({ use, topic }: { use: string; topic: string }) {
 .r2-table td { padding: 8px 0; border-bottom: 1px solid var(--line); }
 .r2-r { text-align: right; font-variant-numeric: tabular-nums; padding-right: 16px !important; }
 .r2-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; vertical-align: middle; }
-.r2-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; background: #f0fdfa; color: var(--accent); border: 1px solid #99f6e4; }
+.r2-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; background: #e8efff; color: var(--accent); border: 1px solid #c7d7fe; }
 .r2-mini { margin: 8px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 24px; }
 .r2-mini dt { font-size: 0.75rem; color: var(--muted); }
 .r2-mini dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -2545,7 +2578,7 @@ async function openStackTrace({ use, topic }: { use: string; topic: string }) {
 .r2-error { color: #b91c1c; }
 .r2-foot { margin-top: 32px !important; padding-top: 12px; border-top: 1px solid var(--line); font-size: 0.78rem; color: var(--faint); }
 .r2-foot a { color: var(--muted); }
-.r2-section + .r2-section { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line); }
+.r2-section + .r2-section, .r2-section + * + .r2-section { margin-top: 18px; }
 .r2-mini--wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .r2-mini a, .r2-chips a, .r2-std-meta a, .r2-con-meta a { color: var(--accent); text-decoration: none; }
 .r2-mini a:hover, .r2-chips a:hover, .r2-std-meta a:hover, .r2-con-meta a:hover { text-decoration: underline; }
@@ -2710,11 +2743,11 @@ async function openStackTrace({ use, topic }: { use: string; topic: string }) {
 .r2-layout--nav .r2-page { margin: 0; padding-left: 0; padding-right: 0; }
 .r2-nav { position: sticky; top: 72px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 32px 0 24px; }
 .r2-nav-title { margin: 0 0 10px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); line-height: 1.35; }
-.r2-nav-link { display: grid; grid-template-columns: 22px minmax(0, 1fr) 10px; align-items: center; gap: 8px; padding: 6px 8px; white-space: nowrap; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 0.84rem; border-left: 2px solid transparent; }
+.r2-nav-link { display: grid; grid-template-columns: 22px minmax(0, 1fr) 10px; align-items: center; gap: 8px; padding: 6px 8px; white-space: nowrap; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 0.84rem; border: 1px solid transparent; }
 .r2-nav-link:hover { background: var(--soft); color: var(--ink); }
-.r2-nav-link--on { color: var(--ink); background: var(--soft); border-left-color: var(--ink); font-weight: 600; }
+.r2-nav-link--on { color: var(--ink); background: #fff; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16, 20, 24, 0.05); font-weight: 600; }
 .r2-nav-label { overflow: hidden; text-overflow: ellipsis; }
-.r2-nav-num { font-size: 0.72rem; color: var(--faint); font-variant-numeric: tabular-nums; text-align: right; }
+.r2-nav-num { font-family: "SF Mono", ui-monospace, Menlo, Monaco, "Cascadia Mono", Consolas, monospace; font-size: 0.7rem; color: var(--faint); font-variant-numeric: tabular-nums; text-align: right; }
 .r2-nav-dot { width: 8px; height: 8px; border-radius: 50%; background: transparent; }
 .r2-nav-dot--yes { background: #16a34a; }
 .r2-nav-dot--no { background: #dc2626; }
@@ -2848,8 +2881,8 @@ async function openStackTrace({ use, topic }: { use: string; topic: string }) {
 .r2 .r2-trace-quote { font-size: 0.78rem; color: var(--muted); white-space: pre-wrap; }
 .r2 .r2-trace { font-family: inherit; font-size: 0.86rem; min-width: 0; }
 .r2 .r2-trace .r2-ten-h { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 8px 0 2px; }
-.r2 .r2-trace .r2-cl { color: #0f766e; text-decoration: none; }
-.r2 a.r2-xl { color: #0f766e; text-decoration: none; border-bottom: 1px dotted #5eead4; }
+.r2 .r2-trace .r2-cl { color: #1d4ed8; text-decoration: none; }
+.r2 a.r2-xl { color: #1d4ed8; text-decoration: none; border-bottom: 1px dotted #5eead4; }
 .r2 a.r2-xl:hover { border-bottom-style: solid; }
 .r2 .r2-trace .r2-small { font-size: 0.78rem; color: #64748b; }
 </style>

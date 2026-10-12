@@ -1,0 +1,113 @@
+/*
+ * Tailwind v4 + the shadcn-vue design tokens (CSS-first config; there is no tailwind.config.ts).
+ *
+ * The app's pages are written in their own scoped CSS and use no Tailwind utilities; what they get from here is the base
+ * reset (preflight) and the default font stack below, which keeps them as they were under v3. The shadcn-vue components
+ * in app/components/ui/ read the tokens in :root - the palette chosen for /report-2: a cool neutral, one planning-blue
+ * accent, and the three verdict colours (permitted / prohibited / depends) used the same way everywhere.
+ */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* muted and accent are namespaced (--ui-*): /report-2's own scoped CSS already uses --muted and --accent for text grey and
+   its link colour, and a component inside it would otherwise read those as its background colours. */
+
+:root {
+  --radius: 0.625rem;
+  --background: #f7f8f9;
+  --foreground: #101418;
+  --card: #ffffff;
+  --card-foreground: #101418;
+  --popover: #ffffff;
+  --popover-foreground: #101418;
+  --primary: #1d4ed8;            /* planning blue */
+  --primary-foreground: #ffffff;
+  --secondary: #f1f3f5;
+  --secondary-foreground: #101418;
+  --ui-muted: #f1f3f5;
+  --ui-muted-foreground: #5b6570;
+  --ui-accent: #e8efff;
+  --ui-accent-foreground: #1d4ed8;
+  --destructive: #c02626;
+  --border: #e3e7eb;
+  --input: #e3e7eb;
+  --ring: #1d4ed8;
+  /* verdicts: the same meaning in every section */
+  --ok: #157f3c;    --ok-soft: #e9f7ee;   --ok-line: #b7e3c6;
+  --no: #c02626;    --no-soft: #fdecec;   --no-line: #f4c0c0;
+  --open: #a35a00;  --open-soft: #fff4e2; --open-line: #f1d39b;
+  --faint: #8b949e;
+}
+
+.dark {
+  --background: #0d1013;
+  --foreground: #e8ecef;
+  --card: #14181c;
+  --card-foreground: #e8ecef;
+  --popover: #14181c;
+  --popover-foreground: #e8ecef;
+  --primary: #7aa2ff;
+  --primary-foreground: #0d1013;
+  --secondary: #1b2026;
+  --secondary-foreground: #e8ecef;
+  --ui-muted: #1b2026;
+  --ui-muted-foreground: #9aa4ae;
+  --ui-accent: #1a2440;
+  --ui-accent-foreground: #7aa2ff;
+  --destructive: #ff8a8a;
+  --border: #262c33;
+  --input: #262c33;
+  --ring: #7aa2ff;
+  --ok: #5fd08a;   --ok-soft: #10261a;   --ok-line: #1f4a30;
+  --no: #ff8a8a;   --no-soft: #2c1414;   --no-line: #5a2626;
+  --open: #f3b562; --open-soft: #2a1f0d; --open-line: #5a4318;
+  --faint: #6d7782;
+}
+
+@theme inline {
+  /* the app-wide default stack, as tailwind.config.ts set it under v3 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Figtree", "Segoe UI", system-ui, sans-serif;
+  /* clause references and numbers set in Apple's monospace, falling back to the platform's */
+  --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, "Cascadia Mono", Consolas, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--ui-muted);
+  --color-muted-foreground: var(--ui-muted-foreground);
+  --color-accent: var(--ui-accent);
+  --color-accent-foreground: var(--ui-accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-line: var(--ok-line);
+  --color-no: var(--no);
+  --color-no-soft: var(--no-soft);
+  --color-no-line: var(--no-line);
+  --color-open: var(--open);
+  --color-open-soft: var(--open-soft);
+  --color-open-line: var(--open-line);
+  --color-faint: var(--faint);
+}
+
+@layer base {
+  /* v3's preflight gave borders a light grey; v4's default is currentColor. Keep the v3 look for every page. */
+  *, ::after, ::before { border-color: var(--border); }
+}

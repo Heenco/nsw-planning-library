@@ -1,7 +1,13 @@
+import tailwindcss from '@tailwindcss/vite'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss'],
+  // Tailwind v4 as a Vite plugin (CSS-first: app/assets/css/tailwind.css) and shadcn-vue's components in app/components/ui
+  modules: ['shadcn-nuxt'],
+  shadcn: { prefix: '', componentDir: './app/components/ui' },
+  css: ['~/assets/css/tailwind.css'],
+  vite: { plugins: [tailwindcss()] },
   runtimeConfig: {
     deepinfraApiKey: process.env.DEEPINFRA_API_KEY,
     googleGeminiApiKey: process.env.GOOGLE_GEMINI_API_KEY,

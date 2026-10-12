@@ -30,8 +30,11 @@
         <form class="property-form" @submit.prevent="goToLot">
           <!-- Address with autocomplete -->
           <div class="address-autocomplete">
-            <label class="property-field-label">Property address or lot</label>
+            <label class="property-field-label" for="home-address">Property address or lot</label>
+            <!-- the button sits beside the box, so a picked address opens without scrolling past the samples -->
+            <div class="search-row">
             <input
+              id="home-address"
               v-model="propertyAddress"
               type="text"
               class="property-input"
@@ -39,10 +42,14 @@
               @input="onAddressInput"
               @keydown.down.prevent="acIndex = Math.min(acIndex + 1, acResults.length - 1)"
               @keydown.up.prevent="acIndex = Math.max(acIndex - 1, 0)"
-              @keydown.enter.prevent="acResults.length ? selectAddress(acResults[acIndex]) : null"
+              @keydown.enter.prevent="acResults.length ? selectAddress(acResults[acIndex]) : goToLot()"
               @blur="dismissAc"
               autocomplete="off"
             >
+            <button class="property-btn" :disabled="!selectedCadid" type="submit">
+              Open this lot
+            </button>
+            </div>
             <div v-if="acResults.length" class="ac-dropdown">
               <button
                 v-for="(r, i) in acResults"
@@ -79,11 +86,6 @@
             </button>
           </div>
 
-          <!-- Persona selector -->
-
-          <button class="property-btn" :disabled="!selectedCadid" type="submit">
-            Open this lot
-          </button>
         </form>
       </div>
 
@@ -1066,8 +1068,15 @@ body {
 }
 .property-question::placeholder { color: #b0bcc9; }
 
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.search-row .property-input { flex: 1; min-width: 0; }
 .property-btn {
-  align-self: flex-end;
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 0.5rem 1.2rem;
   background: #0f172a;
   color: #fff;
