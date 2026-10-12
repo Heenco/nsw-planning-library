@@ -609,8 +609,10 @@ const plan = computed<string>({
   get: () => String(route.query.lep ?? ''),
   set: (v: string) => { router.replace({ query: { ...route.query, lep: v || undefined }, hash: route.hash }) },
 })
-const plans = computed(() => (status.value?.instruments ?? []).filter((i: any) => i.kind === 'lep').map((i: any) => String(i.title)) as string[])
-const shortPlan = (t: string) => String(t).replace(/ Local Environmental Plan (\d{4})$/, ' LEP $1')
+// every instrument the scorer has a row for: the plans, and a SEPP asked under its own name (the Codes SEPP)
+const plans = computed(() => (status.value?.instruments ?? []).map((i: any) => String(i.title))
+  .filter((t: string) => Object.keys(status.value?.score?.summary ?? {}).some(k => k.endsWith('@' + t))) as string[])
+const shortPlan = (t: string) => String(t).replace(/ Local Environmental Plan (\d{4})$/, ' LEP $1').replace(/^State Environmental Planning Policy \((.+?)\)(?: \d{4})?$/, '$1 SEPP').replace(/^Exempt and Complying Development Codes SEPP$/, 'Codes SEPP')
 /** a score row for the plan shown (12-score.ts keys every row per plan as "<key>@<LEP title>") */
 const S = (k: string) => status.value?.score?.summary?.[plan.value ? `${k}@${plan.value}` : k]
 /** a SEPP's bindings (plan null) apply under every plan */
@@ -739,7 +741,8 @@ const PL_STAGES = [
 ]
 
 // the question browser: the list once, each question's full answer on demand
-const QSETS = [{ id: 'all', label: 'All' }, { id: 'hard_case', label: 'Hard cases' }, { id: 'local', label: 'Additional uses & local controls' },
+const QSETS = [{ id: 'all', label: 'All' }, { id: 'key_lut', label: 'Keys: Land Use Table' }, { id: 'key_map', label: 'Keys: maps' }, { id: 'key_cdc', label: 'Keys: Housing Code' }, { id: 'key_cdc_land', label: 'Keys: cl 1.19 land' },
+  { id: 'edge', label: 'Edge cases' }, { id: 'hard_case', label: 'Hard cases' }, { id: 'local', label: 'Additional uses & local controls' },
   { id: 'propcode', label: 'PropCode claims' }, { id: 'pilot_key', label: 'Pilot keys' }, { id: 'grid', label: 'Grid' }]
 const qset = ref('all'), qsearch = ref(''), openQ = ref<string | null>(null)
 const qdetail = reactive<Record<string, any>>({})
@@ -759,7 +762,7 @@ const factLine = (l: any) => [l.address, l.lot, l.area_m2 != null ? `${l.area_m2
     .map((m: any) => `${m.label} on the ${m.map} Map (${Math.round(m.share * 100)}%)`)].filter(Boolean).join(' · ')
 const SIDES = ['P', 'D', 'R0', 'R1', 'R2', 'R3', 'L0', 'R4u', 'R4']
 // the sets, then the grid by question (dual occupancy, secondary dwelling, multi dwelling housing, FSR, height, subdivision)
-const SETS = ['ground:key', 'ground:draft', 'pilot_key', 'hard_case', 'propcode', 'grid', 'g_dual', 'g_secondary', 'g_mdh', 'g_fsr', 'g_height', 'g_subdiv']
+const SETS = ['ground:key', 'ground:draft', 'key_lut', 'key_map', 'key_cdc', 'key_cdc_land', 'pilot_key', 'hard_case', 'propcode', 'edge', 'grid', 'g_dual', 'g_secondary', 'g_mdh', 'g_fsr', 'g_height', 'g_subdiv']
 /** the by-set table shows only the sets and sides that have a score for the plan shown */
 const setRows = computed(() => SETS.filter(st => SIDES.some(k => S(`${k}|${st}`)?.scored)))
 const setSides = computed(() => SIDES.filter(k => SETS.some(st => S(`${k}|${st}`)?.scored)))
