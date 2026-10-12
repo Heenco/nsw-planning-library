@@ -134,7 +134,16 @@ async function main() {
   const quals = (s: string) => { const l = s.toLowerCase(); return [...QUAL.filter(x => new RegExp(`\\b${x}\\b`).test(l)), ...[...l.matchAll(/\bschedule (\w+)\b/g)].map(m => `schedule ${m[1]}`)] }
   const match = (text: string) => {
     const tw = new Set(words(text)), tq = quals(text)
-    let hits = reg.filter(r => r.w.every((w: string) => tw.has(w)) && r.w.length >= Math.min(2, words(text).length) && tq.every(x => quals(r.term).includes(x)))
+    // (a qualifier rules a term out only when every mention of the term in the text carries it: "a heritage conservation
+    // area or a draft heritage conservation area" names the plain one too)
+    const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const bareMention = (term: string, qual: string) => new RegExp(`(?<!\\b${esc(qual)}\\s)\\b${esc(term)}\\b`, 'i').test(text)
+    // (a term left with one content word - "wilderness area", "area" being a stop word - matches only where its whole
+    // phrase is in the text; two or more content words match by words)
+    let hits = reg.filter(r => r.w.every((w: string) => tw.has(w)) && (r.w.length >= 2 || words(text).length <= 1 || new RegExp(`\\b${esc(r.term)}\\b`, 'i').test(text)) && tq.every(x => quals(r.term).includes(x) || bareMention(r.term, x)))
+    // (and never where a longer matched term already carries that word, whatever its source: "heritage" inside "heritage
+    // conservation area")
+    hits = hits.filter(h => h.w.length >= 2 || !hits.some(o => o.w.length >= 2 && o.w.includes(h.w[0])))
     // a term inside a longer matched term is dropped - unless the text names it on its own as well ("a heritage
     // conservation area or a draft heritage conservation area": both are tested)
     const times = (phrase: string) => text.toLowerCase().split(phrase.toLowerCase()).length - 1

@@ -38,17 +38,22 @@ EP = 'https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/ePlanning'
 # the cl 1.19 land exclusions a Planning Portal service draws: registry term (as D's bindings name it) -> service, layer,
 # and how a feature counts (a class filter on the feature's own fields; None = any feature)
 LAND = {
-    'heritage conservation area':        ('Planning_Portal_Principal_Planning', 15,  lambda p: re.search(r'conservation', str(p.get('LAY_CLASS') or ''), re.I)),
-    'heritage item':                     ('Planning_Portal_Principal_Planning', 15,  lambda p: re.search(r'item', str(p.get('LAY_CLASS') or ''), re.I)),
+    # (layer 15 "Heritage" is a group; 16 "EPI Heritage" is the one that answers, by LAY_CLASS)
+    'heritage conservation area':        ('Planning_Portal_Principal_Planning', 16,  lambda p: re.search(r'conservation', str(p.get('LAY_CLASS') or ''), re.I)),
+    'heritage item':                     ('Planning_Portal_Principal_Planning', 16,  lambda p: re.search(r'item', str(p.get('LAY_CLASS') or ''), re.I)),
     'land reserved for a public purpose': ('Planning_Portal_Principal_Planning', 24,  None),
     'foreshore area':                    ('Planning_Portal_Principal_Planning', 26,  None),
     'bush fire prone land':              ('Planning_Portal_Hazard', 229, None),
     'flood planning area':               ('Planning_Portal_Hazard', 230, None),
     'susceptible to landslide risk':     ('Planning_Portal_Hazard', 232, None),
     'acid sulfate soils class 1 or 2':   ('Planning_Portal_Protection', 234, lambda p: re.search(r'(^|\D)[12](\D|$)', str(p.get('CLASS') or p.get('LAY_CLASS') or ''))),
-    'drinking water catchment':          ('Planning_Portal_Protection', 236, None),
     'environmentally sensitive':         ('Planning_Portal_Protection', 245, None),
 }
+# the layers that bar the Housing Code outright, by the policy's own words: a heritage conservation area (1.19(1)(a)),
+# a heritage item (1.17A(1)(d)(iii)), reserved land (1.19(1)(b)), acid sulfate soils class 1 or 2 (c), environmentally
+# sensitive land (e), a foreshore area (g), landslide risk land (3.2(1)(h)). Bush fire prone land and flood planning land
+# are not bars: the code carries conditions for them (1.19A, 3.4, 3.5) - keyed as layers only
+BARS = {'heritage conservation area', 'heritage item', 'land reserved for a public purpose', 'acid sulfate soils class 1 or 2', 'environmentally sensitive', 'foreshore area', 'susceptible to landslide risk'}
 # what no service draws, and so what a 'yes' here cannot vouch for
 UNDRAWN = 'significantly contaminated land, land under a biobanking or conservation agreement, Water NSW special areas, draft heritage items or areas, unsewered land in a drinking water catchment'
 
@@ -122,18 +127,28 @@ def lookup(tbl, lot_area, lot_width):
 
 
 def query(service, lid, rings, flt, tries=3):
+    """the layer's features over the lot - attributes only (a bush fire or flood polygon's geometry is huge, and a hit is
+    all the key needs)"""
     params = {'geometry': json.dumps({'rings': rings, 'spatialReference': {'wkid': 4283}}), 'geometryType': 'esriGeometryPolygon', 'inSR': '4283',
-              'spatialRel': 'esriSpatialRelIntersects', 'where': '1=1', 'outFields': '*', 'outSR': '4283', 'returnGeometry': 'true', 'f': 'geojson'}
+              'spatialRel': 'esriSpatialRelIntersects', 'where': '1=1', 'outFields': '*', 'returnGeometry': 'false', 'f': 'json'}
     for attempt in range(tries):
         try:
-            r = requests.post(f'{EP}/{service}/MapServer/{lid}/query', data=params, impersonate='chrome', timeout=90)
+            r = requests.post(f'{EP}/{service}/MapServer/{lid}/query', data=params, impersonate='chrome', timeout=60)
             if r.status_code == 200 and 'features' in r.json():
-                feats = r.json()['features']
-                return [f for f in feats if f.get('geometry') and (flt is None or flt(f.get('properties') or {}))]
+                feats = [{'properties': f.get('attributes') or {}} for f in r.json()['features']]
+                return [f for f in feats if flt is None or flt(f['properties'])]
         except Exception:
             pass
-        time.sleep(3 * 2 ** attempt)
+        time.sleep(2 * 2 ** attempt)
     return None
+
+
+def land_of(rings):
+    """every exclusion layer over the lot, queried side by side"""
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        futs = {term: ex.submit(query, svc, lid, rings, flt) for term, (svc, lid, flt) in LAND.items()}
+        return {term: f.result() for term, f in futs.items()}
 
 
 def main():
@@ -149,7 +164,8 @@ def main():
     for el in root.iter():
         if (el.get('id') or '') == 'sec.3.1-ssec.3':
             t = text(el)
-            req_zones = re.findall(r'\b([A-Z]{1,2}\d{1,2})\b', t.split('must be in')[1].split(',')[0]) if 'must be in' in t else []
+            # "the lot must be in Zone R1, R2, R3, R4 or RU5," - the list runs to the item's end, not its first comma
+            req_zones = re.findall(r'\b([A-Z]{1,2}\d{1,2})\b', re.split(r',\s*\(?[a-z]\)\s|,\s*the\b', t.split('must be in')[1], 1)[0]) if 'must be in' in t else []
             m = re.search(r'area of the lot must not be less than ([\d,.]+)\s*m2', t); req_area = num(m.group(1)) if m else None
             m = re.search(r'width of the lot must be at least ([\d,.]+)\s*m\b', t); req_width = num(m.group(1)) if m else None
     height_max = None
@@ -172,14 +188,15 @@ def main():
         if gj.get('type') not in ('Polygon', 'MultiPolygon'): continue
         rings = gj['coordinates'] if gj['type'] == 'Polygon' else [x for poly in gj['coordinates'] for x in poly]
         excluded, untested = [], []
+        found = land_of(rings)
         for term, (svc, lid, flt) in LAND.items():
-            feats = query(svc, lid, rings, flt)
+            feats = found[term]
             if feats is None: untested.append(term); continue
             hit = len(feats) > 0
             rows.append((doc, 'cdc_land', cadid, term, {'verdict': 'yes' if hit else 'no'}, f'NSW Planning Portal {svc.replace("Planning_Portal_", "")} service, layer {lid}, {time.strftime("%Y-%m-%d")}',
                          f'{len(feats)} feature(s) over the lot (shrunk 1 m)' + (f': {json.dumps({k: v for k, v in (feats[0].get("properties") or {}).items() if k in ("LAY_CLASS", "LAY_NAME", "CLASS", "LABEL", "MAP_TYPE")})}' if hit else '')))
             n_land += 1
-            if hit: excluded.append(term)
+            if hit and term in BARS: excluded.append(term)
         # the Housing Code on the lot
         fails = []
         if zone and req_zones and zone not in req_zones: fails.append(f'zone {zone} not in {", ".join(req_zones)}')
@@ -192,7 +209,9 @@ def main():
         elif not untested:
             rows.append((doc, 'cdc_eligible', cadid, 'dwelling house', {'verdict': 'yes'}, 'Housing Code cl 3.1(3) lot requirements (legislation XML) + cl 1.19 land (Planning Portal services)',
                          f'zone {zone}, {area} m2, width {width} m; no drawn cl 1.19 land over the lot; not drawn by any service: {UNDRAWN}'))
-        # the standards, from the tables, for a dwelling house on this lot
+        # the standards, from the tables, for a dwelling house on this lot - only where the code reaches the lot (its zone,
+        # area and width tests), since a standard of a code that does not apply is no standard
+        if fails: continue
         if height_max: rows.append((doc, 'cdc_standard', cadid, 'height', {'value': height_max, 'unit': 'm'}, 'Housing Code cl 3.8 (legislation XML)', 'maximum building height'))
         for name, tbls, subject, unit in [('gross floor area', gfa, 'floor_area', 'm2'), ('landscaped area', land, 'landscaping', 'm2'), ('side setback', side, 'setback_side', 'm'), ('rear setback', rear, 'setback_rear', 'm')]:
             for tbl in tbls:
@@ -207,7 +226,7 @@ def main():
                     v = value_of(hits[0][k], area)
                     if v is not None: rows.append((doc, 'cdc_standard', cadid, subject, {'value': v, 'unit': unit}, f'Housing Code {tbl[0].split("-tbl")[0].replace("sec.", "cl ")} table (legislation XML)', f'{name}: row "{" | ".join(hits[0])}"; lot {area} m2, width {width} m'))
                 break
-        print(cadid, lotid, zone, area, width, 'excluded:', excluded or '-', 'fails:', fails or '-', 'untested:', untested or '-')
+        print(cadid, lotid, zone, area, width, 'excluded:', excluded or '-', 'fails:', fails or '-', 'untested:', untested or '-', flush=True)
     print(f'{len(lots)} lots: {n_land} land keys, {sum(1 for r in rows if r[1] == "cdc_eligible")} eligibility keys, {sum(1 for r in rows if r[1] == "cdc_standard")} standard keys')
     for r in rows[:12]: print('   ', r[1], r[2], r[3], json.dumps(r[4]), '|', r[6][:90])
     if DRY: return

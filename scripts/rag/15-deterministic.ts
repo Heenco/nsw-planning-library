@@ -95,11 +95,17 @@ async function main() {
     } else if (mode === 'layer') {
       // the registry term the question names, as the lot's facts tested it (shared/rag/lot-facts.ts terms), else the map
       // polygons over the lot by label
-      const term = String(x.use_term ?? ''), f = lot?.terms?.[term]
-      const byMap = (lot?.mapped ?? []).filter((m: any) => new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(`${m.map} ${m.label}`) && Number(m.share) >= 0.05)
-      if (f) { answer.verdict = f.holds == null ? 'maybe' : f.holds ? 'yes' : 'no'; answer.reasoning = `${term}: ${f.why}` }
+      // the term as bound, or a bound term that contains it ("environmentally sensitive" within the registry's longer name);
+      // else the plan's own map of that family over the lot ("flood planning area": the Floodplain Risk Management map)
+      const term = String(x.use_term ?? ''), tl = term.toLowerCase()
+      const tk = Object.keys(lot?.terms ?? {}).find(k => k.toLowerCase() === tl) ?? Object.keys(lot?.terms ?? {}).find(k => k.toLowerCase().includes(tl) || tl.includes(k.toLowerCase()))
+      const f = tk ? lot.terms[tk] : null
+      const family = tl.split(/\s+/)[0]!.replace(/s$/, '')
+      const byMap = (lot?.mapped ?? []).filter((m: any) => new RegExp(family, 'i').test(String(m.map)) && Number(m.share) >= 0.05 && !/^(land|the land)$/i.test(m.label))
+      if (f) { answer.verdict = f.holds == null ? 'maybe' : f.holds ? 'yes' : 'no'; answer.reasoning = `${tk}: ${f.why}` }
       else if (byMap.length) { answer.verdict = 'yes'; answer.reasoning = `${term}: ${byMap.map((m: any) => `${m.label} on the ${m.map} map (${Math.round(m.share * 100)}%)`).join('; ')}` }
-      else { answer.verdict = 'maybe'; answer.reasoning = `${term}: not among the lot's tested terms or map polygons`; answer.unknowns = [term] }
+      else if (Array.isArray(lot?.mapped) && lot.mapped.length) { answer.verdict = 'no'; answer.reasoning = `${term}: no polygon of a ${family} map over the lot, and no bound term` }
+      else { answer.verdict = 'maybe'; answer.reasoning = `${term}: the lot's map facts were not computed`; answer.unknowns = [term] }
     } else if (mode === 'precedence') {
       const rule = E.rels.find(r => r.kind === 'inconsistency_rule'), sub = E.rels.find(r => r.kind === 'subject_to' && /SEPP that prevails/i.test(r.to_ref ?? ''))
       answer.controlling = [rule && E.label(rule.from_provision), sub && E.label(sub.from_provision)].filter(Boolean)
@@ -176,7 +182,8 @@ async function main() {
         // a permitted use whose binding (not non-discretionary) minimum lot size or lot width (its primary frontage) this lot
         // fails cannot get consent as of right
         const bar = r.limits.find(l => (l.text === 'resolved:lot_size' || l.text === 'resolved:lot_width') && l.status === 'not met')
-        answer.verdict = r.verdict === 'permitted' ? (bar ? 'no' : 'yes') : r.verdict === 'prohibited' ? 'no' : 'maybe'
+        // on a complying or exempt pathway, development no code specifies on this land is not that development: "no"
+        answer.verdict = r.verdict === 'permitted' ? (bar ? 'no' : 'yes') : r.verdict === 'prohibited' ? 'no' : r.verdict === 'none' && ask.pathway && ask.pathway !== 'da' ? 'no' : 'maybe'
         answer.controlling = [...label(r), ...(bar ? bar.subs.flatMap(s => label(s)) : [])]
         if (bar) answer.unknowns = [`unless the minimum lot ${bar.text === 'resolved:lot_width' ? 'width' : 'size'} is varied under cl 4.6`]
       } else if (mode === 'subdivision-can' || mode === 'subdivision-min') {

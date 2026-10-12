@@ -385,7 +385,8 @@ async function main() {
   const pathwayOfUnit = (u: P) => /exempt/i.test(u.heading ?? '') || /exempt/i.test(up(u, x => x.kind === 'part' && x.id !== u.id)?.heading ?? '') ? 'exempt' : 'complying'
   const codeOf = (p: P) => up(p, x => codeUnits.includes(x))
   const codesNamed = (phrase: string, doc: string, pathway: string | null) => {
-    if (/\bthis Policy\b/i.test(phrase)) return codeUnits.filter(u => u.document_id === doc && (!pathway || pathwayOfUnit(u) === pathway))
+    // "this Policy", "any environmental planning instrument" (1.17A): every code of that pathway
+    if (/\bthis Policy\b|\b(?:any|all) environmental planning instruments?\b/i.test(phrase)) return codeUnits.filter(u => u.document_id === doc && (!pathway || pathwayOfUnit(u) === pathway))
     return codeUnits.filter(u => u.document_id === doc && new RegExp(`\\b${escRe(norm(u.heading))}\\b`, 'i').test(phrase))
   }
   /** an item of a code's list that is about the land, not what is built: the registered layers answer it */
@@ -502,7 +503,10 @@ async function main() {
       const items = inline.length ? inline : (kids.get(p.id) ?? []).map(k => norm([k.own_text, ...(kids.get(k.id) ?? []).map(g => g.own_text)].join(' ')).replace(/[,;.]?\s*(?:or|and)?\s*$/i, '')).filter(x => x.length > 2)
       // the stem may end "the development-" (items "must not be carried out on ...") or "the development must-" (items "not
       // be carried out on ..."): either way the land is what follows "carried out on"
-      const land = items.map(x => x.replace(/^(?:must )?not be carried out on /i, '')).filter((x, i) => m![3] && /carried out on/i.test(m![3]) ? true : /^(?:must )?not be carried out on /i.test(items[i]!) || landItem(x))
+      // ("is not carried out on land that- (i) comprises an item listed on the State Heritage Register ..., (iii) is identified
+      // as ... a heritage item by an environmental planning instrument" (1.17A(1)(d)): the same, said of the development)
+      const NOT_ON = /^(?:must |is )?not (?:be )?carried out on /i
+      const land = items.map(x => x.replace(NOT_ON, '')).filter((x, i) => m![3] && /carried out on/i.test(m![3]) ? true : NOT_ON.test(items[i]!) || landItem(x))
       const lep = items.some(x => /\bbe permissible,? with (?:development )?consent,? under an environmental planning instrument\b/i.test(x))
       for (const u of units) {
         if (land.length) add({ provision_id: p.id, kind: 'frame', unit_provision: u.id, excludes: land, source: 'text', reader: 'land exclusion', span: t.slice(0, 300) })
