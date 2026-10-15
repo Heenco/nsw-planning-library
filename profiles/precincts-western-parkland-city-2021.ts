@@ -20,8 +20,10 @@
 import type { InstrumentProfile, TermMapping } from './housing-sepp-2021'
 
 const TITLE = 'State Environmental Planning Policy (Precincts—Western Parkland City) 2021'
+/** the instrument's short name, inside every unit term: a heading like "State significant precincts" repeats across the four */
+const SHORT = 'Precincts—Western Parkland City SEPP'
 const UNIT = (local_id: string, heading: string): TermMapping => ({
-  dimension: 'defined_area', term: `unit:precincts-western-parkland-city-2021:${local_id}`, source_kind: 'derived', source: 'derived.lot_instrument',
+  dimension: 'defined_area', term: `governed by ${heading} (${SHORT})`, source_kind: 'derived', source: 'derived.lot_instrument',
   test: 'attribute', column_tested: 'unit_local_id', filter: `document_title = '${TITLE.replace(/'/g, "''")}' AND unit_local_id = '${local_id}' AND governing`,
   kind: 'condition', note: `the lot's governing unit is ${local_id} (${heading}) - derived.lot_instrument, docs/precinct-sepp-pipeline.md §1`,
 })
@@ -51,8 +53,8 @@ const profile: InstrumentProfile = {
       section: 'sec.2.2',
       governs: ['ch.2'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precincts', polarity: 'applies', clause: '2.2',
-          span: 'On the repeal of Part 3A of the Act, this Chapter is subject to Schedule 6A to the Act. Note. Schedule 6A of the Act sets out those projects which will continue as Part 3A projects (transitional Part 3A projects) and revokes the declaration of any other Part 3A project. The repeal of clauses 6–6C an', term: 'unit:precincts-western-parkland-city-2021:ch.2' },
+        { dimension: 'defined_area', value: 'governed by State significant precincts (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '2.2',
+          span: 'On the repeal of Part 3A of the Act, this Chapter is subject to Schedule 6A to the Act. Note. Schedule 6A of the Act sets out those projects which will continue as Part 3A projects (transitional Part 3A projects) and revokes the declaration of any other Part 3A project. The repeal of clauses 6–6C an', term: 'governed by State significant precincts (Precincts—Western Parkland City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '2.6', span: 'Subject to section 74(1) of the Act, in the event of an inconsistency between this Chapter and another environmental planning instrument whether made before or after the commencement of this Chapter, this Chapter prevails to the extent of the inconsistency.' },
       note: '',
@@ -65,8 +67,8 @@ const profile: InstrumentProfile = {
       section: 'sec.3.5',
       governs: ['ch.3'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Sydney region growth centres', polarity: 'applies', clause: '3.5',
-          span: 'This Chapter applies to all land in a growth centre.', term: 'unit:precincts-western-parkland-city-2021:ch.3' },
+        { dimension: 'defined_area', value: 'governed by Sydney region growth centres (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '3.5',
+          span: 'This Chapter applies to all land in a growth centre.', term: 'governed by Sydney region growth centres (Precincts—Western Parkland City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '3.6', span: 'Subject to section 74(1) of the Act, in the event of an inconsistency between this Chapter and another environmental planning instrument whether made before or after the commencement of this Chapter, this Chapter prevails to the extent of the inconsistency.' },
       note: '',
@@ -79,8 +81,8 @@ const profile: InstrumentProfile = {
       section: 'sec.4.3',
       governs: ['ch.4', 'sch.1', 'sch.2', 'sch.3'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Western Sydney Aerotropolis', polarity: 'applies', clause: '4.3',
-          span: 'Note 1. The Western Sydney Aerotropolis comprises 9 precincts—Aerotropolis Core, Northern Gateway, Wianamatta–South Creek, Badgerys Creek, Agribusiness, Dwyer Road, Kemps Creek, North Luddenham and Rossmore. On the commencement of this Chapter, the Land Application Map will include Aerotropolis Core', term: 'unit:precincts-western-parkland-city-2021:ch.4' },
+        { dimension: 'defined_area', value: 'governed by Western Sydney Aerotropolis (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '4.3',
+          span: 'Note 1. The Western Sydney Aerotropolis comprises 9 precincts—Aerotropolis Core, Northern Gateway, Wianamatta–South Creek, Badgerys Creek, Agribusiness, Dwyer Road, Kemps Creek, North Luddenham and Rossmore. On the commencement of this Chapter, the Land Application Map will include Aerotropolis Core', term: 'governed by Western Sydney Aerotropolis (Precincts—Western Parkland City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '4.4', span: 'In the event of an inconsistency between this Chapter and another environmental planning instrument, whether made before or after the commencement of this Chapter, this Chapter prevails to the extent of the inconsistency.' },
       disapplies: [
@@ -96,8 +98,8 @@ const profile: InstrumentProfile = {
       section: 'sec.5.2',
       governs: ['ch.5', 'sch.4'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Penrith Lakes Scheme', polarity: 'applies', clause: '5.2',
-          span: 'This Chapter applies to the land shown edged heavy black on the structure plan.', term: 'unit:precincts-western-parkland-city-2021:ch.5' },
+        { dimension: 'defined_area', value: 'governed by Penrith Lakes Scheme (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '5.2',
+          span: 'This Chapter applies to the land shown edged heavy black on the structure plan.', term: 'governed by Penrith Lakes Scheme (Precincts—Western Parkland City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '5.5', span: 'If there is an inconsistency between this Chapter and any other environmental planning instrument, whether made before or after the commencement of this Chapter, this Chapter prevails to the extent of the inconsistency.' },
       disapplies: [
@@ -115,8 +117,8 @@ const profile: InstrumentProfile = {
       section: 'sec.6.4',
       governs: ['ch.6', 'sch.7'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by St Marys', polarity: 'applies', clause: '6.4',
-          span: 'Words used in this Chapter that are defined in Schedule 7 have the meanings given to them in that Schedule. Notes in this Chapter and the list of contents of this Chapter are not part of this Chapter. Nothing in this Chapter prohibits, restricts, requires development consent for or allows a conditio', term: 'unit:precincts-western-parkland-city-2021:ch.6' },
+        { dimension: 'defined_area', value: 'governed by St Marys (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '6.4',
+          span: 'Words used in this Chapter that are defined in Schedule 7 have the meanings given to them in that Schedule. Notes in this Chapter and the list of contents of this Chapter are not part of this Chapter. Nothing in this Chapter prohibits, restricts, requires development consent for or allows a conditio', term: 'governed by St Marys (Precincts—Western Parkland City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '6.3', span: 'In the event of an inconsistency between this Chapter and another environmental planning instrument (whether made before, on or after the date on which this Chapter takes effect), this Chapter prevails to the extent of the inconsistency, subject to section 36 of the Act. Penrith Local Environmental Plan No 201 (Rural Lands) and Blacktown Local Environmental Plan 1988 do not apply to the land to wh' },
       disapplies: [
@@ -134,8 +136,8 @@ const profile: InstrumentProfile = {
       section: 'sec.7.2',
       governs: ['ch.7'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Western Sydney Parklands', polarity: 'applies', clause: '7.2',
-          span: 'This Chapter applies to the Western Parklands.', term: 'unit:precincts-western-parkland-city-2021:ch.7' },
+        { dimension: 'defined_area', value: 'governed by Western Sydney Parklands (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '7.2',
+          span: 'This Chapter applies to the Western Parklands.', term: 'governed by Western Sydney Parklands (Precincts—Western Parkland City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '7.5', span: 'The following environmental planning instruments do not apply to the Western Parklands— State Environmental Planning Policy (Housing) 2021, Chapter 3, Parts 8 and 9 State Environmental Planning Policy (Exempt and Complying Development Codes) 2008, State Environmental Planning Policy (Industry and Employment) 2021, Chapter 3. If there is an inconsistency between this Chapter and any of the followin' },
       disapplies: [
@@ -153,8 +155,8 @@ const profile: InstrumentProfile = {
       section: 'sec.8.1',
       governs: ['ch.8'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Greater Macarthur Growth Area', polarity: 'applies', clause: '8.1',
-          span: 'This chapter applies to the following land on the Land Application Map— land identified as “Appin (Part) Precinct”, land identified as “North Appin Precinct”.', term: 'unit:precincts-western-parkland-city-2021:ch.8' },
+        { dimension: 'defined_area', value: 'governed by Greater Macarthur Growth Area (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '8.1',
+          span: 'This chapter applies to the following land on the Land Application Map— land identified as “Appin (Part) Precinct”, land identified as “North Appin Precinct”.', term: 'governed by Greater Macarthur Growth Area (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency)',
     },
@@ -166,8 +168,8 @@ const profile: InstrumentProfile = {
       section: 'app.1-inc-pt.1-sec.1',
       governs: ['app.1'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Edmondson Park South site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Edmondson Park South site.', term: 'unit:precincts-western-parkland-city-2021:app.1' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Edmondson Park South site (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Edmondson Park South site.', term: 'governed by State significant precinct—Edmondson Park South site (Precincts—Western Parkland City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '5', span: 'The only environmental planning instruments that apply, according to their terms, to land within the Edmondson Park South site are— Chapter 2, and all other State environmental planning policies. In the event of any inconsistency between this Appendix and State Environmental Planning Policy (Sydney Region Growth Centres) 2006, this Appendix prevails to the extent of the inconsistency.' },
       note: '',
@@ -180,8 +182,8 @@ const profile: InstrumentProfile = {
       section: 'app.2-inc-pt.1-sec.1.3',
       governs: ['app.2'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Oran Park and Turner Road Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This Precinct Plan applies to land within the Oran Park and Turner Road Precincts.', term: 'unit:precincts-western-parkland-city-2021:app.2' },
+        { dimension: 'defined_area', value: 'governed by Oran Park and Turner Road Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This Precinct Plan applies to land within the Oran Park and Turner Road Precincts.', term: 'governed by Oran Park and Turner Road Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -193,8 +195,8 @@ const profile: InstrumentProfile = {
       section: 'app.3-inc-pt.1-sec.1.3',
       governs: ['app.3'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Leppington Town Centre Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This precinct plan applies to the Leppington Town Centre.', term: 'unit:precincts-western-parkland-city-2021:app.3' },
+        { dimension: 'defined_area', value: 'governed by Leppington Town Centre Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This precinct plan applies to the Leppington Town Centre.', term: 'governed by Leppington Town Centre Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -206,8 +208,8 @@ const profile: InstrumentProfile = {
       section: 'app.4-inc-pt.1-sec.1.3',
       governs: ['app.4'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Liverpool Growth Centres Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This Precinct Plan applies to land within the Austral Precinct, East Leppington Precinct and Leppington North Precinct as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Boundary Map and, as such, this Precinct Plan does not apply to all the land within th', term: 'unit:precincts-western-parkland-city-2021:app.4' },
+        { dimension: 'defined_area', value: 'governed by Liverpool Growth Centres Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This Precinct Plan applies to land within the Austral Precinct, East Leppington Precinct and Leppington North Precinct as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Boundary Map and, as such, this Precinct Plan does not apply to all the land within th', term: 'governed by Liverpool Growth Centres Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -219,8 +221,8 @@ const profile: InstrumentProfile = {
       section: 'app.5-inc-pt.1-sec.1.3',
       governs: ['app.5'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Camden Growth Centres Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This Precinct Plan applies to land within the Catherine Fields Precinct, East Leppington Precinct, Leppington North Precinct, Leppington Precinct, Pondicherry Precinct and Lowes Creek Maryland Precinct as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Bou', term: 'unit:precincts-western-parkland-city-2021:app.5' },
+        { dimension: 'defined_area', value: 'governed by Camden Growth Centres Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This Precinct Plan applies to land within the Catherine Fields Precinct, East Leppington Precinct, Leppington North Precinct, Leppington Precinct, Pondicherry Precinct and Lowes Creek Maryland Precinct as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Bou', term: 'governed by Camden Growth Centres Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -232,8 +234,8 @@ const profile: InstrumentProfile = {
       section: 'app.6-inc-pt.1-sec.1.3',
       governs: ['app.6'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Campbelltown Growth Centres Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This Precinct Plan applies to land within the East Leppington Precinct as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Boundary Map and, as such, this Precinct Plan does not apply to all the land within the East Leppington Precinct (as shown on the Prec', term: 'unit:precincts-western-parkland-city-2021:app.6' },
+        { dimension: 'defined_area', value: 'governed by Campbelltown Growth Centres Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This Precinct Plan applies to land within the East Leppington Precinct as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Boundary Map and, as such, this Precinct Plan does not apply to all the land within the East Leppington Precinct (as shown on the Prec', term: 'governed by Campbelltown Growth Centres Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -245,8 +247,8 @@ const profile: InstrumentProfile = {
       section: 'app.7-inc-pt.1-sec.1.3',
       governs: ['app.7'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by South East Wilton Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This Precinct Plan applies to land within the South East Wilton Precinct as shown on the Land Application Map.', term: 'unit:precincts-western-parkland-city-2021:app.7' },
+        { dimension: 'defined_area', value: 'governed by South East Wilton Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This Precinct Plan applies to land within the South East Wilton Precinct as shown on the Land Application Map.', term: 'governed by South East Wilton Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -258,8 +260,8 @@ const profile: InstrumentProfile = {
       section: 'app.8-inc-pt.1-sec.1.3',
       governs: ['app.8'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by North Wilton Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This Precinct Plan applies to land within the North Wilton Precinct as shown on the Land Application Map.', term: 'unit:precincts-western-parkland-city-2021:app.8' },
+        { dimension: 'defined_area', value: 'governed by North Wilton Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This Precinct Plan applies to land within the North Wilton Precinct as shown on the Land Application Map.', term: 'governed by North Wilton Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -271,8 +273,8 @@ const profile: InstrumentProfile = {
       section: 'app.9-inc-pt.1-sec.1.3',
       governs: ['app.9'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Wilton Town Centre Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This Precinct Plan applies to land in the Wilton Town Centre Precinct as shown on the Land Application Map.', term: 'unit:precincts-western-parkland-city-2021:app.9' },
+        { dimension: 'defined_area', value: 'governed by Wilton Town Centre Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This Precinct Plan applies to land in the Wilton Town Centre Precinct as shown on the Land Application Map.', term: 'governed by Wilton Town Centre Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -284,8 +286,8 @@ const profile: InstrumentProfile = {
       section: 'app.10-inc-pt.1-sec.1.3',
       governs: ['app.10'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Appin (Part) Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This precinct plan applies to land in the Appin (Part) Precinct.', term: 'unit:precincts-western-parkland-city-2021:app.10' },
+        { dimension: 'defined_area', value: 'governed by Appin (Part) Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This precinct plan applies to land in the Appin (Part) Precinct.', term: 'governed by Appin (Part) Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
@@ -297,8 +299,8 @@ const profile: InstrumentProfile = {
       section: 'sch.11-inc-pt.1-sec.1.3',
       governs: ['sch.11'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Gilead (Part) Precinct Plan', polarity: 'applies', clause: '1.3',
-          span: 'This precinct plan applies to the Gilead (Part) Precinct.', term: 'unit:precincts-western-parkland-city-2021:sch.11' },
+        { dimension: 'defined_area', value: 'governed by Gilead (Part) Precinct Plan (Precincts—Western Parkland City SEPP)', polarity: 'applies', clause: '1.3',
+          span: 'This precinct plan applies to the Gilead (Part) Precinct.', term: 'governed by Gilead (Part) Precinct Plan (Precincts—Western Parkland City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres); the chapter citing it most is ch.7 (2 citations), a note only',
     },

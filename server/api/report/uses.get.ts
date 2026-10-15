@@ -18,7 +18,7 @@
  * without consent does not meet it (docs/permissible-use-by-type.md). A type listing several spellings, or two uses (manor
  * houses: residential flat buildings or multi dwelling housing), has its use when any one of them passes.
  */
-import { evaluate, explain, loadEngine, writeAnswer, type Engine, type Explained, type Result } from '#shared/rag/evaluate'
+import { evaluate, explain, loadEngine, writeAnswer, type Engine, type Explained, type Result, claimsFor, lepFor } from '#shared/rag/evaluate'
 import { ragLotFacts } from '#shared/rag/lot-facts'
 import { lotFacts } from '#shared/norms/facts'
 import { landUseKey } from '#shared/land-use-key'
@@ -131,20 +131,22 @@ async function requirementsOf(): Promise<Omit<Requirement, 'meets' | 'via'>[]> {
 export default defineEventHandler(async (event): Promise<ReportUsesResponse | UseDetail> => {
   const started = Date.now()
   const query = getQuery(event)
+  const precinct = String(query.precinct ?? '') === '1'   // the governing-unit path (docs/precinct-sepp-pipeline.md); off = as before
   const cadid = String(query.cadid ?? '').trim()
   if (!cadid) throw createError({ statusCode: 400, statusMessage: 'cadid is required' })
   const one = query.use ? landUseKey(String(query.use)) : null
 
   let f: any
-  try { f = await lotFacts(q as any, cadid, landUseKey) }
+  try { f = await lotFacts(q as any, cadid, landUseKey, [], [], { precinct }) }
   catch (e: any) { throw createError({ statusCode: 404, statusMessage: e.message }) }
-  const plans = (await q(`SELECT title FROM rag.instrument WHERE kind = 'lep'`).catch(() => ({ rows: [] as any[] }))).rows.map(r => String(r.title))
+  // the instruments the RAG holds that can govern a lot: the LEPs, and any SEPP whose units the zoning layer draws (a Precinct SEPP)
+  const plans = (await q(precinct ? `SELECT title FROM rag.instrument WHERE kind = 'lep' OR EXISTS (SELECT 1 FROM nsw.instrument_unit_map m WHERE m.document_id = rag.instrument.document_id AND m.unit_local_id IS NOT NULL)` : `SELECT title FROM rag.instrument WHERE kind = 'lep'`).catch(() => ({ rows: [] as any[] }))).rows.map(r => String(r.title))
   if (!f.epi || !plans.includes(f.epi)) {
     if (one) throw createError({ statusCode: 404, statusMessage: 'The RAG does not hold this lot\'s plan' })
     return { engine: 'none', reason: `The RAG holds ${plans.join(', ') || 'no plan'}; this lot is under ${f.epi ?? 'no mapped LEP'}.`,
       plan: f.epi ?? null, zone: f.zone ?? null, uses: [], requirements: [], others: [], ms: Date.now() - started }
   }
-  const [E, lot, reqs] = await Promise.all([engineOf(), ragLotFacts(q, cadid), requirementsOf()])
+  const [E, lot, reqs] = await Promise.all([engineOf(), ragLotFacts(q, cadid, 'rag', { precinct }), requirementsOf()])
   setHeader(event, 'cache-control', 'public, max-age=60')
 
   if (one) {
@@ -167,7 +169,9 @@ export default defineEventHandler(async (event): Promise<ReportUsesResponse | Us
     return { ...rq, meets: yes ? true : rs.every(r => r.meets === false) ? false : null, via: yes?.use ?? null }
   })
 
-  const zoneUses = new Set(E.claims.filter(c => (c.kind === 'permit' || c.kind === 'prohibit') && (!c.zones.length || c.zones.includes(lot.zone)))
+  // the uses the instruments that speak to THIS lot name for its zone (claimsFor): not every instrument the corpus holds
+  // (precinct mode narrows the list to the governing plan's own; without the switch every held LEP's tables feed it, as before)
+  const zoneUses = new Set(claimsFor(E, lot, precinct ? lepFor(E, lot).doc : null).filter(c => (c.kind === 'permit' || c.kind === 'prohibit') && (!c.zones.length || c.zones.includes(lot.zone)))
     .flatMap(c => c.uses))
   const others = [...zoneUses].filter(u => !answered.has(landUseKey(u))).sort()
     .map(u => summarise(E, u, evaluate(E, { kind: 'permissibility', use: u }, lot)))

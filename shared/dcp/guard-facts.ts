@@ -27,10 +27,9 @@ export interface Resolver {
 /** A guard appears here only when a table can answer it for an arbitrary lot. */
 export const RESOLVERS: Record<string, Resolver> = {
   zone: {
-    sources: ['derived.lot_instrument', 'epi.epi_land_zoning'],
-    sql: `SELECT COALESCE((SELECT i.zone FROM derived.lot_instrument i WHERE i.cadid = $1 AND i.governing LIMIT 1),
-                          (SELECT z.sym_code FROM cadastre.lot l JOIN epi.epi_land_zoning z ON ST_Intersects(z.geom, ST_Centroid(l.geom))
-                            WHERE l.cadid::text = $1 LIMIT 1)) v`,
+    sources: ['epi.epi_land_zoning'],
+    sql: `SELECT z.sym_code v FROM cadastre.lot l JOIN epi.epi_land_zoning z ON ST_Intersects(z.geom, ST_Centroid(l.geom))
+          WHERE l.cadid::text = $1 LIMIT 1`,
   },
   lot_area: {
     sources: ['derived.lot_frontage'],

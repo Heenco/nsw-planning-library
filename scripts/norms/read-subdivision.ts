@@ -96,6 +96,30 @@ async function main() {
              coalesce(json_agg(json_build_object('dimension', a.dimension, 'value', a.value, 'polarity', a.polarity, 'alt_group', a.alt_group)) FILTER (WHERE a.id IS NOT NULL), '[]') AS conds
         FROM chain c JOIN nsw.rule r ON r.id = c.rid JOIN nsw.section s ON s.id = r.section_id LEFT JOIN nsw.rule_applicability a ON a.rule_id = c.fid
        GROUP BY s.local_id`, [d.id])).rows : []
+    // ... and, for a clause with no rule of its own (every Precinct SEPP clause until its rules are extracted), the deepest
+    // frame that governs one of its ancestors (nsw.rule_frame_scope, migration 27), with that frame's parents' conditions
+    const scoped = d.doc_type === 'sepp' ? (await q(`
+      SELECT f.id, f.frame_rule_id AS parent, s.local_id,
+             coalesce((SELECT json_agg(json_build_object('dimension', a.dimension, 'value', a.value, 'polarity', a.polarity, 'alt_group', a.alt_group)) FROM nsw.rule_applicability a WHERE a.rule_id = f.id), '[]') AS conds
+        FROM nsw.rule_frame_scope s JOIN nsw.rule f ON f.id = s.rule_id
+       WHERE f.document_id = $1 AND f.kind = 'frame' AND f.publish_state <> 'retired'`, [d.id])).rows : []
+    const frameById = new Map<string, { parent: string | null; conds: any[] }>()
+    for (const r of scoped) frameById.set(r.id, { parent: r.parent, conds: r.conds })
+    const scopedFrameFor = (local: string): { local_id: string; conds: any[] } | null => {
+      // the clause's ancestors nearest first; the first ancestor some frame governs gives the frame
+      const chain: string[] = []
+      for (let x = secs.find(s => s.local_id === local); x; x = x.parent_id ? byId.get(x.parent_id) : undefined) chain.push(x.local_id)
+      const depthOf = (id: string) => { let n = 0; for (let f = frameById.get(id); f?.parent; f = frameById.get(f.parent)) n++; return n }
+      for (const anc of chain) {
+        // several frames may govern the same ancestor (the instrument frame governs every unit): the deepest is the most specific
+        const hits = scoped.filter(r => r.local_id === anc).sort((x, y) => depthOf(y.id) - depthOf(x.id))
+        if (!hits.length) continue
+        const conds: any[] = []
+        for (let f: { parent: string | null; conds: any[] } | undefined = frameById.get(hits[0]!.id); f; f = f.parent ? frameById.get(f.parent) : undefined) conds.push(...f.conds)
+        return { local_id: local, conds }
+      }
+      return null
+    }
     const out: Norm[] = []
     const unreadAll: { clause: string; section: string; zones: string[] | null; heading: string | null; when: Cond | null }[] = []
     let read = 0, other = 0
@@ -108,7 +132,7 @@ async function main() {
       if (r.family === 'inert') { tot.inert++; if (INERT) console.log(`inert  ${d.instrument_slug.slice(0, 40).padEnd(40)} ${cl.local_id.padEnd(10)} ${(cl.heading ?? '').slice(0, 50).padEnd(50)} | ${secs.filter(x => x.local_id === cl.local_id || x.local_id.startsWith(cl.local_id + '-')).map(x => String(x.raw_text ?? '').replace(/\s+/g, ' ').trim()).filter(Boolean)[0]?.slice(0, 110) ?? ''}`); continue }
       if (r.norms.length) read++
       // a SEPP clause's frame: where that part applies
-      const f = frames.find(x => x.local_id === cl.local_id || x.local_id.startsWith(cl.local_id + '-'))
+      const f = frames.find(x => x.local_id === cl.local_id || x.local_id.startsWith(cl.local_id + '-')) ?? scopedFrameFor(cl.local_id)
       const fc = f ? frameCond(f.conds, terms) : null
       // where an unread statement of this clause reaches: the clause's own scope and its frame
       const reach: Cond[] = [r.scope, fc].filter(Boolean) as Cond[]

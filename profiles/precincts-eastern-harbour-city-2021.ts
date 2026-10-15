@@ -20,8 +20,10 @@
 import type { InstrumentProfile, TermMapping } from './housing-sepp-2021'
 
 const TITLE = 'State Environmental Planning Policy (Precincts—Eastern Harbour City) 2021'
+/** the instrument's short name, inside every unit term: a heading like "State significant precincts" repeats across the four */
+const SHORT = 'Precincts—Eastern Harbour City SEPP'
 const UNIT = (local_id: string, heading: string): TermMapping => ({
-  dimension: 'defined_area', term: `unit:precincts-eastern-harbour-city-2021:${local_id}`, source_kind: 'derived', source: 'derived.lot_instrument',
+  dimension: 'defined_area', term: `governed by ${heading} (${SHORT})`, source_kind: 'derived', source: 'derived.lot_instrument',
   test: 'attribute', column_tested: 'unit_local_id', filter: `document_title = '${TITLE.replace(/'/g, "''")}' AND unit_local_id = '${local_id}' AND governing`,
   kind: 'condition', note: `the lot's governing unit is ${local_id} (${heading}) - derived.lot_instrument, docs/precinct-sepp-pipeline.md §1`,
 })
@@ -51,8 +53,8 @@ const profile: InstrumentProfile = {
       section: 'sec.2.2',
       governs: ['ch.2'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precincts', polarity: 'applies', clause: '2.2',
-          span: 'On the repeal of Part 3A of the Act, this Chapter is subject to Schedule 6A to the Act. Note. Schedule 6A of the Act sets out those projects which will continue as Part 3A projects (transitional Part 3A projects) and revokes the declaration of any other Part 3A project. The repeal of clauses 6–6C an', term: 'unit:precincts-eastern-harbour-city-2021:ch.2' },
+        { dimension: 'defined_area', value: 'governed by State significant precincts (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '2.2',
+          span: 'On the repeal of Part 3A of the Act, this Chapter is subject to Schedule 6A to the Act. Note. Schedule 6A of the Act sets out those projects which will continue as Part 3A projects (transitional Part 3A projects) and revokes the declaration of any other Part 3A project. The repeal of clauses 6–6C an', term: 'governed by State significant precincts (Precincts—Eastern Harbour City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '2.6', span: 'Subject to section 74(1) of the Act, in the event of an inconsistency between this Chapter and another environmental planning instrument whether made before or after the commencement of this Chapter, this Chapter prevails to the extent of the inconsistency.' },
       note: '',
@@ -65,8 +67,8 @@ const profile: InstrumentProfile = {
       section: 'sec.3.1',
       governs: ['ch.3'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Darling Harbour', polarity: 'applies', clause: '3.1',
-          span: 'Except as provided by subsection (2), this Chapter applies to the whole of the land within the Development Area, as varied from time to time. This Chapter does not apply to land in respect of which an order is in force under clause 3B of the Darling Harbour Authority Regulation 1984.', term: 'unit:precincts-eastern-harbour-city-2021:ch.3' },
+        { dimension: 'defined_area', value: 'governed by Darling Harbour (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '3.1',
+          span: 'Except as provided by subsection (2), this Chapter applies to the whole of the land within the Development Area, as varied from time to time. This Chapter does not apply to land in respect of which an order is in force under clause 3B of the Darling Harbour Authority Regulation 1984.', term: 'governed by Darling Harbour (Precincts—Eastern Harbour City SEPP)' },
       ],
       note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency)',
     },
@@ -78,8 +80,8 @@ const profile: InstrumentProfile = {
       section: 'ch.4',
       governs: ['ch.4'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by City West', polarity: 'applies', clause: 'ch.4',
-          span: 'the unit City West', term: 'unit:precincts-eastern-harbour-city-2021:ch.4' },
+        { dimension: 'defined_area', value: 'governed by City West (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: 'ch.4',
+          span: 'the unit City West', term: 'governed by City West (Precincts—Eastern Harbour City SEPP)' },
       ],
       note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency)',
     },
@@ -91,8 +93,8 @@ const profile: InstrumentProfile = {
       section: 'sec.5.2',
       governs: ['ch.5'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Walsh Bay', polarity: 'applies', clause: '5.2',
-          span: 'This land applies to land within the City of Sydney and land within Sydney Harbour as shown edged heavy black on the map.', term: 'unit:precincts-eastern-harbour-city-2021:ch.5' },
+        { dimension: 'defined_area', value: 'governed by Walsh Bay (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '5.2',
+          span: 'This land applies to land within the City of Sydney and land within Sydney Harbour as shown edged heavy black on the map.', term: 'governed by Walsh Bay (Precincts—Eastern Harbour City SEPP)' },
       ],
       note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency)',
     },
@@ -104,8 +106,8 @@ const profile: InstrumentProfile = {
       section: 'sec.6.2',
       governs: ['ch.6', 'sch.8'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Cooks Cove', polarity: 'applies', clause: '6.2',
-          span: 'This Chapter applies to land at Cooks Cove within the suburb of Arncliffe shown edged heavy black on the Zoning Map, which is referred to in this Chapter as the Cooks Cove site.', term: 'unit:precincts-eastern-harbour-city-2021:ch.6' },
+        { dimension: 'defined_area', value: 'governed by Cooks Cove (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '6.2',
+          span: 'This Chapter applies to land at Cooks Cove within the suburb of Arncliffe shown edged heavy black on the Zoning Map, which is referred to in this Chapter as the Cooks Cove site.', term: 'governed by Cooks Cove (Precincts—Eastern Harbour City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '6.3', span: 'In the event of an inconsistency between this Chapter and another environmental planning instrument, whether made before, on or after the date on which this Chapter was made, this Chapter prevails to the extent of the inconsistency, subject to section 36 (4) of the Act. To remove any doubt, this Chapter does not affect the application of State Environmental Planning Policy No 55—Remediation of Lan' },
       note: '',
@@ -118,8 +120,8 @@ const profile: InstrumentProfile = {
       section: 'sec.7.1',
       governs: ['ch.7'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Moore Park Showground', polarity: 'applies', clause: '7.1',
-          span: 'This Chapter applies to the land shown edged heavy black on the map marked “Moore Park Showground Amendment No 1” deposited in the head office of the Department of Urban Affairs and Planning.', term: 'unit:precincts-eastern-harbour-city-2021:ch.7' },
+        { dimension: 'defined_area', value: 'governed by Moore Park Showground (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '7.1',
+          span: 'This Chapter applies to the land shown edged heavy black on the map marked “Moore Park Showground Amendment No 1” deposited in the head office of the Department of Urban Affairs and Planning.', term: 'governed by Moore Park Showground (Precincts—Eastern Harbour City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '7.3', span: 'On the commencement of this Chapter, the provisions of any local environmental plan or deemed environmental planning instrument that, immediately before that commencement, applied to the whole or any part of the land to which this Chapter applies cease to apply to that land. In the event of an inconsistency between this Chapter and another environmental planning instrument, whether made before or ' },
       disapplies: [
@@ -135,8 +137,8 @@ const profile: InstrumentProfile = {
       section: 'app.1-inc-pt.2-sec.1A',
       governs: ['app.1'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Sydney Opera House', polarity: 'applies', clause: '1A',
-          span: 'This Part applies to land within the Sydney Opera House Site as referred to in State Environmental Planning Policy (Planning Systems) 2021, Schedule 2, section 1.', term: 'unit:precincts-eastern-harbour-city-2021:app.1' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Sydney Opera House (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '1A',
+          span: 'This Part applies to land within the Sydney Opera House Site as referred to in State Environmental Planning Policy (Planning Systems) 2021, Schedule 2, section 1.', term: 'governed by State significant precinct—Sydney Opera House (Precincts—Eastern Harbour City SEPP)' },
       ],
       note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.2, the chapter of its kind (State significant precincts)',
     },
@@ -148,8 +150,8 @@ const profile: InstrumentProfile = {
       section: 'app.2-inc-pt.2-sec.1B',
       governs: ['app.2'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Luna Park site', polarity: 'applies', clause: '1B',
-          span: 'This Part applies to the cliff top sites.', term: 'unit:precincts-eastern-harbour-city-2021:app.2' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Luna Park site (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '1B',
+          span: 'This Part applies to the cliff top sites.', term: 'governed by State significant precinct—Luna Park site (Precincts—Eastern Harbour City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.2, the chapter of its kind (State significant precincts)',
     },
@@ -161,8 +163,8 @@ const profile: InstrumentProfile = {
       section: 'app.3-inc-pt.1-sec.1',
       governs: ['app.3'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Redfern–Waterloo Authority sites', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the area shown edged heavy black on the Land Application Map referred to in this Schedule as the Redfern–Waterloo Authority Sites.', term: 'unit:precincts-eastern-harbour-city-2021:app.3' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Redfern–Waterloo Authority sites (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the area shown edged heavy black on the Land Application Map referred to in this Schedule as the Redfern–Waterloo Authority Sites.', term: 'governed by State significant precinct—Redfern–Waterloo Authority sites (Precincts—Eastern Harbour City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '3', span: 'All other environmental planning instruments do not apply to the Redfern–Waterloo Authority Sites, except for other State environmental planning policies.' },
       note: 'the relationship clause disapplies the LEP (or every other instrument) on this land: written as prevailing over the LEP; any SEPP it also disapplies is an excludes edge (step 4)',
@@ -175,8 +177,8 @@ const profile: InstrumentProfile = {
       section: 'app.4-inc-pt.1-sec.1',
       governs: ['app.4'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—North Head Federal Police Training site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified as the North Head Federal Police Training site on the following map—', term: 'unit:precincts-eastern-harbour-city-2021:app.4' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—North Head Federal Police Training site (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified as the North Head Federal Police Training site on the following map—', term: 'governed by State significant precinct—North Head Federal Police Training site (Precincts—Eastern Harbour City SEPP)' },
       ],
       note: 'relationship clause: Except as provided by Chapter 2, all other environmental planning instruments apply, according to their terms, to the North Head Federal Police Training site. Part 3 applies to the North Head Federal Police Training site despite any provision of Manly Local Environmental Plan 1988 or any other local',
     },
@@ -188,8 +190,8 @@ const profile: InstrumentProfile = {
       section: 'app.5-inc-pt.1-sec.1',
       governs: ['app.5'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Barangaroo site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Schedule as the Barangaroo site.', term: 'unit:precincts-eastern-harbour-city-2021:app.5' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Barangaroo site (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Schedule as the Barangaroo site.', term: 'governed by State significant precinct—Barangaroo site (Precincts—Eastern Harbour City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '3', span: 'The only environmental planning instruments that apply, according to their terms, to or in respect of development on land within the Barangaroo site are Chapter 2 and all other State environmental planning policies.' },
       note: 'the appendix lists the only instruments that apply to the site, and an LEP is not among them: read as prevailing over the LEP',
@@ -202,8 +204,8 @@ const profile: InstrumentProfile = {
       section: 'app.6-inc-pt.1-sec.1',
       governs: ['app.6'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Wahroonga Estate site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Wahroonga Estate site.', term: 'unit:precincts-eastern-harbour-city-2021:app.6' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Wahroonga Estate site (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Wahroonga Estate site.', term: 'governed by State significant precinct—Wahroonga Estate site (Precincts—Eastern Harbour City SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '5', span: 'The only environmental planning instruments that apply, according to their terms, to land within the Wahroonga Estate site are— Chapter 2, and all other State environmental planning policies.' },
       note: 'the appendix lists the only instruments that apply to the site, and an LEP is not among them: read as prevailing over the LEP',
@@ -216,8 +218,8 @@ const profile: InstrumentProfile = {
       section: 'app.7-inc-pt.1-sec.1',
       governs: ['app.7'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Sirius site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Sirius site.', term: 'unit:precincts-eastern-harbour-city-2021:app.7' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Sirius site (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Sirius site.', term: 'governed by State significant precinct—Sirius site (Precincts—Eastern Harbour City SEPP)' },
       ],
       note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.2, the chapter of its kind (State significant precincts)',
     },
@@ -229,8 +231,8 @@ const profile: InstrumentProfile = {
       section: 'app.8-pt.1-sec.1',
       governs: ['app.8'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Stage 1 Bays West Precinct', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Stage 1 Bays West Precinct.', term: 'unit:precincts-eastern-harbour-city-2021:app.8' },
+        { dimension: 'defined_area', value: 'governed by Stage 1 Bays West Precinct (Precincts—Eastern Harbour City SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Stage 1 Bays West Precinct.', term: 'governed by Stage 1 Bays West Precinct (Precincts—Eastern Harbour City SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.2, the chapter that cites it most (1 citations); no chapter of its kind',
     },

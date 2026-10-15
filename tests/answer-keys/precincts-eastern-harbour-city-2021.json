@@ -1,0 +1,63 @@
+{
+ "instrument": "epi-2021-0726",
+ "title": "State Environmental Planning Policy (Precincts—Eastern Harbour City) 2021",
+ "note": "Step 8 keys (docs/precinct-sepp-pipeline.md). expect.permissibility reads the instrument's own Land Use Table for the lot's unit and zone (explicit row, listed parent, or catch-all), with the row quoted; null = the unit has no table. \"current\" is what the app answered on the day the key was written (--record).",
+ "cases": [
+  {
+   "name": "Normanhurst (EHC, SSP Wahroonga Estate, R2)",
+   "cadid": "102531074",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.6",
+    "unitHeading": "State significant precinct—Wahroonga Estate site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-eastern-harbour-city-2021:app.6": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.5
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Eastern Harbour City) 2021",
+     "unit": "app.6",
+     "basis": "land_application"
+    },
+    "height": [
+     9.5
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2"
+     }
+    }
+   }
+  }
+ ]
+}

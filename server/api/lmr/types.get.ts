@@ -98,8 +98,9 @@ const SHRUNK_LOT = `WITH raw AS MATERIALIZED (SELECT ST_MakeValid(geom) AS g0 FR
 
 export default defineEventHandler(async (event): Promise<LmrTypesResponse> => {
   const cadid = await cadidFromQuery(getQuery(event))
+  const precinct = String(getQuery(event).precinct ?? '') === '1'   // the governing-unit path (docs/precinct-sepp-pipeline.md); off = as before
   setHeader(event, 'cache-control', 'public, max-age=60')
-  return lmrTypesFor(cadid)
+  return lmrTypesFor(cadid, precinct)
 })
 
 /** `?cadid=` as given, or the smallest lot under `?lon=&lat=`. Shared with /api/housing/at. */
@@ -124,7 +125,7 @@ export async function cadidFromQuery(q: Record<string, any>): Promise<string> {
  * residential flat buildings or shop top housing are permissible under Chapter 6 (Housing SEPP s 72(2)(a2),
  * s 15C(1)(a)) with the same reading /lmr gives, rather than a second one.
  */
-export async function lmrTypesFor(cadid: string): Promise<LmrTypesResponse> {
+export async function lmrTypesFor(cadid: string, precinct = false): Promise<LmrTypesResponse> {
   const started = Date.now()
   const criteria = await loadLmrCriteria()
 
@@ -162,12 +163,14 @@ export async function lmrTypesFor(cadid: string): Promise<LmrTypesResponse> {
   }
 
   // permissibility of every use the types turn on, from the same zoning polygons the zone check reads
+  // precinct mode: the governing instrument only (derived.lot_instrument, docs/precinct-sepp-pipeline.md §1)
+  const precinctFilter = precinct ? `AND (z.epi_name IN (SELECT i.document_title FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text AND i.governing) OR NOT EXISTS (SELECT 1 FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text))` : ''
   const uses = [...new Set(criteria.types.flatMap(t => t.landUses))].map(u => u.toLowerCase())
   const perm = await nswQuery<any>(`${SHRUNK_LOT},
     z AS (SELECT DISTINCT z.epi_name, z.sym_code FROM epi.epi_land_zoning z, t, cadastre.lot l
            WHERE l.cadid = $1 AND z.geom && t.g AND ST_Intersects(z.geom, t.g) AND z.sym_code IS NOT NULL
-             -- the governing instrument only (derived.lot_instrument, docs/precinct-sepp-pipeline.md §1)
-             AND (z.epi_name IN (SELECT i.document_title FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text AND i.governing) OR NOT EXISTS (SELECT 1 FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text)))
+             -- precinct mode: the governing instrument only (derived.lot_instrument, docs/precinct-sepp-pipeline.md §1)
+             ${precinctFilter})
     SELECT z.epi_name AS epi, z.sym_code AS zone, p.land_use, p.status
       FROM z JOIN nsw.lep_permissibility p ON p.epi_name = z.epi_name AND p.zone_code = z.sym_code
      WHERE lower(p.land_use) = ANY($2)`, [cadid, uses])

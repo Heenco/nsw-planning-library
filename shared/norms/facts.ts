@@ -17,7 +17,9 @@ import { useGroups } from './groups'
 
 type Query = (sql: string, params?: unknown[]) => Promise<{ rows: any[] }>
 
-export async function lotFacts(query: Query, cadid: string, key: (u: string) => string, terms: string[] = [], refIds: string[] = []): Promise<LotFacts> {
+/** opts.precinct: take the lot's governing instrument and unit from derived.lot_instrument (docs/precinct-sepp-pipeline.md §1);
+ *  off = the first zoning polygon at the point, as every reader did before 2026-10-15. /precinct passes it; /report-2 does not yet. */
+export async function lotFacts(query: Query, cadid: string, key: (u: string) => string, terms: string[] = [], refIds: string[] = [], opts: { precinct?: boolean } = {}): Promise<LotFacts> {
   const row = (await query(`
     WITH p AS (SELECT l.cadid, l.lotidstring, ST_Area(l.geom::geography) AS area, ST_PointOnSurface(l.geom) AS pt FROM cadastre.lot l WHERE l.cadid::text = $1)
     SELECT p.cadid, p.lotidstring, p.area,
@@ -40,16 +42,16 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
            -- the governing instrument and its unit (derived.lot_instrument, docs/precinct-sepp-pipeline.md §1): rank,
            -- then cover, then the lot's own council. A lot the table has not reached falls back to the first zoning
            -- polygon at the point, which is what every reader did before 2026-10-15.
-           COALESCE(
+           ${opts.precinct ? `COALESCE(
              (SELECT json_build_object('zone', i.zone, 'epi', i.document_title, 'unit', i.unit_local_id, 'unit_heading', i.unit_heading, 'unit_basis', i.unit_basis)
-                FROM derived.lot_instrument i WHERE i.cadid = p.cadid::text AND i.governing LIMIT 1),
+                FROM derived.lot_instrument i WHERE i.cadid = p.cadid::text AND i.governing LIMIT 1),` : ''}
              (SELECT json_build_object('zone', z.sym_code, 'epi', z.epi_name) FROM epi.epi_land_zoning z
-               WHERE z.geom && p.pt AND ST_Intersects(z.geom, p.pt) AND z.sym_code IS NOT NULL LIMIT 1)) AS zoning
+               WHERE z.geom && p.pt AND ST_Intersects(z.geom, p.pt) AND z.sym_code IS NOT NULL LIMIT 1)${opts.precinct ? ')' : ''} AS zoning
       FROM p`, [cadid])).rows[0]
   if (!row) throw new Error(`no lot ${cadid}`)
   const epi: string | null = row.zoning?.epi ?? null
   const zone: string | null = row.zoning?.zone?.trim() ?? null
-  const unit = row.zoning?.unit_basis
+  const unit = opts.precinct && row.zoning?.unit_basis
     ? { localId: row.zoning.unit ?? null, heading: row.zoning.unit_heading ?? null, basis: String(row.zoning.unit_basis) }
     : null
   let lotSizeMinM2: number | null = null, onLotSizeMap: boolean | null = null

@@ -20,8 +20,10 @@
 import type { InstrumentProfile, TermMapping } from './housing-sepp-2021'
 
 const TITLE = 'State Environmental Planning Policy (Precincts—Regional) 2021'
+/** the instrument's short name, inside every unit term: a heading like "State significant precincts" repeats across the four */
+const SHORT = 'Precincts—Regional SEPP'
 const UNIT = (local_id: string, heading: string): TermMapping => ({
-  dimension: 'defined_area', term: `unit:precincts-regional-2021:${local_id}`, source_kind: 'derived', source: 'derived.lot_instrument',
+  dimension: 'defined_area', term: `governed by ${heading} (${SHORT})`, source_kind: 'derived', source: 'derived.lot_instrument',
   test: 'attribute', column_tested: 'unit_local_id', filter: `document_title = '${TITLE.replace(/'/g, "''")}' AND unit_local_id = '${local_id}' AND governing`,
   kind: 'condition', note: `the lot's governing unit is ${local_id} (${heading}) - derived.lot_instrument, docs/precinct-sepp-pipeline.md §1`,
 })
@@ -51,8 +53,8 @@ const profile: InstrumentProfile = {
       section: 'sec.2.2',
       governs: ['ch.2'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precincts', polarity: 'applies', clause: '2.2',
-          span: 'On the repeal of Part 3A of the Act, this Chapter is subject to Schedule 6A to the Act. Note. Schedule 6A of the Act sets out those projects which will continue as Part 3A projects (transitional Part 3A projects) and revokes the declaration of any other Part 3A project. The repeal of clauses 6–6C an', term: 'unit:precincts-regional-2021:ch.2' },
+        { dimension: 'defined_area', value: 'governed by State significant precincts (Precincts—Regional SEPP)', polarity: 'applies', clause: '2.2',
+          span: 'On the repeal of Part 3A of the Act, this Chapter is subject to Schedule 6A to the Act. Note. Schedule 6A of the Act sets out those projects which will continue as Part 3A projects (transitional Part 3A projects) and revokes the declaration of any other Part 3A project. The repeal of clauses 6–6C an', term: 'governed by State significant precincts (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '2.6', span: 'Subject to section 74(1) of the Act, in the event of an inconsistency between this Chapter and another environmental planning instrument whether made before or after the commencement of this Chapter, this Chapter prevails to the extent of the inconsistency.' },
       note: '',
@@ -65,8 +67,8 @@ const profile: InstrumentProfile = {
       section: 'sec.3.3',
       governs: ['ch.3', 'sch.1C', 'sch.1E'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Activation Precincts', polarity: 'applies', clause: '3.3',
-          span: 'This Chapter applies to land within an Activation Precinct.', term: 'unit:precincts-regional-2021:ch.3' },
+        { dimension: 'defined_area', value: 'governed by Activation Precincts (Precincts—Regional SEPP)', polarity: 'applies', clause: '3.3',
+          span: 'This Chapter applies to land within an Activation Precinct.', term: 'governed by Activation Precincts (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '3.4', span: 'In the event of an inconsistency between this Chapter and another environmental planning instrument, whether made before or after the commencement of this Chapter, this Chapter prevails to the extent of the inconsistency.' },
       disapplies: [
@@ -83,8 +85,8 @@ const profile: InstrumentProfile = {
       section: 'sec.4.2',
       governs: ['ch.4', 'sch.2', 'sch.3', 'sch.4', 'sch.4A'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Kosciuszko Alpine Region', polarity: 'applies', clause: '4.2',
-          span: 'This Chapter applies to the Alpine Region. The Alpine Region comprises the following Alpine Subregions— Blue Cow Terminal, Bullocks Flat Terminal, Charlotte Pass Alpine Resort, Creel Bay Alpine Accommodation, Kosciuszko Tourist Park Alpine Accommodation, Mount Selwyn Alpine Resort, Perisher Range Al', term: 'unit:precincts-regional-2021:ch.4' },
+        { dimension: 'defined_area', value: 'governed by Kosciuszko Alpine Region (Precincts—Regional SEPP)', polarity: 'applies', clause: '4.2',
+          span: 'This Chapter applies to the Alpine Region. The Alpine Region comprises the following Alpine Subregions— Blue Cow Terminal, Bullocks Flat Terminal, Charlotte Pass Alpine Resort, Creel Bay Alpine Accommodation, Kosciuszko Tourist Park Alpine Accommodation, Mount Selwyn Alpine Resort, Perisher Range Al', term: 'governed by Kosciuszko Alpine Region (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '4.6', span: 'The following do not apply to land to which this chapter applies— Snowy River Local Environmental Plan 2013, State Environmental Planning Policy (Housing) 2021, Chapter 4, State Environmental Planning Policy (Industry and Employment) 2021, Chapter 3, Tumut Local Environmental Plan 2012.' },
       disapplies: [
@@ -103,8 +105,8 @@ const profile: InstrumentProfile = {
       section: 'sec.5.2',
       governs: ['ch.5', 'sch.5', 'sch.6', 'sch.7', 'sch.8', 'sch.9', 'sch.10'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Gosford city centre', polarity: 'applies', clause: '5.2',
-          span: 'This Chapter applies to the land identified on the Land Application Map.', term: 'unit:precincts-regional-2021:ch.5' },
+        { dimension: 'defined_area', value: 'governed by Gosford city centre (Precincts—Regional SEPP)', polarity: 'applies', clause: '5.2',
+          span: 'This Chapter applies to the land identified on the Land Application Map.', term: 'governed by Gosford city centre (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '5.9', span: 'In the event of an inconsistency between this Chapter and another environmental planning instrument, whether made before or after this Chapter, this Chapter prevails to the extent of the inconsistency.' },
       disapplies: [
@@ -120,8 +122,8 @@ const profile: InstrumentProfile = {
       section: 'sec.6.2',
       governs: ['ch.6', 'sch.11'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Port Kembla Land Transformation Precinct', polarity: 'applies', clause: '6.2',
-          span: 'This chapter applies to the Port Kembla Land Transformation Precinct.', term: 'unit:precincts-regional-2021:ch.6' },
+        { dimension: 'defined_area', value: 'governed by Port Kembla Land Transformation Precinct (Precincts—Regional SEPP)', polarity: 'applies', clause: '6.2',
+          span: 'This chapter applies to the Port Kembla Land Transformation Precinct.', term: 'governed by Port Kembla Land Transformation Precinct (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '6.7', span: 'This chapter prevails to the extent of any inconsistency between this chapter and another environmental planning instrument, whether made before or after this chapter. Despite subsection (1), State Environmental Planning Policy (Transport and Infrastructure) 2021, Chapter 2 prevails to the extent of any inconsistency between this chapter and State Environmental Planning Policy (Transport and Infra' },
       disapplies: [
@@ -137,8 +139,8 @@ const profile: InstrumentProfile = {
       section: 'app.1-inc-sec.3',
       governs: ['app.1'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Kings Forest site', polarity: 'applies', clause: '3',
-          span: 'Subject to subsections (2) and (3), this Appendix applies with respect to development within the Kings Forest site and so applies whether or not the development is a transitional Part 3A project. This Appendix does not apply to the land comprising Lot 19, DP 112061 unless and until that land has bee', term: 'unit:precincts-regional-2021:app.1' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Kings Forest site (Precincts—Regional SEPP)', polarity: 'applies', clause: '3',
+          span: 'Subject to subsections (2) and (3), this Appendix applies with respect to development within the Kings Forest site and so applies whether or not the development is a transitional Part 3A project. This Appendix does not apply to the land comprising Lot 19, DP 112061 unless and until that land has bee', term: 'governed by State significant precinct—Kings Forest site (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '10', span: 'The only environmental planning instruments that apply, according to their terms, to or in respect of development within the Kings Forest site are as follows— in the case of development that is a transitional Part 3A project—Chapter 2 and all other State environmental planning policies otherwise applicable to the land, except clause 4.6 of Tweed Local Environmental Plan 2014, in the case of all ot' },
       note: 'the appendix lists the only instruments that apply to the site, and an LEP is not among them: read as prevailing over the LEP',
@@ -151,8 +153,8 @@ const profile: InstrumentProfile = {
       section: 'app.2-inc-pt.1-sec.1',
       governs: ['app.2'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Tomago Industrial site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map referred to in this Schedule as the Tomago Industrial site.', term: 'unit:precincts-regional-2021:app.2' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Tomago Industrial site (Precincts—Regional SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map referred to in this Schedule as the Tomago Industrial site.', term: 'governed by State significant precinct—Tomago Industrial site (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '13', span: 'The only environmental planning instruments that apply, according to their terms, to the Tomago Industrial site are all other State environmental planning policies.' },
       note: 'the appendix lists the only instruments that apply to the site, and an LEP is not among them: read as prevailing over the LEP',
@@ -165,8 +167,8 @@ const profile: InstrumentProfile = {
       section: 'app.3-inc-pt.1-sec.1',
       governs: ['app.3'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Sandon Point site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Sandon Point site.', term: 'unit:precincts-regional-2021:app.3' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Sandon Point site (Precincts—Regional SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Sandon Point site.', term: 'governed by State significant precinct—Sandon Point site (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '5', span: 'The only environmental planning instruments that apply, according to their terms, to land within the Sandon Point site are Chapter 2 and all other State environmental planning policies except State Environmental Planning Policy (Coastal Management) 2018.' },
       note: 'the appendix lists the only instruments that apply to the site, and an LEP is not among them: read as prevailing over the LEP',
@@ -179,8 +181,8 @@ const profile: InstrumentProfile = {
       section: 'app.4-inc-pt.1-sec.1',
       governs: ['app.4'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Rise Bilambil Heights site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Rise Bilambil Heights site.', term: 'unit:precincts-regional-2021:app.4' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Rise Bilambil Heights site (Precincts—Regional SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Appendix as the Rise Bilambil Heights site.', term: 'governed by State significant precinct—Rise Bilambil Heights site (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '5', span: 'The only environmental planning instruments that apply, according to their terms, to land within the Rise Bilambil Heights site are Chapter 2 and all other State environmental planning policies.' },
       note: 'the appendix lists the only instruments that apply to the site, and an LEP is not among them: read as prevailing over the LEP',
@@ -193,8 +195,8 @@ const profile: InstrumentProfile = {
       section: 'app.5-inc-pt.1-sec.1',
       governs: ['app.5'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Calderwood site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified in the Land Application Map, referred to in this Appendix as the Calderwood site.', term: 'unit:precincts-regional-2021:app.5' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Calderwood site (Precincts—Regional SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified in the Land Application Map, referred to in this Appendix as the Calderwood site.', term: 'governed by State significant precinct—Calderwood site (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '5', span: 'The only environmental planning instruments that apply, according to their terms, to land within the Calderwood site are— Chapter 2, and all other State Environmental Planning Policies.' },
       note: 'the appendix lists the only instruments that apply to the site, and an LEP is not among them: read as prevailing over the LEP',
@@ -207,8 +209,8 @@ const profile: InstrumentProfile = {
       section: 'app.6-inc-pt.1-sec.1',
       governs: ['app.6'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by State significant precinct—Southern Highlands Regional Shooting Complex site', polarity: 'applies', clause: '1',
-          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Schedule as the Southern Highlands Regional Shooting Complex site.', term: 'unit:precincts-regional-2021:app.6' },
+        { dimension: 'defined_area', value: 'governed by State significant precinct—Southern Highlands Regional Shooting Complex site (Precincts—Regional SEPP)', polarity: 'applies', clause: '1',
+          span: 'This Appendix applies to the land identified on the Land Application Map, referred to in this Schedule as the Southern Highlands Regional Shooting Complex site.', term: 'governed by State significant precinct—Southern Highlands Regional Shooting Complex site (Precincts—Regional SEPP)' },
       ],
       prevails: { over: ['lep'], clause: '5', span: 'The only environmental planning instruments that apply, according to their terms, to land within the Southern Highlands Regional Shooting Complex site are Chapter 2 and all other State environmental planning policies.' },
       note: 'the appendix lists the only instruments that apply to the site, and an LEP is not among them: read as prevailing over the LEP',
@@ -221,8 +223,8 @@ const profile: InstrumentProfile = {
       section: 'sch.1',
       governs: ['sch.1'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Parkes Activation Precinct', polarity: 'applies', clause: 'sch.1',
-          span: 'the unit Parkes Activation Precinct', term: 'unit:precincts-regional-2021:sch.1' },
+        { dimension: 'defined_area', value: 'governed by Parkes Activation Precinct (Precincts—Regional SEPP)', polarity: 'applies', clause: 'sch.1',
+          span: 'the unit Parkes Activation Precinct', term: 'governed by Parkes Activation Precinct (Precincts—Regional SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Activation Precincts)',
     },
@@ -234,8 +236,8 @@ const profile: InstrumentProfile = {
       section: 'sch.1A',
       governs: ['sch.1A'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Wagga Wagga Activation Precinct', polarity: 'applies', clause: 'sch.1A',
-          span: 'the unit Wagga Wagga Activation Precinct', term: 'unit:precincts-regional-2021:sch.1A' },
+        { dimension: 'defined_area', value: 'governed by Wagga Wagga Activation Precinct (Precincts—Regional SEPP)', polarity: 'applies', clause: 'sch.1A',
+          span: 'the unit Wagga Wagga Activation Precinct', term: 'governed by Wagga Wagga Activation Precinct (Precincts—Regional SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Activation Precincts)',
     },
@@ -247,8 +249,8 @@ const profile: InstrumentProfile = {
       section: 'sch.1B',
       governs: ['sch.1B'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Moree Activation Precinct', polarity: 'applies', clause: 'sch.1B',
-          span: 'the unit Moree Activation Precinct', term: 'unit:precincts-regional-2021:sch.1B' },
+        { dimension: 'defined_area', value: 'governed by Moree Activation Precinct (Precincts—Regional SEPP)', polarity: 'applies', clause: 'sch.1B',
+          span: 'the unit Moree Activation Precinct', term: 'governed by Moree Activation Precinct (Precincts—Regional SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Activation Precincts)',
     },
@@ -260,8 +262,8 @@ const profile: InstrumentProfile = {
       section: 'sch.1D',
       governs: ['sch.1D'],
       conditions: [
-        { dimension: 'defined_area', value: 'governed by Snowy Mountains Activation Precinct', polarity: 'applies', clause: 'sch.1D',
-          span: 'the unit Snowy Mountains Activation Precinct', term: 'unit:precincts-regional-2021:sch.1D' },
+        { dimension: 'defined_area', value: 'governed by Snowy Mountains Activation Precinct (Precincts—Regional SEPP)', polarity: 'applies', clause: 'sch.1D',
+          span: 'the unit Snowy Mountains Activation Precinct', term: 'governed by Snowy Mountains Activation Precinct (Precincts—Regional SEPP)' },
       ],
       note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Activation Precincts)',
     },

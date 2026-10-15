@@ -89,9 +89,10 @@ async function panels(cadid: string, table: string, cols: string, valueOf: (r: a
 export default defineEventHandler(async (event): Promise<StandardsResponse> => {
   const started = Date.now()
   const cadid = String(getQuery(event).cadid ?? '').trim()
+  const precinct = String(getQuery(event).precinct ?? '') === '1'   // the governing-unit path (docs/precinct-sepp-pipeline.md); off = as before
   if (!cadid) throw createError({ statusCode: 400, statusMessage: 'cadid is required' })
   setHeader(event, 'cache-control', 'public, max-age=60')
-  const gov = await governingOf(cadid)
+  const gov = precinct ? await governingOf(cadid) : null
   const [zone, height, fsr, lotSize] = await Promise.all([
     panels(cadid, 'epi_land_zoning', 'x.sym_code', r => ({ value: [clean(r.sym_code), clean(r.lay_class)].filter(Boolean).join(' ') || null, number: null }), gov),
     panels(cadid, 'epi_height_of_building', 'x.max_b_h, x.max_b_h_m, x.max_b_h_rl, x.units', (r) => {

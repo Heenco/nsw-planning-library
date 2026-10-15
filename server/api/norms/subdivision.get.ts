@@ -34,6 +34,7 @@ const leaves = (c: Cond): any[] => 'all' in c ? c.all.flatMap(leaves) : 'any' in
 export default defineEventHandler(async (event) => {
   const started = Date.now()
   const q = getQuery(event)
+  const precinct = String(q.precinct ?? '') === '1'   // the governing-unit path (docs/precinct-sepp-pipeline.md); off = as before
   const cadid = String(q.cadid ?? '').trim()
   if (!cadid) throw createError({ statusCode: 400, statusMessage: 'cadid is required' })
   const purpose = q.purpose ? String(q.purpose) : undefined
@@ -47,12 +48,15 @@ export default defineEventHandler(async (event) => {
   // the norms, all from the graph
   const q2 = (sql: string, p?: unknown[]) => nswQuery<any>(sql, p as any[])
   let lot
-  try { lot = await lotFacts(q2, cadid, landUseKey) }
+  try { lot = await lotFacts(q2, cadid, landUseKey, [], [], { precinct }) }
   catch (e: any) { throw createError({ statusCode: 404, statusMessage: e.message }) }
   // the lot's own LEP, and every SEPP whose frames (where each part applies) the graph holds - a SEPP without them would
   // reach every lot in the State
   const docs = (await q2(`SELECT d.id, d.title, d.instrument_slug, d.doc_type FROM nsw.document d
-     WHERE d.title = $1 OR (d.doc_type = 'sepp' AND EXISTS (SELECT 1 FROM nsw.rule f WHERE f.document_id = d.id AND f.kind = 'frame'))`, [lot.epi ?? ''])).rows
+     WHERE (d.title = $1 OR (d.doc_type = 'sepp' AND EXISTS (SELECT 1 FROM nsw.rule f WHERE f.document_id = d.id AND f.kind = 'frame')))
+       -- a unit-bound SEPP (its chapters and appendices drawn by its own maps: nsw.instrument_unit_map) speaks only in precinct
+       -- mode - even where it is the lot's own zoning instrument; without the switch the lot answers as before it was in the graph
+       AND ($2 OR NOT EXISTS (SELECT 1 FROM nsw.instrument_unit_map m WHERE m.document_id = d.id AND m.unit_local_id IS NOT NULL))`, [lot.epi ?? '', precinct])).rows
   const read = (await q2(`SELECT n.id, n.section, n.clause, n."when", n."then", n.despite, n.subject_to, n.author, n.review, d.title AS instrument
       FROM nsw.norm n JOIN nsw.document d ON d.id = n.document_id
      WHERE n.family = 'subdivision' AND n.valid_to IS NULL AND n.document_id = ANY($1)`, [docs.map(d => d.id)])).rows

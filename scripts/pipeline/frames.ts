@@ -59,6 +59,9 @@ async function main() {
         [doc.id, sec.id, `${profile.instrument}:frame:${f.id}`, f.clause, profile.rank, depth(f),
          `${f.title}${f.note ? ' - ' + f.note : ''}`, f.validFrom ?? null, parentId])
       ruleIds.set(f.id, r.id)
+      // the frame's reach as data (migration 27): the governed local_ids, so a reader can find a clause's frame by ancestry
+      await client.query(`DELETE FROM nsw.rule_frame_scope WHERE rule_id = $1`, [r.id])
+      for (const g of f.governs) await client.query(`INSERT INTO nsw.rule_frame_scope (rule_id, local_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [r.id, g])
       await client.query(`DELETE FROM nsw.rule_applicability WHERE rule_id = $1`, [r.id])
       for (const c of f.conditions) {
         await client.query(

@@ -11,6 +11,7 @@
  */
 import { lotFacts } from '../norms/facts'
 import { lotTermInterior } from './lot-terms'
+import { dcpGuardFacts, isGuardTerm } from '../dcp/guard-facts'
 import { landUseKey } from '../land-use-key'
 
 type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
@@ -18,8 +19,13 @@ type Query = (sql: string, p?: unknown[]) => Promise<{ rows: any[] }>
 /** scope terms tested from the lot's own facts by the evaluator, not through nsw.scope_layer */
 const OWN = /^(lga:|map:|notmap:|unheld:|near:|nearzone:|use:|fact:|!?zone:|zoneclass:|zonegroup:|area>=|lot$)/
 
-export async function ragLotFacts(q: Query, cadid: string) {
-  const f: any = await lotFacts(q as any, cadid, landUseKey)
+export async function ragLotFacts(q: Query, cadid: string, tier: 'rag' | 'kg' = 'rag', opts: { precinct?: boolean } = {}) {
+  const f: any = await lotFacts(q as any, cadid, landUseKey, [], [], opts)
+  // every instrument at the lot's point with its unit (derived.lot_instrument): the governing one and the also-mapped ones
+  // (precinct mode only: without `units` on the lot, the engine keeps every unit-bound instrument silent)
+  const units: Record<string, { unit: string | null; heading: string | null; basis: string; governing: boolean; cover: number | null }> | undefined = opts.precinct ? {} : undefined
+  if (units) for (const r of (await q(`SELECT document_title, unit_local_id, unit_heading, unit_basis, governing, cover_pct FROM derived.lot_instrument WHERE cadid = $1`, [cadid]).catch(() => ({ rows: [] as any[] }))).rows)
+    units[r.document_title] = { unit: r.unit_local_id ?? null, heading: r.unit_heading ?? null, basis: r.unit_basis, governing: !!r.governing, cover: r.cover_pct == null ? null : Number(r.cover_pct) }
   const lmr = (await q(`SELECT band, class, measured_from, excluded_by, eligible_types FROM lmr.lot_lmr WHERE cadid::text = $1`, [cadid])).rows[0]
   const addr = (await q(`SELECT formatted_address FROM derived.lot_profile WHERE cadid::text = $1 ORDER BY is_primary_address DESC NULLS LAST, address_confidence DESC NULLS LAST LIMIT 1`, [cadid])).rows[0]
   // "Area 1 on the Key Sites Map" came back both from epi.epi_key_sites (Young Street, Randwick - right) and from
@@ -36,6 +42,16 @@ export async function ragLotFacts(q: Query, cadid: string) {
     .map(r => String(r.t)).filter(t => !OWN.test(t))
   const terms: Record<string, { holds: boolean | null; why: string }> = {}
   for (const t of boundTerms) terms[t] = await lotTermInterior(q as any, cadid, t, f.lga ?? null).catch(e => ({ holds: null, why: `query failed: ${String(e).slice(0, 80)}` }))
+
+  // ── the DCP tier's own guards ───────────────────────────────────────────────────────────────
+  // A DCP binds to facts no LEP ever needed - the road class of the frontage, the suburb, a named
+  // address - which arrive as `<guard>:<literal>` terms that lotTermInterior cannot answer. Only
+  // when the caller asked for the tier; the rag path never sees this query.
+  if (tier === 'kg') {
+    const dcpTerms = (await q(`SELECT DISTINCT unnest(scope_terms) t FROM dcp.claim_binding WHERE status = 'bound'`)
+      .catch(() => ({ rows: [] as any[] }))).rows.map(r => String(r.t)).filter(isGuardTerm)
+    Object.assign(terms, await dcpGuardFacts(q as any, cadid, dcpTerms).catch(() => ({})))
+  }
   // "within N m of <label> on <map>": the lot within that distance of any polygon of the plan's map with that label
   const nearTerms = (await q(`SELECT DISTINCT unnest(scope_terms) t FROM rag.claim_binding WHERE status = 'bound'`).catch(() => ({ rows: [] as any[] }))).rows.map(r => String(r.t)).filter(t => t.startsWith('near:'))
   for (const t of nearTerms) {
@@ -82,7 +98,7 @@ export async function ragLotFacts(q: Query, cadid: string) {
   // two parallel roads (a "parallel road lot"), from the 04D lot profile
   const shape = (await q(`SELECT lot_depth_m, is_through_lot FROM derived.lot_profile WHERE cadid::text = $1 ORDER BY is_primary_address DESC NULLS LAST LIMIT 1`, [cadid]).catch(() => null))?.rows[0] ?? null
   return {
-    cadid, lot: f.lotId, address: addr?.formatted_address ?? null, lga: f.lga, zone: f.zone, epi: f.epi, area_m2: f.areaM2, frontage_m: f.frontageM ?? null,
+    cadid, lot: f.lotId, address: addr?.formatted_address ?? null, lga: f.lga, zone: f.zone, epi: f.epi, ...(units ? { unit: f.unit ?? null, units } : {}), area_m2: f.areaM2, frontage_m: f.frontageM ?? null,
     battle_axe: f.isBattleaxe ?? null, lot_depth_m: shape?.lot_depth_m != null ? Number(shape.lot_depth_m) : null, through_lot: shape?.is_through_lot ?? null,
     // the map figures over the whole lot where they could be measured, else at the lot's point (shared/norms/facts.ts)
     fsr_map: 'fsr_map' in mapFig ? mapFig.fsr_map : f.fsrMax ?? null, height_map_m: 'height_map_m' in mapFig ? mapFig.height_map_m : f.heightMaxM ?? null,

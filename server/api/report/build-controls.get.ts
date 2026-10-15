@@ -16,7 +16,7 @@
  *
  * Nothing is listed by hand and no figure is chosen here.
  */
-import { evaluate, explain, lepFor, loadEngine, type Engine, type Result } from '#shared/rag/evaluate'
+import { evaluate, explain, lepFor, loadEngine, type Engine, type Result, instrumentsFor } from '#shared/rag/evaluate'
 import { ragLotFacts } from '#shared/rag/lot-facts'
 import { landUseKey } from '#shared/land-use-key'
 import { nswQuery } from '../../utils/nsw-kg/pool'
@@ -25,13 +25,14 @@ import { ragEngine } from '../../utils/rag-engine'
 const q = (sql: string, p: unknown[] = []) => nswQuery<any>(sql, p as any[])
 
 /** the shared engine, reloaded when the rag tables change (server/utils/rag-engine.ts) */
-const engineOf = (): Promise<Engine> => ragEngine()
+const engineOf = (tier: 'rag' | 'kg' = 'rag'): Promise<Engine> => ragEngine(tier)
 const lotCache = new Map<string, { at: number; lot: any; options?: BuildOption[]; areas?: BuildArea[] }>()
-async function lotOf(cadid: string) {
-  const hit = lotCache.get(cadid)
+async function lotOf(cadid: string, tier = 'rag', precinct = false) {
+  const key = `${tier}:${precinct ? 'p:' : ''}${cadid}`
+  const hit = lotCache.get(key)
   if (hit && Date.now() - hit.at < 5 * 60 * 1000) return hit
-  const entry = { at: Date.now(), lot: await ragLotFacts(q, cadid) as any }
-  lotCache.set(cadid, entry)
+  const entry = { at: Date.now(), lot: await ragLotFacts(q, cadid, tier as 'rag' | 'kg', { precinct }) as any }
+  lotCache.set(key, entry)
   if (lotCache.size > 50) lotCache.delete(lotCache.keys().next().value!)
   return entry as { at: number; lot: any; options?: BuildOption[]; areas?: BuildArea[] }
 }
@@ -44,6 +45,20 @@ export const BUILD_TOPICS = [
   { key: 'lot_size', label: 'Minimum lot size' },
   { key: 'lot_width', label: 'Minimum lot width' },
   { key: 'parking', label: 'Parking' },
+] as const
+
+/**
+ * Setbacks, asked only when the DCP tier is on (?dcp=1). They are mostly a DCP control - the LEPs
+ * hold 247 of them and the four loaded DCPs 409 - and no endpoint has asked for them before, so
+ * they stay behind the flag until a gold set says the answers are right.
+ */
+export const SETBACK_TOPICS = [
+  { key: 'setback_primary', label: 'Front setback' },
+  { key: 'setback_side', label: 'Side setback' },
+  { key: 'setback_rear', label: 'Rear setback' },
+  { key: 'setback_secondary', label: 'Secondary street setback' },
+  { key: 'setback_boundary', label: 'Boundary setback' },
+  { key: 'building_separation', label: 'Building separation' },
 ] as const
 
 export interface BuildOption { use: string; label: string; verdict: 'permitted' | 'prohibited' | 'maybe'; consent: 'with' | 'without' | null }
@@ -136,13 +151,18 @@ const headingOf = (E: Engine, id: string): string | null => {
 export default defineEventHandler(async (event): Promise<BuildResponse> => {
   const started = Date.now()
   const query = getQuery(event)
+  const precinct = String(query.precinct ?? '') === '1'   // the governing-unit path (docs/precinct-sepp-pipeline.md); off = as before
   const cadid = String(query.cadid ?? '').trim()
   if (!cadid) throw createError({ statusCode: 400, statusMessage: 'cadid is required' })
+  // ?dcp=1 adds the council DCP tier (rank 10, below every statutory instrument). Off by default,
+  // and read before lotOf because the per-lot option list is computed under whichever scope applies.
+  const withDcp = query.dcp === '1' || query.dcp === 'true'
+  const tier = withDcp ? 'kg' as const : 'rag' as const
   let entry: Awaited<ReturnType<typeof lotOf>>
-  try { entry = await lotOf(cadid) }
+  try { entry = await lotOf(cadid, tier, precinct) }
   catch (e: any) { throw createError({ statusCode: 404, statusMessage: e.message }) }
   const lot = entry.lot
-  const E = await engineOf()
+  const E = await engineOf(tier)
   const lep = lepFor(E, lot).doc
   const lotInfo = { areaM2: lot.area_m2 ?? null, frontageM: lot.frontage_m ?? null, zone: lot.zone ?? null }
   if (!lep) {
@@ -150,7 +170,10 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
       lot: lotInfo, options: [], use: null, permission: null, controls: [], areas: [], clauses: {}, ms: Date.now() - started }
   }
   setHeader(event, 'cache-control', 'public, max-age=60')
-  const inScope = (docId: string | undefined) => docId === lep || E.insts.some(i => i.document_id === docId && i.kind === 'sepp')
+  // the lot's own LEP, any SEPP, and - only when asked - any DCP the engine holds. Rank decides
+  // precedence elsewhere; this decides visibility, and a DCP that is invisible reads as "no control".
+  const inScope = (docId: string | undefined) =>
+    docId === lep || E.insts.some(i => i.document_id === docId && (i.kind === 'sepp' || (withDcp && i.kind === 'dcp')))
 
   // every use the plans name, each asked once per lot
   if (!entry.options) {
@@ -176,7 +199,9 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
       // a map is never a use ("Land Zoning Map" comes through from a table row that refers to it)
       for (const u of c.uses ?? []) if (u && u !== '*' && !/\bmap$/i.test(u.trim())) permitNamed.add(landUseKey(u))
     }
-    const docs = [lep, ...E.insts.filter(i => i.kind === 'sepp').map(i => i.document_id)]
+    // the instruments that speak to this lot (claimsFor): the governing plan and the SEPPs that reach it, not a Precinct SEPP's
+    // other appendices nor a Precinct SEPP the lot is not under
+    const docs = [lep, ...[...instrumentsFor(E, lot, lep)].filter(d => d !== lep)]
     const terms = (await q(`SELECT heading FROM rag.provision WHERE kind = 'term' AND heading IS NOT NULL AND document_id = ANY($1::uuid[])
                             ORDER BY (document_id = $2::uuid) DESC`, [docs, lep])).rows
     const shown = new Map<string, string>()
@@ -375,7 +400,7 @@ export default defineEventHandler(async (event): Promise<BuildResponse> => {
 
   // every control for it
   const controls: BuildControl[] = []
-  for (const t of BUILD_TOPICS) {
+  for (const t of (withDcp ? [...BUILD_TOPICS, ...SETBACK_TOPICS] : [...BUILD_TOPICS])) {
     const r = evaluate(E, { kind: 'standard', use, topic: t.key, proposal: 'development' }, lot)
     if (r.verdict === 'none') continue
     const f = figure(E, r)

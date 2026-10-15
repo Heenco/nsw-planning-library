@@ -39,6 +39,7 @@ def clause_no(local_id):
     return (local_id or '').split('-')[-1].replace('sec.', '')
 for title, units in units_all.items():
     epi, slug = META[title]
+    short_name = 'Precincts—' + re.search(r'Precincts.(.*?)\) 2021', title).group(1) + ' SEPP'
     cur.execute("select id from nsw.document where title=%s", (title,)); doc = cur.fetchone()[0]
     cur.execute("select layer, map_name, lay_class, label, unit_local_id, unit_heading, rule, polygons from nsw.instrument_unit_map where document_id=%s order by layer, map_name, lay_class, label", (doc,))
     keys = cur.fetchall()
@@ -81,8 +82,10 @@ for title, units in units_all.items():
 import type {{ InstrumentProfile, TermMapping }} from './housing-sepp-2021'
 
 const TITLE = {ts(title)}
+/** the instrument's short name, inside every unit term: a heading like "State significant precincts" repeats across the four */
+const SHORT = {ts(short_name)}
 const UNIT = (local_id: string, heading: string): TermMapping => ({{
-  dimension: 'defined_area', term: `unit:{slug}:${{local_id}}`, source_kind: 'derived', source: 'derived.lot_instrument',
+  dimension: 'defined_area', term: `governed by ${{heading}} (${{SHORT}})`, source_kind: 'derived', source: 'derived.lot_instrument',
   test: 'attribute', column_tested: 'unit_local_id', filter: `document_title = '${{TITLE.replace(/'/g, "''")}}' AND unit_local_id = '${{local_id}}' AND governing`,
   kind: 'condition', note: `the lot's governing unit is ${{local_id}} (${{heading}}) - derived.lot_instrument, docs/precinct-sepp-pipeline.md §1`,
 }})
@@ -174,8 +177,8 @@ const UNIT = (local_id: string, heading: string): TermMapping => ({{
       section: {ts(app.get('id') or lid)},
       governs: [{', '.join(ts(g) for g in governs)}],
       conditions: [
-        {{ dimension: 'defined_area', value: {ts('governed by ' + h)}, polarity: 'applies', clause: {ts(cond_clause)},
-          span: {ts(cond_span)}, term: {ts(f'unit:{slug}:{lid}')} }},
+        {{ dimension: 'defined_area', value: {ts(f'governed by {h} ({short_name})')}, polarity: 'applies', clause: {ts(cond_clause)},
+          span: {ts(cond_span)}, term: {ts(f'governed by {h} ({short_name})')} }},
       ],{prevails}{(chr(10) + '      disapplies: [' + chr(10) + chr(10).join(f"        {{ instrument: {ts(nm)}, part: {tsn(pt)}, clause: {ts(clause_no(rel.get('id')))}, span: {ts(sn[:300])} }}," for nm, pt, sn in disapplies) + chr(10) + '      ],') if disapplies else ''}
       note: {ts(' | '.join(notes))},
     }},""")

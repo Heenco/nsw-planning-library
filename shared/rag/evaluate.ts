@@ -36,7 +36,11 @@ export interface Engine { claims: C[]; provs: Map<string, PV>; rels: Rel[]; prov
   /** the date each instrument's text is in force as at (nsw.document.as_at_date, Sydney date): every answer is the law on that day */
   asAt: Map<string, string>
   /** the instruments held: which LEP governs a lot is decided from these */
-  insts: { document_id: string; title: string; kind: string }[] }
+  insts: { document_id: string; title: string; kind: string }[]
+  /** instruments whose reach is drawn by their own maps unit by unit (a Precinct SEPP: a chapter or appendix per site) -
+   *  those with a row in nsw.instrument_unit_map. A claim of one reaches a lot only through the lot's governing unit
+   *  (derived.lot_instrument, docs/precinct-sepp-pipeline.md §1): document id -> title */
+  unitBound: Map<string, string> }
 
 /** one condition as it was tested on the lot - or why it could not be */
 export interface Check { text: string; result: boolean | null; how: string; could: boolean }
@@ -47,17 +51,27 @@ export interface Result { ask: Ask; answer: { effect: string; value?: number | n
 
 export { shortName }
 
-export async function loadEngine(q: Query): Promise<Engine> {
-  const claims: C[] = (await q(`SELECT c.*, c.value::float8 AS value FROM rag.claim c`)).rows
+/**
+ * `schema` picks the tier set. 'rag' (the default) is the LEP/SEPP corpus the pilot is scored on and
+ * must stay byte-identical. 'kg' reads the union views, which add the council DCPs at rank 10 -
+ * visible, and below every statutory instrument. rag.relation is read either way: a DCP has no
+ * extracted relations, so there is no dcp side to union.
+ */
+export async function loadEngine(q: Query, schema: 'rag' | 'kg' = 'rag'): Promise<Engine> {
+  const S = schema === 'kg' ? 'kg' : 'rag'
+  const claims: C[] = (await q(`SELECT c.*, c.value::float8 AS value FROM ${S}.claim c`)).rows
   const bindings = new Map<string, Binding[]>()
-  for (const b of (await q(`SELECT claim_id, part, text, status, scope_terms, sources, assume_absent, note FROM rag.claim_binding`).catch(() => ({ rows: [] as any[] }))).rows)
+  for (const b of (await q(`SELECT claim_id, part, text, status, scope_terms, sources, assume_absent, note FROM ${S}.claim_binding`).catch(() => ({ rows: [] as any[] }))).rows)
     bindings.set(b.claim_id, [...(bindings.get(b.claim_id) ?? []), b])
-  const insts = (await q(`SELECT document_id, title, kind FROM rag.instrument ORDER BY rank, title`)).rows
+  const insts = (await q(`SELECT document_id, title, kind FROM ${S}.instrument ORDER BY rank, title`)).rows
+  // (a row with a unit: an LEP's row has unit NULL - the whole plan - and is not unit-bound)
+  const unitBound = new Map<string, string>((await q(`SELECT DISTINCT i.document_id, i.title FROM ${S}.instrument i
+                                                        WHERE EXISTS (SELECT 1 FROM nsw.instrument_unit_map m WHERE m.document_id = i.document_id AND m.unit_local_id IS NOT NULL)`).catch(() => ({ rows: [] as any[] }))).rows.map(r => [r.document_id, r.title]))
   const shortNames = new Map<string, string>(insts.map(r => [r.document_id, shortName(r.title)]))
   const asAt = new Map<string, string>((await q(`SELECT i.document_id, (d.as_at_date AT TIME ZONE 'Australia/Sydney')::date::text AS as_at
-                                                   FROM rag.instrument i JOIN nsw.document d ON d.id = i.document_id WHERE d.as_at_date IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows.map(r => [r.document_id, r.as_at]))
+                                                   FROM ${S}.instrument i JOIN nsw.document d ON d.id = i.document_id WHERE d.as_at_date IS NOT NULL`).catch(() => ({ rows: [] as any[] }))).rows.map(r => [r.document_id, r.as_at]))
   const provs = new Map<string, PV>((await q(`SELECT p.id, p.local_id, p.document_id, i.kind doc_kind, coalesce(p.path, '{}') path, p.parent_id, p.heading
-                                                FROM rag.provision p JOIN rag.instrument i USING (document_id)`)).rows.map(r => [r.id, r]))
+                                                FROM ${S}.provision p JOIN ${S}.instrument i USING (document_id)`)).rows.map(r => [r.id, r]))
   const rels: Rel[] = (await q(`SELECT kind, from_provision, to_provision, to_document, to_ref, status, basis, span FROM rag.relation WHERE kind NOT IN ('part_of', 'next', 'refers_to', 'defines')`)).rows
   const provMap = new Map<string, Prov>([...provs.values()].map(p => [p.id, { id: p.id, local_id: p.local_id, path: p.path, document_id: p.document_id, doc_kind: p.doc_kind }]))
   const zoneNames = new Map<string, string>((await q(`SELECT DISTINCT zone_code, zone_name FROM nsw.lep_permissibility WHERE zone_name IS NOT NULL`)).rows.map(r => [r.zone_code, r.zone_name]))
@@ -96,7 +110,7 @@ export async function loadEngine(q: Query): Promise<Engine> {
   const addKnown = (doc: string | undefined, u: string) => { KNOWN.add(u); if (doc) { if (!KNOWN_BY_DOC.has(doc)) KNOWN_BY_DOC.set(doc, new Set()); KNOWN_BY_DOC.get(doc)!.add(u) } }
   for (const c of claims) for (const u of c.uses ?? []) if (u !== '*' && !borrowed.has(landUseKey(u))) addKnown(provs.get(c.provision_id)?.document_id, landUseKey(u))
   for (const t of terms) if (!t.borrowed) addKnown(t.document_id, landUseKey(t.heading))
-  return { claims, provs, rels, provMap, zoneNames, label, bindings, shortNames, asAt, insts }
+  return { claims, provs, rels, provMap, zoneNames, label, bindings, shortNames, asAt, insts, unitBound }
 }
 /** the uses the corpus defines or names (loadEngine): a Land Use Table catch-all decides only for one of them */
 const KNOWN = new Set<string>()
@@ -123,7 +137,11 @@ export function lepFor(E: Engine, lot: any): { doc: string | null; why: string }
   const named = (s: string) => leps.filter(l => new RegExp(`(^|[^a-z])${shortName(l.title).replace(/ LEP$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z]|$)`, 'i').test(s))
   if (lot?.epi) {
     const i = leps.find(l => l.title.toLowerCase() === String(lot.epi).toLowerCase())
-    return i ? { doc: i.document_id, why: `zoned under ${shortName(i.title)}` } : { doc: null, why: `the lot is zoned under ${lot.epi}, which is not in the corpus` }
+    if (i) return { doc: i.document_id, why: `zoned under ${shortName(i.title)}` }
+    // zoned by a SEPP (a Precinct SEPP's chapter or appendix): that instrument governs and no LEP does
+    const s = lot.units ? E.insts.find(l => l.kind !== 'lep' && l.title.toLowerCase() === String(lot.epi).toLowerCase()) : null
+    if (s) return { doc: s.document_id, why: `zoned under ${shortName(s.title)}${lot.unit?.heading ? `, ${lot.unit.localId ?? ''} ${lot.unit.heading}` : ''}` }
+    return { doc: null, why: `the lot is zoned under ${lot.epi}, which is not in the corpus` }
   }
   if (lot?.lga) {
     const i = named(String(lot.lga))
@@ -143,6 +161,29 @@ export function evaluate(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   console.error(`${'  '.repeat(depth)}< ${ask.kind} ${ask.use} ${ask.topic ?? ''}: ${r.verdict} in ${Date.now() - t0} ms (${r.tested.length} tested)`)
   return r
 }
+/**
+ * The claims that speak to a lot: the governing instrument's (lepFor), every SEPP's - except that a unit-bound
+ * instrument (E.unitBound: a Precinct SEPP) speaks only through the lot's governing unit of it, and only when the lot
+ * carries `units` (the precinct path). Another instrument's or another appendix's clauses are not evidence here, any
+ * more than another council's LEP is. A lot whose unit of that instrument is not held keeps every unit's claims, and the
+ * scope test says "unknown". The report endpoints list uses and options from these same claims.
+ */
+export function claimsFor(E0: Engine, lot: any, lepDoc: string | null): C[] {
+  const docOf = (c: C) => E0.provs.get(c.provision_id)
+  const topOf = (id: string): string | null => { let x = E0.provs.get(id), top = x; while (x?.parent_id) { x = E0.provs.get(x.parent_id); if (x) top = x } return top?.local_id ?? null }
+  const unitReach = (c: C) => {
+    const d = docOf(c); if (!d || !E0.unitBound.has(d.document_id)) return true
+    if (!lot?.units) return false
+    const u = lot.units[E0.unitBound.get(d.document_id)!]
+    return !!u && u.governing && (u.unit == null || u.unit === topOf(c.provision_id))
+  }
+  return E0.claims.filter(c => (docOf(c)?.doc_kind !== 'lep' || !lepDoc || docOf(c)?.document_id === lepDoc) && unitReach(c))
+}
+/** the instrument documents whose claims speak to the lot (claimsFor, by document) */
+export function instrumentsFor(E0: Engine, lot: any, lepDoc: string | null): Set<string> {
+  return new Set(claimsFor(E0, lot, lepDoc).map(c => E0.provs.get(c.provision_id)?.document_id).filter(Boolean) as string[])
+}
+
 function evaluate0(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   // the instruments that speak to this lot: the one asked about ("Under ..."), else the SEPPs and the lot's own LEP
   const docOf = (c: C) => E0.provs.get(c.provision_id)
@@ -151,7 +192,7 @@ function evaluate0(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     return { ask, answer: null, verdict: 'maybe', ruling: null, tested: [], limits: [], notChecked: [lep.why], checks: [],
       note: `${lep.why} - its Land Use Table and standards are not read, so no answer is given from the other instruments alone` }
   const E: Engine = ask.only ? { ...E0, claims: E0.claims.filter(c => docOf(c)?.document_id === ask.only) }
-    : lep?.doc ? { ...E0, claims: E0.claims.filter(c => docOf(c)?.doc_kind !== 'lep' || docOf(c)?.document_id === lep.doc) } : E0
+    : { ...E0, claims: claimsFor(E0, lot, lep?.doc ?? null) }
   // a lot the Height of Buildings / Floor Space Ratio / Lot Size Map splits (two or more figures over it): the question is
   // answered for each part, and the answer is that figure only if every part gets the same one - else "maybe", part by part
   const splitField = ask.kind === 'standard' ? ({ height: 'height_map_m', fsr: 'fsr_map', floor_area: 'fsr_map', lot_size: 'lot_size_map_m2' } as Record<string, string>)[ask.topic ?? ''] : undefined
@@ -245,9 +286,23 @@ function evaluate0(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       : { text, result: null, how: `no dataset held for ${b.scope_terms.join(', ')}${b.note ? ` (${b.note})` : ''}`, could: false }
     return { text, result: null, how: b.status === 'no_polygon' ? 'no polygon for this map label' : b.status === 'no_match' ? 'no registered layer matches these words' : b.note ?? b.status, could: false }
   }
+  /** the top-level unit (chapter, appendix, schedule) a provision sits in: the root of its ancestor chain */
+  const topUnitOf = (c: C): string | null => { const ch = ancestors(c.provision_id); const top = ch.length ? E.provs.get(ch[ch.length - 1]!) : null; return top?.local_id ?? null }
   const scope = (c: C, why: string[], notChecked: string[], subs: Result[], isFrame: boolean, checks: Check[] = []): boolean | null => {
     let h: boolean | null = true
     const and = (r: boolean | null, w: string) => { why.push(`${w}: ${r == null ? 'unknown' : r ? 'yes' : 'no'}`); if (r === false) h = false; else if (r == null && h !== false) h = null }
+    // an instrument whose units are land-bound (E.unitBound): the claim's own unit must be the lot's governing unit of that
+    // instrument. No row for the instrument = the lot is not under it (no); a row with no unit = not held (unknown).
+    // Before this, an Edmondson Park South lot-size clause read as "if this applies" on every lot in the State.
+    const d = docOf(c)
+    if (d && E.unitBound.has(d.document_id)) {
+      const title = E.unitBound.get(d.document_id)!, u = lot.units?.[title], mine = topUnitOf(c)
+      if (!u) and(false, `the lot is not under ${shortName(title)}`)
+      else if (!u.governing) and(false, `${shortName(title)} is mapped on the lot but does not govern it`)
+      else if (u.unit == null) and(null, `the lot's unit of ${shortName(title)} is not held`)
+      else and(u.unit === mine, `the lot is under ${u.unit} ${u.heading ?? ''} of ${shortName(title)}${mine && u.unit !== mine ? `, not ${mine}` : ''}`)
+      if (h === false) return false
+    }
     // a catch-all decides only for a use the corpus knows: one defined outside it (a manor house) is not "not listed" - unknown
     if (c.uses.includes('*')) { const k = isKnown(ask.use, docOf(c)?.document_id); and(k ? true : null, k ? 'any use the zone does not list' : `${ask.use} is not a use this plan defines or lists - the catch-all cannot be applied`) }
     else if (c.uses.length) and(c.uses.some(u => useMatch(u, ask.use)), `use ${c.uses.join(' / ')}`)

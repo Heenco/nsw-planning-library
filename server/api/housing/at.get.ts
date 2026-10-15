@@ -58,10 +58,12 @@ function ch6From(lmr: LmrTypesResponse): Ch6Type[] {
 export default defineEventHandler(async (event): Promise<HousingAtResponse> => {
   const started = Date.now()
   const cadid = await cadidFromQuery(getQuery(event))
+  const precinct = String(getQuery(event).precinct ?? '') === '1'   // the governing-unit path (docs/precinct-sepp-pipeline.md); off = as before
+  const precinctFilter = precinct ? `AND (z.epi_name IN (SELECT i.document_title FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text AND i.governing) OR NOT EXISTS (SELECT 1 FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text))` : ''
   setHeader(event, 'cache-control', 'public, max-age=60')
 
   const [lmr, factsRes, permRes] = await Promise.all([
-    lmrTypesFor(cadid),
+    lmrTypesFor(cadid, precinct),
     nswQuery<any>(`${SHRUNK_LOT}
       SELECT l.cadid, l.lotidstring AS lot_id, ST_Area(l.geom::geography) AS area_m2,
              ST_AsGeoJSON(l.geom, 7)::json AS geometry,
@@ -93,8 +95,8 @@ export default defineEventHandler(async (event): Promise<HousingAtResponse> => {
     nswQuery<any>(`${SHRUNK_LOT},
       z AS (SELECT DISTINCT z.epi_name, z.sym_code FROM epi.epi_land_zoning z, t, cadastre.lot l
              WHERE l.cadid = $1 AND z.geom && t.g AND ST_Intersects(z.geom, t.g) AND z.sym_code IS NOT NULL
-               -- the governing instrument only (derived.lot_instrument): not a neighbouring plan's sliver, not an LEP a SEPP displaces
-               AND (z.epi_name IN (SELECT i.document_title FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text AND i.governing) OR NOT EXISTS (SELECT 1 FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text)))
+               -- precinct mode: the governing instrument only (derived.lot_instrument): not a neighbouring plan's sliver, not an LEP a SEPP displaces
+               ${precinctFilter})
       SELECT z.epi_name AS epi, z.sym_code AS zone, p.land_use, p.status
         FROM z JOIN nsw.lep_permissibility p ON p.epi_name = z.epi_name AND p.zone_code = z.sym_code
        WHERE lower(p.land_use) = ANY($2)`, [cadid, RESIDENTIAL_DEVELOPMENT]),

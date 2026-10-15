@@ -63,22 +63,24 @@ export interface ReportSubdivisionResponse {
 export default defineEventHandler(async (event): Promise<ReportSubdivisionResponse> => {
   const started = Date.now()
   const query = getQuery(event)
+  const precinct = String(query.precinct ?? '') === '1'   // the governing-unit path (docs/precinct-sepp-pipeline.md); off = as before
   const cadid = String(query.cadid ?? '').trim()
   if (!cadid) throw createError({ statusCode: 400, statusMessage: 'cadid is required' })
   const lots = query.lots ? Math.max(2, Number(query.lots)) : 2
   const only = query.use ? landUseKey(String(query.use)) : null
 
   let f: any
-  try { f = await lotFacts(q as any, cadid, landUseKey) }
+  try { f = await lotFacts(q as any, cadid, landUseKey, [], [], { precinct }) }
   catch (e: any) { throw createError({ statusCode: 404, statusMessage: e.message }) }
 
-  const plans = (await q(`SELECT title FROM rag.instrument WHERE kind = 'lep'`).catch(() => ({ rows: [] as any[] }))).rows.map(r => String(r.title))
+  // the instruments the RAG holds that can govern a lot: the LEPs, and any SEPP whose units the zoning layer draws (a Precinct SEPP)
+  const plans = (await q(precinct ? `SELECT title FROM rag.instrument WHERE kind = 'lep' OR EXISTS (SELECT 1 FROM nsw.instrument_unit_map m WHERE m.document_id = rag.instrument.document_id AND m.unit_local_id IS NOT NULL)` : `SELECT title FROM rag.instrument WHERE kind = 'lep'`).catch(() => ({ rows: [] as any[] }))).rows.map(r => String(r.title))
   if (!f.epi || !plans.includes(f.epi)) {
     return { engine: 'none', reason: `The RAG holds ${plans.join(', ') || 'no plan'}; this lot is under ${f.epi ?? 'no mapped LEP'}.`,
       plan: f.epi ?? null, lot: null, purposes: [], provisions: {}, ms: Date.now() - started }
   }
 
-  const [E, lot] = await Promise.all([engineOf(), ragLotFacts(q, cadid)])
+  const [E, lot] = await Promise.all([engineOf(), ragLotFacts(q, cadid, 'rag', { precinct })])
   const ids = new Set<string>()
   const purposes = PURPOSES.filter(p => !only || landUseKey(p.use) === only).map(p => ({
     use: p.use, label: p.label,
