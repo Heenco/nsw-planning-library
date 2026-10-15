@@ -126,7 +126,10 @@ Olympic Park -> CRC app.4 (the Canada Bay sliver is not at the point, so not a r
 Wahroonga Estate governing, Hornsby LEP root at 100% not governing; Gosford -> Regional ch.5; The Ponds -> CRC app.7
 Alex Avenue and Riverstone; Austral -> WPC app.4 Liverpool Growth Centres. Timing: ~1 min per council (the land
 application join and cover), so the state is ~2 h - launched 2026-10-15 in the background (`--all`, no swap yet).
-Still to do for `done`: state-wide counts; the "byte-identical to today's (zone, epi)" check on LEP-only lots; swap.
+Equivalence with today's rule (`shared/norms/facts.ts`: the first zoning polygon at the point): a 3% sample of the
+seven councils, 14,061 governing rows - plan identical on all 14,061; zone identical on 14,014; 47 (0.3%) differ in
+zone only, where one plan has two zoning polygons at the point and today's rule takes whichever comes first while the
+build takes the larger. Still to do for `done`: state-wide counts and swap (build running, 31/132 councils at 13:05).
 
 ### 3. Profiles for the four instruments — `blocked` 2026-10-15 (drafted; Manni's review is the gate)
 `profiles/precincts-{central-river-city,western-parkland-city,regional,eastern-harbour-city}-2021.ts`:
