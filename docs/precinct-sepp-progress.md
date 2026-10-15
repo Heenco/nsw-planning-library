@@ -392,4 +392,9 @@ line and section 9 answers; what stays held is listed with why.
   Separate from the tables: 18,431 governing lots (CRC 6,048, WPC 12,383) have NO unit (unit_local_id null) - the
   unit map's land-application binding has not reached them (step 2), so no table can be chosen for them whatever the
   resolver does. Samples: one addressed lot per (instrument, unit, zone), precinct instruments only.
+  Engine note (not the page): the claims reader now anchors 10,602 claims on clause-form items, and the keys agree
+  99/99, but on an SSP site the engine answers "maybe": Olympic Park app.4 cl 6(1) frames the appendix on "the Sydney
+  Olympic Park site", a defined term 02d-bindings has no polygon for, so every table claim under it tests unknown.
+  Next engine item: bind a frame term that is the unit's own site name to the unit itself (the lot is under the unit
+  by that very map). /precinct does not use the engine, so the page is unaffected.
 
