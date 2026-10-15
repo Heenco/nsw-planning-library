@@ -91,8 +91,10 @@ export default defineEventHandler(async (event): Promise<HousingAtResponse> => {
                ORDER BY ST_Distance(z.geom::geography, t.g::geography) LIMIT 1) AS relevant_zone
         FROM cadastre.lot l, t, t4 WHERE l.cadid = $1 LIMIT 1`, [cadid, RELEVANT_ZONES]),
     nswQuery<any>(`${SHRUNK_LOT},
-      z AS (SELECT DISTINCT z.epi_name, z.sym_code FROM epi.epi_land_zoning z, t
-             WHERE z.geom && t.g AND ST_Intersects(z.geom, t.g) AND z.sym_code IS NOT NULL)
+      z AS (SELECT DISTINCT z.epi_name, z.sym_code FROM epi.epi_land_zoning z, t, cadastre.lot l
+             WHERE l.cadid = $1 AND z.geom && t.g AND ST_Intersects(z.geom, t.g) AND z.sym_code IS NOT NULL
+               -- the governing instrument only (derived.lot_instrument): not a neighbouring plan's sliver, not an LEP a SEPP displaces
+               AND (z.epi_name IN (SELECT i.document_title FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text AND i.governing) OR NOT EXISTS (SELECT 1 FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text)))
       SELECT z.epi_name AS epi, z.sym_code AS zone, p.land_use, p.status
         FROM z JOIN nsw.lep_permissibility p ON p.epi_name = z.epi_name AND p.zone_code = z.sym_code
        WHERE lower(p.land_use) = ANY($2)`, [cadid, RESIDENTIAL_DEVELOPMENT]),

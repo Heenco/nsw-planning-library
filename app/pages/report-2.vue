@@ -60,6 +60,12 @@
             <span v-if="lot?.lga_name">{{ titleCase(lot.lga_name) }}</span>
             <span v-if="detail.addresses.length > 1">{{ detail.addresses.length }} addresses on this lot</span>
           </p>
+          <!-- the governing instrument and its unit (derived.lot_instrument): an LEP is one unit; a Precinct SEPP's unit is
+               the chapter or appendix the land application map puts the lot in; "unit not held" = no map names one -->
+          <p v-if="std?.governing" class="r2-ids r2-governing">
+            <span>Governed by <b>{{ std.governing.instrument }}</b><template v-if="std.governing.unitHeading">, {{ std.governing.unit }} {{ std.governing.unitHeading }}</template><template v-else-if="std.governing.basis !== 'root'"> (unit not held)</template></span>
+            <span v-for="a in std.governing.alsoMapped" :key="a.instrument" class="r2-muted">also mapped: {{ a.instrument }}<template v-if="a.coverPct != null"> ({{ a.coverPct }}%)</template></span>
+          </p>
         </section>
 
         <!-- ── 1. Lot and frontage ─────────────────────────────────────── -->
@@ -368,7 +374,7 @@
                 <p v-if="!std" class="r2-muted">…</p>
                 <template v-else-if="s.panels.length">
                   <div v-for="(pn, i) in s.panels" :key="i" class="r2-std-hit">
-                    <p v-if="pn.value" class="r2-std-val">{{ pn.value }}</p>
+                    <p v-if="pn.value" class="r2-std-val">{{ pn.value }}<span v-if="pn.governing === false" class="r2-tag" title="An instrument mapped on the lot that does not govern it">also mapped</span></p>
                     <p v-else class="r2-std-val r2-std-val--clause">Set by {{ pn.clause || 'its clause' }}<span class="r2-td-sub">see the additional controls below</span></p>
                     <p class="r2-std-meta">
                       <span v-if="pn.area" class="r2-tag r2-tag--warn">additional control · {{ pn.area }}</span>
@@ -902,6 +908,17 @@
             Click a clause to see how the RAG engine reached the figure.
           </p>
           <SitingStudio :cadid="cadid" :use="sitingType" :label="sitingLabel" @trace="openSitingTrace" />
+        </section>
+
+        <!-- ── 16. The council's DCP, as controls (components/DcpControls.vue, /api/report/dcp-controls) ── -->
+        <section id="dcp" class="r2-section">
+          <h2><span class="r2-num">16</span> Council controls (DCP)</h2>
+          <p class="r2-lead">
+            Every measurable control the council's Development Control Plan states for this lot, read from the plan itself
+            and grouped by what it measures. These are guidance, not standards: where one conflicts with the LEP above it,
+            the LEP governs. Each figure shows the words it was read from.
+          </p>
+          <DcpControls :cadid="cadid" :use="sitingType" />
         </section>
 
         <!-- ── Reference: the Land Use Table as written and resolved, unnumbered and closed ──────────── -->
@@ -2132,6 +2149,7 @@ const navItems = computed(() => {
     { id: 'pattern-book', n: 13, label: 'Pattern Book', tone: pb.value ? pbVerdict.value.tone : null, hint: pb.value ? pbVerdict.value.head : '' },
     { id: 'standards-stack', n: 14, label: 'What can I build', tone: null, hint: 'Pick a use, see every control' },
     { id: 'build', n: 15, label: 'Siting', tone: null, hint: 'Put a building on the lot and move it' },
+    { id: 'dcp', n: 16, label: 'Council controls', tone: null, hint: "Every control the council's DCP states for this lot" },
     { id: 'land-use-table', n: '', label: 'Land Use Table', tone: null, hint: 'As written, how it resolves, and resolved against the Standard Instrument', support: true },
     { id: 'cdc-exclusions', n: '', label: 'Supporting checks', tone: null, hint: 'CDC land exclusions and environmentally sensitive areas', support: true },
   ].map(s => ({ ...s, tone: t(s.tone) }))

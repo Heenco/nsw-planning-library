@@ -464,7 +464,9 @@ export default defineEventHandler(async (event): Promise<CdcTypesResponse> => {
       SELECT DISTINCT z.epi_name, z.sym_code
         FROM cadastre.lot l
         JOIN epi.epi_land_zoning z ON z.geom && l.geom AND ST_Intersects(z.geom, l.geom)
-       WHERE l.cadid = $1 AND z.sym_code IS NOT NULL)
+       WHERE l.cadid = $1 AND z.sym_code IS NOT NULL
+         -- the governing instrument only (derived.lot_instrument, docs/precinct-sepp-pipeline.md §1)
+         AND (z.epi_name IN (SELECT i.document_title FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text AND i.governing) OR NOT EXISTS (SELECT 1 FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text)))
     SELECT 'lep' AS source, z.epi_name AS instrument, z.sym_code AS zone,
            p.land_use, p.status
       FROM z JOIN nsw.lep_permissibility p

@@ -91,7 +91,7 @@ Zone-table member clauses in the graph: 1,226 rows carry `cg1.Zone_` in their id
 (Regional ch.5/ch.6) table clauses carry plain `sec.N-oc.M` ids with no zone in them, so the zone must come
 from the XML clausegroup (as `scripts/rag/01b-groups.py` already does for LEPs), never from the id.
 
-### 2. `derived.lot_instrument` — `doing` 2026-10-15 (seven councils verified; state-wide build running)
+### 2. `derived.lot_instrument` — `done` 2026-10-15
 Builder script (`scripts/build-lot-instrument.ts` or a Notebooks 02-series notebook, Manni's call;
 default: the app repo, same connection as every other planningai script). For every lot: all zoning
 polygons at the point on surface with cover; rank from `nsw.document` kind (dcp 10 / lep 20 / sepp 30);
@@ -129,7 +129,15 @@ application join and cover), so the state is ~2 h - launched 2026-10-15 in the b
 Equivalence with today's rule (`shared/norms/facts.ts`: the first zoning polygon at the point): a 3% sample of the
 seven councils, 14,061 governing rows - plan identical on all 14,061; zone identical on 14,014; 47 (0.3%) differ in
 zone only, where one plan has two zoning polygons at the point and today's rule takes whichever comes first while the
-build takes the larger. Still to do for `done`: state-wide counts and swap (build running, 31/132 councils at 13:05).
+build takes the larger.
+**State-wide (132 councils, 51.9 min, swapped into `derived.lot_instrument` at 14:20):** 3,349,185 rows, 3,348,237 lots
+(4,693 lots of cadastre.lot have no zoning polygon at their point and are absent: readers fall back to the first polygon
+for them). Governing basis: LEP root 3,253,645 (1,170,997 in the graph, 2,082,648 not); SEPP unit from the land
+application map 70,583, from the zoning map 5,578, **unmapped 18,431** (WPC 12,383, CRC 6,048: growth centre land with no
+released precinct plan at the point, "unit not held" by decision Q1(e)). 948 lots have two instruments at the point: a SEPP
+governs 895, an LEP 9, 44 are two LEPs. Largest precinct units: Alex Avenue and Riverstone 14,391 lots, Blacktown Growth
+Centres 11,440, Liverpool Growth Centres 9,936, The Hills 7,730, Camden 7,405, St Marys 5,526. Previous table kept as
+`derived.lot_instrument_prev` (none existed: dropped on the next swap).
 
 ### 3. Profiles for the four instruments — `done` 2026-10-15 (reviewed in session, Q1 (a)-(f))
 `profiles/precincts-{central-river-city,western-parkland-city,regional,eastern-harbour-city}-2021.ts`:
@@ -184,7 +192,7 @@ first pass (a dash suffix swallowing "does not apply", a lost "and 9") were fixe
 Still a note, not an edge: the "Despite subsection (1), SEPP X prevails" exceptions (Homebush Bay, Gosford, Port
 Kembla, Parklands) - these are `yields` in the Housing profile's terms and can be generated the same way when wanted.
 
-### 5. Switch the readers to the unit — `todo`
+### 5. Switch the readers to the unit — `done` 2026-10-15
 `shared/norms/facts.ts`, `shared/rag/lot-facts.ts`, `server/api/housing/at.get.ts`,
 `server/api/report/standards.get.ts` (+ the others listed in the design §1) read
 `derived.lot_instrument`; `nsw.lep_permissibility` lookups pass `(epi_name, unit_local_id, zone)`.
@@ -192,6 +200,22 @@ Report line "Governed by <instrument>, <unit>" in `/report-2`'s title block; "al
 **Done when:** the 16 Randwick / Hornsby / Parramatta / Ku-ring-gai / North Sydney RAG key lots answer
 byte-identically before and after (`scripts/rag/16-compare-report2.ts` or the key run); Normanhurst
 no longer answers from Hornsby; Olympic Park no longer names Canada Bay.
+
+**Result:** ten files switched (scratchpad `patch_readers.py`, applied once): `shared/norms/facts.ts` and
+`server/api/rules/at.get.ts` take the governing row (zone, instrument, unit) with the old first-polygon query as the
+fallback for a lot the table has not reached; `shared/dcp/guard-facts.ts` the same for the zone guard; the four
+permissibility readers (`housing/at`, `pattern-book/at`, `cdc/types`, `lmr/types`) keep every zone over the lot but only
+of the governing instrument; `/api/report/standards` returns `governing` (instrument, unit, heading, basis, also-mapped
+instruments with cover) and flags each panel `governing: false` when it belongs to an also-mapped instrument;
+`/report-2` prints "Governed by <instrument>, <unit> <heading>" (or "unit not held") under the title and tags such panels
+"also mapped". `LotFacts.unit` carries the unit for the engine (unused until step 6).
+**Check (70 before/after captures, 7 lots x 10 endpoints, `ms` ignored):** the four LEP-only key lots (Bambara, Park Ave
+Chatswood, 62B Carr St, Peats Ferry Rd Hornsby) are byte-identical on every endpoint except `standards`, which only
+gains the new `governing` field (`rules/at` returned 400 both times for want of `use=`; with `use=dual occupancies` it
+answers as before). Normanhurst: uses / subdivision / build-controls go from Hornsby's RAG answers to `engine: none`
+("the RAG does not hold SEPP (Precincts—EHC) 2021") - the honest state until steps 6-7; `cdc/types` and `housing/at`
+drop Hornsby's table ("no Land Use Table row"). Olympic Park: `cdc/types`, `housing/at`, `pattern-book/at` drop the Canada
+Bay sliver's table. The Ponds: unchanged apart from the governing line.
 
 ### 6. Land Use Tables per unit — `todo`
 Extend the LUT reader (01E `lut_xml.py` / `scripts/build-zone-lu-index.mjs`, whichever is the live
@@ -245,3 +269,4 @@ line and section 9 answers; what stays held is listed with why.
 - 2026-10-15 steps 0 and 1 done (see above); committed locally.
 - 2026-10-15 step 2 built and verified on seven councils (state-wide build running); step 3 drafted and blocked on review (Q1).
 - 2026-10-15 Q1 and Q2 answered in session; steps 3 and 4 done; unit map confirmed, 70 frames held.
+- 2026-10-15 state-wide lot_instrument swapped in (step 2 done); readers switched (step 5 done), before/after verified on 7 lots.

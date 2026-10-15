@@ -27,12 +27,28 @@ export interface StandardPanel {
   clause: string | null
   plan: string | null
   coverPct: number
+  /** false = the panel belongs to an instrument that is only "also mapped" on the lot (a sliver, or an LEP a Precinct SEPP displaces) */
+  governing: boolean
+}
+/** The lot's governing instrument and unit (derived.lot_instrument, docs/precinct-sepp-pipeline.md §1). */
+export interface Governing {
+  instrument: string
+  /** top-level unit of the instrument; null = the whole plan (an LEP) */
+  unit: string | null
+  unitHeading: string | null
+  /** root | land_application | land_zoning | unmapped | none */
+  basis: string
+  zone: string | null
+  /** other instruments mapped on the lot with their cover, not governing */
+  alsoMapped: { instrument: string; coverPct: number | null }[]
 }
 export interface StandardsResponse {
   zone: StandardPanel[]
   height: StandardPanel[]
   fsr: StandardPanel[]
   lotSize: StandardPanel[]
+  /** null = derived.lot_instrument has not reached this lot */
+  governing: Governing | null
   ms: number
 }
 
@@ -45,7 +61,16 @@ const clean = (v: unknown): string | null => { const s = v == null ? '' : String
 const num = (v: unknown): number | null => (v == null || v === '' || Number.isNaN(Number(v)) ? null : Number(v))
 const fmt = (x: number) => (Number.isInteger(x) ? String(x) : String(+x.toFixed(2)))
 
-async function panels(cadid: string, table: string, cols: string, valueOf: (r: any) => { value: string | null; number: number | null }): Promise<StandardPanel[]> {
+async function governingOf(cadid: string): Promise<Governing | null> {
+  const rows = (await nswQuery<any>(`SELECT document_title, unit_local_id, unit_heading, unit_basis, zone, cover_pct, governing
+                                       FROM derived.lot_instrument WHERE cadid = $1 ORDER BY governing DESC, cover_pct DESC NULLS LAST`, [cadid])).rows
+  const g = rows.find((r: any) => r.governing)
+  if (!g) return null
+  return { instrument: g.document_title, unit: g.unit_local_id ?? null, unitHeading: g.unit_heading ?? null, basis: g.unit_basis, zone: g.zone ?? null,
+           alsoMapped: rows.filter((r: any) => !r.governing).map((r: any) => ({ instrument: r.document_title, coverPct: r.cover_pct == null ? null : Number(r.cover_pct) })) }
+}
+
+async function panels(cadid: string, table: string, cols: string, valueOf: (r: any) => { value: string | null; number: number | null }, gov: Governing | null): Promise<StandardPanel[]> {
   const rows = (await nswQuery<any>(`${LOT}
     SELECT x.epi_name, x.label, x.lay_class, x.legis_ref_area, x.legis_ref_clause, ${cols}, ${cover} AS cover_pct
       FROM epi.${table} x, t
@@ -55,8 +80,10 @@ async function panels(cadid: string, table: string, cols: string, valueOf: (r: a
     const v = valueOf(r)
     const label = clean(r.label)
     const area = clean(r.legis_ref_area) ?? (/^area\b/i.test(label ?? '') ? label : null)
-    return { ...v, label, band: clean(r.lay_class), area, clause: clean(r.legis_ref_clause), plan: clean(r.epi_name), coverPct: Math.min(100, Number(r.cover_pct)) }
-  }).sort((a, b) => b.coverPct - a.coverPct)
+    const plan = clean(r.epi_name)
+    return { ...v, label, band: clean(r.lay_class), area, clause: clean(r.legis_ref_clause), plan, coverPct: Math.min(100, Number(r.cover_pct)),
+             governing: gov == null || plan == null || plan === gov.instrument }
+  }).sort((a, b) => Number(b.governing) - Number(a.governing) || b.coverPct - a.coverPct)
 }
 
 export default defineEventHandler(async (event): Promise<StandardsResponse> => {
@@ -64,20 +91,21 @@ export default defineEventHandler(async (event): Promise<StandardsResponse> => {
   const cadid = String(getQuery(event).cadid ?? '').trim()
   if (!cadid) throw createError({ statusCode: 400, statusMessage: 'cadid is required' })
   setHeader(event, 'cache-control', 'public, max-age=60')
+  const gov = await governingOf(cadid)
   const [zone, height, fsr, lotSize] = await Promise.all([
-    panels(cadid, 'epi_land_zoning', 'x.sym_code', r => ({ value: [clean(r.sym_code), clean(r.lay_class)].filter(Boolean).join(' ') || null, number: null })),
+    panels(cadid, 'epi_land_zoning', 'x.sym_code', r => ({ value: [clean(r.sym_code), clean(r.lay_class)].filter(Boolean).join(' ') || null, number: null }), gov),
     panels(cadid, 'epi_height_of_building', 'x.max_b_h, x.max_b_h_m, x.max_b_h_rl, x.units', (r) => {
       const rl = num(r.max_b_h_rl), m = num(r.max_b_h_m) ?? num(r.max_b_h)
       if (rl != null && rl > 0 && m == null) return { value: `RL ${fmt(rl)} m AHD`, number: rl }
       return m != null && m > 0 ? { value: `${fmt(m)} ${clean(r.units) === 'm' || !clean(r.units) ? 'm' : clean(r.units)}`, number: m } : { value: null, number: null }
-    }),
-    panels(cadid, 'epi_floor_space_ratio', 'x.fsr', (r) => { const f = num(r.fsr); return f != null && f > 0 ? { value: `${fmt(f)}:1`, number: f } : { value: null, number: null } }),
+    }, gov),
+    panels(cadid, 'epi_floor_space_ratio', 'x.fsr', (r) => { const f = num(r.fsr); return f != null && f > 0 ? { value: `${fmt(f)}:1`, number: f } : { value: null, number: null } }, gov),
     panels(cadid, 'epi_lot_size', 'x.lot_size, x.units', (r) => {
       const s = num(r.lot_size)
       if (s == null || s <= 0) return { value: null, number: null }
       const ha = /ha/i.test(String(r.units ?? ''))
       return { value: ha ? `${fmt(s)} ha` : `${Math.round(s).toLocaleString('en-AU')} m²`, number: ha ? s * 10000 : s }
-    }),
+    }, gov),
   ])
-  return { zone, height, fsr, lotSize, ms: Date.now() - started }
+  return { zone, height, fsr, lotSize, governing: gov, ms: Date.now() - started }
 })

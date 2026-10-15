@@ -37,12 +37,21 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
            (SELECT f.fsr::float8 FROM epi.epi_floor_space_ratio f
              WHERE f.geom && p.pt AND ST_Intersects(f.geom, p.pt) ORDER BY f.fsr LIMIT 1) AS fsr_max,
            (SELECT upper(lga_name) FROM derived.lot_lga g WHERE g.cadid::text = p.cadid::text) AS lga,
-           (SELECT json_build_object('zone', z.sym_code, 'epi', z.epi_name) FROM epi.epi_land_zoning z
-             WHERE z.geom && p.pt AND ST_Intersects(z.geom, p.pt) AND z.sym_code IS NOT NULL LIMIT 1) AS zoning
+           -- the governing instrument and its unit (derived.lot_instrument, docs/precinct-sepp-pipeline.md §1): rank,
+           -- then cover, then the lot's own council. A lot the table has not reached falls back to the first zoning
+           -- polygon at the point, which is what every reader did before 2026-10-15.
+           COALESCE(
+             (SELECT json_build_object('zone', i.zone, 'epi', i.document_title, 'unit', i.unit_local_id, 'unit_heading', i.unit_heading, 'unit_basis', i.unit_basis)
+                FROM derived.lot_instrument i WHERE i.cadid = p.cadid::text AND i.governing LIMIT 1),
+             (SELECT json_build_object('zone', z.sym_code, 'epi', z.epi_name) FROM epi.epi_land_zoning z
+               WHERE z.geom && p.pt AND ST_Intersects(z.geom, p.pt) AND z.sym_code IS NOT NULL LIMIT 1)) AS zoning
       FROM p`, [cadid])).rows[0]
   if (!row) throw new Error(`no lot ${cadid}`)
   const epi: string | null = row.zoning?.epi ?? null
   const zone: string | null = row.zoning?.zone?.trim() ?? null
+  const unit = row.zoning?.unit_basis
+    ? { localId: row.zoning.unit ?? null, heading: row.zoning.unit_heading ?? null, basis: String(row.zoning.unit_basis) }
+    : null
   let lotSizeMinM2: number | null = null, onLotSizeMap: boolean | null = null
   if (epi) {
     const ls = (await query(`
@@ -121,7 +130,7 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
   // land use groups from the plan's own Dictionary in the graph
   const dict = epi ? (await query(`SELECT string_agg(s.raw_text, ' ') AS t FROM nsw.section s JOIN nsw.document d ON d.id = s.document_id
                                     WHERE d.title = $1 AND s.level = 'dictionary'`, [epi])).rows[0]?.t : null
-  return { cadid, lotId, zone, epi, lga: row.lga ?? null, areaM2: row.area == null ? null : Math.round(Number(row.area)),
+  return { cadid, lotId, zone, epi, unit, lga: row.lga ?? null, areaM2: row.area == null ? null : Math.round(Number(row.area)),
            lotSizeMinM2, onLotSizeMap, lut, lutHeld, site: { [key('strata scheme')]: /\/\/SP\d/i.test(String(lotId ?? '')) },
            frontageM: row.frontage == null ? null : Number(row.frontage), terms: tested, refHits, groups: dict ? useGroups(dict, key) : {},
            isBattleaxe: row.is_battleaxe == null ? null : Boolean(row.is_battleaxe),

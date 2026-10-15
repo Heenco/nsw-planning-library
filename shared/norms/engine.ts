@@ -21,6 +21,9 @@ import { FACTS } from './schema'
 export type Tri = boolean | null
 export interface LotFacts {
   cadid: string; lotId: string | null; zone: string | null; epi: string | null; lga: string | null; areaM2: number | null
+  /** the unit of the governing instrument (derived.lot_instrument): null localId with basis 'root' = the whole plan;
+   *  basis 'unmapped' / 'none' = not held; null = the table has not reached the lot */
+  unit?: { localId: string | null; heading: string | null; basis: string } | null
   /** The lot's own panel on the Height of Building and Floor Space Ratio maps. */
   heightMaxM?: number | null; fsrMax?: number | null
   /** Measured by 04D. The handle is land you cannot count toward a minimum lot size. */

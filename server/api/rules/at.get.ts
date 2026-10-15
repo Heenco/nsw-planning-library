@@ -102,9 +102,11 @@ export default defineEventHandler(async (event) => {
     SELECT l.cadid, l.lotidstring AS lot_id, ST_Area(l.geom::geography) AS area_m2,
            (SELECT upper(lga_name) FROM derived.lot_lga WHERE cadid = l.cadid) AS lga,
            (SELECT primary_frontage_length_m::float8 FROM derived.lot_frontage WHERE cadid = l.cadid) AS frontage_m,
-           (SELECT json_build_object('zone', z.sym_code, 'epi', z.epi_name) FROM epi.epi_land_zoning z
-             WHERE z.geom && t.g AND ST_Intersects(z.geom, t.g) AND z.sym_code IS NOT NULL
-             ORDER BY ST_Area(ST_Intersection(z.geom, t.g)) DESC LIMIT 1) AS zoning
+           COALESCE(
+             (SELECT json_build_object('zone', i.zone, 'epi', i.document_title) FROM derived.lot_instrument i WHERE i.cadid = l.cadid::text AND i.governing LIMIT 1),
+             (SELECT json_build_object('zone', z.sym_code, 'epi', z.epi_name) FROM epi.epi_land_zoning z
+               WHERE z.geom && t.g AND ST_Intersects(z.geom, t.g) AND z.sym_code IS NOT NULL
+               ORDER BY ST_Area(ST_Intersection(z.geom, t.g)) DESC LIMIT 1)) AS zoning
       FROM cadastre.lot l, t WHERE l.cadid = $1`, [cadid])).rows[0]
   if (!lotRow) throw createError({ statusCode: 404, statusMessage: `No lot ${cadid}` })
   const zone: string | null = lotRow.zoning?.zone?.trim() ?? null
