@@ -4,622 +4,8 @@
  "note": "Step 8 keys (docs/precinct-sepp-pipeline.md). expect.permissibility reads the instrument's own Land Use Table for the lot's unit and zone (explicit row, listed parent, or catch-all), with the row quoted; null = the unit has no table. \"current\" is what the app answered on the day the key was written (--record).",
  "cases": [
   {
-   "name": "Gosford (Regional, Gosford city centre, B3)",
-   "cadid": "104226091",
-   "zone": "B3",
-   "expect": {
-    "unit": "ch.5",
-    "unitHeading": "Gosford city centre",
-    "unitKind": "chapter",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:ch.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "catch-all",
-      "row": "any other development not specified in item 2 or 4"
-     },
-     "secondary dwellings": {
-      "status": "prohibited",
-      "basis": "inherited from \"residential accommodation\"",
-      "row": "residential accommodation"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "catch-all",
-      "row": "any other development not specified in item 2 or 4"
-     }
-    },
-    "heightMapM": 24.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "ch.5",
-     "basis": "land_application"
-    },
-    "height": [
-     24
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for B3"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for B3"
-     },
-     "seniors housing": {
-      "error": "timed out"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "184516466",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "184516454",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "185585265",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "184516444",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "error": "timed out"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "185585264",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "184516445",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "184516446",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "186148306",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "186087488",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Calderwood site R1",
-   "cadid": "184516467",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "State significant precinct—Calderwood site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-regional-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "app.5",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
    "name": "Gosford city centre R1",
-   "cadid": "150464801",
+   "cadid": "100867557",
    "zone": "R1",
    "expect": {
     "unit": "ch.5",
@@ -646,16 +32,72 @@
       "row": "seniors housing"
      }
     },
-    "heightMapM": 18.0
+    "heightMapM": 12.0
    },
    "current": {
     "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
-     "unit": "ch.5",
-     "basis": "land_application"
+     "instrument": null,
+     "unit": null,
+     "basis": null
     },
     "height": [
-     18
+     12
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Gosford city centre R1",
+   "cadid": "100867558",
+   "zone": "R1",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Gosford city centre",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any development not specified in item 2 or 3"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 12.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     12
     ],
     "rules": {
      "dual occupancies": {
@@ -786,7 +228,119 @@
   },
   {
    "name": "Gosford city centre R1",
+   "cadid": "100867572",
+   "zone": "R1",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Gosford city centre",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any development not specified in item 2 or 3"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 69.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     69
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Gosford city centre R1",
    "cadid": "100867602",
+   "zone": "R1",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Gosford city centre",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any development not specified in item 2 or 3"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 12.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     12
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Gosford city centre R1",
+   "cadid": "100867604",
    "zone": "R1",
    "expect": {
     "unit": "ch.5",
@@ -897,8 +451,63 @@
    }
   },
   {
+   "name": "Gosford (Regional, Gosford city centre, B3)",
+   "cadid": "104226091",
+   "zone": "B3",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Gosford city centre",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "prohibited",
+      "basis": "inherited from \"residential accommodation\"",
+      "row": "residential accommodation"
+     },
+     "secondary dwellings": {
+      "status": "prohibited",
+      "basis": "inherited from \"residential accommodation\"",
+      "row": "residential accommodation"
+     },
+     "seniors housing": {
+      "status": "prohibited",
+      "basis": "inherited from \"residential accommodation\"",
+      "row": "residential accommodation"
+     }
+    },
+    "heightMapM": 24.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "ch.5",
+     "basis": "land_application"
+    },
+    "height": [
+     24
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for B3"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for B3"
+     },
+     "seniors housing": {
+      "error": "timed out"
+     }
+    }
+   }
+  },
+  {
    "name": "Gosford city centre R1",
-   "cadid": "100867572",
+   "cadid": "150464801",
    "zone": "R1",
    "expect": {
     "unit": "ch.5",
@@ -925,16 +534,16 @@
       "row": "seniors housing"
      }
     },
-    "heightMapM": 69.0
+    "heightMapM": 18.0
    },
    "current": {
     "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "ch.5",
+     "basis": "land_application"
     },
     "height": [
-     69
+     18
     ],
     "rules": {
      "dual occupancies": {
@@ -1009,100 +618,99 @@
    }
   },
   {
-   "name": "Gosford city centre R1",
-   "cadid": "100867557",
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "184516444",
    "zone": "R1",
    "expect": {
-    "unit": "ch.5",
-    "unitHeading": "Gosford city centre",
-    "unitKind": "chapter",
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
     "unitBasis": "land_application",
     "frames": {
-     "precincts-regional-2021:ch.5": true
+     "precincts-regional-2021:app.5": true
     },
     "permissibility": {
      "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      },
      "secondary dwellings": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any development not specified in item 2 or 3"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      },
      "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      }
     },
-    "heightMapM": 12.0
+    "heightMapM": 9.0
    },
    "current": {
     "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
     },
     "height": [
-     12
+     9
     ],
     "rules": {
      "dual occupancies": {
       "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+      "wording": "dual occupancies: no Land Use Table row for R1"
      },
      "secondary dwellings": {
       "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+      "wording": "secondary dwellings: no Land Use Table row for R1"
      },
      "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+      "error": "timed out"
      }
     }
    }
   },
   {
-   "name": "Gosford city centre R1",
-   "cadid": "100867558",
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "184516445",
    "zone": "R1",
    "expect": {
-    "unit": "ch.5",
-    "unitHeading": "Gosford city centre",
-    "unitKind": "chapter",
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
     "unitBasis": "land_application",
     "frames": {
-     "precincts-regional-2021:ch.5": true
+     "precincts-regional-2021:app.5": true
     },
     "permissibility": {
      "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      },
      "secondary dwellings": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any development not specified in item 2 or 3"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      },
      "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      }
     },
-    "heightMapM": 12.0
+    "heightMapM": 9.0
    },
    "current": {
     "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
     },
     "height": [
-     12
+     9
     ],
     "rules": {
      "dual occupancies": {
@@ -1121,44 +729,436 @@
    }
   },
   {
-   "name": "Gosford city centre R1",
-   "cadid": "100867604",
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "184516446",
    "zone": "R1",
    "expect": {
-    "unit": "ch.5",
-    "unitHeading": "Gosford city centre",
-    "unitKind": "chapter",
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
     "unitBasis": "land_application",
     "frames": {
-     "precincts-regional-2021:ch.5": true
+     "precincts-regional-2021:app.5": true
     },
     "permissibility": {
      "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      },
      "secondary dwellings": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any development not specified in item 2 or 3"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      },
      "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      }
     },
-    "heightMapM": 12.0
+    "heightMapM": 9.0
    },
    "current": {
     "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
     },
     "height": [
-     12
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "184516454",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "184516466",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "184516467",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "185585264",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "185585265",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "186087488",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Calderwood site R1",
+   "cadid": "186148306",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Calderwood site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-regional-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Regional) 2021",
+     "unit": "app.5",
+     "basis": "land_application"
+    },
+    "height": [
+     9
     ],
     "rules": {
      "dual occupancies": {

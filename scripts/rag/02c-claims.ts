@@ -225,7 +225,8 @@ async function main() {
   const scopeOf = (phrase: string, at?: P) => {
     const zones = zoneCodes(phrase), tms: string[] = [], requires: any[] = []
     if (at) for (const d of areaDefs) if (d.doc === at.document_id && inUnit(at, d.unit) && d.re.test(phrase)) tms.push(`mapped:${d.label} on the ${d.map}`)
-    for (const [term, z] of zoneTerms) if (new RegExp(`\\bin an? ${term}\\b`, 'i').test(phrase)) zones.push(...z)
+    // ("on land other than land in a rural zone" names the zones to leave out, not to include)
+    for (const [term, z] of zoneTerms) if (new RegExp(`\\bin an? ${term}\\b`, 'i').test(phrase) && !new RegExp(`\\bother than (?:land )?in an? ${term}\\b`, 'i').test(phrase)) zones.push(...z)
     if (at && !zones.length) for (const [g, re] of Object.entries(ZONE_GROUP))
       if (new RegExp(`\\bin an? ${g} zone\\b`, 'i').test(phrase) && !new RegExp(`\\bother than (?:land )?in an? ${g} zone\\b`, 'i').test(phrase)) zones.push(...(planZones.get(at.document_id) ?? []).filter(z => re.test(z)))
     for (const term of scopeTerms) if (new RegExp(`\\b(in|on|within) (?:an? |the )?${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(phrase)) {
@@ -336,11 +337,14 @@ async function main() {
         reader: 'land use table (words)', span: `listed under ${x.item.heading}: ${norm(x.item.own_text).slice(0, 200)}` })
     }
     // every member of a group items 2 / 3 list (its own Dictionary's "includes any of the following"), where no row and
-    // no listing of its own answers it ("Industries" listed: a light industry is permitted)
-    for (const [table, { zone, items }] of literal) for (const x of items.filter(x => x.status !== 'prohibited')) for (const g of x.uses) for (const m of membersOf(g)) {
+    // no listing of its own answers it ("Industries" listed: a light industry is permitted) - permitted items first, so
+    // a member a permitting item reaches is not then prohibited by a broader group in item 4
+    // ... and of a group item 4 lists ("Residential accommodation" prohibited in a centre zone: a secondary dwelling is
+    // prohibited, unless an item of its own lists it - "Shop top housing" permitted in item 3 stands)
+    for (const [table, { zone, items }] of literal) for (const x of [...items].sort((p, q) => Number(p.status === 'prohibited') - Number(q.status === 'prohibited'))) for (const g of x.uses) for (const m of membersOf(g)) {
       if (have.has(`${table}|${m}`) || listedAs(table, m)) continue
       have.add(`${table}|${m}`)
-      add({ provision_id: x.item.id, kind: 'permit', consent: consentOf(x.status), uses: [m], zones: [zone], source: 'text', reader: 'land use table (words, by group)',
+      add({ provision_id: x.item.id, kind: x.status === 'prohibited' ? 'prohibit' : 'permit', consent: consentOf(x.status), uses: [m], zones: [zone], source: 'text', reader: 'land use table (words, by group)',
         span: `a kind of ${g}, listed under ${x.item.heading}` })
     }
     // the catch-all sentences: a closed zone ("Any development not specified in item 2 or 3") prohibits, an open one ("Any
@@ -419,12 +423,16 @@ async function main() {
   // 800m2". Marked before the readers run, whatever order the provisions come in
   const SUBDIV_UNLESS = /^Subclause \((\w+)\) (?:does|do) not apply\b(.*?)\bunless each lot resulting from the subdivision will\s*[—–-]?\s*(.*)$/i
   const LOT_STEM = /^the (?:development is on a )?(?:lot|land|site)\b[^—–-]*\bat least\s*[—–-]\s*$/i
+  // "If development for the purposes of X is permitted under this Plan[ on land ...], <body>" - or the same ending in a
+  // dash with the body in the paragraphs below (Hornsby 5.5, cl 5.4(9) in every plan): the use-standard reader takes
+  // every figure under the chapeau with its use and land, so no leaf is ever read on its own
+  const CHAPEAU = /^If development for the purposes? of (.+?) is permitted under this (?:Plan|Policy)((?: on land[^,—–-]*)?)(?:,\s*(.+)|\s*[—–-])$/i
   const consentTail = (t: string) => t.replace(/^Despite [^,]+,\s*/i, '').replace(/^(Development consent must not be granted (?:to|for) )(?:the )?(?:erection|carrying out) of (?:an? )?/i, '$1development for the purposes of ')
   const taken = new Set<string>()
   const below = (id: string): string[] => (kids.get(id) ?? []).flatMap(k => [k.id, ...below(k.id)])
   for (const p of provs) {
     const t = norm(p.own_text)
-    if (SUBDIV_UNLESS.test(t) || LOT_STEM.test(norm(consentTail(t).match(/^Development consent must not be granted (?:to|for) development for the purposes? of .+? unless\b(.*)$/i)?.[1] ?? '')))
+    if (SUBDIV_UNLESS.test(t) || LOT_STEM.test(norm(consentTail(t).match(/^Development consent must not be granted (?:to|for) development for the purposes? of .+? unless\b(.*)$/i)?.[1] ?? '')) || CHAPEAU.test(t))
       for (const id of below(p.id)) taken.add(id)
   }
   for (const p of provs) {
@@ -767,22 +775,33 @@ async function main() {
 
     // "If development for the purposes of X is permitted under this Plan, the total floor area ... must not exceed
     // [whichever of the following is the greater-] ..." - a standard on X, its figure in the stem or in each leaf
-    m = t.match(/^If development for the purposes? of (.+?) is permitted under this (?:Plan|Policy)((?: on land[^,]*)?),\s*(.+)$/i)
+    // - or the chapeau ends in a dash and the body is each paragraph below it ("... on land in a rural zone- (a) the total
+    // floor area ... must not exceed whichever of the following is the greater- (i) 120 square metres, (ii) 33% ...",
+    // Hornsby 5.5; cl 5.4(9) in every plan). The use and the land come from the chapeau either way
+    m = t.match(CHAPEAU)
     if (m) {
-      const uses = usesOf(m[1]!), where = m[2] ?? '', body = m[3]!, topic = topicOf(body), pick = body.match(/whichever (?:of the following )?is the (greater|lesser)/i)?.[1]?.toLowerCase()
-      // "on land other than land in a rural zone": the zones of that defined term are excluded
+      const uses = usesOf(m[1]!), where = m[2] ?? ''
+      // "on land other than land in a rural zone": the zones of that defined term are excluded; "on land in a rural zone":
+      // the zones it names
       const notIn = where.match(/other than land in an? (.+)$/i)?.[1]?.toLowerCase().trim()
       const excludedZones = notIn ? (zoneTerms.get(notIn) ?? [notIn]) : []
-      const cmp = /must not exceed|not to exceed|no more than|not .*more than|maximum/i.test(body) ? 'max' : /at least|not less than|minimum/i.test(body) ? 'min' : null
-      const leaves = (kids.get(p.id) ?? []).filter(k => figureOf(k.own_text))
-      const targets: [P, string][] = leaves.length ? leaves.map(k => [k, norm(k.own_text)]) : figureOf(body) ? [[p, body]] : []
-      for (const [k, kt] of targets) {
-        const f = figureOf(kt)!
-        add({ provision_id: k.id, kind: 'standard', uses, topic, comparator: cmp, value: f.value, unit: f.unit, value_source: 'text', unit_provision: cl?.id ?? null, excludes: excludedZones.map(z => `zone:${z}`),
-          band: pick ? { pick, of: p.local_id, relative: /% of/.test(kt) ? norm(kt.replace(/^.*?% of\s*/, '')).replace(/[,.]$/, '') : null } : null,
-          source: 'text', reader: 'use standard', span: `${t.slice(0, 200)} ${leaves.length ? '- ' + kt : ''}`.slice(0, 300) })
+      const inZones = notIn ? [] : scopeOf(where, p).zones
+      const bodies: [P, string][] = m[3] ? [[p, m[3]]] : (kids.get(p.id) ?? []).map(k => [k, norm(k.own_text)] as [P, string]).filter(([, kt]) => !!topicOf(kt))
+      let any = false
+      for (const [bp, body] of bodies) {
+        const topic = topicOf(body)!, pick = body.match(/whichever (?:of the following )?is the (greater|lesser)/i)?.[1]?.toLowerCase()
+        const cmp = /must not exceed|not to exceed|no more than|not .*more than|maximum/i.test(body) ? 'max' : /at least|not less than|minimum/i.test(body) ? 'min' : null
+        const leaves = (kids.get(bp.id) ?? []).filter(k => figureOf(k.own_text))
+        const targets: [P, string][] = leaves.length ? leaves.map(k => [k, norm(k.own_text)]) : figureOf(body) ? [[bp, body]] : []
+        for (const [k, kt] of targets) {
+          const f = figureOf(kt)!
+          add({ provision_id: k.id, kind: 'standard', uses, topic, comparator: cmp, value: f.value, unit: f.unit, value_source: 'text', unit_provision: cl?.id ?? null, zones: inZones, excludes: excludedZones.map(z => `zone:${z}`),
+            band: pick ? { pick, of: bp.local_id, relative: /% of/.test(kt) ? norm(kt.replace(/^.*?% of\s*/, '')).replace(/[,.]$/, '') : null } : null,
+            source: 'text', reader: 'use standard', span: `${t.slice(0, 150)}${bp === p ? '' : ' ' + body.slice(0, 90)} ${leaves.length ? '- ' + kt : ''}`.slice(0, 300) })
+          any = true
+        }
       }
-      if (targets.length) continue
+      if (any) continue
     }
 
     // map rules

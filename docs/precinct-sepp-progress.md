@@ -333,4 +333,18 @@ line and section 9 answers; what stays held is listed with why.
   prohibit 224). /precinct shows the standards cards (zone, height, FSR, lot size, and the growth centre plans'
   Residential Density Map, 25 dw/ha at Vineyard), the uses table, subdivision, what applies from above, and the clause
   tree as an evidence drawer. Key check against tests/answer-keys/precincts-*.json: see the next entry.
+- 2026-10-15 later: keys vs claims. A table check straight from the database (each key's (unit, zone, use) against the
+  claims on that table's items) agrees 99/99 after three fixes. (1) The reader expanded a group term only for
+  permissions; "Residential accommodation" prohibited in Gosford B3 item 4 now prohibits its members (secondary
+  dwellings, dual occupancies, seniors housing) unless an item lists them itself (shop top housing stays permitted) -
+  permitted items are expanded first. (2) The keys read group members from nsw.lep_permissibility_hierarchy, which is
+  01E's older list: no seniors housing under residential accommodation, dual occupancies only as its two kinds - so
+  the keys called Gosford B3 dual occupancies and seniors housing "catch-all permitted"; answer-keys.py now reads each
+  instrument's own Dictionary first (as the claims reader does) and keeps the previously keyed lots so their recorded
+  answers stay comparable. (3) The Gosford chapter's frame (s 5.2, "land identified on the Land Application Map")
+  failed on every lot: rag.map_polygon names that map "sepp (gosford city centre) 2018 land application" and the
+  evaluator matched the clause's name exactly; it now accepts the former-plan name the way 02d-bindings already does.
+  Gosford 99A Donnison St (ch.5 B3): secondary dwelling and dual occupancy prohibited, shop top housing permitted, by
+  the chapter's own table. /api/rules/at (the norms path) was not re-run: the full key run ties up the dev server for
+  minutes (it was stopped when it blocked the page); run it when the server is idle.
 

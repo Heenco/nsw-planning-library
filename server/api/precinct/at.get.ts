@@ -66,7 +66,7 @@ export default defineEventHandler(async (event): Promise<PrecinctAtResponse> => 
   // the response must stay readable in a browser: a claim's reasons are cut to the first few, its span to a line
   const toClaim = (t: any): AuditClaim => ({ id: t.claim.id, kind: t.claim.kind, consent: t.claim.consent, uses: t.claim.uses, zones: t.claim.zones, terms: t.claim.terms,
     topic: t.claim.topic, comparator: t.claim.comparator, value: t.claim.value, unit: t.claim.unit, span: t.claim.span ? String(t.claim.span).slice(0, 240) : null, reader: t.claim.reader,
-    holds: t.holds, why: (t.why ?? []).slice(0, 4).map((w: string) => w.slice(0, 200)), notChecked: (t.notChecked ?? []).slice(0, 3) })
+    holds: t.holds, why: (t.why ?? []).slice(0, 8).map((w: string) => w.slice(0, 200)), notChecked: (t.notChecked ?? []).slice(0, 3) })
   // a Land Use Table claim about another zone of the same unit says nothing about this lot: not shown
   const aboutLot = (t: any) => !(t.claim.zones?.length && lot.zone && !t.claim.zones.includes(lot.zone))
   if (inst && unitId) {

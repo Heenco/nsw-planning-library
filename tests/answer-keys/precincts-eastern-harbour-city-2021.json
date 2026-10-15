@@ -58,6 +58,70 @@
      }
     }
    }
+  },
+  {
+   "name": "State significant precinct—Barangaroo site B4",
+   "cadid": "173121792",
+   "zone": "B4",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Barangaroo site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-eastern-harbour-city-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 41.5
+   }
+  },
+  {
+   "name": "State significant precinct—Barangaroo site B4",
+   "cadid": "173224397",
+   "zone": "B4",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "State significant precinct—Barangaroo site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-eastern-harbour-city-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 41.5
+   }
   }
  ]
 }

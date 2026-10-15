@@ -58,898 +58,6 @@
    }
   },
   {
-   "name": "The Ponds (CRC, Alex Avenue and Riverstone, R2)",
-   "cadid": "173688603",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.7",
-    "unitHeading": "Alex Avenue and Riverstone Precinct Plan 2010",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.7": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any other development not specified in item 2 or 3"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.7",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Alex Avenue and Riverstone Precinct Plan 2010 R2",
-   "cadid": "172375668",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.7",
-    "unitHeading": "Alex Avenue and Riverstone Precinct Plan 2010",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.7": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any other development not specified in item 2 or 3"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.7",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Blacktown Growth Centres Precinct Plan R2",
-   "cadid": "175331454",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.11",
-    "unitHeading": "Blacktown Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.11": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.11",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Alex Avenue and Riverstone Precinct Plan 2010 R2",
-   "cadid": "177023153",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.7",
-    "unitHeading": "Alex Avenue and Riverstone Precinct Plan 2010",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.7": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any other development not specified in item 2 or 3"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.7",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Schofields Precinct Plan R2",
-   "cadid": "174735881",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.9",
-    "unitHeading": "Schofields Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.9": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any development not specified in item 2 or 3"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.9",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Alex Avenue and Riverstone Precinct Plan 2010 R2",
-   "cadid": "178715090",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.7",
-    "unitHeading": "Alex Avenue and Riverstone Precinct Plan 2010",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.7": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any other development not specified in item 2 or 3"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.7",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "The Hills Growth Centre Precincts Plan R3",
-   "cadid": "185201685",
-   "zone": "R3",
-   "expect": {
-    "unit": "app.10",
-    "unitHeading": "The Hills Growth Centre Precincts Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.10": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 14.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.10",
-     "basis": "land_application"
-    },
-    "height": [
-     14
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R3; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R3; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R3; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Blacktown Growth Centres Precinct Plan R2",
-   "cadid": "175331464",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.11",
-    "unitHeading": "Blacktown Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.11": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.11",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Blacktown Growth Centres Precinct Plan R2",
-   "cadid": "175356339",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.11",
-    "unitHeading": "Blacktown Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.11": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.11",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Blacktown Growth Centres Precinct Plan R2",
-   "cadid": "180190591",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.11",
-    "unitHeading": "Blacktown Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.11": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.11",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Schofields Precinct Plan R2",
-   "cadid": "182780163",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.9",
-    "unitHeading": "Schofields Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.9": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "prohibited",
-      "basis": "catch-all",
-      "row": "any development not specified in item 2 or 3"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.9",
-     "basis": "land_application"
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Greystanes Southern Employment Lands site IN2",
-   "cadid": "178793183",
-   "zone": "IN2",
-   "expect": {
-    "unit": "app.3",
-    "unitHeading": "State significant precinct—Greystanes Southern Employment Lands site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.3": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": null
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.3",
-     "basis": "land_application"
-    },
-    "height": [],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for IN2"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for IN2"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for IN2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Greystanes Southern Employment Lands site IN2",
-   "cadid": "178793182",
-   "zone": "IN2",
-   "expect": {
-    "unit": "app.3",
-    "unitHeading": "State significant precinct—Greystanes Southern Employment Lands site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.3": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": null
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.3",
-     "basis": "land_application"
-    },
-    "height": [],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for IN2"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for IN2"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for IN2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Sydney Olympic Park site E2",
-   "cadid": "158834063",
-   "zone": "E2",
-   "expect": {
-    "unit": "app.4",
-    "unitHeading": "State significant precinct—Sydney Olympic Park site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.4": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 41.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.4",
-     "basis": "land_application"
-    },
-    "height": [
-     41
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for E2"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for E2"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for E2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Sydney Olympic Park site MU1",
-   "cadid": "179687078",
-   "zone": "MU1",
-   "expect": {
-    "unit": "app.4",
-    "unitHeading": "State significant precinct—Sydney Olympic Park site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.4": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 15.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.4",
-     "basis": "land_application"
-    },
-    "height": [
-     15
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for MU1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for MU1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for MU1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Sydney Olympic Park site MU1",
-   "cadid": "184649265",
-   "zone": "MU1",
-   "expect": {
-    "unit": "app.4",
-    "unitHeading": "State significant precinct—Sydney Olympic Park site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-central-river-city-2021:app.4": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 119.0
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.4",
-     "basis": "land_application"
-    },
-    "height": [
-     119
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for MU1"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for MU1"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for MU1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
-     }
-    }
-   }
-  },
-  {
    "name": "State significant precinct—Greystanes Southern Employment Lands site IN2",
    "cadid": "103180622",
    "zone": "IN2",
@@ -1058,16 +166,72 @@
    }
   },
   {
-   "name": "State significant precinct—Greystanes Southern Employment Lands site IN2",
-   "cadid": "178793184",
-   "zone": "IN2",
+   "name": "State significant precinct—Sydney Olympic Park site E2",
+   "cadid": "158834063",
+   "zone": "E2",
    "expect": {
-    "unit": "app.3",
-    "unitHeading": "State significant precinct—Greystanes Southern Employment Lands site",
+    "unit": "app.4",
+    "unitHeading": "State significant precinct—Sydney Olympic Park site",
     "unitKind": "ssp_site",
     "unitBasis": "land_application",
     "frames": {
-     "precincts-central-river-city-2021:app.3": true
+     "precincts-central-river-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 41.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.4",
+     "basis": "land_application"
+    },
+    "height": [
+     41
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for E2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for E2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for E2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Kurnell Peninsula E2",
+   "cadid": "167260676",
+   "zone": "E2",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Kurnell Peninsula",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:ch.5": true
     },
     "permissibility": {
      "dual occupancies": {
@@ -1091,22 +255,76 @@
    "current": {
     "governing": {
      "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "app.3",
+     "unit": "ch.5",
      "basis": "land_application"
     },
     "height": [],
     "rules": {
      "dual occupancies": {
       "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for IN2"
+      "wording": "dual occupancies: no Land Use Table row for E2"
      },
      "secondary dwellings": {
       "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for IN2"
+      "wording": "secondary dwellings: no Land Use Table row for E2"
      },
      "seniors housing": {
       "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for IN2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
+      "wording": "seniors housing: no Land Use Table row for E2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Kurnell Peninsula E2",
+   "cadid": "167260677",
+   "zone": "E2",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Kurnell Peninsula",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": null
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "ch.5",
+     "basis": "land_application"
+    },
+    "height": [],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for E2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for E2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for E2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
      }
     }
    }
@@ -1224,63 +442,963 @@
    }
   },
   {
-   "name": "Kurnell Peninsula E2",
-   "cadid": "167260676",
-   "zone": "E2",
+   "name": "Alex Avenue and Riverstone Precinct Plan 2010 R2",
+   "cadid": "172375668",
+   "zone": "R2",
    "expect": {
-    "unit": "ch.5",
-    "unitHeading": "Kurnell Peninsula",
-    "unitKind": "chapter",
+    "unit": "app.7",
+    "unitHeading": "Alex Avenue and Riverstone Precinct Plan 2010",
+    "unitKind": "precinct_plan",
     "unitBasis": "land_application",
     "frames": {
-     "precincts-central-river-city-2021:ch.5": true
+     "precincts-central-river-city-2021:app.7": true
     },
     "permissibility": {
      "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
      },
      "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
      },
      "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any other development not specified in item 2 or 3"
      }
     },
-    "heightMapM": null
+    "heightMapM": 9.0
    },
    "current": {
     "governing": {
      "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "ch.5",
+     "unit": "app.7",
      "basis": "land_application"
     },
-    "height": [],
+    "height": [
+     9
+    ],
     "rules": {
      "dual occupancies": {
       "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for E2"
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
      },
      "secondary dwellings": {
       "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for E2"
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
      },
      "seniors housing": {
       "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for E2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
      }
     }
    }
   },
   {
-   "name": "Kurnell Peninsula E2",
-   "cadid": "167260677",
-   "zone": "E2",
+   "name": "The Ponds (CRC, Alex Avenue and Riverstone, R2)",
+   "cadid": "173688603",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.7",
+    "unitHeading": "Alex Avenue and Riverstone Precinct Plan 2010",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.7": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any other development not specified in item 2 or 3"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.7",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Schofields Precinct Plan R2",
+   "cadid": "174735881",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.9",
+    "unitHeading": "Schofields Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.9": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any development not specified in item 2 or 3"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.9",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Blacktown Growth Centres Precinct Plan R2",
+   "cadid": "175331454",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.11",
+    "unitHeading": "Blacktown Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.11": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.11",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Blacktown Growth Centres Precinct Plan R2",
+   "cadid": "175331464",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.11",
+    "unitHeading": "Blacktown Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.11": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.11",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Blacktown Growth Centres Precinct Plan R2",
+   "cadid": "175356339",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.11",
+    "unitHeading": "Blacktown Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.11": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.11",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Alex Avenue and Riverstone Precinct Plan 2010 R2",
+   "cadid": "177023153",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.7",
+    "unitHeading": "Alex Avenue and Riverstone Precinct Plan 2010",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.7": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any other development not specified in item 2 or 3"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.7",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Alex Avenue and Riverstone Precinct Plan 2010 R2",
+   "cadid": "178715090",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.7",
+    "unitHeading": "Alex Avenue and Riverstone Precinct Plan 2010",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.7": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any other development not specified in item 2 or 3"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.7",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Greystanes Southern Employment Lands site IN2",
+   "cadid": "178793182",
+   "zone": "IN2",
+   "expect": {
+    "unit": "app.3",
+    "unitHeading": "State significant precinct—Greystanes Southern Employment Lands site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.3": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": null
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.3",
+     "basis": "land_application"
+    },
+    "height": [],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for IN2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for IN2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for IN2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Greystanes Southern Employment Lands site IN2",
+   "cadid": "178793183",
+   "zone": "IN2",
+   "expect": {
+    "unit": "app.3",
+    "unitHeading": "State significant precinct—Greystanes Southern Employment Lands site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.3": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": null
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.3",
+     "basis": "land_application"
+    },
+    "height": [],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for IN2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for IN2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for IN2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Greystanes Southern Employment Lands site IN2",
+   "cadid": "178793184",
+   "zone": "IN2",
+   "expect": {
+    "unit": "app.3",
+    "unitHeading": "State significant precinct—Greystanes Southern Employment Lands site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.3": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": null
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.3",
+     "basis": "land_application"
+    },
+    "height": [],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for IN2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for IN2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for IN2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Sydney Olympic Park site MU1",
+   "cadid": "179687078",
+   "zone": "MU1",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "State significant precinct—Sydney Olympic Park site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 15.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.4",
+     "basis": "land_application"
+    },
+    "height": [
+     15
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for MU1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for MU1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for MU1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
+     }
+    }
+   }
+  },
+  {
+   "name": "Blacktown Growth Centres Precinct Plan R2",
+   "cadid": "180190591",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.11",
+    "unitHeading": "Blacktown Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.11": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.11",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Schofields Precinct Plan R2",
+   "cadid": "182780163",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.9",
+    "unitHeading": "Schofields Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.9": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "prohibited",
+      "basis": "catch-all",
+      "row": "any development not specified in item 2 or 3"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.9",
+     "basis": "land_application"
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Sydney Olympic Park site MU1",
+   "cadid": "184649265",
+   "zone": "MU1",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "State significant precinct—Sydney Olympic Park site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 119.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.4",
+     "basis": "land_application"
+    },
+    "height": [
+     119
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for MU1"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for MU1"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for MU1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whe"
+     }
+    }
+   }
+  },
+  {
+   "name": "The Hills Growth Centre Precincts Plan R3",
+   "cadid": "185201685",
+   "zone": "R3",
+   "expect": {
+    "unit": "app.10",
+    "unitHeading": "The Hills Growth Centre Precincts Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.10": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 14.0
+   },
+   "current": {
+    "governing": {
+     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
+     "unit": "app.10",
+     "basis": "land_application"
+    },
+    "height": [
+     14
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R3; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R3; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R3; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Sydney Olympic Park site MU1",
+   "cadid": "172589311",
+   "zone": "MU1",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "State significant precinct—Sydney Olympic Park site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 90.0
+   }
+  },
+  {
+   "name": "State significant precinct—Sydney Olympic Park site MU1",
+   "cadid": "180393421",
+   "zone": "MU1",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "State significant precinct—Sydney Olympic Park site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 26.0
+   }
+  },
+  {
+   "name": "Kurnell Peninsula E4",
+   "cadid": "175376785",
+   "zone": "E4",
    "expect": {
     "unit": "ch.5",
     "unitHeading": "Kurnell Peninsula",
@@ -1306,29 +1424,167 @@
       "row": null
      }
     },
-    "heightMapM": null
-   },
-   "current": {
-    "governing": {
-     "instrument": "State Environmental Planning Policy (Precincts—Central River City) 2021",
-     "unit": "ch.5",
-     "basis": "land_application"
+    "heightMapM": 9.0
+   }
+  },
+  {
+   "name": "Kurnell Peninsula E4",
+   "cadid": "175507199",
+   "zone": "E4",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Kurnell Peninsula",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:ch.5": true
     },
-    "height": [],
-    "rules": {
+    "permissibility": {
      "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for E2"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      },
      "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for E2"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      },
      "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for E2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
      }
-    }
+    },
+    "heightMapM": 9.0
+   }
+  },
+  {
+   "name": "Kurnell Peninsula E4",
+   "cadid": "175376782",
+   "zone": "E4",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Kurnell Peninsula",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   }
+  },
+  {
+   "name": "Kurnell Peninsula E4",
+   "cadid": "175376784",
+   "zone": "E4",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Kurnell Peninsula",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   }
+  },
+  {
+   "name": "Kurnell Peninsula E4",
+   "cadid": "175376783",
+   "zone": "E4",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Kurnell Peninsula",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
+   }
+  },
+  {
+   "name": "Kurnell Peninsula E4",
+   "cadid": "175376786",
+   "zone": "E4",
+   "expect": {
+    "unit": "ch.5",
+    "unitHeading": "Kurnell Peninsula",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-central-river-city-2021:ch.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.0
    }
   }
  ]

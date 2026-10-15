@@ -218,6 +218,9 @@ function evaluate0(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
   }
   /** a map area of the claim's own instrument (map names repeat across LEPs: "Area 1 on the Key Sites Map") */
   const ownMap = (c: C, x: any) => !x.document_id || x.document_id === docOf(c)?.document_id
+  /** the clause's map ("Land Application Map") is the stored map of that name or, as scripts/rag/02d-bindings.ts holds
+   *  it, one the layer names after a former plan ("sepp (gosford city centre) 2018 land application") */
+  const mapIs = (stored: string, m: string) => { const s = stored.toLowerCase().replace(/ map$/, ''); return s === m || new RegExp(`^sepp \\([^)]*\\) \\d{4} ${m.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`).test(s) }
   /** a map label as rag.map_polygon stores it: lower case, any dash as "-" with no space round it */
   const nl = (s: unknown) => String(s ?? '').trim().replace(/^(?:a|an|the)\s+/i, '').replace(/\s*[-\u2013\u2014]\s*/g, '-').replace(/\s+/g, ' ').toLowerCase()
   const ancestors = (id: string | null): string[] => { const out: string[] = []; for (let x = id ? E.provs.get(id) : undefined; x; x = x.parent_id ? E.provs.get(x.parent_id) : undefined) out.push(x.id); return out }
@@ -262,7 +265,7 @@ function evaluate0(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
       const areaR = areaT ? (lot.area_m2 == null ? null : Number(lot.area_m2) >= Number(areaT.slice(6))) : undefined
       const mapT = b.scope_terms.filter(t => t.startsWith('map:'))
       // (a label "*" is any polygon of the map)
-      const shareOf = (t: string) => { const [m, l] = t.slice(4).split('|'); return Math.max(0, ...(Array.isArray(lot.mapped) ? lot.mapped : []).filter((x: any) => ownMap(c, x) && String(x.map).toLowerCase().replace(/ map$/, '') === m && (l === '*' || nl(x.label) === nl(l))).map((x: any) => Number(x.share))) }
+      const shareOf = (t: string) => { const [m, l] = t.slice(4).split('|'); return Math.max(0, ...(Array.isArray(lot.mapped) ? lot.mapped : []).filter((x: any) => ownMap(c, x) && mapIs(String(x.map), m!) && (l === '*' || nl(x.label) === nl(l))).map((x: any) => Number(x.share))) }
       // a label the clause names that no layer draws (unheld:): outside the drawn ones is not outside - unknown
       const unheld = b.scope_terms.filter(t => t.startsWith('unheld:'))
       const mapR = mapT.length ? (!Array.isArray(lot.mapped) ? null : mapT.some(t => shareOf(t) >= 0.9) ? true : mapT.every(t => shareOf(t) <= 0.05) ? (unheld.length ? null : false) : null) : undefined

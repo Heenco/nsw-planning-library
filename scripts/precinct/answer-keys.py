@@ -33,6 +33,30 @@ cur.execute("select parent, child from nsw.lep_permissibility_hierarchy")
 PARENTS = {}
 for p, ch in cur.fetchall(): PARENTS.setdefault(ch.lower(), set()).add(p.lower())
 
+def dictionary_parents(doc_id):
+    """the instrument's own group terms ("residential accommodation ... includes any of the following- (a) attached
+    dwellings, ..."), as the claims reader reads them: member -> {group, group's groups}. nsw.lep_permissibility_hierarchy
+    is 01E's older list (no seniors housing under residential accommodation; dual occupancies only as its two kinds), so
+    the Dictionary is read first and the hierarchy fills in behind it."""
+    cur.execute("select lower(heading), own_text from rag.provision where document_id = %s and kind = 'term' and heading is not null and own_text ~* 'any of the following'", (doc_id,))
+    groups = {}
+    for head, body in cur.fetchall():
+        tail = re.split(r'but does not include', re.sub(r'\s+Note\.?\s.*$', '', body or ''), flags=re.I)[0]
+        m = re.search(r'any of the following\s*[—:-]?\s*(.*)$', tail, flags=re.I | re.S)
+        if not m: continue
+        members = [re.sub(r'[,;.]?\s*(?:or|and)?\s*$', '', x.strip(), flags=re.I).lower() for x in re.findall(r'\([a-z]{1,3}\)\s*(.+?)(?=\s*\([a-z]{1,3}\)\s|$)', m.group(1), flags=re.S)]
+        if members: groups[head] = [re.sub(r'\s+', ' ', x) for x in members if x]
+    out = {}
+    for g, ms in groups.items():
+        for mem in ms:
+            todo, seen = [g], set()
+            while todo:
+                x = todo.pop()
+                if x in seen: continue
+                seen.add(x); out.setdefault(mem, set()).add(x)
+                todo += [gg for gg, mms in groups.items() if x in mms]
+    return out
+
 def txt(e): return re.sub(r'\s+', ' ', ''.join(e.itertext())).strip()
 
 def tables(xml_path):
@@ -58,9 +82,13 @@ def tables(xml_path):
         if items: out[(unit, zone)] = items
     return out
 
-def status(items, use):
-    """the use's status in one zone table, as 01E reads it: explicit, a listed parent, else the catch-all"""
-    use = use.lower(); fam = {use} | PARENTS.get(use, set())
+def status(items, use, parents=None):
+    """the use's status in one zone table: explicit, a listed parent (the instrument's Dictionary, then 01E's hierarchy;
+    a use the table splits into kinds - dual occupancies (attached) - inherits through its kinds), else the catch-all"""
+    use = use.lower(); parents = parents or {}
+    fam = {use} | parents.get(use, set()) | PARENTS.get(use, set())
+    for kind_, ps in list(parents.items()) + list(PARENTS.items()):
+        if kind_.startswith(use + ' ('): fam |= ps
     for key in ('permitted_without_consent', 'permitted_with_consent', 'prohibited'):
         for row in items.get(key, []):
             if row == use: return key, 'explicit', row
@@ -85,12 +113,17 @@ for doc, title, slug in cur.fetchall():
     code = {'Central River City': '0725', 'Eastern Harbour City': '0726', 'Regional': '0727', 'Western Parkland City': '0728'}[re.search(r'Precincts.(.*?)\) 2021', title).group(1)]
     short = 'precincts-' + re.search(r'Precincts.(.*?)\) 2021', title).group(1).lower().replace(' ', '-') + '-2021'
     T = tables(os.path.join(ROOT, 'public', 'EPI', 'SEPP', f'epi-2021-{code}_2026-10-15.xml'))
+    cur.execute("select document_id from rag.instrument where title = %s", (title,)); rr = cur.fetchone()
+    DP = dictionary_parents(rr[0]) if rr else {}
     cur.execute("select local_id, heading from nsw.section where document_id=%s and depth=1", (doc,)); heads = dict(cur.fetchall())
     def kind(u):
         h = heads.get(u) or ''
         return 'precinct_plan' if re.search(r'Precincts? Plan', h) else 'ssp_site' if re.search(r'State significant precinct', h) else 'chapter' if u.startswith('ch.') else 'schedule'
     # lots: the baseline ones in this instrument, then up to 10 governing lots per unit kind, residential zones first
-    cur.execute("select cadid, unit_local_id, unit_heading, unit_basis, zone from derived.lot_instrument where governing and document_title=%s and cadid = any(%s)", (title, list(BASELINE)))
+    # the lots keyed last time stay keyed (their recorded answers stay comparable); the baseline lots; then a fresh sample
+    prev_path = os.path.join(ROOT, 'tests', 'answer-keys', f'{short}.json')
+    prev_ids = [c['cadid'] for c in json.load(open(prev_path, encoding='utf-8')).get('cases', [])] if os.path.exists(prev_path) else []
+    cur.execute("select cadid, unit_local_id, unit_heading, unit_basis, zone from derived.lot_instrument where governing and document_title=%s and cadid = any(%s)", (title, list(BASELINE) + prev_ids))
     picked = {r[0]: r for r in cur.fetchall()}
     for k in ('precinct_plan', 'ssp_site', 'chapter'):
         cur.execute("""select cadid, unit_local_id, unit_heading, unit_basis, zone from derived.lot_instrument tablesample system (5)
@@ -98,7 +131,8 @@ for doc, title, slug in cur.fetchall():
         rows = [r for r in cur.fetchall() if kind(r[1]) == k and r[0] not in picked]
         random.shuffle(rows)
         rows.sort(key=lambda r: 0 if r[4].startswith('R') else 1)
-        for r in rows[:10]: picked[r[0]] = r
+        have_k = sum(1 for r in picked.values() if kind(r[1]) == k and r[0] not in BASELINE)
+        for r in rows[:max(0, 10 - have_k)]: picked[r[0]] = r
     cases = []
     for cadid, unit, heading, basis, zone in picked.values():
         cur.execute("""select h.max_b_h from epi.epi_height_of_building h, cadastre.lot l where l.cadid=%s and h.epi_name=%s
@@ -109,7 +143,7 @@ for doc, title, slug in cur.fetchall():
         for use in USES:
             if items is None: perm[use] = {'status': None, 'basis': 'no Land Use Table in this unit (sentence rules, step 9)', 'row': None}
             else:
-                st, basis_, row = status(items, use); perm[use] = {'status': st, 'basis': basis_, 'row': row}
+                st, basis_, row = status(items, use, DP); perm[use] = {'status': st, 'basis': basis_, 'row': row}
         case = {'name': BASELINE.get(cadid, f'{heading} {zone}'), 'cadid': cadid, 'zone': zone,
                 'expect': {'unit': unit, 'unitHeading': heading, 'unitKind': kind(unit), 'unitBasis': basis,
                            'frames': {f'{short}:{unit}': True},
@@ -130,6 +164,10 @@ for doc, title, slug in cur.fetchall():
     out = {'instrument': f'epi-2021-{code}', 'title': title, 'note': 'Step 8 keys (docs/precinct-sepp-pipeline.md). expect.permissibility reads the instrument\'s own Land Use Table for the lot\'s unit and zone (explicit row, listed parent, or catch-all), with the row quoted; null = the unit has no table. "current" is what the app answered on the day the key was written (--record).',
            'cases': cases}
     path = os.path.join(ROOT, 'tests', 'answer-keys', f'{short}.json')
+    if not RECORD and os.path.exists(path):   # keep the answers an earlier --record run wrote beside each case
+        prev = {c['cadid']: c.get('current') for c in json.load(open(path, encoding='utf-8')).get('cases', [])}
+        for cs in cases:
+            if prev.get(cs['cadid']): cs['current'] = prev[cs['cadid']]
     json.dump(out, open(path, 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
     kinds = {}
     for cs in cases: kinds[cs['expect']['unitKind']] = kinds.get(cs['expect']['unitKind'], 0) + 1

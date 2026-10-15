@@ -58,62 +58,6 @@
    }
   },
   {
-   "name": "Austral (WPC, Liverpool Growth Centres, R2)",
-   "cadid": "183806086",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.4",
-    "unitHeading": "Liverpool Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.4": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
    "name": "Liverpool Growth Centres Precinct Plan R2",
    "cadid": "102406530",
    "zone": "R2",
@@ -164,844 +108,6 @@
      "seniors housing": {
       "permissible": null,
       "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Liverpool Growth Centres Precinct Plan R3",
-   "cadid": "181334015",
-   "zone": "R3",
-   "expect": {
-    "unit": "app.4",
-    "unitHeading": "Liverpool Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.4": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 12.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     12
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R3"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R3; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Liverpool Growth Centres Precinct Plan R2",
-   "cadid": "186752571",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.4",
-    "unitHeading": "Liverpool Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.4": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Camden Growth Centres Precinct Plan R3",
-   "cadid": "185605184",
-   "zone": "R3",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "Camden Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 12.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     12
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R3; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R3; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R3; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Liverpool Growth Centres Precinct Plan R2",
-   "cadid": "187153546",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.4",
-    "unitHeading": "Liverpool Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.4": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Campbelltown Growth Centres Precinct Plan R2",
-   "cadid": "177608638",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.6",
-    "unitHeading": "Campbelltown Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.6": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Campbelltown Growth Centres Precinct Plan R2",
-   "cadid": "182312720",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.6",
-    "unitHeading": "Campbelltown Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.6": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Liverpool Growth Centres Precinct Plan R2",
-   "cadid": "187153558",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.4",
-    "unitHeading": "Liverpool Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.4": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "error": "timed out"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Camden Growth Centres Precinct Plan R2",
-   "cadid": "185605216",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "Camden Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "Camden Growth Centres Precinct Plan R2",
-   "cadid": "185605192",
-   "zone": "R2",
-   "expect": {
-    "unit": "app.5",
-    "unitHeading": "Camden Growth Centres Precinct Plan",
-    "unitKind": "precinct_plan",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.5": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "dual occupancies"
-     },
-     "secondary dwellings": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "secondary dwellings"
-     },
-     "seniors housing": {
-      "status": "permitted_with_consent",
-      "basis": "explicit",
-      "row": "seniors housing"
-     }
-    },
-    "heightMapM": 9.0
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Edmondson Park South site R1",
-   "cadid": "178104239",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.1",
-    "unitHeading": "State significant precinct—Edmondson Park South site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.1": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.5
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9.5
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Edmondson Park South site R1",
-   "cadid": "173711476",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.1",
-    "unitHeading": "State significant precinct—Edmondson Park South site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.1": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.5
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9.5
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Edmondson Park South site R1",
-   "cadid": "173711488",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.1",
-    "unitHeading": "State significant precinct—Edmondson Park South site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.1": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.5
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9.5
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Edmondson Park South site R1",
-   "cadid": "173711485",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.1",
-    "unitHeading": "State significant precinct—Edmondson Park South site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.1": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.5
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9.5
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Edmondson Park South site R1",
-   "cadid": "173711491",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.1",
-    "unitHeading": "State significant precinct—Edmondson Park South site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.1": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.5
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9.5
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "permissible": null,
-      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
-     }
-    }
-   }
-  },
-  {
-   "name": "State significant precinct—Edmondson Park South site R1",
-   "cadid": "173711486",
-   "zone": "R1",
-   "expect": {
-    "unit": "app.1",
-    "unitHeading": "State significant precinct—Edmondson Park South site",
-    "unitKind": "ssp_site",
-    "unitBasis": "land_application",
-    "frames": {
-     "precincts-western-parkland-city-2021:app.1": true
-    },
-    "permissibility": {
-     "dual occupancies": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "secondary dwellings": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     },
-     "seniors housing": {
-      "status": null,
-      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
-      "row": null
-     }
-    },
-    "heightMapM": 9.5
-   },
-   "current": {
-    "governing": {
-     "instrument": null,
-     "unit": null,
-     "basis": null
-    },
-    "height": [
-     9.5
-    ],
-    "rules": {
-     "dual occupancies": {
-      "permissible": null,
-      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
-     },
-     "secondary dwellings": {
-      "error": "timed out"
-     },
-     "seniors housing": {
-      "permissible": null,
-      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
      }
     }
    }
@@ -1120,7 +226,398 @@
   },
   {
    "name": "State significant precinct—Edmondson Park South site R1",
+   "cadid": "173711476",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.1",
+    "unitHeading": "State significant precinct—Edmondson Park South site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.1": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.5
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9.5
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Edmondson Park South site R1",
+   "cadid": "173711485",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.1",
+    "unitHeading": "State significant precinct—Edmondson Park South site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.1": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.5
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9.5
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Edmondson Park South site R1",
+   "cadid": "173711486",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.1",
+    "unitHeading": "State significant precinct—Edmondson Park South site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.1": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.5
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9.5
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "error": "timed out"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Edmondson Park South site R1",
+   "cadid": "173711488",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.1",
+    "unitHeading": "State significant precinct—Edmondson Park South site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.1": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.5
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9.5
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Edmondson Park South site R1",
+   "cadid": "173711491",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.1",
+    "unitHeading": "State significant precinct—Edmondson Park South site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.1": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.5
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9.5
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Campbelltown Growth Centres Precinct Plan R2",
+   "cadid": "177608638",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.6",
+    "unitHeading": "Campbelltown Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.6": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Edmondson Park South site R1",
    "cadid": "178104237",
+   "zone": "R1",
+   "expect": {
+    "unit": "app.1",
+    "unitHeading": "State significant precinct—Edmondson Park South site",
+    "unitKind": "ssp_site",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.1": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": 9.5
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9.5
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R1; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "State significant precinct—Edmondson Park South site R1",
+   "cadid": "178104239",
    "zone": "R1",
    "expect": {
     "unit": "app.1",
@@ -1228,6 +725,573 @@
       "wording": "seniors housing: no Land Use Table row for R1; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
      }
     }
+   }
+  },
+  {
+   "name": "Liverpool Growth Centres Precinct Plan R3",
+   "cadid": "181334015",
+   "zone": "R3",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "Liverpool Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 12.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     12
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R3"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R3; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Campbelltown Growth Centres Precinct Plan R2",
+   "cadid": "182312720",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.6",
+    "unitHeading": "Campbelltown Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.6": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Austral (WPC, Liverpool Growth Centres, R2)",
+   "cadid": "183806086",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "Liverpool Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Camden Growth Centres Precinct Plan R3",
+   "cadid": "185605184",
+   "zone": "R3",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "Camden Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 12.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     12
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R3; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3 wo"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R3; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R3; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Camden Growth Centres Precinct Plan R2",
+   "cadid": "185605192",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "Camden Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Camden Growth Centres Precinct Plan R2",
+   "cadid": "185605216",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.5",
+    "unitHeading": "Camden Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.5": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Liverpool Growth Centres Precinct Plan R2",
+   "cadid": "186752571",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "Liverpool Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Liverpool Growth Centres Precinct Plan R2",
+   "cadid": "187153546",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "Liverpool Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "permissible": null,
+      "wording": "secondary dwellings: no Land Use Table row for R2; State Environmental Planning Policy (Exempt and Complying Development Codes) 2008 s 3BA.3"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Liverpool Growth Centres Precinct Plan R2",
+   "cadid": "187153558",
+   "zone": "R2",
+   "expect": {
+    "unit": "app.4",
+    "unitHeading": "Liverpool Growth Centres Precinct Plan",
+    "unitKind": "precinct_plan",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:app.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "dual occupancies"
+     },
+     "secondary dwellings": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "secondary dwellings"
+     },
+     "seniors housing": {
+      "status": "permitted_with_consent",
+      "basis": "explicit",
+      "row": "seniors housing"
+     }
+    },
+    "heightMapM": 9.0
+   },
+   "current": {
+    "governing": {
+     "instrument": null,
+     "unit": null,
+     "basis": null
+    },
+    "height": [
+     9
+    ],
+    "rules": {
+     "dual occupancies": {
+      "permissible": null,
+      "wording": "dual occupancies: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 166 would permit it and prevail, but wh"
+     },
+     "secondary dwellings": {
+      "error": "timed out"
+     },
+     "seniors housing": {
+      "permissible": null,
+      "wording": "seniors housing: no Land Use Table row for R2; State Environmental Planning Policy (Housing) 2021 s 81 would permit it and prevail, but whet"
+     }
+    }
+   }
+  },
+  {
+   "name": "Western Sydney Aerotropolis SP2",
+   "cadid": "176799772",
+   "zone": "SP2",
+   "expect": {
+    "unit": "ch.4",
+    "unitHeading": "Western Sydney Aerotropolis",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:ch.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": null
+   }
+  },
+  {
+   "name": "Western Sydney Aerotropolis SP2",
+   "cadid": "176799771",
+   "zone": "SP2",
+   "expect": {
+    "unit": "ch.4",
+    "unitHeading": "Western Sydney Aerotropolis",
+    "unitKind": "chapter",
+    "unitBasis": "land_application",
+    "frames": {
+     "precincts-western-parkland-city-2021:ch.4": true
+    },
+    "permissibility": {
+     "dual occupancies": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "secondary dwellings": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     },
+     "seniors housing": {
+      "status": null,
+      "basis": "no Land Use Table in this unit (sentence rules, step 9)",
+      "row": null
+     }
+    },
+    "heightMapM": null
    }
   }
  ]
