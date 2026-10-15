@@ -688,6 +688,59 @@ function evaluate0(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
 }
 
 /**
+ * A provision that speaks to the use asked about in this lot's zone, and whether it reaches the lot. The answer's verdict
+ * rests on the provisions that hold; this is the record of the ones that were checked and did NOT - blocked by a frame or
+ * exclusion that holds against the lot (Housing SEPP s 166 under s 164(1): bush fire prone land), or open on one nobody
+ * could settle (flood prone land in a catchment no layer draws) - so a page can say "the Housing SEPP was checked; the lot
+ * is not eligible because ...". Built from the tested claims of any instrument; nothing here names one.
+ */
+export interface Reach {
+  instrument: string; document_id: string | null; label: string; provision_id: string; kind: string
+  status: 'reaches' | 'blocked' | 'open'
+  /** the frame whose condition decided it ("Housing SEPP s 164(1)"), when a frame did rather than the clause's own scope */
+  frame: string | null
+  /** blocked: each condition that holds against the lot; open: each one that could not be settled - with how it was tested */
+  because: { text: string; how: string | null }[]
+}
+/** a frame's bracketed conditions, split where each ends ("not X: no; Y: unknown") - a condition's own text may hold commas */
+const splitConditions = (inner: string) => inner.split(/; (?=[^;]*: (?:yes|no|unknown)(?:;|$))/)
+export function reachOf(E: Engine, r: Result): Reach[] {
+  const out = new Map<string, Reach>()
+  for (const t of r.tested) {
+    // a clause of another zone is not "checked and blocked": it never spoke to this lot
+    if (t.why.some(w => /^zone [^:]+: no$/.test(w))) continue
+    const how = (text: string) => t.checks.find(ch => ch.text === `excluded if: ${text}` || ch.text === text || ch.text.startsWith(`${text}:`))?.how ?? null
+    const because: Reach['because'] = []; let frame: string | null = null
+    const want = t.holds === false ? ': no' : ': unknown'
+    for (const w of t.why) {
+      const fm = w.match(/^frame (.+?) \[(.*)\]: (?:no|unknown)$/)
+      if (fm) {
+        const items = splitConditions(fm[2]!).filter(x => x.endsWith(want)).map(x => x.slice(0, -want.length).replace(/^not /, ''))
+        if (items.length && !frame) frame = fm[1]!
+        for (const text of items) because.push({ text, how: how(text) })
+      } else if (w.endsWith(want) && !/^use /.test(w)) {
+        const text = w.slice(0, -want.length).replace(/^not /, '')
+        because.push({ text, how: how(text) })
+      }
+    }
+    const prov = E.provs.get(t.claim.provision_id), doc = prov?.document_id ?? null
+    const key = t.claim.provision_id
+    const status: Reach['status'] = t.holds === true ? 'reaches' : t.holds === false ? 'blocked' : 'open'
+    const prev = out.get(key)
+    // one record per provision: a provision that reaches on any claim reaches; else the reasons of every claim, each once
+    if (prev) {
+      if (prev.status === 'reaches') continue
+      if (status === 'reaches') { prev.status = 'reaches'; prev.because = []; prev.frame = null; continue }
+      for (const b of because) if (!prev.because.some(x => x.text === b.text)) prev.because.push(b)
+      if (!prev.frame) prev.frame = frame
+      continue
+    }
+    out.set(key, { instrument: E.shortNames.get(doc ?? '') ?? doc ?? '?', document_id: doc, label: E.label(key), provision_id: key, kind: t.claim.kind, status, frame, because })
+  }
+  return [...out.values()]
+}
+
+/**
  * The whole result as data for the page: every claim tested (applies yes / no / unknown, and why), the precedence steps,
  * the case split, the limits and the sub-questions behind them - each step carrying the provision it rests on, so the
  * page can show the clause's words and link to it.
@@ -697,6 +750,8 @@ export interface Explained {
   checks: Check[]
   /** the instruments the answer read, and the date their text is as at */
   asAt: { instrument: string; date: string | null }[]
+  /** every provision that spoke to the use in this zone, and whether it reaches the lot (reachOf) */
+  reach: Reach[]
   claims: { provision_id: string; label: string; kind: string; uses: string[]; zones: string[]; value: number | null; unit: string | null; topic: string | null; non_discretionary: boolean; holds: boolean | null; why: string[]; won: boolean; subs: Explained[] }[]
   steps: { rule: string; winner: string; winner_id: string | null; loser: string; loser_id: string | null; why: string; relation: string; relation_id: string | null; basis: string; status: string }[]
   branches: { if: string; answer: string | null; steps: Explained['steps'] }[]
@@ -718,7 +773,7 @@ export function explain(E: Engine, r: Result, depth = 0): Explained {
   const won = new Set(r.ruling?.answer?.claims ?? [])
   const fig = (a: any) => a == null ? null : a.effect === 'value' ? `${a.value ?? ''}${a.unit ? ` ${a.unit}` : ''}`.trim() || null : a.effect
   return {
-    ask: r.ask, verdict: r.verdict, answer: r.answer, note: r.note, notChecked: [...new Set(r.notChecked)], checks: r.checks ?? [], asAt: asAtOf(E, r),
+    ask: r.ask, verdict: r.verdict, answer: r.answer, note: r.note, notChecked: [...new Set(r.notChecked)], checks: r.checks ?? [], asAt: asAtOf(E, r), reach: reachOf(E, r),
     claims: r.tested.map(t => ({ provision_id: t.claim.provision_id, label: E.label(t.claim.provision_id), kind: t.claim.kind, uses: t.claim.uses, zones: t.claim.zones,
       value: (t as any).value ?? t.claim.value, unit: t.claim.unit, topic: t.claim.topic, non_discretionary: t.claim.non_discretionary, holds: t.holds, why: t.why, won: won.has(t.claim.id),
       subs: depth < 3 ? t.subs.map(s => explain(E, s, depth + 1)) : [] })),
@@ -752,6 +807,11 @@ export function writeAnswer(E: Engine, r: Result, lot: any): string {
       for (const f of t.why.filter(w => /^frame/.test(w))) L.push(`    ${f.replace(/^frame /, 'applies because ').replace(/: yes$/, '')}`)
       for (const s of t.subs) L.push(`    (${s.ask.use}: ${s.verdict} - ${s.tested.filter(x => x.holds !== false).map(x => E.label(x.claim.provision_id)).join(', ')})`)
     }
+    // the provisions that speak to the use here but do not reach the lot: checked, and why they fall away
+    for (const x of reachOf(E, r).filter(x => x.status !== 'reaches' && x.because.length))
+      L.push(x.status === 'blocked'
+        ? `- ${x.label} was checked and does not reach this lot: ${x.because.map(b => b.text).join('; ')}${x.frame ? ` (${x.frame})` : ''}.`
+        : `- ${x.label} reaches this lot only if settled: ${x.because.map(b => b.text).join('; ')}${x.frame ? ` (${x.frame})` : ''} - no data held.`)
     for (const s of r.ruling?.trace ?? []) L.push(stepLine(s))
     for (const b of r.ruling?.branches ?? []) L.push(`- if ${b.if}: ${b.answer?.effect ?? 'no rule'}`)
     if (r.limits.length) {

@@ -18,7 +18,7 @@
  * without consent does not meet it (docs/permissible-use-by-type.md). A type listing several spellings, or two uses (manor
  * houses: residential flat buildings or multi dwelling housing), has its use when any one of them passes.
  */
-import { evaluate, explain, loadEngine, writeAnswer, type Engine, type Explained, type Result, claimsFor, lepFor } from '#shared/rag/evaluate'
+import { evaluate, explain, loadEngine, writeAnswer, reachOf, type Engine, type Explained, type Result, type Reach, claimsFor, lepFor } from '#shared/rag/evaluate'
 import { lotFactsShared } from '../../utils/lot-facts'
 import { lotFacts } from '#shared/norms/facts'
 import { landUseKey } from '#shared/land-use-key'
@@ -48,6 +48,10 @@ export interface UseSummary {
   caveat: string | null
   /** Which CDC types and Pattern Book categories need this use. */
   neededBy: string[]
+  /** Every provision that speaks to this use in the lot's zone and whether it reaches the lot - the ones that do not
+   *  ("blocked": Housing SEPP s 166 under s 164(1), bush fire prone land; "open": a condition no data settles) are what a
+   *  page shows as "checked, but not eligible because ...". shared/rag/evaluate.ts reachOf; any instrument. */
+  reach: Reach[]
 }
 export interface UseDetail extends UseSummary {
   text: string
@@ -95,6 +99,7 @@ function summarise(E: Engine, use: string, r: Result): UseSummary {
       .map(c => [c.provision_id, { label: E.label(c.provision_id), provision_id: c.provision_id }])).values()],
     caveat: [r.note, nc.length ? `not checked: ${nc.join('; ')}` : null].filter(Boolean).join(' - ') || null,
     neededBy: [],
+    reach: reachOf(E, r),
   }
 }
 
