@@ -31,6 +31,8 @@ export interface LotFacts {
   lotSizeMinM2: number | null; onLotSizeMap: Tri
   /** Land Use Table: use key -> status */
   lut: Record<string, string>
+  /** false = the plan's table for this zone has no rows in nsw.lep_permissibility (not read, so no use is decided); null = no plan or zone */
+  lutHeld?: boolean | null
   /** Which instrument said what about each use - the LEP and the SEPPs, kept apart so an answer can be checked. */
   permits?: Record<string, { status: string; instrument: string; source: 'lep' | 'sepp' }[]>
   /** our data's own site facts (a strata plan in the lot id), keyed as in Question.site */
@@ -157,6 +159,16 @@ export function evaluate(norms: Norm[], q: Question, lot: LotFacts, key: (u: str
         if (!use) return { ...base, v: null, why: 'the use proposed is not stated' }
         const s = lot.lut[key(use)]
         base.value = use
+        /*
+         * No table held for the plan and zone: nothing is decided, in either direction. Before this
+         * check an unread table read as "the plan prohibits it", a claim about text nobody has looked
+         * at; a SEPP-only permission is still reported, and still untested for reach.
+         */
+        if (lot.lutHeld === false) {
+          const by = (lot.permits?.[key(use)] ?? []).filter(x => x.source === 'sepp').map(x => x.instrument)
+          return { ...base, v: null, why: `the Land Use Table of ${lot.epi ?? 'the plan'} for ${lot.zone ?? 'this zone'} is not held`
+            + (by.length ? `; ${by.join(', ')} permits ${use} where that chapter applies to the land - which is not tested here` : '') }
+        }
         // "mixed": the Land Use Table splits the use ("dual occupancies (attached)" permitted, "(detached)" prohibited) -
         // which one is proposed decides, so it is the asker's to answer, never a no
         if (s === 'mixed') {

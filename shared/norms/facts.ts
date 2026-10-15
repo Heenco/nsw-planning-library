@@ -70,10 +70,18 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
   const note = (k: string, status: string, instrument: string, source: 'lep' | 'sepp') => {
     permits[k] = [...(permits[k] ?? []), { status, instrument, source }]
   }
+  /*
+   * Is the plan's Land Use Table for this zone held at all? A zone table with no rows is not a table
+   * that permits nothing: it is a table nobody has read (the pre-standard-instrument LEPs, and every
+   * Precinct SEPP until its appendices are extracted). Reading absence as prohibition printed
+   * "SEPP (Precincts-Central River City) 2021 prohibits seniors housing in R2" on ~120,000 lots for
+   * an instrument with 0 rows. null = no plan or zone to look up.
+   */
+  let lutHeld: boolean | null = null
   if (epi && zone) {
-    for (const r of (await query(`SELECT land_use, status FROM nsw.lep_permissibility WHERE epi_name = $1 AND zone_code = $2`, [epi, zone])).rows) {
-      note(key(r.land_use), r.status, epi, 'lep')
-    }
+    const lepRows = (await query(`SELECT land_use, status FROM nsw.lep_permissibility WHERE epi_name = $1 AND zone_code = $2`, [epi, zone])).rows
+    lutHeld = lepRows.length > 0
+    for (const r of lepRows) note(key(r.land_use), r.status, epi, 'lep')
   }
   if (zone) {
     for (const r of (await query(`SELECT land_use, sepp FROM nsw.sepp_permissible_landuse WHERE zone = $1`, [zone])).rows) {
@@ -114,7 +122,7 @@ export async function lotFacts(query: Query, cadid: string, key: (u: string) => 
   const dict = epi ? (await query(`SELECT string_agg(s.raw_text, ' ') AS t FROM nsw.section s JOIN nsw.document d ON d.id = s.document_id
                                     WHERE d.title = $1 AND s.level = 'dictionary'`, [epi])).rows[0]?.t : null
   return { cadid, lotId, zone, epi, lga: row.lga ?? null, areaM2: row.area == null ? null : Math.round(Number(row.area)),
-           lotSizeMinM2, onLotSizeMap, lut, site: { [key('strata scheme')]: /\/\/SP\d/i.test(String(lotId ?? '')) },
+           lotSizeMinM2, onLotSizeMap, lut, lutHeld, site: { [key('strata scheme')]: /\/\/SP\d/i.test(String(lotId ?? '')) },
            frontageM: row.frontage == null ? null : Number(row.frontage), terms: tested, refHits, groups: dict ? useGroups(dict, key) : {},
            isBattleaxe: row.is_battleaxe == null ? null : Boolean(row.is_battleaxe),
            handleAreaM2: row.handle_area == null ? null : Math.round(Number(row.handle_area)), permits,

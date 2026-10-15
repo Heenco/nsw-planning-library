@@ -502,7 +502,59 @@ export const SOURCES: Record<string, DocumentSource> = {
     as_at_date: DEFAULT_AS_AT,
   },
 
-  // ── Other state-wide SEPPs (precinct SEPPs deliberately excluded) ──
+  // ── Other state-wide SEPPs ──
+  // The four Precinct SEPPs (docs/precinct-sepp-pipeline.md). Titles use the em dash the zoning layer's epi_name
+  // carries, so a lot's governing instrument joins nsw.document by title. XML as in force at 2026-10-15 (export/xml via
+  // curl_cffi, scripts/rag/corpus_xml.py): the March copies lacked the Leppington Town Centre appendix (WPC app.3, 9 zone
+  // tables) and two Olympic Park clauses (CRC app.4 cl 8A, 20A) - amendments made after they were saved.
+  'sepp-precincts-central-river-city-2021': {
+    label: 'sepp-precincts-central-river-city-2021',
+    title: 'State Environmental Planning Policy (Precincts—Central River City) 2021',
+    doc_type: 'sepp',
+    scope: 'state',
+    hierarchy_level: 2,
+    lga_name: null,
+    source_url: 'https://legislation.nsw.gov.au/view/whole/html/inforce/current/epi-2021-0725',
+    raw_path: path.join(REPO_ROOT, 'public', 'EPI', 'SEPP', 'epi-2021-0725_2026-10-15.xml'),
+    raw_format: 'xml',
+    as_at_date: '2026-10-15',
+  },
+  'sepp-precincts-eastern-harbour-city-2021': {
+    label: 'sepp-precincts-eastern-harbour-city-2021',
+    title: 'State Environmental Planning Policy (Precincts—Eastern Harbour City) 2021',
+    doc_type: 'sepp',
+    scope: 'state',
+    hierarchy_level: 2,
+    lga_name: null,
+    source_url: 'https://legislation.nsw.gov.au/view/whole/html/inforce/current/epi-2021-0726',
+    raw_path: path.join(REPO_ROOT, 'public', 'EPI', 'SEPP', 'epi-2021-0726_2026-10-15.xml'),
+    raw_format: 'xml',
+    as_at_date: '2026-10-15',
+  },
+  'sepp-precincts-regional-2021': {
+    label: 'sepp-precincts-regional-2021',
+    title: 'State Environmental Planning Policy (Precincts—Regional) 2021',
+    doc_type: 'sepp',
+    scope: 'state',
+    hierarchy_level: 2,
+    lga_name: null,
+    source_url: 'https://legislation.nsw.gov.au/view/whole/html/inforce/current/epi-2021-0727',
+    raw_path: path.join(REPO_ROOT, 'public', 'EPI', 'SEPP', 'epi-2021-0727_2026-10-15.xml'),
+    raw_format: 'xml',
+    as_at_date: '2026-10-15',
+  },
+  'sepp-precincts-western-parkland-city-2021': {
+    label: 'sepp-precincts-western-parkland-city-2021',
+    title: 'State Environmental Planning Policy (Precincts—Western Parkland City) 2021',
+    doc_type: 'sepp',
+    scope: 'state',
+    hierarchy_level: 2,
+    lga_name: null,
+    source_url: 'https://legislation.nsw.gov.au/view/whole/html/inforce/current/epi-2021-0728',
+    raw_path: path.join(REPO_ROOT, 'public', 'EPI', 'SEPP', 'epi-2021-0728_2026-10-15.xml'),
+    raw_format: 'xml',
+    as_at_date: '2026-10-15',
+  },
   'sepp-biodiversity-and-conservation-2021': {
     label: 'sepp-biodiversity-and-conservation-2021',
     title: 'State Environmental Planning Policy (Biodiversity and Conservation) 2021',

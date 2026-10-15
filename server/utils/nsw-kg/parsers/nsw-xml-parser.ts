@@ -131,13 +131,27 @@ function buildNode(el: any, depth: number, sortOrder: { value: number }, parentC
     // Unknown structural type (e.g. <level type="clausegroup">) — transparent
     // wrapper. Recurse into children and append them to the parent's children
     // array directly.
+    //
+    // <level type="indoc"> is the other one: an incorporated document, which is
+    // how the Precinct SEPPs carry each growth centre precinct plan inside its
+    // appendix (app.5 > app.5-inc > <content type="body"> > parts > clauses).
+    // Its levels sit under <content> wrappers, not as direct children, so the
+    // walk below looks through the same wrappers the known-level branch does.
+    // Before this, every precinct plan parsed as a bare heading: Central River
+    // City kept 13 of its ~1,100 appendix sections and 0 of its 87 zone tables.
     if (parentChildren) {
-      for (const child of childElements(el)) {
-        if (child.tagName === 'level' || child.tagName === 'tier') {
-          const sub = buildNode(child, depth, sortOrder, parentChildren)
-          if (sub) parentChildren.push(sub)
+      const walk = (parent: any) => {
+        for (const child of childElements(parent)) {
+          const tag = child.tagName
+          if (tag === 'level' || tag === 'tier') {
+            const sub = buildNode(child, depth, sortOrder, parentChildren)
+            if (sub) parentChildren.push(sub)
+          } else if (tag === 'content' || tag === 'pre' || tag === 'post') {
+            walk(child)
+          }
         }
       }
+      walk(el)
     }
     return null
   }

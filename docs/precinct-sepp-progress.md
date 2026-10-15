@@ -1,0 +1,168 @@
+# Precinct SEPPs — progress
+
+Working memory of the loop building [precinct-sepp-pipeline.md](precinct-sepp-pipeline.md). **Every pass
+reads this file first and updates it last.** One step per pass; a step is only ticked when its "done when"
+check has been run and its numbers are written below it.
+
+## How the loop works
+
+1. Read this file. Take the first step that is not `done` and not `blocked`.
+2. Do it. Run its "done when" check. Write status, numbers and findings under the step.
+3. Commit (code + this file) locally. Never push or deploy.
+4. If the step needs a decision that is Manni's, write it under **Open questions**, mark the step
+   `blocked`, and stop the loop.
+5. Stop when every step is `done`.
+
+## Standing decisions (defaults taken 2026-10-15; Manni can override here)
+
+| # | decision | default | status |
+|---|---|---|---|
+| D1 | Source text | the library copies `public/EPI/SEPP/epi-2021-072[5-8]_2026-03-2x.xml`; refresh through `scripts/rag/corpus_xml.py` (curl_cffi) when a newer in-force XML is wanted | default |
+| D2 | Governing unit | one derived table `derived.lot_instrument`, rank-then-cover rule, 50% cover threshold, point on surface; every reader switches to it, none keeps its own zoning query | default |
+| D3 | Per-instrument facts | `profiles/precincts-*.ts` (map name → unit, prevails exceptions, disapplied instruments), reviewed by Manni in this file before step 4 writes anything | default |
+| D4 | Land Use Table store | `nsw.lep_permissibility` with a nullable `unit_local_id` (additive), not a new table, so 09G / d_4 / every existing join keeps working | default |
+| D5 | Vocabulary | grown from each unit's own dictionary, run-scoped, closed; unknown residual forms stay "not held" | default |
+| D6 | Publishing | SEPP rules `held`; permissibility rows for the four instruments carry `run_id` and are invisible to routes until step 10's gate passes | default |
+| D7 | First target | CRC + WPC growth centre appendices; keys = the six lots tested 2026-10-15 plus 10 lots per appendix type | default |
+
+## Baseline (2026-10-15)
+
+- Instruments in the graph: 10 SEPPs, 35 LEPs, 4 DCPs; **0 Precinct SEPPs**.
+- `nsw.lep_permissibility`: 0 rows for any Precinct SEPP. `rag.instrument`: 5 LEPs + Housing + Codes.
+- Precinct SEPP lots: 60,631 / 46,264 / 10,881 / 2,560 (CRC / WPC / Regional / EHC); 167 zone groups;
+  5,580 Land Use Table entries, 520 outside the vocabulary.
+- Test lots (cadid): The Ponds 173688603 (CRC app Alex Avenue and Riverstone, R2); Austral 183806086
+  (WPC Liverpool app, R2); Luddenham 101874531 (WPC Aerotropolis, SP2); Gosford 104226091 (Regional
+  ch 5, B3); Olympic Park 102043114 (CRC ch 4, C2; Canada Bay sliver 11.6%); Normanhurst 102531074
+  (EHC Wahroonga Estate schedule, R2; Hornsby LEP 100% overlap).
+- Known wrong answers to correct: "prohibits seniors housing" on empty tables (facts.ts); Normanhurst
+  answered from Hornsby; Olympic Park attributed to Canada Bay.
+
+## Steps
+
+### 0. Fail closed on an empty Land Use Table — `done` 2026-10-15
+`shared/norms/facts.ts`: when `nsw.lep_permissibility` has no row at all for the (plan, zone), every
+use is `not_held`, and `shared/norms/engine.ts` answers `v: null` with "Land Use Table for <plan> not
+held" instead of "prohibits". Generic: applies to the 35 pre-standard-instrument LEPs with no table too.
+**Done when:** `/api/norms/subdivision?cadid=173688603` no longer contains "prohibits"; a Hornsby R2
+lot (dual occupancies genuinely prohibited by the table) still says prohibited; count of lots whose
+(plan, zone) has no table rows, measured and written here.
+
+**Result:** `shared/norms/facts.ts` sets `lutHeld` (false = 0 rows for the plan and zone); `shared/norms/engine.ts`
+answers `lot.permits` with `v: null` and "the Land Use Table of <plan> for <zone> is not held" (plus the SEPP-only
+permission, still untested for reach) before any status is read. Check: The Ponds 173688603 -> 0 "prohibits", 4
+"not held"; Hornsby R2 control 104636869 (430-440 Peats Ferry Rd) -> still "Hornsby LEP 2013 prohibits seniors
+housing in R2". **Measured (d_4 single-plan lots, 5,136,303):** 139,137 lots on 125 (plan, zone) pairs with no table
+rows - the four Precinct SEPPs 113,346 of them (CRC 56,469; WPC 44,147; Regional 10,666; EHC 2,064), T&I SEPP 5,553,
+then zones the LEP extraction has no table for: Parramatta LEP 2023 7,585, Blue Mountains 4,796, Warringah 1,542,
+Byron 1,463, Shellharbour 1,079, Ballina 911, Tweed 644. Finding: those LEP pairs are a 01E gap worth its own check
+(zones in the zoning layer with no `pt-cg1.Zone_` group, or deferred-matter codes) - not this pipeline's.
+
+### 1. Register and ingest the four instruments — `done` 2026-10-15
+Add four `sources.ts` entries (doc_type `sepp`, raw_path the library XML), run
+`scripts/pipeline/registry.ts` then `scripts/pipeline/sections.ts` (or the orchestrator the other
+SEPPs used).
+**Done when:** 4 `nsw.document` rows; section counts per instrument written here; every `app.N` and
+`sch.N` top-level unit present with its heading; zone-group member clauses keep their XML ids
+(`app.5-inc-pt-cg1.Zone_R1` ...): 167 groups findable by id pattern across the four; registry rows
+`current`.
+
+**Result:** 4 `nsw.document` rows, as at 2026-10-15, registry `current` and linked, every section hashed.
+Sections: CRC 6,738 / EHC 2,194 / Regional 3,339 / WPC 7,062 = 19,333. Checked from the XML, not by id
+pattern: top-level units 33/33, 24/24, 29/29, 31/31; zone groups with every member clause in the graph
+**167/167**; clauses **2,913/2,913** (100%). Regression: `scripts/pipeline/sections.ts` re-parses the 10
+other SEPPs with the patched parser - all 10 MATCH (20,712 sections, 0 changed).
+Three findings, each cost a round:
+1. **Parser dropped every precinct plan.** They sit in `<level type="indoc">` (an incorporated document)
+   whose levels are under `<content>` wrappers; the unknown-level branch of `nsw-xml-parser.ts` only walked
+   direct `level` children, so CRC kept 1,146 of 6,738 sections and 0 of 87 zone tables. Fixed generically:
+   the transparent branch now walks `content` / `pre` / `post` wrappers like the known-level branch does.
+2. **The March library copies were stale.** WPC's 2026-03-23 XML has an empty `sch.3` where the current
+   instrument has Appendix 3 Leppington Town Centre Precinct Plan (9 zone tables, 94 clauses); CRC's lacks
+   Olympic Park cl 8A and 20A. Refreshed from `export/xml/2026-10-15/` (curl_cffi) into
+   `public/EPI/SEPP/epi-2021-072[5-8]_2026-10-15.xml`; sources repointed, `as_at_date: '2026-10-15'`. The
+   March files are left in place (nothing references them). Worth a `sections.ts` currency run against fresh
+   downloads for the other 10 SEPPs too - not this pipeline's step.
+3. **Changing a source's as_at_date does not replace its document.** `upsert-document.ts` deletes the old
+   row only when source_url AND as_at_date match; otherwise the insert fails on `document_instrument_slug_key`.
+   Deleted the four April-dated rows by hand (sections cascade), re-ingested, re-ran `registry.ts` to relink
+   (the registry keeps `document_id`, which the delete had orphaned), then `sections.ts --apply`.
+Zone-table member clauses in the graph: 1,226 rows carry `cg1.Zone_` in their id; Gosford and Port Kembla
+(Regional ch.5/ch.6) table clauses carry plain `sec.N-oc.M` ids with no zone in them, so the zone must come
+from the XML clausegroup (as `scripts/rag/01b-groups.py` already does for LEPs), never from the id.
+
+### 2. `derived.lot_instrument` — `todo`
+Builder script (`scripts/build-lot-instrument.ts` or a Notebooks 02-series notebook, Manni's call;
+default: the app repo, same connection as every other planningai script). For every lot: all zoning
+polygons at the point on surface with cover; rank from `nsw.document` kind (dcp 10 / lep 20 / sepp 30);
+unit from the land application polygon over the same point (`lay_class ~ 'Appendix (\d+)'` →
+`app.N`; else the profile's map table; else NULL). One governing row per lot, plus `also_mapped` rows.
+**Done when:** state-wide counts written here: lots with one instrument / two / none; lots with a SEPP
+and no unit (expected: Urban Renewal, some SSP) listed by map name; the six test lots resolve to the
+units named in the baseline; Normanhurst → EHC Wahroonga Estate schedule with Hornsby as also-mapped;
+Olympic Park → CRC ch 4 with Canada Bay as a sliver. An LEP-only lot is byte-identical to today's
+`(zone, epi)`.
+
+### 3. Profiles for the four instruments — `todo`
+`profiles/precincts-{central-river-city,western-parkland-city,regional,eastern-harbour-city}-2021.ts`:
+rank, per-chapter prevails with quoted exceptions (Homebush Bay, Gosford, Port Kembla), disapplications
+(Western Sydney Parklands), units with their land-finding rule, chapter and appendix frames.
+**Done when:** every top-level unit of each instrument appears in exactly one `units` row; every
+chapter has a prevails reading or an explicit "none"; Manni has reviewed under Open questions ("profiles OK").
+
+### 4. Frames and edges — `todo`
+`scripts/pipeline/frames.ts` over the four profiles: chapter frames (reach = unit polygons),
+appendix frames, `prevails_over` and `excludes` edges, all `held`.
+**Done when:** every operative section of each instrument sits under exactly one frame, 0 ties;
+counts written here.
+
+### 5. Switch the readers to the unit — `todo`
+`shared/norms/facts.ts`, `shared/rag/lot-facts.ts`, `server/api/housing/at.get.ts`,
+`server/api/report/standards.get.ts` (+ the others listed in the design §1) read
+`derived.lot_instrument`; `nsw.lep_permissibility` lookups pass `(epi_name, unit_local_id, zone)`.
+Report line "Governed by <instrument>, <unit>" in `/report-2`'s title block; "also mapped" for slivers.
+**Done when:** the 16 Randwick / Hornsby / Parramatta / Ku-ring-gai / North Sydney RAG key lots answer
+byte-identically before and after (`scripts/rag/16-compare-report2.ts` or the key run); Normanhurst
+no longer answers from Hornsby; Olympic Park no longer names Canada Bay.
+
+### 6. Land Use Tables per unit — `todo`
+Extend the LUT reader (01E `lut_xml.py` / `scripts/build-zone-lu-index.mjs`, whichever is the live
+one — record which) to key by `(document, unit, zone)`; vocabulary growth from each unit's dictionary;
+residual forms "any development not specified in item 2 or 3" and the SP-zone verbatim form handled as
+sentence forms. Write to `nsw.lep_permissibility` with `unit_local_id` and a `run_id`, held (D6).
+**Done when:** 167 zone groups read; 5,580 entries, 0 unread (every entry either a vocabulary term,
+a grown term with its dictionary source, or a residual form); counts per instrument written here;
+`rag.map_polygon` loaded for the four documents with the appendix map names; check and record whether
+height / FSR / lot size polygons are labelled per appendix.
+
+### 7. RAG corpus — `todo`
+Add the four instruments to `scripts/rag/corpus.json` (route `section`, scope = the appendices and
+table-bearing chapters first), run `scripts/rag/run.ts --no-llm`.
+**Done when:** `rag.instrument` has the four; provisions / groups / terms counts written here;
+`rag.coverage` shows each instrument's gaps on `/rag`; no paid stage run (standing rule).
+
+### 8. Keys — `todo`
+`tests/answer-keys/precincts-*.json`: the six test lots plus 10 lots per appendix type, each with
+the expected unit, zone, and 3 permissibility answers read from the appendix's own table by hand
+(dual occupancy, secondary dwelling, seniors housing) and the mapped height.
+**Done when:** keys exist and the current (pre-publish) answers are recorded beside them.
+
+### 9. Non-table chapters through the SEPP rule pipeline — `todo`
+Route and extract the SSP site schedules, City West, Olympic Park, Alpine, Activation and
+Aerotropolis chapters under their frames (`scripts/pipeline/route.ts`, `extract.ts`), held.
+**Done when:** recall gate passes per chapter; counts written here; Olympic Park and Normanhurst keys
+answer from these rules.
+
+### 10. Gate and publish — `todo`
+Run the keys. Flip `run_id` rows and frames to published only for instruments whose keys all pass.
+**Done when:** per-instrument pass counts written here; `/report-2` on the six lots shows the unit
+line and section 9 answers; what stays held is listed with why.
+
+## Open questions
+
+(none yet)
+
+## Log
+
+- 2026-10-15 plan written from the measurements in the design doc.
+- 2026-10-15 steps 0 and 1 done (see above); committed locally.
