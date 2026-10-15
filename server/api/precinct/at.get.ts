@@ -37,6 +37,8 @@ export interface PrecinctAtResponse {
   governing: { instrument: string | null; inCorpus: boolean; unit: string | null; heading: string | null; why: string }
   tree: AuditNode[]
   others: { instrument: string; label: string; claim: AuditClaim }[]
+  /** the Residential Density Map (growth centre precinct plans): dwellings per hectare at the lot, the instrument's own layer */
+  density: { value: string | null; number: number | null; label: string | null; plan: string | null; coverPct: number }[]
   summary: { provisions: number; withClaims: number; claims: number; yes: number; no: number; unknown: number; byKind: Record<string, number> }
   ms: number
 }
@@ -86,6 +88,19 @@ export default defineEventHandler(async (event): Promise<PrecinctAtResponse> => 
     }
     for (const n of tree) count(n)
   }
+  // the Residential Density Map, which /api/report/standards does not read (an LEP has no such map)
+  const density = (await q(`
+    WITH raw AS MATERIALIZED (SELECT ST_MakeValid(geom) AS g0 FROM cadastre.lot WHERE cadid = $1 LIMIT 1),
+    t AS MATERIALIZED (SELECT CASE WHEN b IS NULL OR ST_IsEmpty(b) THEN g0 ELSE b END AS g, ST_Area(ST_Transform(g0, 3308)) AS area_m2
+                         FROM raw, LATERAL (SELECT ST_Transform(ST_Buffer(ST_Transform(g0, 3308), -0.1), 4283) AS b) x)
+    SELECT x.epi_name, x.label, x.lay_class, x.min_dwelling_density,
+           100 * ST_Area(ST_Transform(ST_Union(ST_Intersection(ST_ClipByBox2D(x.geom, ST_Envelope(t.g)), t.g)), 3308)) / NULLIF(max(t.area_m2), 0) AS cover_pct
+      FROM epi.epi_dwelling_density x, t WHERE x.geom && t.g AND ST_Intersects(x.geom, t.g)
+     GROUP BY x.epi_name, x.label, x.lay_class, x.min_dwelling_density`, [cadid]).catch(() => ({ rows: [] as any[] }))).rows
+    .filter((x: any) => Number(x.cover_pct) > 0.05 && (!inst || x.epi_name === inst.title))
+    .map((x: any) => { const n = x.min_dwelling_density != null ? Number(x.min_dwelling_density) : (x.lay_class != null && !Number.isNaN(Number(x.lay_class)) ? Number(x.lay_class) : null)
+      return { value: n != null ? `${n} dwellings/ha minimum` : null, number: n, label: x.label ?? null, plan: x.epi_name ?? null, coverPct: Math.min(100, Number(x.cover_pct)) } })
+    .sort((a: any, b: any) => b.coverPct - a.coverPct)
   const others = r.tested.filter(t => E.provs.get(t.claim.provision_id)?.document_id !== lep.doc)
     .map(t => ({ instrument: E.insts.find(i => i.document_id === E.provs.get(t.claim.provision_id)?.document_id)?.title ?? '?', label: E.label(t.claim.provision_id), claim: toClaim(t) }))
   const own = r.tested.filter(t => E.provs.get(t.claim.provision_id)?.document_id === lep.doc)
@@ -97,7 +112,7 @@ export default defineEventHandler(async (event): Promise<PrecinctAtResponse> => 
     lot: { cadid, address: lot.address ?? null, zone: lot.zone ?? null, epi: lot.epi ?? null, area_m2: lot.area_m2 ?? null, unit: lot.unit ?? null, units: lot.units ?? {} },
     ask: { use, proposal },
     governing: { instrument: inst?.title ?? lot.epi ?? null, inCorpus: !!inst, unit: unitId, heading: lot.unit?.heading ?? null, why: lep.why },
-    tree, others,
+    tree, others, density,
     summary: { provisions: flat.length, withClaims: flat.filter(n => n.claims.length).length, claims: own.length,
       yes: own.filter(t => t.holds === true).length, no: own.filter(t => t.holds === false).length, unknown: own.filter(t => t.holds == null).length, byKind },
     ms: Date.now() - started,
