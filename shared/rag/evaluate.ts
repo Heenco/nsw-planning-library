@@ -24,6 +24,8 @@ export interface Ask { kind: 'permissibility' | 'standard' | 'subdivision'; use:
   /** subdivision: how many lots, which title, when the consent for the development on the lot was granted, and whether the
    *  subdivision comes from one application with that development */
   lots?: number; tenure?: 'torrens' | 'strata' | 'community' | null; consentDate?: string | null; combinedDa?: boolean | null
+  /** audit: test every claim that speaks to the lot against it and return them all, with no ruling (the /precinct bench) */
+  audit?: boolean
   /** answer from one instrument only ("Under <instrument>, ..."): its document id */
   only?: string }
 interface C { id: string; provision_id: string; kind: string; consent: string | null; uses: string[]; zones: string[]; terms: string[]; excludes: string[]; requires: any[]
@@ -433,6 +435,8 @@ function evaluate0(E0: Engine, ask: Ask, lot: any, depth = 0): Result {
     return h
   }
   const test = (c: C): Tested => { const why: string[] = [], notChecked: string[] = [], subs: Result[] = [], checks: Check[] = []; const holds = scope(c, why, notChecked, subs, false, checks); return { claim: c, holds, why, notChecked, subs, checks } }
+  // audit: every claim in play tested on the lot, nothing resolved - what the engine read, and what it made of each clause here
+  if (ask.audit) return { ask, answer: null, verdict: 'audit', ruling: null, tested: E.claims.map(test), limits: [], notChecked: [], checks: [] }
   /** a claim with no use of its own speaks for the uses of its frames ("development to which this Part applies").
    *  A permission or prohibition of a narrower kind still answers the broader question (it is reported as "only as ...");
    *  a standard on a narrower kind (terraces) does not bind the broader use (multi dwelling housing). */

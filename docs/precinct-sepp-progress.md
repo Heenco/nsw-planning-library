@@ -308,3 +308,13 @@ line and section 9 answers; what stays held is listed with why.
   claim set in the "other uses" list); with it on, the six baseline lots resolve to their unit, the RAG answers from the
   governing instrument, and the norms side lists 2 unchecked precinct clauses (the chapter-level 2.6 / 4.1) where it
   listed 65-97. Deploying the switch to prod (Manni's call) so prod's report-2 matches localhost.
+- 2026-10-15 /precinct became the bench Manni asked for: `/api/precinct/samples` lists two or three addressed lots per
+  governing unit the state-wide build found (93 lots, 47 units, 6 instruments - the Industry and Employment SEPP's
+  employment-area chapters count, being multi-unit too); `/api/precinct/at` returns the governing unit's provisions as a
+  tree with every claim the RAG build read from each clause and subclause, tested on the lot by the engine's own scope
+  test (`Ask.audit`: every claim in play, no ruling) - holds / does not hold / unknown and why - plus the other
+  instruments' claims. The Ponds (app.7): 591 provisions, 47 claims on 47 of them (frame 17, standard 27, condition 3;
+  25 hold, 10 do not, 12 unknown), 1,245 claims from the Housing and Codes SEPPs. FOUND: no permit / prohibit claim
+  exists for any precinct appendix - the Land Use Table zone groups are in the corpus (01b-groups) but the claims reader
+  did not read them as permissions; the page says so. Headless Edge would not launch in this session, so the page was
+  checked by SSR (200, expected markup) and its endpoints by hand, not by a rendered screenshot.
