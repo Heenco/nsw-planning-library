@@ -128,12 +128,31 @@ Alex Avenue and Riverstone; Austral -> WPC app.4 Liverpool Growth Centres. Timin
 application join and cover), so the state is ~2 h - launched 2026-10-15 in the background (`--all`, no swap yet).
 Still to do for `done`: state-wide counts; the "byte-identical to today's (zone, epi)" check on LEP-only lots; swap.
 
-### 3. Profiles for the four instruments — `todo`
+### 3. Profiles for the four instruments — `blocked` 2026-10-15 (drafted; Manni's review is the gate)
 `profiles/precincts-{central-river-city,western-parkland-city,regional,eastern-harbour-city}-2021.ts`:
 rank, per-chapter prevails with quoted exceptions (Homebush Bay, Gosford, Port Kembla), disapplications
 (Western Sydney Parklands), units with their land-finding rule, chapter and appendix frames.
 **Done when:** every top-level unit of each instrument appears in exactly one `units` row; every
 chapter has a prevails reading or an explicit "none"; Manni has reviewed under Open questions ("profiles OK").
+
+**Drafted:** `profiles/precincts-{central-river-city,eastern-harbour-city,regional,western-parkland-city}-2021.ts`,
+GENERATED from the graph by `scripts/precinct/extract-units.py` (every top-level unit, its "land to which ...
+applies" clause and its relationship clause, found through the parent chain; the chapter that cites an appendix
+by number or name) and `scripts/precinct/generate-profiles.py` (frames, terms, unitKeys). Per instrument: one
+`instrument` frame governing every unit; one frame per chapter and per precinct plan / State significant site /
+activation precinct (19 / 14 / 15 / 18 unit frames); a schedule named for a chapter ("Environmental heritage—
+Chapter 5") is governed by that chapter's frame; each unit frame carries one `defined_area` condition
+`unit:<slug>:<local_id>` tested against `derived.lot_instrument` (term mapping `UNIT(...)`), a `prevails` over
+`lep` where the relationship clause says "prevails" or "the only instruments that apply ... are ...", and the
+rest of the clause's wording in `note`. Appendix frames inherit from their chapter: 18 under ch.2, 23 under
+ch.3, 1 under ch.4 (CRC Olympic Park app.4, from 33 citations in the Homebush Bay chapter), 1 under ch.7 (WPC
+Gilead sch.11, 2 citations); 23 frames sit under the instrument. `unitKeys`: the 123 proposer rows plus 12 hand
+rows (the growth-centre-level maps -> ch.3; the Opera House buffer -> app.1; the alpine archaeology overlay ->
+ch.4; three EHC foreshore / port keys left null and marked REVIEW). `scripts/pipeline/units.ts` writes a reviewed
+profile's unitKeys into `nsw.instrument_unit_map` as confirmed and refuses a profile still marked "not reviewed".
+Checks run: `frames.ts --dry` **PASS on all four** (0 sections with no frame, 0 ties); `units.ts --dry` on all four:
+every table row is mentioned, 0 inserts, 123 rows would be confirmed. The interface gained `UnitKey` /
+`unitKeys` (additive, in `profiles/housing-sepp-2021.ts`). Nothing written to the database by this step.
 
 ### 4. Frames and edges — `todo`
 `scripts/pipeline/frames.ts` over the four profiles: chapter frames (reach = unit polygons),
@@ -185,9 +204,19 @@ line and section 9 answers; what stays held is listed with why.
 
 ## Open questions
 
-(none yet)
+- **Q1 (step 3, blocks step 4):** review the four `profiles/precincts-*.ts`. Specifically: (a) `prevails` is
+  recorded over `lep` only (the clauses say "another environmental planning instrument"; a DCP is not an EPI) -
+  the Housing profile used `['lep', 'dcp']`; which convention? (b) an appendix that lists "the only instruments
+  that apply" is read as prevailing over the LEP; (c) parent attributions flagged "REVIEW the attribution":
+  CRC Olympic Park app.4 under ch.4 Homebush Bay (not ch.2 SSP); WPC Gilead sch.11 under ch.7 Western Sydney
+  Parklands (Appin app.10 is under ch.3); (d) the four hand unit keys marked REVIEW (EHC Circular Quay, The
+  Rocks, Port and Related Employment Lands -> null; Opera House buffer -> app.1). Reply "profiles OK" (with any
+  edits) to unblock; `scripts/pipeline/units.ts --profile <name>` then confirms the unit map.
+- **Q2 (step 2, not blocking):** the 50% cover threshold and "own council's plan" tie-break - keep?
+
 
 ## Log
 
 - 2026-10-15 plan written from the measurements in the design doc.
 - 2026-10-15 steps 0 and 1 done (see above); committed locally.
+- 2026-10-15 step 2 built and verified on seven councils (state-wide build running); step 3 drafted and blocked on review (Q1).

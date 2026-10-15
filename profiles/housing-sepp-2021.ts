@@ -77,6 +77,19 @@ export interface TermMapping {
   lower_bound?: boolean
 }
 
+/** Which map polygon key names which unit of the instrument (docs/precinct-sepp-pipeline.md §3): the reviewed
+ *  authority for nsw.instrument_unit_map. basis 'proposed' = copied from the proposer's row; 'hand' = a reading. */
+export interface UnitKey {
+  layer: 'epi.epi_land_application' | 'epi.epi_land_zoning'
+  map_name: string | null
+  lay_class: string | null
+  label: string | null
+  /** top-level section local_id, or null = no unit (a lot here is "unit not held") */
+  unit: string | null
+  basis: 'proposed' | 'hand'
+  note?: string
+}
+
 export interface InstrumentProfile {
   instrument: string
   slug: string
@@ -98,6 +111,8 @@ export interface InstrumentProfile {
   zoneGroups?: Record<string, string[]>
   /** Clauses step 5 does not read as rules, with the reason (a frame's own source, a clause that only lists others). */
   skip?: Record<string, string>
+  /** map polygon keys -> units, for an instrument with more than one unit (Precinct SEPPs) */
+  unitKeys?: UnitKey[]
   /** Each step's "done when" spot checks for this instrument - expectations, never inputs to the rules. */
   checks?: {
     /** Step 4: clauses (local ids) each signal must reach, among clauses numbered within `sections`. */
