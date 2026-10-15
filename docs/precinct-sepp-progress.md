@@ -131,7 +131,7 @@ seven councils, 14,061 governing rows - plan identical on all 14,061; zone ident
 zone only, where one plan has two zoning polygons at the point and today's rule takes whichever comes first while the
 build takes the larger. Still to do for `done`: state-wide counts and swap (build running, 31/132 councils at 13:05).
 
-### 3. Profiles for the four instruments — `blocked` 2026-10-15 (drafted; Manni's review is the gate)
+### 3. Profiles for the four instruments — `done` 2026-10-15 (reviewed in session, Q1 (a)-(f))
 `profiles/precincts-{central-river-city,western-parkland-city,regional,eastern-harbour-city}-2021.ts`:
 rank, per-chapter prevails with quoted exceptions (Homebush Bay, Gosford, Port Kembla), disapplications
 (Western Sydney Parklands), units with their land-finding rule, chapter and appendix frames.
@@ -153,15 +153,36 @@ Gilead sch.11, 2 citations); 23 frames sit under the instrument. `unitKeys`: the
 rows (the growth-centre-level maps -> ch.3; the Opera House buffer -> app.1; the alpine archaeology overlay ->
 ch.4; three EHC foreshore / port keys left null and marked REVIEW). `scripts/pipeline/units.ts` writes a reviewed
 profile's unitKeys into `nsw.instrument_unit_map` as confirmed and refuses a profile still marked "not reviewed".
+
+**Reviewed (Manni, in session, 2026-10-15):** (a) prevails over the LEP only; (b) "the only instruments that apply ...
+are Chapter 2 and other SEPPs" = prevails over the LEP; (c) parents by KIND, not citation count (Olympic Park app.4 under
+ch.2, Gilead sch.11 under ch.3; counts kept as a note); (d) Opera House buffer -> app.1, the three EHC foreshore / port keys
+stay null; (e) growth centre land with no released precinct plan at the point has NO unit (fail closed, not ch.3); (f) a
+clause that disapplies the LEP is written as prevails over the LEP now, and every instrument it names gets a `disapplies`
+edge (added in this step rather than deferred: the edge type already existed in `nsw.rule_edge`). Profiles regenerated
+with those readings (header "REVIEW STATUS: reviewed"); `units.ts` written for all four: **123 unit-map rows confirmed**,
+0 inserted, 0 unmentioned. Parents now: 19 frames under ch.2, 24 under ch.3, 23 under the instrument.
 Checks run: `frames.ts --dry` **PASS on all four** (0 sections with no frame, 0 ties); `units.ts --dry` on all four:
 every table row is mentioned, 0 inserts, 123 rows would be confirmed. The interface gained `UnitKey` /
 `unitKeys` (additive, in `profiles/housing-sepp-2021.ts`). Nothing written to the database by this step.
 
-### 4. Frames and edges — `todo`
+### 4. Frames and edges — `done` 2026-10-15
 `scripts/pipeline/frames.ts` over the four profiles: chapter frames (reach = unit polygons),
 appendix frames, `prevails_over` and `excludes` edges, all `held`.
 **Done when:** every operative section of each instrument sits under exactly one frame, 0 ties;
 counts written here.
+
+**Result:** `frames.ts --chapter all` (new: coverage over the whole instrument, since a Precinct SEPP's units are
+chapters and appendices) written for all four, held: **70 frames** (CRC 20, EHC 15, Regional 16, WPC 19), **32
+prevails_over lep edges**, **20 disapplies edges** (new `Frame.disapplies` + writer: `doc_type:lep` x3 for "a local
+environmental plan does not apply" (Activation Precincts, Aerotropolis, St Marys); named instruments or parts - Blacktown
+LEP 1988, Wollongong LEP 2009, Snowy River LEP 2013, Tumut LEP 2012, Penrith LEP No 201 and No 255, Housing SEPP Ch 4
+and Ch 3 Pts 8 and 9, Codes SEPP, I&E SEPP Ch 3, Planning Systems Ch 2, ARH SEPP 2009, SEPP No 1). Coverage **PASS on
+all four over every section**: CRC 6,738 / EHC 2,194 / Regional 3,339 / WPC 7,062 sections, 0 with no frame, 0 ties.
+The generator reads instrument names in their statutory form from each relationship clause; two malformed names on the
+first pass (a dash suffix swallowing "does not apply", a lost "and 9") were fixed in the pattern, 0 malformed targets now.
+Still a note, not an edge: the "Despite subsection (1), SEPP X prevails" exceptions (Homebush Bay, Gosford, Port
+Kembla, Parklands) - these are `yields` in the Housing profile's terms and can be generated the same way when wanted.
 
 ### 5. Switch the readers to the unit — `todo`
 `shared/norms/facts.ts`, `shared/rag/lot-facts.ts`, `server/api/housing/at.get.ts`,
@@ -207,7 +228,7 @@ line and section 9 answers; what stays held is listed with why.
 
 ## Open questions
 
-- **Q1 (step 3, blocks step 4):** review the four `profiles/precincts-*.ts`. Specifically: (a) `prevails` is
+- **Q1 (step 3) - answered in session 2026-10-15, see step 3:** review the four `profiles/precincts-*.ts`. Specifically: (a) `prevails` is
   recorded over `lep` only (the clauses say "another environmental planning instrument"; a DCP is not an EPI) -
   the Housing profile used `['lep', 'dcp']`; which convention? (b) an appendix that lists "the only instruments
   that apply" is read as prevailing over the LEP; (c) parent attributions flagged "REVIEW the attribution":
@@ -215,7 +236,7 @@ line and section 9 answers; what stays held is listed with why.
   Parklands (Appin app.10 is under ch.3); (d) the four hand unit keys marked REVIEW (EHC Circular Quay, The
   Rocks, Port and Related Employment Lands -> null; Opera House buffer -> app.1). Reply "profiles OK" (with any
   edits) to unblock; `scripts/pipeline/units.ts --profile <name>` then confirms the unit map.
-- **Q2 (step 2, not blocking):** the 50% cover threshold and "own council's plan" tie-break - keep?
+- **Q2 (step 2):** 50% cover threshold and own-council tie-break - **answered: keep** (Manni, 2026-10-15).
 
 
 ## Log
@@ -223,3 +244,4 @@ line and section 9 answers; what stays held is listed with why.
 - 2026-10-15 plan written from the measurements in the design doc.
 - 2026-10-15 steps 0 and 1 done (see above); committed locally.
 - 2026-10-15 step 2 built and verified on seven councils (state-wide build running); step 3 drafted and blocked on review (Q1).
+- 2026-10-15 Q1 and Q2 answered in session; steps 3 and 4 done; unit map confirmed, 70 frames held.

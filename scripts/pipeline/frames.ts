@@ -4,6 +4,7 @@
  *   npx tsx scripts/pipeline/frames.ts --profile housing-sepp-2021          # write (held) + coverage check
  *   npx tsx scripts/pipeline/frames.ts --profile housing-sepp-2021 --dry    # coverage check only
  *   npx tsx scripts/pipeline/frames.ts --profile housing-sepp-2021 --chapter ch.6
+ *   npx tsx scripts/pipeline/frames.ts --profile precincts-regional-2021 --chapter all   # coverage over the whole instrument
  *
  * Each frame becomes one nsw.rule row (kind 'frame', role 'frame', src 'structural', publish_state 'held'),
  * keyed '<instrument>:frame:<id>' so a re-run updates it in place. Its conditions become rule_applicability
@@ -74,6 +75,17 @@ async function main() {
       }
       // another instrument prevailing over this frame's part ("SEPP (Sustainable Buildings) 2022, Chapter 2 prevails over
       // this policy, Chapter 4", s 8(2)): an excepts edge to it - shown, not evaluated
+      // instruments the frame's land is taken out of ("Wollongong LEP 2009 does not apply to the land to which this
+      // chapter applies"): a disapplies edge per instrument or part, replaced wholesale like the prevails edges
+      await client.query(`DELETE FROM nsw.rule_edge WHERE from_rule_id = $1 AND edge_type = 'disapplies'`, [r.id])
+      for (const d of f.disapplies ?? []) {
+        await client.query(
+          `INSERT INTO nsw.rule_edge (from_rule_id, to_ref, edge_type, authority, scope, source_span, confidence, cross_document)
+           VALUES ($1, $2, 'disapplies', 'instrument', $3::jsonb, $4, 1.0, true)`,
+          [r.id, d.instrument.startsWith('doc_type:') ? d.instrument : `document:${d.instrument}`,
+           JSON.stringify({ part: d.part ?? null, meaning: 'that instrument (or the part named) does not apply to the land this frame reaches' }),
+           `${d.clause}: ${d.span}`])
+      }
       await client.query(`DELETE FROM nsw.rule_edge WHERE from_rule_id = $1 AND edge_type = 'excepts' AND scope ->> 'kind' = 'yields'`, [r.id])
       for (const y of f.yields ?? []) {
         await client.query(
@@ -87,14 +99,15 @@ async function main() {
   }
 
   // ── coverage: every section under the chapter -> its most specific frame ──────────────────────────
-  const root = byLocal.get(CHAPTER)
-  if (!root) throw new Error(`no section ${CHAPTER}`)
+  // --chapter all: the whole instrument (a Precinct SEPP's units are chapters AND appendices, so no one chapter covers it)
+  const root = CHAPTER === 'all' ? null : byLocal.get(CHAPTER)
+  if (CHAPTER !== 'all' && !root) throw new Error(`no section ${CHAPTER}`)
   const ancestors = (s: any): string[] => {
     const out: string[] = []
     for (let x = s; x; x = x.parent_id ? byId.get(x.parent_id) : null) out.push(x.local_id)
     return out
   }
-  const under = sections.filter(s => ancestors(s).includes(CHAPTER))
+  const under = CHAPTER === 'all' ? sections : sections.filter(s => ancestors(s).includes(CHAPTER))
   const rows: { local_id: string; level: string; heading: string; frame: string | null; ties: string[] }[] = []
   for (const s of under) {
     const chain = ancestors(s)

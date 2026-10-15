@@ -47,6 +47,9 @@ export interface Frame {
   prevails?: { over: ('lep' | 'dcp')[]; clause: string; span: string }
   /** another instrument that prevails over this frame's part (s 8(2)): recorded as an `excepts` edge, shown, not evaluated */
   yields?: { to: string; part?: string; clause: string; span: string }[]
+  /** instruments (or parts of them) this frame's land is taken out of ("X does not apply to land to which this Chapter
+   *  applies"): a `disapplies` edge to `document:<title>`, or to `doc_type:lep` for "a local environmental plan" */
+  disapplies?: { instrument: string; part?: string | null; clause: string; span: string }[]
   validFrom?: string
   note?: string
 }

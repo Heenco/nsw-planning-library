@@ -12,7 +12,10 @@
  * rows; the `basis: 'hand'` rows in `unitKeys` and every `note` are readings to review. Spans are quoted from the
  * XML as at 2026-10-15. Schedules named for a chapter ("Environmental heritage—Chapter 5") are governed by that
  * chapter's frame; list-only schedules with no chapter in their name sit under the instrument frame.
- * REVIEW STATUS: not reviewed.
+ * REVIEW STATUS: reviewed - Manni answered Q1 (a)-(f) in session on 2026-10-15 (docs/precinct-sepp-progress.md):
+ * prevails over the LEP only; "the only instruments that apply" and a clause disapplying the LEP both read as
+ * prevailing over the LEP; parents by kind, not by citation count; growth centre land with no released precinct
+ * plan has no unit; the Opera House buffer is app.1 and the three EHC foreshore / port keys stay null.
  */
 import type { InstrumentProfile, TermMapping } from './housing-sepp-2021'
 
@@ -134,7 +137,11 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by State significant precinct—Huntingwood West Precinct', polarity: 'applies', clause: '1',
           span: 'This Appendix applies to the land identified on the following map, referred to in this Schedule as the Huntingwood West Precinct—', term: 'unit:precincts-central-river-city-2021:app.2' },
       ],
-      note: 'the relationship clause disapplies other instruments (an excludes edge, step 4): Chapter 2 and all other State environmental planning policies apply, according to their terms, to land within the Huntingwood West Precinct. Blacktown Local Environmental Plan 1988 does not apply to land within the Huntingwood West Precinct.',
+      prevails: { over: ['lep'], clause: '14', span: 'Chapter 2 and all other State environmental planning policies apply, according to their terms, to land within the Huntingwood West Precinct. Blacktown Local Environmental Plan 1988 does not apply to land within the Huntingwood West Precinct.' },
+      disapplies: [
+        { instrument: 'Blacktown Local Environmental Plan 1988', part: null, clause: '14', span: 'Blacktown Local Environmental Plan 1988 does not apply to land within the Huntingwood West Precinct.' },
+      ],
+      note: 'the relationship clause disapplies the LEP (or every other instrument) on this land: written as prevailing over the LEP; any SEPP it also disapplies is an excludes edge (step 4) | disapplies 1 instrument(s) or part(s) on this land - written as disapplies edges (step 4)',
     },
     {
       id: 'app.3',
@@ -153,7 +160,7 @@ const profile: InstrumentProfile = {
     {
       id: 'app.4',
       title: 'State significant precinct—Sydney Olympic Park site',
-      parent: 'ch.4',
+      parent: 'ch.2',
       clause: '1',
       section: 'app.4-inc-pt.1-sec.1',
       governs: ['app.4'],
@@ -175,7 +182,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by North Kellyville Precinct Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the North Kellyville Precinct.', term: 'unit:precincts-central-river-city-2021:app.5' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'app.6',
@@ -188,7 +195,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by Riverstone West Precinct Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Riverstone West Precinct.', term: 'unit:precincts-central-river-city-2021:app.6' },
       ],
-      note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter that cites it most (1 citations) - REVIEW the attribution',
+      note: 'no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'app.7',
@@ -201,7 +208,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by Alex Avenue and Riverstone Precinct Plan 2010', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Alex Avenue and Riverstone Precincts as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Boundary Map and, as such, this Precinct Plan does not apply to all the land within the Alex Avenue and Riverstone Precinc', term: 'unit:precincts-central-river-city-2021:app.7' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'app.8',
@@ -214,7 +221,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by Area 20 Precinct Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Area 20 Precinct as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Boundary Map and, as such, this Precinct Plan does not apply to all the land within the Area 20 Precinct (as shown on the Precinct Boundary Ma', term: 'unit:precincts-central-river-city-2021:app.8' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'app.9',
@@ -227,7 +234,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by Schofields Precinct Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Schofields Precinct as shown on the Land Application Map.', term: 'unit:precincts-central-river-city-2021:app.9' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'app.10',
@@ -240,7 +247,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by The Hills Growth Centre Precincts Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Box Hill Precinct or Box Hill Industrial Precinct as shown on the Land Application Map.', term: 'unit:precincts-central-river-city-2021:app.10' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'app.11',
@@ -253,7 +260,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by Blacktown Growth Centres Precinct Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Marsden Park Precinct, to land within the Riverstone East Stage 1 and 2 Precinct, and to land within the West Schofields (Townson Road) Precinct, as shown on the Land Application Map. Note. The Land Application Map differs from the Precinct Boundary Map ', term: 'unit:precincts-central-river-city-2021:app.11' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'sch.12',
@@ -266,7 +273,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by Hawkesbury Growth Centres Precinct Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Vineyard Precinct as shown on the Land Application Map. Note. The Land Application Map differs from the Vineyard Precinct Boundary Map and, as such, this Precinct Plan does not apply to all the land within the Vineyard Precinct (as shown on the Vineyard ', term: 'unit:precincts-central-river-city-2021:sch.12' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'app.13',
@@ -279,7 +286,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by Marsden Park Industrial Precinct Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Marsden Park Industrial Precinct as shown on the Land Application Map.', term: 'unit:precincts-central-river-city-2021:app.13' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
     {
       id: 'app.14',
@@ -292,7 +299,7 @@ const profile: InstrumentProfile = {
         { dimension: 'defined_area', value: 'governed by Riverstone East Stage 3 Precinct Plan', polarity: 'applies', clause: '1.3',
           span: 'This Precinct Plan applies to land within the Riverstone East Stage 3 Precinct as shown on the Land Application Map.', term: 'unit:precincts-central-river-city-2021:app.14' },
       ],
-      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres; no chapter cites it by number or name) - REVIEW the attribution',
+      note: 'no relationship clause found under this unit: EP&A Act s 3.28 default (a SEPP prevails over an LEP to the extent of inconsistency) | no relationship clause of its own: inherits the frame of ch.3, the chapter of its kind (Sydney region growth centres)',
     },
   ],
   terms: [
@@ -323,30 +330,30 @@ const profile: InstrumentProfile = {
   },
   /** which map polygon key names which unit - the authority for nsw.instrument_unit_map once reviewed (scripts/pipeline/units.ts) */
   unitKeys: [
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Kurnell Peninsula) 1989 Land Application Map', lay_class: 'Land Application', label: null, unit: 'ch.5', basis: 'proposed', note: '1 equals heading (map_name)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Precincts—Central River City) 2021 Sydney Olympic Park Land Application Map', lay_class: 'Subject Land', label: 'Sydney Olympic Park', unit: 'app.4', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (SSP) 2005 Channel 7 site Land Application Map', lay_class: 'Subject Land', label: 'Channel 7', unit: 'app.1', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (SSP) 2005 Greystanes Southern Employment Lands site Land Application Map', lay_class: 'Subject Land', label: 'Greystanes Southern Employment Lands', unit: 'app.3', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (SSP) 2005 Land Application Map', lay_class: 'Subject Land', label: 'Huntingwood West', unit: 'app.2', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 11, Clause 1.3', label: 'The Hills Growth Centre Precincts Plan', unit: 'app.10', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 12, Clause 1.3', label: 'Blacktown Growth Centres Precinct Plan', unit: 'app.11', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 12, Clause 1.3', label: 'Riverstone East Stage 1 and 2', unit: 'app.11', basis: 'proposed', note: '3 phrase in applies clause (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 12, Clause 1.3', label: 'West Schofields Precinct', unit: 'app.11', basis: 'proposed', note: '3 phrase in applies clause (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 13, Clause 1.3', label: 'Vineyard', unit: 'sch.12', basis: 'proposed', note: '3 phrase in applies clause (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 14', label: 'Riverstone East Stage 3', unit: 'app.14', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 4, Clause 1.3', label: 'Alex Avenue and Riverstone Precinct Plan', unit: 'app.7', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 5, Clause 1.3', label: 'Marsden Park Industrial Precinct Plan', unit: 'app.13', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 6, Clause 1.3', label: 'Area 20 Precinct Plan', unit: 'app.8', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 7, Clause 1.3', label: 'Schofields Precinct Plan', unit: 'app.9', basis: 'proposed', note: '1 equals heading (label)' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Map', lay_class: 'Growth Centres', label: 'North West Growth Centre', unit: 'ch.3', basis: 'hand', note: 'the growth centre boundary, not a precinct plan: Chapter 3' },
-    { layer: 'epi.epi_land_application', map_name: 'SEPP (Urban Renewal) 2010 Land Application Map', lay_class: 'Land Application', label: null, unit: 'ch.6', basis: 'proposed', note: '1 equals heading (map_name)' },
-    { layer: 'epi.epi_land_application', map_name: 'SREP No 24—Homebush Bay Area—Map 1—Land Application Map', lay_class: 'Land Application', label: null, unit: 'ch.4', basis: 'proposed', note: '1 equals heading (map_name)' },
-    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (Kurnell Peninsula) 1989 Land Zoning Map', lay_class: null, label: null, unit: 'ch.5', basis: 'proposed', note: '1 equals heading (map_name)' },
-    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (Precincts-Central River City) 2021 North West Growth Centre Land Zoning Map', lay_class: null, label: null, unit: 'ch.3', basis: 'hand', note: 'as above' },
-    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (Precincts—Central River City) 2021 Sydney Olympic Park Land Zoning Map', lay_class: null, label: null, unit: 'app.4', basis: 'proposed', note: '1 equals heading (map_name)' },
-    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (SSP) 2005 Channel 7 site Land Zoning Map', lay_class: null, label: null, unit: 'app.1', basis: 'proposed', note: '1 equals heading (map_name)' },
-    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (SSP) 2005 Greystanes Southern Employment Lands site Land Zoning Map', lay_class: null, label: null, unit: 'app.3', basis: 'proposed', note: '1 equals heading (map_name)' },
-    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Zoning Map', lay_class: null, label: null, unit: 'ch.3', basis: 'hand', note: 'zoned by the growth centre map with no released precinct plan at the point: Chapter 3 (the transitional growth centre controls) is the unit' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Kurnell Peninsula) 1989 Land Application Map', lay_class: 'Land Application', label: null, unit: 'ch.5', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Precincts—Central River City) 2021 Sydney Olympic Park Land Application Map', lay_class: 'Subject Land', label: 'Sydney Olympic Park', unit: 'app.4', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (SSP) 2005 Channel 7 site Land Application Map', lay_class: 'Subject Land', label: 'Channel 7', unit: 'app.1', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (SSP) 2005 Greystanes Southern Employment Lands site Land Application Map', lay_class: 'Subject Land', label: 'Greystanes Southern Employment Lands', unit: 'app.3', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (SSP) 2005 Land Application Map', lay_class: 'Subject Land', label: 'Huntingwood West', unit: 'app.2', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 11, Clause 1.3', label: 'The Hills Growth Centre Precincts Plan', unit: 'app.10', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 12, Clause 1.3', label: 'Blacktown Growth Centres Precinct Plan', unit: 'app.11', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 12, Clause 1.3', label: 'Riverstone East Stage 1 and 2', unit: 'app.11', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 12, Clause 1.3', label: 'West Schofields Precinct', unit: 'app.11', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 13, Clause 1.3', label: 'Vineyard', unit: 'sch.12', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 14', label: 'Riverstone East Stage 3', unit: 'app.14', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 4, Clause 1.3', label: 'Alex Avenue and Riverstone Precinct Plan', unit: 'app.7', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 5, Clause 1.3', label: 'Marsden Park Industrial Precinct Plan', unit: 'app.13', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 6, Clause 1.3', label: 'Area 20 Precinct Plan', unit: 'app.8', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Application Map', lay_class: 'Appendix 7, Clause 1.3', label: 'Schofields Precinct Plan', unit: 'app.9', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Map', lay_class: 'Growth Centres', label: 'North West Growth Centre', unit: null, basis: 'hand', note: 'REVIEWED: the growth centre boundary, not a precinct plan - no unit' },
+    { layer: 'epi.epi_land_application', map_name: 'SEPP (Urban Renewal) 2010 Land Application Map', lay_class: 'Land Application', label: null, unit: 'ch.6', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_application', map_name: 'SREP No 24—Homebush Bay Area—Map 1—Land Application Map', lay_class: 'Land Application', label: null, unit: 'ch.4', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (Kurnell Peninsula) 1989 Land Zoning Map', lay_class: null, label: null, unit: 'ch.5', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (Precincts-Central River City) 2021 North West Growth Centre Land Zoning Map', lay_class: null, label: null, unit: null, basis: 'hand', note: 'REVIEWED: as above' },
+    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (Precincts—Central River City) 2021 Sydney Olympic Park Land Zoning Map', lay_class: null, label: null, unit: 'app.4', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (SSP) 2005 Channel 7 site Land Zoning Map', lay_class: null, label: null, unit: 'app.1', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (SSP) 2005 Greystanes Southern Employment Lands site Land Zoning Map', lay_class: null, label: null, unit: 'app.3', basis: 'proposed', note: 'profile precincts-central-river-city-2021 (proposed)' },
+    { layer: 'epi.epi_land_zoning', map_name: 'SEPP (Sydney Region Growth Centres) 2006 North West Growth Centre Land Zoning Map', lay_class: null, label: null, unit: null, basis: 'hand', note: 'REVIEWED: zoned by the growth centre map with no released precinct plan at the point - no unit (fail closed), not Chapter 3' },
   ],
 }
 export default profile
