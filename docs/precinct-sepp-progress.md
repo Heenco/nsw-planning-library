@@ -367,4 +367,29 @@ line and section 9 answers; what stays held is listed with why.
   problems). Endpoint, claims reader and page read the schema. The Land Use Table section was already served from the
   pregenerated rows (~100 ms); the page's slow parts remain the engine's lot facts and the use-by-use evaluation.
   Re-run after any corpus re-ingest: `python -I scripts/precinct/resolve-lut.py`, then `run.ts --only claims,bindings`.
+- 2026-10-16 early: Manni: one sample address per zone, a coverage script, and the 171-leaf test on the precinct tables.
+  `scripts/precinct/lut-coverage.py` (exit 1 on a gap): (1) every (instrument, unit, zone) derived.lot_instrument puts
+  a governing lot in vs precinct.lut_permissibility; (2) every table answers all 171 leaf uses of the universe (01E's
+  invariant); (3) zone codes on lots no table of the instrument carries. First run: 108 of 249 combinations covered,
+  3 tables short of 171. Found and fixed, all in resolve-lut.py and all read from the instrument or its map:
+  (a) the State significant precinct plans (CRC app.1/3/4, WPC app.1, Regional app.2-6, EHC app.3/5/6/7) write their
+  tables as CLAUSES - "Zone RE1 Public Recreation" with subclauses "The objectives...", "Development for any of the
+  following purposes is permitted without consent...", "... permitted only with consent ...", "... is prohibited ..."
+  - with the uses in the paragraph under each, inline, or as a whole sentence ("development for any purpose may be
+  carried out with consent", "development is prohibited unless ... subsection (2)", "development is permitted with
+  consent on land within the Business Zone—Business Park unless it is prohibited by subsection (2)"); the residual
+  names subsections, which are translated to items, forward references included; (b) the 2021 zone renaming: a table
+  headed "Zone E2 Environmental Conservation" is keyed by every code the instrument's own zoning map gives that NAME
+  (C2; and both B4 and MU1 where a half-renamed map draws "Mixed Use" under both - a second copy under zone_id
+  "...~MU1"); "Zone 1 Urban Development" -> UD, "Business Zone—Business Park" -> C the same way; (c) "Any
+  development not specified in item 3", "not otherwise specified", "Any other development"; (d) a clause that permits
+  one use in a zone (Kings Forest "Zone 2 (c)") is not a table. Now 274 tables (CRC 137, WPC 86, Regional 26, EHC 25),
+  9,691 lines, 56,275 rows; 274/274 answer all 171 leaves; keys 99/99; 166 of 250 unit x zone combinations covered.
+  The 84 still uncovered are three further drafting forms, not resolver gaps: SREP-style chapters (WPC ch.6 St Marys
+  5,547 lots "In the Urban zone— (a) ...", EHC ch.4 City West "The only uses permissible in this zone are—", EHC ch.6
+  Cooks Cove), chapter tables the corpus flattened - the zone wrapper is missing in rag.provision (WPC ch.4 Aerotropolis
+  970 lots, ch.5 Penrith Lakes 531, CRC ch.5 Kurnell) - and the Alpine schedules (Regional sch.1/1A/1B/1D, 751 lots).
+  Separate from the tables: 18,431 governing lots (CRC 6,048, WPC 12,383) have NO unit (unit_local_id null) - the
+  unit map's land-application binding has not reached them (step 2), so no table can be chosen for them whatever the
+  resolver does. Samples: one addressed lot per (instrument, unit, zone), precinct instruments only.
 
