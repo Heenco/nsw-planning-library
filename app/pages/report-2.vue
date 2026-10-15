@@ -267,8 +267,8 @@
             </div>
             <p class="r2-small">
               The grid gives how steep the ground is, not which way it faces, so each view shows the most it can fall that way - the
-              whole slope running in that direction. On a real lot the fall splits between the two; ground levels (a survey, or a
-              5 m elevation model) would settle which way it runs.
+              whole slope running in that direction. On a real lot the fall splits between the two; the levels and contours below,
+              from the 5 m elevation model, show which way it actually runs.
             </p>
 
             <h3>How much of the lot is how steep</h3>
@@ -287,6 +287,10 @@
               <NuxtLink :to="`/testing-slope?cadid=${cadid}`">How it was measured</NuxtLink>
             </p>
           </template>
+
+          <!-- ground levels from the 5 m elevation model: contours, the fall and its direction, survey marks -->
+          <h3>Levels and contours</h3>
+          <SlopeTerrain v-if="cadid" :cadid="cadid" />
         </section>
 
         <!-- ── 3. Locality and council ─────────────────────────────────── -->
