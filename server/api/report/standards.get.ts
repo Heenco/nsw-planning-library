@@ -47,6 +47,8 @@ export interface StandardsResponse {
   height: StandardPanel[]
   fsr: StandardPanel[]
   lotSize: StandardPanel[]
+  /** the Residential Density Map (growth centre precinct plans), precinct mode only: an LEP has no such map */
+  density?: StandardPanel[]
   /** null = derived.lot_instrument has not reached this lot */
   governing: Governing | null
   ms: number
@@ -93,7 +95,7 @@ export default defineEventHandler(async (event): Promise<StandardsResponse> => {
   if (!cadid) throw createError({ statusCode: 400, statusMessage: 'cadid is required' })
   setHeader(event, 'cache-control', 'public, max-age=60')
   const gov = precinct ? await governingOf(cadid) : null
-  const [zone, height, fsr, lotSize] = await Promise.all([
+  const [zone, height, fsr, lotSize, density] = await Promise.all([
     panels(cadid, 'epi_land_zoning', 'x.sym_code', r => ({ value: [clean(r.sym_code), clean(r.lay_class)].filter(Boolean).join(' ') || null, number: null }), gov),
     panels(cadid, 'epi_height_of_building', 'x.max_b_h, x.max_b_h_m, x.max_b_h_rl, x.units', (r) => {
       const rl = num(r.max_b_h_rl), m = num(r.max_b_h_m) ?? num(r.max_b_h)
@@ -107,6 +109,10 @@ export default defineEventHandler(async (event): Promise<StandardsResponse> => {
       const ha = /ha/i.test(String(r.units ?? ''))
       return { value: ha ? `${fmt(s)} ha` : `${Math.round(s).toLocaleString('en-AU')} m²`, number: ha ? s * 10000 : s }
     }, gov),
+    precinct ? panels(cadid, 'epi_dwelling_density', 'x.min_dwelling_density', (r) => {
+      const d = num(r.min_dwelling_density) ?? (num(r.lay_class) != null ? num(r.lay_class) : null)
+      return d != null && d > 0 ? { value: `${fmt(d)} dwellings/ha minimum`, number: d } : { value: null, number: null }
+    }, gov).catch(() => [] as StandardPanel[]) : Promise.resolve(undefined),
   ])
-  return { zone, height, fsr, lotSize, governing: gov, ms: Date.now() - started }
+  return { zone, height, fsr, lotSize, ...(precinct ? { density } : {}), governing: gov, ms: Date.now() - started }
 })
