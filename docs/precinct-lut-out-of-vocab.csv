@@ -1,0 +1,46 @@
+term,resolution,entries,units,units_defining_it,units
+drainage,UNRESOLVED,65,14,0,CRC:app.11; CRC:app.13; CRC:app.14; CRC:app.5; CRC:app.6; CRC:app.7
+earthworks,UNRESOLVED,50,12,0,CRC:app.11; CRC:app.13; CRC:app.14; CRC:app.5; CRC:app.6; CRC:app.7
+bulky goods premises,UNRESOLVED,35,12,0,CRC:app.10; CRC:app.13; CRC:app.5; CRC:app.6; CRC:app.7; CRC:app.8
+boat repair facilities,UNRESOLVED,33,11,0,CRC:app.10; CRC:app.11; CRC:app.13; CRC:app.14; CRC:app.7; CRC:app.8
+studio dwellings,UNRESOLVED,26,12,0,CRC:app.10; CRC:app.11; CRC:app.13; CRC:app.14; CRC:app.5; CRC:app.7
+restriction facilities,UNRESOLVED,25,8,0,CRC:app.11; CRC:app.13; CRC:app.14; CRC:app.6; CRC:app.7; CRC:app.8
+biosolid waste applications,UNRESOLVED,19,5,0,CRC:app.13; CRC:app.5; CRC:app.6; CRC:app.8; WPC:app.2
+"the purpose shown on the land zoning map, including any development that is ordinarily incidental or ancillary to development for that purpose",UNRESOLVED,18,18,0,CRC:app.10; CRC:app.11; CRC:app.13; CRC:app.14; CRC:app.5; CRC:app.6
+waste management facilities,UNRESOLVED,17,5,0,CRC:app.7; CRC:app.8; CRC:app.9; CRC:sch.12; WPC:app.2
+manor homes,UNRESOLVED,16,14,0,CRC:app.10; CRC:app.11; CRC:app.13; CRC:app.14; CRC:app.5; CRC:app.7
+timber and building supplies,UNRESOLVED,14,7,0,CRC:app.5; CRC:app.6; CRC:app.7; CRC:app.9; WPC:app.2; WPC:app.4
+funeral chapels,UNRESOLVED,13,7,0,CRC:app.10; CRC:app.11; CRC:app.6; CRC:app.7; CRC:app.8; CRC:app.9
+restaurants,UNRESOLVED,9,6,0,CRC:app.10; CRC:app.11; CRC:app.9; WPC:app.4; WPC:app.5; WPC:app.6
+mines,UNRESOLVED,8,2,0,Regional:ch.6; WPC:app.2
+waste disposal land fill operations,UNRESOLVED,7,1,0,WPC:app.2
+landscape and garden supplies,UNRESOLVED,6,4,0,CRC:app.6; CRC:app.7; CRC:app.9; WPC:app.2
+materials recycling or recovery centres,UNRESOLVED,6,1,0,WPC:app.2
+canal estate developments,UNRESOLVED,4,1,0,CRC:app.5
+moveable dwellings,UNRESOLVED,4,2,0,CRC:app.13; CRC:app.8
+sewage treatment works,UNRESOLVED,4,1,0,WPC:app.2
+telecommunications facilities,UNRESOLVED,4,1,0,WPC:app.2
+temporary structures,UNRESOLVED,4,1,0,WPC:app.2
+crematoria: depots,UNRESOLVED,4,4,0,WPC:app.7; WPC:app.8; WPC:app.9; WPC:sch.11
+swimming pools,UNRESOLVED,3,3,0,CRC:app.13; CRC:app.5; CRC:app.8
+semi detached dwellings,UNRESOLVED,3,1,0,WPC:app.2
+function centres (other than those within recreation areas or operated in conjunction with recreation areas or recreation facilities),UNRESOLVED,2,1,0,WPC:app.2
+"retail premises (other than neighbourhood shops and other than kiosks, markets, restaurants or take away food and drink premises within recreation areas or operated in conjunction with recreation areas or recreation facilities)",UNRESOLVED,2,1,0,WPC:app.2
+utility installations,UNRESOLVED,2,1,0,WPC:app.2
+waterbodies,UNRESOLVED,2,1,0,WPC:app.2
+environmental facilities: environmental protection works,UNRESOLVED,2,2,0,WPC:app.7; WPC:app.8
+residential flat buildings (other than as a component of a mixed use development),UNRESOLVED,1,1,0,CRC:app.5
+attached dwellings (other than as a component of mixed use development),UNRESOLVED,1,1,0,CRC:app.5
+multi dwelling housing (other than as a component of mixed use development),UNRESOLVED,1,1,0,CRC:app.5
+residential flat buildings (other than as a component of mixed use development),UNRESOLVED,1,1,0,CRC:app.5
+animal or boarding training establishments,UNRESOLVED,1,1,0,EHC:app.8
+residential flat buildings (other than as shop top housing),UNRESOLVED,1,1,0,WPC:app.2
+seniors housing (other than as shop top housing),UNRESOLVED,1,1,0,WPC:app.2
+tourist and visitor accommodation (other than hotel or motel accommodation),UNRESOLVED,1,1,0,WPC:app.2
+any other development not otherwise specified in item 2 or 4,UNRESOLVED,1,1,0,WPC:app.2
+retail premises (other than neighbourhood shops and take away food and drink premises),UNRESOLVED,1,1,0,WPC:app.2
+waterbodies (natural),UNRESOLVED,1,1,0,WPC:app.2
+any other development not otherwise specified in item 2 or 3,UNRESOLVED,1,1,0,WPC:app.2
+"home businesses, hostels",UNRESOLVED,1,1,0,WPC:app.3
+bush fire hazard reduction works,UNRESOLVED,1,1,0,WPC:app.6
+"the purpose shown on the land zoning map, including any development ordinarily incidental or ancillary to development for the purpose",UNRESOLVED,1,1,0,WPC:app.9

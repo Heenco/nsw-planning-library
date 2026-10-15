@@ -217,7 +217,7 @@ answers as before). Normanhurst: uses / subdivision / build-controls go from Hor
 drop Hornsby's table ("no Land Use Table row"). Olympic Park: `cdc/types`, `housing/at`, `pattern-book/at` drop the Canada
 Bay sliver's table. The Ponds: unchanged apart from the governing line.
 
-### 6. Land Use Tables per unit — `todo`
+### 6. Land Use Tables per unit — `blocked` 2026-10-15 (Q3: notebook changes and 45 vocabulary terms are Manni's)
 Extend the LUT reader (01E `lut_xml.py` / `scripts/build-zone-lu-index.mjs`, whichever is the live
 one — record which) to key by `(document, unit, zone)`; vocabulary growth from each unit's dictionary;
 residual forms "any development not specified in item 2 or 3" and the SP-zone verbatim form handled as
@@ -226,6 +226,19 @@ sentence forms. Write to `nsw.lep_permissibility` with `unit_local_id` and a `ru
 a grown term with its dictionary source, or a residual form); counts per instrument written here;
 `rag.map_polygon` loaded for the four documents with the appendix map names; check and record whether
 height / FSR / lot size polygons are labelled per appendix.
+
+**Finding:** the live Land Use Table reader is not in this repo. It is `01D` (XML -> `public.lep_zones` on UrbanPortalDBP,
+keeping only clausegroups whose id STARTS with `pt-cg1.Zone_` / `pt-inc.Zone_`, and only instruments flagged
+`is_standard_lep`) -> `01E` (closed vocabulary `01E-vocab/vocab_config.py`, hierarchy, catch-all; refuses any string
+outside CANONICAL_USES when STRICT_VOCAB) -> `scripts/copy-lep-permissibility.mjs` -> `nsw.lep_permissibility`. The
+table already carries `zone_id` (e.g. `pt-cg1.Zone_R2`), so a Precinct SEPP row keyed `app.7-inc-pt-cg1.Zone_R2` names its
+unit by its prefix; a `unit_local_id` column stays the plan (D4) but is derivable. Measured on the four XMLs with the
+residual forms excluded: **422 Land Use Table entries, 45 distinct terms, fall outside the 203-term vocabulary and the
+115-entry TERM_MAP** (`docs/precinct-lut-out-of-vocab.csv`: drainage 65, earthworks 50, bulky goods premises 35, boat
+repair facilities 33, studio dwellings 26, restriction facilities 25, biosolid waste applications 19, "the purpose shown
+on the land zoning map" 18 (SP zones), waste management facilities 17, manor homes 16, timber and building supplies 14,
+funeral chapels 13, restaurants 9 ...). Most are pre-2021 Standard Instrument terms the appendices still use.
+Nothing of this can be done from the app repo without forking the reader, which principle 2 forbids.
 
 ### 7. RAG corpus — `todo`
 Add the four instruments to `scripts/rag/corpus.json` (route `section`, scope = the appendices and
@@ -261,6 +274,17 @@ line and section 9 answers; what stays held is listed with why.
   Rocks, Port and Related Employment Lands -> null; Opera House buffer -> app.1). Reply "profiles OK" (with any
   edits) to unblock; `scripts/pipeline/units.ts --profile <name>` then confirms the unit map.
 - **Q2 (step 2):** 50% cover threshold and own-council tie-break - **answered: keep** (Manni, 2026-10-15).
+- **Q3 (step 6, blocks steps 6, 8 keys' permissibility answers, 10):** three things only the notebooks' owner can do:
+  (1) `01D`: load the four Precinct SEPP XMLs (`public/EPI/SEPP/epi-2021-072[5-8]_2026-10-15.xml`) into `lep_zones` -
+  widen the zone-group test from "id starts with `pt-cg1.Zone_`" to "id contains `cg1.Zone_` or `inc.Zone_`" and keep the
+  full group id as `zone_id` (the unit is its prefix); the `is_standard_lep` contract becomes "has zone clausegroups".
+  (2) `01E`: the 45 terms in `docs/precinct-lut-out-of-vocab.csv` - run `build_vocab.py` over them (its step 5 promotes a
+  term used by 2+ instruments; the growth centre appendices count as one epicode each) or map them by hand
+  (bulky goods premises -> specialised retail premises, restriction facilities -> correctional centres, boat repair
+  facilities -> boat building and repair facilities, waste management facilities -> waste or resource management
+  facilities ...); drainage, earthworks, studio dwellings, manor homes are NEW terms. (3) run 01D, 01E,
+  `scripts/copy-lep-permissibility.mjs`. Then I switch the readers' permissibility join to the unit
+  (`zone_id` prefix = `derived.lot_instrument.unit_local_id`, NULL/`pt-` = the whole plan).
 
 
 ## Log
@@ -270,3 +294,4 @@ line and section 9 answers; what stays held is listed with why.
 - 2026-10-15 step 2 built and verified on seven councils (state-wide build running); step 3 drafted and blocked on review (Q1).
 - 2026-10-15 Q1 and Q2 answered in session; steps 3 and 4 done; unit map confirmed, 70 frames held.
 - 2026-10-15 state-wide lot_instrument swapped in (step 2 done); readers switched (step 5 done), before/after verified on 7 lots.
+- 2026-10-15 step 6 blocked on Q3 (01D/01E + 45 vocabulary terms); moving to step 7.
