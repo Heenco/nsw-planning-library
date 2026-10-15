@@ -277,7 +277,9 @@ async function main() {
   for (const inst of insts) {
     const tables = provs.filter(p => p.document_id === inst.document_id && p.kind === 'group' && /^Zone\s/.test(norm(p.heading)) && (kids.get(p.id) ?? []).some(isItem))
     if (!tables.length) continue
-    const rows = (await q(`SELECT zone_id, zone_code, land_use, status, basis, derived_from, source_text FROM nsw.lep_permissibility WHERE epi_name = $1 AND level = 'leaf'`, [inst.title])).rows
+    // the resolved rows: 01E's for a plan, scripts/precinct/resolve-lut.py's for a multi-unit instrument (zone_id = the table's group)
+    const rows = [...(await q(`SELECT zone_id, zone_code, land_use, status, basis, derived_from, source_text FROM nsw.lep_permissibility WHERE epi_name = $1 AND level = 'leaf'`, [inst.title])).rows,
+      ...(await q(`SELECT zone_id, zone_code, land_use, status, basis, derived_from, source_text FROM nsw.lep_permissibility_unit WHERE epi_name = $1 AND level = 'leaf'`, [inst.title]).catch(() => ({ rows: [] as any[] }))).rows]
     // the zone code: "Zone R3 Medium Density Residential" names it; "Zone 1 Urban Development" does not, and the
     // instrument's own zoning map does (the zone's name beside its code)
     const named = new Map<string, string>()

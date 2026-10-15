@@ -8,6 +8,12 @@
  *   /api/lep-permissibility?name=Hornsby Local Environmental Plan 2013&code=R2
  *                                                  → the same zone, looked up the
  *                                                    way a property record names it
+ *   /api/lep-permissibility?name=…&code=R3&unit=app.7
+ *                                                  → the table of one unit of a
+ *                                                    multi-unit instrument (a Precinct
+ *                                                    SEPP's appendix or chapter), from
+ *                                                    nsw.lep_zones_unit / _permissibility_unit
+ *                                                    (scripts/precinct/resolve-lut.py)
  *
  * Two tables back this and they answer different questions.
  *
@@ -78,23 +84,24 @@ export default defineEventHandler(async (event) => {
   const name = String(query.name ?? '').trim()
   const zone = String(query.zone ?? '').trim()
   const code = String(query.code ?? '').trim()
+  const unit = String(query.unit ?? '').trim() || null
   setHeader(event, 'cache-control', 'public, max-age=600')
 
   if (!epi && !name) return listPlans()
 
-  const epicode = epi || await resolvePlan(name)
+  const epicode = epi || await resolvePlan(name, unit)
   if (!epicode) {
     return { ok: false as const, reason: 'unknown_plan' as const, message: `No Land Use Table for a plan named "${name}".` }
   }
 
   if (!zone && !code) return listZones(epicode)
 
-  const zoneId = zone || await resolveZone(epicode, code)
+  const zoneId = zone || await resolveZone(epicode, code, unit)
   if (!zoneId) {
-    return { ok: false as const, reason: 'unknown_zone' as const, message: `No zone ${code} in ${epicode}.` }
+    return { ok: false as const, reason: 'unknown_zone' as const, message: `No zone ${code} in ${epicode}${unit ? ` ${unit}` : ''}.` }
   }
 
-  return zoneDetail(epicode, zoneId)
+  return zoneDetail(epicode, zoneId, unit)
 })
 
 // ── By name and code ───────────────────────────────────────────────────────
@@ -103,9 +110,12 @@ export default defineEventHandler(async (event) => {
 // epicode and zone id the tables are keyed by, so the report looks a zone up
 // the way the record names it: ?name=Hornsby Local Environmental Plan 2013&code=R2.
 
-async function resolvePlan(name: string): Promise<string | null> {
+/** the pair of tables a read comes from: the plan's own (01D/01E) or, for a unit of a multi-unit instrument, the unit tables */
+const tablesFor = (unit: string | null) => unit ? { zones: 'nsw.lep_zones_unit', perm: 'nsw.lep_permissibility_unit' } : { zones: 'nsw.lep_zones', perm: 'nsw.lep_permissibility' }
+
+async function resolvePlan(name: string, unit: string | null = null): Promise<string | null> {
   const res = await withNswClient(client => client.query<{ epicode: string }>(
-    `SELECT epicode FROM nsw.lep_permissibility WHERE lower(epi_name) = lower($1) LIMIT 1`,
+    `SELECT epicode FROM ${tablesFor(unit).perm} WHERE lower(epi_name) = lower($1) LIMIT 1`,
     [name],
   ))
   return res.rows[0]?.epicode ?? null
@@ -116,12 +126,14 @@ async function resolvePlan(name: string): Promise<string | null> {
  * standard table, with a `pt-inc` id beside the `pt-cg1` one; the standard
  * table sorts first and is the one taken.
  */
-async function resolveZone(epicode: string, code: string): Promise<string | null> {
+async function resolveZone(epicode: string, code: string, unit: string | null = null): Promise<string | null> {
   const res = await withNswClient(client => client.query<{ zone_id: string }>(
-    `SELECT zone_id FROM nsw.lep_zones
+    unit
+      ? `SELECT zone_id FROM nsw.lep_zones_unit WHERE epicode = $1 AND upper(zone_code) = upper($2) AND unit_local_id = $3 ORDER BY zone_id LIMIT 1`
+      : `SELECT zone_id FROM nsw.lep_zones
      WHERE epicode = $1 AND upper(zone_code) = upper($2)
      ORDER BY zone_id LIMIT 1`,
-    [epicode, code],
+    unit ? [epicode, code, unit] : [epicode, code],
   ))
   return res.rows[0]?.zone_id ?? null
 }
@@ -264,7 +276,8 @@ async function groupMembers(client: { query: (q: string) => Promise<{ rows: any[
   return map
 }
 
-async function zoneDetail(epicode: string, zoneId: string) {
+async function zoneDetail(epicode: string, zoneId: string, unit: string | null = null) {
+  const T = tablesFor(unit)
   const { raw, resolved, members } = await withNswClient(async (client) => {
     const members = await groupMembers(client)
     const namedCols = (await hasNamedColumns(client))
@@ -275,9 +288,9 @@ async function zoneDetail(epicode: string, zoneId: string) {
       land_use_type: string, land_use_category: string, land_use_description: string,
     }>(
       `SELECT zone_code, zone_name, land_use_type, land_use_category, land_use_description
-       FROM nsw.lep_zones
+       FROM ${T.zones}
        WHERE epicode = $1 AND zone_id = $2
-       ORDER BY ctid`,
+       ORDER BY ${unit ? 'ord' : 'ctid'}`,
       [epicode, zoneId],
     )
     const resolved = await client.query<{
@@ -288,7 +301,7 @@ async function zoneDetail(epicode: string, zoneId: string) {
     }>(
       `SELECT epi_name, land_use, level, status, basis, inherit_depth, derived_from,
               resolved_against, source_text, run_id, ${namedCols}
-       FROM nsw.lep_permissibility
+       FROM ${T.perm}
        WHERE epicode = $1 AND zone_id = $2
        ORDER BY land_use`,
       [epicode, zoneId],

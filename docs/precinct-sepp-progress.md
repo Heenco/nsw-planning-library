@@ -20,7 +20,7 @@ check has been run and its numbers are written below it.
 | D1 | Source text | the library copies `public/EPI/SEPP/epi-2021-072[5-8]_2026-03-2x.xml`; refresh through `scripts/rag/corpus_xml.py` (curl_cffi) when a newer in-force XML is wanted | default |
 | D2 | Governing unit | one derived table `derived.lot_instrument`, rank-then-cover rule, 50% cover threshold, point on surface; every reader switches to it, none keeps its own zoning query | default |
 | D3 | Per-instrument facts | `profiles/precincts-*.ts` (map name → unit, prevails exceptions, disapplied instruments), reviewed by Manni in this file before step 4 writes anything | default |
-| D4 | Land Use Table store | `nsw.lep_permissibility` with a nullable `unit_local_id` (additive), not a new table, so 09G / d_4 / every existing join keeps working | default |
+| D4 | Land Use Table store | AMENDED 2026-10-15: two sibling tables, `nsw.lep_zones_unit` + `nsw.lep_permissibility_unit` (01D/01E's shape plus unit_local_id / unit_heading), NOT rows in `nsw.lep_permissibility`. Every legacy reader (rules/at, cdc, housing, lmr, pattern-book, 09G -> d_4) joins the latter on (epi_name, zone_code); a SEPP with nine R3 tables would answer those joins nine times over, in prod, with no code pushed (the leak lesson). `/api/lep-permissibility?…&unit=` reads the unit tables. | amended by Claude, Manni to confirm |
 | D5 | Vocabulary | grown from each unit's own dictionary, run-scoped, closed; unknown residual forms stay "not held" | default |
 | D6 | Publishing | SEPP rules `held`; permissibility rows for the four instruments carry `run_id` and are invisible to routes until step 10's gate passes | default |
 | D7 | First target | CRC + WPC growth centre appendices; keys = the six lots tested 2026-10-15 plus 10 lots per appendix type | default |
@@ -218,7 +218,7 @@ answers as before). Normanhurst: uses / subdivision / build-controls go from Hor
 drop Hornsby's table ("no Land Use Table row"). Olympic Park: `cdc/types`, `housing/at`, `pattern-book/at` drop the Canada
 Bay sliver's table. The Ponds: unchanged apart from the governing line.
 
-### 6. Land Use Tables per unit — `blocked` 2026-10-15 (Q3: notebook changes and 45 vocabulary terms are Manni's)
+### 6. Land Use Tables per unit — `done` 2026-10-15 (scripts/precinct/resolve-lut.py; the 44 out-of-vocabulary strings stay as written, Q3 open for the vocabulary decision)
 Extend the LUT reader (01E `lut_xml.py` / `scripts/build-zone-lu-index.mjs`, whichever is the live
 one — record which) to key by `(document, unit, zone)`; vocabulary growth from each unit's dictionary;
 residual forms "any development not specified in item 2 or 3" and the SP-zone verbatim form handled as
@@ -347,4 +347,17 @@ line and section 9 answers; what stays held is listed with why.
   Gosford 99A Donnison St (ch.5 B3): secondary dwelling and dual occupancy prohibited, shop top housing permitted, by
   the chapter's own table. /api/rules/at (the norms path) was not re-run: the full key run ties up the dev server for
   minutes (it was stopped when it blocked the page); run it when the server is idle.
+- 2026-10-15 night: step 6 done without touching 01D/01E. `scripts/precinct/resolve-lut.py` reads every "Zone ..." table
+  of an instrument 01E has not resolved (the four) from rag.provision, writes the table as written to
+  `nsw.lep_zones_unit` (6,354 lines: objectives + item 2/3/4, document order, keyed by the table's group and its unit)
+  and resolves it with 01E's rule against 01E's own universe and hierarchy as left in the database (run
+  20260914-101512): explicit > inherited (nearest parent, chain kept) > catch-all, prohibited winning ties, parents
+  rolled up with the plan's own naming beside them. 167 tables, 33,870 rows (catch-all 19,529, explicit 4,066,
+  inherited 4,566, parents 5,286, verbatim 423). 44 strings outside the vocabulary (drainage, earthworks, studio
+  dwellings, manor homes, bulky goods premises...) are written as they are (level verbatim, "not a Standard Instrument
+  term") and listed in docs/precinct-lut-unmapped.csv with whether the plan's own Dictionary defines them (207 of the
+  404 listings do). 3 tables have no residual clause. `/api/lep-permissibility` takes `unit=`; /precinct shows the
+  /report-2 reference section (ZonePermissibility) for the lot's unit; the claims reader reads the unit rows beside
+  01E's, so D's table claims are now the resolved rows (claims 25.5k -> 49.4k). Keys: resolved table 99/99, claims
+  99/99. Vineyard app.7 R3: 176 leaves, 32 parents; manor homes and studio dwellings permitted as written.
 

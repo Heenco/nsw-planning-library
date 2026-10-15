@@ -80,6 +80,20 @@
             <p class="pc-small">{{ uses.others.map((u: any) => `${u.use} (${u.verdict})`).join(' · ') }}</p></details>
         </section>
 
+        <!-- ── the unit's Land Use Table, as written and as resolved (the /report-2 reference section) ── -->
+        <section class="pc-card">
+          <h3>The Land Use Table <small>as written in the unit, how it becomes the resolved list, and resolved against the Standard Instrument · /api/lep-permissibility</small></h3>
+          <p v-if="!at" class="pc-muted">reading the governing unit…</p>
+          <p v-else-if="!at.governing.unit" class="pc-muted">The lot's unit is not held, so there is no table to resolve.</p>
+          <p v-else-if="lutError" class="pc-note">{{ lutError }}</p>
+          <template v-else-if="lut">
+            <p class="pc-small pc-muted"><b>Zone {{ lut.zone.code }}</b> {{ lut.zone.name }} · {{ at.governing.unit }} {{ at.governing.heading }} · {{ shortTitle(lut.name) }} · resolved run {{ lut.resolved.runId }}</p>
+            <ZonePermissibility :detail="lut" />
+          </template>
+          <p v-else class="pc-muted">Resolving the Land Use Table…</p>
+          <p class="pc-small pc-muted">The table is the unit's own (nsw.lep_zones_unit); the resolution is 01E's rule run on it (scripts/precinct/resolve-lut.py): explicit, then inherited from a listed group term, then the catch-all line, against the universe and hierarchy of the latest 01E run. A listed term outside that vocabulary (drainage, studio dwellings, manor homes) is kept as written, not guessed.</p>
+        </section>
+
         <!-- ── subdivision ──────────────────────────────────────────────── -->
         <section class="pc-card">
           <h3>Subdivision <small>/api/report/subdivision · engine {{ sub?.engine ?? 'answering…' }}</small></h3>
@@ -136,10 +150,12 @@ import { computed, h as vh, onMounted, ref, watch, defineComponent } from 'vue'
 import type { PrecinctAtResponse, AuditNode, AuditClaim } from '../../server/api/precinct/at.get'
 import type { PrecinctSample } from '../../server/api/precinct/samples.get'
 import type { StandardsResponse } from '../../server/api/report/standards.get'
+import type { ZoneDetail } from '../../shared/lep-permissibility'
 
 const USES = ['dwelling houses', 'dual occupancies', 'secondary dwellings', 'multi dwelling housing', 'residential flat buildings', 'seniors housing', 'shop top housing', 'neighbourhood shops', 'centre-based child care facilities', 'warehouse or distribution centres']
 const q = ref(''), results = ref<any[]>([]), cadid = ref(''), error = ref(''), stdError = ref(''), use = ref('dwelling houses'), proposal = ref<'development' | 'subdivision'>('development'), onlyClaims = ref(true)
 const at = ref<PrecinctAtResponse | null>(null), std = ref<StandardsResponse | null>(null), uses = ref<any>(null), sub = ref<any>(null)
+const lut = ref<ZoneDetail | null>(null), lutError = ref('')
 const samples = ref<PrecinctSample[]>([])
 const samplesByInstrument = computed(() => { const g: Record<string, PrecinctSample[]> = {}; for (const s of samples.value) (g[s.instrument] ??= []).push(s); return g })
 const shortTitle = (t: string) => t.replace('State Environmental Planning Policy', 'SEPP').replace(/\(Precincts[—–-]/, '(').replace(') 2021', ')')
@@ -173,13 +189,24 @@ watch(q, (v) => { clearTimeout(timer); if (!v.trim()) { results.value = []; retu
   timer = setTimeout(async () => { try { results.value = ((await $fetch<any>('/api/lotprofile', { query: { q: v } })).results || []).slice(0, 8) } catch { results.value = [] } }, 250) })
 function pick(r: any) { if (r?.cadid) { q.value = r.address || ''; results.value = []; load(String(r.cadid)) } }
 async function load(id: string) {
-  cadid.value = id; error.value = ''; stdError.value = ''; at.value = null; std.value = null; uses.value = null; sub.value = null
+  cadid.value = id; error.value = ''; stdError.value = ''; at.value = null; std.value = null; uses.value = null; sub.value = null; lut.value = null; lutError.value = ''
   const get = (path: string, extra: Record<string, any> = {}) => $fetch<any>(path, { query: { cadid: id, precinct: 1, ...extra } }).catch((e: any) => ({ error: e?.data?.message || e?.message || 'failed' }))
   // each section fills in as its own answer arrives (the engine's calls take seconds each)
   const still = () => cadid.value === id
   await Promise.all([
     get('/api/report/standards').then(s => { if (!still()) return; if (s?.error) stdError.value = s.error; else std.value = s }),
-    get('/api/precinct/at', { use: use.value, proposal: proposal.value }).then(a => { if (!still()) return; if (a?.error) error.value = a.error; else at.value = a }),
+    get('/api/precinct/at', { use: use.value, proposal: proposal.value }).then(async a => {
+      if (!still()) return
+      if (a?.error) { error.value = a.error; return }
+      at.value = a
+      // the unit's own table, as written and as resolved
+      if (a.governing.instrument && a.governing.unit && a.lot.zone) {
+        const r: any = await $fetch('/api/lep-permissibility', { query: { name: a.governing.instrument, code: a.lot.zone, unit: a.governing.unit } }).catch((e: any) => ({ ok: false, message: e?.data?.message || e?.message || 'failed' }))
+        if (!still()) return
+        if (r?.ok && r?.zone) lut.value = r as ZoneDetail
+        else lutError.value = r?.message || `No Land Use Table for zone ${a.lot.zone} in ${a.governing.unit} of ${a.governing.instrument}.`
+      }
+    }),
     get('/api/report/uses').then(u => { if (still()) uses.value = u?.error ? { engine: 'error', reason: u.error } : u }),
     get('/api/report/subdivision').then(d => { if (still()) sub.value = d?.error ? { engine: 'error', reason: d.error } : d }),
   ])
