@@ -241,7 +241,7 @@ on the land zoning map" 18 (SP zones), waste management facilities 17, manor hom
 funeral chapels 13, restaurants 9 ...). Most are pre-2021 Standard Instrument terms the appendices still use.
 Nothing of this can be done from the app repo without forking the reader, which principle 2 forbids.
 
-### 7. RAG corpus — `todo`
+### 7. RAG corpus — `done` 2026-10-15 (corpus + Land Use Tables read; bindings of the standards clauses still mostly unbound)
 Add the four instruments to `scripts/rag/corpus.json` (route `section`, scope = the appendices and
 table-bearing chapters first), run `scripts/rag/run.ts --no-llm`.
 **Done when:** `rag.instrument` has the four; provisions / groups / terms counts written here;
@@ -318,3 +318,19 @@ line and section 9 answers; what stays held is listed with why.
   exists for any precinct appendix - the Land Use Table zone groups are in the corpus (01b-groups) but the claims reader
   did not read them as permissions; the page says so. Headless Edge would not launch in this session, so the page was
   checked by SSR (200, expected markup) and its endpoints by hand, not by a rendered screenshot.
+- 2026-10-15 late: the Land Use Table gap closed generically. `scripts/rag/02c-claims.ts` read tables only for
+  `kind = 'lep'` instruments and only the plan's top table (`^pt-cg1.Zone_X$`). Now every instrument's every table is
+  read (a table = a group headed "Zone ..." whose items are headed Permitted without consent / with consent /
+  Prohibited), keyed by the table's own group (two appendices both have an R3), from the resolved rows of
+  `nsw.lep_permissibility` where 01E has read the plan and from the items' own words always; items split on ";" as
+  well as ","; "Nil" lists nothing; a zone the heading does not code ("Zone 1 Urban Development", WPC Aerotropolis)
+  takes its code from the instrument's own zoning map (`epi_land_zoning` lay_class -> sym_code: UD). Claims 18.4k ->
+  24.4k: the four instruments gained 5,798 words + 83 by-group + 159 catch-all claims; the five LEPs' counts are
+  unchanged (14,191 resolved, 396 by group, 83 catch-all; words 559 -> 549, the ";" split dropping leftovers that were
+  never a use). `E.label` now names an appendix table ("Precincts—Central River City SEPP App 7 Land Use Table, Zone R3
+  (Permitted with consent)"). 38 Norwood Rd Vineyard (app.7 R3): dual occupancy, multi dwelling housing, secondary
+  dwelling, dwelling house, RFB permitted by the appendix's own table; 442 claims tested on the unit (permit 171,
+  prohibit 224). /precinct shows the standards cards (zone, height, FSR, lot size, and the growth centre plans'
+  Residential Density Map, 25 dw/ha at Vineyard), the uses table, subdivision, what applies from above, and the clause
+  tree as an evidence drawer. Key check against tests/answer-keys/precincts-*.json: see the next entry.
+

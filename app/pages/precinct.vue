@@ -43,7 +43,7 @@
             <span class="pc-tag" :class="at.governing.inCorpus ? 'ok' : 'warn'">{{ at.governing.inCorpus ? 'read by the RAG engine' : 'not in the RAG corpus' }}</span>
           </p>
           <p v-if="at" class="pc-small pc-muted">{{ at.governing.why }}<template v-for="(u, t) in at.lot.units" :key="t"><template v-if="!u.governing"> · also mapped: {{ shortTitle(String(t)) }}<template v-if="u.cover != null"> ({{ u.cover }}%)</template></template></template></p>
-          <p v-else class="pc-muted">…</p>
+          <p v-else class="pc-muted">reading the governing unit…</p>
         </section>
 
         <!-- ── principal development standards, from the unit's own maps ── -->
@@ -53,7 +53,7 @@
           <div class="pc-std">
             <div v-for="s in principal" :key="s.key" class="pc-std-card" :class="{ 'pc-std-card--none': std && !s.panels.length }">
               <p class="pc-std-title">{{ s.title }}</p>
-              <p v-if="!std" class="pc-muted">…</p>
+              <p v-if="!std" class="pc-muted">loading…</p>
               <template v-else-if="s.panels.length">
                 <div v-for="(pn, i) in s.panels" :key="i" class="pc-std-hit">
                   <p class="pc-std-val">{{ pn.value || ('set by ' + (pn.clause || 'its clause')) }}</p>
@@ -68,7 +68,7 @@
 
         <!-- ── land uses the unit permits ────────────────────────────────── -->
         <section class="pc-card">
-          <h3>Land uses <small>/api/report/uses · engine {{ uses?.engine ?? '…' }}</small></h3>
+          <h3>Land uses <small>/api/report/uses · engine {{ uses?.engine ?? 'answering…' }}</small></h3>
           <p v-if="noLut" class="pc-note">The RAG holds this unit, but no permit or prohibit claim was read from its Land Use Table for zone {{ at?.lot.zone }}: the zone group is in the corpus and the claims reader has not read it as permissions yet. Until it does, every use below is answered from the SEPPs that reach the lot (the Housing SEPP), never from the unit's own table.</p>
           <p v-if="uses?.reason" class="pc-muted">{{ uses.reason }}</p>
           <table v-if="uses?.uses?.length" class="pc-table">
@@ -82,7 +82,7 @@
 
         <!-- ── subdivision ──────────────────────────────────────────────── -->
         <section class="pc-card">
-          <h3>Subdivision <small>/api/report/subdivision · engine {{ sub?.engine ?? '…' }}</small></h3>
+          <h3>Subdivision <small>/api/report/subdivision · engine {{ sub?.engine ?? 'answering…' }}</small></h3>
           <p v-if="sub?.reason" class="pc-muted">{{ sub.reason }}</p>
           <div v-if="sub?.purposes?.length" class="pc-grid3">
             <div v-for="p in sub.purposes" :key="p.purpose || p.label" class="pc-purpose">
@@ -101,7 +101,7 @@
         <!-- ── what applies from above ─────────────────────────────────── -->
         <section class="pc-card">
           <h3>What applies from above <small>SEPP claims that reach this lot, by instrument</small></h3>
-          <p v-if="!at" class="pc-muted">…</p>
+          <p v-if="!at" class="pc-muted">reading the engine…</p>
           <div v-for="(g, inst) in othersByInstrument" :key="inst">
             <p class="pc-group-t">{{ shortTitle(String(inst)) }} <span class="pc-muted">{{ g.hold.length }} hold · {{ g.unknown.length }} unknown · {{ g.no }} ruled out</span></p>
             <details><summary class="pc-small">show the {{ g.hold.length + g.unknown.length }} that hold or are unknown</summary>
@@ -165,6 +165,7 @@ const lotSizeClauses = computed(() => {
 const othersByInstrument = computed(() => {
   const g: Record<string, { hold: any[]; unknown: any[]; no: number }> = {}
   for (const o of at.value?.others ?? []) { const e = (g[o.instrument] ??= { hold: [], unknown: [], no: 0 }); if (o.claim.holds === true) e.hold.push(o); else if (o.claim.holds == null) e.unknown.push(o); else e.no++ }
+  for (const [inst, n] of Object.entries(at.value?.othersRuledOut ?? {})) (g[inst] ??= { hold: [], unknown: [], no: 0 }).no += n
   return g
 })
 let timer: any
@@ -174,12 +175,14 @@ function pick(r: any) { if (r?.cadid) { q.value = r.address || ''; results.value
 async function load(id: string) {
   cadid.value = id; error.value = ''; stdError.value = ''; at.value = null; std.value = null; uses.value = null; sub.value = null
   const get = (path: string, extra: Record<string, any> = {}) => $fetch<any>(path, { query: { cadid: id, precinct: 1, ...extra } }).catch((e: any) => ({ error: e?.data?.message || e?.message || 'failed' }))
-  const [a, s, u, d] = await Promise.all([get('/api/precinct/at', { use: use.value, proposal: proposal.value }), get('/api/report/standards'), get('/api/report/uses'), get('/api/report/subdivision')])
-  if (cadid.value !== id) return
-  if (a?.error) error.value = a.error; else at.value = a
-  if (s?.error) stdError.value = s.error; else std.value = s
-  uses.value = u?.error ? { engine: 'error', reason: u.error } : u
-  sub.value = d?.error ? { engine: 'error', reason: d.error } : d
+  // each section fills in as its own answer arrives (the engine's calls take seconds each)
+  const still = () => cadid.value === id
+  await Promise.all([
+    get('/api/report/standards').then(s => { if (!still()) return; if (s?.error) stdError.value = s.error; else std.value = s }),
+    get('/api/precinct/at', { use: use.value, proposal: proposal.value }).then(a => { if (!still()) return; if (a?.error) error.value = a.error; else at.value = a }),
+    get('/api/report/uses').then(u => { if (still()) uses.value = u?.error ? { engine: 'error', reason: u.error } : u }),
+    get('/api/report/subdivision').then(d => { if (still()) sub.value = d?.error ? { engine: 'error', reason: d.error } : d }),
+  ])
 }
 onMounted(async () => { try { samples.value = (await $fetch<{ samples: PrecinctSample[] }>('/api/precinct/samples')).samples } catch { samples.value = [] }
   const id = new URLSearchParams(location.search).get('cadid'); if (id) load(id) })

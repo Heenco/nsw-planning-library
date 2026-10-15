@@ -19,7 +19,7 @@
  * houses: residential flat buildings or multi dwelling housing), has its use when any one of them passes.
  */
 import { evaluate, explain, loadEngine, writeAnswer, type Engine, type Explained, type Result, claimsFor, lepFor } from '#shared/rag/evaluate'
-import { ragLotFacts } from '#shared/rag/lot-facts'
+import { lotFactsShared } from '../../utils/lot-facts'
 import { lotFacts } from '#shared/norms/facts'
 import { landUseKey } from '#shared/land-use-key'
 import { PATTERN_DESIGNS } from '#shared/pattern-book'
@@ -146,7 +146,7 @@ export default defineEventHandler(async (event): Promise<ReportUsesResponse | Us
     return { engine: 'none', reason: `The RAG holds ${plans.join(', ') || 'no plan'}; this lot is under ${f.epi ?? 'no mapped LEP'}.`,
       plan: f.epi ?? null, zone: f.zone ?? null, uses: [], requirements: [], others: [], ms: Date.now() - started }
   }
-  const [E, lot, reqs] = await Promise.all([engineOf(), ragLotFacts(q, cadid, 'rag', { precinct }), requirementsOf()])
+  const [E, lot, reqs] = await Promise.all([engineOf(), lotFactsShared(q, cadid, 'rag', { precinct }), requirementsOf()])
   setHeader(event, 'cache-control', 'public, max-age=60')
 
   if (one) {

@@ -86,9 +86,12 @@ export async function loadEngine(q: Query, schema: 'rag' | 'kg' = 'rag'): Promis
   const label = (id: string) => {
     const p = provs.get(id); if (!p) return id
     const segs = p.local_id.split('#')[0]!.split('-').filter(s => !/^oc\.\d+$/.test(s))
-    if (p.path.some(x => x.startsWith('pt-cg')) || p.local_id.startsWith('pt-cg')) {
-      const g = p.local_id.startsWith('pt-cg') ? p.local_id : p.path.find(x => x.startsWith('pt-cg'))!
-      return `${shortNames.get(p.document_id) ?? ''} Land Use Table, ${g.replace(/^pt-cg1\.Zone_/, 'Zone ')}${p.heading ? ` (${p.heading})` : ''}`.trim()
+    // a Land Use Table item, in the plan's own table ("pt-cg1.Zone_R2-sec.3") or an appendix's / chapter's ("app.7-inc-pt-cg1.Zone_R3-sec.3")
+    const g = [p.local_id.split('#')[0]!, ...p.path].map(x => x.match(/^(.*?(?:^|-)cg\d*\.Zone_[^-]+)/)?.[1]).find(Boolean)
+    if (g) {
+      const zone = g.match(/Zone_([^-]+)$/)![1]!.replace(/_/g, ' ')
+      const unit = g.split('-').filter(s => /^(app|ch|sch)\.[\w.]+$/.test(s)).map(s => s.replace(/^app\./, 'App ').replace(/^ch\./, 'Ch ').replace(/^sch\./, 'Sch ')).join(' ')
+      return `${shortNames.get(p.document_id) ?? ''}${unit ? ` ${unit}` : ''} Land Use Table, Zone ${zone}${p.heading ? ` (${p.heading})` : ''}`.trim()
     }
     let s = ''
     for (const seg of segs) {

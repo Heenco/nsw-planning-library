@@ -11,7 +11,7 @@
  */
 import { evaluate, explain, loadEngine, writeAnswer, type Engine, type Explained } from '#shared/rag/evaluate'
 import { lotFacts } from '#shared/norms/facts'
-import { ragLotFacts } from '#shared/rag/lot-facts'
+import { lotFactsShared } from '../../utils/lot-facts'
 import { landUseKey } from '#shared/land-use-key'
 import { nswQuery } from '../../utils/nsw-kg/pool'
 import { ragEngine } from '../../utils/rag-engine'
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event): Promise<ReportSubdivisionRespon
       plan: f.epi ?? null, lot: null, purposes: [], provisions: {}, ms: Date.now() - started }
   }
 
-  const [E, lot] = await Promise.all([engineOf(), ragLotFacts(q, cadid, 'rag', { precinct })])
+  const [E, lot] = await Promise.all([engineOf(), lotFactsShared(q, cadid, 'rag', { precinct })])
   const ids = new Set<string>()
   const purposes = PURPOSES.filter(p => !only || landUseKey(p.use) === only).map(p => ({
     use: p.use, label: p.label,

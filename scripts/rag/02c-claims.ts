@@ -5,8 +5,9 @@
  *   npx tsx scripts/rag/02c-claims.ts [--dry]
  *
  * Readers - each a drafting pattern of NSW instruments, none naming a clause:
- *   land use table   nsw.lep_permissibility (the resolved Land Use Tables, also behind /testing-spatial-services):
- *                    one permit / prohibit claim per zone x use, anchored on the zone's item in rag
+ *   land use table   every table an instrument carries (a plan's one, a Precinct SEPP's one per appendix): the resolved
+ *                    rows of nsw.lep_permissibility where 01E has read the plan (also behind /testing-spatial-services),
+ *                    and the items' own words always - one permit / prohibit claim per table x use, anchored on the item
  *   frames           every applies_only_if relation (02-relations.ts): "This Part applies to development for the
  *                    purposes of a secondary dwelling on land in a residential zone if development for the purposes of
  *                    a dwelling house is permissible on the land under another environmental planning instrument" ->
@@ -132,7 +133,7 @@ const usesOf = (phrase: string) => {
     const re = new RegExp(`(^|[\\s,;(])${v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[\\s,;)])`)
     if (re.test(rest)) { found.push(v); rest = rest.replace(re, '$1 ') }
   }
-  const left = rest.split(/,\s*|\s+or\s+|\s+and\s+/).map(u => u.trim()).filter(u => u && u.length > 2 && u.length < 60 && !/\bzone\b|\bland\b|related to|^(other|such)\b/.test(u))
+  const left = rest.split(/[,;]\s*|\s+or\s+|\s+and\s+/).map(u => u.trim()).filter(u => u && u.length > 2 && u.length < 60 && !/\bzone\b|\bland\b|related to|^(other|such)\b/.test(u))
   const words = left.filter(u => !/^(and|or|a|an|the)$/.test(u))
   return [...found, ...(found.length ? words.filter(u => u.split(' ').length <= 4 && !/\b(of|on|at|in|with|to)\b/.test(u)) : words)]
 }
@@ -265,9 +266,24 @@ async function main() {
   }
 
   // ── land use tables: the resolved table, anchored on the zone's item ─────────────────────────────
-  for (const inst of insts.filter(i => i.kind === 'lep')) {
+  // Every instrument that carries a Land Use Table, and every table it carries: a plan has one at its top, a Precinct
+  // SEPP one per appendix (each appendix is the plan for its own land), so a table is keyed by its own group, never by
+  // the zone code alone - two appendices both have an R3. A table is a group headed "Zone ..." whose items are headed
+  // "Permitted without consent" / "Permitted with consent" / "Prohibited". The resolved rows (nsw.lep_permissibility)
+  // exist for the plans 01E has read; where there are none, the table's own words are read.
+  const ITEM: Record<string, RegExp> = { permitted_without_consent: /without consent/i, permitted_with_consent: /^permitted with consent/i, prohibited: /^prohibited/i }
+  const isItem = (k: P) => Object.values(ITEM).some(re => re.test(norm(k.heading)))
+  for (const inst of insts) {
+    const tables = provs.filter(p => p.document_id === inst.document_id && p.kind === 'group' && /^Zone\s/.test(norm(p.heading)) && (kids.get(p.id) ?? []).some(isItem))
+    if (!tables.length) continue
     const rows = (await q(`SELECT zone_id, zone_code, land_use, status, basis, derived_from, source_text FROM nsw.lep_permissibility WHERE epi_name = $1 AND level = 'leaf'`, [inst.title])).rows
-    const ITEM: Record<string, RegExp> = { permitted_without_consent: /without consent/i, permitted_with_consent: /^permitted with consent/i, prohibited: /^prohibited/i }
+    // the zone code: "Zone R3 Medium Density Residential" names it; "Zone 1 Urban Development" does not, and the
+    // instrument's own zoning map does (the zone's name beside its code)
+    const named = new Map<string, string>()
+    for (const z of (await q(`SELECT DISTINCT sym_code, lay_class FROM epi.epi_land_zoning WHERE epi_name = $1 AND sym_code IS NOT NULL AND lay_class IS NOT NULL`, [inst.title]).catch(() => ({ rows: [] as any[] }))).rows)
+      named.set(norm(z.lay_class).toLowerCase(), String(z.sym_code))
+    const zoneOf = (g: P): string | null => { const h = norm(g.heading); const m = h.match(/^Zone\s+([A-Z]{1,2}\d{1,2}[A-Z]?)\b/); if (m) return m[1]!
+      return named.get(h.replace(/^Zone\s+\S+\s+/, '').toLowerCase()) ?? null }
     const consentOf = (st: string) => st === 'permitted_without_consent' ? 'without' : st === 'prohibited' ? null : 'with'
     // the plan's group terms, from its own Dictionary ("residential accommodation ... includes any of the following- (a)
     // attached dwellings, ..."), up to "but does not include"
@@ -280,54 +296,57 @@ async function main() {
       if (members.length) groups.set(landUseKey(t.heading!), members)
     }
     const membersOf = (g: string) => { const out = new Set<string>(), todo = [...(groups.get(g) ?? [])]; while (todo.length) { const m = todo.pop()!; if (!out.has(m)) { out.add(m); todo.push(...(groups.get(m) ?? [])) } } return out }
-    // what each zone's items list in words (D's own reading of the table, beside the resolved rows)
-    const literal = new Map<string, { item: P; status: string; uses: string[] }[]>()
-    for (const g of provs.filter(p => p.document_id === inst.document_id && /^pt-cg1\.Zone_[A-Z0-9]+$/.test(p.local_id)))
-      literal.set(g.local_id.slice('pt-cg1.Zone_'.length), (kids.get(g.id) ?? []).flatMap(k => { const st = Object.keys(ITEM).find(s => ITEM[s]!.test(norm(k.heading))); return st ? [{ item: k, status: st, uses: [...new Set([...usesOf(k.own_text), ...usesOf(k.own_text.replace(/[’‘]/g, "'"))].map(landUseKey))] }] : [] }))
-    const listedAs = (zone: string, use: string) => literal.get(zone)?.find(x => x.uses.includes(use))
-    const groupPermits = (zone: string, use: string) => literal.get(zone)?.find(x => x.status !== 'prohibited' && x.uses.some(u => membersOf(u).has(use)))
+    // what each table's items list in words (D's own reading of the table, beside the resolved rows), by the table's group
+    const literal = new Map<string, { zone: string; items: { item: P; status: string; uses: string[] }[] }>()
+    for (const g of tables) {
+      const zone = zoneOf(g); if (!zone) { console.log(`  ${inst.title}: ${g.local_id} "${g.heading}" - zone code not known (not on the zoning map), table not read`); continue }
+      // an item that lists "Nil" lists nothing
+      literal.set(g.local_id, { zone, items: (kids.get(g.id) ?? []).flatMap(k => { const st = Object.keys(ITEM).find(s => ITEM[s]!.test(norm(k.heading))); return st ? [{ item: k, status: st, uses: [...new Set([...usesOf(k.own_text), ...usesOf(k.own_text.replace(/[’‘]/g, "'"))].map(landUseKey))].filter(u => u !== 'nil') }] : [] }) })
+    }
+    const listedAs = (table: string, use: string) => literal.get(table)?.items.find(x => x.uses.includes(use))
+    const groupPermits = (table: string, use: string) => literal.get(table)?.items.find(x => x.status !== 'prohibited' && x.uses.some(u => membersOf(u).has(use)))
     const have = new Set<string>()
     for (const r of rows) {
       const grp = local(inst.document_id, r.zone_id)
       const item = grp ? (kids.get(grp.id) ?? []).find(k => ITEM[r.status]?.test(norm(k.heading))) : null
       if (!item) continue
-      const use = landUseKey(r.land_use), lit = listedAs(r.zone_code, use)
+      const use = landUseKey(r.land_use), lit = listedAs(r.zone_id, use)
       // the table's own words win over a resolved row that says otherwise
       if (lit && lit.status !== r.status) continue
       // a catch-all prohibition of a use whose group items 2 / 3 list (tank-based aquaculture where "Aquaculture" is
       // permitted): the group's permission stands - the closed vocabulary's subset trap
-      const gp = !lit && r.basis === 'catchall' && r.status === 'prohibited' ? groupPermits(r.zone_code, use) : undefined
+      const gp = !lit && r.basis === 'catchall' && r.status === 'prohibited' ? groupPermits(r.zone_id, use) : undefined
       if (gp) {
         add({ provision_id: gp.item.id, kind: 'permit', consent: consentOf(gp.status), uses: [use], zones: [r.zone_code], source: 'text', reader: 'land use table (words, by group)',
           span: `a kind of ${gp.uses.find(u => membersOf(u).has(use))}, listed under ${gp.item.heading}` })
-        have.add(`${r.zone_code}|${use}`); continue
+        have.add(`${r.zone_id}|${use}`); continue
       }
-      have.add(`${r.zone_code}|${use}`)
+      have.add(`${r.zone_id}|${use}`)
       add({ provision_id: item.id, kind: r.status === 'prohibited' ? 'prohibit' : 'permit', consent: consentOf(r.status),
         uses: [use], zones: [r.zone_code], source: 'lep_permissibility', reader: 'land use table',
         span: `${r.basis}: ${r.source_text ?? r.derived_from ?? r.land_use}` })
     }
     // every use an item lists in words that the resolved rows do not carry as listed (a group term - "Aquaculture",
     // "Business premises" - is not a leaf row)
-    const rowSays = new Set(rows.map(r => `${r.zone_code}|${landUseKey(r.land_use)}|${r.status}`))
-    for (const [zone, items] of literal) for (const x of items) for (const use of x.uses) {
-      if (rowSays.has(`${zone}|${use}|${x.status}`)) continue               // a resolved row already says the same
-      have.add(`${zone}|${use}`)
+    const rowSays = new Set(rows.map(r => `${r.zone_id}|${landUseKey(r.land_use)}|${r.status}`))
+    for (const [table, { zone, items }] of literal) for (const x of items) for (const use of x.uses) {
+      if (rowSays.has(`${table}|${use}|${x.status}`)) continue               // a resolved row already says the same
+      have.add(`${table}|${use}`)
       add({ provision_id: x.item.id, kind: x.status === 'prohibited' ? 'prohibit' : 'permit', consent: consentOf(x.status), uses: [use], zones: [zone], source: 'text',
         reader: 'land use table (words)', span: `listed under ${x.item.heading}: ${norm(x.item.own_text).slice(0, 200)}` })
     }
     // every member of a group items 2 / 3 list (its own Dictionary's "includes any of the following"), where no row and
     // no listing of its own answers it ("Industries" listed: a light industry is permitted)
-    for (const [zone, items] of literal) for (const x of items.filter(x => x.status !== 'prohibited')) for (const g of x.uses) for (const m of membersOf(g)) {
-      if (have.has(`${zone}|${m}`) || listedAs(zone, m)) continue
-      have.add(`${zone}|${m}`)
+    for (const [table, { zone, items }] of literal) for (const x of items.filter(x => x.status !== 'prohibited')) for (const g of x.uses) for (const m of membersOf(g)) {
+      if (have.has(`${table}|${m}`) || listedAs(table, m)) continue
+      have.add(`${table}|${m}`)
       add({ provision_id: x.item.id, kind: 'permit', consent: consentOf(x.status), uses: [m], zones: [zone], source: 'text', reader: 'land use table (words, by group)',
         span: `a kind of ${g}, listed under ${x.item.heading}` })
     }
     // the catch-all sentences: a closed zone ("Any development not specified in item 2 or 3") prohibits, an open one ("Any
     // other development not specified in item 2 or 4") permits, every use the zone's items do not answer - '*', which the
     // evaluator applies only when no listing in the zone matches the use
-    for (const [zone, items] of literal) for (const x of items) {
+    for (const { zone, items } of literal.values()) for (const x of items) {
       const t = norm(x.item.own_text)
       if (x.status === 'prohibited' && /Any (?:other )?development not specified in item 2 or 3/i.test(t))
         add({ provision_id: x.item.id, kind: 'prohibit', consent: null, uses: ['*'], zones: [zone], source: 'text', reader: 'land use table (catch-all)', span: 'any development not specified in item 2 or 3' })

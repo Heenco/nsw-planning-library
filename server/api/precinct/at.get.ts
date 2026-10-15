@@ -12,7 +12,7 @@
  * development (default) or subdivision.
  */
 import { evaluate, lepFor, type Engine } from '#shared/rag/evaluate'
-import { ragLotFacts } from '#shared/rag/lot-facts'
+import { lotFactsShared } from '../../utils/lot-facts'
 import { nswQuery } from '../../utils/nsw-kg/pool'
 import { ragEngine } from '../../utils/rag-engine'
 
@@ -36,7 +36,9 @@ export interface PrecinctAtResponse {
   ask: { use: string; proposal: string }
   governing: { instrument: string | null; inCorpus: boolean; unit: string | null; heading: string | null; why: string }
   tree: AuditNode[]
+  /** claims of the other instruments that hold or are unknown on this lot; the ruled-out ones are counted in othersRuledOut */
   others: { instrument: string; label: string; claim: AuditClaim }[]
+  othersRuledOut: Record<string, number>
   /** the Residential Density Map (growth centre precinct plans): dwellings per hectare at the lot, the instrument's own layer */
   density: { value: string | null; number: number | null; label: string | null; plan: string | null; coverPct: number }[]
   summary: { provisions: number; withClaims: number; claims: number; yes: number; no: number; unknown: number; byKind: Record<string, number> }
@@ -52,7 +54,7 @@ export default defineEventHandler(async (event): Promise<PrecinctAtResponse> => 
   const proposal = String(query.proposal ?? 'development') === 'subdivision' ? 'subdivision' : 'development'
   setHeader(event, 'cache-control', 'no-store')
 
-  const [E, lot]: [Engine, any] = await Promise.all([ragEngine('rag'), ragLotFacts(q, cadid, 'rag', { precinct: true })])
+  const [E, lot]: [Engine, any] = await Promise.all([ragEngine('rag'), lotFactsShared(q, cadid, 'rag', { precinct: true })])
   const lep = lepFor(E, lot)
   const r = evaluate(E, { kind: 'permissibility', use, proposal, audit: true }, lot)
   const tested = new Map(r.tested.map(t => [t.claim.id, t]))
@@ -61,9 +63,12 @@ export default defineEventHandler(async (event): Promise<PrecinctAtResponse> => 
   const inst = lep.doc ? E.insts.find(i => i.document_id === lep.doc) : null
   const unitId: string | null = lot.unit?.localId ?? null
   let tree: AuditNode[] = []
+  // the response must stay readable in a browser: a claim's reasons are cut to the first few, its span to a line
   const toClaim = (t: any): AuditClaim => ({ id: t.claim.id, kind: t.claim.kind, consent: t.claim.consent, uses: t.claim.uses, zones: t.claim.zones, terms: t.claim.terms,
-    topic: t.claim.topic, comparator: t.claim.comparator, value: t.claim.value, unit: t.claim.unit, span: t.claim.span, reader: t.claim.reader,
-    holds: t.holds, why: t.why, notChecked: t.notChecked })
+    topic: t.claim.topic, comparator: t.claim.comparator, value: t.claim.value, unit: t.claim.unit, span: t.claim.span ? String(t.claim.span).slice(0, 240) : null, reader: t.claim.reader,
+    holds: t.holds, why: (t.why ?? []).slice(0, 4).map((w: string) => w.slice(0, 200)), notChecked: (t.notChecked ?? []).slice(0, 3) })
+  // a Land Use Table claim about another zone of the same unit says nothing about this lot: not shown
+  const aboutLot = (t: any) => !(t.claim.zones?.length && lot.zone && !t.claim.zones.includes(lot.zone))
   if (inst && unitId) {
     const rows = (await q(`
       WITH RECURSIVE u AS (SELECT id FROM rag.provision WHERE document_id = $1 AND local_id = $2),
@@ -73,7 +78,7 @@ export default defineEventHandler(async (event): Promise<PrecinctAtResponse> => 
     const claimsBy = new Map<string, AuditClaim[]>()
     for (const t of r.tested) {
       const p = E.provs.get(t.claim.provision_id)
-      if (p?.document_id !== lep.doc) continue
+      if (p?.document_id !== lep.doc || !aboutLot(t)) continue
       claimsBy.set(t.claim.provision_id, [...(claimsBy.get(t.claim.provision_id) ?? []), toClaim(t)])
     }
     const nodes = new Map<string, AuditNode>()
@@ -101,9 +106,13 @@ export default defineEventHandler(async (event): Promise<PrecinctAtResponse> => 
     .map((x: any) => { const n = x.min_dwelling_density != null ? Number(x.min_dwelling_density) : (x.lay_class != null && !Number.isNaN(Number(x.lay_class)) ? Number(x.lay_class) : null)
       return { value: n != null ? `${n} dwellings/ha minimum` : null, number: n, label: x.label ?? null, plan: x.epi_name ?? null, coverPct: Math.min(100, Number(x.cover_pct)) } })
     .sort((a: any, b: any) => b.coverPct - a.coverPct)
-  const others = r.tested.filter(t => E.provs.get(t.claim.provision_id)?.document_id !== lep.doc)
-    .map(t => ({ instrument: E.insts.find(i => i.document_id === E.provs.get(t.claim.provision_id)?.document_id)?.title ?? '?', label: E.label(t.claim.provision_id), claim: toClaim(t) }))
-  const own = r.tested.filter(t => E.provs.get(t.claim.provision_id)?.document_id === lep.doc)
+  const otherTested = r.tested.filter(t => E.provs.get(t.claim.provision_id)?.document_id !== lep.doc)
+  const instOf = (t: any) => E.insts.find(i => i.document_id === E.provs.get(t.claim.provision_id)?.document_id)?.title ?? '?'
+  // what holds or is unknown, in full; what is ruled out only as a count per instrument (1,245 claims otherwise)
+  const others = otherTested.filter(t => t.holds !== false).map(t => ({ instrument: instOf(t), label: E.label(t.claim.provision_id), claim: toClaim(t) }))
+  const othersRuledOut: Record<string, number> = {}
+  for (const t of otherTested.filter(t => t.holds === false)) othersRuledOut[instOf(t)] = (othersRuledOut[instOf(t)] ?? 0) + 1
+  const own = r.tested.filter(t => E.provs.get(t.claim.provision_id)?.document_id === lep.doc && aboutLot(t))
   const byKind: Record<string, number> = {}
   for (const t of own) byKind[t.claim.kind] = (byKind[t.claim.kind] ?? 0) + 1
   const all = (ns: AuditNode[]): AuditNode[] => ns.flatMap(n => [n, ...all(n.children)])
@@ -112,7 +121,7 @@ export default defineEventHandler(async (event): Promise<PrecinctAtResponse> => 
     lot: { cadid, address: lot.address ?? null, zone: lot.zone ?? null, epi: lot.epi ?? null, area_m2: lot.area_m2 ?? null, unit: lot.unit ?? null, units: lot.units ?? {} },
     ask: { use, proposal },
     governing: { instrument: inst?.title ?? lot.epi ?? null, inCorpus: !!inst, unit: unitId, heading: lot.unit?.heading ?? null, why: lep.why },
-    tree, others, density,
+    tree, others, othersRuledOut, density,
     summary: { provisions: flat.length, withClaims: flat.filter(n => n.claims.length).length, claims: own.length,
       yes: own.filter(t => t.holds === true).length, no: own.filter(t => t.holds === false).length, unknown: own.filter(t => t.holds == null).length, byKind },
     ms: Date.now() - started,
