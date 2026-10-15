@@ -24,6 +24,7 @@ check has been run and its numbers are written below it.
 | D5 | Vocabulary | grown from each unit's own dictionary, run-scoped, closed; unknown residual forms stay "not held" | default |
 | D6 | Publishing | SEPP rules `held`; permissibility rows for the four instruments carry `run_id` and are invisible to routes until step 10's gate passes | default |
 | D7 | First target | CRC + WPC growth centre appendices; keys = the six lots tested 2026-10-15 plus 10 lots per appendix type | default |
+| D8 | Exposure | the precinct path runs only when a request says `precinct=1` (the /precinct test bench); /report-2 and every other page keep the previous behaviour, with a multi-unit instrument silent on every engine, until /precinct says the answers are right (Manni, 2026-10-15) | Manni |
 
 ## Baseline (2026-10-15)
 
@@ -295,3 +296,15 @@ line and section 9 answers; what stays held is listed with why.
 - 2026-10-15 Q1 and Q2 answered in session; steps 3 and 4 done; unit map confirmed, 70 frames held.
 - 2026-10-15 state-wide lot_instrument swapped in (step 2 done); readers switched (step 5 done), before/after verified on 7 lots.
 - 2026-10-15 step 6 blocked on Q3 (01D/01E + 45 vocabulary terms); moving to step 7.
+- 2026-10-15 step 7: the four added to the RAG corpus (6,738 / 2,194 / 3,339 / 7,062 provisions; 87 CRC zone groups restored; free stages run).
+  FOUND the same day: a Precinct SEPP's clauses reached every lot in the State on both engines (/report-2 100 Galston Rd showed
+  Edmondson Park South lot sizes) - and PROD showed them too, through the shared database, with no code pushed. Fixed by
+  (a) side D gating a unit-bound instrument's claims by the lot's governing unit (claimsFor / instrumentsFor, shared with the
+  report's use and option lists), (b) frame terms keyed by their condition value and qualified by instrument (a heading
+  like "State significant precincts" repeats across the four), (c) frames' governed units as data (migration 27,
+  nsw.rule_frame_scope) so the subdivision reader attaches a frame to a clause with no rule, deepest frame first,
+  (d) D8: the whole path behind `precinct=1`, exercised by `app/pages/precinct.vue`. Checked: with the switch off the
+  seven capture lots answer as before on what each section says (the only residue is the RAG rebuild's new Codes SEPP
+  claim set in the "other uses" list); with it on, the six baseline lots resolve to their unit, the RAG answers from the
+  governing instrument, and the norms side lists 2 unchecked precinct clauses (the chapter-level 2.6 / 4.1) where it
+  listed 65-97. Deploying the switch to prod (Manni's call) so prod's report-2 matches localhost.
