@@ -91,7 +91,7 @@
             <ZonePermissibility :detail="lut" />
           </template>
           <p v-else class="pc-muted">Resolving the Land Use Table…</p>
-          <p class="pc-small pc-muted">The table is the unit's own (nsw.lep_zones_unit); the resolution is 01E's rule run on it (scripts/precinct/resolve-lut.py): explicit, then inherited from a listed group term, then the catch-all line, against the universe and hierarchy of the latest 01E run. A listed term outside that vocabulary (drainage, studio dwellings, manor homes) is kept as written, not guessed.</p>
+          <p class="pc-small pc-muted">The table is the unit's own (precinct.lut_zones, pregenerated for every table of every instrument); the resolution is 01E's rule run on it by scripts/precinct/resolve-lut.py into precinct.lut_permissibility: explicit, then inherited from a listed group term, then the catch-all line, against the universe and hierarchy of the latest 01E run. A listed term outside that vocabulary (drainage, studio dwellings, manor homes) is kept as written, not guessed.</p>
         </section>
 
         <!-- ── subdivision ──────────────────────────────────────────────── -->

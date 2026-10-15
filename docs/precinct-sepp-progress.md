@@ -20,7 +20,7 @@ check has been run and its numbers are written below it.
 | D1 | Source text | the library copies `public/EPI/SEPP/epi-2021-072[5-8]_2026-03-2x.xml`; refresh through `scripts/rag/corpus_xml.py` (curl_cffi) when a newer in-force XML is wanted | default |
 | D2 | Governing unit | one derived table `derived.lot_instrument`, rank-then-cover rule, 50% cover threshold, point on surface; every reader switches to it, none keeps its own zoning query | default |
 | D3 | Per-instrument facts | `profiles/precincts-*.ts` (map name → unit, prevails exceptions, disapplied instruments), reviewed by Manni in this file before step 4 writes anything | default |
-| D4 | Land Use Table store | AMENDED 2026-10-15: two sibling tables, `nsw.lep_zones_unit` + `nsw.lep_permissibility_unit` (01D/01E's shape plus unit_local_id / unit_heading), NOT rows in `nsw.lep_permissibility`. Every legacy reader (rules/at, cdc, housing, lmr, pattern-book, 09G -> d_4) joins the latter on (epi_name, zone_code); a SEPP with nine R3 tables would answer those joins nine times over, in prod, with no code pushed (the leak lesson). `/api/lep-permissibility?…&unit=` reads the unit tables. | amended by Claude, Manni to confirm |
+| D4 | Land Use Table store | AMENDED 2026-10-15 (Manni, late evening): schema `precinct` - `precinct.lut_zones` + `precinct.lut_permissibility` (01D/01E's shape plus unit_local_id / unit_heading) + `lut_unmapped` + `lut_run`, NOT rows in `nsw.lep_permissibility`. Every legacy reader (rules/at, cdc, housing, lmr, pattern-book, 09G -> d_4) joins the latter on (epi_name, zone_code); a SEPP with nine R3 tables would answer those joins nine times over, in prod, with no code pushed (the leak lesson). `/api/lep-permissibility?…&unit=` reads the unit tables. | amended by Claude, Manni to confirm |
 | D5 | Vocabulary | grown from each unit's own dictionary, run-scoped, closed; unknown residual forms stay "not held" | default |
 | D6 | Publishing | SEPP rules `held`; permissibility rows for the four instruments carry `run_id` and are invisible to routes until step 10's gate passes | default |
 | D7 | First target | CRC + WPC growth centre appendices; keys = the six lots tested 2026-10-15 plus 10 lots per appendix type | default |
@@ -360,4 +360,11 @@ line and section 9 answers; what stays held is listed with why.
   /report-2 reference section (ZonePermissibility) for the lot's unit; the claims reader reads the unit rows beside
   01E's, so D's table claims are now the resolved rows (claims 25.5k -> 49.4k). Keys: resolved table 99/99, claims
   99/99. Vineyard app.7 R3: 176 leaves, 32 parents; manor homes and studio dwellings permitted as written.
+- 2026-10-15 late night: Manni: "run this precinct LUT across all zones and precincts and save it on a new schema
+  called precinct". The run already covered every table (167: CRC 87, WPC 68, Regional 8, EHC 4 - every zone group
+  the four instruments carry); moved from the two nsw.*_unit tables (dropped) to schema `precinct`: lut_zones,
+  lut_permissibility, lut_unmapped (per run), lut_run (run log: 01E universe run used, tables, lines, rows, unmapped,
+  problems). Endpoint, claims reader and page read the schema. The Land Use Table section was already served from the
+  pregenerated rows (~100 ms); the page's slow parts remain the engine's lot facts and the use-by-use evaluation.
+  Re-run after any corpus re-ingest: `python -I scripts/precinct/resolve-lut.py`, then `run.ts --only claims,bindings`.
 

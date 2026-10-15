@@ -6,10 +6,12 @@
 What 01D + 01E do for a standard LEP (public.lep_zones -> nsw.lep_permissibility), done for an instrument whose tables
 sit in its appendices and chapters: a Precinct SEPP has one table per precinct plan, so a table is keyed by its own
 group (zone_id = the group's local id, "app.7-inc-pt-cg1.Zone_R3") and carries the unit it belongs to. The rows go to
-two tables of the SAME shape as 01D/01E's, plus unit_local_id / unit_heading:
+schema `precinct`, two tables of the SAME shape as 01D/01E's plus unit_local_id / unit_heading, and a run log:
 
-    nsw.lep_zones_unit            the table as written: objectives and the item 2 / 3 / 4 lines, in document order
-    nsw.lep_permissibility_unit   the table resolved: one row per leaf term of the universe, how it got its status
+    precinct.lut_zones            the table as written: objectives and the item 2 / 3 / 4 lines, in document order
+    precinct.lut_permissibility   the table resolved: one row per leaf term of the universe, how it got its status
+    precinct.lut_unmapped         every listed string outside 01E's vocabulary, per run
+    precinct.lut_run              one row per run: when, 01E run used, instruments, tables, rows, problems
 
 They are separate tables on purpose (progress doc, D4 amended): every legacy reader joins nsw.lep_permissibility on
 (epi_name, zone_code), and a SEPP with nine R3 tables would answer those joins nine times over, in prod, with no code
@@ -24,7 +26,7 @@ The resolution is 01E's, read from what 01E left in the database rather than ret
     "the purpose shown on the Land Zoning Map" kept verbatim.
 What 01E cannot do here it does not guess: a listed term outside the universe is written as it is (level 'verbatim',
 BASIS_LABEL: "as written, not a Standard Instrument term") - the plan's own Dictionary says whether it defines it - and
-every such string is reported to docs/precinct-lut-unmapped.csv for the vocabulary decision (Q3).
+every such string is reported to precinct.lut_unmapped and docs/precinct-lut-unmapped.csv for the vocabulary decision (Q3).
 """
 import sys, os, re, csv, json, datetime
 from collections import defaultdict
@@ -188,21 +190,29 @@ with open(os.path.join(ROOT, 'docs', 'precinct-lut-unmapped.csv'), 'w', newline=
     for s, (n, d, es, us) in sorted(agg.items(), key=lambda x: -x[1][0]): w.writerow([s, n, d, '; '.join(sorted(es)), '; '.join(sorted(us))])
 if DRY: print('dry run: nothing written'); sys.exit(0)
 
-cur.execute("""create table if not exists nsw.lep_zones_unit (epicode text, zone_id text, zone_code text, zone_name text, land_use_type text, land_use_category text,
+cur.execute("create schema if not exists precinct")
+cur.execute("""create table if not exists precinct.lut_zones (epicode text, zone_id text, zone_code text, zone_name text, land_use_type text, land_use_category text,
                land_use_description text, unit_local_id text, unit_heading text, ord integer)""")
-cur.execute("""create table if not exists nsw.lep_permissibility_unit (epicode text, epi_name text, zone_id text, zone_code text, zone_name text, land_use text, level text,
+cur.execute("""create table if not exists precinct.lut_permissibility (epicode text, epi_name text, zone_id text, zone_code text, zone_name text, land_use text, level text,
                status text, basis text, derived_from text, inherit_depth integer, resolved_against text, source_text text, run_id text, named_status text, named_source_text text,
                unit_local_id text, unit_heading text)""")
-cur.execute("create index if not exists idx_lep_zones_unit_key on nsw.lep_zones_unit (epicode, zone_id)")
-cur.execute("create index if not exists idx_lep_perm_unit_key on nsw.lep_permissibility_unit (epicode, zone_id)")
-cur.execute("create index if not exists idx_lep_perm_unit_name on nsw.lep_permissibility_unit (epi_name, unit_local_id, zone_code)")
+cur.execute("create table if not exists precinct.lut_unmapped (run_id text, epicode text, unit_local_id text, zone_code text, string text, defined_by_plan boolean)")
+cur.execute("""create table if not exists precinct.lut_run (run_id text primary key, ran_at timestamptz, universe_run text, instruments text[], tables integer,
+               lines integer, rows integer, unmapped_strings integer, problems jsonb)""")
+cur.execute("create index if not exists idx_precinct_lut_zones_key on precinct.lut_zones (epicode, zone_id)")
+cur.execute("create index if not exists idx_precinct_lut_perm_key on precinct.lut_permissibility (epicode, zone_id)")
+cur.execute("create index if not exists idx_precinct_lut_perm_name on precinct.lut_permissibility (epi_name, unit_local_id, zone_code)")
+cur.execute("create index if not exists idx_precinct_lut_perm_use on precinct.lut_permissibility (land_use)")
 for e in {i[2] for i in INSTS}:
-    cur.execute("delete from nsw.lep_zones_unit where epicode = %s", (e,)); cur.execute("delete from nsw.lep_permissibility_unit where epicode = %s", (e,))
+    cur.execute("delete from precinct.lut_zones where epicode = %s", (e,)); cur.execute("delete from precinct.lut_permissibility where epicode = %s", (e,))
 from psycopg2.extras import execute_values
-execute_values(cur, "insert into nsw.lep_zones_unit values %s", zone_rows, page_size=2000)
-execute_values(cur, "insert into nsw.lep_permissibility_unit values %s", perm_rows, page_size=2000)
-cur.execute("analyze nsw.lep_zones_unit"); cur.execute("analyze nsw.lep_permissibility_unit")
+execute_values(cur, "insert into precinct.lut_zones values %s", zone_rows, page_size=2000)
+execute_values(cur, "insert into precinct.lut_permissibility values %s", perm_rows, page_size=2000)
+execute_values(cur, "insert into precinct.lut_unmapped values %s", [(RUN_ID, e, u, z, s_, d) for e, u, z, s_, d in unmapped], page_size=2000)
+cur.execute("insert into precinct.lut_run values (%s, now(), %s, %s, %s, %s, %s, %s, %s)",
+            (RUN_ID, URUN, sorted({i[2] for i in INSTS}), len({(r[0], r[2]) for r in perm_rows}), len(zone_rows), len(perm_rows), len({u[3] for u in unmapped}), json.dumps(problems)))
+cur.execute("analyze precinct.lut_zones"); cur.execute("analyze precinct.lut_permissibility")
 c.commit()
-cur.execute("select count(*) from nsw.lep_zones_unit"); a = cur.fetchone()[0]
-cur.execute("select count(*), count(distinct (epicode, zone_id)) from nsw.lep_permissibility_unit"); b = cur.fetchone()
-print(f"written: nsw.lep_zones_unit {a} rows; nsw.lep_permissibility_unit {b[0]} rows over {b[1]} tables; run {RUN_ID}")
+cur.execute("select count(*) from precinct.lut_zones"); a = cur.fetchone()[0]
+cur.execute("select count(*), count(distinct (epicode, zone_id)) from precinct.lut_permissibility"); b = cur.fetchone()
+print(f"written: precinct.lut_zones {a} rows; precinct.lut_permissibility {b[0]} rows over {b[1]} tables; run {RUN_ID}")

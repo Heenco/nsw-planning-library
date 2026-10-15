@@ -12,7 +12,7 @@
  *                                                  → the table of one unit of a
  *                                                    multi-unit instrument (a Precinct
  *                                                    SEPP's appendix or chapter), from
- *                                                    nsw.lep_zones_unit / _permissibility_unit
+ *                                                    precinct.lut_zones / precinct.lut_permissibility
  *                                                    (scripts/precinct/resolve-lut.py)
  *
  * Two tables back this and they answer different questions.
@@ -111,7 +111,7 @@ export default defineEventHandler(async (event) => {
 // the way the record names it: ?name=Hornsby Local Environmental Plan 2013&code=R2.
 
 /** the pair of tables a read comes from: the plan's own (01D/01E) or, for a unit of a multi-unit instrument, the unit tables */
-const tablesFor = (unit: string | null) => unit ? { zones: 'nsw.lep_zones_unit', perm: 'nsw.lep_permissibility_unit' } : { zones: 'nsw.lep_zones', perm: 'nsw.lep_permissibility' }
+const tablesFor = (unit: string | null) => unit ? { zones: 'precinct.lut_zones', perm: 'precinct.lut_permissibility' } : { zones: 'nsw.lep_zones', perm: 'nsw.lep_permissibility' }
 
 async function resolvePlan(name: string, unit: string | null = null): Promise<string | null> {
   const res = await withNswClient(client => client.query<{ epicode: string }>(
@@ -129,7 +129,7 @@ async function resolvePlan(name: string, unit: string | null = null): Promise<st
 async function resolveZone(epicode: string, code: string, unit: string | null = null): Promise<string | null> {
   const res = await withNswClient(client => client.query<{ zone_id: string }>(
     unit
-      ? `SELECT zone_id FROM nsw.lep_zones_unit WHERE epicode = $1 AND upper(zone_code) = upper($2) AND unit_local_id = $3 ORDER BY zone_id LIMIT 1`
+      ? `SELECT zone_id FROM precinct.lut_zones WHERE epicode = $1 AND upper(zone_code) = upper($2) AND unit_local_id = $3 ORDER BY zone_id LIMIT 1`
       : `SELECT zone_id FROM nsw.lep_zones
      WHERE epicode = $1 AND upper(zone_code) = upper($2)
      ORDER BY zone_id LIMIT 1`,
