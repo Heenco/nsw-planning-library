@@ -91,7 +91,7 @@ Zone-table member clauses in the graph: 1,226 rows carry `cg1.Zone_` in their id
 (Regional ch.5/ch.6) table clauses carry plain `sec.N-oc.M` ids with no zone in them, so the zone must come
 from the XML clausegroup (as `scripts/rag/01b-groups.py` already does for LEPs), never from the id.
 
-### 2. `derived.lot_instrument` — `todo`
+### 2. `derived.lot_instrument` — `doing` 2026-10-15 (seven councils verified; state-wide build running)
 Builder script (`scripts/build-lot-instrument.ts` or a Notebooks 02-series notebook, Manni's call;
 default: the app repo, same connection as every other planningai script). For every lot: all zoning
 polygons at the point on surface with cover; rank from `nsw.document` kind (dcp 10 / lep 20 / sepp 30);
@@ -102,6 +102,31 @@ and no unit (expected: Urban Renewal, some SSP) listed by map name; the six test
 units named in the baseline; Normanhurst → EHC Wahroonga Estate schedule with Hornsby as also-mapped;
 Olympic Park → CRC ch 4 with Canada Bay as a sliver. An LEP-only lot is byte-identical to today's
 `(zone, epi)`.
+
+**Result so far:** two scripts. `scripts/build-instrument-unit-map.ts` writes `nsw.instrument_unit_map` (new, additive):
+one row per (instrument, layer, map_name, lay_class, label) key with the unit it proposes and the rule that proposed
+it, status `proposed` until the profile confirms. 262 keys over the 41 instruments the zoning layer names and the graph
+holds; **209 resolved** (the 4 Precinct SEPPs: CRC 21/24, EHC 26/30, Regional 39/43, WPC 22/26). The rules are generic
+(name equals a unit heading; name tokens inside one heading; name as a phrase inside one unit's "land to which ...
+applies" clause; name plus map-name tokens), strongest rule wins, chapter preferred on a tie. Four things the data taught:
+the appendix NUMBERS on the growth centre maps are stale ("Appendix 4" = today's app.7), so matching is by name;
+digits must stay in names ("Stage 1 and 2" is not "Stage 3", "Area 20" is only its number); the instrument's own
+title must be removed from a map name as a PHRASE, not token by token ("City West" under "Eastern Harbour City");
+and chapter clauses carry no unit prefix in their ids (`sec.2.6`, 1,037 sections in CRC), so descendants are
+found through `parent_id`, never by id prefix. The 13 precinct keys still without a unit are the growth-centre-level
+maps (unreleased precinct land: NWGC 759 + 2 zoning polygons, SWGC 589, Wilton 35 - several appendices name the
+centre, so "ambiguous" is right), the Opera House buffer, two foreshore sites and the alpine archaeology layer.
+`scripts/build-lot-instrument.ts` builds `derived.lot_instrument_build` council by council (rank, then cover >= 50%,
+then the lot's own council's plan, then name); cover measured only where two instruments meet at the point.
+**Seven test councils** (Blacktown, Liverpool, Penrith, Central Coast, Parramatta, Hornsby, Canada Bay; 7.0 min):
+475,739 lots, 170 with two instruments at the point; governing basis: LEP root 426,354 (134,337 of them LEPs not yet
+in the graph), SEPP unit from the land application map 42,948, from the zoning map 5,526, unmapped 911 (all CRC,
+the unreleased NWGC land). **The six test lots** resolve as the baseline expects: Luddenham -> WPC ch.4 Aerotropolis;
+Olympic Park -> CRC app.4 (the Canada Bay sliver is not at the point, so not a row); Normanhurst -> EHC app.6
+Wahroonga Estate governing, Hornsby LEP root at 100% not governing; Gosford -> Regional ch.5; The Ponds -> CRC app.7
+Alex Avenue and Riverstone; Austral -> WPC app.4 Liverpool Growth Centres. Timing: ~1 min per council (the land
+application join and cover), so the state is ~2 h - launched 2026-10-15 in the background (`--all`, no swap yet).
+Still to do for `done`: state-wide counts; the "byte-identical to today's (zone, epi)" check on LEP-only lots; swap.
 
 ### 3. Profiles for the four instruments — `todo`
 `profiles/precincts-{central-river-city,western-parkland-city,regional,eastern-harbour-city}-2021.ts`:
