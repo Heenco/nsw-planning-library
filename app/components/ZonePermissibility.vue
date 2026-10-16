@@ -106,8 +106,8 @@
           </li>
           <li class="zp-flow-node zp-flow-node--end">
             <span class="zp-flow-kicker">Resolved</span>
-            <span class="zp-flow-title">{{ leaves.length }} leaf terms</span>
-            <span class="zp-flow-text">Each with a status and the basis that decided it, and {{ parents.length }} group terms rolled up on top.</span>
+            <span class="zp-flow-title">{{ universe.length }} leaf terms</span>
+            <span class="zp-flow-text">Each with a status and the basis that decided it, and {{ parents.length }} group terms rolled up on top.<template v-if="asWritten.length"> Plus {{ asWritten.length }} listed as written, outside the Standard Instrument vocabulary.</template></span>
           </li>
         </ol>
 
@@ -249,7 +249,8 @@
           </div>
 
           <p class="zp-chart-note">
-            {{ leaves.length }} leaf terms. Group terms are not counted: their status is
+            {{ universe.length }} leaf terms, the Standard Instrument universe, the same count in every zone<template v-if="asWritten.length">, plus
+            {{ asWritten.length }} the plan lists as written that are not Standard Instrument terms ({{ asWritten.map(l => l.use).join(', ') }})</template>. Group terms are not counted: their status is
             rolled up from the leaves above, and they are listed under the columns.
             Click a segment or a legend entry to filter the columns.
           </p>
@@ -437,6 +438,9 @@ watch(() => props.detail, () => { clearFilters(); catchallOpen.value = false })
 // ── Derived ─────────────────────────────────────────────────────────────
 
 const leaves = computed<ResolvedLeaf[]>(() => props.detail.resolved.leaves)
+/** the universe's leaf terms - 171 in every zone - and, apart, the lines kept as written because they are not Standard Instrument terms */
+const universe = computed<ResolvedLeaf[]>(() => leaves.value.filter(l => l.basis !== 'verbatim'))
+const asWritten = computed<ResolvedLeaf[]>(() => leaves.value.filter(l => l.basis === 'verbatim'))
 const parents = computed<ResolvedParent[]>(() => props.detail.resolved.parents)
 
 function countBy(status: Status, basis?: Basis): number {
