@@ -18,14 +18,17 @@
           <li v-for="r in results" :key="r.cadid" @click="pick(r)">{{ r.address || '(no address)' }} <span class="pc-muted">{{ r.cadid }}</span></li>
         </ul>
       </form>
-      <p class="pc-small pc-muted">Sample lots from the state-wide build, a few per governing unit, residential zones first.</p>
-      <div v-for="(group, inst) in samplesByInstrument" :key="inst" class="pc-group">
-        <p class="pc-group-t">{{ shortTitle(String(inst)) }}</p>
-        <button v-for="s in group" :key="s.cadid" type="button" class="pc-sample" :class="{ on: cadid === s.cadid }" @click="load(s.cadid, s.address)" :title="`${s.unit || '-'} ${s.heading || ''} · zone ${s.zone || '?'} · ${s.lots} lots in this unit`">
-          <span class="pc-sample-a">{{ titleCase(s.address || s.cadid) }}</span>
-          <span class="pc-sample-u">{{ s.unit || 'unit not held' }} · {{ unitName(s.heading) }} · {{ s.zone || '?' }}</span>
-        </button>
-      </div>
+      <p class="pc-small pc-muted">Sample lots from the state-wide build: one addressed lot per zone of every precinct. Open an instrument, then a precinct.</p>
+      <details v-for="(units, inst) in samplesTree" :key="inst" class="pc-group">
+        <summary class="pc-group-t">{{ shortTitle(String(inst)) }} <span class="pc-muted">{{ Object.keys(units).length }} units</span></summary>
+        <details v-for="(group, unit) in units" :key="unit" class="pc-unit" :open="group.some(s => s.cadid === cadid)">
+          <summary class="pc-unit-t">{{ unit }} {{ unitName(group[0]!.heading) }} <span class="pc-muted">{{ group.length }} zones</span></summary>
+          <button v-for="s in group" :key="s.cadid" type="button" class="pc-sample" :class="{ on: cadid === s.cadid }" @click="load(s.cadid, s.address)" :title="`${s.lots} lots in zone ${s.zone || '?'} of this unit`">
+            <span class="pc-sample-z">{{ s.zone || '?' }}</span>
+            <span class="pc-sample-a">{{ titleCase(s.address || s.cadid) }}</span>
+          </button>
+        </details>
+      </details>
       <p v-if="!samples.length" class="pc-muted pc-small">loading samples…</p>
     </aside>
 
@@ -93,7 +96,13 @@ import type { ZoneDetail } from '../../shared/lep-permissibility'
 const q = ref(''), results = ref<any[]>([]), cadid = ref(''), address = ref(''), stdError = ref(''), lutError = ref('')
 const std = ref<StandardsResponse | null>(null), lut = ref<ZoneDetail | null>(null)
 const samples = ref<PrecinctSample[]>([])
-const samplesByInstrument = computed(() => { const g: Record<string, PrecinctSample[]> = {}; for (const s of samples.value) (g[s.instrument] ??= []).push(s); return g })
+/** instrument -> unit -> its zone samples, zones in code order */
+const samplesTree = computed(() => {
+  const t: Record<string, Record<string, PrecinctSample[]>> = {}
+  for (const s of samples.value) ((t[s.instrument] ??= {})[s.unit || 'unit not held'] ??= []).push(s)
+  for (const units of Object.values(t)) for (const g of Object.values(units)) g.sort((a, b) => String(a.zone).localeCompare(String(b.zone), undefined, { numeric: true }))
+  return t
+})
 const gov = computed(() => std.value?.governing ?? null)
 const shortTitle = (t: string) => t.replace('State Environmental Planning Policy', 'SEPP').replace(/\(Precincts[—–-]/, '(').replace(') 2021', ')')
 const unitName = (hd: string | null) => (hd || '').replace(/^State significant precinct[—–-]\s*/, '')
@@ -136,9 +145,10 @@ onMounted(async () => { try { samples.value = (await $fetch<{ samples: PrecinctS
 .pc-search { position: relative } .pc-input { width: 100%; padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font: inherit; box-sizing: border-box }
 .pc-results { position: absolute; z-index: 5; left: 0; right: 0; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; list-style: none; margin: 4px 0 0; padding: 4px 0; box-shadow: 0 6px 20px rgba(0,0,0,.08) }
 .pc-results li { padding: 6px 10px; cursor: pointer } .pc-results li:hover { background: #f3f4f6 }
-.pc-group { margin-top: 10px } .pc-group-t { font-weight: 600; font-size: 12px; margin: 6px 0 4px; color: #374151 }
-.pc-sample { display: block; width: 100%; text-align: left; font: inherit; padding: 4px 8px; margin: 2px 0; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer }
-.pc-sample.on { border-color: #1f2937; background: #f3f4f6 } .pc-sample-a { display: block; font-size: 13px } .pc-sample-u { display: block; font-size: 11px; color: var(--muted) }
+.pc-group { margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px } .pc-group-t { font-weight: 600; font-size: 13px; margin: 2px 0; color: #374151; cursor: pointer }
+.pc-unit { margin: 4px 0 4px 6px } .pc-unit-t { font-size: 12px; font-weight: 600; cursor: pointer; margin: 2px 0 }
+.pc-sample { display: flex; gap: 8px; align-items: baseline; width: 100%; text-align: left; font: inherit; padding: 3px 8px; margin: 2px 0 2px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; box-sizing: border-box; max-width: calc(100% - 10px) }
+.pc-sample.on { border-color: #1f2937; background: #f3f4f6 } .pc-sample-z { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); min-width: 34px } .pc-sample-a { font-size: 12px }
 .pc-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 0 0 14px }
 .pc-card h2 { font-size: 20px; margin: 0 0 4px; letter-spacing: .01em } .pc-card h3 { font-size: 15px; margin: 0 0 8px } .pc-card h3 small { font-weight: 400; color: var(--muted); margin-left: 8px; font-size: 12px }
 .pc-kicker { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 }
