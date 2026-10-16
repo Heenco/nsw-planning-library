@@ -5,6 +5,7 @@
  *     npx tsx scripts/build-lot-instrument.ts --lga BLACKTOWN --lga HORNSBY     # named councils only
  *     npx tsx scripts/build-lot-instrument.ts --all                             # the state, council by council
  *     npx tsx scripts/build-lot-instrument.ts --all --swap                      # then replace derived.lot_instrument
+ *     npx tsx scripts/build-lot-instrument.ts --lga CAMDEN --apply              # rebuild named councils and replace their rows in place
  *
  * One row per (lot, instrument) found at the lot's point on surface in epi.epi_land_zoning, plus the
  * governing flag:
@@ -14,7 +15,8 @@
  *   - cover_pct is measured only when more than one instrument is at the point (the expensive step);
  *     a sliver is anything under COVER_MIN and is never governing;
  *   - the unit comes from nsw.instrument_unit_map: the land application polygon of the same instrument
- *     at the point (label, else layer class, else map name), else the zoning polygon's map name; an LEP
+ *     at the point (label, else layer class, else map name), else the precinct boundary polygon at the
+ *     point (for a plan bound by its precinct's name, not a map), else the zoning polygon's map name; an LEP
  *     is its own single unit (unit_local_id NULL, basis 'root'); a SEPP key with no mapped unit resolves
  *     to NULL with basis 'unmapped' - every reader treats that as "unit not held".
  * The work is done council by council (derived.lot_lga) into derived.lot_instrument_build, and swapped
@@ -27,6 +29,7 @@ const argv = process.argv.slice(2)
 const LGAS = argv.flatMap((a, i) => (a === '--lga' ? [argv[i + 1]!.toUpperCase()] : []))
 const ALL = argv.includes('--all')
 const SWAP = argv.includes('--swap')
+const APPLY = argv.includes('--apply')
 const COVER_MIN = 50
 if (!ALL && !LGAS.length) { console.error('usage: --lga NAME [--lga NAME ...] | --all [--swap]'); process.exit(1) }
 
@@ -43,7 +46,7 @@ const DDL = `
     zone           text,
     unit_local_id  text,                         -- NULL with basis 'root' = the whole instrument; with 'unmapped'/'none' = not held
     unit_heading   text,
-    unit_basis     text NOT NULL,                -- root (an LEP, in the graph or not) | land_application | land_zoning | unmapped (a SEPP key with no unit) | none (a SEPP not in the graph)
+    unit_basis     text NOT NULL,                -- root (an LEP, in the graph or not) | land_application | precinct_boundary | land_zoning | unmapped (a SEPP key with no unit) | none (a SEPP not in the graph)
     cover_pct      numeric(5, 1),                -- NULL = single instrument at the point (not measured)
     governing      boolean NOT NULL,
     lga_name       text,
@@ -73,20 +76,29 @@ const BUILD = `
       FROM hit h JOIN epi.epi_land_application a ON a.epi_name = h.epi_name AND a.geom && h.pt AND ST_Intersects(a.geom, h.pt)
      ORDER BY h.cadid, h.epi_name, ST_Area(a.geom)
   ),
+  pb AS (                       -- the same instrument's precinct boundary polygon at the point (the smallest, if nested)
+    SELECT DISTINCT ON (h.cadid, h.epi_name) h.cadid, h.epi_name, b.map_name, b.lay_class, b.label
+      FROM hit h JOIN epi.epi_precinct_boundaries b ON b.epi_name = h.epi_name AND b.geom && h.pt AND ST_Intersects(b.geom, h.pt)
+     ORDER BY h.cadid, h.epi_name, ST_Area(b.geom)
+  ),
   unit AS (
     SELECT h.cadid, h.epi_name,
-           COALESCE(ma.unit_local_id, mz.unit_local_id) AS unit_local_id,
-           COALESCE(ma.unit_heading, mz.unit_heading) AS unit_heading,
+           COALESCE(ma.unit_local_id, mb.unit_local_id, mz.unit_local_id) AS unit_local_id,
+           COALESCE(ma.unit_heading, mb.unit_heading, mz.unit_heading) AS unit_heading,
            CASE WHEN d.doc_type = 'lep' OR (d.id IS NULL AND h.epi_name ~* 'Local Environmental Plan') THEN 'root'   -- an LEP is one unit, in the graph or not
                 WHEN ma.unit_local_id IS NOT NULL THEN 'land_application'
+                WHEN mb.unit_local_id IS NOT NULL THEN 'precinct_boundary'
                 WHEN mz.unit_local_id IS NOT NULL THEN 'land_zoning'
-                WHEN ma.document_id IS NOT NULL OR mz.document_id IS NOT NULL THEN 'unmapped'
+                WHEN ma.document_id IS NOT NULL OR mb.document_id IS NOT NULL OR mz.document_id IS NOT NULL THEN 'unmapped'
                 ELSE 'none' END AS unit_basis
       FROM hit h
       LEFT JOIN doc d ON d.title = h.epi_name
       LEFT JOIN app a ON a.cadid = h.cadid AND a.epi_name = h.epi_name
+      LEFT JOIN pb b ON b.cadid = h.cadid AND b.epi_name = h.epi_name
       LEFT JOIN nsw.instrument_unit_map ma ON ma.document_id = d.id AND ma.layer = 'epi.epi_land_application' AND ma.status <> 'rejected'
              AND ma.map_name IS NOT DISTINCT FROM a.map_name AND ma.lay_class IS NOT DISTINCT FROM a.lay_class AND ma.label IS NOT DISTINCT FROM a.label
+      LEFT JOIN nsw.instrument_unit_map mb ON mb.document_id = d.id AND mb.layer = 'epi.epi_precinct_boundaries' AND mb.status <> 'rejected'
+             AND mb.map_name IS NOT DISTINCT FROM b.map_name AND mb.lay_class IS NOT DISTINCT FROM b.lay_class AND mb.label IS NOT DISTINCT FROM b.label
       LEFT JOIN nsw.instrument_unit_map mz ON mz.document_id = d.id AND mz.layer = 'epi.epi_land_zoning' AND mz.status <> 'rejected'
              AND mz.map_name IS NOT DISTINCT FROM h.zmap
   ),
@@ -138,11 +150,25 @@ async function main() {
     SELECT count(DISTINCT cadid) AS lots, count(*) FILTER (WHERE governing) AS governing,
            count(DISTINCT cadid) FILTER (WHERE cover_pct IS NOT NULL) AS multi,
            count(*) FILTER (WHERE governing AND unit_basis = 'root') AS root,
-           count(*) FILTER (WHERE governing AND unit_basis IN ('land_application', 'land_zoning')) AS unit_found,
+           count(*) FILTER (WHERE governing AND unit_basis IN ('land_application', 'precinct_boundary', 'land_zoning')) AS unit_found,
            count(*) FILTER (WHERE governing AND unit_basis = 'unmapped') AS unit_unmapped,
            count(*) FILTER (WHERE governing AND unit_basis = 'none') AS not_in_graph
       FROM derived.lot_instrument_build`)).rows[0]
   console.log('build table:', s)
+  if (APPLY && !ALL) {
+    // the named councils' rows replaced in the live table from the build table, one transaction per council (one client:
+    // a pool would hand BEGIN and COMMIT to different connections)
+    const client = await pool.connect()
+    try {
+      for (const lga of lgas) {
+        await client.query('BEGIN')
+        await client.query(`DELETE FROM derived.lot_instrument WHERE upper(lga_name) = $1`, [lga])
+        const r = await client.query(`INSERT INTO derived.lot_instrument SELECT * FROM derived.lot_instrument_build WHERE upper(lga_name) = $1`, [lga])
+        await client.query('COMMIT')
+        console.log(`  applied ${lga}: ${r.rowCount} rows into derived.lot_instrument`)
+      }
+    } catch (e) { await client.query('ROLLBACK').catch(() => {}); throw e } finally { client.release() }
+  }
   if (SWAP) {
     await q(`BEGIN; DROP TABLE IF EXISTS derived.lot_instrument_prev; ALTER TABLE IF EXISTS derived.lot_instrument RENAME TO lot_instrument_prev;
              ALTER TABLE derived.lot_instrument_build RENAME TO lot_instrument;

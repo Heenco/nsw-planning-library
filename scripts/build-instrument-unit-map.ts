@@ -18,7 +18,12 @@
  *   1. the key's name equal to a unit heading (normalised),
  *   2. the key's name tokens a subset of exactly one unit heading's tokens,
  *   3. the key's name a phrase inside exactly one unit's "land to which this ... applies" clause,
- *   4. 2 again with the map name's tokens added (disambiguates "Town centre" on the Wilton map).
+ *   4. 2 again with the map name's tokens added (disambiguates "Town centre" on the Wilton map);
+ *   5. a Precinct Boundary Map label, only for a unit whose "land to which this plan applies" clause
+ *      names the precinct and no Land Application Map ("This Precinct Plan applies to land within the
+ *      Oran Park and Turner Road Precincts"): such a plan binds its land by the precinct's name, so the
+ *      Precinct Boundary Map is the map it means. A plan that names a Land Application Map is never
+ *      bound by a precinct boundary (its own note says the two maps differ).
  * A key that matches nothing, or more than one unit, gets no unit: the lot resolves to "unit not
  * held" (fail closed) until the instrument profile (step 3) confirms a row by hand. Every row is
  * written with status 'proposed' and the rule that produced it, so the review is a table, not code.
@@ -82,6 +87,25 @@ function minusPhrase(ts: string[], phrase: string[]): string[] {
 }
 
 function match(units: Unit[], k: Key, docPhrase: string[]): { unit: Unit | null; rule: string; name: string | null } {
+  if (k.layer === 'epi.epi_precinct_boundaries') {
+    // rule 5 only: the precinct's whole name among the precincts the applies clause names ("land within the Oran Park and
+    // Turner Road Precincts", "applies to the Leppington Town Centre"), for a unit that names no Land Application Map.
+    // "Riverstone" is not "Riverstone West": names are compared whole, never as a phrase inside another name.
+    const name = (k.label ?? '').trim(); const ns = norm(name)
+    if (!ns) return { unit: null, rule: 'no name', name: null }
+    const named = (u: Unit) => {
+      const t = (u.applies || '').replace(/\s+/g, ' ')
+      const out: string[] = []
+      for (const m of t.matchAll(/(?:within|in|to) (?:land (?:within|in) )?(?:the )?([^.;:]+?) precincts?\b/gi)) out.push(...m[1]!.split(/,\s*|\s+and\s+/))
+      for (const m of t.matchAll(/applies to (?:land (?:within|in) )?(?:the )?([^.;:,]+?)(?:[.,;]|$)/gi)) out.push(m[1]!)
+      return new Set(out.map(x => norm(x)).filter(Boolean))
+    }
+    const anyPlan = units.filter(u => u.applies && named(u).has(ns))
+    const byName = anyPlan.filter(u => !/land application map/i.test(u.applies))
+    if (byName.length === 1) return { unit: byName[0]!, rule: '5 precinct named in applies clause, no Land Application Map (label)', name }
+    if (byName.length > 1) return { unit: null, rule: `ambiguous (label: ${byName.map(u => u.local_id).join(', ')})`, name }
+    return { unit: null, rule: anyPlan.length ? 'named only by a plan bound by its Land Application Map' : 'no match', name }
+  }
   const one = (c: Unit[]) => c.length === 1 ? c[0]! : (c.filter(u => u.local_id.startsWith('ch.')).length === 1 && c.length > 1 ? c.find(u => u.local_id.startsWith('ch.'))! : null)
   const tag = (c: Unit[], rule: string) => c.length > 1 ? `${rule}, chapter preferred over ${c.filter(u => !u.local_id.startsWith('ch.')).map(u => u.local_id).join(', ')}` : rule
   /*
@@ -122,7 +146,7 @@ async function main() {
   if (!DRY) await q(`
     CREATE TABLE IF NOT EXISTS nsw.instrument_unit_map (
       document_id   uuid NOT NULL REFERENCES nsw.document(id) ON DELETE CASCADE,
-      layer         text NOT NULL,              -- epi.epi_land_application | epi.epi_land_zoning
+      layer         text NOT NULL,              -- epi.epi_land_application | epi.epi_land_zoning | epi.epi_precinct_boundaries
       map_name      text,
       lay_class     text,
       label         text,
@@ -157,6 +181,8 @@ async function main() {
       SELECT 'epi.epi_land_application' AS layer, map_name, lay_class, label, count(*)::int AS n FROM epi.epi_land_application WHERE epi_name = $1 GROUP BY 1, 2, 3, 4
       UNION ALL
       SELECT 'epi.epi_land_zoning', map_name, NULL, NULL, count(*)::int FROM epi.epi_land_zoning WHERE epi_name = $1 GROUP BY 1, 2, 3, 4
+      UNION ALL
+      SELECT 'epi.epi_precinct_boundaries', map_name, lay_class, label, count(*)::int FROM epi.epi_precinct_boundaries WHERE epi_name = $1 GROUP BY 1, 2, 3, 4
       ORDER BY 1, 2, 3, 4`, [d.title])).rows
     const rows = keys.map(k => {
       // an LEP is one unit: every key resolves to its root
@@ -172,13 +198,17 @@ async function main() {
     if (!DRY) {
       await q(`DELETE FROM nsw.instrument_unit_map WHERE document_id = $1 AND status = 'proposed'`, [d.id])
       for (const { k, m } of rows) {
+        // a key with a NULL part never conflicts under the UNIQUE constraint (NULLs are distinct), so a rerun would add a
+        // second row beside a confirmed one: an existing row is found NULL-safely and only a proposed one is rewritten
+        const have = (await q(`SELECT status FROM nsw.instrument_unit_map WHERE document_id = $1 AND layer = $2
+                               AND map_name IS NOT DISTINCT FROM $3 AND lay_class IS NOT DISTINCT FROM $4 AND label IS NOT DISTINCT FROM $5`, [d.id, k.layer, k.map_name, k.lay_class, k.label])).rows[0]
+        if (have && have.status !== 'proposed') {
+          await q(`UPDATE nsw.instrument_unit_map SET matched_name = $6, polygons = $7, computed_at = now() WHERE document_id = $1 AND layer = $2
+                   AND map_name IS NOT DISTINCT FROM $3 AND lay_class IS NOT DISTINCT FROM $4 AND label IS NOT DISTINCT FROM $5`, [d.id, k.layer, k.map_name, k.lay_class, k.label, m.name, k.n])
+          continue
+        }
         await q(`INSERT INTO nsw.instrument_unit_map (document_id, layer, map_name, lay_class, label, unit_local_id, unit_heading, rule, matched_name, polygons)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                 ON CONFLICT (document_id, layer, map_name, lay_class, label) DO UPDATE SET
-                   unit_local_id = CASE WHEN nsw.instrument_unit_map.status = 'proposed' THEN EXCLUDED.unit_local_id ELSE nsw.instrument_unit_map.unit_local_id END,
-                   unit_heading = CASE WHEN nsw.instrument_unit_map.status = 'proposed' THEN EXCLUDED.unit_heading ELSE nsw.instrument_unit_map.unit_heading END,
-                   rule = CASE WHEN nsw.instrument_unit_map.status = 'proposed' THEN EXCLUDED.rule ELSE nsw.instrument_unit_map.rule END,
-                   matched_name = EXCLUDED.matched_name, polygons = EXCLUDED.polygons, computed_at = now()`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [d.id, k.layer, k.map_name, k.lay_class, k.label, m.unit ? (m.unit.local_id || null) : null, m.unit?.heading ?? null, m.rule, m.name, k.n])
       }
     }

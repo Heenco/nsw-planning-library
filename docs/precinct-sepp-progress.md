@@ -397,4 +397,21 @@ line and section 9 answers; what stays held is listed with why.
   Olympic Park site", a defined term 02d-bindings has no polygon for, so every table claim under it tests unknown.
   Next engine item: bind a frame term that is the unit's own site name to the unit itself (the lot is under the unit
   by that very map). /precinct does not use the engine, so the page is unaffected.
+- 2026-10-16: the 18,431 "unit not held" lots. All had basis 'unmapped': zoned by the growth-centre-wide zoning map
+  and inside the growth centre's land application, but under no appendix land-application polygon. Read from the
+  instruments: several precinct plans bind their land by the precinct's NAME with no Land Application Map at all -
+  "This Precinct Plan applies to land within the Oran Park and Turner Road Precincts" (WPC app.2), "... the North
+  Kellyville Precinct" (CRC app.5), "... the Riverstone West Precinct" (CRC app.6), Leppington Town Centre (WPC
+  app.3), Appin (Part), Gilead (Part) - so the Precinct Boundary Map is the map they mean. Rule 5 in
+  build-instrument-unit-map.ts: a Precinct Boundary label names a unit only when the unit's applies clause lists that
+  precinct's whole name (never a phrase inside another name: "Riverstone" is not "Riverstone West") and names no Land
+  Application Map; a plan bound by a Land Application Map is never bound by a boundary (its own note says the two
+  maps differ). build-lot-instrument.ts: basis 'precinct_boundary' between land_application and land_zoning, and
+  --apply to replace named councils' rows in place. Camden, The Hills and Blacktown rebuilt: Oran Park 7,142, Turner
+  Road 5,236, North Kellyville 5,136 and Riverstone West 7 lots now have their unit (17,521). What stays null is
+  right: Marsden Park North (883, unreleased - no precinct plan exists), and 27 edge lots. Also fixed: the proposer's
+  upsert was not NULL-safe (a NULL label never conflicts), so a rerun had added 23 duplicate proposed rows beside
+  confirmed ones; removed, and the proposer now finds existing rows with IS NOT DISTINCT FROM. The four new rule-5
+  rows are status 'proposed' (the builder uses anything not rejected) - Manni to confirm or reject in
+  nsw.instrument_unit_map.
 

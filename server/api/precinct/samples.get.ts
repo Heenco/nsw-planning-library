@@ -2,7 +2,7 @@
  * GET /api/precinct/samples - sample lots for the /precinct bench: for every instrument the precinct schema holds a
  * Land Use Table for, every governing unit and every zone the state-wide build found lots in (derived.lot_instrument),
  * one addressed lot - so every (unit, zone) table can be opened and a missing one shows as a lot with no table.
- * Measured from the data, not typed; cached for the process.
+ * Measured from the data, not typed; cached for the process (a unit bound by its precinct boundary counts like any other).
  */
 import { nswQuery } from '../../utils/nsw-kg/pool'
 
