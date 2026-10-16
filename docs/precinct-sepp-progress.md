@@ -414,4 +414,7 @@ line and section 9 answers; what stays held is listed with why.
   confirmed ones; removed, and the proposer now finds existing rows with IS NOT DISTINCT FROM. The four new rule-5
   rows are status 'proposed' (the builder uses anything not rejected) - Manni to confirm or reject in
   nsw.instrument_unit_map.
+- 2026-10-16: one command for the lot. `python -I scripts/precinct/run.py` = resolve -> coverage -> claims (2 min);
+  `--lots --lga X --apply` / `--lots --all` rebuilds the lot bindings first; `--units` re-proposes the unit map first.
+  Nothing on /precinct resolves live: it reads precinct.lut_* and derived.lot_instrument.
 
