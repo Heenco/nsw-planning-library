@@ -60,6 +60,7 @@ CATCHALL_PATTERNS = [
     (r'any\s+(?:other\s+)?development\s+not\s+(?:otherwise\s+)?(?:specified|listed)(?:\s+in)?\s+(?P<kind>item|subsection|subclause)\s*\(?(?P<b>\d)\)?(?!\d)', None),
     (r'any\s+development\s+not\s+specified\s+in\s+permitted\s+categories', '3'),
     (r'^any\s+other\s+development\.?$', '3'),
+    (r'^any\s+other\s+development\b.*\bis\s+prohibited', '3'),
     (r'development\s+for\s+any\s+purpose\s+may\s+be\s+carried\s+out\s+(?:only\s+)?with\s+(?:development\s+)?consent', '4'),
     (r'^(?:except\s+as\s+otherwise\s+provided\s+by\s+[^,]+,\s*)?development\s+is\s+permitted\s+(?:only\s+)?with\s+(?:development\s+)?consent\s+on\s+land', '4'),
     (r'development\s+is\s+prohibited\b.*\bunless\b.*?(?P<kind>subsection|subclause|item)s?\s*\(?(?P<b>\d)\)?', None),
@@ -76,7 +77,9 @@ OBJECTIVES = """with recursive d as (select id, coalesce(own_text,'') t, sort fr
 
 def norm(s): return ' '.join(str(s or '').split()).lower()
 def canon(s): return norm(s).replace("'", '’')   # the universe spells rural workers’ with a curly quote
-def split_list(text): return [x.strip(' .,') for x in re.split(r';', text) if x.strip(' .,')]
+def split_list(text):
+    parts = re.split(r';', text) if ';' in text else re.split(r',\s*(?![^(]*\))', text)   # commas outside brackets when there is no ";"
+    return [x.strip(' .,') for x in parts if x.strip(' .,')]
 def dash(s): return re.sub(r'\s*[-\u2013\u2014]\s*', ' - ', norm(s))   # a zone's name with any dash written " - ", as the map writes it
 
 c = psycopg2.connect(DB); cur = c.cursor()
@@ -178,6 +181,16 @@ for doc_id, title, epicode in INSTS:
     for k, v in cur.fetchall(): NAMED[dash(k)].add(v)
     CODE_NAME = {v: k for k, vs in NAMED.items() for v in vs}
     cur.execute("select local_id, heading from nsw.section where document_id = %s and depth = 1", (doc_id,)); UNIT_HEAD = dict(cur.fetchall())
+    UNIT_CACHE = {}
+    def unit_of(local_id):
+        head = local_id.split('-')[0]
+        if head in UNIT_HEAD: return head
+        if local_id in UNIT_CACHE: return UNIT_CACHE[local_id]
+        cur.execute("""with recursive up as (select id, parent_id, local_id, depth from nsw.section where document_id = %s and local_id = %s
+                       union all select s.id, s.parent_id, s.local_id, s.depth from nsw.section s join up on s.id = up.parent_id)
+                       select local_id from up where depth = 1 limit 1""", (doc_id, local_id.split('-')[0]))
+        r = cur.fetchone(); UNIT_CACHE[local_id] = r[0] if r else head
+        return UNIT_CACHE[local_id]
 
     def zone_of(zone_id, heading):
         """-> ([codes], name): the codes a lot in this zone carries, from the heading and the instrument's own zoning map"""
@@ -229,22 +242,30 @@ for doc_id, title, epicode in INSTS:
             if ihead and ihead.startswith('objectives'):
                 cur.execute(OBJECTIVES, (iid,)); objectives += [' '.join(t.split()) for (t,) in cur.fetchall()]
             elif ITEM_HEAD.get(ihead or ''): items.append((ITEM_HEAD[ihead], split_list(itext), {}))
-        for i, zone_code in enumerate(zone_codes): emit(glocal if i == 0 else f"{glocal}~{zone_code}", zone_code, zone_name, glocal.split('-')[0], objectives, items)
+        for i, zone_code in enumerate(zone_codes): emit(glocal if i == 0 else f"{glocal}~{zone_code}", zone_code, zone_name, unit_of(glocal), objectives, items)
 
     # ── form 2: the clause form (a clause headed by the zone, subclauses that say what is permitted) ──────────
     cur.execute("""select p.id, p.local_id, p.heading from rag.provision p where p.document_id = %s and p.kind = 'clause' and p.heading ~* '(^zone\\s|\\szone$|\\mzone\\s*[—–-])' and p.heading !~* '^(zone objectives|zones? indicated|land use zones|how land is zoned|development near zone)'
-                   and exists (select 1 from rag.provision k where k.parent_id = p.id and k.kind = 'subclause' and coalesce(k.own_text,'') ~* '(permitted|prohibited|may be carried out)') order by p.sort""", (doc_id,))
+                   and (exists (select 1 from rag.provision k where k.parent_id = p.id and k.kind = 'subclause' and coalesce(k.own_text,'') ~* '(permitted|allowed|prohibited|may be carried out)')
+                        or exists (select 1 from rag.provision k join rag.provision s on s.id = k.parent_id where s.parent_id = p.id and s.kind = 'subclause' and k.kind = 'paragraph' and coalesce(k.own_text,'') ~* '(permitted|allowed|prohibited|may be carried out)'))
+                   order by p.sort""", (doc_id,))
     for cid, clocal, cheading in cur.fetchall():
         zone_codes, zone_name = zone_of(clocal, cheading)
         if not zone_codes: continue
         cur.execute("select id, local_id, coalesce(own_text,'') from rag.provision where parent_id = %s and kind = 'subclause' order by sort", (cid,))
         subs = cur.fetchall()
         def item_of(t):
-            if re.search(r'permitted without (?:development )?consent', t): return '2'
-            if re.search(r'permitted (?:only )?with (?:development )?consent|may be carried out (?:only )?with (?:development )?consent', t): return '3'
+            if re.search(r'(?:permitted|allowed) without (?:development )?consent', t): return '2'
+            if re.search(r'(?:permitted|allowed) (?:only )?with (?:development )?(?:the )?consent|may be carried out (?:only )?with (?:development )?consent', t): return '3'
             if 'prohibited' in t: return '4'
             return None
-        ref_item = {slocal.rsplit('ssec.', 1)[-1]: item_of(norm(lead)) for _, slocal, lead in subs if item_of(norm(lead))}
+        if not any(item_of(norm(lead)) for _, _, lead in subs):
+            # the items sit one level down, as paragraphs of a subclause that only names the zone ("In the Urban zone—")
+            cur.execute("""select k.id, k.local_id, coalesce(k.own_text,'') from rag.provision k join rag.provision s on s.id = k.parent_id
+                           where s.parent_id = %s and s.kind = 'subclause' and k.kind = 'paragraph' order by s.sort, k.sort""", (cid,))
+            deeper = cur.fetchall()
+            if any(item_of(norm(t)) for _, _, t in deeper): subs = [x for x in subs if norm(x[2]).startswith('the objectives')] + deeper
+        ref_item = {slocal.rsplit('ssec.', 1)[-1].rsplit('.', 1)[-1]: item_of(norm(lead)) for _, slocal, lead in subs if item_of(norm(lead))}
         objectives, items = [], []
         for sid, slocal, lead in subs:
             t = norm(lead)
@@ -267,7 +288,7 @@ for doc_id, title, epicode in INSTS:
             items.append((item, listed, ref_item))
         if len({it for it, _, _ in items}) < 2 and not any(classify(l, ref_item, it)[0] == 'catchall' for it, ls, _ in items for l in ls):
             problems.append((epicode, clocal, 'not_a_table', cheading)); continue
-        for i, zone_code in enumerate(zone_codes): emit(clocal if i == 0 else f"{clocal}~{zone_code}", zone_code, zone_name, clocal.split('-')[0], objectives, items)
+        for i, zone_code in enumerate(zone_codes): emit(clocal if i == 0 else f"{clocal}~{zone_code}", zone_code, zone_name, unit_of(clocal), objectives, items)
     print(f"  {epicode} {title[:60]}: {stats[epicode]} tables")
 
 by_basis = defaultdict(int)

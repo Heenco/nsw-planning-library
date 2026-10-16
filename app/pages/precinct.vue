@@ -77,6 +77,7 @@
           <p v-else-if="lutError" class="pc-note">{{ lutError }}</p>
           <template v-else-if="lut">
             <p class="pc-small pc-muted"><b>Zone {{ lut.zone.code }}</b> {{ lut.zone.name }} · {{ gov.unit }} {{ gov.unitHeading }} · {{ shortTitle(lut.name) }} · resolved run {{ lut.resolved.runId }}</p>
+            <p v-if="lutNote" class="pc-note">{{ lutNote }}</p>
             <ZonePermissibility :detail="lut" />
           </template>
           <p v-else class="pc-muted">Resolving the Land Use Table…</p>
@@ -93,7 +94,7 @@ import type { PrecinctSample } from '../../server/api/precinct/samples.get'
 import type { StandardsResponse } from '../../server/api/report/standards.get'
 import type { ZoneDetail } from '../../shared/lep-permissibility'
 
-const q = ref(''), results = ref<any[]>([]), cadid = ref(''), address = ref(''), stdError = ref(''), lutError = ref('')
+const q = ref(''), results = ref<any[]>([]), cadid = ref(''), address = ref(''), stdError = ref(''), lutError = ref(''), lutNote = ref('')
 const std = ref<StandardsResponse | null>(null), lut = ref<ZoneDetail | null>(null)
 const samples = ref<PrecinctSample[]>([])
 /** instrument -> unit -> its zone samples, zones in code order */
@@ -119,7 +120,7 @@ watch(q, (v) => { clearTimeout(timer); if (!v.trim()) { results.value = []; retu
   timer = setTimeout(async () => { try { results.value = ((await $fetch<any>('/api/lotprofile', { query: { q: v } })).results || []).slice(0, 8) } catch { results.value = [] } }, 250) })
 function pick(r: any) { if (r?.cadid) { q.value = r.address || ''; results.value = []; load(String(r.cadid), r.address || '') } }
 async function load(id: string, addr = '') {
-  cadid.value = id; address.value = addr || samples.value.find(s => s.cadid === id)?.address || ''; stdError.value = ''; lutError.value = ''; std.value = null; lut.value = null
+  cadid.value = id; address.value = addr || samples.value.find(s => s.cadid === id)?.address || ''; stdError.value = ''; lutError.value = ''; lutNote.value = ''; std.value = null; lut.value = null
   const still = () => cadid.value === id
   const s: any = await $fetch('/api/report/standards', { query: { cadid: id, precinct: 1 } }).catch((e: any) => ({ error: e?.data?.message || e?.message || 'failed' }))
   if (!still()) return
@@ -127,10 +128,17 @@ async function load(id: string, addr = '') {
   std.value = s
   const g = s.governing
   if (g?.instrument && g?.unit && g?.zone) {
-    const r: any = await $fetch('/api/lep-permissibility', { query: { name: g.instrument, code: g.zone, unit: g.unit } }).catch((e: any) => ({ ok: false, message: e?.data?.message || e?.message || 'failed' }))
-    if (!still()) return
-    if (r?.ok && r?.zone) lut.value = r as ZoneDetail
-    else lutError.value = r?.message || `No Land Use Table for zone ${g.zone} in ${g.unit} of ${g.instrument}.`
+    // the lot's zone first, then any other zoning code of the governing plan drawn over the lot (a chapter whose zoning
+    // layer draws an overlay - St Marys' "Complex Area" - beside the zone): the first table that answers
+    const codes = [...new Set([g.zone, ...(s.zone ?? []).filter((p: any) => p.governing !== false && p.value).map((p: any) => String(p.value).split(' ')[0])])]
+    let last: any = null
+    for (const code of codes) {
+      const r: any = await $fetch('/api/lep-permissibility', { query: { name: g.instrument, code, unit: g.unit } }).catch((e: any) => ({ ok: false, message: e?.data?.message || e?.message || 'failed' }))
+      if (!still()) return
+      if (r?.ok && r?.zone) { lut.value = r as ZoneDetail; lutNote.value = code === g.zone ? '' : `The lot's zoning code is ${g.zone}, which is not a zone this unit has a table for; the unit's ${code} table is shown because the plan's zoning map also draws ${code} over the lot.`; break }
+      last = r
+    }
+    if (!lut.value) lutError.value = last?.message || `No Land Use Table for zone ${g.zone} in ${g.unit} of ${g.instrument}.`
   }
 }
 onMounted(async () => { try { samples.value = (await $fetch<{ samples: PrecinctSample[] }>('/api/precinct/samples')).samples } catch { samples.value = [] }

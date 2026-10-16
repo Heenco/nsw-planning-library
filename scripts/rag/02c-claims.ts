@@ -312,10 +312,12 @@ async function main() {
     // a resolved row's item: the headed item of a Standard Instrument table, or the subclause of a clause-form table ("Development
     // for any of the following purposes is permitted without consent ..."); a table keyed by a second map code ("...~MU1") is
     // the same provision
-    const ITEM_TEXT: Record<string, RegExp> = { permitted_without_consent: /permitted without (?:development )?consent/i, permitted_with_consent: /permitted (?:only )?with (?:development )?consent|may be carried out (?:only )?with (?:development )?consent/i, prohibited: /\bprohibited\b/i }
+    const ITEM_TEXT: Record<string, RegExp> = { permitted_without_consent: /(?:permitted|allowed) without (?:development )?consent/i, permitted_with_consent: /(?:permitted|allowed) (?:only )?with (?:development )?(?:the )?consent|may be carried out (?:only )?with (?:development )?consent/i, prohibited: /\bprohibited\b/i }
     for (const r of rows) {
       const grp = local(inst.document_id, String(r.zone_id).split('~')[0]!)
-      const item = grp ? (kids.get(grp.id) ?? []).find(k => ITEM[r.status]?.test(norm(k.heading)) || (!k.heading && ITEM_TEXT[r.status]?.test(norm(k.own_text)))) : null
+      // the item: a headed child, a subclause that says it, or (the SREP form) a paragraph under a subclause that only names the zone
+      const under = grp ? [...(kids.get(grp.id) ?? []), ...(kids.get(grp.id) ?? []).flatMap(k => kids.get(k.id) ?? [])] : []
+      const item = under.find(k => ITEM[r.status]?.test(norm(k.heading))) ?? under.find(k => !k.heading && ITEM_TEXT[r.status]?.test(norm(k.own_text))) ?? null
       if (!item) continue
       const use = landUseKey(r.land_use), lit = listedAs(r.zone_id, use)
       // the table's own words win over a resolved row that says otherwise

@@ -12,7 +12,7 @@ manor homes,16,True,epi-2021-0725; epi-2021-0728,epi-2021-0725:app.10; epi-2021-
 timber and building supplies,16,True,epi-2021-0725; epi-2021-0727; epi-2021-0728,epi-2021-0725:app.3; epi-2021-0725:app.5; epi-2021-0725:app.6; epi-2021-0725:app.7; epi-2021-0725:app.9; epi-2021-0727:app.5; epi-2021-0728:app.2; epi-2021-0728:app.4; epi-2021-0728:app.5
 mines,13,True,epi-2021-0726; epi-2021-0727; epi-2021-0728,epi-2021-0726:app.5; epi-2021-0727:ch.6; epi-2021-0728:app.2
 materials recycling or recovery centres,12,True,epi-2021-0725; epi-2021-0726; epi-2021-0727; epi-2021-0728,epi-2021-0725:app.3; epi-2021-0726:app.5; epi-2021-0727:app.2; epi-2021-0728:app.2
-restaurants,11,True,epi-2021-0725; epi-2021-0728,epi-2021-0725:app.10; epi-2021-0725:app.11; epi-2021-0725:app.3; epi-2021-0725:app.9; epi-2021-0728:app.1; epi-2021-0728:app.4; epi-2021-0728:app.5; epi-2021-0728:app.6
+restaurants,12,True,epi-2021-0725; epi-2021-0728,epi-2021-0725:app.10; epi-2021-0725:app.11; epi-2021-0725:app.3; epi-2021-0725:app.9; epi-2021-0728:app.1; epi-2021-0728:app.4; epi-2021-0728:app.5; epi-2021-0728:app.6; epi-2021-0728:ch.6
 filming,10,True,epi-2021-0725; epi-2021-0726; epi-2021-0727,epi-2021-0725:app.4; epi-2021-0726:app.5; epi-2021-0727:app.3
 waste disposal land fill operations,10,True,epi-2021-0728,epi-2021-0728:app.2
 telecommunications facilities,7,False,epi-2021-0725; epi-2021-0726; epi-2021-0728,epi-2021-0725:app.1; epi-2021-0726:app.5; epi-2021-0728:app.2
@@ -23,12 +23,19 @@ semi detached dwellings,6,False,epi-2021-0728,epi-2021-0728:app.2
 canal estate developments,5,True,epi-2021-0725,epi-2021-0725:app.5
 swimming pools,5,False,epi-2021-0725; epi-2021-0728,epi-2021-0725:app.13; epi-2021-0725:app.5; epi-2021-0725:app.8; epi-2021-0728:app.1
 waterbodies,5,False,epi-2021-0727; epi-2021-0728,epi-2021-0727:app.5; epi-2021-0728:app.2
+including any development that is ordinarily incidental or ancillary to development for that purpose,5,False,epi-2021-0728,epi-2021-0728:app.3; epi-2021-0728:app.4; epi-2021-0728:app.5; epi-2021-0728:app.7; epi-2021-0728:app.8
 warehouses or distribution centres,4,False,epi-2021-0725; epi-2021-0726; epi-2021-0727,epi-2021-0725:app.3; epi-2021-0726:app.3; epi-2021-0727:app.2
 sewage treatment works,4,False,epi-2021-0728,epi-2021-0728:app.2
 crematoria: depots,4,False,epi-2021-0728,epi-2021-0728:app.7; epi-2021-0728:app.8; epi-2021-0728:app.9; epi-2021-0728:sch.11
+drains,4,True,epi-2021-0728,epi-2021-0728:ch.6
 sex service premises,4,False,epi-2021-0728,epi-2021-0728:app.1
 stormwater management systems,3,True,epi-2021-0727,epi-2021-0727:app.5
 waterway or foreshore management activities,3,True,epi-2021-0727,epi-2021-0727:app.5
+utility installations,3,True,epi-2021-0728,epi-2021-0728:app.2; epi-2021-0728:ch.6
+advertisements,3,True,epi-2021-0728,epi-2021-0728:ch.6
+and,3,False,epi-2021-0728,epi-2021-0728:ch.6
+parks,3,False,epi-2021-0728,epi-2021-0728:ch.6
+regeneration activities,3,False,epi-2021-0728,epi-2021-0728:ch.6
 vehicle body repair shops,3,False,epi-2021-0728,epi-2021-0728:app.1
 animal or boarding training establishments,2,False,epi-2021-0726,epi-2021-0726:app.8
 earth works,2,False,epi-2021-0726,epi-2021-0726:app.5
@@ -46,8 +53,10 @@ eco-tourism facilities,2,False,epi-2021-0727,epi-2021-0727:app.5
 function centres (other than those within recreation areas or operated in conjunction with recreation areas or recreation facilities),2,False,epi-2021-0728,epi-2021-0728:app.2
 "retail premises (other than neighbourhood shops and other than kiosks, markets, restaurants or take away food and drink premises within recreation areas or operated in conjunction with recreation areas or recreation facilities)",2,False,epi-2021-0728,epi-2021-0728:app.2
 retail premises (other than neighbourhood shops and take away food and drink premises),2,False,epi-2021-0728,epi-2021-0728:app.2
-utility installations,2,True,epi-2021-0728,epi-2021-0728:app.2
 environmental facilities: environmental protection works,2,False,epi-2021-0728,epi-2021-0728:app.7; epi-2021-0728:app.8
+recreation establishments,2,True,epi-2021-0728,epi-2021-0728:ch.6
+recreation facilities,2,False,epi-2021-0728,epi-2021-0728:ch.6
+utility installations (other than generating works),2,False,epi-2021-0728,epi-2021-0728:ch.6
 food and drink premises (other than pubs),1,False,epi-2021-0726,epi-2021-0726:app.6
 residential flat buildings (other than as a component of a mixed use development),1,False,epi-2021-0725,epi-2021-0725:app.5
 automotive and motor sport industry related uses,1,False,epi-2021-0725,epi-2021-0725:app.2
@@ -59,7 +68,8 @@ major events,1,True,epi-2021-0725,epi-2021-0725:app.4
 boat construction facilities,1,False,epi-2021-0727,epi-2021-0727:app.2
 commercial port facilities,1,False,epi-2021-0727,epi-2021-0727:app.2
 fill,1,True,epi-2021-0727,epi-2021-0727:app.2
-"infrastructure (including railways, roads, conveyors, electricity transmission and distribution lines, gas pipelines, water pipelines, stormwater systems, flood management facilities, sewerage systems and telecommunications facilities), except if it is for the purposes of a public utility undertaking and is carried out by or on behalf of a public authority",1,False,epi-2021-0727,epi-2021-0727:app.2
+"infrastructure (including railways, roads, conveyors, electricity transmission and distribution lines, gas pipelines, water pipelines, stormwater systems, flood management facilities, sewerage systems and telecommunications facilities)",1,False,epi-2021-0727,epi-2021-0727:app.2
+except if it is for the purposes of a public utility undertaking and is carried out by or on behalf of a public authority,1,False,epi-2021-0727,epi-2021-0727:app.2
 information and education facility,1,True,epi-2021-0727,epi-2021-0727:app.2
 agriculture (other than extensive agriculture),1,False,epi-2021-0727,epi-2021-0727:app.5
 sewerage reticulation facilities,1,False,epi-2021-0727,epi-2021-0727:app.5
@@ -70,4 +80,26 @@ tourist and visitor accommodation (other than hotel or motel accommodation),1,Fa
 waterbodies (natural),1,False,epi-2021-0728,epi-2021-0728:app.2
 "home businesses, hostels",1,False,epi-2021-0728,epi-2021-0728:app.3
 bush fire hazard reduction works,1,False,epi-2021-0728,epi-2021-0728:app.6
+including any development ordinarily incidental or ancillary to development for the purpose,1,False,epi-2021-0728,epi-2021-0728:app.9
+parking areas,1,True,epi-2021-0728,epi-2021-0728:ch.6
+backpackers’ hostels,1,True,epi-2021-0728,epi-2021-0728:ch.6
+bed and breakfast establishments,1,True,epi-2021-0728,epi-2021-0728:ch.6
+bush fire hazard reduction,1,True,epi-2021-0728,epi-2021-0728:ch.6
+clubs,1,True,epi-2021-0728,epi-2021-0728:ch.6
+essential community services,1,True,epi-2021-0728,epi-2021-0728:ch.6
+fast food take-away restaurants,1,True,epi-2021-0728,epi-2021-0728:ch.6
+general stores,1,True,epi-2021-0728,epi-2021-0728:ch.6
+guesthouses,1,True,epi-2021-0728,epi-2021-0728:ch.6
+home activities,1,False,epi-2021-0728,epi-2021-0728:ch.6
+hotels,1,True,epi-2021-0728,epi-2021-0728:ch.6
+housing,1,True,epi-2021-0728,epi-2021-0728:ch.6
+local retail or commercial premises,1,True,epi-2021-0728,epi-2021-0728:ch.6
+motels,1,True,epi-2021-0728,epi-2021-0728:ch.6
+nursing homes,1,True,epi-2021-0728,epi-2021-0728:ch.6
+places of assembly,1,False,epi-2021-0728,epi-2021-0728:ch.6
+places of worship,1,False,epi-2021-0728,epi-2021-0728:ch.6
+professional consulting rooms,1,True,epi-2021-0728,epi-2021-0728:ch.6
+public buildings,1,True,epi-2021-0728,epi-2021-0728:ch.6
+retail plant nurseries,1,False,epi-2021-0728,epi-2021-0728:ch.6
+land uses authorised by or under the national parks and wildlife act 1974 and any use ordinarily incidental or ancillary to any such use,1,False,epi-2021-0728,epi-2021-0728:ch.6
 charter and tourism boat facilities,1,False,epi-2021-0728,epi-2021-0728:app.1
