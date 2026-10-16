@@ -639,7 +639,7 @@
                   <tr :class="{ 'r2-uses-open': openUse === u.use }">
                     <td>{{ cap(u.use) }}<span class="r2-td-sub">needed by {{ u.neededBy.map(nb => nb.replace(/^(CDC|Pattern Book): /, '')).join(', ') }}</span></td>
                     <td><span class="r2-gate" :class="`r2-gate--${meetTone(u.meets)}`">{{ useLabel(u) }}</span></td>
-                    <td class="r2-td-sub2">{{ u.by.map(b => b.label).join('; ') || 'no clause in the graph names it' }}</td>
+                    <td class="r2-td-sub2">{{ u.by.map(b => b.label).join('; ') || 'no clause in the graph names it' }}<span v-for="x in notReaching(u)" :key="x.provision_id" class="r2-td-sub" :title="x.because.map(b => b.how || b.text).join('\n')">{{ reachNote(x) }}</span></td>
                     <td><button type="button" class="r2-trace-btn" @click="toggleUse(u.use)">{{ openUse === u.use ? 'Hide trace' : 'Trace' }}</button></td>
                   </tr>
                   <tr v-if="openUse === u.use"><td colspan="4" class="r2-trace-cell"><UseTrace /></td></tr>
@@ -1895,6 +1895,16 @@ const otherGroups = computed(() => {
   return [
     { key: 'with', title: 'Permitted with consent', tone: 'yes', items: o.filter(u => u.verdict === 'permitted' && u.consent !== 'without') },
     { key: 'without', title: 'Permitted without consent', tone: 'yes', items: o.filter(u => u.verdict === 'permitted' && u.consent === 'without') },
+/** The provisions the engine checked for the use that do not reach this lot (UseSummary.reach, any instrument): a bar
+ *  the lot escapes, or a permission it cannot use - "Housing SEPP s 166 checked: not eligible, bush fire prone land". */
+const notReaching = (u: UseSummary) => (u.reach ?? []).filter(x => x.status !== 'reaches' && x.because.length)
+const reachNote = (x: UseSummary['reach'][number]) => {
+  const why = x.because.map(b => b.text.replace(/ (?:within the meaning of|under) State Environmental Planning Policy.*$/, '')).join('; ')
+  const frame = x.frame && x.frame !== x.label ? ` (${x.frame.replace(/^.*? (?=(?:s|cl|Sch) )/, '')})` : ''
+  return x.status === 'blocked'
+    ? `${x.label} checked: ${x.kind === 'prohibit' ? 'does not bar this lot' : 'not eligible'} - ${why}${frame}`
+    : `${x.label} checked: turns on ${why}${frame} - no data held`
+}
     { key: 'maybe', title: 'Depends', tone: 'open', items: o.filter(u => u.verdict === 'maybe') },
     { key: 'none', title: 'Not answered', tone: 'open', items: o.filter(u => u.verdict !== 'permitted' && u.verdict !== 'prohibited' && u.verdict !== 'maybe') },
     { key: 'no', title: 'Prohibited', tone: 'no', items: o.filter(u => u.verdict === 'prohibited') },

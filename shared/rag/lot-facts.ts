@@ -38,8 +38,16 @@ export async function ragLotFacts(q: Query, cadid: string, tier: 'rag' | 'kg' = 
       FROM hit h
      WHERE h.own OR NOT EXISTS (SELECT 1 FROM rag.map_polygon o WHERE o.own AND o.document_id = h.document_id AND o.map = h.map AND o.label = h.label)
      ORDER BY h.document_id, h.map, h.label, h.share DESC`, [cadid]).catch(() => ({ rows: [] as any[] }))).rows.filter((m: any) => m.share > 0.01)
-  const boundTerms = (await q(`SELECT DISTINCT unnest(scope_terms) t FROM rag.claim_binding WHERE status = 'bound'`).catch(() => ({ rows: [] as any[] }))).rows
-    .map(r => String(r.t)).filter(t => !OWN.test(t))
+  // the term list is the one query that must not fail quietly: an empty list makes every registry term "not computed",
+  // every frame condition unknown, and every SEPP answer "depends" - and the shared cache would keep that build for a
+  // minute (seen 2026-10-16 on /report-2: 100 Galston Rd "Depends" while the same call alone said "prohibited, bush
+  // fire prone land"). One retry, then the build fails and is not cached.
+  const TERMS_SQL = `SELECT DISTINCT unnest(scope_terms) t FROM rag.claim_binding WHERE status = 'bound'`
+  const boundTerms = (await q(TERMS_SQL).catch(async (e: unknown) => {
+    console.warn(`[lot-facts] term list failed for ${cadid}, retrying: ${String(e).slice(0, 120)}`)
+    await new Promise(r => setTimeout(r, 500))
+    return q(TERMS_SQL)
+  })).rows.map(r => String(r.t)).filter(t => !OWN.test(t))
   const terms: Record<string, { holds: boolean | null; why: string }> = {}
   for (const t of boundTerms) terms[t] = await lotTermInterior(q as any, cadid, t, f.lga ?? null).catch(e => ({ holds: null, why: `query failed: ${String(e).slice(0, 80)}` }))
 
