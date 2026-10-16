@@ -1890,11 +1890,6 @@ const meetTone = (m: boolean | null) => (m === true ? 'yes' : m === false ? 'no'
 const useLabel = (u: UseSummary) => (u.verdict === 'permitted' ? (u.consent === 'without' ? 'Permitted without consent' : 'Permitted with consent')
   : u.verdict === 'prohibited' ? 'Prohibited' : u.verdict === 'maybe' ? 'Depends' : 'Not answered')
 
-const otherGroups = computed(() => {
-  const o = uses.value?.others ?? []
-  return [
-    { key: 'with', title: 'Permitted with consent', tone: 'yes', items: o.filter(u => u.verdict === 'permitted' && u.consent !== 'without') },
-    { key: 'without', title: 'Permitted without consent', tone: 'yes', items: o.filter(u => u.verdict === 'permitted' && u.consent === 'without') },
 /** The provisions the engine checked for the use that do not reach this lot (UseSummary.reach, any instrument): a bar
  *  the lot escapes, or a permission it cannot use - "Housing SEPP s 166 checked: not eligible, bush fire prone land". */
 const notReaching = (u: UseSummary) => (u.reach ?? []).filter(x => x.status !== 'reaches' && x.because.length)
@@ -1905,6 +1900,11 @@ const reachNote = (x: UseSummary['reach'][number]) => {
     ? `${x.label} checked: ${x.kind === 'prohibit' ? 'does not bar this lot' : 'not eligible'} - ${why}${frame}`
     : `${x.label} checked: turns on ${why}${frame} - no data held`
 }
+const otherGroups = computed(() => {
+  const o = uses.value?.others ?? []
+  return [
+    { key: 'with', title: 'Permitted with consent', tone: 'yes', items: o.filter(u => u.verdict === 'permitted' && u.consent !== 'without') },
+    { key: 'without', title: 'Permitted without consent', tone: 'yes', items: o.filter(u => u.verdict === 'permitted' && u.consent === 'without') },
     { key: 'maybe', title: 'Depends', tone: 'open', items: o.filter(u => u.verdict === 'maybe') },
     { key: 'none', title: 'Not answered', tone: 'open', items: o.filter(u => u.verdict !== 'permitted' && u.verdict !== 'prohibited' && u.verdict !== 'maybe') },
     { key: 'no', title: 'Prohibited', tone: 'no', items: o.filter(u => u.verdict === 'prohibited') },
